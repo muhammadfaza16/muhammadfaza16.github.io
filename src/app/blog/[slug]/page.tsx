@@ -4,7 +4,6 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { Metadata } from "next";
 import { ReadingProgress } from "@/components/ReadingProgress";
-import { TableOfContents } from "@/components/TableOfContents";
 import { BlogPostActions } from "@/components/BlogPostActions";
 
 interface PageProps {
@@ -45,39 +44,16 @@ export default async function BlogPostPage({ params }: PageProps) {
     // Get adjacent posts for navigation
     const { prev, next } = getAdjacentPosts(slug);
 
-    // Helper to generate IDs from text
-    const slugify = (text: string) => {
-        return text.toLowerCase().replace(/[^\w\s-]/g, '').replace(/\s+/g, '-');
-    };
-
-    // Extract TOC (now includes H3)
-    const toc: { id: string; text: string; level: number }[] = [];
-
-    // Improved markdown-to-HTML conversion with ID generation
+    // Improved markdown-to-HTML conversion
     const formatContent = (content: string) => {
         // Remove the first H1 since we display it separately
         let processed = content.replace(/^# .*$/m, '').trim();
 
-        // Extract headers for TOC (H2 and H3)
-        content.replace(/^# .*$/m, '').trim().replace(/^\s*(#{2,3}) (.*$)/gim, (match, hashes, title) => {
-            const level = hashes.length; // ## is level 2, ### is level 3
-            const cleanTitle = title.trim();
-            const id = slugify(cleanTitle);
-            toc.push({ id, text: cleanTitle, level });
-            return match;
-        });
+        // Process H2 headers
+        processed = processed.replace(/^\s*## (.*$)/gim, '<h2 class="text-2xl font-serif font-semibold mt-12 mb-4">$1</h2>');
 
-        // Process H2 headers - invisible anchor for navigation (min-height for IntersectionObserver)
-        processed = processed.replace(/^\s*## (.*$)/gim, (match, title) => {
-            const id = slugify(title.trim());
-            return `<div id="${id}" class="scroll-mt-32" style="min-height:1px;margin-bottom:-1px;"></div>`;
-        });
-
-        // Process H3 headers - invisible anchor for navigation (min-height for IntersectionObserver)
-        processed = processed.replace(/^\s*### (.*$)/gim, (match, title) => {
-            const id = slugify(title.trim());
-            return `<div id="${id}" class="scroll-mt-32" style="min-height:1px;margin-bottom:-1px;"></div>`;
-        });
+        // Process H3 headers
+        processed = processed.replace(/^\s*### (.*$)/gim, '<h3 class="text-xl font-serif font-medium mt-8 mb-3">$1</h3>');
 
         return processed
             // Bold
@@ -104,23 +80,6 @@ export default async function BlogPostPage({ params }: PageProps) {
         <article style={{ paddingTop: "4rem", paddingBottom: "6rem" }}>
             <ReadingProgress />
             <Container>
-                {/* Back Link */}
-                <div style={{ marginBottom: "2.5rem" }} className="animate-fade-in">
-                    <Link
-                        href="/blog"
-                        style={{
-                            fontSize: "0.875rem",
-                            display: "inline-flex",
-                            alignItems: "center",
-                            gap: "0.5rem",
-                            transition: "transform 0.3s ease, color 0.3s ease"
-                        }}
-                        className="text-[var(--secondary)] hover:text-[var(--foreground)] hover:-translate-x-1"
-                    >
-                        ← Back to writing
-                    </Link>
-                </div>
-
                 {/* Article Header */}
                 <header style={{ marginBottom: "3rem" }} className="animate-fade-in-up">
                     <Link
