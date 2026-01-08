@@ -10,52 +10,10 @@ interface BlogPostActionsProps {
 export function BlogPostActions({ slug, title }: BlogPostActionsProps) {
     const [isBookmarked, setIsBookmarked] = useState(false);
 
-    // Initial check and Code Block Injection
+    // Check bookmark status on mount
     useEffect(() => {
-        // Check bookmark status
         const bookmarks = JSON.parse(localStorage.getItem("readingList") || "[]");
         setIsBookmarked(bookmarks.some((b: any) => b.slug === slug));
-
-        // Inject Copy Buttons into Pre tags
-        const preTags = document.querySelectorAll("pre");
-        preTags.forEach((pre) => {
-            if (pre.querySelector(".copy-btn")) return; // Prevent double injection
-
-            const button = document.createElement("button");
-            button.className = "copy-btn absolute top-2 right-2 p-2 rounded bg-white/10 hover:bg-white/20 text-white transition-colors opacity-0 group-hover:opacity-100";
-            button.innerHTML = `
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
-                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
-                </svg>
-            `;
-            button.title = "Copy code";
-
-            // Add relative class to pre if not present
-            if (getComputedStyle(pre).position === 'static') {
-                pre.style.position = 'relative';
-            }
-            // Make group class for hover effect
-            pre.classList.add('group');
-
-            button.onclick = () => {
-                const code = pre.querySelector("code")?.innerText || pre.innerText;
-                navigator.clipboard.writeText(code);
-
-                // Feedback
-                const originalIcon = button.innerHTML;
-                button.innerHTML = `
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#4ade80" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <polyline points="20 6 9 17 4 12"></polyline>
-                    </svg>
-                `;
-                setTimeout(() => {
-                    button.innerHTML = originalIcon;
-                }, 2000);
-            };
-
-            pre.appendChild(button);
-        });
     }, [slug]);
 
     const toggleBookmark = () => {
