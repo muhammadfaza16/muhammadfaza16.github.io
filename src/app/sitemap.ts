@@ -1,6 +1,8 @@
 import { getAllPosts } from "@/lib/posts";
 import { MetadataRoute } from "next";
 
+export const dynamic = "force-static";
+
 export default function sitemap(): MetadataRoute.Sitemap {
     const baseUrl = "https://manifesto.dev"; // Replace with actual domain
     const posts = getAllPosts();
