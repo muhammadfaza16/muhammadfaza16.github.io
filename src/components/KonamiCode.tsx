@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 
 const KONAMI_CODE = [
     "ArrowUp", "ArrowUp",
@@ -10,9 +10,14 @@ const KONAMI_CODE = [
     "KeyB", "KeyA"
 ];
 
+const SHAKE_THRESHOLD = 15; // Acceleration threshold
+const SHAKE_COUNT_THRESHOLD = 3; // Number of shakes required
+
 export function KonamiCode() {
     const [keySequence, setKeySequence] = useState<string[]>([]);
     const [triggered, setTriggered] = useState(false);
+    const shakeCount = useRef(0);
+    const lastShakeTime = useRef(0);
 
     const createConfetti = useCallback(() => {
         const colors = ["#ff6b6b", "#feca57", "#48dbfb", "#ff9ff3", "#54a0ff", "#5f27cd"];
@@ -75,7 +80,7 @@ export function KonamiCode() {
         }, 5000);
     }, []);
 
-    const showMessage = useCallback(() => {
+    const showMessage = useCallback((isMobile: boolean = false) => {
         const message = document.createElement("div");
         message.innerHTML = `
             <div style="
@@ -94,7 +99,7 @@ export function KonamiCode() {
                 box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
                 animation: messagePopIn 0.5s ease-out;
             ">
-                <div style="font-size: 3rem; margin-bottom: 0.5rem;">🎮</div>
+                <div style="font-size: 3rem; margin-bottom: 0.5rem;">${isMobile ? "📱" : "🎮"}</div>
                 <div>You found the secret!</div>
                 <div style="font-size: 0.875rem; opacity: 0.8; margin-top: 0.5rem;">
                     - The Broken Wanderer
@@ -132,6 +137,22 @@ export function KonamiCode() {
         }, 3000);
     }, []);
 
+    const triggerEffect = useCallback((isMobile: boolean = false) => {
+        if (triggered) return;
+
+        setTriggered(true);
+        createConfetti();
+        showMessage(isMobile);
+
+        // Reset after 5 seconds to allow re-trigger
+        setTimeout(() => {
+            setTriggered(false);
+            setKeySequence([]);
+            shakeCount.current = 0;
+        }, 5000);
+    }, [triggered, createConfetti, showMessage]);
+
+    // Keyboard listener (Desktop)
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
             const newSequence = [...keySequence, e.code].slice(-KONAMI_CODE.length);
@@ -139,23 +160,71 @@ export function KonamiCode() {
 
             // Check if sequence matches
             if (newSequence.length === KONAMI_CODE.length &&
-                newSequence.every((key, i) => key === KONAMI_CODE[i]) &&
-                !triggered) {
-                setTriggered(true);
-                createConfetti();
-                showMessage();
-
-                // Reset after 5 seconds to allow re-trigger
-                setTimeout(() => {
-                    setTriggered(false);
-                    setKeySequence([]);
-                }, 5000);
+                newSequence.every((key, i) => key === KONAMI_CODE[i])) {
+                triggerEffect(false);
             }
         };
 
         window.addEventListener("keydown", handleKeyDown);
         return () => window.removeEventListener("keydown", handleKeyDown);
-    }, [keySequence, triggered, createConfetti, showMessage]);
+    }, [keySequence, triggerEffect]);
+
+    // Shake listener (Mobile)
+    useEffect(() => {
+        const handleMotion = (e: DeviceMotionEvent) => {
+            const acc = e.accelerationIncludingGravity;
+            if (!acc || acc.x === null || acc.y === null || acc.z === null) return;
+
+            const totalAcceleration = Math.sqrt(
+                acc.x * acc.x + acc.y * acc.y + acc.z * acc.z
+            );
+
+            const now = Date.now();
+
+            // Detect shake (acceleration above threshold, not just gravity ~9.8)
+            if (totalAcceleration > SHAKE_THRESHOLD + 9.8) {
+                // Debounce: only count if 200ms since last shake
+                if (now - lastShakeTime.current > 200) {
+                    shakeCount.current += 1;
+                    lastShakeTime.current = now;
+
+                    // Trigger after enough shakes
+                    if (shakeCount.current >= SHAKE_COUNT_THRESHOLD) {
+                        triggerEffect(true);
+                    }
+                }
+            }
+
+            // Reset shake count if no shake for 1 second
+            if (now - lastShakeTime.current > 1000) {
+                shakeCount.current = 0;
+            }
+        };
+
+        // Request permission on iOS 13+
+        const requestPermission = async () => {
+            if (typeof (DeviceMotionEvent as any).requestPermission === "function") {
+                try {
+                    const permission = await (DeviceMotionEvent as any).requestPermission();
+                    if (permission === "granted") {
+                        window.addEventListener("devicemotion", handleMotion);
+                    }
+                } catch {
+                    // Permission denied or error
+                }
+            } else {
+                // Non-iOS or older iOS
+                window.addEventListener("devicemotion", handleMotion);
+            }
+        };
+
+        requestPermission();
+
+        return () => {
+            window.removeEventListener("devicemotion", handleMotion);
+        };
+    }, [triggerEffect]);
 
     return null; // This component doesn't render anything
 }
+
