@@ -55,10 +55,22 @@ const quotes = [
     { text: "A person's success in life can usually be measured by the number of uncomfortable conversations they are willing to have.", author: "Tim Ferriss", weight: 2 },
     { text: "The quality of your life is a direct reflection of the quality of the questions you are asking yourself.", author: "Tony Robbins", weight: 2 },
 
-    // Indonesian Literature
-    { text: "Orang boleh pandai setinggi langit, tapi selama ia tidak menulis, ia akan hilang di dalam masyarakat dan dari sejarah.", author: "Pramoedya Ananta Toer", weight: 3 },
-    { text: "Menulis adalah bekerja untuk keabadian.", author: "Pramoedya Ananta Toer", weight: 3 },
-    { text: "Hidup ini sederhana, yang rumit itu keinginan.", author: "Sapardi Djoko Damono", weight: 2 },
+    // Indonesian Literature & Thinkers (Higher weight)
+    { text: "Orang boleh pandai setinggi langit, tapi selama ia tidak menulis, ia akan hilang di dalam masyarakat dan dari sejarah.", author: "Pramoedya Ananta Toer", weight: 5 },
+    { text: "Menulis adalah bekerja untuk keabadian.", author: "Pramoedya Ananta Toer", weight: 5 },
+    { text: "Hidup ini sederhana, yang rumit itu keinginan.", author: "Sapardi Djoko Damono", weight: 5 },
+    { text: "Hujan bulan Juni. Tak ada yang lebih tabah dari hujan bulan Juni.", author: "Sapardi Djoko Damono", weight: 5 },
+    { text: "Aku ingin mencintaimu dengan sederhana.", author: "Sapardi Djoko Damono", weight: 4 },
+    { text: "Jangan sekali-kali meninggalkan sejarah.", author: "Soekarno", weight: 5 },
+    { text: "Bangsa yang besar adalah bangsa yang menghormati jasa pahlawannya.", author: "Soekarno", weight: 4 },
+    { text: "Gantungkan cita-citamu setinggi langit.", author: "Soekarno", weight: 4 },
+    { text: "Perjuanganku lebih mudah karena mengusir penjajah. Perjuanganmu lebih sulit karena melawan bangsamu sendiri.", author: "Soekarno", weight: 5 },
+    { text: "Kebenaran akan tetap ada, sekalipun ia ditekan oleh kekuasaan.", author: "Tan Malaka", weight: 5 },
+    { text: "Tujuan pendidikan itu untuk mempertajam kecerdasan, memperkukuh kemauan serta memperhalus perasaan.", author: "Tan Malaka", weight: 4 },
+    { text: "Hidup yang tidak dipertaruhkan tidak akan pernah dimenangkan.", author: "Sutan Sjahrir", weight: 5 },
+    { text: "Buku adalah jendela dunia.", author: "Pepatah Indonesia", weight: 3 },
+    { text: "Air beriak tanda tak dalam.", author: "Pepatah Melayu", weight: 4 },
+    { text: "Di mana bumi dipijak, di situ langit dijunjung.", author: "Pepatah Melayu", weight: 4 },
 
     // Psychology & Philosophy of Mind
     { text: "Between stimulus and response there is a space. In that space is our power to choose our response.", author: "Viktor Frankl", weight: 3 },
