@@ -40,7 +40,7 @@ export function Footer() {
                             <ul style={{ listStyle: "none", display: "flex", flexDirection: "column", gap: "0.75rem" }}>
                                 <li>
                                     <Link href="/blog" style={{ opacity: 0.8, transition: "opacity 0.3s" }} className="hover:opacity-100">
-                                        Journal
+                                        Writing
                                     </Link>
                                 </li>
                                 <li>

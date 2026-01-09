@@ -90,7 +90,7 @@ export default async function BlogPostPage({ params }: PageProps) {
                         className="inline-flex items-center text-sm text-[var(--text-secondary)] hover:text-[var(--foreground)] transition-colors mb-8 group"
                     >
                         <span className="mr-2 group-hover:-translate-x-1 transition-transform">←</span>
-                        Back to journal
+                        Back to writing
                     </Link>
 
                     <h1
@@ -187,7 +187,7 @@ export default async function BlogPostPage({ params }: PageProps) {
                             href="/blog"
                             className="inline-block text-sm text-[var(--text-secondary)] hover:text-[var(--foreground)] transition-colors border-b border-transparent hover:border-[var(--foreground)] pb-1"
                         >
-                            ← All journal entries
+                            ← All writing
                         </Link>
                     </div>
                 </div>
