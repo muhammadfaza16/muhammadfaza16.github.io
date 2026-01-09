@@ -9,6 +9,7 @@ interface Post {
     excerpt: string;
     date: string;
     readingTime?: string;
+    thumbnail?: string;
 }
 
 export function PostList({ allPosts }: { allPosts: Post[] }) {
@@ -30,6 +31,7 @@ export function PostList({ allPosts }: { allPosts: Post[] }) {
                     excerpt={post.excerpt}
                     date={post.date}
                     readingTime={post.readingTime || ""}
+                    thumbnail={post.thumbnail}
                 />
             ))}
 

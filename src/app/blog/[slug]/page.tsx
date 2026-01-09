@@ -121,6 +121,29 @@ export default async function BlogPostPage({ params }: PageProps) {
 
                 </header>
 
+                {/* Thumbnail Image */}
+                {post.thumbnail && (
+                    <div
+                        className="animate-fade-in animation-delay-300"
+                        style={{
+                            maxWidth: "42rem",
+                            margin: "0 auto 3rem",
+                            borderRadius: "12px",
+                            overflow: "hidden"
+                        }}
+                    >
+                        <img
+                            src={post.thumbnail}
+                            alt={post.title}
+                            style={{
+                                width: "100%",
+                                height: "auto",
+                                display: "block"
+                            }}
+                        />
+                    </div>
+                )}
+
                 <div className="relative mx-auto" style={{ maxWidth: "42rem" }}>
                     {/* Article Text */}
                     <div

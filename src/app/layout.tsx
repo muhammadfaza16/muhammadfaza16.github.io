@@ -7,16 +7,16 @@ import { SkipLink } from "@/components/SkipLink";
 import { ScrollToTop } from "@/components/ScrollToTop";
 
 export const metadata: Metadata = {
-  title: "Pillow Talk.",
+  title: "Yapping 101.",
   description: "Tempat menyimpan ide-ide yang lewat. Sekadar menulis supaya tidak lupa.",
-  keywords: ["blog", "personal", "pillow talk", "ide", "indonesia"],
+  keywords: ["blog", "personal", "yapping", "random thoughts", "indonesia"],
   authors: [{ name: "Author" }],
   openGraph: {
-    title: "Pillow Talk.",
+    title: "Yapping 101.",
     description: "Tempat menyimpan ide-ide yang lewat.",
     type: "website",
     url: "https://manifesto.dev",
-    siteName: "Pillow Talk",
+    siteName: "Yapping 101",
   },
   alternates: {
     types: {

@@ -9,6 +9,7 @@ export interface Post {
     lastUpdated?: string;
     readingTime?: string;
     content: string;
+    thumbnail?: string;
 }
 
 // Helper to calculate reading time

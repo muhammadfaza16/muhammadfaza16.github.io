@@ -23,10 +23,10 @@ export function Footer() {
                             }}
                             className="hover:opacity-70"
                         >
-                            Pillow Talk
+                            Yapping 101
                         </Link>
                         <p style={{ fontSize: "0.95rem", lineHeight: 1.8, maxWidth: "20rem", fontWeight: 300, opacity: 0.7 }}>
-                            A personal space to pour out manifestos, reflections, and the journey of becoming the best version of oneself.
+                            Tempat nge-dump random thoughts. Kadang nyambung, seringnya nggak.
                         </p>
                     </div>
 
