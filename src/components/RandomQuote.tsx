@@ -97,6 +97,75 @@ const quotes: Quote[] = [
     { text: "It is not death that a man should fear, but he should fear never beginning to live.", textId: "Bukan kematian yang harus ditakuti manusia, tapi ia harus takut tidak pernah mulai hidup.", author: "Marcus Aurelius", weight: 3 },
     { text: "The fear of death follows from the fear of life. A man who lives fully is prepared to die at any time.", textId: "Ketakutan akan kematian mengikuti ketakutan akan hidup. Orang yang hidup sepenuhnya siap mati kapan saja.", author: "Mark Twain", weight: 2 },
     { text: "I went to the woods because I wished to live deliberately, to front only the essential facts of life.", textId: "Aku pergi ke hutan karena ingin hidup dengan sengaja, menghadapi hanya fakta-fakta esensial kehidupan.", author: "Henry David Thoreau", weight: 2 },
+
+    // Additional Stoic Wisdom
+    { text: "Waste no more time arguing about what a good man should be. Be one.", textId: "Jangan buang waktu lagi berdebat tentang seperti apa orang baik seharusnya. Jadilah.", author: "Marcus Aurelius", weight: 3 },
+    { text: "If it is not right, do not do it; if it is not true, do not say it.", textId: "Jika tidak benar, jangan lakukan; jika tidak jujur, jangan katakan.", author: "Marcus Aurelius", weight: 3 },
+    { text: "Luck is what happens when preparation meets opportunity.", textId: "Keberuntungan adalah ketika persiapan bertemu kesempatan.", author: "Seneca", weight: 2 },
+    { text: "We are more often frightened than hurt; and we suffer more in imagination than in reality.", textId: "Kita lebih sering ketakutan daripada terluka; dan kita menderita lebih banyak dalam imajinasi daripada kenyataan.", author: "Seneca", weight: 3 },
+    { text: "First say to yourself what you would be; and then do what you have to do.", textId: "Pertama katakan pada dirimu apa yang ingin kamu jadi; lalu lakukan apa yang harus kamu lakukan.", author: "Epictetus", weight: 3 },
+
+    // More Existentialism
+    { text: "Freedom is what we do with what is done to us.", textId: "Kebebasan adalah apa yang kita lakukan dengan apa yang dilakukan kepada kita.", author: "Jean-Paul Sartre", weight: 3 },
+    { text: "Life begins on the other side of despair.", textId: "Hidup dimulai di sisi lain keputusasaan.", author: "Jean-Paul Sartre", weight: 3 },
+    { text: "The absurd does not liberate; it binds.", textId: "Yang absurd tidak membebaskan; ia mengikat.", author: "Albert Camus", weight: 2 },
+    { text: "You will never be happy if you continue to search for what happiness consists of.", textId: "Kamu tidak akan pernah bahagia jika terus mencari apa itu kebahagiaan.", author: "Albert Camus", weight: 3 },
+    { text: "That which does not kill us makes us stronger.", textId: "Apa yang tidak membunuh kita membuat kita lebih kuat.", author: "Friedrich Nietzsche", weight: 2 },
+    { text: "There are no facts, only interpretations.", textId: "Tidak ada fakta, hanya interpretasi.", author: "Friedrich Nietzsche", weight: 3 },
+
+    // More Eastern Philosophy
+    { text: "When you realize nothing is lacking, the whole world belongs to you.", textId: "Ketika kamu menyadari tidak ada yang kurang, seluruh dunia menjadi milikmu.", author: "Lao Tzu", weight: 3 },
+    { text: "Nature does not hurry, yet everything is accomplished.", textId: "Alam tidak terburu-buru, namun semuanya terselesaikan.", author: "Lao Tzu", weight: 3 },
+    { text: "The mind is everything. What you think you become.", textId: "Pikiran adalah segalanya. Apa yang kamu pikirkan, itulah jadimu.", author: "Buddha", weight: 3 },
+    { text: "In the end, only three things matter: how much you loved, how gently you lived, and how gracefully you let go.", textId: "Pada akhirnya, hanya tiga hal yang penting: seberapa banyak kamu mencintai, seberapa lembut kamu hidup, dan seberapa anggun kamu melepaskan.", author: "Buddha", weight: 3 },
+    { text: "Fall seven times, stand up eight.", textId: "Jatuh tujuh kali, bangkit delapan kali.", author: "Japanese Proverb", weight: 3 },
+    { text: "The frog in the well knows nothing of the great ocean.", textId: "Katak dalam sumur tidak tahu tentang samudra luas.", author: "Japanese Proverb", weight: 2 },
+
+    // More Indonesian Literature & Thinkers
+    { text: "Manusia tak selamanya benar dan tak selamanya salah, kecuali ia yang selalu mengoreksi diri.", author: "Pramoedya Ananta Toer", weight: 5 },
+    { text: "Seorang terpelajar harus juga berlaku adil sudah sejak dalam pikiran, apalagi dalam perbuatan.", author: "Pramoedya Ananta Toer", weight: 5 },
+    { text: "Dalam menghadapi anak bangsanya sendiri, perempuan lebih gagah daripada pahlawan.", author: "Pramoedya Ananta Toer", weight: 4 },
+    { text: "Yang namanya cinta itu selalu mengorbankan.", author: "Chairil Anwar", weight: 4 },
+    { text: "Aku ini binatang jalang, dari kumpulannya terbuang.", author: "Chairil Anwar", weight: 5 },
+    { text: "Sekali berarti, sudah itu mati.", author: "Chairil Anwar", weight: 5 },
+    { text: "Bukan aku hendak menjelaskan perihal mawar, yang hendak kujelaskan adalah perihal rindu.", author: "Goenawan Mohamad", weight: 4 },
+    { text: "Kata-kata memang tak ada yang netral.", author: "Goenawan Mohamad", weight: 4 },
+    { text: "Yang fana adalah waktu. Kita abadi.", author: "Sapardi Djoko Damono", weight: 5 },
+    { text: "Pada suatu hari nanti, jasadku tak akan ada lagi. Tapi di sini, di hatimu, aku telah menanam pohon.", author: "WS Rendra", weight: 5 },
+    { text: "Kebudayaan adalah cara manusia menghadapi hidup.", author: "WS Rendra", weight: 4 },
+    { text: "Beri aku sepuluh pemuda, niscaya akan kuguncangkan dunia.", author: "Soekarno", weight: 5 },
+    { text: "Jangan melihat ke masa depan dengan mata buta. Masa yang lampau sangat berguna sebagai kaca benggala.", author: "Soekarno", weight: 4 },
+    { text: "Lebih baik diasingkan daripada menyerah pada kemunafikan.", author: "Sutan Sjahrir", weight: 5 },
+    { text: "Idealisme adalah kemewahan terakhir yang hanya dimiliki oleh pemuda.", author: "Tan Malaka", weight: 5 },
+
+    // Science & Rationality
+    { text: "The first principle is that you must not fool yourself—and you are the easiest person to fool.", textId: "Prinsip pertama adalah kamu tidak boleh menipu dirimu sendiri—dan kamu adalah orang yang paling mudah dibohongi.", author: "Richard Feynman", weight: 3 },
+    { text: "It is far better to grasp the universe as it really is than to persist in delusion, however satisfying.", textId: "Jauh lebih baik memahami alam semesta sebagaimana adanya daripada bertahan dalam delusi, betapapun memuaskan.", author: "Carl Sagan", weight: 3 },
+    { text: "Somewhere, something incredible is waiting to be known.", textId: "Di suatu tempat, sesuatu yang luar biasa menunggu untuk diketahui.", author: "Carl Sagan", weight: 2 },
+    { text: "The good thing about science is that it's true whether or not you believe in it.", textId: "Yang baik dari sains adalah ia benar terlepas dari apakah kamu percaya atau tidak.", author: "Neil deGrasse Tyson", weight: 2 },
+    { text: "In science, there are no shortcuts to truth.", textId: "Dalam sains, tidak ada jalan pintas menuju kebenaran.", author: "Carl Sagan", weight: 3 },
+
+    // Ancient Wisdom
+    { text: "Know thyself.", textId: "Kenali dirimu.", author: "Delphic Maxim", weight: 3 },
+    { text: "I know that I know nothing.", textId: "Saya tahu bahwa saya tidak tahu apa-apa.", author: "Socrates", weight: 3 },
+    { text: "The measure of a man is what he does with power.", textId: "Ukuran seseorang adalah apa yang ia lakukan dengan kekuasaan.", author: "Plato", weight: 3 },
+    { text: "We are what we repeatedly do. Excellence, then, is not an act, but a habit.", textId: "Kita adalah apa yang kita lakukan berulang kali. Keunggulan, maka, bukan tindakan, tapi kebiasaan.", author: "Aristotle", weight: 3 },
+    { text: "It is the mark of an educated mind to be able to entertain a thought without accepting it.", textId: "Tanda pikiran terpelajar adalah mampu mempertimbangkan suatu pemikiran tanpa menerimanya.", author: "Aristotle", weight: 3 },
+
+    // More Writers
+    { text: "The world breaks everyone, and afterward, some are strong at the broken places.", textId: "Dunia menghancurkan semua orang, dan setelahnya, beberapa menjadi kuat di tempat yang patah.", author: "Ernest Hemingway", weight: 3 },
+    { text: "There is nothing to writing. All you do is sit down at a typewriter and bleed.", textId: "Tidak ada yang istimewa dalam menulis. Yang kamu lakukan hanyalah duduk di depan mesin tik dan berdarah.", author: "Ernest Hemingway", weight: 3 },
+    { text: "Not all those who wander are lost.", textId: "Tidak semua yang berkelana itu tersesat.", author: "J.R.R. Tolkien", weight: 2 },
+    { text: "It does not do to dwell on dreams and forget to live.", textId: "Tidak baik terpaku pada mimpi dan lupa untuk hidup.", author: "J.K. Rowling", weight: 2 },
+    { text: "We read to know we are not alone.", textId: "Kita membaca untuk tahu bahwa kita tidak sendirian.", author: "C.S. Lewis", weight: 3 },
+    { text: "A reader lives a thousand lives before he dies. The man who never reads lives only one.", textId: "Pembaca menjalani seribu kehidupan sebelum mati. Orang yang tidak pernah membaca hanya menjalani satu.", author: "George R.R. Martin", weight: 3 },
+
+    // Mindfulness & Inner Peace
+    { text: "The greatest glory in living lies not in never falling, but in rising every time we fall.", textId: "Kemuliaan terbesar dalam hidup bukan karena tidak pernah jatuh, tapi bangkit setiap kali kita jatuh.", author: "Nelson Mandela", weight: 3 },
+    { text: "Happiness is not something ready made. It comes from your own actions.", textId: "Kebahagiaan bukanlah sesuatu yang sudah jadi. Ia datang dari tindakanmu sendiri.", author: "Dalai Lama", weight: 3 },
+    { text: "If you want others to be happy, practice compassion. If you want to be happy, practice compassion.", textId: "Jika kamu ingin orang lain bahagia, praktikkan welas asih. Jika kamu ingin bahagia, praktikkan welas asih.", author: "Dalai Lama", weight: 3 },
+    { text: "Be the change you wish to see in the world.", textId: "Jadilah perubahan yang ingin kamu lihat di dunia.", author: "Mahatma Gandhi", weight: 2 },
+    { text: "Live as if you were to die tomorrow. Learn as if you were to live forever.", textId: "Hiduplah seolah kamu akan mati besok. Belajarlah seolah kamu akan hidup selamanya.", author: "Mahatma Gandhi", weight: 3 },
 ];
 
 export function RandomQuote() {
