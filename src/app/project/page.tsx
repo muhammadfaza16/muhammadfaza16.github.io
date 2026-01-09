@@ -2,7 +2,7 @@ import { Container } from "@/components/Container";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-    title: "Project | Yapping 101",
+    title: "Project | The Almanac of Broken Wanderer",
     description: "Project dan eksperimen yang lagi dikerjain.",
 };
 

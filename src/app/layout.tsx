@@ -7,16 +7,16 @@ import { SkipLink } from "@/components/SkipLink";
 import { ScrollToTop } from "@/components/ScrollToTop";
 
 export const metadata: Metadata = {
-  title: "Yapping 101.",
+  title: "The Almanac of Broken Wanderer.",
   description: "Tempat menyimpan ide-ide yang lewat. Sekadar menulis supaya tidak lupa.",
   keywords: ["blog", "personal", "yapping", "random thoughts", "indonesia"],
   authors: [{ name: "Author" }],
   openGraph: {
-    title: "Yapping 101.",
+    title: "The Almanac of Broken Wanderer.",
     description: "Tempat menyimpan ide-ide yang lewat.",
     type: "website",
     url: "https://manifesto.dev",
-    siteName: "Yapping 101",
+    siteName: "The Almanac of Broken Wanderer",
   },
   alternates: {
     types: {

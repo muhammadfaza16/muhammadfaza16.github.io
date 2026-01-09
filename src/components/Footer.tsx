@@ -13,7 +13,7 @@ export function Footer() {
                         <Link
                             href="/"
                             style={{
-                                fontFamily: "'Playfair Display', serif",
+                                fontFamily: "var(--font-mono)",
                                 fontSize: "2rem",
                                 fontWeight: 700,
                                 display: "inline-block",
@@ -23,7 +23,7 @@ export function Footer() {
                             }}
                             className="hover:opacity-70"
                         >
-                            Yapping 101
+                            The Almanac of Broken Wanderer
                         </Link>
                         <p style={{ fontSize: "0.95rem", lineHeight: 1.8, maxWidth: "20rem", fontWeight: 300, opacity: 0.7 }}>
                             Tempat nge-dump random thoughts. Kadang nyambung, seringnya nggak.
@@ -58,12 +58,12 @@ export function Footer() {
                             </h4>
                             <ul style={{ listStyle: "none", display: "flex", flexDirection: "column", gap: "0.75rem" }}>
                                 <li>
-                                    <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" style={{ opacity: 0.8, transition: "opacity 0.3s" }} className="hover:opacity-100">
+                                    <a href="https://x.com/scienfilix" target="_blank" rel="noopener noreferrer" style={{ opacity: 0.8, transition: "opacity 0.3s" }} className="hover:opacity-100">
                                         Twitter / X
                                     </a>
                                 </li>
                                 <li>
-                                    <a href="https://github.com" target="_blank" rel="noopener noreferrer" style={{ opacity: 0.8, transition: "opacity 0.3s" }} className="hover:opacity-100">
+                                    <a href="https://github.com/mfazans23" target="_blank" rel="noopener noreferrer" style={{ opacity: 0.8, transition: "opacity 0.3s" }} className="hover:opacity-100">
                                         GitHub
                                     </a>
                                 </li>

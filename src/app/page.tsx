@@ -17,7 +17,7 @@ export default function HomePage() {
         <Container>
           <div style={{ maxWidth: "56rem" }} className="animate-fade-in-up">
             <h1 style={{
-              fontFamily: "'Playfair Display', serif",
+              fontFamily: "var(--font-mono)",
               fontSize: "clamp(3rem, 9vw, 6rem)",
               fontWeight: 700,
               lineHeight: 1,
@@ -25,7 +25,7 @@ export default function HomePage() {
               marginBottom: "2rem",
               color: "var(--foreground)"
             }}>
-              Yapping 101.
+              The Almanac of Broken Wanderer.
             </h1>
 
             <p style={{
