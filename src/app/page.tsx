@@ -68,10 +68,15 @@ export default function HomePage() {
         </Container>
       </section>
 
-      {/* Divider */}
-      <Container>
-        <div style={{ height: "1px", background: "var(--border)" }} />
-      </Container>
+      {/* Wisdom Gacha */}
+      <section style={{ paddingTop: "6rem", paddingBottom: "6rem", backgroundColor: "#0A0A0A", color: "#FAFAF9", position: "relative" }}>
+        {/* Inverse Grid */}
+        <div className="bg-grid" style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", pointerEvents: "none", opacity: 0.1, filter: "invert(1)" }} />
+
+        <Container>
+          <RandomQuote />
+        </Container>
+      </section>
 
       {/* Works Section */}
       <section id="works" style={{ paddingTop: "6rem", paddingBottom: "6rem" }}>
@@ -98,16 +103,7 @@ export default function HomePage() {
           </div>
         </Container>
       </section>
-
-      {/* Wisdom Gacha */}
-      <section style={{ paddingTop: "6rem", paddingBottom: "6rem", backgroundColor: "#0A0A0A", color: "#FAFAF9", position: "relative" }}>
-        {/* Inverse Grid */}
-        <div className="bg-grid" style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", pointerEvents: "none", opacity: 0.1, filter: "invert(1)" }} />
-
-        <Container>
-          <RandomQuote />
-        </Container>
-      </section>
     </>
   );
 }
+
