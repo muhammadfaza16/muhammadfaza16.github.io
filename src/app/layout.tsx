@@ -5,6 +5,7 @@ import { Footer } from "@/components/Footer";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { SkipLink } from "@/components/SkipLink";
 import { ScrollToTop } from "@/components/ScrollToTop";
+import { KonamiCode } from "@/components/KonamiCode";
 
 export const metadata: Metadata = {
   title: "The Almanac of Broken Wanderer.",
@@ -54,6 +55,7 @@ export default function RootLayout({
         <ThemeProvider>
           <SkipLink />
           <ScrollToTop />
+          <KonamiCode />
           <Header />
           <main id="main-content" className="main-content-padding" style={{ flex: 1 }}>
             {children}

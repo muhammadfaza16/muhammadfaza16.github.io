@@ -6,6 +6,7 @@ import { Metadata } from "next";
 import { ReadingProgress } from "@/components/ReadingProgress";
 import { BlogPostActions } from "@/components/BlogPostActions";
 import { ArticleContent } from "@/components/ArticleContent";
+import { PostTemperature } from "@/components/PostTemperature";
 
 interface PageProps {
     params: Promise<{ slug: string }>;
@@ -115,6 +116,8 @@ export default async function BlogPostPage({ params }: PageProps) {
                         <span style={{ textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                             {post.readingTime}
                         </span>
+                        <span>•</span>
+                        <PostTemperature />
                     </div>
 
                     {/* Actions Row */}
