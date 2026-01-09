@@ -3,7 +3,7 @@ import { Container } from "./Container";
 
 export function Footer() {
     return (
-        <footer style={{ backgroundColor: "var(--foreground)", color: "var(--background)", paddingTop: "5rem", paddingBottom: "3rem" }}>
+        <footer style={{ backgroundColor: "var(--background)", color: "var(--foreground)", paddingTop: "5rem", paddingBottom: "3rem", borderTop: "1px solid var(--border)" }}>
             <Container>
                 {/* Main Footer Content */}
                 <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: "3rem", marginBottom: "3rem" }} className="md:grid-cols-2">
@@ -18,7 +18,7 @@ export function Footer() {
                                 fontWeight: 700,
                                 display: "inline-block",
                                 marginBottom: "1.25rem",
-                                color: "var(--background)",
+                                color: "var(--foreground)",
                                 transition: "opacity 0.3s ease"
                             }}
                             className="hover:opacity-70"

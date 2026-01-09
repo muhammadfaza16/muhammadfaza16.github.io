@@ -35,6 +35,7 @@
   --border: #E5E5E5;
   --card-bg: #FFFFFF;
   --card-hover: #F9FAFB;
+  --hover-bg: rgba(0, 0, 0, 0.03);
   --glow: rgba(0, 0, 0, 0.03);
 }
 
@@ -46,6 +47,7 @@
   --border: #27272A;
   --card-bg: #18181B;
   --card-hover: #27272A;
+  --hover-bg: rgba(255, 255, 255, 0.03);
   --glow: rgba(255, 255, 255, 0.05);
 }
 

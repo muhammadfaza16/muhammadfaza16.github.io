@@ -1,181 +1,218 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 
 interface Quote {
     text: string;
-    textId?: string; // Indonesian translation (optional, only for English quotes)
+    textId?: string;
     author: string;
     weight: number;
+    category: string;
+    source?: string;
+    context?: string;
 }
+
+interface AuthorInfo {
+    name: string;
+    bio: string;
+    era: string;
+}
+
+const authorBios: Record<string, AuthorInfo> = {
+    "Seneca": { name: "Seneca", bio: "Filsuf Stoik Romawi, penasihat Kaisar Nero", era: "4 SM - 65 M" },
+    "Marcus Aurelius": { name: "Marcus Aurelius", bio: "Kaisar Romawi & filsuf Stoik, penulis Meditations", era: "121 - 180 M" },
+    "Epictetus": { name: "Epictetus", bio: "Filsuf Stoik Yunani, mantan budak yang menjadi guru", era: "50 - 135 M" },
+    "Jean-Paul Sartre": { name: "Jean-Paul Sartre", bio: "Filsuf eksistensialis Prancis, penulis & dramawan", era: "1905 - 1980" },
+    "Albert Camus": { name: "Albert Camus", bio: "Penulis & filsuf Prancis, peraih Nobel Sastra", era: "1913 - 1960" },
+    "Friedrich Nietzsche": { name: "Friedrich Nietzsche", bio: "Filsuf Jerman, kritikus budaya & agama", era: "1844 - 1900" },
+    "Buddha": { name: "Buddha", bio: "Pendiri agama Buddha, Siddharta Gautama", era: "~563 - 483 SM" },
+    "Lao Tzu": { name: "Lao Tzu", bio: "Filsuf Tiongkok kuno, pendiri Taoisme", era: "~6 SM" },
+    "Pramoedya Ananta Toer": { name: "Pramoedya Ananta Toer", bio: "Sastrawan Indonesia, penulis Tetralogi Buru", era: "1925 - 2006" },
+    "Sapardi Djoko Damono": { name: "Sapardi Djoko Damono", bio: "Penyair Indonesia, maestro puisi liris", era: "1940 - 2020" },
+    "Chairil Anwar": { name: "Chairil Anwar", bio: "Penyair legendaris Indonesia, pelopor Angkatan '45", era: "1922 - 1949" },
+    "Soekarno": { name: "Soekarno", bio: "Proklamator & Presiden pertama Indonesia", era: "1901 - 1970" },
+    "Tan Malaka": { name: "Tan Malaka", bio: "Pahlawan nasional, pemikir & revolusioner", era: "1897 - 1949" },
+    "Sutan Sjahrir": { name: "Sutan Sjahrir", bio: "Perdana Menteri pertama Indonesia, intelektual", era: "1909 - 1966" },
+    "Viktor Frankl": { name: "Viktor Frankl", bio: "Psikiater Austria, penyintas Holocaust", era: "1905 - 1997" },
+    "Carl Jung": { name: "Carl Jung", bio: "Psikiater Swiss, pendiri psikologi analitis", era: "1875 - 1961" },
+    "Naval Ravikant": { name: "Naval Ravikant", bio: "Entrepreneur & investor, pendiri AngelList", era: "1974 - sekarang" },
+    "Paul Graham": { name: "Paul Graham", bio: "Pendiri Y Combinator, essayist teknologi", era: "1964 - sekarang" },
+    "Steve Jobs": { name: "Steve Jobs", bio: "Pendiri Apple, visioner teknologi", era: "1955 - 2011" },
+    "Haruki Murakami": { name: "Haruki Murakami", bio: "Novelis Jepang kontemporer terkenal", era: "1949 - sekarang" },
+    "WS Rendra": { name: "WS Rendra", bio: "Penyair & dramawan Indonesia, 'Si Burung Merak'", era: "1935 - 2009" },
+    "Goenawan Mohamad": { name: "Goenawan Mohamad", bio: "Penyair, esais, pendiri majalah Tempo", era: "1941 - sekarang" },
+    "Richard Feynman": { name: "Richard Feynman", bio: "Fisikawan Amerika, peraih Nobel", era: "1918 - 1988" },
+    "Carl Sagan": { name: "Carl Sagan", bio: "Astronom & penulis sains populer Amerika", era: "1934 - 1996" },
+    "Socrates": { name: "Socrates", bio: "Filsuf Yunani kuno, guru Plato", era: "470 - 399 SM" },
+    "Plato": { name: "Plato", bio: "Filsuf Yunani kuno, murid Socrates", era: "428 - 348 SM" },
+    "Aristotle": { name: "Aristotle", bio: "Filsuf Yunani, bapak logika", era: "384 - 322 SM" },
+    "Ernest Hemingway": { name: "Ernest Hemingway", bio: "Novelis Amerika, peraih Nobel Sastra", era: "1899 - 1961" },
+    "Nelson Mandela": { name: "Nelson Mandela", bio: "Presiden Afrika Selatan, ikon anti-apartheid", era: "1918 - 2013" },
+    "Dalai Lama": { name: "Dalai Lama", bio: "Pemimpin spiritual Tibet", era: "1935 - sekarang" },
+    "Mahatma Gandhi": { name: "Mahatma Gandhi", bio: "Pemimpin kemerdekaan India", era: "1869 - 1948" },
+};
 
 const quotes: Quote[] = [
     // Stoic Philosophy
-    { text: "We suffer more often in imagination than in reality.", textId: "Kita lebih sering menderita dalam imajinasi daripada dalam kenyataan.", author: "Seneca", weight: 3 },
-    { text: "The obstacle is the way.", textId: "Rintangan adalah jalannya.", author: "Marcus Aurelius", weight: 3 },
-    { text: "No man is free who is not master of himself.", textId: "Tidak ada orang bebas yang bukan tuan atas dirinya sendiri.", author: "Epictetus", weight: 3 },
-    { text: "It is not that we have a short time to live, but that we waste a lot of it.", textId: "Bukan karena kita punya waktu hidup yang singkat, tapi karena kita menyia-nyiakan banyak waktu.", author: "Seneca", weight: 3 },
-    { text: "You have power over your mind—not outside events. Realize this, and you will find strength.", textId: "Kamu punya kuasa atas pikiranmu—bukan kejadian di luar. Sadari ini, dan kamu akan menemukan kekuatan.", author: "Marcus Aurelius", weight: 3 },
-    { text: "He who fears death will never do anything worthy of a living man.", textId: "Dia yang takut mati tidak akan pernah melakukan sesuatu yang layak bagi orang hidup.", author: "Seneca", weight: 2 },
+    { text: "We suffer more often in imagination than in reality.", textId: "Kita lebih sering menderita dalam imajinasi daripada dalam kenyataan.", author: "Seneca", weight: 3, category: "Stoic", context: "Seneca mengingatkan bahwa kecemasan kita sering kali lebih besar dari masalah sebenarnya. Pikiran kita menciptakan skenario terburuk yang jarang terjadi." },
+    { text: "The obstacle is the way.", textId: "Rintangan adalah jalannya.", author: "Marcus Aurelius", weight: 3, category: "Stoic", context: "Prinsip inti Stoikisme: rintangan bukan penghalang, tapi kesempatan untuk bertumbuh. Setiap kesulitan adalah guru." },
+    { text: "No man is free who is not master of himself.", textId: "Tidak ada orang bebas yang bukan tuan atas dirinya sendiri.", author: "Epictetus", weight: 3, category: "Stoic", context: "Kebebasan sejati bukan tentang situasi eksternal, tapi kemampuan menguasai pikiran dan impuls sendiri." },
+    { text: "It is not that we have a short time to live, but that we waste a lot of it.", textId: "Bukan karena kita punya waktu hidup yang singkat, tapi karena kita menyia-nyiakan banyak waktu.", author: "Seneca", weight: 3, category: "Stoic", context: "Dari 'On the Shortness of Life'. Seneca mengkritik bagaimana kita menghabiskan waktu untuk hal-hal yang tidak bermakna." },
+    { text: "You have power over your mind—not outside events. Realize this, and you will find strength.", textId: "Kamu punya kuasa atas pikiranmu—bukan kejadian di luar. Sadari ini, dan kamu akan menemukan kekuatan.", author: "Marcus Aurelius", weight: 3, category: "Stoic", context: "Inti dari Meditations: fokus pada apa yang bisa kita kontrol, lepaskan yang tidak bisa." },
+    { text: "Waste no more time arguing about what a good man should be. Be one.", textId: "Jangan buang waktu lagi berdebat tentang seperti apa orang baik seharusnya. Jadilah.", author: "Marcus Aurelius", weight: 3, category: "Stoic", context: "Ajakan untuk berhenti berteori dan mulai bertindak. Karakter dibangun lewat tindakan, bukan diskusi." },
 
     // Existentialism
-    { text: "Man is condemned to be free; because once thrown into the world, he is responsible for everything he does.", textId: "Manusia dikutuk untuk bebas; karena begitu dilempar ke dunia, ia bertanggung jawab atas segala yang ia lakukan.", author: "Jean-Paul Sartre", weight: 3 },
-    { text: "One must imagine Sisyphus happy.", textId: "Kita harus membayangkan Sisyphus bahagia.", author: "Albert Camus", weight: 3 },
-    { text: "He who has a why to live can bear almost any how.", textId: "Dia yang punya alasan untuk hidup dapat menanggung hampir segala cara.", author: "Friedrich Nietzsche", weight: 3 },
-    { text: "In the midst of winter, I found there was, within me, an invincible summer.", textId: "Di tengah musim dingin, aku menemukan ada, di dalam diriku, musim panas yang tak terkalahkan.", author: "Albert Camus", weight: 3 },
-    { text: "The only way to deal with an unfree world is to become so absolutely free that your very existence is an act of rebellion.", textId: "Satu-satunya cara menghadapi dunia yang tidak bebas adalah menjadi begitu mutlak bebas sehingga keberadaanmu sendiri adalah tindakan pemberontakan.", author: "Albert Camus", weight: 2 },
-    { text: "God is dead. God remains dead. And we have killed him.", textId: "Tuhan telah mati. Tuhan tetap mati. Dan kita telah membunuhnya.", author: "Friedrich Nietzsche", weight: 2 },
+    { text: "Man is condemned to be free; because once thrown into the world, he is responsible for everything he does.", textId: "Manusia dikutuk untuk bebas; karena begitu dilempar ke dunia, ia bertanggung jawab atas segala yang ia lakukan.", author: "Jean-Paul Sartre", weight: 3, category: "Existentialism", context: "Kebebasan adalah beban. Tidak ada alasan, tidak ada takdir—semua pilihan adalah tanggung jawab kita sendiri." },
+    { text: "One must imagine Sisyphus happy.", textId: "Kita harus membayangkan Sisyphus bahagia.", author: "Albert Camus", weight: 3, category: "Existentialism", context: "Dari 'The Myth of Sisyphus'. Meski hidup absurd dan tanpa makna inheren, kita bisa menemukan kebahagiaan dalam perjuangan itu sendiri.", source: "The Myth of Sisyphus" },
+    { text: "He who has a why to live can bear almost any how.", textId: "Dia yang punya alasan untuk hidup dapat menanggung hampir segala cara.", author: "Friedrich Nietzsche", weight: 3, category: "Existentialism", context: "Tujuan hidup memberi kekuatan untuk menanggung penderitaan. Viktor Frankl kemudian mengembangkan ini menjadi terapi logotherapy." },
+    { text: "In the midst of winter, I found there was, within me, an invincible summer.", textId: "Di tengah musim dingin, aku menemukan ada, di dalam diriku, musim panas yang tak terkalahkan.", author: "Albert Camus", weight: 3, category: "Existentialism", context: "Metafora tentang ketahanan batin. Di saat tergelap, kita menemukan kekuatan yang tidak kita sadari sebelumnya." },
+    { text: "Freedom is what we do with what is done to us.", textId: "Kebebasan adalah apa yang kita lakukan dengan apa yang dilakukan kepada kita.", author: "Jean-Paul Sartre", weight: 3, category: "Existentialism", context: "Kita tidak bisa memilih apa yang terjadi pada kita, tapi kita selalu bisa memilih respons kita." },
+    { text: "There are no facts, only interpretations.", textId: "Tidak ada fakta, hanya interpretasi.", author: "Friedrich Nietzsche", weight: 3, category: "Existentialism", context: "Perspektivisme Nietzsche: kebenaran selalu dilihat dari sudut pandang tertentu. Tidak ada kebenaran absolut." },
 
     // Eastern Philosophy
-    { text: "The mind is everything. What you think, you become.", textId: "Pikiran adalah segalanya. Apa yang kamu pikirkan, itulah dirimu.", author: "Buddha", weight: 3 },
-    { text: "Knowing others is intelligence; knowing yourself is true wisdom.", textId: "Mengenal orang lain adalah kecerdasan; mengenal diri sendiri adalah kebijaksanaan sejati.", author: "Lao Tzu", weight: 3 },
-    { text: "The journey of a thousand miles begins with a single step.", textId: "Perjalanan seribu mil dimulai dengan satu langkah.", author: "Lao Tzu", weight: 2 },
-    { text: "Before enlightenment, chop wood, carry water. After enlightenment, chop wood, carry water.", textId: "Sebelum pencerahan, potong kayu, angkut air. Setelah pencerahan, potong kayu, angkut air.", author: "Zen Proverb", weight: 3 },
-    { text: "The bamboo that bends is stronger than the oak that resists.", textId: "Bambu yang melengkung lebih kuat dari pohon ek yang melawan.", author: "Japanese Proverb", weight: 2 },
+    { text: "The mind is everything. What you think, you become.", textId: "Pikiran adalah segalanya. Apa yang kamu pikirkan, itulah dirimu.", author: "Buddha", weight: 3, category: "Eastern", context: "Pikiran membentuk realitas. Pikiran negatif berulang menjadi kebiasaan, kebiasaan menjadi karakter." },
+    { text: "Knowing others is intelligence; knowing yourself is true wisdom.", textId: "Mengenal orang lain adalah kecerdasan; mengenal diri sendiri adalah kebijaksanaan sejati.", author: "Lao Tzu", weight: 3, category: "Eastern", context: "Dari Tao Te Ching. Kebijaksanaan dimulai dari introspeksi, bukan akumulasi pengetahuan eksternal.", source: "Tao Te Ching" },
+    { text: "Before enlightenment, chop wood, carry water. After enlightenment, chop wood, carry water.", textId: "Sebelum pencerahan, potong kayu, angkut air. Setelah pencerahan, potong kayu, angkut air.", author: "Zen Proverb", weight: 3, category: "Eastern", context: "Pencerahan tidak mengubah aktivitas, tapi cara kita mengalaminya. Kesadaran penuh dalam keseharian adalah praktik spiritual." },
+    { text: "When you realize nothing is lacking, the whole world belongs to you.", textId: "Ketika kamu menyadari tidak ada yang kurang, seluruh dunia menjadi milikmu.", author: "Lao Tzu", weight: 3, category: "Eastern", context: "Kekayaan sejati adalah kepuasan. Ketika tidak ada yang 'kurang', tidak ada yang perlu dikejar." },
+    { text: "Nature does not hurry, yet everything is accomplished.", textId: "Alam tidak terburu-buru, namun semuanya terselesaikan.", author: "Lao Tzu", weight: 3, category: "Eastern", context: "Wu wei—tindakan tanpa paksaan. Mengalir seperti air, mencapai tujuan tanpa kekerasan." },
+    { text: "Fall seven times, stand up eight.", textId: "Jatuh tujuh kali, bangkit delapan kali.", author: "Japanese Proverb", weight: 3, category: "Eastern", context: "Nana korobi ya oki. Kegagalan adalah bagian dari perjalanan. Yang penting adalah terus bangkit." },
+
+    // Indonesian Literature & Thinkers
+    { text: "Orang boleh pandai setinggi langit, tapi selama ia tidak menulis, ia akan hilang di dalam masyarakat dan dari sejarah.", author: "Pramoedya Ananta Toer", weight: 5, category: "Indonesian", source: "Rumah Kaca", context: "Pram menekankan pentingnya dokumentasi dan menulis. Ide yang tidak ditulis akan mati bersama pemiliknya." },
+    { text: "Menulis adalah bekerja untuk keabadian.", author: "Pramoedya Ananta Toer", weight: 5, category: "Indonesian", context: "Kata-kata yang tertulis melampaui batas waktu dan ruang. Menulis adalah bentuk imortalitas." },
+    { text: "Manusia tak selamanya benar dan tak selamanya salah, kecuali ia yang selalu mengoreksi diri.", author: "Pramoedya Ananta Toer", weight: 5, category: "Indonesian", source: "Bumi Manusia", context: "Dari karakter Minke. Kebenaran bukan status permanen, tapi proses koreksi terus-menerus." },
+    { text: "Hidup ini sederhana, yang rumit itu keinginan.", author: "Sapardi Djoko Damono", weight: 5, category: "Indonesian", context: "Kesederhanaan adalah kebijaksanaan. Keinginan yang berlebihan menciptakan kompleksitas dan penderitaan." },
+    { text: "Yang fana adalah waktu. Kita abadi.", author: "Sapardi Djoko Damono", weight: 5, category: "Indonesian", context: "Paradoks indah: waktu yang kita anggap abadi justru fana, sementara esensi kita—cinta, karya—yang abadi." },
+    { text: "Aku ini binatang jalang, dari kumpulannya terbuang.", author: "Chairil Anwar", weight: 5, category: "Indonesian", source: "Aku", context: "Deklarasi kebebasan individual. Chairil menolak konformitas dan merayakan keunikan diri." },
+    { text: "Sekali berarti, sudah itu mati.", author: "Chairil Anwar", weight: 5, category: "Indonesian", source: "Diponegoro", context: "Hidup yang bermakna lebih berharga dari umur panjang tanpa arti. Intensitas lebih penting dari durasi." },
+    { text: "Jangan sekali-kali meninggalkan sejarah.", author: "Soekarno", weight: 5, category: "Indonesian", context: "JAS MERAH. Sejarah adalah guru bangsa. Melupakan sejarah berarti mengulang kesalahan." },
+    { text: "Perjuanganku lebih mudah karena mengusir penjajah. Perjuanganmu lebih sulit karena melawan bangsamu sendiri.", author: "Soekarno", weight: 5, category: "Indonesian", context: "Peringatan tentang tantangan pasca-kemerdekaan: korupsi, perpecahan, dan ego adalah musuh dalam selimut." },
+    { text: "Beri aku sepuluh pemuda, niscaya akan kuguncangkan dunia.", author: "Soekarno", weight: 5, category: "Indonesian", context: "Keyakinan pada kekuatan pemuda. Semangat dan idealisme muda bisa mengubah dunia." },
+    { text: "Kebenaran akan tetap ada, sekalipun ia ditekan oleh kekuasaan.", author: "Tan Malaka", weight: 5, category: "Indonesian", context: "Kebenaran tidak bisa dihancurkan. Mungkin ditunda, dipenjarakan, tapi akan selalu muncul kembali." },
+    { text: "Idealisme adalah kemewahan terakhir yang hanya dimiliki oleh pemuda.", author: "Tan Malaka", weight: 5, category: "Indonesian", context: "Sindiran sekaligus tantangan: jangan biarkan idealisme mati seiring bertambahnya usia." },
+    { text: "Hidup yang tidak dipertaruhkan tidak akan pernah dimenangkan.", author: "Sutan Sjahrir", weight: 5, category: "Indonesian", context: "Hidup bermakna membutuhkan risiko. Keamanan total adalah ilusi yang membunuh potensi." },
+    { text: "Pada suatu hari nanti, jasadku tak akan ada lagi. Tapi di sini, di hatimu, aku telah menanam pohon.", author: "WS Rendra", weight: 5, category: "Indonesian", context: "Legacy bukan tentang fisik, tapi dampak yang kita tinggalkan di hati orang lain." },
 
     // Writers & Literature
-    { text: "A writer is someone for whom writing is more difficult than it is for other people.", textId: "Penulis adalah seseorang yang baginya menulis lebih sulit daripada bagi orang lain.", author: "Thomas Mann", weight: 2 },
-    { text: "The only people for me are the mad ones, the ones who are mad to live, mad to talk, mad to be saved.", textId: "Satu-satunya orang untukku adalah mereka yang gila, yang gila ingin hidup, gila berbicara, gila ingin diselamatkan.", author: "Jack Kerouac", weight: 3 },
-    { text: "I have no special talents. I am only passionately curious.", textId: "Aku tidak punya bakat khusus. Aku hanya penasaran dengan penuh gairah.", author: "Albert Einstein", weight: 2 },
-    { text: "The unexamined life is not worth living.", textId: "Hidup yang tidak diperiksa tidak layak dijalani.", author: "Socrates", weight: 3 },
-    { text: "To live is the rarest thing in the world. Most people exist, that is all.", textId: "Hidup adalah hal paling langka di dunia. Kebanyakan orang hanya ada, itu saja.", author: "Oscar Wilde", weight: 3 },
-    { text: "If you want to live a happy life, tie it to a goal, not to people or things.", textId: "Jika kamu ingin hidup bahagia, ikatkan pada tujuan, bukan pada orang atau benda.", author: "Albert Einstein", weight: 2 },
-    { text: "Pain is inevitable. Suffering is optional.", textId: "Rasa sakit tidak terelakkan. Penderitaan adalah pilihan.", author: "Haruki Murakami", weight: 3 },
-    { text: "And once the storm is over, you won't remember how you made it through. But one thing is certain: when you come out of the storm, you won't be the same person who walked in.", textId: "Dan setelah badai berlalu, kamu tidak akan ingat bagaimana kamu melewatinya. Tapi satu hal pasti: saat keluar dari badai, kamu bukan lagi orang yang sama yang masuk.", author: "Haruki Murakami", weight: 3 },
+    { text: "Pain is inevitable. Suffering is optional.", textId: "Rasa sakit tidak terelakkan. Penderitaan adalah pilihan.", author: "Haruki Murakami", weight: 3, category: "Literature", source: "What I Talk About When I Talk About Running", context: "Dari pengalaman lari maraton. Rasa sakit fisik pasti datang, tapi penderitaan mental adalah interpretasi kita." },
+    { text: "And once the storm is over, you won't remember how you made it through. But one thing is certain: when you come out of the storm, you won't be the same person who walked in.", textId: "Dan setelah badai berlalu, kamu tidak akan ingat bagaimana kamu melewatinya. Tapi satu hal pasti: saat keluar dari badai, kamu bukan lagi orang yang sama yang masuk.", author: "Haruki Murakami", weight: 3, category: "Literature", source: "Kafka on the Shore", context: "Krisis mengubah kita. Kita mungkin tidak ingat detailnya, tapi transformasi itu nyata." },
+    { text: "The world breaks everyone, and afterward, some are strong at the broken places.", textId: "Dunia menghancurkan semua orang, dan setelahnya, beberapa menjadi kuat di tempat yang patah.", author: "Ernest Hemingway", weight: 3, category: "Literature", source: "A Farewell to Arms", context: "Seperti tulang yang patah menjadi lebih kuat setelah sembuh. Trauma bisa menjadi sumber kekuatan." },
+    { text: "We read to know we are not alone.", textId: "Kita membaca untuk tahu bahwa kita tidak sendirian.", author: "C.S. Lewis", weight: 3, category: "Literature", context: "Literatur menghubungkan pengalaman manusia lintas waktu dan ruang. Kita menemukan diri kita dalam cerita orang lain." },
 
-    // Tech & Business Leaders
-    { text: "The only real test of intelligence is if you get what you want out of life.", textId: "Satu-satunya ujian nyata kecerdasan adalah apakah kamu mendapat apa yang kamu inginkan dari hidup.", author: "Naval Ravikant", weight: 3 },
-    { text: "Desire is a contract you make with yourself to be unhappy until you get what you want.", textId: "Keinginan adalah kontrak yang kamu buat dengan dirimu sendiri untuk tidak bahagia sampai kamu mendapat yang kamu mau.", author: "Naval Ravikant", weight: 3 },
-    { text: "Play stupid games, win stupid prizes.", textId: "Mainkan permainan bodoh, menangkan hadiah bodoh.", author: "Naval Ravikant", weight: 3 },
-    { text: "Escape competition through authenticity.", textId: "Lepas dari kompetisi melalui keaslian.", author: "Naval Ravikant", weight: 3 },
-    { text: "The best minds of my generation are thinking about how to make people click ads. That sucks.", textId: "Pikiran terbaik generasiku sedang memikirkan cara membuat orang mengklik iklan. Menyedihkan.", author: "Jeff Hammerbacher", weight: 2 },
-    { text: "Startups don't die from competition. They die from suicide.", textId: "Startup tidak mati karena kompetisi. Mereka mati karena bunuh diri.", author: "Paul Graham", weight: 2 },
-    { text: "The way to get startup ideas is not to try to think of startup ideas.", textId: "Cara mendapat ide startup bukan dengan mencoba memikirkan ide startup.", author: "Paul Graham", weight: 2 },
-    { text: "Stay hungry. Stay foolish.", textId: "Tetap lapar. Tetap bodoh.", author: "Steve Jobs", weight: 2 },
-    { text: "Your time is limited. Don't waste it living someone else's life.", textId: "Waktumu terbatas. Jangan sia-siakan untuk menjalani hidup orang lain.", author: "Steve Jobs", weight: 3 },
-    { text: "Move fast and break things. Unless you are breaking stuff, you are not moving fast enough.", textId: "Bergerak cepat dan hancurkan sesuatu. Kalau kamu tidak menghancurkan apapun, kamu tidak cukup cepat.", author: "Mark Zuckerberg", weight: 1 },
+    // Tech & Business
+    { text: "Desire is a contract you make with yourself to be unhappy until you get what you want.", textId: "Keinginan adalah kontrak yang kamu buat dengan dirimu sendiri untuk tidak bahagia sampai kamu mendapat yang kamu mau.", author: "Naval Ravikant", weight: 3, category: "Tech", context: "Paradoks keinginan: menginginkan sesuatu berarti menyatakan ketidakbahagiaan saat ini." },
+    { text: "Play stupid games, win stupid prizes.", textId: "Mainkan permainan bodoh, menangkan hadiah bodoh.", author: "Naval Ravikant", weight: 3, category: "Tech", context: "Pilih permainan hidupmu dengan bijak. Kompetisi status, validasi sosial—hadiahnya tidak sebanding dengan biayanya." },
+    { text: "Escape competition through authenticity.", textId: "Lepas dari kompetisi melalui keaslian.", author: "Naval Ravikant", weight: 3, category: "Tech", context: "Tidak ada kompetisi ketika kamu menjadi diri sendiri. Tidak ada yang bisa bersaing denganmu dalam menjadi kamu." },
+    { text: "Your time is limited. Don't waste it living someone else's life.", textId: "Waktumu terbatas. Jangan sia-siakan untuk menjalani hidup orang lain.", author: "Steve Jobs", weight: 3, category: "Tech", source: "Stanford Commencement Speech", context: "Dari pidato terakhirnya di Stanford. Jangan biarkan dogma orang lain menenggelamkan suara hatimu." },
 
-    // Modern Thinkers
-    { text: "Hard choices, easy life. Easy choices, hard life.", textId: "Pilihan sulit, hidup mudah. Pilihan mudah, hidup sulit.", author: "Jerzy Gregorek", weight: 3 },
-    { text: "The world is changed by your example, not by your opinion.", textId: "Dunia diubah oleh teladanmu, bukan oleh pendapatmu.", author: "Paulo Coelho", weight: 2 },
-    { text: "What we fear doing most is usually what we most need to do.", textId: "Apa yang paling kita takuti untuk lakukan biasanya adalah apa yang paling perlu kita lakukan.", author: "Tim Ferriss", weight: 2 },
-    { text: "A person's success in life can usually be measured by the number of uncomfortable conversations they are willing to have.", textId: "Kesuksesan seseorang biasanya bisa diukur dari jumlah percakapan tidak nyaman yang bersedia ia jalani.", author: "Tim Ferriss", weight: 2 },
-    { text: "The quality of your life is a direct reflection of the quality of the questions you are asking yourself.", textId: "Kualitas hidupmu adalah cerminan langsung dari kualitas pertanyaan yang kamu ajukan pada dirimu sendiri.", author: "Tony Robbins", weight: 2 },
+    // Psychology & Mind
+    { text: "Between stimulus and response there is a space. In that space is our power to choose our response.", textId: "Antara stimulus dan respons ada ruang. Di ruang itu ada kekuatan kita untuk memilih respons.", author: "Viktor Frankl", weight: 3, category: "Psychology", context: "Dari pengalaman di kamp konsentrasi. Bahkan dalam situasi paling ekstrem, kita punya kebebasan memilih sikap." },
+    { text: "Everything can be taken from a man but one thing: the last of the human freedoms—to choose one's attitude.", textId: "Segalanya bisa diambil dari manusia kecuali satu hal: kebebasan manusia terakhir—memilih sikapnya.", author: "Viktor Frankl", weight: 3, category: "Psychology", source: "Man's Search for Meaning", context: "Inti dari logotherapy. Makna bisa ditemukan bahkan dalam penderitaan." },
+    { text: "Until you make the unconscious conscious, it will direct your life and you will call it fate.", textId: "Sampai kamu membuat yang tak sadar menjadi sadar, ia akan mengarahkan hidupmu dan kamu akan menyebutnya takdir.", author: "Carl Jung", weight: 3, category: "Psychology", context: "Shadow work. Pola bawah sadar mengendalikan kita sampai kita menyadari dan mengintegrasikannya." },
+    { text: "The privilege of a lifetime is to become who you truly are.", textId: "Hak istimewa seumur hidup adalah menjadi siapa dirimu sebenarnya.", author: "Carl Jung", weight: 3, category: "Psychology", context: "Individuasi—proses menjadi diri yang utuh dan autentik. Ini adalah perjalanan seumur hidup." },
 
-    // Indonesian Literature & Thinkers (Higher weight, no translation needed)
-    { text: "Orang boleh pandai setinggi langit, tapi selama ia tidak menulis, ia akan hilang di dalam masyarakat dan dari sejarah.", author: "Pramoedya Ananta Toer", weight: 5 },
-    { text: "Menulis adalah bekerja untuk keabadian.", author: "Pramoedya Ananta Toer", weight: 5 },
-    { text: "Hidup ini sederhana, yang rumit itu keinginan.", author: "Sapardi Djoko Damono", weight: 5 },
-    { text: "Hujan bulan Juni. Tak ada yang lebih tabah dari hujan bulan Juni.", author: "Sapardi Djoko Damono", weight: 5 },
-    { text: "Aku ingin mencintaimu dengan sederhana.", author: "Sapardi Djoko Damono", weight: 4 },
-    { text: "Jangan sekali-kali meninggalkan sejarah.", author: "Soekarno", weight: 5 },
-    { text: "Bangsa yang besar adalah bangsa yang menghormati jasa pahlawannya.", author: "Soekarno", weight: 4 },
-    { text: "Gantungkan cita-citamu setinggi langit.", author: "Soekarno", weight: 4 },
-    { text: "Perjuanganku lebih mudah karena mengusir penjajah. Perjuanganmu lebih sulit karena melawan bangsamu sendiri.", author: "Soekarno", weight: 5 },
-    { text: "Kebenaran akan tetap ada, sekalipun ia ditekan oleh kekuasaan.", author: "Tan Malaka", weight: 5 },
-    { text: "Tujuan pendidikan itu untuk mempertajam kecerdasan, memperkukuh kemauan serta memperhalus perasaan.", author: "Tan Malaka", weight: 4 },
-    { text: "Hidup yang tidak dipertaruhkan tidak akan pernah dimenangkan.", author: "Sutan Sjahrir", weight: 5 },
-    { text: "Buku adalah jendela dunia.", author: "Pepatah Indonesia", weight: 3 },
-    { text: "Air beriak tanda tak dalam.", author: "Pepatah Melayu", weight: 4 },
-    { text: "Di mana bumi dipijak, di situ langit dijunjung.", author: "Pepatah Melayu", weight: 4 },
-
-    // Psychology & Philosophy of Mind
-    { text: "Between stimulus and response there is a space. In that space is our power to choose our response.", textId: "Antara stimulus dan respons ada ruang. Di ruang itu ada kekuatan kita untuk memilih respons.", author: "Viktor Frankl", weight: 3 },
-    { text: "Everything can be taken from a man but one thing: the last of the human freedoms—to choose one's attitude in any given set of circumstances.", textId: "Segalanya bisa diambil dari manusia kecuali satu hal: kebebasan manusia terakhir—memilih sikapnya dalam situasi apapun.", author: "Viktor Frankl", weight: 3 },
-    { text: "Until you make the unconscious conscious, it will direct your life and you will call it fate.", textId: "Sampai kamu membuat yang tak sadar menjadi sadar, ia akan mengarahkan hidupmu dan kamu akan menyebutnya takdir.", author: "Carl Jung", weight: 3 },
-    { text: "Loneliness does not come from having no people around you, but from being unable to communicate the things that seem important to you.", textId: "Kesepian tidak datang dari tidak punya orang di sekitarmu, tapi dari ketidakmampuan mengomunikasikan hal-hal yang penting bagimu.", author: "Carl Jung", weight: 2 },
-    { text: "The privilege of a lifetime is to become who you truly are.", textId: "Hak istimewa seumur hidup adalah menjadi siapa dirimu sebenarnya.", author: "Carl Jung", weight: 3 },
-
-    // Art & Creativity
-    { text: "Creativity is intelligence having fun.", textId: "Kreativitas adalah kecerdasan yang sedang bersenang-senang.", author: "Albert Einstein", weight: 2 },
-    { text: "Every child is an artist. The problem is how to remain an artist once we grow up.", textId: "Setiap anak adalah seniman. Masalahnya adalah bagaimana tetap menjadi seniman setelah dewasa.", author: "Pablo Picasso", weight: 2 },
-    { text: "The chief enemy of creativity is good sense.", textId: "Musuh utama kreativitas adalah akal sehat.", author: "Pablo Picasso", weight: 2 },
-    { text: "Art is not what you see, but what you make others see.", textId: "Seni bukan apa yang kamu lihat, tapi apa yang kamu buat orang lain lihat.", author: "Edgar Degas", weight: 2 },
-
-    // Life & Death
-    { text: "Remembering that you are going to die is the best way I know to avoid the trap of thinking you have something to lose.", textId: "Mengingat bahwa kamu akan mati adalah cara terbaik yang kutahu untuk menghindari jebakan berpikir kamu punya sesuatu untuk kehilangan.", author: "Steve Jobs", weight: 3 },
-    { text: "It is not death that a man should fear, but he should fear never beginning to live.", textId: "Bukan kematian yang harus ditakuti manusia, tapi ia harus takut tidak pernah mulai hidup.", author: "Marcus Aurelius", weight: 3 },
-    { text: "The fear of death follows from the fear of life. A man who lives fully is prepared to die at any time.", textId: "Ketakutan akan kematian mengikuti ketakutan akan hidup. Orang yang hidup sepenuhnya siap mati kapan saja.", author: "Mark Twain", weight: 2 },
-    { text: "I went to the woods because I wished to live deliberately, to front only the essential facts of life.", textId: "Aku pergi ke hutan karena ingin hidup dengan sengaja, menghadapi hanya fakta-fakta esensial kehidupan.", author: "Henry David Thoreau", weight: 2 },
-
-    // Additional Stoic Wisdom
-    { text: "Waste no more time arguing about what a good man should be. Be one.", textId: "Jangan buang waktu lagi berdebat tentang seperti apa orang baik seharusnya. Jadilah.", author: "Marcus Aurelius", weight: 3 },
-    { text: "If it is not right, do not do it; if it is not true, do not say it.", textId: "Jika tidak benar, jangan lakukan; jika tidak jujur, jangan katakan.", author: "Marcus Aurelius", weight: 3 },
-    { text: "Luck is what happens when preparation meets opportunity.", textId: "Keberuntungan adalah ketika persiapan bertemu kesempatan.", author: "Seneca", weight: 2 },
-    { text: "We are more often frightened than hurt; and we suffer more in imagination than in reality.", textId: "Kita lebih sering ketakutan daripada terluka; dan kita menderita lebih banyak dalam imajinasi daripada kenyataan.", author: "Seneca", weight: 3 },
-    { text: "First say to yourself what you would be; and then do what you have to do.", textId: "Pertama katakan pada dirimu apa yang ingin kamu jadi; lalu lakukan apa yang harus kamu lakukan.", author: "Epictetus", weight: 3 },
-
-    // More Existentialism
-    { text: "Freedom is what we do with what is done to us.", textId: "Kebebasan adalah apa yang kita lakukan dengan apa yang dilakukan kepada kita.", author: "Jean-Paul Sartre", weight: 3 },
-    { text: "Life begins on the other side of despair.", textId: "Hidup dimulai di sisi lain keputusasaan.", author: "Jean-Paul Sartre", weight: 3 },
-    { text: "The absurd does not liberate; it binds.", textId: "Yang absurd tidak membebaskan; ia mengikat.", author: "Albert Camus", weight: 2 },
-    { text: "You will never be happy if you continue to search for what happiness consists of.", textId: "Kamu tidak akan pernah bahagia jika terus mencari apa itu kebahagiaan.", author: "Albert Camus", weight: 3 },
-    { text: "That which does not kill us makes us stronger.", textId: "Apa yang tidak membunuh kita membuat kita lebih kuat.", author: "Friedrich Nietzsche", weight: 2 },
-    { text: "There are no facts, only interpretations.", textId: "Tidak ada fakta, hanya interpretasi.", author: "Friedrich Nietzsche", weight: 3 },
-
-    // More Eastern Philosophy
-    { text: "When you realize nothing is lacking, the whole world belongs to you.", textId: "Ketika kamu menyadari tidak ada yang kurang, seluruh dunia menjadi milikmu.", author: "Lao Tzu", weight: 3 },
-    { text: "Nature does not hurry, yet everything is accomplished.", textId: "Alam tidak terburu-buru, namun semuanya terselesaikan.", author: "Lao Tzu", weight: 3 },
-    { text: "The mind is everything. What you think you become.", textId: "Pikiran adalah segalanya. Apa yang kamu pikirkan, itulah jadimu.", author: "Buddha", weight: 3 },
-    { text: "In the end, only three things matter: how much you loved, how gently you lived, and how gracefully you let go.", textId: "Pada akhirnya, hanya tiga hal yang penting: seberapa banyak kamu mencintai, seberapa lembut kamu hidup, dan seberapa anggun kamu melepaskan.", author: "Buddha", weight: 3 },
-    { text: "Fall seven times, stand up eight.", textId: "Jatuh tujuh kali, bangkit delapan kali.", author: "Japanese Proverb", weight: 3 },
-    { text: "The frog in the well knows nothing of the great ocean.", textId: "Katak dalam sumur tidak tahu tentang samudra luas.", author: "Japanese Proverb", weight: 2 },
-
-    // More Indonesian Literature & Thinkers
-    { text: "Manusia tak selamanya benar dan tak selamanya salah, kecuali ia yang selalu mengoreksi diri.", author: "Pramoedya Ananta Toer", weight: 5 },
-    { text: "Seorang terpelajar harus juga berlaku adil sudah sejak dalam pikiran, apalagi dalam perbuatan.", author: "Pramoedya Ananta Toer", weight: 5 },
-    { text: "Dalam menghadapi anak bangsanya sendiri, perempuan lebih gagah daripada pahlawan.", author: "Pramoedya Ananta Toer", weight: 4 },
-    { text: "Yang namanya cinta itu selalu mengorbankan.", author: "Chairil Anwar", weight: 4 },
-    { text: "Aku ini binatang jalang, dari kumpulannya terbuang.", author: "Chairil Anwar", weight: 5 },
-    { text: "Sekali berarti, sudah itu mati.", author: "Chairil Anwar", weight: 5 },
-    { text: "Bukan aku hendak menjelaskan perihal mawar, yang hendak kujelaskan adalah perihal rindu.", author: "Goenawan Mohamad", weight: 4 },
-    { text: "Kata-kata memang tak ada yang netral.", author: "Goenawan Mohamad", weight: 4 },
-    { text: "Yang fana adalah waktu. Kita abadi.", author: "Sapardi Djoko Damono", weight: 5 },
-    { text: "Pada suatu hari nanti, jasadku tak akan ada lagi. Tapi di sini, di hatimu, aku telah menanam pohon.", author: "WS Rendra", weight: 5 },
-    { text: "Kebudayaan adalah cara manusia menghadapi hidup.", author: "WS Rendra", weight: 4 },
-    { text: "Beri aku sepuluh pemuda, niscaya akan kuguncangkan dunia.", author: "Soekarno", weight: 5 },
-    { text: "Jangan melihat ke masa depan dengan mata buta. Masa yang lampau sangat berguna sebagai kaca benggala.", author: "Soekarno", weight: 4 },
-    { text: "Lebih baik diasingkan daripada menyerah pada kemunafikan.", author: "Sutan Sjahrir", weight: 5 },
-    { text: "Idealisme adalah kemewahan terakhir yang hanya dimiliki oleh pemuda.", author: "Tan Malaka", weight: 5 },
-
-    // Science & Rationality
-    { text: "The first principle is that you must not fool yourself—and you are the easiest person to fool.", textId: "Prinsip pertama adalah kamu tidak boleh menipu dirimu sendiri—dan kamu adalah orang yang paling mudah dibohongi.", author: "Richard Feynman", weight: 3 },
-    { text: "It is far better to grasp the universe as it really is than to persist in delusion, however satisfying.", textId: "Jauh lebih baik memahami alam semesta sebagaimana adanya daripada bertahan dalam delusi, betapapun memuaskan.", author: "Carl Sagan", weight: 3 },
-    { text: "Somewhere, something incredible is waiting to be known.", textId: "Di suatu tempat, sesuatu yang luar biasa menunggu untuk diketahui.", author: "Carl Sagan", weight: 2 },
-    { text: "The good thing about science is that it's true whether or not you believe in it.", textId: "Yang baik dari sains adalah ia benar terlepas dari apakah kamu percaya atau tidak.", author: "Neil deGrasse Tyson", weight: 2 },
-    { text: "In science, there are no shortcuts to truth.", textId: "Dalam sains, tidak ada jalan pintas menuju kebenaran.", author: "Carl Sagan", weight: 3 },
+    // Science
+    { text: "The first principle is that you must not fool yourself—and you are the easiest person to fool.", textId: "Prinsip pertama adalah kamu tidak boleh menipu dirimu sendiri—dan kamu adalah orang yang paling mudah dibohongi.", author: "Richard Feynman", weight: 3, category: "Science", context: "Integritas ilmiah dimulai dari kejujuran pada diri sendiri. Bias konfirmasi adalah musuh utama." },
+    { text: "Somewhere, something incredible is waiting to be known.", textId: "Di suatu tempat, sesuatu yang luar biasa menunggu untuk diketahui.", author: "Carl Sagan", weight: 2, category: "Science", context: "Rasa takjub sebagai motor sains. Alam semesta penuh misteri yang menunggu untuk diungkap." },
 
     // Ancient Wisdom
-    { text: "Know thyself.", textId: "Kenali dirimu.", author: "Delphic Maxim", weight: 3 },
-    { text: "I know that I know nothing.", textId: "Saya tahu bahwa saya tidak tahu apa-apa.", author: "Socrates", weight: 3 },
-    { text: "The measure of a man is what he does with power.", textId: "Ukuran seseorang adalah apa yang ia lakukan dengan kekuasaan.", author: "Plato", weight: 3 },
-    { text: "We are what we repeatedly do. Excellence, then, is not an act, but a habit.", textId: "Kita adalah apa yang kita lakukan berulang kali. Keunggulan, maka, bukan tindakan, tapi kebiasaan.", author: "Aristotle", weight: 3 },
-    { text: "It is the mark of an educated mind to be able to entertain a thought without accepting it.", textId: "Tanda pikiran terpelajar adalah mampu mempertimbangkan suatu pemikiran tanpa menerimanya.", author: "Aristotle", weight: 3 },
+    { text: "Know thyself.", textId: "Kenali dirimu.", author: "Delphic Maxim", weight: 3, category: "Ancient", context: "Terukir di kuil Apollo di Delphi. Dasar semua kebijaksanaan adalah pemahaman diri." },
+    { text: "I know that I know nothing.", textId: "Saya tahu bahwa saya tidak tahu apa-apa.", author: "Socrates", weight: 3, category: "Ancient", context: "Socratic ignorance. Kebijaksanaan dimulai dari mengakui keterbatasan pengetahuan kita." },
+    { text: "We are what we repeatedly do. Excellence, then, is not an act, but a habit.", textId: "Kita adalah apa yang kita lakukan berulang kali. Keunggulan, maka, bukan tindakan, tapi kebiasaan.", author: "Aristotle", weight: 3, category: "Ancient", context: "Karakter dibentuk oleh kebiasaan, bukan niat sesaat. Disiplin harian lebih penting dari motivasi sesaat." },
 
-    // More Writers
-    { text: "The world breaks everyone, and afterward, some are strong at the broken places.", textId: "Dunia menghancurkan semua orang, dan setelahnya, beberapa menjadi kuat di tempat yang patah.", author: "Ernest Hemingway", weight: 3 },
-    { text: "There is nothing to writing. All you do is sit down at a typewriter and bleed.", textId: "Tidak ada yang istimewa dalam menulis. Yang kamu lakukan hanyalah duduk di depan mesin tik dan berdarah.", author: "Ernest Hemingway", weight: 3 },
-    { text: "Not all those who wander are lost.", textId: "Tidak semua yang berkelana itu tersesat.", author: "J.R.R. Tolkien", weight: 2 },
-    { text: "It does not do to dwell on dreams and forget to live.", textId: "Tidak baik terpaku pada mimpi dan lupa untuk hidup.", author: "J.K. Rowling", weight: 2 },
-    { text: "We read to know we are not alone.", textId: "Kita membaca untuk tahu bahwa kita tidak sendirian.", author: "C.S. Lewis", weight: 3 },
-    { text: "A reader lives a thousand lives before he dies. The man who never reads lives only one.", textId: "Pembaca menjalani seribu kehidupan sebelum mati. Orang yang tidak pernah membaca hanya menjalani satu.", author: "George R.R. Martin", weight: 3 },
+    // Mindfulness
+    { text: "Happiness is not something ready made. It comes from your own actions.", textId: "Kebahagiaan bukanlah sesuatu yang sudah jadi. Ia datang dari tindakanmu sendiri.", author: "Dalai Lama", weight: 3, category: "Mindfulness", context: "Kebahagiaan adalah hasil, bukan hadiah. Ia dibangun lewat tindakan yang disengaja." },
+    { text: "Live as if you were to die tomorrow. Learn as if you were to live forever.", textId: "Hiduplah seolah kamu akan mati besok. Belajarlah seolah kamu akan hidup selamanya.", author: "Mahatma Gandhi", weight: 3, category: "Mindfulness", context: "Keseimbangan antara urgensi dan kesabaran. Hidup penuh intensitas, tapi dengan perspektif jangka panjang." },
 
-    // Mindfulness & Inner Peace
-    { text: "The greatest glory in living lies not in never falling, but in rising every time we fall.", textId: "Kemuliaan terbesar dalam hidup bukan karena tidak pernah jatuh, tapi bangkit setiap kali kita jatuh.", author: "Nelson Mandela", weight: 3 },
-    { text: "Happiness is not something ready made. It comes from your own actions.", textId: "Kebahagiaan bukanlah sesuatu yang sudah jadi. Ia datang dari tindakanmu sendiri.", author: "Dalai Lama", weight: 3 },
-    { text: "If you want others to be happy, practice compassion. If you want to be happy, practice compassion.", textId: "Jika kamu ingin orang lain bahagia, praktikkan welas asih. Jika kamu ingin bahagia, praktikkan welas asih.", author: "Dalai Lama", weight: 3 },
-    { text: "Be the change you wish to see in the world.", textId: "Jadilah perubahan yang ingin kamu lihat di dunia.", author: "Mahatma Gandhi", weight: 2 },
-    { text: "Live as if you were to die tomorrow. Learn as if you were to live forever.", textId: "Hiduplah seolah kamu akan mati besok. Belajarlah seolah kamu akan hidup selamanya.", author: "Mahatma Gandhi", weight: 3 },
+    // Life
+    { text: "Remembering that you are going to die is the best way I know to avoid the trap of thinking you have something to lose.", textId: "Mengingat bahwa kamu akan mati adalah cara terbaik yang kutahu untuk menghindari jebakan berpikir kamu punya sesuatu untuk kehilangan.", author: "Steve Jobs", weight: 3, category: "Life", source: "Stanford Commencement Speech", context: "Memento mori. Kesadaran kematian membebaskan kita dari rasa takut dan ego." },
 ];
+
+const categories = ["All", "Stoic", "Existentialism", "Eastern", "Indonesian", "Literature", "Tech", "Psychology", "Science", "Ancient", "Mindfulness", "Life"];
+
+const getDailyQuoteIndex = () => {
+    const today = new Date();
+    const seed = today.getFullYear() * 10000 + (today.getMonth() + 1) * 100 + today.getDate();
+    return seed % quotes.length;
+};
 
 export function RandomQuote() {
     const [quote, setQuote] = useState<Quote | null>(null);
     const [isAnimating, setIsAnimating] = useState(false);
     const [shownIndices, setShownIndices] = useState<Set<number>>(new Set());
     const [showTranslation, setShowTranslation] = useState(false);
+    const [favorites, setFavorites] = useState<number[]>([]);
+    const [selectedCategory, setSelectedCategory] = useState("All");
+    const [streak, setStreak] = useState(0);
+    const [displayedText, setDisplayedText] = useState("");
+    const [isTyping, setIsTyping] = useState(false);
+    const [isDailyQuote, setIsDailyQuote] = useState(false);
+    const [showContext, setShowContext] = useState(false);
+    const [showFavorites, setShowFavorites] = useState(false);
 
-    // Weighted random selection from available indices
-    const weightedRandomPick = (indices: number[]) => {
+    useEffect(() => {
+        const savedFavorites = localStorage.getItem("quoteFavorites");
+        const savedShown = localStorage.getItem("quoteShown");
+        const savedStreak = localStorage.getItem("quoteStreak");
+        const lastVisit = localStorage.getItem("quoteLastVisit");
+
+        if (savedFavorites) setFavorites(JSON.parse(savedFavorites));
+        if (savedShown) setShownIndices(new Set(JSON.parse(savedShown)));
+        if (savedStreak) setStreak(parseInt(savedStreak));
+
+        const today = new Date().toDateString();
+        if (lastVisit) {
+            const lastDate = new Date(lastVisit);
+            const yesterday = new Date();
+            yesterday.setDate(yesterday.getDate() - 1);
+
+            if (lastVisit !== today) {
+                if (lastDate.toDateString() === yesterday.toDateString()) {
+                    const newStreak = (parseInt(savedStreak || "0")) + 1;
+                    setStreak(newStreak);
+                    localStorage.setItem("quoteStreak", newStreak.toString());
+                } else {
+                    setStreak(1);
+                    localStorage.setItem("quoteStreak", "1");
+                }
+            }
+        } else {
+            setStreak(1);
+            localStorage.setItem("quoteStreak", "1");
+        }
+        localStorage.setItem("quoteLastVisit", today);
+    }, []);
+
+    useEffect(() => {
+        localStorage.setItem("quoteFavorites", JSON.stringify(favorites));
+    }, [favorites]);
+
+    useEffect(() => {
+        localStorage.setItem("quoteShown", JSON.stringify([...shownIndices]));
+    }, [shownIndices]);
+
+    useEffect(() => {
+        if (!quote || isAnimating) return;
+
+        const text = showTranslation && quote.textId ? quote.textId : quote.text;
+        setDisplayedText("");
+        setIsTyping(true);
+
+        let i = 0;
+        const interval = setInterval(() => {
+            if (i < text.length) {
+                setDisplayedText(text.slice(0, i + 1));
+                i++;
+            } else {
+                clearInterval(interval);
+                setIsTyping(false);
+            }
+        }, 18);
+
+        return () => clearInterval(interval);
+    }, [quote, showTranslation, isAnimating]);
+
+    const weightedRandomPick = useCallback((indices: number[]) => {
         const weights = indices.map(i => quotes[i].weight);
         const totalWeight = weights.reduce((a, b) => a + b, 0);
         let random = Math.random() * totalWeight;
@@ -185,166 +222,489 @@ export function RandomQuote() {
             if (random <= 0) return indices[i];
         }
         return indices[indices.length - 1];
-    };
+    }, []);
 
-    const getRandomQuote = () => {
+    const getRandomQuote = useCallback(() => {
         setIsAnimating(true);
         setShowTranslation(false);
+        setShowContext(false);
+        setIsDailyQuote(false);
 
-        // Get available indices (not yet shown)
-        let availableIndices = quotes
-            .map((_, i) => i)
-            .filter(i => !shownIndices.has(i));
+        const filteredIndices = quotes
+            .map((q, i) => ({ q, i }))
+            .filter(({ q }) => selectedCategory === "All" || q.category === selectedCategory)
+            .map(({ i }) => i);
 
-        // If all quotes have been shown, reset
+        let availableIndices = filteredIndices.filter(i => !shownIndices.has(i));
+
         if (availableIndices.length === 0) {
-            availableIndices = quotes.map((_, i) => i);
+            availableIndices = filteredIndices;
             setShownIndices(new Set());
         }
 
-        // Shuffle animation effect
         let shuffleCount = 0;
         const shuffleInterval = setInterval(() => {
-            const randomIndex = Math.floor(Math.random() * quotes.length);
+            const randomIndex = filteredIndices[Math.floor(Math.random() * filteredIndices.length)];
             setQuote(quotes[randomIndex]);
             shuffleCount++;
 
             if (shuffleCount >= 8) {
                 clearInterval(shuffleInterval);
-                // Pick final quote using weighted selection
                 const finalIndex = weightedRandomPick(availableIndices);
                 setQuote(quotes[finalIndex]);
                 setShownIndices(prev => new Set([...prev, finalIndex]));
                 setIsAnimating(false);
             }
         }, 80);
+    }, [selectedCategory, shownIndices, weightedRandomPick]);
+
+    const getDailyQuote = () => {
+        setShowTranslation(false);
+        setShowContext(false);
+        setIsDailyQuote(true);
+        const dailyIndex = getDailyQuoteIndex();
+        setQuote(quotes[dailyIndex]);
+        setShownIndices(prev => new Set([...prev, dailyIndex]));
     };
 
-    const displayText = showTranslation && quote?.textId ? quote.textId : quote?.text;
+    const toggleFavorite = () => {
+        if (!quote) return;
+        const index = quotes.indexOf(quote);
+        if (favorites.includes(index)) {
+            setFavorites(favorites.filter(i => i !== index));
+        } else {
+            setFavorites([...favorites, index]);
+        }
+    };
+
+    const isFavorite = quote ? favorites.includes(quotes.indexOf(quote)) : false;
 
     return (
-        <div style={{
+        <div className="animate-fade-in" style={{
             maxWidth: "42rem",
             margin: "0 auto",
             textAlign: "center",
             position: "relative",
-            zIndex: 1
-        }} className="animate-fade-in">
+            zIndex: 1,
+            padding: "0 1rem"
+        }}>
+            {/* Header */}
             <h2 style={{
                 fontFamily: "'Playfair Display', serif",
-                fontSize: "clamp(2rem, 5vw, 3rem)",
-                marginBottom: "1rem",
-                color: "white"
+                fontSize: "clamp(1.75rem, 5vw, 2.5rem)",
+                marginBottom: "0.5rem",
+                color: "var(--foreground)"
             }}>
                 🎲 Wisdom Gacha
             </h2>
             <p style={{
-                fontSize: "1rem",
-                opacity: 0.7,
-                marginBottom: "2rem",
-                fontWeight: 300,
-                lineHeight: 1.7
+                fontSize: "0.85rem",
+                color: "var(--text-secondary)",
+                marginBottom: "1.25rem",
+                maxWidth: "24rem",
+                margin: "0 auto 1.25rem"
             }}>
-                Butuh reminder random buat hari ini? Tekan tombol di bawah.
+                Koleksi kutipan dari filsuf, penulis, dan pemikir dunia.
             </p>
+
+            {/* Stats */}
+            <div style={{
+                display: "flex",
+                justifyContent: "center",
+                gap: "1rem",
+                marginBottom: "1rem",
+                fontSize: "0.75rem",
+                opacity: 0.6,
+                flexWrap: "wrap"
+            }}>
+                <span>🔥 {streak} hari</span>
+                <span>📚 {shownIndices.size}/{quotes.length}</span>
+                <span>⭐ {favorites.length}</span>
+            </div>
+
+            {/* Progress Bar */}
+            <div style={{
+                width: "100%",
+                height: "2px",
+                backgroundColor: "var(--border)",
+                borderRadius: "1px",
+                marginBottom: "1.25rem",
+                overflow: "hidden"
+            }}>
+                <div style={{
+                    width: `${(shownIndices.size / quotes.length) * 100}%`,
+                    height: "100%",
+                    backgroundColor: "var(--foreground)",
+                    transition: "width 0.5s ease"
+                }} />
+            </div>
+
+            {/* Category Filter - Horizontal Scroll for Mobile */}
+            <div style={{ position: "relative", marginBottom: "1.25rem" }}>
+                {/* Scroll hint gradient - right side */}
+                <div
+                    className="category-scroll-hint"
+                    style={{
+                        position: "absolute",
+                        right: 0,
+                        top: 0,
+                        bottom: 0,
+                        width: "48px",
+                        background: "linear-gradient(90deg, transparent 0%, var(--background) 70%)",
+                        pointerEvents: "none",
+                        zIndex: 1,
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "flex-end",
+                        paddingRight: "8px"
+                    }}
+                >
+                    <span style={{
+                        fontSize: "0.65rem",
+                        opacity: 0.5,
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "2px"
+                    }}>
+                        <span style={{ fontSize: "0.8rem" }}>›</span>
+                    </span>
+                </div>
+
+                <div
+                    style={{
+                        display: "flex",
+                        gap: "0.4rem",
+                        overflowX: "auto",
+                        WebkitOverflowScrolling: "touch",
+                        scrollbarWidth: "none",
+                        msOverflowStyle: "none",
+                        paddingBottom: "0.5rem",
+                        paddingRight: "2rem"
+                    }}
+                >
+                    {categories.map(cat => (
+                        <button
+                            key={cat}
+                            onClick={() => setSelectedCategory(cat)}
+                            style={{
+                                padding: "0.4rem 0.75rem",
+                                fontSize: "0.7rem",
+                                borderRadius: "4px",
+                                border: selectedCategory === cat ? "1px solid var(--foreground)" : "1px solid var(--border)",
+                                backgroundColor: selectedCategory === cat ? "var(--hover-bg)" : "transparent",
+                                color: selectedCategory === cat ? "var(--foreground)" : "var(--text-secondary)",
+                                cursor: "pointer",
+                                transition: "all 0.2s ease",
+                                whiteSpace: "nowrap",
+                                flexShrink: 0
+                            }}
+                        >
+                            {cat}
+                        </button>
+                    ))}
+                </div>
+            </div>
 
             {/* Quote Display */}
             <div style={{
-                minHeight: "140px",
+                minHeight: "200px",
                 display: "flex",
                 flexDirection: "column",
                 alignItems: "center",
                 justifyContent: "center",
-                marginBottom: "2rem",
-                padding: "1.5rem",
-                borderRadius: "12px",
-                backgroundColor: "rgba(255,255,255,0.05)",
-                border: "1px solid rgba(255,255,255,0.1)",
-                transition: "all 0.3s ease"
+                marginBottom: "1.25rem",
+                padding: "1.5rem 1rem",
+                borderRadius: "8px",
+                backgroundColor: "var(--hover-bg)",
+                border: "1px solid var(--border)",
+                position: "relative"
             }}>
+                {/* Daily Badge */}
+                {isDailyQuote && (
+                    <div style={{
+                        position: "absolute",
+                        top: "-8px",
+                        right: "12px",
+                        backgroundColor: "var(--foreground)",
+                        color: "var(--background)",
+                        padding: "0.2rem 0.5rem",
+                        borderRadius: "4px",
+                        fontSize: "0.65rem",
+                        fontWeight: 600
+                    }}>
+                        ✨ Hari Ini
+                    </div>
+                )}
+
                 {quote ? (
                     <div style={{
-                        opacity: isAnimating ? 0.5 : 1,
+                        opacity: isAnimating ? 0.4 : 1,
                         transition: "opacity 0.2s ease",
                         width: "100%"
                     }}>
-                        <p style={{
-                            fontSize: "1.25rem",
-                            fontStyle: "italic",
-                            lineHeight: 1.6,
-                            marginBottom: "0.75rem",
-                            color: "white",
-                            transition: "opacity 0.3s ease"
+                        {/* Category */}
+                        <span style={{
+                            fontSize: "0.65rem",
+                            padding: "0.15rem 0.5rem",
+                            borderRadius: "3px",
+                            backgroundColor: "var(--hover-bg)",
+                            marginBottom: "1rem",
+                            display: "inline-block",
+                            opacity: 0.7
                         }}>
-                            "{displayText}"
-                        </p>
+                            {quote.category}
+                        </span>
+
+                        {/* Quote Text */}
                         <p style={{
-                            fontSize: "0.875rem",
+                            fontSize: "clamp(1rem, 4vw, 1.25rem)",
+                            fontStyle: "italic",
+                            lineHeight: 1.7,
+                            marginBottom: "0.75rem",
+                            marginTop: "0.75rem",
+                            color: "var(--foreground)"
+                        }}>
+                            "{isAnimating ? quote.text : displayedText}{isTyping && <span style={{ opacity: 0.5 }}>|</span>}"
+                        </p>
+
+                        {/* Author & Source */}
+                        <p style={{
+                            fontSize: "0.8rem",
                             opacity: 0.6,
-                            marginBottom: quote.textId ? "1rem" : 0
+                            marginBottom: quote.source ? "0.25rem" : "0"
                         }}>
                             — {quote.author}
                         </p>
+                        {quote.source && (
+                            <p style={{ fontSize: "0.7rem", opacity: 0.4 }}>
+                                ┊ {quote.source}
+                            </p>
+                        )}
 
-                        {/* Translate Button - only show for English quotes */}
-                        {quote.textId && !isAnimating && (
-                            <button
-                                onClick={() => setShowTranslation(!showTranslation)}
-                                style={{
-                                    background: "transparent",
-                                    border: "1px solid rgba(255,255,255,0.2)",
-                                    borderRadius: "20px",
-                                    padding: "0.4rem 0.8rem",
-                                    fontSize: "0.75rem",
-                                    color: "rgba(255,255,255,0.6)",
-                                    cursor: "pointer",
-                                    transition: "all 0.2s ease",
-                                    display: "inline-flex",
-                                    alignItems: "center",
-                                    gap: "0.35rem"
-                                }}
-                                className="hover:border-white/40 hover:text-white/80"
-                            >
-                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                    <path d="M5 8l6 6" />
-                                    <path d="M4 14l6-6 2-3" />
-                                    <path d="M2 5h12" />
-                                    <path d="M7 2h1" />
-                                    <path d="M22 22l-5-10-5 10" />
-                                    <path d="M14 18h6" />
-                                </svg>
-                                {showTranslation ? "Original" : "Terjemahan"}
-                            </button>
+                        {/* Action Buttons */}
+                        {!isAnimating && (
+                            <div style={{
+                                display: "flex",
+                                justifyContent: "center",
+                                gap: "0.5rem",
+                                marginTop: "1.25rem",
+                                flexWrap: "wrap"
+                            }}>
+                                {/* Favorite */}
+                                <button
+                                    onClick={toggleFavorite}
+                                    aria-label={isFavorite ? "Hapus dari favorit" : "Simpan ke favorit"}
+                                    style={{
+                                        background: "transparent",
+                                        border: "1px solid var(--border)",
+                                        borderRadius: "4px",
+                                        padding: "0.5rem 0.75rem",
+                                        fontSize: "0.7rem",
+                                        color: isFavorite ? "var(--foreground)" : "var(--text-secondary)",
+                                        cursor: "pointer",
+                                        minHeight: "36px",
+                                        display: "flex",
+                                        alignItems: "center",
+                                        gap: "0.35rem"
+                                    }}
+                                >
+                                    {isFavorite ? "❤️" : "🤍"} Simpan
+                                </button>
+
+                                {/* Translation */}
+                                {quote.textId && (
+                                    <button
+                                        onClick={() => setShowTranslation(!showTranslation)}
+                                        aria-label={showTranslation ? "Lihat versi asli" : "Lihat terjemahan"}
+                                        style={{
+                                            background: "transparent",
+                                            border: "1px solid var(--border)",
+                                            borderRadius: "4px",
+                                            padding: "0.5rem 0.75rem",
+                                            fontSize: "0.7rem",
+                                            color: "var(--text-secondary)",
+                                            cursor: "pointer",
+                                            minHeight: "36px",
+                                            display: "flex",
+                                            alignItems: "center",
+                                            gap: "0.35rem"
+                                        }}
+                                    >
+                                        🌐 {showTranslation ? "Original" : "Terjemah"}
+                                    </button>
+                                )}
+
+                                {/* Context */}
+                                {quote.context && (
+                                    <button
+                                        onClick={() => setShowContext(!showContext)}
+                                        aria-label={showContext ? "Sembunyikan konteks" : "Lihat konteks"}
+                                        style={{
+                                            background: "transparent",
+                                            border: "1px solid var(--border)",
+                                            borderRadius: "4px",
+                                            padding: "0.5rem 0.75rem",
+                                            fontSize: "0.7rem",
+                                            color: showContext ? "var(--foreground)" : "var(--text-secondary)",
+                                            cursor: "pointer",
+                                            minHeight: "36px",
+                                            display: "flex",
+                                            alignItems: "center",
+                                            gap: "0.35rem"
+                                        }}
+                                    >
+                                        💡 Konteks
+                                    </button>
+                                )}
+                            </div>
+                        )}
+
+                        {/* Context Panel */}
+                        {showContext && quote.context && !isAnimating && (
+                            <div style={{
+                                marginTop: "1rem",
+                                padding: "1rem",
+                                backgroundColor: "var(--hover-bg)",
+                                borderRadius: "6px",
+                                textAlign: "left",
+                                borderLeft: "2px solid var(--border)"
+                            }}>
+                                <p style={{ fontSize: "0.8rem", lineHeight: 1.7, opacity: 0.8 }}>
+                                    {quote.context}
+                                </p>
+                                {authorBios[quote.author] && (
+                                    <p style={{ fontSize: "0.7rem", marginTop: "0.75rem", opacity: 0.5 }}>
+                                        ┊ {authorBios[quote.author].bio} ({authorBios[quote.author].era})
+                                    </p>
+                                )}
+                            </div>
                         )}
                     </div>
                 ) : (
-                    <p style={{ opacity: 0.5, fontStyle: "italic" }}>
+                    <p style={{ opacity: 0.4, fontStyle: "italic", fontSize: "0.9rem" }}>
                         Tekan tombol untuk dapat quote...
                     </p>
                 )}
             </div>
 
-            {/* Button */}
-            <button
-                onClick={getRandomQuote}
-                disabled={isAnimating}
-                style={{
-                    backgroundColor: "white",
-                    color: "black",
-                    padding: "1rem 2rem",
-                    fontWeight: 600,
-                    fontSize: "0.875rem",
-                    borderRadius: "50px",
-                    border: "none",
-                    cursor: isAnimating ? "wait" : "pointer",
-                    transition: "all 0.3s ease",
-                    opacity: isAnimating ? 0.7 : 1,
-                    transform: isAnimating ? "scale(0.98)" : "scale(1)"
-                }}
-                className="hover:opacity-90 active:scale-95"
-            >
-                {isAnimating ? "🎰 Rolling..." : "✨ I'm Feeling Lucky"}
-            </button>
+            {/* Main Buttons - Mobile Optimized */}
+            <div style={{
+                display: "flex",
+                flexDirection: "column",
+                gap: "0.75rem"
+            }}>
+                <button
+                    onClick={getRandomQuote}
+                    disabled={isAnimating}
+                    aria-label="Dapatkan quote random"
+                    style={{
+                        backgroundColor: "var(--foreground)",
+                        color: "var(--background)",
+                        padding: "1rem 1.5rem",
+                        fontWeight: 600,
+                        fontSize: "0.85rem",
+                        borderRadius: "6px",
+                        border: "none",
+                        cursor: isAnimating ? "wait" : "pointer",
+                        opacity: isAnimating ? 0.6 : 1,
+                        minHeight: "48px"
+                    }}
+                >
+                    {isAnimating ? "🎰 Rolling..." : "✨ I'm Feeling Lucky"}
+                </button>
+
+                <div style={{ display: "flex", gap: "0.75rem" }}>
+                    <button
+                        onClick={getDailyQuote}
+                        aria-label="Lihat quote hari ini"
+                        style={{
+                            flex: 1,
+                            backgroundColor: "transparent",
+                            color: "var(--foreground)",
+                            padding: "0.875rem 1rem",
+                            fontWeight: 500,
+                            fontSize: "0.8rem",
+                            borderRadius: "6px",
+                            border: "1px solid var(--border)",
+                            cursor: "pointer",
+                            minHeight: "48px"
+                        }}
+                    >
+                        📅 Hari Ini
+                    </button>
+
+                    <button
+                        onClick={() => setShowFavorites(!showFavorites)}
+                        aria-label={`Lihat ${favorites.length} favorit`}
+                        style={{
+                            flex: 1,
+                            backgroundColor: "transparent",
+                            color: "var(--foreground)",
+                            padding: "0.875rem 1rem",
+                            fontWeight: 500,
+                            fontSize: "0.8rem",
+                            borderRadius: "6px",
+                            border: "1px solid var(--border)",
+                            cursor: "pointer",
+                            minHeight: "48px"
+                        }}
+                    >
+                        ❤️ Favorit ({favorites.length})
+                    </button>
+                </div>
+            </div>
+
+            {/* Favorites Panel */}
+            {showFavorites && (
+                <div style={{
+                    marginTop: "1.5rem",
+                    padding: "1rem",
+                    backgroundColor: "var(--hover-bg)",
+                    borderRadius: "8px",
+                    border: "1px solid var(--border)",
+                    textAlign: "left"
+                }}>
+                    <h3 style={{ fontSize: "0.85rem", marginBottom: "1rem", fontWeight: 600, opacity: 0.8 }}>
+                        ❤️ Koleksi ({favorites.length})
+                    </h3>
+                    {favorites.length > 0 ? (
+                        <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
+                            {favorites.map(idx => (
+                                <button
+                                    key={idx}
+                                    onClick={() => {
+                                        setQuote(quotes[idx]);
+                                        setIsDailyQuote(false);
+                                        setShowContext(false);
+                                        setShowFavorites(false);
+                                    }}
+                                    style={{
+                                        padding: "0.875rem",
+                                        backgroundColor: "var(--hover-bg)",
+                                        borderRadius: "6px",
+                                        cursor: "pointer",
+                                        textAlign: "left",
+                                        border: "1px solid var(--border)",
+                                        color: "var(--foreground)",
+                                        minHeight: "48px"
+                                    }}
+                                >
+                                    <p style={{ fontSize: "0.8rem", fontStyle: "italic", marginBottom: "0.35rem", opacity: 0.9 }}>
+                                        "{quotes[idx].text.length > 80 ? quotes[idx].text.slice(0, 80) + "..." : quotes[idx].text}"
+                                    </p>
+                                    <p style={{ fontSize: "0.7rem", opacity: 0.5 }}>
+                                        — {quotes[idx].author}
+                                    </p>
+                                </button>
+                            ))}
+                        </div>
+                    ) : (
+                        <p style={{ fontSize: "0.8rem", opacity: 0.4, textAlign: "center", padding: "1rem" }}>
+                            Belum ada favorit. Tekan 🤍 Simpan pada quote.
+                        </p>
+                    )}
+                </div>
+            )}
         </div>
     );
 }
