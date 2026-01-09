@@ -32,10 +32,11 @@
   --text-secondary: #525252;
   /* Neutral 600 */
   --accent: #262626;
-  --border: #E5E5E5;
+  --border: #D4D4D4;
+  --border-strong: #A3A3A3;
   --card-bg: #FFFFFF;
-  --card-hover: #F9FAFB;
-  --hover-bg: rgba(0, 0, 0, 0.03);
+  --card-hover: #F5F5F5;
+  --hover-bg: rgba(0, 0, 0, 0.05);
   --glow: rgba(0, 0, 0, 0.03);
 }
 
@@ -45,9 +46,10 @@
   --text-secondary: #A1A1AA;
   --accent: #E5E5E5;
   --border: #27272A;
+  --border-strong: #52525B;
   --card-bg: #18181B;
   --card-hover: #27272A;
-  --hover-bg: rgba(255, 255, 255, 0.03);
+  --hover-bg: rgba(255, 255, 255, 0.05);
   --glow: rgba(255, 255, 255, 0.05);
 }
 

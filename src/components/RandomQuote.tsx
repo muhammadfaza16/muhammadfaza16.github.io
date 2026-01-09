@@ -314,7 +314,7 @@ export function RandomQuote() {
                 gap: "1rem",
                 marginBottom: "1rem",
                 fontSize: "0.75rem",
-                opacity: 0.6,
+                color: "var(--text-secondary)",
                 flexWrap: "wrap"
             }}>
                 <span>🔥 {streak} hari</span>
@@ -450,7 +450,7 @@ export function RandomQuote() {
                             backgroundColor: "var(--hover-bg)",
                             marginBottom: "1rem",
                             display: "inline-block",
-                            opacity: 0.7
+                            opacity: 0.85
                         }}>
                             {quote.category}
                         </span>
@@ -470,13 +470,13 @@ export function RandomQuote() {
                         {/* Author & Source */}
                         <p style={{
                             fontSize: "0.8rem",
-                            opacity: 0.6,
+                            color: "var(--text-secondary)",
                             marginBottom: quote.source ? "0.25rem" : "0"
                         }}>
                             — {quote.author}
                         </p>
                         {quote.source && (
-                            <p style={{ fontSize: "0.7rem", opacity: 0.4 }}>
+                            <p style={{ fontSize: "0.7rem", color: "var(--text-secondary)", opacity: 0.7 }}>
                                 ┊ {quote.source}
                             </p>
                         )}
@@ -569,11 +569,11 @@ export function RandomQuote() {
                                 textAlign: "left",
                                 borderLeft: "2px solid var(--border)"
                             }}>
-                                <p style={{ fontSize: "0.8rem", lineHeight: 1.7, opacity: 0.8 }}>
+                                <p style={{ fontSize: "0.8rem", lineHeight: 1.7, color: "var(--foreground)" }}>
                                     {quote.context}
                                 </p>
                                 {authorBios[quote.author] && (
-                                    <p style={{ fontSize: "0.7rem", marginTop: "0.75rem", opacity: 0.5 }}>
+                                    <p style={{ fontSize: "0.7rem", marginTop: "0.75rem", color: "var(--text-secondary)" }}>
                                         ┊ {authorBios[quote.author].bio} ({authorBios[quote.author].era})
                                     </p>
                                 )}
@@ -581,7 +581,7 @@ export function RandomQuote() {
                         )}
                     </div>
                 ) : (
-                    <p style={{ opacity: 0.4, fontStyle: "italic", fontSize: "0.9rem" }}>
+                    <p style={{ color: "var(--text-secondary)", fontStyle: "italic", fontSize: "0.9rem" }}>
                         Tekan tombol untuk dapat quote...
                     </p>
                 )}
