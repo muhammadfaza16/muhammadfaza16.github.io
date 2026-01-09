@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { PostCard } from "./PostCard";
 
 interface Post {
@@ -14,26 +14,43 @@ interface Post {
 
 export function PostList({ allPosts }: { allPosts: Post[] }) {
     const [displayCount, setDisplayCount] = useState(5);
+    const [animatingFrom, setAnimatingFrom] = useState(0);
     const postsToShow = allPosts.slice(0, displayCount);
     const hasMore = displayCount < allPosts.length;
 
     const handleLoadMore = () => {
+        setAnimatingFrom(displayCount);
         setDisplayCount(prev => prev + 5);
     };
 
     return (
-        <div className="flex flex-col space-y-2 stagger-children">
-            {postsToShow.map((post) => (
-                <PostCard
-                    key={post.slug}
-                    slug={post.slug}
-                    title={post.title}
-                    excerpt={post.excerpt}
-                    date={post.date}
-                    readingTime={post.readingTime || ""}
-                    thumbnail={post.thumbnail}
-                />
-            ))}
+        <div className="flex flex-col space-y-2">
+            {postsToShow.map((post, index) => {
+                // Calculate animation delay only for newly loaded posts
+                const isNewPost = index >= animatingFrom;
+                const delayIndex = isNewPost ? index - animatingFrom : index;
+                const delay = isNewPost ? delayIndex * 0.08 : 0;
+
+                return (
+                    <div
+                        key={post.slug}
+                        className="animate-fade-in-up"
+                        style={{
+                            animationDelay: `${delay}s`,
+                            animationFillMode: "both"
+                        }}
+                    >
+                        <PostCard
+                            slug={post.slug}
+                            title={post.title}
+                            excerpt={post.excerpt}
+                            date={post.date}
+                            readingTime={post.readingTime || ""}
+                            thumbnail={post.thumbnail}
+                        />
+                    </div>
+                );
+            })}
 
             {hasMore && (
                 <div className="mt-12 text-center animate-fade-in">
