@@ -35,7 +35,7 @@ export default function HomePage() {
               maxWidth: "38rem",
               color: "var(--text-secondary)"
             }} className="animate-fade-in animation-delay-200">
-              Tempat nge-dump random thoughts. Kadang nyambung, seringnya nggak. Yang penting keluar aja dulu.
+              Random thoughts, half-baked ideas, dan segala yang keburu diketik sebelum lupa.
             </p>
           </div>
         </Container>
@@ -58,7 +58,7 @@ export default function HomePage() {
                 fontSize: "2.25rem",
                 fontWeight: 600
               }}>
-                Journal
+                Writing
               </h2>
             </div>
 

@@ -3,7 +3,7 @@ import { PostCard } from "@/components/PostCard";
 import { getAllPosts } from "@/lib/posts";
 
 export const metadata = {
-    title: "Journal",
+    title: "Writing",
     description: "Random thoughts, half-baked ideas, dan segala yang keburu diketik sebelum lupa.",
 };
 
@@ -15,7 +15,7 @@ export default function BlogPage() {
             <Container>
                 <div className="py-24">
                     <header className="mb-20">
-                        <h1 className="text-4xl md:text-5xl font-serif font-medium mb-6">Journal</h1>
+                        <h1 className="text-4xl md:text-5xl font-serif font-medium mb-6">Writing</h1>
                         <p className="text-xl text-[var(--text-secondary)] max-w-2xl leading-relaxed">
                             Random thoughts, half-baked ideas, dan segala yang keburu diketik sebelum lupa.
                         </p>

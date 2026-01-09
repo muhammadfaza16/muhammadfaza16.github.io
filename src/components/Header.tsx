@@ -13,7 +13,7 @@ export function Header() {
     const isActive = (path: string) => pathname === path;
 
     const navLinks = [
-        { href: "/blog", label: "Journal" },
+        { href: "/blog", label: "Writing" },
         { href: "/project", label: "Project" },
     ];
 
