@@ -24,7 +24,6 @@ export default function NowPage() {
                         What I'm doing now
                     </span>
                     <h1 style={{
-                        fontFamily: "'Playfair Display', serif",
                         fontSize: "clamp(2.5rem, 5vw, 3.5rem)",
                         fontWeight: 700,
                         color: "var(--foreground)"

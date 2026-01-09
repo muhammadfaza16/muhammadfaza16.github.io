@@ -57,7 +57,6 @@ export function Header() {
                         <Link
                             href="/"
                             style={{
-                                fontFamily: "'Playfair Display', serif",
                                 fontSize: "1.5rem",
                                 fontWeight: 700,
                                 letterSpacing: "-0.025em"
@@ -79,7 +78,6 @@ export function Header() {
                         <Link
                             href="/"
                             style={{
-                                fontFamily: "'Playfair Display', serif",
                                 fontSize: "1.75rem",
                                 fontWeight: 700,
                                 letterSpacing: "-0.025em",
@@ -150,8 +148,7 @@ export function Header() {
                                     onClick={() => setIsMenuOpen(false)}
                                     style={{
                                         fontSize: "1.25rem",
-                                        letterSpacing: "0.05em",
-                                        fontFamily: "'Playfair Display', serif"
+                                        letterSpacing: "0.05em"
                                     }}
                                     className={`transition-colors ${isActive(link.href.replace('#', '')) ? 'text-[var(--foreground)]' : 'text-[var(--secondary)]'}`}
                                 >

@@ -15,7 +15,6 @@ export default function AboutPage() {
                 {/* Header */}
                 <header style={{ marginBottom: "4rem" }}>
                     <h1 style={{
-                        fontFamily: "'Playfair Display', serif",
                         fontSize: "clamp(2.5rem, 5vw, 3.5rem)",
                         fontWeight: 700,
                         marginBottom: "1.5rem",
@@ -36,7 +35,6 @@ export default function AboutPage() {
                 {/* Content */}
                 <div className="prose" style={{
                     color: "var(--foreground)",
-                    fontFamily: "var(--font-sans)",
                     fontSize: "1.05rem",
                     lineHeight: 1.8
                 }}>
@@ -51,7 +49,7 @@ export default function AboutPage() {
                         Blog ini, <em>The Almanac of Broken Wanderer</em>, adalah arsip digital dari segala hal yang melintas di kepala saya. Mulai dari catatan teknis, esai filosofis pendek, hingga curhatan yang mungkin tidak seharusnya dipublikasikan.
                     </p>
 
-                    <h3 style={{ fontFamily: "'Playfair Display', serif", marginTop: "3rem", fontSize: "1.75rem" }}>
+                    <h3 style={{ marginTop: "3rem", fontSize: "1.75rem" }}>
                         More About Me
                     </h3>
 
@@ -81,7 +79,7 @@ export default function AboutPage() {
                     </ul>
 
                     <div style={{ marginTop: "4rem", paddingTop: "2rem", borderTop: "1px solid var(--border)" }}>
-                        <h3 style={{ fontFamily: "'Playfair Display', serif", fontSize: "1.5rem", marginBottom: "1rem" }}>Let's Connect</h3>
+                        <h3 style={{ fontSize: "1.5rem", marginBottom: "1rem" }}>Let's Connect</h3>
                         <p>
                             Saya selalu terbuka untuk diskusi menarik. Anda bisa menemukan saya di <a href="https://twitter.com/muhammadfaza16" target="_blank" rel="noopener noreferrer" className="link-underline">Twitter/X</a> atau <a href="https://github.com/muhammadfaza16" target="_blank" rel="noopener noreferrer" className="link-underline">GitHub</a>.
                         </p>

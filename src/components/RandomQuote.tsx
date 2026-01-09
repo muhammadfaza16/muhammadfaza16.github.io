@@ -290,7 +290,6 @@ export function RandomQuote() {
         }}>
             {/* Header */}
             <h2 style={{
-                fontFamily: "'Playfair Display', serif",
                 fontSize: "clamp(1.75rem, 5vw, 2.5rem)",
                 marginBottom: "0.5rem",
                 color: "var(--foreground)"

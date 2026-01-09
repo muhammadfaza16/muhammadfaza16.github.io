@@ -13,7 +13,6 @@ export default function UsesPage() {
 
                 <header style={{ marginBottom: "4rem" }}>
                     <h1 style={{
-                        fontFamily: "'Playfair Display', serif",
                         fontSize: "clamp(2.5rem, 5vw, 3.5rem)",
                         fontWeight: 700,
                         marginBottom: "1.5rem",

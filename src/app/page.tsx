@@ -54,7 +54,6 @@ export default function HomePage() {
             {/* Section Header */}
             <div style={{ marginBottom: "3rem" }}>
               <h2 style={{
-                fontFamily: "'Playfair Display', serif",
                 fontSize: "2.25rem",
                 fontWeight: 600
               }}>

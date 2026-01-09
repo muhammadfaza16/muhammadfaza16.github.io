@@ -22,7 +22,7 @@
   --spacing-64: 16rem;
 
   --font-family-sans: 'Space Mono', monospace;
-  --font-family-serif: 'Playfair Display', serif;
+  --font-family-serif: 'Space Mono', monospace;
 }
 
 :root {
@@ -221,7 +221,7 @@ p {
 
 /* Serif Font Utility */
 .font-serif {
-  font-family: 'Playfair Display', serif !important;
+  font-family: 'Space Mono', monospace !important;
 }
 
 /* Card hover effect */
