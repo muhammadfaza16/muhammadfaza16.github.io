@@ -4,7 +4,7 @@ import { getAllPosts } from "@/lib/posts";
 
 export const metadata = {
     title: "Journal",
-    description: "Writings on simplicity, mindfulness, design philosophy, and the quiet art of living intentionally.",
+    description: "Random thoughts, half-baked ideas, dan segala yang keburu diketik sebelum lupa.",
 };
 
 export default function BlogPage() {
@@ -17,7 +17,7 @@ export default function BlogPage() {
                     <header className="mb-20">
                         <h1 className="text-4xl md:text-5xl font-serif font-medium mb-6">Journal</h1>
                         <p className="text-xl text-[var(--text-secondary)] max-w-2xl leading-relaxed">
-                            Writings on simplicity, mindfulness, design philosophy, and the quiet art of living intentionally.
+                            Random thoughts, half-baked ideas, dan segala yang keburu diketik sebelum lupa.
                         </p>
                     </header>
 
@@ -30,6 +30,7 @@ export default function BlogPage() {
                                 excerpt={post.excerpt}
                                 date={post.date}
                                 readingTime={post.readingTime || ""}
+                                thumbnail={post.thumbnail}
                             />
                         ))}
                     </div>

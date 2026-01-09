@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Metadata } from "next";
 import { ReadingProgress } from "@/components/ReadingProgress";
 import { BlogPostActions } from "@/components/BlogPostActions";
+import { ArticleContent } from "@/components/ArticleContent";
 
 interface PageProps {
     params: Promise<{ slug: string }>;
@@ -56,6 +57,8 @@ export default async function BlogPostPage({ params }: PageProps) {
         processed = processed.replace(/^\s*### (.*$)/gim, '<h3 class="text-xl font-serif font-medium mt-8 mb-3">$1</h3>');
 
         return processed
+            // Images - convert ![alt](url) to <img>
+            .replace(/!\[(.*?)\]\((.*?)\)/gim, '<img src="$2" alt="$1" style="width:100%;border-radius:12px;margin:2rem 0;" />')
             // Bold
             .replace(/\*\*(.*?)\*\*/gim, '<strong>$1</strong>')
             // Italic
@@ -127,7 +130,7 @@ export default async function BlogPostPage({ params }: PageProps) {
                         className="animate-fade-in animation-delay-300"
                         style={{
                             maxWidth: "42rem",
-                            margin: "0 auto 3rem",
+                            margin: "-2.6rem auto 3rem",
                             borderRadius: "12px",
                             overflow: "hidden"
                         }}
@@ -146,14 +149,7 @@ export default async function BlogPostPage({ params }: PageProps) {
 
                 <div className="relative mx-auto" style={{ maxWidth: "42rem" }}>
                     {/* Article Text */}
-                    <div
-                        className="prose drop-cap animate-fade-in animation-delay-200"
-                        style={{
-                            fontSize: "1.1rem",
-                            lineHeight: 1.85,
-                        }}
-                        dangerouslySetInnerHTML={{ __html: contentHtml }}
-                    />
+                    <ArticleContent html={contentHtml} />
                 </div>
 
                 {/* Next/Previous Navigation */}

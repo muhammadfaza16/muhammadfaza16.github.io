@@ -77,33 +77,6 @@ export default function HomePage() {
           <RandomQuote />
         </Container>
       </section>
-
-      {/* Works Section */}
-      <section id="works" style={{ paddingTop: "6rem", paddingBottom: "6rem" }}>
-        <Container>
-          <h2 style={{
-            fontFamily: "'Playfair Display', serif",
-            fontSize: "2.25rem",
-            fontWeight: 600,
-            marginBottom: "3rem"
-          }}>
-            Project
-          </h2>
-          <div style={{
-            padding: "4rem 2rem",
-            border: "1px dashed var(--border)",
-            borderRadius: "12px",
-            textAlign: "center",
-            color: "var(--text-secondary)",
-            backgroundColor: "rgba(0,0,0,0.02)"
-          }}>
-            <p style={{ marginBottom: "0.5rem", fontSize: "1.5rem" }}>🚧</p>
-            <p style={{ marginBottom: "0.5rem", fontSize: "1.1rem" }}>Masih kosong, belum ada yang bisa di-pamer-in.</p>
-            <p style={{ fontSize: "0.9rem", opacity: 0.7 }}>Lagi ngulik sesuatu... stay tuned! ✨</p>
-          </div>
-        </Container>
-      </section>
     </>
   );
 }
-
