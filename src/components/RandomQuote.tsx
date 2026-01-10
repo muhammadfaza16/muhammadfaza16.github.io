@@ -423,17 +423,18 @@ export function RandomQuote() {
                 {isDailyQuote && (
                     <div style={{
                         position: "absolute",
-                        top: "-10px",
-                        right: "16px",
+                        top: "12px",
+                        right: "12px",
                         background: "linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%)",
                         color: "#1a1a1a",
-                        padding: "0.35rem 0.75rem",
-                        borderRadius: "20px",
-                        fontSize: "0.65rem",
+                        padding: "0.3rem 0.6rem",
+                        borderRadius: "16px",
+                        fontSize: "0.6rem",
                         fontWeight: 700,
                         letterSpacing: "0.02em",
                         boxShadow: "0 4px 12px rgba(245, 158, 11, 0.4)",
-                        textTransform: "uppercase"
+                        textTransform: "uppercase",
+                        zIndex: 10
                     }}>
                         ✨ Hari Ini
                     </div>
