@@ -6,6 +6,18 @@ export const metadata: Metadata = {
     description: "Apa yang sedang saya kerjakan sekarang.",
 };
 
+const DISCLAIMER = <div style={{
+    padding: "1rem 1.5rem",
+    backgroundColor: "var(--hover-bg)",
+    border: "1px dashed var(--border)",
+    borderRadius: "8px",
+    marginBottom: "3rem",
+    fontSize: "0.9rem",
+    color: "var(--text-secondary)"
+}}>
+    <span style={{ filter: "grayscale(1)" }}>⏳</span> Konten di halaman ini masih berupa dummy/placeholder. Akan segera diperbarui dengan update terbaru.
+</div>;
+
 export default function NowPage() {
     return (
         <Container>
@@ -35,9 +47,11 @@ export default function NowPage() {
                     </p>
                 </header>
 
+                {DISCLAIMER}
+
                 <div className="content-block" style={{ marginBottom: "3rem" }}>
                     <h2 style={{ fontFamily: "var(--font-mono)", fontSize: "1.25rem", marginBottom: "1.5rem", borderBottom: "1px solid var(--border)", paddingBottom: "0.5rem" }}>
-                        🎯 Fokus Utama
+                        <span style={{ filter: "grayscale(1)" }}>🎯</span> Fokus Utama
                     </h2>
                     <ul style={{ listStyle: "none", padding: 0, display: "flex", flexDirection: "column", gap: "1rem", color: "var(--foreground)" }}>
                         <li style={{ display: "flex", gap: "1rem", alignItems: "baseline" }}>
@@ -57,7 +71,7 @@ export default function NowPage() {
 
                 <div className="content-block" style={{ marginBottom: "3rem" }}>
                     <h2 style={{ fontFamily: "var(--font-mono)", fontSize: "1.25rem", marginBottom: "1.5rem", borderBottom: "1px solid var(--border)", paddingBottom: "0.5rem" }}>
-                        📚 Sedang Dibaca
+                        <span style={{ filter: "grayscale(1)" }}>📚</span> Sedang Dibaca
                     </h2>
                     <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(250px, 1fr))", gap: "1.5rem" }}>
                         <div style={{ padding: "1.5rem", borderRadius: "8px", backgroundColor: "var(--card-bg)", border: "1px solid var(--border)" }}>
@@ -82,7 +96,7 @@ export default function NowPage() {
 
                 <div className="content-block">
                     <h2 style={{ fontFamily: "var(--font-mono)", fontSize: "1.25rem", marginBottom: "1.5rem", borderBottom: "1px solid var(--border)", paddingBottom: "0.5rem" }}>
-                        🎵 On Repeat
+                        <span style={{ filter: "grayscale(1)" }}>🎵</span> On Repeat
                     </h2>
                     <p style={{ color: "var(--text-secondary)" }}>
                         Playlist: <em>Lofi Girl - chill lofi beats to study/relax to</em>.
