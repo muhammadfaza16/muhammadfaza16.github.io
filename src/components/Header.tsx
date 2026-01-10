@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Container } from "./Container";
@@ -9,6 +9,8 @@ import { ThemeToggle } from "./ThemeToggle";
 export function Header() {
     const pathname = usePathname();
     const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const [isMoreOpen, setIsMoreOpen] = useState(false);
+    const moreRef = useRef<HTMLDivElement>(null);
 
     const isActive = (path: string) => pathname === path;
 
@@ -17,6 +19,32 @@ export function Header() {
         { href: "/project", label: "Project" },
         { href: "/about", label: "About" },
     ];
+
+    const moreLinks = [
+        { href: "/now", label: "Now", emoji: "⚡" },
+        { href: "/bookshelf", label: "Bookshelf", emoji: "📚" },
+        { href: "/ideas", label: "Ideas", emoji: "💡" },
+        { href: "/til", label: "TIL", emoji: "🎓" },
+        { href: "/links", label: "Links", emoji: "🔗" },
+        { href: "/changelog", label: "Changelog", emoji: "📝" },
+        { href: "/uses", label: "Uses", emoji: "🛠️" },
+    ];
+
+    // Close dropdown when clicking outside
+    useEffect(() => {
+        function handleClickOutside(event: MouseEvent) {
+            if (moreRef.current && !moreRef.current.contains(event.target as Node)) {
+                setIsMoreOpen(false);
+            }
+        }
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => document.removeEventListener("mousedown", handleClickOutside);
+    }, []);
+
+    // Close dropdown on route change
+    useEffect(() => {
+        setIsMoreOpen(false);
+    }, [pathname]);
 
     return (
         <header
@@ -37,7 +65,7 @@ export function Header() {
 
                     {/* Desktop Navigation (Hidden on Mobile) */}
                     <nav
-                        style={{ gap: "2rem" }}
+                        style={{ gap: "2rem", alignItems: "center" }}
                         className="desktop-flex no-scrollbar"
                     >
                         {navLinks.map((link) => (
@@ -50,6 +78,88 @@ export function Header() {
                                 {link.label}
                             </Link>
                         ))}
+
+                        {/* More Dropdown */}
+                        <div ref={moreRef} style={{ position: "relative" }}>
+                            <button
+                                onClick={() => setIsMoreOpen(!isMoreOpen)}
+                                style={{
+                                    fontSize: "0.8rem",
+                                    letterSpacing: "0.15em",
+                                    textTransform: "uppercase",
+                                    background: "none",
+                                    border: "none",
+                                    cursor: "pointer",
+                                    display: "flex",
+                                    alignItems: "center",
+                                    gap: "0.25rem",
+                                    padding: 0,
+                                    color: isMoreOpen ? "var(--foreground)" : "var(--secondary)",
+                                    transition: "color 0.2s ease"
+                                }}
+                                className="hover:text-[var(--foreground)]"
+                            >
+                                More
+                                <svg
+                                    width="12"
+                                    height="12"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    strokeWidth="2"
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    style={{
+                                        transform: isMoreOpen ? "rotate(180deg)" : "rotate(0deg)",
+                                        transition: "transform 0.2s ease"
+                                    }}
+                                >
+                                    <polyline points="6 9 12 15 18 9"></polyline>
+                                </svg>
+                            </button>
+
+                            {/* Dropdown Menu */}
+                            {isMoreOpen && (
+                                <div
+                                    className="animate-fade-in"
+                                    style={{
+                                        position: "absolute",
+                                        top: "calc(100% + 1rem)",
+                                        left: "50%",
+                                        transform: "translateX(-50%)",
+                                        minWidth: "180px",
+                                        backgroundColor: "var(--background)",
+                                        border: "1px solid var(--border)",
+                                        borderRadius: "8px",
+                                        boxShadow: "0 4px 20px rgba(0,0,0,0.15)",
+                                        overflow: "hidden",
+                                        zIndex: 100
+                                    }}
+                                >
+                                    {moreLinks.map((link) => (
+                                        <Link
+                                            key={link.href}
+                                            href={link.href}
+                                            style={{
+                                                display: "flex",
+                                                alignItems: "center",
+                                                gap: "0.75rem",
+                                                padding: "0.75rem 1rem",
+                                                fontSize: "0.9rem",
+                                                color: isActive(link.href) ? "var(--foreground)" : "var(--text-secondary)",
+                                                backgroundColor: isActive(link.href) ? "var(--hover-bg)" : "transparent",
+                                                transition: "all 0.15s ease",
+                                                textDecoration: "none"
+                                            }}
+                                            className="dropdown-item-hover"
+                                        >
+                                            <span>{link.emoji}</span>
+                                            <span>{link.label}</span>
+                                        </Link>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
                     </nav>
 
                     {/* Mobile Logo (Visible on Mobile) */}
@@ -138,9 +248,11 @@ export function Header() {
                             padding: "2rem 0",
                             height: "calc(100vh - 5rem)", // Full screen minus header
                             backgroundColor: "var(--background)",
+                            overflowY: "auto"
                         }}
                     >
-                        <nav style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "2rem" }}>
+                        <nav style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "1.5rem" }}>
+                            {/* Main Links */}
                             {navLinks.map((link) => (
                                 <Link
                                     key={link.href}
@@ -153,6 +265,29 @@ export function Header() {
                                     className={`transition-colors ${isActive(link.href.replace('#', '')) ? 'text-[var(--foreground)]' : 'text-[var(--secondary)]'}`}
                                 >
                                     {link.label}
+                                </Link>
+                            ))}
+
+                            {/* Divider */}
+                            <div style={{ width: "60px", height: "1px", backgroundColor: "var(--border)", margin: "0.5rem 0" }} />
+
+                            {/* More Links */}
+                            {moreLinks.map((link) => (
+                                <Link
+                                    key={link.href}
+                                    href={link.href}
+                                    onClick={() => setIsMenuOpen(false)}
+                                    style={{
+                                        fontSize: "1.1rem",
+                                        letterSpacing: "0.05em",
+                                        display: "flex",
+                                        alignItems: "center",
+                                        gap: "0.5rem"
+                                    }}
+                                    className={`transition-colors ${isActive(link.href) ? 'text-[var(--foreground)]' : 'text-[var(--secondary)]'}`}
+                                >
+                                    <span>{link.emoji}</span>
+                                    <span>{link.label}</span>
                                 </Link>
                             ))}
                         </nav>

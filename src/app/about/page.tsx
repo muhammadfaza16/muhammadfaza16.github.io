@@ -76,6 +76,61 @@ export default function AboutPage() {
                                 </div>
                             </Link>
                         </li>
+                        <li>
+                            <Link href="/bookshelf" className="link-underline" style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
+                                <span style={{ fontSize: "1.25rem" }}>📚</span>
+                                <div>
+                                    <strong>Bookshelf</strong>
+                                    <span style={{ display: "block", fontSize: "0.85rem", color: "var(--text-secondary)", marginTop: "0.2rem" }}>
+                                        Buku yang sedang dan telah saya baca.
+                                    </span>
+                                </div>
+                            </Link>
+                        </li>
+                        <li>
+                            <Link href="/ideas" className="link-underline" style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
+                                <span style={{ fontSize: "1.25rem" }}>💡</span>
+                                <div>
+                                    <strong>Ideas</strong>
+                                    <span style={{ display: "block", fontSize: "0.85rem", color: "var(--text-secondary)", marginTop: "0.2rem" }}>
+                                        Pemikiran pendek yang belum jadi artikel.
+                                    </span>
+                                </div>
+                            </Link>
+                        </li>
+                        <li>
+                            <Link href="/links" className="link-underline" style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
+                                <span style={{ fontSize: "1.25rem" }}>🔗</span>
+                                <div>
+                                    <strong>Links</strong>
+                                    <span style={{ display: "block", fontSize: "0.85rem", color: "var(--text-secondary)", marginTop: "0.2rem" }}>
+                                        Koleksi resources dan content yang menginspirasi.
+                                    </span>
+                                </div>
+                            </Link>
+                        </li>
+                        <li>
+                            <Link href="/changelog" className="link-underline" style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
+                                <span style={{ fontSize: "1.25rem" }}>📝</span>
+                                <div>
+                                    <strong>Changelog</strong>
+                                    <span style={{ display: "block", fontSize: "0.85rem", color: "var(--text-secondary)", marginTop: "0.2rem" }}>
+                                        Timeline perjalanan karir dan hidup.
+                                    </span>
+                                </div>
+                            </Link>
+                        </li>
+                        <li>
+                            <Link href="/til" className="link-underline" style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
+                                <span style={{ fontSize: "1.25rem" }}>🎓</span>
+                                <div>
+                                    <strong>TIL</strong>
+                                    <span style={{ display: "block", fontSize: "0.85rem", color: "var(--text-secondary)", marginTop: "0.2rem" }}>
+                                        Today I Learned - catatan singkat hal yang dipelajari.
+                                    </span>
+                                </div>
+                            </Link>
+                        </li>
                     </ul>
 
                     <div style={{ marginTop: "4rem", paddingTop: "2rem", borderTop: "1px solid var(--border)" }}>
