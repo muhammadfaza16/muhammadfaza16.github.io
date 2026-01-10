@@ -22,6 +22,7 @@ export function Header() {
 
     const moreLinks = [
         { href: "/now", label: "Now", emoji: "⚡" },
+        { href: "/time", label: "Time", emoji: "🕐" },
         { href: "/bookshelf", label: "Bookshelf", emoji: "📚" },
         { href: "/ideas", label: "Ideas", emoji: "💡" },
         { href: "/til", label: "TIL", emoji: "🎓" },
@@ -163,41 +164,66 @@ export function Header() {
                     </nav>
 
                     {/* Mobile Logo (Visible on Mobile) */}
-                    <div className="mobile-only">
+                    <div className="mobile-only" style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
                         <Link
                             href="/"
                             style={{
-                                fontSize: "1.5rem",
-                                fontWeight: 700,
-                                letterSpacing: "-0.025em"
+                                opacity: pathname === "/" ? 1 : 0.5,
+                                transition: "opacity 0.3s ease"
                             }}
                             onClick={() => setIsMenuOpen(false)}
+                            className="hover:opacity-100"
                         >
                             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                                 <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
                                 <polyline points="9 22 9 12 15 12 15 22"></polyline>
                             </svg>
                         </Link>
+                        <Link
+                            href="/time"
+                            style={{
+                                opacity: pathname === "/time" ? 1 : 0.5,
+                                transition: "opacity 0.3s ease"
+                            }}
+                            onClick={() => setIsMenuOpen(false)}
+                            className="hover:opacity-100"
+                        >
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <polyline points="12 6 12 12 16 14"></polyline>
+                            </svg>
+                        </Link>
                     </div>
 
                     {/* Desktop Logo (Centered Absolute, Hidden on Mobile) */}
                     <div
-                        className="desktop-only"
-                        style={{ position: "absolute", left: "50%", top: "50%", transform: "translate(-50%, -50%)" }}
+                        className="desktop-flex"
+                        style={{ position: "absolute", left: "50%", top: "50%", transform: "translate(-50%, -50%)", alignItems: "center", gap: "1.25rem" }}
                     >
                         <Link
                             href="/"
                             style={{
-                                fontSize: "1.75rem",
-                                fontWeight: 700,
-                                letterSpacing: "-0.025em",
+                                opacity: pathname === "/" ? 1 : 0.5,
                                 transition: "opacity 0.3s ease"
                             }}
-                            className="hover:opacity-70"
+                            className="hover:opacity-100"
                         >
                             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                                 <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
                                 <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                            </svg>
+                        </Link>
+                        <Link
+                            href="/time"
+                            style={{
+                                opacity: pathname === "/time" ? 1 : 0.5,
+                                transition: "opacity 0.3s ease"
+                            }}
+                            className="hover:opacity-100"
+                        >
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <polyline points="12 6 12 12 16 14"></polyline>
                             </svg>
                         </Link>
                     </div>

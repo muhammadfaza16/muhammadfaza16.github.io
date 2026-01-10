@@ -2,7 +2,6 @@ import { Container } from "@/components/Container";
 import { PostList } from "@/components/PostList";
 import { RandomQuote } from "@/components/RandomQuote";
 import { getAllPosts } from "@/lib/posts";
-import Link from "next/link";
 
 export default function HomePage() {
   const allPosts = getAllPosts();
@@ -10,7 +9,7 @@ export default function HomePage() {
   return (
     <>
       {/* Hero Section */}
-      <section style={{ position: "relative", paddingTop: "6rem", paddingBottom: "4rem", overflow: "hidden" }}>
+      <section style={{ position: "relative", paddingTop: "6rem", paddingBottom: "4rem", overflow: "hidden", minHeight: "50vh" }}>
         {/* Background Grid */}
         <div className="bg-grid" style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", pointerEvents: "none", zIndex: -1 }} />
 
