@@ -5,7 +5,6 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Container } from "./Container";
 import { ThemeToggle } from "./ThemeToggle";
-import { AnimatedClock } from "./AnimatedClock";
 
 export function Header() {
     const pathname = usePathname();
@@ -181,16 +180,6 @@ export function Header() {
                         </Link>
                     </div>
 
-
-
-                    {/* Desktop Center - Animated Clock Only */}
-                    <div
-                        className="desktop-flex"
-                        style={{ position: "absolute", left: "50%", top: "50%", transform: "translate(-50%, -50%)", alignItems: "center" }}
-                    >
-                        <AnimatedClock />
-                    </div>
-
                     {/* Actions - Right */}
                     <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
                         <ThemeToggle />
@@ -240,14 +229,6 @@ export function Header() {
                             overflowY: "auto"
                         }}
                     >
-                        {/* Clock in top right corner */}
-                        <div style={{
-                            position: "absolute",
-                            top: "1rem",
-                            right: "1.5rem"
-                        }}>
-                            <AnimatedClock size={48} onClick={() => setIsMenuOpen(false)} />
-                        </div>
                         <nav style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "1.5rem" }}>
                             {/* Main Links */}
                             {navLinks.map((link) => (
@@ -283,7 +264,7 @@ export function Header() {
                                     }}
                                     className={`transition-colors ${isActive(link.href) ? 'text-[var(--foreground)]' : 'text-[var(--secondary)]'}`}
                                 >
-                                    <span style={{ fontSize: "1.25rem", width: "1.5rem", textAlign: "center" }}>{link.emoji}</span>
+                                    <span style={{ fontSize: "1.25rem", width: "1.5rem", textAlign: "center", filter: "grayscale(1)" }}>{link.emoji}</span>
                                     <span>{link.label}</span>
                                 </Link>
                             ))}

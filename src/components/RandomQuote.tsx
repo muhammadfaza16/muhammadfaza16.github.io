@@ -328,7 +328,7 @@ export function RandomQuote() {
             }}>
                 <span>🔥 {streak} hari</span>
                 <span>📚 {shownIndices.size}/{quotes.length}</span>
-                <span>⭐ {favorites.length}</span>
+                <span style={{ filter: "grayscale(1)" }}>⭐ {favorites.length}</span>
             </div>
 
             {/* Progress Bar */}
@@ -439,14 +439,14 @@ export function RandomQuote() {
             }}>
                 {/* Confetti for Easter Egg */}
                 {isEasterEgg && !isAnimating && (
-                    <>
+                    <div style={{ filter: "grayscale(1)" }}>
                         <div style={{ position: "absolute", top: "10%", left: "10%", fontSize: "1.5rem", animation: "bounce 1s ease infinite" }}>🎉</div>
                         <div style={{ position: "absolute", top: "15%", right: "15%", fontSize: "1.2rem", animation: "bounce 1.2s ease infinite 0.1s" }}>✨</div>
                         <div style={{ position: "absolute", bottom: "20%", left: "15%", fontSize: "1.3rem", animation: "bounce 1.1s ease infinite 0.2s" }}>🎊</div>
                         <div style={{ position: "absolute", bottom: "15%", right: "10%", fontSize: "1.4rem", animation: "bounce 1.3s ease infinite 0.15s" }}>🏆</div>
                         <div style={{ position: "absolute", top: "50%", left: "5%", fontSize: "1rem", animation: "bounce 1s ease infinite 0.3s" }}>💎</div>
                         <div style={{ position: "absolute", top: "40%", right: "5%", fontSize: "1.1rem", animation: "bounce 1.2s ease infinite 0.25s" }}>🌟</div>
-                    </>
+                    </div>
                 )}
 
                 {/* Easter Egg Badge */}
@@ -500,7 +500,7 @@ export function RandomQuote() {
                         textTransform: "uppercase",
                         zIndex: 10
                     }}>
-                        ✨ Hari Ini
+                        <span style={{ filter: "grayscale(1)" }}>✨</span> Hari Ini
                     </div>
                 )}
 
@@ -580,7 +580,7 @@ export function RandomQuote() {
                                         gap: "0.35rem"
                                     }}
                                 >
-                                    {isFavorite ? "❤️" : "🤍"} Simpan
+                                    <span style={{ filter: "grayscale(1)" }}>{isFavorite ? "❤️" : "🤍"}</span> Simpan
                                 </button>
 
                                 {/* Translation */}
@@ -625,7 +625,7 @@ export function RandomQuote() {
                                             gap: "0.35rem"
                                         }}
                                     >
-                                        💡 Konteks
+                                        <span style={{ filter: "grayscale(1)" }}>💡</span> Konteks
                                     </button>
                                 )}
                             </div>
@@ -682,7 +682,7 @@ export function RandomQuote() {
                         minHeight: "48px"
                     }}
                 >
-                    {isAnimating ? "🎰 Rolling..." : "✨ I'm Feeling Lucky"}
+                    {isAnimating ? <span style={{ filter: "grayscale(1)" }}>🎰 Rolling...</span> : <span style={{ filter: "grayscale(1)" }}>✨ I'm Feeling Lucky</span>}
                 </button>
 
                 <div style={{ display: "flex", gap: "0.75rem" }}>
@@ -702,7 +702,7 @@ export function RandomQuote() {
                             minHeight: "48px"
                         }}
                     >
-                        📅 Hari Ini
+                        <span style={{ filter: "grayscale(1)" }}>📅</span> Hari Ini
                     </button>
 
                     <button
@@ -721,7 +721,7 @@ export function RandomQuote() {
                             minHeight: "48px"
                         }}
                     >
-                        ❤️ Favorit ({favorites.length})
+                        <span style={{ filter: "grayscale(1)" }}>❤️</span> Favorit ({favorites.length})
                     </button>
                 </div>
             </div>
@@ -737,7 +737,7 @@ export function RandomQuote() {
                     textAlign: "left"
                 }}>
                     <h3 style={{ fontSize: "0.85rem", marginBottom: "1rem", fontWeight: 600, opacity: 0.8 }}>
-                        ❤️ Koleksi ({favorites.length})
+                        <span style={{ filter: "grayscale(1)" }}>❤️</span> Koleksi ({favorites.length})
                     </h3>
                     {favorites.length > 0 ? (
                         <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>

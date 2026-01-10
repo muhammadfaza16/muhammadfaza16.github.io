@@ -190,7 +190,7 @@ export default function BookshelfPage() {
                         borderBottom: "1px solid var(--border)",
                         paddingBottom: "0.5rem"
                     }}>
-                        ❤️ All-Time Favorites
+                        <span style={{ filter: "grayscale(1)" }}>❤️</span> All-Time Favorites
                     </h2>
                     <div style={{ display: "flex", flexWrap: "wrap", gap: "1rem" }}>
                         {books.allTimeFavorites.map((book, i) => (

@@ -6,7 +6,7 @@ export const metadata: Metadata = {
     description: "Today I Learned - Catatan singkat hal-hal yang saya pelajari.",
 };
 
-const DISCLAIMER = "📝 Konten di halaman ini masih berupa dummy/placeholder. Akan segera diperbarui dengan TILs asli.";
+const DISCLAIMER = <span style={{ filter: "grayscale(1)" }}>📝 Konten di halaman ini masih berupa dummy/placeholder. Akan segera diperbarui dengan TILs asli.</span>;
 
 const tilEntries = [
     {

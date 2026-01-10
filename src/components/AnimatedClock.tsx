@@ -11,9 +11,13 @@ interface AnimatedClockProps {
 
 export function AnimatedClock({ size = 24, onClick }: AnimatedClockProps) {
     const pathname = usePathname();
-    const [time, setTime] = useState(new Date());
+    const [mounted, setMounted] = useState(false);
+    const [time, setTime] = useState<Date | null>(null);
 
     useEffect(() => {
+        setMounted(true);
+        setTime(new Date());
+
         const timer = setInterval(() => {
             setTime(new Date());
         }, 1000);
@@ -21,16 +25,19 @@ export function AnimatedClock({ size = 24, onClick }: AnimatedClockProps) {
         return () => clearInterval(timer);
     }, []);
 
-    // Calculate rotation angles
-    const seconds = time.getSeconds();
-    const minutes = time.getMinutes();
-    const hours = time.getHours() % 12;
+    // Calculate rotation angles - use 0 for SSR
+    const seconds = time?.getSeconds() ?? 0;
+    const minutes = time?.getMinutes() ?? 0;
+    const hours = (time?.getHours() ?? 0) % 12;
 
     const secondDegrees = (seconds / 60) * 360;
     const minuteDegrees = (minutes / 60) * 360 + (seconds / 60) * 6;
     const hourDegrees = (hours / 12) * 360 + (minutes / 60) * 30;
 
     const isActive = pathname === "/time";
+
+    // Don't animate until mounted to avoid hydration mismatch
+    const shouldAnimate = mounted;
 
     return (
         <Link
@@ -77,9 +84,9 @@ export function AnimatedClock({ size = 24, onClick }: AnimatedClockProps) {
                     strokeWidth="2"
                     strokeLinecap="round"
                     style={{
-                        transform: `rotate(${hourDegrees}deg)`,
+                        transform: shouldAnimate ? `rotate(${hourDegrees}deg)` : "rotate(0deg)",
                         transformOrigin: "12px 12px",
-                        transition: "transform 0.5s cubic-bezier(0.4, 2.3, 0.3, 1)",
+                        transition: shouldAnimate ? "transform 0.5s cubic-bezier(0.4, 2.3, 0.3, 1)" : "none",
                     }}
                 />
 
@@ -92,9 +99,9 @@ export function AnimatedClock({ size = 24, onClick }: AnimatedClockProps) {
                     strokeWidth="1.5"
                     strokeLinecap="round"
                     style={{
-                        transform: `rotate(${minuteDegrees}deg)`,
+                        transform: shouldAnimate ? `rotate(${minuteDegrees}deg)` : "rotate(0deg)",
                         transformOrigin: "12px 12px",
-                        transition: "transform 0.3s cubic-bezier(0.4, 2.3, 0.3, 1)",
+                        transition: shouldAnimate ? "transform 0.3s cubic-bezier(0.4, 2.3, 0.3, 1)" : "none",
                     }}
                 />
 
@@ -108,9 +115,9 @@ export function AnimatedClock({ size = 24, onClick }: AnimatedClockProps) {
                     strokeLinecap="round"
                     stroke="var(--accent, #3b82f6)"
                     style={{
-                        transform: `rotate(${secondDegrees}deg)`,
+                        transform: shouldAnimate ? `rotate(${secondDegrees}deg)` : "rotate(0deg)",
                         transformOrigin: "12px 12px",
-                        transition: "transform 0.15s cubic-bezier(0.4, 2.3, 0.3, 1)",
+                        transition: shouldAnimate ? "transform 0.15s cubic-bezier(0.4, 2.3, 0.3, 1)" : "none",
                     }}
                 />
 

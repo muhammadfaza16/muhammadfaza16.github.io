@@ -89,7 +89,7 @@ export default function AboutPage() {
                         </li>
                         <li>
                             <Link href="/ideas" className="link-underline" style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
-                                <span style={{ fontSize: "1.25rem" }}>💡</span>
+                                <span style={{ fontSize: "1.25rem", filter: "grayscale(1)" }}>💡</span>
                                 <div>
                                     <strong>Ideas</strong>
                                     <span style={{ display: "block", fontSize: "0.85rem", color: "var(--text-secondary)", marginTop: "0.2rem" }}>
@@ -111,7 +111,7 @@ export default function AboutPage() {
                         </li>
                         <li>
                             <Link href="/changelog" className="link-underline" style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
-                                <span style={{ fontSize: "1.25rem" }}>📝</span>
+                                <span style={{ fontSize: "1.25rem", filter: "grayscale(1)" }}>📝</span>
                                 <div>
                                     <strong>Changelog</strong>
                                     <span style={{ display: "block", fontSize: "0.85rem", color: "var(--text-secondary)", marginTop: "0.2rem" }}>
