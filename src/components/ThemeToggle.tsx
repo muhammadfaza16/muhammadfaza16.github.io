@@ -34,10 +34,10 @@ export function ThemeToggle() {
             clearTimeout(timerRef.current);
         }
 
-        // Reset click count after 800ms of no clicking
+        // Reset click count after 4 seconds of no clicking
         timerRef.current = setTimeout(() => {
             setClickCount(0);
-        }, 800);
+        }, 4000);
     };
 
     // Show dialog when click count reaches threshold
