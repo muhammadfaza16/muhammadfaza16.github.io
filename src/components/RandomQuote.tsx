@@ -54,6 +54,7 @@ const authorBios: Record<string, AuthorInfo> = {
     "Achdiat K. Mihardja": { name: "Achdiat K. Mihardja", bio: "Sastrawan Indonesia, penulis Atheis", era: "1911 - 2010" },
     "Sitor Situmorang": { name: "Sitor Situmorang", bio: "Penyair liris Indonesia, Angkatan '45", era: "1923 - 2014" },
     "Khalil Gibran": { name: "Khalil Gibran", bio: "Penyair & filsuf Lebanon-Amerika", era: "1883 - 1931" },
+    "Shikamaru Nara": { name: "Shikamaru Nara", bio: "Ninja jenius dari Konoha, ahli strategi", era: "Naruto" },
 };
 
 const quotes: Quote[] = [
@@ -140,6 +141,9 @@ const quotes: Quote[] = [
     { text: "Your soul and my soul are forever tangled.", textId: "Jiwamu dan jiwaku selamanya terjalin.", author: "Khalil Gibran", weight: 8, category: "Love", context: "Cinta melampaui fisik—ia adalah ikatan jiwa yang tak terpisahkan oleh waktu dan jarak." },
     { text: "Let there be spaces in your togetherness.", textId: "Biarlah ada ruang dalam kebersamaanmu.", author: "Khalil Gibran", weight: 8, category: "Love", source: "The Prophet", context: "Cinta yang sehat memberi ruang untuk bertumbuh. Bersama, namun tetap menjadi diri sendiri." },
     { text: "Cintaku jauh di pulau, gadis manis sekarang iseng sendiri.", author: "Chairil Anwar", weight: 8, category: "Love", source: "Cintaku Jauh di Pulau", context: "Kerinduan yang intens dalam jarak. Chairil mengekspresikan kesepian dan kerinduan dengan khas." },
+
+    // Anime Wisdom
+    { text: "Suatu hari, aku hanya ingin menikahi seorang gadis biasa yang tidak terlalu jelek dan tidak terlalu cantik. Punya dua anak, pertama seorang gadis, lalu seorang laki-laki. Pensiun setelah putriku menikah dan anakku menjadi ninja yang sukses, dan menghabiskan sisa hidupku bermain shōgi atau Go. Lalu meninggal karena usia tua sebelum istriku.", author: "Shikamaru Nara", weight: 5, category: "Life", source: "Naruto", context: "Quote legendaris Shikamaru tentang impian hidupnya yang sederhana. Ironis karena hidupnya jauh dari 'biasa', tapi filosofinya tentang kesederhanaan tetap relevan." },
 
     // Easter Egg 🥚
     { text: "HIDUP JOKOWIIII!!!! 🇮🇩🔥", author: "Rakyat Indonesia", weight: 4, category: "Indonesian", context: "🎉 SELAMAT! Kamu menemukan easter egg! Hari ini keberuntunganmu lagi bagus banget! 🍀✨" },
