@@ -50,6 +50,10 @@ const authorBios: Record<string, AuthorInfo> = {
     "Nelson Mandela": { name: "Nelson Mandela", bio: "Presiden Afrika Selatan, ikon anti-apartheid", era: "1918 - 2013" },
     "Dalai Lama": { name: "Dalai Lama", bio: "Pemimpin spiritual Tibet", era: "1935 - sekarang" },
     "Mahatma Gandhi": { name: "Mahatma Gandhi", bio: "Pemimpin kemerdekaan India", era: "1869 - 1948" },
+    "Amir Hamzah": { name: "Amir Hamzah", bio: "Penyair Pujangga Baru, 'Raja Penyair'", era: "1911 - 1946" },
+    "Achdiat K. Mihardja": { name: "Achdiat K. Mihardja", bio: "Sastrawan Indonesia, penulis Atheis", era: "1911 - 2010" },
+    "Sitor Situmorang": { name: "Sitor Situmorang", bio: "Penyair liris Indonesia, Angkatan '45", era: "1923 - 2014" },
+    "Khalil Gibran": { name: "Khalil Gibran", bio: "Penyair & filsuf Lebanon-Amerika", era: "1883 - 1931" },
 };
 
 const quotes: Quote[] = [
@@ -126,9 +130,19 @@ const quotes: Quote[] = [
 
     // Life
     { text: "Remembering that you are going to die is the best way I know to avoid the trap of thinking you have something to lose.", textId: "Mengingat bahwa kamu akan mati adalah cara terbaik yang kutahu untuk menghindari jebakan berpikir kamu punya sesuatu untuk kehilangan.", author: "Steve Jobs", weight: 3, category: "Life", source: "Stanford Commencement Speech", context: "Memento mori. Kesadaran kematian membebaskan kita dari rasa takut dan ego." },
+
+    // Love & Romance (Indonesian)
+    { text: "Aku ingin mencintaimu dengan sederhana, dengan kata yang tak sempat diucapkan kayu kepada api yang menjadikannya abu.", author: "Sapardi Djoko Damono", weight: 5, category: "Love", source: "Aku Ingin", context: "Puisi cinta paling terkenal di Indonesia. Cinta yang murni, tanpa syarat, tanpa perlu diucapkan—cukup dirasakan." },
+    { text: "Hujan bulan Juni. Tak ada yang lebih tabah dari hujan bulan Juni. Dihujamnya terus berbagai kerinduan.", author: "Sapardi Djoko Damono", weight: 5, category: "Love", source: "Hujan Bulan Juni", context: "Ketabahan dalam cinta. Seperti hujan yang terus turun meski tak disambut, begitulah kerinduan yang tak pernah padam." },
+    { text: "Jangan datang jika kau tak mampu menemaniku selamanya. Atau datanglah, tapi jangan membuatku jatuh cinta.", author: "Sitor Situmorang", weight: 5, category: "Love", context: "Dilema cinta yang menyakitkan. Lebih baik tidak mengenal daripada kehilangan setelah mencintai." },
+    { text: "Cinta adalah sungai yang tak pernah lelah mengalir ke laut, meski laut tak pernah bertanya.", author: "Amir Hamzah", weight: 5, category: "Love", context: "Cinta yang ikhlas seperti sungai—terus memberi tanpa mengharap balasan." },
+    { text: "Dalam cinta, yang terpenting bukan menemukan orang yang tepat, tapi menjadi orang yang tepat.", author: "Achdiat K. Mihardja", weight: 5, category: "Love", context: "Cinta dimulai dari diri sendiri. Sebelum dicintai, jadilah layak untuk dicintai." },
+    { text: "Your soul and my soul are forever tangled.", textId: "Jiwamu dan jiwaku selamanya terjalin.", author: "Khalil Gibran", weight: 4, category: "Love", context: "Cinta melampaui fisik—ia adalah ikatan jiwa yang tak terpisahkan oleh waktu dan jarak." },
+    { text: "Let there be spaces in your togetherness.", textId: "Biarlah ada ruang dalam kebersamaanmu.", author: "Khalil Gibran", weight: 4, category: "Love", source: "The Prophet", context: "Cinta yang sehat memberi ruang untuk bertumbuh. Bersama, namun tetap menjadi diri sendiri." },
+    { text: "Cintaku jauh di pulau, gadis manis sekarang iseng sendiri.", author: "Chairil Anwar", weight: 5, category: "Love", source: "Cintaku Jauh di Pulau", context: "Kerinduan yang intens dalam jarak. Chairil mengekspresikan kesepian dan kerinduan dengan khas." },
 ];
 
-const categories = ["All", "Stoic", "Existentialism", "Eastern", "Indonesian", "Literature", "Tech", "Psychology", "Science", "Ancient", "Mindfulness", "Life"];
+const categories = ["All", "Stoic", "Existentialism", "Eastern", "Indonesian", "Literature", "Tech", "Psychology", "Science", "Ancient", "Mindfulness", "Life", "Love"];
 
 const getDailyQuoteIndex = () => {
     const today = new Date();
