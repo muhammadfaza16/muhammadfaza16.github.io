@@ -4,7 +4,12 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-export function AnimatedClock() {
+interface AnimatedClockProps {
+    size?: number;
+    onClick?: () => void;
+}
+
+export function AnimatedClock({ size = 24, onClick }: AnimatedClockProps) {
     const pathname = usePathname();
     const [time, setTime] = useState(new Date());
 
@@ -30,6 +35,7 @@ export function AnimatedClock() {
     return (
         <Link
             href="/time"
+            onClick={onClick}
             style={{
                 opacity: isActive ? 1 : 0.6,
                 transition: "opacity 0.3s ease, transform 0.2s ease",
@@ -41,8 +47,8 @@ export function AnimatedClock() {
             title="Time"
         >
             <svg
-                width="32"
-                height="32"
+                width={size}
+                height={size}
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"

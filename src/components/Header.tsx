@@ -23,7 +23,6 @@ export function Header() {
 
     const moreLinks = [
         { href: "/now", label: "Now", emoji: "⚡" },
-        { href: "/time", label: "Time", emoji: "🕐" },
         { href: "/bookshelf", label: "Bookshelf", emoji: "📚" },
         { href: "/ideas", label: "Ideas", emoji: "💡" },
         { href: "/til", label: "TIL", emoji: "🎓" },
@@ -164,8 +163,8 @@ export function Header() {
                         </div>
                     </nav>
 
-                    {/* Mobile Logo (Visible on Mobile) */}
-                    <div className="mobile-only" style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+                    {/* Mobile Home Icon (Left) */}
+                    <div className="mobile-only" style={{ display: "flex", alignItems: "center" }}>
                         <Link
                             href="/"
                             style={{
@@ -180,27 +179,15 @@ export function Header() {
                                 <polyline points="9 22 9 12 15 12 15 22"></polyline>
                             </svg>
                         </Link>
-                        <AnimatedClock />
                     </div>
 
-                    {/* Desktop Center - Home + Animated Clock */}
+
+
+                    {/* Desktop Center - Animated Clock Only */}
                     <div
                         className="desktop-flex"
-                        style={{ position: "absolute", left: "50%", top: "50%", transform: "translate(-50%, -50%)", alignItems: "center", gap: "1.5rem" }}
+                        style={{ position: "absolute", left: "50%", top: "50%", transform: "translate(-50%, -50%)", alignItems: "center" }}
                     >
-                        <Link
-                            href="/"
-                            style={{
-                                opacity: pathname === "/" ? 1 : 0.5,
-                                transition: "opacity 0.3s ease"
-                            }}
-                            className="hover:opacity-100"
-                        >
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
-                                <polyline points="9 22 9 12 15 12 15 22"></polyline>
-                            </svg>
-                        </Link>
                         <AnimatedClock />
                     </div>
 
@@ -253,6 +240,14 @@ export function Header() {
                             overflowY: "auto"
                         }}
                     >
+                        {/* Clock in top right corner */}
+                        <div style={{
+                            position: "absolute",
+                            top: "1rem",
+                            right: "1.5rem"
+                        }}>
+                            <AnimatedClock size={48} onClick={() => setIsMenuOpen(false)} />
+                        </div>
                         <nav style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "1.5rem" }}>
                             {/* Main Links */}
                             {navLinks.map((link) => (
@@ -288,7 +283,7 @@ export function Header() {
                                     }}
                                     className={`transition-colors ${isActive(link.href) ? 'text-[var(--foreground)]' : 'text-[var(--secondary)]'}`}
                                 >
-                                    <span>{link.emoji}</span>
+                                    <span style={{ fontSize: "1.25rem", width: "1.5rem", textAlign: "center" }}>{link.emoji}</span>
                                     <span>{link.label}</span>
                                 </Link>
                             ))}

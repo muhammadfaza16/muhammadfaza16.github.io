@@ -400,24 +400,40 @@ export function RandomQuote() {
                 alignItems: "center",
                 justifyContent: "center",
                 marginBottom: "1.25rem",
-                padding: "1.5rem 1rem",
-                borderRadius: "8px",
-                backgroundColor: "var(--hover-bg)",
-                border: "1px solid var(--border)",
-                position: "relative"
+                padding: "2rem 1.5rem",
+                borderRadius: "16px",
+                background: "linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 100%)",
+                backdropFilter: "blur(10px)",
+                WebkitBackdropFilter: "blur(10px)",
+                border: "1px solid rgba(255,255,255,0.1)",
+                boxShadow: "0 8px 32px rgba(0,0,0,0.12), inset 0 1px 0 rgba(255,255,255,0.1)",
+                position: "relative",
+                overflow: "hidden"
             }}>
+                {/* Subtle gradient overlay */}
+                <div style={{
+                    position: "absolute",
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    height: "1px",
+                    background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent)"
+                }} />
                 {/* Daily Badge */}
                 {isDailyQuote && (
                     <div style={{
                         position: "absolute",
-                        top: "-8px",
-                        right: "12px",
-                        backgroundColor: "var(--foreground)",
-                        color: "var(--background)",
-                        padding: "0.2rem 0.5rem",
-                        borderRadius: "4px",
+                        top: "-10px",
+                        right: "16px",
+                        background: "linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%)",
+                        color: "#1a1a1a",
+                        padding: "0.35rem 0.75rem",
+                        borderRadius: "20px",
                         fontSize: "0.65rem",
-                        fontWeight: 600
+                        fontWeight: 700,
+                        letterSpacing: "0.02em",
+                        boxShadow: "0 4px 12px rgba(245, 158, 11, 0.4)",
+                        textTransform: "uppercase"
                     }}>
                         ✨ Hari Ini
                     </div>
@@ -431,13 +447,17 @@ export function RandomQuote() {
                     }}>
                         {/* Category */}
                         <span style={{
-                            fontSize: "0.65rem",
-                            padding: "0.15rem 0.5rem",
-                            borderRadius: "3px",
-                            backgroundColor: "var(--hover-bg)",
+                            fontSize: "0.6rem",
+                            padding: "0.25rem 0.6rem",
+                            borderRadius: "12px",
+                            background: "linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%)",
+                            border: "1px solid rgba(255,255,255,0.15)",
                             marginBottom: "1rem",
                             display: "inline-block",
-                            opacity: 0.85
+                            letterSpacing: "0.05em",
+                            textTransform: "uppercase",
+                            fontWeight: 500,
+                            color: "var(--text-secondary)"
                         }}>
                             {quote.category}
                         </span>
