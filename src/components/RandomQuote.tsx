@@ -194,22 +194,10 @@ export function RandomQuote() {
     useEffect(() => {
         if (!quote || isAnimating) return;
 
+        // Typing effect disabled - show full text immediately
         const text = showTranslation && quote.textId ? quote.textId : quote.text;
-        setDisplayedText("");
-        setIsTyping(true);
-
-        let i = 0;
-        const interval = setInterval(() => {
-            if (i < text.length) {
-                setDisplayedText(text.slice(0, i + 1));
-                i++;
-            } else {
-                clearInterval(interval);
-                setIsTyping(false);
-            }
-        }, 18);
-
-        return () => clearInterval(interval);
+        setDisplayedText(text);
+        setIsTyping(false);
     }, [quote, showTranslation, isAnimating]);
 
     const weightedRandomPick = useCallback((indices: number[]) => {

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Container } from "./Container";
 import { ThemeToggle } from "./ThemeToggle";
+import { AnimatedClock } from "./AnimatedClock";
 
 export function Header() {
     const pathname = usePathname();
@@ -164,7 +165,7 @@ export function Header() {
                     </nav>
 
                     {/* Mobile Logo (Visible on Mobile) */}
-                    <div className="mobile-only" style={{ display: "flex", alignItems: "center" }}>
+                    <div className="mobile-only" style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
                         <Link
                             href="/"
                             style={{
@@ -179,12 +180,13 @@ export function Header() {
                                 <polyline points="9 22 9 12 15 12 15 22"></polyline>
                             </svg>
                         </Link>
+                        <AnimatedClock />
                     </div>
 
-                    {/* Desktop Logo (Centered Absolute, Hidden on Mobile) */}
+                    {/* Desktop Center - Home + Animated Clock */}
                     <div
                         className="desktop-flex"
-                        style={{ position: "absolute", left: "50%", top: "50%", transform: "translate(-50%, -50%)", alignItems: "center" }}
+                        style={{ position: "absolute", left: "50%", top: "50%", transform: "translate(-50%, -50%)", alignItems: "center", gap: "1.5rem" }}
                     >
                         <Link
                             href="/"
@@ -199,25 +201,11 @@ export function Header() {
                                 <polyline points="9 22 9 12 15 12 15 22"></polyline>
                             </svg>
                         </Link>
+                        <AnimatedClock />
                     </div>
 
                     {/* Actions - Right */}
                     <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
-                        {/* Time Icon */}
-                        <Link
-                            href="/time"
-                            style={{
-                                opacity: pathname === "/time" ? 1 : 0.5,
-                                transition: "opacity 0.3s ease"
-                            }}
-                            onClick={() => setIsMenuOpen(false)}
-                            className="hover:opacity-100"
-                        >
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                <circle cx="12" cy="12" r="10"></circle>
-                                <polyline points="12 6 12 12 16 14"></polyline>
-                            </svg>
-                        </Link>
                         <ThemeToggle />
 
                         {/* Hamburger Button (Mobile Only) */}
