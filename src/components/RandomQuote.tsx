@@ -140,6 +140,9 @@ const quotes: Quote[] = [
     { text: "Your soul and my soul are forever tangled.", textId: "Jiwamu dan jiwaku selamanya terjalin.", author: "Khalil Gibran", weight: 8, category: "Love", context: "Cinta melampaui fisik—ia adalah ikatan jiwa yang tak terpisahkan oleh waktu dan jarak." },
     { text: "Let there be spaces in your togetherness.", textId: "Biarlah ada ruang dalam kebersamaanmu.", author: "Khalil Gibran", weight: 8, category: "Love", source: "The Prophet", context: "Cinta yang sehat memberi ruang untuk bertumbuh. Bersama, namun tetap menjadi diri sendiri." },
     { text: "Cintaku jauh di pulau, gadis manis sekarang iseng sendiri.", author: "Chairil Anwar", weight: 8, category: "Love", source: "Cintaku Jauh di Pulau", context: "Kerinduan yang intens dalam jarak. Chairil mengekspresikan kesepian dan kerinduan dengan khas." },
+
+    // Easter Egg 🥚
+    { text: "HIDUP JOKOWIIII!!!! 🇮🇩🔥", author: "Rakyat Indonesia", weight: 4, category: "Indonesian", context: "🎉 SELAMAT! Kamu menemukan easter egg! Hari ini keberuntunganmu lagi bagus banget! 🍀✨" },
 ];
 
 const categories = ["All", "Stoic", "Existentialism", "Eastern", "Indonesian", "Literature", "Tech", "Psychology", "Science", "Ancient", "Mindfulness", "Life", "Love"];
@@ -280,6 +283,7 @@ export function RandomQuote() {
     };
 
     const isFavorite = quote ? favorites.includes(quotes.indexOf(quote)) : false;
+    const isEasterEgg = quote?.text.includes("JOKOWI");
 
     return (
         <div className="animate-fade-in" style={{
@@ -416,14 +420,54 @@ export function RandomQuote() {
                 marginBottom: "1.25rem",
                 padding: "2rem 1.5rem",
                 borderRadius: "16px",
-                background: "linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 100%)",
+                background: isEasterEgg
+                    ? "linear-gradient(135deg, rgba(255,215,0,0.15) 0%, rgba(255,165,0,0.1) 50%, rgba(255,215,0,0.15) 100%)"
+                    : "linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 100%)",
                 backdropFilter: "blur(10px)",
                 WebkitBackdropFilter: "blur(10px)",
-                border: "1px solid rgba(255,255,255,0.1)",
-                boxShadow: "0 8px 32px rgba(0,0,0,0.12), inset 0 1px 0 rgba(255,255,255,0.1)",
+                border: isEasterEgg ? "2px solid rgba(255,215,0,0.5)" : "1px solid rgba(255,255,255,0.1)",
+                boxShadow: isEasterEgg
+                    ? "0 0 40px rgba(255,215,0,0.3), 0 8px 32px rgba(0,0,0,0.12), inset 0 1px 0 rgba(255,255,255,0.2)"
+                    : "0 8px 32px rgba(0,0,0,0.12), inset 0 1px 0 rgba(255,255,255,0.1)",
                 position: "relative",
-                overflow: "hidden"
+                overflow: "hidden",
+                animation: isEasterEgg ? "pulse 2s ease-in-out infinite" : "none"
             }}>
+                {/* Confetti for Easter Egg */}
+                {isEasterEgg && !isAnimating && (
+                    <>
+                        <div style={{ position: "absolute", top: "10%", left: "10%", fontSize: "1.5rem", animation: "bounce 1s ease infinite" }}>🎉</div>
+                        <div style={{ position: "absolute", top: "15%", right: "15%", fontSize: "1.2rem", animation: "bounce 1.2s ease infinite 0.1s" }}>✨</div>
+                        <div style={{ position: "absolute", bottom: "20%", left: "15%", fontSize: "1.3rem", animation: "bounce 1.1s ease infinite 0.2s" }}>🎊</div>
+                        <div style={{ position: "absolute", bottom: "15%", right: "10%", fontSize: "1.4rem", animation: "bounce 1.3s ease infinite 0.15s" }}>🏆</div>
+                        <div style={{ position: "absolute", top: "50%", left: "5%", fontSize: "1rem", animation: "bounce 1s ease infinite 0.3s" }}>💎</div>
+                        <div style={{ position: "absolute", top: "40%", right: "5%", fontSize: "1.1rem", animation: "bounce 1.2s ease infinite 0.25s" }}>🌟</div>
+                    </>
+                )}
+
+                {/* Easter Egg Badge */}
+                {isEasterEgg && !isAnimating && (
+                    <div style={{
+                        position: "absolute",
+                        top: "12px",
+                        left: "50%",
+                        transform: "translateX(-50%)",
+                        background: "linear-gradient(135deg, #ffd700 0%, #ffb300 50%, #ffd700 100%)",
+                        color: "#1a1a1a",
+                        padding: "0.4rem 1rem",
+                        borderRadius: "20px",
+                        fontSize: "0.7rem",
+                        fontWeight: 800,
+                        letterSpacing: "0.05em",
+                        boxShadow: "0 4px 20px rgba(255,215,0,0.6), inset 0 1px 0 rgba(255,255,255,0.4)",
+                        textTransform: "uppercase",
+                        zIndex: 10,
+                        border: "2px solid rgba(255,255,255,0.3)"
+                    }}>
+                        🏆 HARTA KARUN! 🏆
+                    </div>
+                )}
+
                 {/* Subtle gradient overlay */}
                 <div style={{
                     position: "absolute",
@@ -431,7 +475,9 @@ export function RandomQuote() {
                     left: 0,
                     right: 0,
                     height: "1px",
-                    background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent)"
+                    background: isEasterEgg
+                        ? "linear-gradient(90deg, transparent, rgba(255,215,0,0.5), transparent)"
+                        : "linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent)"
                 }} />
                 {/* Daily Badge */}
                 {isDailyQuote && (
