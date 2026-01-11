@@ -280,18 +280,41 @@ export default function TimePage() {
                 {/* Grid Visualization */}
                 <div style={{
                     marginBottom: "6rem",
-                    textAlign: "center"
+                    textAlign: "center",
+                    display: "flex",
+                    justifyContent: "center"
                 }}>
                     <div style={{
-                        display: "flex",
-                        flexWrap: "wrap",
-                        justifyContent: "center",
+                        display: "grid",
+                        gridTemplateColumns: viewMode === 'years'
+                            ? "repeat(10, 1fr)"
+                            : (viewMode === 'months' ? "repeat(auto-fit, minmax(8px, 1fr))" : "repeat(auto-fit, minmax(4px, 1fr))"),
+                        // Specific overrides for smoother layouts at different sizes
+                        ...(viewMode === 'months' && { gridTemplateColumns: "repeat(36, 1fr)" }),
                         gap: viewMode === 'years' ? "12px" : (viewMode === 'months' ? "6px" : "3px"),
-                        margin: "0 auto",
-                        maxWidth: viewMode === 'weeks' ? "100%" : "50rem"
-                    }}>
+                        maxWidth: viewMode === 'years' ? "350px" : (viewMode === 'months' ? "600px" : "100%"),
+                        width: "100%",
+                        // Mobile responsiveness overrides via media queries could be handled in CSS, 
+                        // but inline styles are used here for simplicity. 
+                        // For 'months', 36 cols is wide, might need media query logic if purely inline.
+                        // Let's use a simpler auto-fill strategy for months if strict grid causes overflow issues on mobile,
+                        // BUT user wanted "clearer". 36 cols = 3 years per row.
+                    }}
+                        className={viewMode === 'months' ? "months-grid" : ""}
+                    >
+                        {/* Inject style for mobile responsiveness for the complex grids */}
+                        <style jsx>{`
+                            @media (max-width: 640px) {
+                                .months-grid {
+                                    grid-template-columns: repeat(12, 1fr) !important;
+                                }
+                            }
+                        `}</style>
+
                         {Array.from({ length: totalUnits }).map((_, i) => {
                             const isLived = i < unitsLived;
+                            const isCurrent = i === unitsLived;
+
                             // Calculate dates based on view mode
                             let startDate, endDate;
                             if (viewMode === 'weeks') {
@@ -316,14 +339,21 @@ export default function TimePage() {
                                     key={i}
                                     title={`Usia ${age} | ${formatDate(startDate)}`}
                                     style={{
-                                        width: viewMode === 'years' ? "24px" : (viewMode === 'months' ? "10px" : "4px"),
-                                        height: viewMode === 'years' ? "24px" : (viewMode === 'months' ? "10px" : "4px"),
+                                        width: "100%",
+                                        aspectRatio: "1/1",
                                         borderRadius: "50%",
-                                        backgroundColor: isLived ? "var(--foreground)" : "var(--border)",
-                                        opacity: isLived ? 0.8 : 0.3,
-                                        transition: "opacity 0.2s ease"
+                                        backgroundColor: isLived ? "var(--foreground)" : "var(--foreground)",
+                                        opacity: isLived ? 0.9 : (isCurrent ? 1 : 0.15),
+                                        transition: "all 0.2s ease",
+                                        transform: isCurrent ? "scale(1.2)" : "scale(1)",
+                                        boxShadow: isCurrent ? "0 0 8px var(--foreground)" : "none",
+                                        border: isCurrent ? "1px solid var(--background)" : "none"
                                     }}
-                                    className={isLived ? "hover:opacity-100" : ""}
+                                    className={`
+                                        ${isLived ? "hover:opacity-100" : "hover:opacity-60"}
+                                        ${isCurrent ? "animate-pulse" : ""}
+                                        cursor-help
+                                    `}
                                 />
                             );
                         })}
@@ -347,6 +377,9 @@ export default function TimePage() {
                         Melihat kehidupan Anda tervisualisasi seperti ini mungkin terasa menakutkan, tetapi tujuannya bukan untuk membuat Anda depresi.
                         Tujuannya adalah urgensi. Titik-titik yang telah terisi (hitam) adalah masa lalu yang tidak bisa diubah.
                         Titik-titik yang transparan adalah masa depan, namun mereka tidak dijamin.
+                        <span className="block mt-2 font-bold text-[var(--foreground)]">
+                            Titik yang berdenyut adalah Anda saat ini.
+                        </span>
                     </p>
                     <p>
                         Apa yang akan Anda lakukan dengan titik {unitLabel.toLowerCase()} ini?

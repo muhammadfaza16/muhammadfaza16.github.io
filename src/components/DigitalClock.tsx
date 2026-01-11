@@ -53,9 +53,33 @@ export function DigitalClock({ onClick }: DigitalClockProps) {
                 textDecoration: "none",
                 transition: "opacity 0.2s ease"
             }}
-            className="hover:opacity-70"
+            className="hover:opacity-70 clock-container"
         >
-            {formatTime(time)}
+            <div style={{ position: 'relative', display: 'inline-block' }}>
+                <span className="clock-time">{formatTime(time)}</span>
+                <span
+                    className="clock-hint"
+                    style={{
+                        position: 'absolute',
+                        top: '100%',
+                        left: '50%',
+                        transform: 'translateX(-50%)',
+                        fontSize: '0.6rem',
+                        whiteSpace: 'nowrap',
+                        opacity: 0,
+                        transition: 'opacity 0.2s ease',
+                        marginTop: '0.2rem',
+                        color: 'var(--text-secondary)'
+                    }}
+                >
+                    Memento Mori
+                </span>
+                <style jsx>{`
+                    .clock-container:hover .clock-hint {
+                        opacity: 1;
+                    }
+                `}</style>
+            </div>
         </Link>
     );
 }
