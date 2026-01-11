@@ -26,6 +26,8 @@ export const metadata: Metadata = {
   },
 };
 
+import { ZenProvider } from "@/components/ZenContext";
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -53,14 +55,16 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
         <ThemeProvider>
-          <SkipLink />
-          <ScrollToTop />
-          <KonamiCode />
-          <Header />
-          <main id="main-content" className="main-content-padding" style={{ flex: 1 }}>
-            {children}
-          </main>
-          <Footer />
+          <ZenProvider>
+            <SkipLink />
+            <ScrollToTop />
+            <KonamiCode />
+            <Header />
+            <main id="main-content" className="main-content-padding" style={{ flex: 1 }}>
+              {children}
+            </main>
+            <Footer />
+          </ZenProvider>
         </ThemeProvider>
       </body>
     </html>

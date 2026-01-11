@@ -7,6 +7,8 @@ import { ReadingProgress } from "@/components/ReadingProgress";
 import { BlogPostActions } from "@/components/BlogPostActions";
 import { ArticleContent } from "@/components/ArticleContent";
 import { PostTemperature } from "@/components/PostTemperature";
+import { ZenToggle } from "@/components/ZenToggle";
+import { ZenHidden } from "@/components/ZenHidden";
 
 interface PageProps {
     params: Promise<{ slug: string }>;
@@ -84,26 +86,33 @@ export default async function BlogPostPage({ params }: PageProps) {
             <Container>
                 <div style={{
                     paddingTop: "7rem", // Clear fixed header (5rem) + buffer
-                    marginBottom: "2rem"
+                    marginBottom: "2rem",
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center"
                 }}>
-                    <Link
-                        href="/blog"
-                        style={{
-                            fontFamily: "var(--font-mono)",
-                            fontSize: "0.8rem",
-                            textTransform: "uppercase",
-                            letterSpacing: "0.1em",
-                            color: "var(--text-secondary)",
-                            display: "inline-flex",
-                            alignItems: "center",
-                            gap: "0.5rem",
-                            opacity: 0.7,
-                            transition: "opacity 0.2s ease"
-                        }}
-                        className="hover:opacity-100"
-                    >
-                        ← Index
-                    </Link>
+                    <ZenHidden>
+                        <Link
+                            href="/blog"
+                            style={{
+                                fontFamily: "var(--font-mono)",
+                                fontSize: "0.8rem",
+                                textTransform: "uppercase",
+                                letterSpacing: "0.1em",
+                                color: "var(--text-secondary)",
+                                display: "inline-flex",
+                                alignItems: "center",
+                                gap: "0.5rem",
+                                opacity: 0.7,
+                                transition: "opacity 0.2s ease"
+                            }}
+                            className="hover:opacity-100"
+                        >
+                            ← Index
+                        </Link>
+                    </ZenHidden>
+
+                    <ZenToggle />
                 </div>
 
                 {/* Hero Header - Zen Mode */}

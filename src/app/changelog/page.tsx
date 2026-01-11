@@ -46,7 +46,7 @@ export default function ChangelogPage() {
                             letterSpacing: "-0.03em",
                             lineHeight: 1,
                             color: "var(--foreground)",
-                            maxWidth: "15ch"
+                            maxWidth: "18ch"
                         }}>
                             The dots connect backwards.
                         </h1>

@@ -56,7 +56,7 @@ export default function LinksPage() {
                             letterSpacing: "-0.03em",
                             lineHeight: 1,
                             color: "var(--foreground)",
-                            maxWidth: "15ch"
+                            maxWidth: "18ch"
                         }}>
                             Curation is creation.
                         </h1>

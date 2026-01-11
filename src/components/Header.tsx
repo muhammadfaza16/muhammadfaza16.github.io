@@ -6,9 +6,11 @@ import { usePathname } from "next/navigation";
 import { Container } from "./Container";
 import { ThemeToggle } from "./ThemeToggle";
 import { DigitalClock } from "./DigitalClock";
+import { useZen } from "./ZenContext";
 
 export function Header() {
     const pathname = usePathname();
+    const { isZen } = useZen();
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [isMoreOpen, setIsMoreOpen] = useState(false);
     const [isMobileMoreOpen, setIsMobileMoreOpen] = useState(false);
@@ -66,8 +68,11 @@ export function Header() {
                 right: 0,
                 zIndex: 50,
                 borderBottom: "1px solid var(--border)",
-                transition: "background-color 0.3s ease, border-color 0.3s ease",
-                height: "5rem" // Fixed height for consistency
+                transition: "background-color 0.3s ease, border-color 0.3s ease, transform 0.5s ease, opacity 0.5s ease",
+                height: "5rem", // Fixed height for consistency
+                transform: isZen ? "translateY(-100%)" : "translateY(0)",
+                opacity: isZen ? 0 : 1,
+                pointerEvents: isZen ? "none" : "auto"
             }}
         >
             <Container>

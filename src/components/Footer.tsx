@@ -1,10 +1,24 @@
+"use client";
+
 import Link from "next/link";
 import { Container } from "./Container";
+import { useZen } from "./ZenContext";
 
 
 export function Footer() {
+    const { isZen } = useZen();
+
     return (
-        <footer style={{ backgroundColor: "var(--background)", color: "var(--foreground)", paddingTop: "5rem", paddingBottom: "3rem", borderTop: "1px solid var(--border)" }}>
+        <footer style={{
+            backgroundColor: "var(--background)",
+            color: "var(--foreground)",
+            paddingTop: "5rem",
+            paddingBottom: "3rem",
+            borderTop: "1px solid var(--border)",
+            opacity: isZen ? 0 : 1,
+            pointerEvents: isZen ? "none" : "auto",
+            transition: "opacity 0.5s ease"
+        }}>
             <Container>
                 {/* Main Footer Content */}
                 <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: "3rem", marginBottom: "3rem" }} className="md:grid-cols-2">
@@ -14,9 +28,10 @@ export function Footer() {
                         <Link
                             href="/"
                             style={{
-                                fontFamily: "var(--font-mono)",
+                                fontFamily: "'Playfair Display', serif",
                                 fontSize: "2rem",
-                                fontWeight: 700,
+                                fontWeight: 400,
+                                letterSpacing: "-0.04em", // Tight tracking matching Hero
                                 display: "inline-block",
                                 marginBottom: "1.25rem",
                                 color: "var(--foreground)",

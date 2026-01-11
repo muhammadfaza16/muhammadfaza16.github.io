@@ -58,7 +58,7 @@ export default function TILPage() {
                             letterSpacing: "-0.03em",
                             lineHeight: 1,
                             color: "var(--foreground)",
-                            maxWidth: "15ch"
+                            maxWidth: "18ch"
                         }}>
                             Daily compounds of knowledge.
                         </h1>

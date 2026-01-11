@@ -56,7 +56,7 @@ export default function UsesPage() {
                             letterSpacing: "-0.03em",
                             lineHeight: 1,
                             color: "var(--foreground)",
-                            maxWidth: "15ch"
+                            maxWidth: "18ch"
                         }}>
                             Tools for the craft.
                         </h1>

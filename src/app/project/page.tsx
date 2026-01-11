@@ -16,13 +16,13 @@ export default function ProjectPage() {
                     <div style={{ marginBottom: "6rem" }}>
                         <h1 style={{
                             fontFamily: "'Playfair Display', serif",
-                            fontSize: "clamp(3.5rem, 10vw, 7.5rem)", // Massive scale
-                            fontWeight: 400, // Thin
-                            letterSpacing: "-0.04em", // Tight tracking
+                            fontSize: "clamp(3.5rem, 10vw, 7.5rem)",
+                            fontWeight: 400,
+                            letterSpacing: "-0.04em",
                             lineHeight: 0.95,
                             marginBottom: "2rem",
                             color: "var(--foreground)",
-                            maxWidth: "15ch" // Limit width for impact
+                            maxWidth: "15ch"
                         }}>
                             Selected Works.
                         </h1>

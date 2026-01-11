@@ -32,10 +32,11 @@ export default function NowPage() {
                         </span>
                         <h1 style={{
                             fontFamily: "'Playfair Display', serif",
-                            fontSize: "clamp(3rem, 6vw, 5rem)",
+                            fontSize: "clamp(3.5rem, 10vw, 7rem)",
                             fontWeight: 400,
-                            letterSpacing: "-0.03em",
-                            lineHeight: 1,
+                            letterSpacing: "-0.04em",
+                            lineHeight: 0.95,
+                            marginBottom: "2rem",
                             color: "var(--foreground)",
                             maxWidth: "15ch"
                         }}>
