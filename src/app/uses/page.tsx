@@ -197,7 +197,7 @@ export default function UsesPage() {
                 {/* Footer note */}
                 <footer style={{ marginTop: "4rem", paddingTop: "2rem", borderTop: "1px solid var(--border)" }}>
                     <p style={{ fontSize: "0.85rem", color: "var(--text-secondary)", lineHeight: 1.6 }}>
-                        <span style={{ filter: "grayscale(1)" }}>💡</span> <strong>Note:</strong> Halaman ini terinspirasi oleh gerakan <a href="https://uses.tech" target="_blank" rel="noopener noreferrer" className="link-underline">/uses</a>.
+                        <span style={{ fontSize: "1.2rem" }}>💡</span> <strong>Note:</strong> Halaman ini terinspirasi oleh gerakan <a href="https://uses.tech" target="_blank" rel="noopener noreferrer" className="link-underline">/uses</a>.
                         Semua produk di sini adalah yang benar-benar saya gunakan, bukan endorsement.
                     </p>
                 </footer>

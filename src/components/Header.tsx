@@ -5,11 +5,13 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Container } from "./Container";
 import { ThemeToggle } from "./ThemeToggle";
+import { DigitalClock } from "./DigitalClock";
 
 export function Header() {
     const pathname = usePathname();
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [isMoreOpen, setIsMoreOpen] = useState(false);
+    const [isMobileMoreOpen, setIsMobileMoreOpen] = useState(false);
     const moreRef = useRef<HTMLDivElement>(null);
 
     const isActive = (path: string) => pathname === path;
@@ -44,7 +46,15 @@ export function Header() {
     // Close dropdown on route change
     useEffect(() => {
         setIsMoreOpen(false);
+        setIsMobileMoreOpen(false);
     }, [pathname]);
+
+    // Reset mobile more menu when main menu closes
+    useEffect(() => {
+        if (!isMenuOpen) {
+            setIsMobileMoreOpen(false);
+        }
+    }, [isMenuOpen]);
 
     return (
         <header
@@ -213,43 +223,99 @@ export function Header() {
                     </div>
                 </div>
 
-                {/* Mobile Menu Dropdown */}
-                {isMenuOpen && (
-                    <div
-                        className="mobile-only glass animate-fade-in"
-                        style={{
-                            position: "absolute",
-                            top: "5rem", // Below header
-                            left: 0,
-                            right: 0,
-                            borderBottom: "1px solid var(--border)",
-                            padding: "2rem 0",
-                            height: "calc(100vh - 5rem)", // Full screen minus header
-                            backgroundColor: "var(--background)",
-                            overflowY: "auto"
-                        }}
-                    >
-                        <nav style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "1.5rem" }}>
-                            {/* Main Links */}
-                            {navLinks.map((link) => (
-                                <Link
-                                    key={link.href}
-                                    href={link.href}
-                                    onClick={() => setIsMenuOpen(false)}
-                                    style={{
-                                        fontSize: "1.25rem",
-                                        letterSpacing: "0.05em"
-                                    }}
-                                    className={`transition-colors ${isActive(link.href.replace('#', '')) ? 'text-[var(--foreground)]' : 'text-[var(--secondary)]'}`}
-                                >
-                                    {link.label}
-                                </Link>
-                            ))}
+                {/* Mobile Menu Dropdown - Always mounted for smooth transition */}
+                <div
+                    className="mobile-only glass"
+                    style={{
+                        position: "absolute",
+                        top: "5rem", // Below header
+                        left: 0,
+                        right: 0,
+                        borderBottom: "1px solid var(--border)",
+                        padding: "2rem 0",
+                        height: "calc(100vh - 5rem)", // Full screen minus header
+                        backgroundColor: "var(--background)",
+                        overflowY: "auto",
+                        // Transition State
+                        opacity: isMenuOpen ? 1 : 0,
+                        pointerEvents: isMenuOpen ? "auto" : "none",
+                        visibility: isMenuOpen ? "visible" : "hidden",
+                        transform: isMenuOpen ? "translateY(0)" : "translateY(-8px)",
+                        transition: "opacity 0.2s ease, transform 0.2s ease, visibility 0.2s"
+                    }}
+                >
+                    <nav style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "1.5rem" }}>
+                        {/* Digital Clock */}
+                        <DigitalClock onClick={() => setIsMenuOpen(false)} />
 
-                            {/* Divider */}
-                            <div style={{ width: "60px", height: "1px", backgroundColor: "var(--border)", margin: "0.5rem 0" }} />
+                        {/* Main Links */}
+                        {navLinks.map((link) => (
+                            <Link
+                                key={link.href}
+                                href={link.href}
+                                onClick={() => setIsMenuOpen(false)}
+                                style={{
+                                    fontSize: "1.25rem",
+                                    letterSpacing: "0.05em"
+                                }}
+                                className={`transition-colors ${isActive(link.href.replace('#', '')) ? 'text-[var(--foreground)]' : 'text-[var(--secondary)]'}`}
+                            >
+                                {link.label}
+                            </Link>
+                        ))}
 
-                            {/* More Links */}
+                        {/* Divider */}
+                        <div style={{ width: "60px", height: "1px", backgroundColor: "var(--border)", margin: "0.5rem 0" }} />
+
+                        {/* Mobile More Button */}
+                        <button
+                            onClick={() => setIsMobileMoreOpen(!isMobileMoreOpen)}
+                            style={{
+                                fontSize: "1.25rem",
+                                letterSpacing: "0.05em",
+                                background: "none",
+                                border: "none",
+                                cursor: "pointer",
+                                display: "flex",
+                                alignItems: "center",
+                                gap: "0.5rem",
+                                color: isMobileMoreOpen ? "var(--foreground)" : "var(--secondary)",
+                                transition: "color 0.2s ease"
+                            }}
+                        >
+                            <span>More</span>
+                            <svg
+                                width="20"
+                                height="20"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth="2"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                style={{
+                                    transform: isMobileMoreOpen ? "rotate(180deg)" : "rotate(0deg)",
+                                    transition: "transform 0.2s ease"
+                                }}
+                            >
+                                <polyline points="6 9 12 15 18 9"></polyline>
+                            </svg>
+                        </button>
+
+                        {/* More Links Collapsible */}
+                        <div
+                            style={{
+                                display: "flex",
+                                flexDirection: "column",
+                                alignItems: "center",
+                                gap: "1rem",
+                                overflow: "hidden",
+                                maxHeight: isMobileMoreOpen ? "500px" : "0",
+                                opacity: isMobileMoreOpen ? 1 : 0,
+                                transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+                                marginTop: isMobileMoreOpen ? "0.5rem" : "0"
+                            }}
+                        >
                             {moreLinks.map((link) => (
                                 <Link
                                     key={link.href}
@@ -264,13 +330,13 @@ export function Header() {
                                     }}
                                     className={`transition-colors ${isActive(link.href) ? 'text-[var(--foreground)]' : 'text-[var(--secondary)]'}`}
                                 >
-                                    <span style={{ fontSize: "1.25rem", width: "1.5rem", textAlign: "center", filter: "grayscale(1)" }}>{link.emoji}</span>
+                                    <span style={{ fontSize: "1.25rem", width: "1.5rem", textAlign: "center" }}>{link.emoji}</span>
                                     <span>{link.label}</span>
                                 </Link>
                             ))}
-                        </nav>
-                    </div>
-                )}
+                        </div>
+                    </nav>
+                </div>
             </Container>
         </header>
     );

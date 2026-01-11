@@ -144,7 +144,7 @@ export default function SecretsEditorPage() {
                     margin: "4rem auto",
                     textAlign: "center"
                 }}>
-                    <span style={{ fontSize: "4rem", filter: "grayscale(1)" }}>🔐</span>
+                    <span style={{ fontSize: "4rem" }}>🔐</span>
                     <h1 style={{
                         fontSize: "1.5rem",
                         fontWeight: 700,
@@ -346,7 +346,7 @@ export default function SecretsEditorPage() {
                         </div>
                         <div style={{ flex: 1 }}>
                             <label style={{ fontSize: "0.85rem", color: "var(--text-secondary)", marginBottom: "0.5rem", display: "block" }}>
-                                <span style={{ filter: "grayscale(1)" }}>💡</span> Hint (opsional)
+                                <span>💡</span> Hint (opsional)
                             </label>
                             <input
                                 type="text"
@@ -379,14 +379,14 @@ export default function SecretsEditorPage() {
                             cursor: saving ? "not-allowed" : "pointer"
                         }}
                     >
-                        {saving ? <span style={{ filter: "grayscale(1)" }}>⏳ Menyimpan...</span> : <span style={{ filter: "grayscale(1)" }}>💾 Simpan Secret</span>}
+                        {saving ? <span>⏳ Menyimpan...</span> : <span>💾 Simpan Secret</span>}
                     </button>
                 </div>
 
                 {/* Existing Secrets */}
                 <div>
                     <h2 style={{ fontSize: "1.1rem", fontWeight: 600, color: "var(--foreground)", marginBottom: "1rem" }}>
-                        <span style={{ filter: "grayscale(1)" }}>📋</span> Daftar Secrets ({secrets.length})
+                        <span>📋</span> Daftar Secrets ({secrets.length})
                     </h2>
 
                     {secrets.length === 0 ? (
@@ -432,7 +432,7 @@ export default function SecretsEditorPage() {
                                             cursor: "pointer"
                                         }}
                                     >
-                                        <span style={{ filter: "grayscale(1)" }}>🗑️</span> Hapus
+                                        <span>🗑️</span> Hapus
                                     </button>
                                 </div>
                             ))}

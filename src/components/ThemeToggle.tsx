@@ -125,7 +125,7 @@ export function ThemeToggle() {
                     }}
                 >
                     <div style={{ display: "flex", alignItems: "flex-start", gap: "0.75rem" }}>
-                        <span style={{ fontSize: "1.5rem", filter: "grayscale(1)" }}>💬</span>
+                        <span style={{ fontSize: "1.5rem" }}>💬</span>
                         <p style={{ margin: 0 }}>{message}</p>
                     </div>
                     <button

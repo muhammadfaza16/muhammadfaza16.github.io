@@ -131,7 +131,7 @@ export default function SecretsPage() {
                         fontWeight: 700,
                         color: "var(--foreground)"
                     }}>
-                        <span style={{ filter: "grayscale(1)" }}>🔐</span> Secrets
+                        <span>🔐</span> Secrets
                     </h1>
                     <p style={{
                         marginTop: "1rem",
@@ -149,8 +149,7 @@ export default function SecretsPage() {
                     gap: "1.5rem",
                     marginBottom: "2rem",
                     fontSize: "0.85rem",
-                    color: "var(--text-secondary)",
-                    filter: "grayscale(1)"
+                    color: "var(--text-secondary)"
                 }}>
                     <span>📨 {secrets.length} pesan</span>
                     <span>🔓 {unlockedMessages.size} terbuka</span>
@@ -263,7 +262,7 @@ export default function SecretsPage() {
                                                 marginTop: "0.75rem",
                                                 opacity: 0.7
                                             }}>
-                                                <span style={{ filter: "grayscale(1)" }}>💡</span> Hint: {message.hint}
+                                                <span>💡</span> Hint: {message.hint}
                                             </p>
                                         )}
                                     </div>
@@ -280,7 +279,7 @@ export default function SecretsPage() {
                         padding: "4rem 2rem",
                         color: "var(--text-secondary)"
                     }}>
-                        <span style={{ fontSize: "3rem", filter: "grayscale(1)" }}>🔐</span>
+                        <span style={{ fontSize: "3rem" }}>🔐</span>
                         <p style={{ marginTop: "1rem" }}>Belum ada pesan rahasia.</p>
                     </div>
                 )}
@@ -323,7 +322,7 @@ export default function SecretsPage() {
                         }}
                     >
                         <div style={{ textAlign: "center", marginBottom: "1.5rem" }}>
-                            <span style={{ fontSize: "3rem", filter: "grayscale(1)" }}>🔐</span>
+                            <span style={{ fontSize: "3rem" }}>🔐</span>
                             <h2 style={{
                                 fontSize: "1.25rem",
                                 fontWeight: 600,
@@ -395,7 +394,7 @@ export default function SecretsPage() {
                                 cursor: "pointer"
                             }}
                         >
-                            <span style={{ filter: "grayscale(1)" }}>🔓</span> Decrypt
+                            <span>🔓</span> Decrypt
                         </button>
 
                         <button

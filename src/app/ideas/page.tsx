@@ -6,7 +6,7 @@ export const metadata: Metadata = {
     description: "Koleksi pemikiran pendek yang belum jadi artikel.",
 };
 
-const DISCLAIMER = <span style={{ filter: "grayscale(1)" }}>💡 Konten di halaman ini masih berupa dummy/placeholder. Akan segera diperbarui dengan ide-ide asli.</span>;
+const DISCLAIMER = <span style={{ opacity: 0.7 }}>💡 Konten di halaman ini masih berupa dummy/placeholder. Akan segera diperbarui dengan ide-ide asli.</span>;
 
 const ideas = [
     {

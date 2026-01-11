@@ -66,8 +66,7 @@ export function TimeWidget() {
     return (
         <div style={{
             padding: "3rem 0",
-            textAlign: "center",
-            filter: "grayscale(1)" // Make emojis monochrome
+            textAlign: "center"
         }}>
             {/* Greeting */}
             <p style={{

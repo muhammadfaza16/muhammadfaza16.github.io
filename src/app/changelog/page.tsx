@@ -6,7 +6,7 @@ export const metadata: Metadata = {
     description: "Timeline perjalanan karir dan hidup saya.",
 };
 
-const DISCLAIMER = <span style={{ filter: "grayscale(1)" }}>📝 Konten di halaman ini masih berupa dummy/placeholder. Akan segera diperbarui dengan data asli.</span>;
+const DISCLAIMER = <span style={{ opacity: 0.7 }}>📝 Konten di halaman ini masih berupa dummy/placeholder. Akan segera diperbarui dengan data asli.</span>;
 
 const timeline = [
     {

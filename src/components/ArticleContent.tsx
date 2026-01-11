@@ -42,7 +42,7 @@ export function ArticleContent({ html }: ArticleContentProps) {
         <>
             <div
                 ref={containerRef}
-                className="prose drop-cap animate-fade-in animation-delay-200"
+                className="prose-editorial drop-cap animate-fade-in animation-delay-200"
                 style={{
                     fontSize: "1.1rem",
                     lineHeight: 1.85,

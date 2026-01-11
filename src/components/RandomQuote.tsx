@@ -298,54 +298,22 @@ export function RandomQuote() {
             zIndex: 1,
             padding: "0 1rem"
         }}>
-            {/* Header */}
-            <h2 style={{
-                fontSize: "clamp(1.75rem, 5vw, 2.5rem)",
-                marginBottom: "0.5rem",
-                color: "var(--foreground)"
-            }}>
-                🎲 Wisdom Gacha
-            </h2>
-            <p style={{
-                fontSize: "0.85rem",
-                color: "var(--text-secondary)",
-                marginBottom: "1.25rem",
-                maxWidth: "24rem",
-                margin: "0 auto 1.25rem"
-            }}>
-                Koleksi kutipan dari filsuf, penulis, dan pemikir dunia.
-            </p>
+            {/* Removed internal Header to let page handle it */}
 
-            {/* Stats */}
+            {/* Stats - Minimalist */}
             <div style={{
                 display: "flex",
                 justifyContent: "center",
-                gap: "1rem",
-                marginBottom: "1rem",
-                fontSize: "0.75rem",
+                gap: "1.5rem",
+                marginBottom: "2rem",
+                fontSize: "0.7rem",
+                fontFamily: "var(--font-mono)",
                 color: "var(--text-secondary)",
-                flexWrap: "wrap"
+                letterSpacing: "0.05em",
+                textTransform: "uppercase"
             }}>
-                <span>🔥 {streak} hari</span>
-                <span>📚 {shownIndices.size}/{quotes.length}</span>
-                <span style={{ filter: "grayscale(1)" }}>⭐ {favorites.length}</span>
-            </div>
-
-            {/* Progress Bar */}
-            <div style={{
-                width: "100%",
-                height: "2px",
-                backgroundColor: "var(--border)",
-                borderRadius: "1px",
-                marginBottom: "1.25rem",
-                overflow: "hidden"
-            }}>
-                <div style={{
-                    width: `${(shownIndices.size / quotes.length) * 100}%`,
-                    height: "100%",
-                    backgroundColor: "var(--foreground)",
-                    transition: "width 0.5s ease"
-                }} />
+                <span>🔥 {streak} Day Streak</span>
+                <span>📚 {shownIndices.size} / {quotes.length} Collected</span>
             </div>
 
             {/* Category Filter - Horizontal Scroll for Mobile */}
@@ -414,144 +382,90 @@ export function RandomQuote() {
                 </div>
             </div>
 
-            {/* Quote Display */}
+            {/* Quote Display - Premium Card */}
             <div style={{
-                minHeight: "200px",
+                minHeight: "280px",
                 display: "flex",
                 flexDirection: "column",
                 alignItems: "center",
                 justifyContent: "center",
-                marginBottom: "1.25rem",
-                padding: "2rem 1.5rem",
-                borderRadius: "16px",
-                background: isEasterEgg
-                    ? "linear-gradient(135deg, rgba(255,215,0,0.15) 0%, rgba(255,165,0,0.1) 50%, rgba(255,215,0,0.15) 100%)"
-                    : "linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 100%)",
-                backdropFilter: "blur(10px)",
-                WebkitBackdropFilter: "blur(10px)",
-                border: isEasterEgg ? "2px solid rgba(255,215,0,0.5)" : "1px solid rgba(255,255,255,0.1)",
-                boxShadow: isEasterEgg
-                    ? "0 0 40px rgba(255,215,0,0.3), 0 8px 32px rgba(0,0,0,0.12), inset 0 1px 0 rgba(255,255,255,0.2)"
-                    : "0 8px 32px rgba(0,0,0,0.12), inset 0 1px 0 rgba(255,255,255,0.1)",
+                marginBottom: "2.5rem",
+                padding: "3rem 2rem",
+                borderRadius: "2px", // Sharp, premium corners
+                background: "var(--background)",
+                border: "1px solid var(--border)",
                 position: "relative",
-                overflow: "hidden",
-                animation: isEasterEgg ? "pulse 2s ease-in-out infinite" : "none"
+                transition: "all 0.3s ease"
             }}>
-                {/* Confetti for Easter Egg */}
-                {isEasterEgg && !isAnimating && (
-                    <div style={{ filter: "grayscale(1)" }}>
-                        <div style={{ position: "absolute", top: "10%", left: "10%", fontSize: "1.5rem", animation: "bounce 1s ease infinite" }}>🎉</div>
-                        <div style={{ position: "absolute", top: "15%", right: "15%", fontSize: "1.2rem", animation: "bounce 1.2s ease infinite 0.1s" }}>✨</div>
-                        <div style={{ position: "absolute", bottom: "20%", left: "15%", fontSize: "1.3rem", animation: "bounce 1.1s ease infinite 0.2s" }}>🎊</div>
-                        <div style={{ position: "absolute", bottom: "15%", right: "10%", fontSize: "1.4rem", animation: "bounce 1.3s ease infinite 0.15s" }}>🏆</div>
-                        <div style={{ position: "absolute", top: "50%", left: "5%", fontSize: "1rem", animation: "bounce 1s ease infinite 0.3s" }}>💎</div>
-                        <div style={{ position: "absolute", top: "40%", right: "5%", fontSize: "1.1rem", animation: "bounce 1.2s ease infinite 0.25s" }}>🌟</div>
-                    </div>
-                )}
-
-                {/* Easter Egg Badge */}
-                {isEasterEgg && !isAnimating && (
-                    <div style={{
-                        position: "absolute",
-                        top: "12px",
-                        left: "50%",
-                        transform: "translateX(-50%)",
-                        background: "linear-gradient(135deg, #ffd700 0%, #ffb300 50%, #ffd700 100%)",
-                        color: "#1a1a1a",
-                        padding: "0.4rem 1rem",
-                        borderRadius: "20px",
-                        fontSize: "0.7rem",
-                        fontWeight: 800,
-                        letterSpacing: "0.05em",
-                        boxShadow: "0 4px 20px rgba(255,215,0,0.6), inset 0 1px 0 rgba(255,255,255,0.4)",
-                        textTransform: "uppercase",
-                        zIndex: 10,
-                        border: "2px solid rgba(255,255,255,0.3)"
-                    }}>
-                        🏆 HARTA KARUN! 🏆
-                    </div>
-                )}
-
-                {/* Subtle gradient overlay */}
+                {/* Decorative Quote Mark */}
                 <div style={{
                     position: "absolute",
-                    top: 0,
-                    left: 0,
-                    right: 0,
-                    height: "1px",
-                    background: isEasterEgg
-                        ? "linear-gradient(90deg, transparent, rgba(255,215,0,0.5), transparent)"
-                        : "linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent)"
-                }} />
-                {/* Daily Badge */}
-                {isDailyQuote && (
-                    <div style={{
-                        position: "absolute",
-                        top: "12px",
-                        right: "12px",
-                        background: "linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%)",
-                        color: "#1a1a1a",
-                        padding: "0.3rem 0.6rem",
-                        borderRadius: "16px",
-                        fontSize: "0.6rem",
-                        fontWeight: 700,
-                        letterSpacing: "0.02em",
-                        boxShadow: "0 4px 12px rgba(245, 158, 11, 0.4)",
-                        textTransform: "uppercase",
-                        zIndex: 10
-                    }}>
-                        <span style={{ filter: "grayscale(1)" }}>✨</span> Hari Ini
-                    </div>
-                )}
+                    top: "1rem",
+                    opacity: 0.1,
+                    fontSize: "4rem",
+                    fontFamily: "'Playfair Display', serif",
+                    lineHeight: 1
+                }}>
+                    "
+                </div>
 
                 {quote ? (
                     <div style={{
                         opacity: isAnimating ? 0.4 : 1,
                         transition: "opacity 0.2s ease",
-                        width: "100%"
+                        width: "100%",
+                        maxWidth: "32rem"
                     }}>
-                        {/* Category */}
-                        <span style={{
-                            fontSize: "0.6rem",
-                            padding: "0.25rem 0.6rem",
-                            borderRadius: "12px",
-                            background: "linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%)",
-                            border: "1px solid rgba(255,255,255,0.15)",
-                            marginBottom: "1rem",
-                            display: "inline-block",
-                            letterSpacing: "0.05em",
-                            textTransform: "uppercase",
-                            fontWeight: 500,
-                            color: "var(--text-secondary)"
-                        }}>
-                            {quote.category}
-                        </span>
+                        {/* Category Label */}
+                        <div style={{ marginBottom: "1.5rem" }}>
+                            <span style={{
+                                fontSize: "0.65rem",
+                                padding: "0.3rem 0.8rem",
+                                borderRadius: "100px",
+                                border: "1px solid var(--border)",
+                                letterSpacing: "0.1em",
+                                textTransform: "uppercase",
+                                fontWeight: 500,
+                                color: "var(--text-secondary)"
+                            }}>
+                                {quote.category}
+                            </span>
+                        </div>
 
-                        {/* Quote Text */}
+                        {/* Quote Text - Massive & Elegant */}
                         <p style={{
-                            fontSize: "clamp(1rem, 4vw, 1.25rem)",
+                            fontSize: "clamp(1.5rem, 4vw, 2rem)",
+                            fontFamily: "'Playfair Display', serif",
                             fontStyle: "italic",
-                            lineHeight: 1.7,
-                            marginBottom: "0.75rem",
-                            marginTop: "0.75rem",
-                            color: "var(--foreground)"
+                            lineHeight: 1.4,
+                            marginBottom: "2rem",
+                            color: "var(--foreground)",
+                            fontWeight: 400
                         }}>
-                            "{isAnimating ? quote.text : displayedText}{isTyping && <span style={{ opacity: 0.5 }}>|</span>}"
+                            {isAnimating ? quote.text : displayedText}
                         </p>
 
-                        {/* Author & Source */}
-                        <p style={{
-                            fontSize: "0.8rem",
-                            color: "var(--text-secondary)",
-                            marginBottom: quote.source ? "0.25rem" : "0"
-                        }}>
-                            — {quote.author}
-                        </p>
-                        {quote.source && (
-                            <p style={{ fontSize: "0.7rem", color: "var(--text-secondary)", opacity: 0.7 }}>
-                                ┊ {quote.source}
+                        {/* Author */}
+                        <div>
+                            <p style={{
+                                fontSize: "0.9rem",
+                                fontFamily: "'Source Serif 4', serif",
+                                color: "var(--foreground)",
+                                fontWeight: 500
+                            }}>
+                                {quote.author}
                             </p>
-                        )}
+                            {quote.source && (
+                                <p style={{
+                                    fontSize: "0.8rem",
+                                    color: "var(--text-secondary)",
+                                    marginTop: "0.25rem",
+                                    fontStyle: "italic"
+                                }}>
+                                    {quote.source}
+                                </p>
+                            )}
+                        </div>
 
                         {/* Action Buttons */}
                         {!isAnimating && (
@@ -580,7 +494,7 @@ export function RandomQuote() {
                                         gap: "0.35rem"
                                     }}
                                 >
-                                    <span style={{ filter: "grayscale(1)" }}>{isFavorite ? "❤️" : "🤍"}</span> Simpan
+                                    <span>{isFavorite ? "❤️" : "🤍"}</span> Simpan
                                 </button>
 
                                 {/* Translation */}
@@ -625,7 +539,7 @@ export function RandomQuote() {
                                             gap: "0.35rem"
                                         }}
                                     >
-                                        <span style={{ filter: "grayscale(1)" }}>💡</span> Konteks
+                                        <span>💡</span> Konteks
                                     </button>
                                 )}
                             </div>
@@ -682,7 +596,7 @@ export function RandomQuote() {
                         minHeight: "48px"
                     }}
                 >
-                    {isAnimating ? <span style={{ filter: "grayscale(1)" }}>🎰 Rolling...</span> : <span style={{ filter: "grayscale(1)" }}>✨ I'm Feeling Lucky</span>}
+                    {isAnimating ? <span>🎰 Rolling...</span> : <span>✨ I'm Feeling Lucky</span>}
                 </button>
 
                 <div style={{ display: "flex", gap: "0.75rem" }}>
@@ -702,7 +616,7 @@ export function RandomQuote() {
                             minHeight: "48px"
                         }}
                     >
-                        <span style={{ filter: "grayscale(1)" }}>📅</span> Hari Ini
+                        <span>📅</span> Hari Ini
                     </button>
 
                     <button
@@ -721,7 +635,7 @@ export function RandomQuote() {
                             minHeight: "48px"
                         }}
                     >
-                        <span style={{ filter: "grayscale(1)" }}>❤️</span> Favorit ({favorites.length})
+                        <span>❤️</span> Favorit ({favorites.length})
                     </button>
                 </div>
             </div>
@@ -737,7 +651,7 @@ export function RandomQuote() {
                     textAlign: "left"
                 }}>
                     <h3 style={{ fontSize: "0.85rem", marginBottom: "1rem", fontWeight: 600, opacity: 0.8 }}>
-                        <span style={{ filter: "grayscale(1)" }}>❤️</span> Koleksi ({favorites.length})
+                        <span>❤️</span> Koleksi ({favorites.length})
                     </h3>
                     {favorites.length > 0 ? (
                         <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
