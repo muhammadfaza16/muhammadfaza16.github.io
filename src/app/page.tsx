@@ -91,7 +91,7 @@ export default function HomePage() {
             </div>
 
             {/* Posts List */}
-            <PostList allPosts={allPosts.slice(0, 5)} />
+            <PostList allPosts={allPosts} />
           </div>
         </Container>
       </section>

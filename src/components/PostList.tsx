@@ -47,6 +47,7 @@ export function PostList({ allPosts }: { allPosts: Post[] }) {
                             date={post.date}
                             readingTime={post.readingTime || ""}
                             thumbnail={post.thumbnail}
+                            hideBorderTop={index === 0}
                         />
                     </div>
                 );

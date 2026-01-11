@@ -7,16 +7,17 @@ interface PostCardProps {
     date: string;
     readingTime: string;
     thumbnail?: string;
+    hideBorderTop?: boolean;
 }
 
-export function PostCard({ slug, title, excerpt, date, readingTime, thumbnail }: PostCardProps) {
+export function PostCard({ slug, title, excerpt, date, readingTime, thumbnail, hideBorderTop }: PostCardProps) {
     return (
         <article
             className="group"
             style={{
                 paddingTop: "2rem",
                 paddingBottom: "2rem",
-                borderTop: "1px solid var(--border)"
+                borderTop: hideBorderTop ? "none" : "1px solid var(--border)"
             }}
         >
             <Link href={`/blog/${slug}`} className="block">
