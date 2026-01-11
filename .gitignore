@@ -41,5 +41,7 @@ yarn-error.log*
 next-env.d.ts
 
 # local api routes
-src/app/api/
+# src/app/api/
 src/data/secrets.json
+!src/app/api/posts/route.ts
+!src/app/api/upload/route.ts

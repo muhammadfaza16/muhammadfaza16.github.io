@@ -6,199 +6,131 @@ export const metadata: Metadata = {
     description: "Koleksi resources, artikel, dan content yang menginspirasi.",
 };
 
-const DISCLAIMER = "🔗 Konten di halaman ini masih berupa dummy/placeholder. Akan segera diperbarui dengan links asli.";
-
-const categories = [
+const links = [
     {
-        name: "📚 Essential Reads",
-        description: "Artikel dan essay yang wajib dibaca.",
-        links: [
-            {
-                title: "How to Do Great Work",
-                author: "Paul Graham",
-                url: "https://paulgraham.com/greatwork.html",
-                description: "Panduan fundamentil tentang bagaimana menghasilkan karya terbaik."
-            },
-            {
-                title: "The Gervais Principle",
-                author: "Venkatesh Rao",
-                url: "https://www.ribbonfarm.com/the-gervais-principle/",
-                description: "Analisis mendalam tentang dinamika organisasi melalui lensa The Office."
-            },
-            {
-                title: "Taste for Makers",
-                author: "Paul Graham",
-                url: "https://paulgraham.com/taste.html",
-                description: "Tentang pentingnya taste dalam pembuatan sesuatu yang baik."
-            },
+        category: "Essential Reads",
+        items: [
+            { title: "How to Do Great Work", author: "Paul Graham", url: "#" },
+            { title: "The Gervais Principle", author: "Venkatesh Rao", url: "#" },
+            { title: "Taste for Makers", author: "Paul Graham", url: "#" },
         ]
     },
     {
-        name: "🛠️ Developer Tools",
-        description: "Tools yang meningkatkan produktivitas.",
-        links: [
-            {
-                title: "Visual Studio Code",
-                author: "Microsoft",
-                url: "https://code.visualstudio.com/",
-                description: "Editor code yang powerful dan extensible."
-            },
-            {
-                title: "Raycast",
-                author: "Raycast",
-                url: "https://raycast.com/",
-                description: "Launcher yang supercharge workflow harian."
-            },
-            {
-                title: "Linear",
-                author: "Linear",
-                url: "https://linear.app/",
-                description: "Issue tracking yang benar-benar untuk developers."
-            },
+        category: "Tools",
+        items: [
+            { title: "Visual Studio Code", author: "Microsoft", url: "#" },
+            { title: "Raycast", author: "Raycast", url: "#" },
+            { title: "Linear", author: "Linear", url: "#" },
         ]
-    },
-    {
-        name: "🎧 Podcasts",
-        description: "Podcast yang worth your time.",
-        links: [
-            {
-                title: "Lex Fridman Podcast",
-                author: "Lex Fridman",
-                url: "https://lexfridman.com/podcast/",
-                description: "Conversasi mendalam dengan pikiran-pikiran terbaik dunia."
-            },
-            {
-                title: "The Knowledge Project",
-                author: "Shane Parrish",
-                url: "https://fs.blog/knowledge-project-podcast/",
-                description: "Mental models dan wisdom dari berbagai bidang."
-            },
-        ]
-    },
-    {
-        name: "🎬 YouTube Channels",
-        description: "Channels yang worth subscribing.",
-        links: [
-            {
-                title: "Fireship",
-                author: "Jeff Delaney",
-                url: "https://www.youtube.com/@Fireship",
-                description: "Penjelasan tech yang cepat, witty, dan informatif."
-            },
-            {
-                title: "3Blue1Brown",
-                author: "Grant Sanderson",
-                url: "https://www.youtube.com/@3blue1brown",
-                description: "Visualisasi matematika yang indah dan intuitif."
-            },
-        ]
-    },
+    }
 ];
 
 export default function LinksPage() {
     return (
-        <Container>
-            <div className="animate-fade-in-up" style={{ maxWidth: "50rem", marginTop: "2rem", marginBottom: "6rem" }}>
+        <div style={{ paddingBottom: "8rem" }}>
+            <section style={{
+                minHeight: "50vh",
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "center",
+                paddingTop: "8rem",
+                paddingBottom: "4rem"
+            }}>
+                <Container>
+                    <div className="animate-fade-in-up">
+                        <span style={{
+                            fontFamily: "var(--font-mono)",
+                            fontSize: "0.9rem",
+                            color: "var(--accent)",
+                            display: "block",
+                            marginBottom: "1.5rem",
+                            textTransform: "uppercase",
+                            letterSpacing: "0.1em"
+                        }}>
+                            The Curator
+                        </span>
+                        <h1 style={{
+                            fontFamily: "'Playfair Display', serif",
+                            fontSize: "clamp(3rem, 6vw, 5rem)",
+                            fontWeight: 400,
+                            letterSpacing: "-0.03em",
+                            lineHeight: 1,
+                            color: "var(--foreground)",
+                            maxWidth: "15ch"
+                        }}>
+                            Curation is creation.
+                        </h1>
+                    </div>
+                </Container>
+            </section>
 
-                <header style={{ marginBottom: "3rem" }}>
-                    <span style={{
+            <Container>
+                <div className="animate-fade-in animation-delay-300" style={{ maxWidth: "45rem" }}>
+
+                    {/* Disclaimer */}
+                    <div style={{
+                        padding: "1rem",
+                        marginBottom: "4rem",
+                        background: "rgba(var(--foreground-rgb), 0.05)",
+                        border: "1px solid var(--border)",
+                        borderRadius: "12px",
                         fontFamily: "var(--font-mono)",
-                        fontSize: "0.85rem",
+                        fontSize: "0.8rem",
                         color: "var(--text-secondary)",
-                        textTransform: "uppercase",
-                        letterSpacing: "0.1em",
-                        display: "block",
-                        marginBottom: "0.5rem"
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "1rem"
                     }}>
-                        Curated Resources
-                    </span>
-                    <h1 style={{
-                        fontSize: "clamp(2.5rem, 5vw, 3.5rem)",
-                        fontWeight: 700,
-                        color: "var(--foreground)"
-                    }}>
-                        Links
-                    </h1>
-                    <p style={{
-                        marginTop: "1rem",
-                        color: "var(--text-secondary)",
-                        lineHeight: 1.6,
-                        maxWidth: "35rem"
-                    }}>
-                        Koleksi artikel, tools, podcast, dan resources yang telah menginspirasi dan membantu saya. Dikurasi dengan sepenuh hati.
-                    </p>
-                </header>
+                        <span style={{ fontSize: "1.25rem" }}>⚠️</span>
+                        <div>
+                            <strong style={{ color: "var(--foreground)", display: "block", marginBottom: "0.25rem" }}>Notice</strong>
+                            The data below is currently placeholder content for demonstration purposes.
+                        </div>
+                    </div>
 
-                {/* Disclaimer */}
-                <div style={{
-                    padding: "1rem 1.5rem",
-                    backgroundColor: "var(--hover-bg)",
-                    border: "1px dashed var(--border)",
-                    borderRadius: "8px",
-                    marginBottom: "3rem",
-                    fontSize: "0.9rem",
-                    color: "var(--text-secondary)"
-                }}>
-                    {DISCLAIMER}
-                </div>
-
-                {/* Categories */}
-                <div style={{ display: "flex", flexDirection: "column", gap: "3rem" }}>
-                    {categories.map((category) => (
-                        <section key={category.name}>
+                    {links.map((section, i) => (
+                        <div key={i} style={{ marginBottom: "6rem" }}>
                             <h2 style={{
-                                fontFamily: "var(--font-mono)",
-                                fontSize: "1.25rem",
-                                marginBottom: "0.5rem",
-                                borderBottom: "1px solid var(--border)",
-                                paddingBottom: "0.5rem"
+                                fontFamily: "'Playfair Display', serif",
+                                fontSize: "2rem",
+                                marginBottom: "2rem",
+                                color: "var(--text-secondary)",
+                                fontWeight: 400
                             }}>
-                                {category.name}
+                                {section.category}
                             </h2>
-                            <p style={{ fontSize: "0.9rem", color: "var(--text-secondary)", marginBottom: "1.5rem" }}>
-                                {category.description}
-                            </p>
-                            <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
-                                {category.links.map((link) => (
-                                    <a
-                                        key={link.title}
-                                        href={link.url}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        style={{
-                                            padding: "1.25rem",
-                                            borderRadius: "8px",
-                                            backgroundColor: "var(--card-bg)",
-                                            border: "1px solid var(--border)",
-                                            textDecoration: "none",
-                                            color: "inherit",
-                                            transition: "all 0.2s ease",
-                                            display: "block"
-                                        }}
-                                        className="link-card-hover"
-                                    >
-                                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
-                                            <div>
-                                                <h3 style={{ fontSize: "1rem", fontWeight: 600, marginBottom: "0.25rem", color: "var(--foreground)" }}>
-                                                    {link.title}
-                                                </h3>
-                                                <p style={{ fontSize: "0.8rem", color: "var(--text-secondary)", marginBottom: "0.5rem" }}>
-                                                    by {link.author}
-                                                </p>
-                                            </div>
-                                            <span style={{ color: "var(--text-secondary)", fontSize: "1rem" }}>↗</span>
-                                        </div>
-                                        <p style={{ fontSize: "0.9rem", color: "var(--text-secondary)", lineHeight: 1.5 }}>
-                                            {link.description}
-                                        </p>
+                            <div style={{ display: "flex", flexDirection: "column" }}>
+                                {section.items.map((link, j) => (
+                                    <a key={j} href={link.url} style={{
+                                        display: "flex",
+                                        justifyContent: "space-between",
+                                        alignItems: "baseline",
+                                        padding: "1.5rem 0",
+                                        borderBottom: "1px solid var(--border)",
+                                        textDecoration: "none",
+                                        color: "var(--foreground)",
+                                        transition: "color 0.2s"
+                                    }} className="group hover:text-[var(--accent)]">
+                                        <span style={{
+                                            fontSize: "1.25rem",
+                                            fontFamily: "'Source Serif 4', serif"
+                                        }}>
+                                            {link.title}
+                                        </span>
+                                        <span style={{
+                                            fontFamily: "var(--font-mono)",
+                                            fontSize: "0.9rem",
+                                            color: "var(--text-secondary)"
+                                        }}>
+                                            {link.author} <span className="opacity-0 group-hover:opacity-100 transition-opacity ml-2">↗</span>
+                                        </span>
                                     </a>
                                 ))}
                             </div>
-                        </section>
+                        </div>
                     ))}
                 </div>
-
-            </div>
-        </Container>
+            </Container>
+        </div>
     );
 }

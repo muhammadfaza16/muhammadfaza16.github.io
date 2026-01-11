@@ -28,6 +28,11 @@
   --background: #FAFAFA;
   --foreground: #1A1A1A;
 
+  /* Fonts - Accessible Variables */
+  --font-serif: 'Playfair Display', serif;
+  --font-sans: 'Source Serif 4', serif;
+  --font-mono: 'Space Mono', monospace;
+
   /* Text - Softer Blacks */
   --text-primary: #1A1A1A;
   --text-secondary: #525252;

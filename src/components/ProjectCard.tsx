@@ -10,38 +10,45 @@ interface ProjectCardProps {
 export function ProjectCard({ project }: ProjectCardProps) {
     return (
         <div
-            className="group card-hover"
+            className="group"
             style={{
-                border: "1px solid var(--border)",
-                borderRadius: "16px",
-                overflow: "hidden",
-                backgroundColor: "var(--card-bg)",
+                borderRadius: "20px",
+                overflow: "visible", // Allow shadow to spill
                 display: "flex",
                 flexDirection: "column",
-                height: "100%"
+                height: "100%",
+                transition: "all 0.4s cubic-bezier(0.4, 0, 0.2, 1)",
+                position: "relative"
             }}
         >
-            {/* Image Placeholder */}
+            {/* Image Container - Floating Effect */}
             <div style={{
-                height: "200px",
-                backgroundColor: "var(--border)",
+                height: "260px", // Taller for impact
+                borderRadius: "16px",
+                backgroundColor: "var(--card-bg)",
                 position: "relative",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                overflow: "hidden"
-            }}>
+                overflow: "hidden",
+                boxShadow: "0 20px 40px -15px rgba(0,0,0,0.1)", // Soft Apple-like shadow
+                marginBottom: "1.5rem",
+                transition: "all 0.4s ease"
+            }} className="group-hover:shadow-2xl group-hover:-translate-y-2">
                 {project.imageUrl ? (
                     <Image
                         src={project.imageUrl}
                         alt={project.title}
                         fill
                         style={{ objectFit: "cover" }}
-                        className="transition-transform duration-500 group-hover:scale-105"
+                        className="transition-transform duration-700 group-hover:scale-105"
                     />
                 ) : (
-                    <div className="text-[var(--secondary)] opacity-50 text-4xl">
-                        {/* Simple geometric pattern or icon based on category */}
+                    <div style={{
+                        fontSize: "3rem",
+                        opacity: 0.8,
+                        color: "var(--foreground)"
+                    }}>
                         {project.category === "Web" && "⚡"}
                         {project.category === "Mobile" && "📱"}
                         {project.category === "Design" && "🎨"}
@@ -49,64 +56,53 @@ export function ProjectCard({ project }: ProjectCardProps) {
                     </div>
                 )}
 
-                {/* Overlay on hover */}
+                {/* Subtle Overlay */}
                 <div style={{
                     position: "absolute",
                     inset: 0,
-                    backgroundColor: "rgba(0,0,0,0.02)",
+                    backgroundColor: "rgba(0,0,0,0.0)",
                     transition: "background-color 0.3s"
                 }} className="group-hover:bg-black/5 dark:group-hover:bg-white/5" />
             </div>
 
-            {/* Content */}
-            <div style={{ padding: "1.5rem", flex: 1, display: "flex", flexDirection: "column" }}>
-                <div style={{ marginBottom: "auto" }}>
-                    <div style={{
-                        display: "flex",
-                        justifyContent: "space-between",
-                        alignItems: "start",
-                        marginBottom: "0.75rem"
+            {/* Content - Clean & Typographic */}
+            <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
+                <div style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "baseline",
+                    marginBottom: "0.5rem"
+                }}>
+                    <h3 style={{
+                        fontFamily: "'Playfair Display', serif",
+                        fontSize: "1.5rem",
+                        fontWeight: 500,
+                        color: "var(--foreground)",
+                        letterSpacing: "-0.01em"
                     }}>
-                        <h3 style={{
-                            fontFamily: "'Playfair Display', serif",
-                            fontSize: "1.25rem",
-                            fontWeight: 600,
-                            lineHeight: 1.3
-                        }}>
-                            {project.title}
-                        </h3>
-                        <span style={{
-                            fontSize: "0.65rem",
-                            textTransform: "uppercase",
-                            letterSpacing: "0.1em",
-                            padding: "0.25rem 0.5rem",
-                            borderRadius: "100px",
-                            border: "1px solid var(--border)",
-                            color: "var(--secondary)"
-                        }}>
-                            {project.category}
-                        </span>
-                    </div>
-
-                    <p style={{
-                        fontSize: "0.875rem",
-                        color: "var(--secondary)",
-                        lineHeight: 1.6,
-                        marginBottom: "1.25rem"
-                    }}>
-                        {project.description}
-                    </p>
+                        {project.title}
+                    </h3>
                 </div>
 
-                {/* Tags */}
-                <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem", marginTop: "1rem" }}>
+                <p style={{
+                    fontFamily: "var(--font-sans)",
+                    fontSize: "1rem",
+                    color: "var(--text-secondary)",
+                    lineHeight: 1.6,
+                    marginBottom: "1rem",
+                    maxWidth: "90%"
+                }}>
+                    {project.description}
+                </p>
+
+                {/* Minimalist Tags */}
+                <div style={{ display: "flex", flexWrap: "wrap", gap: "0.75rem", marginTop: "auto" }}>
                     {project.tags.map(tag => (
                         <span key={tag} style={{
                             fontSize: "0.75rem",
-                            color: "var(--text-secondary)",
-                            backgroundColor: "var(--background)",
-                            padding: "0.15rem 0.5rem",
-                            borderRadius: "4px"
+                            color: "var(--text-muted)",
+                            textTransform: "lowercase",
+                            fontFamily: "var(--font-mono)"
                         }}>
                             #{tag}
                         </span>

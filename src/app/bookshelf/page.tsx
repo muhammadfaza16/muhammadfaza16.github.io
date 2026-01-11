@@ -6,214 +6,138 @@ export const metadata: Metadata = {
     description: "Koleksi buku yang telah dan sedang saya baca.",
 };
 
-const DISCLAIMER = "📚 Konten di halaman ini masih berupa dummy/placeholder. Akan segera diperbarui dengan data asli.";
-
-const books = {
-    currentlyReading: [
-        {
-            title: "Thinking, Fast and Slow",
-            author: "Daniel Kahneman",
-            progress: 45,
-            cover: "📘",
-        },
-        {
-            title: "Clean Architecture",
-            author: "Robert C. Martin",
-            progress: 12,
-            cover: "📗",
-        },
-    ],
-    finished2025: [
-        {
-            title: "Atomic Habits",
-            author: "James Clear",
-            rating: 5,
-            review: "Buku yang mengubah cara saya memandang kebiasaan kecil.",
-            cover: "📕",
-        },
-        {
-            title: "The Pragmatic Programmer",
-            author: "David Thomas & Andrew Hunt",
-            rating: 5,
-            review: "Wajib baca untuk setiap software developer.",
-            cover: "📙",
-        },
-        {
-            title: "Sapiens",
-            author: "Yuval Noah Harari",
-            rating: 4,
-            review: "Perspektif baru tentang sejarah umat manusia.",
-            cover: "📗",
-        },
-    ],
-    allTimeFavorites: [
-        {
-            title: "Man's Search for Meaning",
-            author: "Viktor E. Frankl",
-            cover: "📘",
-        },
-        {
-            title: "The Alchemist",
-            author: "Paulo Coelho",
-            cover: "📕",
-        },
-        {
-            title: "Meditations",
-            author: "Marcus Aurelius",
-            cover: "📙",
-        },
-    ],
-};
-
-function StarRating({ rating }: { rating: number }) {
-    return (
-        <span style={{ color: "var(--accent)", letterSpacing: "2px" }}>
-            {"★".repeat(rating)}{"☆".repeat(5 - rating)}
-        </span>
-    );
-}
+const books = [
+    { title: "Thinking, Fast and Slow", author: "Daniel Kahneman", status: "Reading", cover: "📘" },
+    { title: "Clean Architecture", author: "Robert C. Martin", status: "Reading", cover: "📗" },
+    { title: "Atomic Habits", author: "James Clear", status: "Finished", cover: "📕" },
+    { title: "Sapiens", author: "Yuval Noah Harari", status: "Finished", cover: "📙" },
+    { title: "Man's Search for Meaning", author: "Viktor E. Frankl", status: "Favorite", cover: "📘" },
+    { title: "The Alchemist", author: "Paulo Coelho", status: "Favorite", cover: "📕" },
+];
 
 export default function BookshelfPage() {
     return (
-        <Container>
-            <div className="animate-fade-in-up" style={{ maxWidth: "50rem", marginTop: "2rem", marginBottom: "6rem" }}>
+        <div style={{ paddingBottom: "8rem" }}>
+            <section style={{
+                minHeight: "50vh",
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "center",
+                paddingTop: "8rem",
+                paddingBottom: "4rem"
+            }}>
+                <Container>
+                    <div className="animate-fade-in-up">
+                        <span style={{
+                            fontFamily: "var(--font-mono)",
+                            fontSize: "0.9rem",
+                            color: "var(--accent)",
+                            display: "block",
+                            marginBottom: "1.5rem",
+                            textTransform: "uppercase",
+                            letterSpacing: "0.1em"
+                        }}>
+                            The Library
+                        </span>
+                        <h1 style={{
+                            fontFamily: "'Playfair Display', serif",
+                            fontSize: "clamp(3rem, 6vw, 5rem)",
+                            fontWeight: 400,
+                            letterSpacing: "-0.03em",
+                            lineHeight: 1,
+                            color: "var(--foreground)",
+                            maxWidth: "18ch"
+                        }}>
+                            I read to live more consecutive lives.
+                        </h1>
+                    </div>
+                </Container>
+            </section>
 
-                <header style={{ marginBottom: "3rem" }}>
-                    <span style={{
+            <Container>
+                <div className="animate-fade-in animation-delay-300" style={{ maxWidth: "60rem", margin: "0 auto" }}>
+
+                    {/* Disclaimer */}
+                    <div style={{
+                        padding: "1rem",
+                        marginBottom: "4rem",
+                        background: "rgba(var(--foreground-rgb), 0.05)",
+                        border: "1px solid var(--border)",
+                        borderRadius: "12px",
                         fontFamily: "var(--font-mono)",
-                        fontSize: "0.85rem",
+                        fontSize: "0.8rem",
                         color: "var(--text-secondary)",
-                        textTransform: "uppercase",
-                        letterSpacing: "0.1em",
-                        display: "block",
-                        marginBottom: "0.5rem"
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "1rem"
                     }}>
-                        My Reading Journey
-                    </span>
-                    <h1 style={{
-                        fontSize: "clamp(2.5rem, 5vw, 3.5rem)",
-                        fontWeight: 700,
-                        color: "var(--foreground)"
-                    }}>
-                        Bookshelf
-                    </h1>
-                </header>
-
-                {/* Disclaimer */}
-                <div style={{
-                    padding: "1rem 1.5rem",
-                    backgroundColor: "var(--hover-bg)",
-                    border: "1px dashed var(--border)",
-                    borderRadius: "8px",
-                    marginBottom: "3rem",
-                    fontSize: "0.9rem",
-                    color: "var(--text-secondary)"
-                }}>
-                    {DISCLAIMER}
-                </div>
-
-                {/* Currently Reading */}
-                <section style={{ marginBottom: "4rem" }}>
-                    <h2 style={{
-                        fontFamily: "var(--font-mono)",
-                        fontSize: "1.25rem",
-                        marginBottom: "1.5rem",
-                        borderBottom: "1px solid var(--border)",
-                        paddingBottom: "0.5rem"
-                    }}>
-                        📖 Currently Reading
-                    </h2>
-                    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: "1.5rem" }}>
-                        {books.currentlyReading.map((book, i) => (
-                            <div key={i} style={{
-                                padding: "1.5rem",
-                                borderRadius: "8px",
-                                backgroundColor: "var(--card-bg)",
-                                border: "1px solid var(--border)"
-                            }}>
-                                <span style={{ fontSize: "2rem" }}>{book.cover}</span>
-                                <h3 style={{ fontSize: "1.1rem", fontWeight: 600, marginTop: "0.75rem", marginBottom: "0.25rem" }}>
-                                    {book.title}
-                                </h3>
-                                <p style={{ fontSize: "0.9rem", color: "var(--text-secondary)" }}>{book.author}</p>
-                                <div style={{ marginTop: "1rem", height: "4px", width: "100%", backgroundColor: "var(--border)", borderRadius: "2px" }}>
-                                    <div style={{ height: "100%", width: `${book.progress}%`, backgroundColor: "var(--foreground)", borderRadius: "2px" }}></div>
-                                </div>
-                                <p style={{ fontSize: "0.75rem", textAlign: "right", marginTop: "0.5rem", opacity: 0.6 }}>{book.progress}%</p>
-                            </div>
-                        ))}
+                        <span style={{ fontSize: "1.25rem" }}>⚠️</span>
+                        <div>
+                            <strong style={{ color: "var(--foreground)", display: "block", marginBottom: "0.25rem" }}>Notice</strong>
+                            The data below is currently placeholder content for demonstration purposes.
+                        </div>
                     </div>
-                </section>
 
-                {/* Finished 2025 */}
-                <section style={{ marginBottom: "4rem" }}>
-                    <h2 style={{
-                        fontFamily: "var(--font-mono)",
-                        fontSize: "1.25rem",
-                        marginBottom: "1.5rem",
-                        borderBottom: "1px solid var(--border)",
-                        paddingBottom: "0.5rem"
+                    <div style={{
+                        display: "grid",
+                        gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))",
+                        gap: "3rem"
                     }}>
-                        ✅ Finished in 2025
-                    </h2>
-                    <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
-                        {books.finished2025.map((book, i) => (
-                            <div key={i} style={{
-                                padding: "1.5rem",
-                                borderRadius: "8px",
-                                backgroundColor: "var(--card-bg)",
-                                border: "1px solid var(--border)",
+                        {books.map((book, i) => (
+                            <div key={i} className="group" style={{
                                 display: "flex",
-                                gap: "1.5rem",
-                                alignItems: "flex-start"
+                                flexDirection: "column",
+                                gap: "1rem",
+                                cursor: "pointer"
                             }}>
-                                <span style={{ fontSize: "2.5rem" }}>{book.cover}</span>
-                                <div style={{ flex: 1 }}>
-                                    <h3 style={{ fontSize: "1.1rem", fontWeight: 600, marginBottom: "0.25rem" }}>{book.title}</h3>
-                                    <p style={{ fontSize: "0.9rem", color: "var(--text-secondary)", marginBottom: "0.5rem" }}>{book.author}</p>
-                                    <StarRating rating={book.rating} />
-                                    <p style={{ fontSize: "0.9rem", marginTop: "0.75rem", color: "var(--foreground)", opacity: 0.9, fontStyle: "italic" }}>
-                                        "{book.review}"
-                                    </p>
+                                <div style={{
+                                    aspectRatio: "2/3",
+                                    backgroundColor: "var(--card-bg)",
+                                    borderRadius: "8px",
+                                    display: "flex",
+                                    alignItems: "center",
+                                    justifyContent: "center",
+                                    fontSize: "4rem",
+                                    boxShadow: "0 10px 30px -10px rgba(0,0,0,0.1)",
+                                    transition: "transform 0.3s ease, box-shadow 0.3s ease"
+                                }} className="group-hover:-translate-y-2 group-hover:shadow-2xl">
+                                    {book.cover}
                                 </div>
-                            </div>
-                        ))}
-                    </div>
-                </section>
-
-                {/* All-Time Favorites */}
-                <section>
-                    <h2 style={{
-                        fontFamily: "var(--font-mono)",
-                        fontSize: "1.25rem",
-                        marginBottom: "1.5rem",
-                        borderBottom: "1px solid var(--border)",
-                        paddingBottom: "0.5rem"
-                    }}>
-                        <span>❤️</span> All-Time Favorites
-                    </h2>
-                    <div style={{ display: "flex", flexWrap: "wrap", gap: "1rem" }}>
-                        {books.allTimeFavorites.map((book, i) => (
-                            <div key={i} style={{
-                                padding: "1rem 1.5rem",
-                                borderRadius: "8px",
-                                backgroundColor: "var(--card-bg)",
-                                border: "1px solid var(--border)",
-                                display: "flex",
-                                alignItems: "center",
-                                gap: "0.75rem"
-                            }}>
-                                <span style={{ fontSize: "1.5rem" }}>{book.cover}</span>
                                 <div>
-                                    <h3 style={{ fontSize: "1rem", fontWeight: 600 }}>{book.title}</h3>
-                                    <p style={{ fontSize: "0.8rem", color: "var(--text-secondary)" }}>{book.author}</p>
+                                    <h3 style={{
+                                        fontFamily: "'Playfair Display', serif",
+                                        fontSize: "1.25rem",
+                                        fontWeight: 500,
+                                        lineHeight: 1.2,
+                                        marginBottom: "0.5rem"
+                                    }}>
+                                        {book.title}
+                                    </h3>
+                                    <p style={{
+                                        fontSize: "0.9rem",
+                                        color: "var(--text-secondary)",
+                                        fontFamily: "var(--font-sans)"
+                                    }}>
+                                        {book.author}
+                                    </p>
+                                    <span style={{
+                                        display: "inline-block",
+                                        fontSize: "0.75rem",
+                                        marginTop: "0.5rem",
+                                        padding: "0.25rem 0.75rem",
+                                        borderRadius: "99px",
+                                        backgroundColor: "var(--hover-bg)",
+                                        color: "var(--text-secondary)",
+                                        fontFamily: "var(--font-mono)"
+                                    }}>
+                                        {book.status}
+                                    </span>
                                 </div>
                             </div>
                         ))}
                     </div>
-                </section>
-
-            </div>
-        </Container>
+                </div>
+            </Container>
+        </div >
     );
 }

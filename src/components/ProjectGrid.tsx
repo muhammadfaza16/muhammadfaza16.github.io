@@ -17,30 +17,42 @@ export function ProjectGrid() {
     return (
         <div className="animate-fade-in animation-delay-300">
             {/* Section Header */}
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "3rem", flexWrap: "wrap", gap: "1rem" }}>
+            <div style={{
+                display: "flex",
+                alignItems: "baseline",
+                justifyContent: "space-between",
+                marginBottom: "4rem", /* More whitespace */
+                flexWrap: "wrap",
+                gap: "2rem",
+                borderBottom: "1px solid var(--border)",
+                paddingBottom: "1rem"
+            }}>
                 <h2 style={{
                     fontFamily: "'Playfair Display', serif",
-                    fontSize: "1.75rem",
-                    fontWeight: 600
+                    fontSize: "2rem",
+                    fontWeight: 400,
+                    color: "var(--foreground)"
                 }}>
-                    Works
+                    All Projects
                 </h2>
 
-                {/* Filter */}
-                <div style={{ display: "flex", gap: "0.5rem" }}>
+                {/* Filter - Minimalist Tab Style */}
+                <div style={{ display: "flex", gap: "2rem" }}>
                     {categories.map(cat => (
                         <button
                             key={cat}
                             onClick={() => setFilter(cat)}
                             style={{
-                                fontSize: "0.8rem",
-                                padding: "0.4rem 1rem",
-                                borderRadius: "100px",
-                                border: filter === cat ? "1px solid var(--foreground)" : "1px solid transparent",
-                                backgroundColor: filter === cat ? "var(--foreground)" : "transparent",
-                                color: filter === cat ? "var(--background)" : "var(--secondary)",
+                                fontSize: "0.9rem",
+                                padding: "0.5rem 0",
+                                border: "none",
+                                borderBottom: filter === cat ? "1px solid var(--foreground)" : "1px solid transparent",
+                                backgroundColor: "transparent",
+                                color: filter === cat ? "var(--foreground)" : "var(--text-secondary)",
                                 transition: "all 0.3s ease",
-                                cursor: "pointer"
+                                cursor: "pointer",
+                                fontFamily: "var(--font-sans)",
+                                letterSpacing: "0.05em"
                             }}
                             className="hover:text-[var(--foreground)]"
                         >

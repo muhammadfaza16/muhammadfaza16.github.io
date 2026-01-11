@@ -6,108 +6,133 @@ export const metadata: Metadata = {
     description: "Apa yang sedang saya kerjakan sekarang.",
 };
 
-const DISCLAIMER = <div style={{
-    padding: "1rem 1.5rem",
-    backgroundColor: "var(--hover-bg)",
-    border: "1px dashed var(--border)",
-    borderRadius: "8px",
-    marginBottom: "3rem",
-    fontSize: "0.9rem",
-    color: "var(--text-secondary)"
-}}>
-    <span>⏳</span> Konten di halaman ini masih berupa dummy/placeholder. Akan segera diperbarui dengan update terbaru.
-</div>;
-
 export default function NowPage() {
     return (
-        <Container>
-            <div className="animate-fade-in-up" style={{ maxWidth: "45rem", marginTop: "2rem", marginBottom: "6rem" }}>
+        <div style={{ paddingBottom: "8rem" }}>
+            <section style={{
+                minHeight: "50vh",
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "center",
+                paddingTop: "8rem",
+                paddingBottom: "4rem"
+            }}>
+                <Container>
+                    <div className="animate-fade-in-up">
+                        <span style={{
+                            fontFamily: "var(--font-mono)",
+                            fontSize: "0.9rem",
+                            color: "var(--accent)",
+                            display: "block",
+                            marginBottom: "1.5rem",
+                            textTransform: "uppercase",
+                            letterSpacing: "0.1em"
+                        }}>
+                            The Focus
+                        </span>
+                        <h1 style={{
+                            fontFamily: "'Playfair Display', serif",
+                            fontSize: "clamp(3rem, 6vw, 5rem)",
+                            fontWeight: 400,
+                            letterSpacing: "-0.03em",
+                            lineHeight: 1,
+                            color: "var(--foreground)",
+                            maxWidth: "15ch"
+                        }}>
+                            Focus is about saying no.
+                        </h1>
+                        <p style={{
+                            marginTop: "2rem",
+                            fontFamily: "'Source Serif 4', serif",
+                            fontSize: "1.25rem",
+                            color: "var(--text-secondary)",
+                            maxWidth: "35rem",
+                            lineHeight: 1.6
+                        }}>
+                            A living snapshot of what has my attention right now.<br />
+                            Updated: January 2026.
+                        </p>
+                    </div>
+                </Container>
+            </section>
 
-                <header style={{ marginBottom: "3rem" }}>
-                    <span style={{
-                        fontFamily: "var(--font-mono)",
-                        fontSize: "0.85rem",
-                        color: "var(--text-secondary)",
-                        textTransform: "uppercase",
-                        letterSpacing: "0.1em",
-                        display: "block",
-                        marginBottom: "0.5rem"
-                    }}>
-                        What I'm doing now
-                    </span>
-                    <h1 style={{
-                        fontSize: "clamp(2.5rem, 5vw, 3.5rem)",
-                        fontWeight: 700,
-                        color: "var(--foreground)"
-                    }}>
-                        Now
-                    </h1>
-                    <p style={{ marginTop: "1rem", fontSize: "0.9rem", color: "var(--text-secondary)", fontStyle: "italic" }}>
-                        Terakhir diperbarui: Januari 2026
-                    </p>
-                </header>
+            <Container>
+                <div className="animate-fade-in animation-delay-300" style={{ maxWidth: "45rem" }}>
+                    <div style={{ marginBottom: "5rem" }}>
+                        <h2 style={{
+                            fontFamily: "'Playfair Display', serif",
+                            fontSize: "2rem",
+                            marginBottom: "2rem",
+                            borderBottom: "1px solid var(--border)",
+                            paddingBottom: "1rem"
+                        }}>
+                            On My Desk
+                        </h2>
+                        <ul style={{
+                            listStyle: "none",
+                            padding: 0,
+                            display: "flex",
+                            flexDirection: "column",
+                            gap: "2rem"
+                        }}>
+                            {[
+                                "Deep diving into Agentic AI and Large Language Model orchestration.",
+                                "Building this personal digital garden to be a premium reflection of my mind.",
+                                "Writing a new technical essay about 'The Art of Code Deletion'.",
+                                "Reading 'Thinking, Fast and Slow' (slowly)."
+                            ].map((item, i) => (
+                                <li key={i} style={{
+                                    fontSize: "1.2rem",
+                                    lineHeight: 1.6,
+                                    display: "flex",
+                                    gap: "1.5rem"
+                                }}>
+                                    <span style={{ color: "var(--accent)", fontFamily: "var(--font-serif)" }}>—</span>
+                                    <span>{item}</span>
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
 
-                {DISCLAIMER}
-
-                <div className="content-block" style={{ marginBottom: "3rem" }}>
-                    <h2 style={{ fontFamily: "var(--font-mono)", fontSize: "1.25rem", marginBottom: "1.5rem", borderBottom: "1px solid var(--border)", paddingBottom: "0.5rem" }}>
-                        <span>🎯</span> Fokus Utama
-                    </h2>
-                    <ul style={{ listStyle: "none", padding: 0, display: "flex", flexDirection: "column", gap: "1rem", color: "var(--foreground)" }}>
-                        <li style={{ display: "flex", gap: "1rem", alignItems: "baseline" }}>
-                            <span style={{ color: "var(--accent)" }}>→</span>
-                            <span>Mengembangkan <strong>Personal Brand & Blog</strong> ini menjadi lebih serius.</span>
-                        </li>
-                        <li style={{ display: "flex", gap: "1rem", alignItems: "baseline" }}>
-                            <span style={{ color: "var(--accent)" }}>→</span>
-                            <span>Mempelajari <strong>Agentic AI</strong> dan penerapannya dalam software engineering (Deepmind's approach).</span>
-                        </li>
-                        <li style={{ display: "flex", gap: "1rem", alignItems: "baseline" }}>
-                            <span style={{ color: "var(--accent)" }}>→</span>
-                            <span>Menulis setidaknya satu artikel teknis setiap minggu.</span>
-                        </li>
-                    </ul>
-                </div>
-
-                <div className="content-block" style={{ marginBottom: "3rem" }}>
-                    <h2 style={{ fontFamily: "var(--font-mono)", fontSize: "1.25rem", marginBottom: "1.5rem", borderBottom: "1px solid var(--border)", paddingBottom: "0.5rem" }}>
-                        <span>📚</span> Sedang Dibaca
-                    </h2>
-                    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(250px, 1fr))", gap: "1.5rem" }}>
-                        <div style={{ padding: "1.5rem", borderRadius: "8px", backgroundColor: "var(--card-bg)", border: "1px solid var(--border)" }}>
-                            <h3 style={{ fontSize: "1.1rem", fontWeight: 600, marginBottom: "0.5rem" }}>Thinking, Fast and Slow</h3>
-                            <p style={{ fontSize: "0.9rem", color: "var(--text-secondary)" }}>Daniel Kahneman</p>
-                            <div style={{ marginTop: "1rem", height: "4px", width: "100%", backgroundColor: "var(--border)", borderRadius: "2px" }}>
-                                <div style={{ height: "100%", width: "45%", backgroundColor: "var(--foreground)", borderRadius: "2px" }}></div>
+                    <div>
+                        <h2 style={{
+                            fontFamily: "'Playfair Display', serif",
+                            fontSize: "2rem",
+                            marginBottom: "2rem",
+                            borderBottom: "1px solid var(--border)",
+                            paddingBottom: "1rem"
+                        }}>
+                            On Repeat
+                        </h2>
+                        <div style={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "1.5rem",
+                            padding: "1.5rem",
+                            backgroundColor: "var(--card-bg)",
+                            borderRadius: "16px",
+                            boxShadow: "0 10px 30px -10px rgba(0,0,0,0.05)"
+                        }}>
+                            <div style={{
+                                width: "60px",
+                                height: "60px",
+                                backgroundColor: "var(--foreground)",
+                                borderRadius: "50%",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                color: "var(--background)"
+                            }}>
+                                ▶
                             </div>
-                            <p style={{ fontSize: "0.75rem", textAlign: "right", marginTop: "0.5rem", opacity: 0.6 }}>45%</p>
-                        </div>
-
-                        <div style={{ padding: "1.5rem", borderRadius: "8px", backgroundColor: "var(--card-bg)", border: "1px solid var(--border)" }}>
-                            <h3 style={{ fontSize: "1.1rem", fontWeight: 600, marginBottom: "0.5rem" }}>Clean Architecture</h3>
-                            <p style={{ fontSize: "0.9rem", color: "var(--text-secondary)" }}>Robert C. Martin</p>
-                            <div style={{ marginTop: "1rem", height: "4px", width: "100%", backgroundColor: "var(--border)", borderRadius: "2px" }}>
-                                <div style={{ height: "100%", width: "12%", backgroundColor: "var(--foreground)", borderRadius: "2px" }}></div>
+                            <div>
+                                <p style={{ fontSize: "1.1rem", fontWeight: 500 }}>Lofi Girl Radio</p>
+                                <p style={{ color: "var(--text-secondary)", fontSize: "0.9rem" }}>Beats to rely/relax to</p>
                             </div>
-                            <p style={{ fontSize: "0.75rem", textAlign: "right", marginTop: "0.5rem", opacity: 0.6 }}>12%</p>
                         </div>
                     </div>
                 </div>
-
-                <div className="content-block">
-                    <h2 style={{ fontFamily: "var(--font-mono)", fontSize: "1.25rem", marginBottom: "1.5rem", borderBottom: "1px solid var(--border)", paddingBottom: "0.5rem" }}>
-                        <span>🎵</span> On Repeat
-                    </h2>
-                    <p style={{ color: "var(--text-secondary)" }}>
-                        Playlist: <em>Lofi Girl - chill lofi beats to study/relax to</em>.
-                    </p>
-                </div>
-
-                <footer style={{ marginTop: "5rem", fontSize: "0.85rem", color: "var(--text-secondary)", opacity: 0.7 }}>
-                    <p>Halaman ini terinspirasi oleh gerakan <a href="https://nownownow.com/about" target="_blank" className="link-underline">/now</a>.</p>
-                </footer>
-
-            </div>
-        </Container>
+            </Container>
+        </div>
     );
 }
