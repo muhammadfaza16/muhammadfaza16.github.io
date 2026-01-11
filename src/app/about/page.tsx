@@ -136,7 +136,7 @@ export default function AboutPage() {
                     <div style={{ marginTop: "4rem", paddingTop: "2rem", borderTop: "1px solid var(--border)" }}>
                         <h3 style={{ fontSize: "1.5rem", marginBottom: "1rem" }}>Let's Connect</h3>
                         <p>
-                            Saya selalu terbuka untuk diskusi menarik. Anda bisa menemukan saya di <a href="https://twitter.com/muhammadfaza16" target="_blank" rel="noopener noreferrer" className="link-underline">Twitter/X</a> atau <a href="https://github.com/muhammadfaza16" target="_blank" rel="noopener noreferrer" className="link-underline">GitHub</a>.
+                            Saya selalu terbuka untuk diskusi menarik. Anda bisa menemukan saya di <a href="https://x.com/scienfilix" target="_blank" rel="noopener noreferrer" className="link-underline">Twitter/X</a> atau <a href="https://github.com/mfazans23" target="_blank" rel="noopener noreferrer" className="link-underline">GitHub</a>.
                         </p>
                     </div>
 
