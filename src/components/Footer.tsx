@@ -14,11 +14,9 @@ export function Footer() {
                         <Link
                             href="/"
                             style={{
-                                fontFamily: "'Playfair Display', serif",
+                                fontFamily: "var(--font-mono)",
                                 fontSize: "2rem",
-                                fontWeight: 400, // Match Hero (was 700)
-                                letterSpacing: "-0.04em", // Match Hero
-                                lineHeight: 1, // Match Hero (approx)
+                                fontWeight: 700,
                                 display: "inline-block",
                                 marginBottom: "1.25rem",
                                 color: "var(--foreground)",
