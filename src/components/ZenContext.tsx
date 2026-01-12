@@ -36,7 +36,7 @@ export function ZenProvider({ children }: { children: React.ReactNode }) {
         if (isZen) {
             window.scrollTo(0, 0);
         }
-    }, [pathname, isZen]);
+    }, [pathname]);
 
     // Escape key to exit Zen mode
     useEffect(() => {
