@@ -1,272 +1,213 @@
 "use client";
 
 import { Container } from "@/components/Container";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 
-// Configuration
-const DEFAULT_BIRTH_DATE = "2000-01-01";
-const LIFE_EXPECTANCY_YEARS = 80;
-const TOTAL_WEEKS = LIFE_EXPECTANCY_YEARS * 52;
-const TOTAL_MONTHS = LIFE_EXPECTANCY_YEARS * 12;
-const TOTAL_YEARS = LIFE_EXPECTANCY_YEARS;
-
-// Helper to get weeks between dates
-function getWeeksDiff(d1: Date, d2: Date) {
-    return Math.floor((d2.getTime() - d1.getTime()) / (7 * 24 * 60 * 60 * 1000));
+// Check if year is a leap year
+function isLeapYear(year: number): boolean {
+    return (year % 4 === 0 && year % 100 !== 0) || (year % 400 === 0);
 }
 
-// Helper to get months between dates
-function getMonthsDiff(d1: Date, d2: Date) {
-    let months;
-    months = (d2.getFullYear() - d1.getFullYear()) * 12;
-    months -= d1.getMonth();
-    months += d2.getMonth();
-    return months <= 0 ? 0 : months;
+// Get day of year (1-indexed)
+function getDayOfYear(date: Date): number {
+    const start = new Date(date.getFullYear(), 0, 0);
+    const diff = date.getTime() - start.getTime();
+    const oneDay = 1000 * 60 * 60 * 24;
+    return Math.floor(diff / oneDay);
 }
 
-// Helper to get years between dates
-function getYearsDiff(d1: Date, d2: Date) {
-    let years = d2.getFullYear() - d1.getFullYear();
-    const m = d2.getMonth() - d1.getMonth();
-    if (m < 0 || (m === 0 && d2.getDate() < d1.getDate())) {
-        years--;
-    }
-    return years < 0 ? 0 : years;
+// Get week number of the year
+function getWeekNumber(date: Date): number {
+    const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+    const dayNum = d.getUTCDay() || 7;
+    d.setUTCDate(d.getUTCDate() + 4 - dayNum);
+    const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+    return Math.ceil((((d.getTime() - yearStart.getTime()) / 86400000) + 1) / 7);
 }
 
-// Helper to format date
-function formatDate(date: Date) {
-    return date.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
+// Get month name in Indonesian
+function getMonthName(month: number): string {
+    const months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+        'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+    return months[month];
 }
 
-// Helper to add weeks to a date
-function addWeeks(date: Date, weeks: number) {
-    const result = new Date(date);
-    result.setDate(result.getDate() + weeks * 7);
-    return result;
+// Get days in each month
+function getDaysInMonth(year: number, month: number): number {
+    return new Date(year, month + 1, 0).getDate();
 }
 
-// Helper to add months to a date
-function addMonths(date: Date, months: number) {
-    const result = new Date(date);
-    result.setMonth(result.getMonth() + months);
-    return result;
-}
-
-// Helper to add years to a date
-function addYears(date: Date, years: number) {
-    const result = new Date(date);
-    result.setFullYear(result.getFullYear() + years);
-    return result;
+// Format time with leading zeros
+function formatTime(num: number): string {
+    return num.toString().padStart(2, '0');
 }
 
 export default function TimePage() {
     const [mounted, setMounted] = useState(false);
-    const [birthDateStr, setBirthDateStr] = useState(DEFAULT_BIRTH_DATE);
-    const [viewMode, setViewMode] = useState<'weeks' | 'months' | 'years'>('months');
-
-    // Derived state
-    const birthDate = new Date(birthDateStr);
-    const now = new Date();
-    const weeksLived = getWeeksDiff(birthDate, now);
-    const monthsLived = getMonthsDiff(birthDate, now);
-    const yearsLived = getYearsDiff(birthDate, now);
+    const [now, setNow] = useState(new Date());
+    const [hoveredDay, setHoveredDay] = useState<number | null>(null);
+    const [viewMode, setViewMode] = useState<'dots' | 'classic'>('dots');
 
     useEffect(() => {
         setMounted(true);
-        const savedDate = localStorage.getItem("memento_birthdate");
-        if (savedDate) {
-            setBirthDateStr(savedDate);
-        }
+        setNow(new Date());
+
+        const interval = setInterval(() => {
+            setNow(new Date());
+        }, 1000);
+
+        return () => clearInterval(interval);
     }, []);
 
-    const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const date = e.target.value;
-        setBirthDateStr(date);
-        localStorage.setItem("memento_birthdate", date);
+    const year = now.getFullYear();
+    const month = now.getMonth();
+    const dayOfMonth = now.getDate();
+    const totalDays = isLeapYear(year) ? 366 : 365;
+    const dayOfYear = getDayOfYear(now);
+    const daysRemaining = totalDays - dayOfYear;
+    const percentComplete = ((dayOfYear / totalDays) * 100).toFixed(2);
+    const weekNumber = getWeekNumber(now);
+
+    // Time components
+    const hours = now.getHours();
+    const hoursStr = formatTime(hours);
+    const minutes = formatTime(now.getMinutes());
+    const seconds = formatTime(now.getSeconds());
+
+    // Greeting logic
+    const getGreeting = () => {
+        if (hours < 12) return "Selamat Pagi";
+        if (hours < 15) return "Selamat Siang";
+        if (hours < 18) return "Selamat Sore";
+        return "Selamat Malam";
     };
 
-    if (!mounted) return null;
+    // Calculate month progress data
+    const monthData = Array.from({ length: 12 }, (_, i) => {
+        const daysInThisMonth = getDaysInMonth(year, i);
+        const monthStart = new Date(year, i, 1);
+        const monthEnd = new Date(year, i + 1, 0);
 
-    let totalUnits, unitsLived, unitLabel;
+        let daysPassedInMonth = 0;
+        if (month > i) {
+            daysPassedInMonth = daysInThisMonth;
+        } else if (month === i) {
+            daysPassedInMonth = dayOfMonth;
+        }
 
-    switch (viewMode) {
-        case 'weeks':
-            totalUnits = TOTAL_WEEKS;
-            unitsLived = weeksLived;
-            unitLabel = 'Minggu';
-            break;
-        case 'years':
-            totalUnits = TOTAL_YEARS;
-            unitsLived = yearsLived;
-            unitLabel = 'Tahun';
-            break;
-        case 'months':
-        default:
-            totalUnits = TOTAL_MONTHS;
-            unitsLived = monthsLived;
-            unitLabel = 'Bulan';
-            break;
+        return {
+            name: getMonthName(i).slice(0, 3),
+            fullName: getMonthName(i),
+            days: daysInThisMonth,
+            passed: daysPassedInMonth,
+            percentage: (daysPassedInMonth / daysInThisMonth) * 100,
+            isCurrent: month === i,
+            isPast: month > i
+        };
+    });
+
+    if (!mounted) {
+        return (
+            <Container>
+                <div style={{
+                    minHeight: "80vh",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center"
+                }}>
+                    <div style={{
+                        width: "6px",
+                        height: "6px",
+                        borderRadius: "50%",
+                        backgroundColor: "var(--foreground)",
+                        animation: "pulse 1s ease-in-out infinite"
+                    }} />
+                </div>
+            </Container>
+        );
     }
-
-    const unitsRemaining = totalUnits - unitsLived;
-    const percentageLived = Math.min(100, Math.max(0, (unitsLived / totalUnits) * 100)).toFixed(1);
 
     return (
         <Container>
-            <div className="animate-fade-in-up" style={{
-                maxWidth: "60rem",
-                margin: "0 auto",
-                paddingTop: "3rem",
-                paddingBottom: "6rem",
-                minHeight: "80vh"
-            }}>
-                <header style={{ textAlign: "center", marginBottom: "4rem" }}>
-                    <h1 style={{
+            <div
+                className="animate-fade-in-up"
+                style={{
+                    maxWidth: "60rem",
+                    margin: "0 auto",
+                    paddingTop: "3rem",
+                    paddingBottom: "4rem",
+                    minHeight: "80vh"
+                }}
+            >
+                {/* Live Clock Section */}
+                <header style={{
+                    textAlign: "center",
+                    marginBottom: "4rem"
+                }}>
+                    <h2 style={{
                         fontFamily: "var(--font-serif)",
-                        fontSize: "clamp(2.5rem, 5vw, 3.5rem)",
-                        marginBottom: "1rem"
-                    }}>
-                        Memento Mori
-                    </h1>
-                    <p style={{
-                        fontFamily: "var(--font-serif)",
-                        fontSize: "1.2rem",
-                        color: "var(--text-secondary)",
+                        fontSize: "1.5rem",
+                        fontWeight: 300,
                         fontStyle: "italic",
-                        maxWidth: "600px",
-                        margin: "0 auto 2rem auto"
+                        marginBottom: "1rem",
+                        color: "var(--text-secondary)"
                     }}>
-                        "Ingatlah bahwa kamu akan mati."
-                    </p>
-
-                    {/* Settings / Controls */}
+                        {getGreeting()}, Pengelana Waktu.
+                    </h2>
                     <div style={{
-                        display: "flex",
-                        flexDirection: "column",
-                        alignItems: "center",
-                        gap: "1.5rem"
+                        fontFamily: "var(--font-mono)",
+                        fontSize: "clamp(3rem, 12vw, 7rem)",
+                        fontWeight: 200,
+                        color: "var(--foreground)",
+                        letterSpacing: "-0.02em",
+                        lineHeight: 1,
+                        marginBottom: "0.5rem"
                     }}>
-                        {/* View Toggle */}
-                        <div style={{ display: "flex", gap: "0.5rem", background: "var(--card-bg)", padding: "4px", borderRadius: "99px", border: "1px solid var(--border)" }}>
-                            <button
-                                onClick={() => setViewMode('years')}
-                                style={{
-                                    fontFamily: "var(--font-mono)",
-                                    fontSize: "0.75rem",
-                                    padding: "0.4rem 1rem",
-                                    borderRadius: "99px",
-                                    backgroundColor: viewMode === 'years' ? "var(--foreground)" : "transparent",
-                                    color: viewMode === 'years' ? "var(--background)" : "var(--text-secondary)",
-                                    cursor: "pointer",
-                                    transition: "all 0.2s ease",
-                                    border: "none",
-                                    fontWeight: viewMode === 'years' ? 600 : 400
-                                }}
-                            >
-                                TAHUN
-                            </button>
-                            <button
-                                onClick={() => setViewMode('months')}
-                                style={{
-                                    fontFamily: "var(--font-mono)",
-                                    fontSize: "0.75rem",
-                                    padding: "0.4rem 1rem",
-                                    borderRadius: "99px",
-                                    backgroundColor: viewMode === 'months' ? "var(--foreground)" : "transparent",
-                                    color: viewMode === 'months' ? "var(--background)" : "var(--text-secondary)",
-                                    cursor: "pointer",
-                                    transition: "all 0.2s ease",
-                                    border: "none",
-                                    fontWeight: viewMode === 'months' ? 600 : 400
-                                }}
-                            >
-                                BULAN
-                            </button>
-                            <button
-                                onClick={() => setViewMode('weeks')}
-                                style={{
-                                    fontFamily: "var(--font-mono)",
-                                    fontSize: "0.75rem",
-                                    padding: "0.4rem 1rem",
-                                    borderRadius: "99px",
-                                    backgroundColor: viewMode === 'weeks' ? "var(--foreground)" : "transparent",
-                                    color: viewMode === 'weeks' ? "var(--background)" : "var(--text-secondary)",
-                                    cursor: "pointer",
-                                    transition: "all 0.2s ease",
-                                    border: "none",
-                                    fontWeight: viewMode === 'weeks' ? 600 : 400
-                                }}
-                            >
-                                MINGGU
-                            </button>
-                        </div>
-
-                        {/* Birthdate Input Trigger */}
-                        <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                            <span style={{
-                                fontFamily: "var(--font-mono)",
-                                fontSize: "0.8rem",
-                                color: "var(--text-secondary)",
-                                textTransform: "uppercase",
-                                letterSpacing: "0.05em"
-                            }}>
-                                Tanggal Lahir:
-                            </span>
-                            <input
-                                type="date"
-                                value={birthDateStr}
-                                onChange={handleDateChange}
-                                style={{
-                                    padding: "0.25rem 0.5rem",
-                                    borderRadius: "6px",
-                                    border: "1px solid var(--border)",
-                                    backgroundColor: "var(--background)",
-                                    color: "var(--foreground)",
-                                    fontFamily: "var(--font-mono)",
-                                    fontSize: "0.8rem",
-                                    cursor: "pointer"
-                                }}
-                            />
-                        </div>
+                        <span>{hoursStr}</span>
+                        <span style={{ opacity: 0.4, animation: "pulse 1s ease-in-out infinite" }}>:</span>
+                        <span>{minutes}</span>
+                        <span style={{ opacity: 0.4, animation: "pulse 1s ease-in-out infinite" }}>:</span>
+                        <span style={{ opacity: 0.6 }}>{seconds}</span>
                     </div>
                 </header>
 
-                {/* Stats */}
+                {/* Quick Stats Grid */}
                 <div style={{
                     display: "grid",
                     gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))",
-                    gap: "1.5rem",
-                    marginBottom: "4rem",
-                    textAlign: "center"
+                    gap: "1rem",
+                    marginBottom: "4rem"
                 }}>
                     {[
-                        { val: unitsLived.toLocaleString(), label: `${unitLabel} Berlalu` },
-                        { val: unitsRemaining.toLocaleString(), label: `${unitLabel} Tersisa` },
-                        { val: `${percentageLived}%`, label: "Kehidupan" }
+                        { value: dayOfYear, label: "Hari ke-", accent: false },
+                        { value: daysRemaining, label: "Sisa Hari", accent: false },
+                        { value: `W${weekNumber}`, label: `Minggu ke-${weekNumber}`, accent: false },
+                        { value: `${percentComplete}%`, label: "Progres Tahun", accent: true }
                     ].map((stat, i) => (
-                        <div key={i} style={{
-                            padding: "1.5rem",
-                            borderRadius: "12px",
-                            backgroundColor: "var(--card-bg)",
-                            border: "1px solid var(--border)",
-                            display: "flex",
-                            flexDirection: "column",
-                            justifyContent: "center",
-                            alignItems: "center"
-                        }}>
+                        <div
+                            key={i}
+                            style={{
+                                padding: "1.25rem",
+                                borderRadius: "12px",
+                                backgroundColor: "var(--card-bg)",
+                                border: "1px solid var(--border)",
+                                textAlign: "center",
+                                transition: "all 0.3s ease"
+                            }}
+                            className="card-hover"
+                        >
                             <div style={{
                                 fontFamily: "var(--font-mono)",
                                 fontSize: "1.75rem",
                                 fontWeight: 300,
-                                color: "var(--foreground)",
+                                color: stat.accent ? "var(--accent)" : "var(--foreground)",
                                 marginBottom: "0.25rem"
                             }}>
-                                {stat.val}
+                                {stat.value}
                             </div>
                             <div style={{
                                 fontFamily: "var(--font-mono)",
-                                fontSize: "0.7rem",
+                                fontSize: "0.65rem",
                                 color: "var(--text-secondary)",
                                 textTransform: "uppercase",
                                 letterSpacing: "0.1em"
@@ -277,126 +218,416 @@ export default function TimePage() {
                     ))}
                 </div>
 
-                {/* Grid Visualization */}
+                {/* Visualization Section - with Toggle */}
                 <div style={{
-                    marginBottom: "6rem",
-                    textAlign: "center",
-                    display: "flex",
-                    justifyContent: "center"
+                    marginBottom: "4rem"
                 }}>
                     <div style={{
-                        display: "grid",
-                        gridTemplateColumns: viewMode === 'years'
-                            ? "repeat(10, 1fr)"
-                            : (viewMode === 'months' ? "repeat(auto-fit, minmax(8px, 1fr))" : "repeat(auto-fit, minmax(4px, 1fr))"),
-                        // Specific overrides for smoother layouts at different sizes
-                        ...(viewMode === 'months' && { gridTemplateColumns: "repeat(36, 1fr)" }),
-                        gap: viewMode === 'years' ? "12px" : (viewMode === 'months' ? "6px" : "3px"),
-                        maxWidth: viewMode === 'years' ? "350px" : (viewMode === 'months' ? "600px" : "100%"),
-                        width: "100%",
-                        // Mobile responsiveness overrides via media queries could be handled in CSS, 
-                        // but inline styles are used here for simplicity. 
-                        // For 'months', 36 cols is wide, might need media query logic if purely inline.
-                        // Let's use a simpler auto-fill strategy for months if strict grid causes overflow issues on mobile,
-                        // BUT user wanted "clearer". 36 cols = 3 years per row.
-                    }}
-                        className={viewMode === 'months' ? "months-grid" : ""}
-                    >
-                        {/* Inject style for mobile responsiveness for the complex grids */}
-                        <style jsx>{`
-                            @media (max-width: 640px) {
-                                .months-grid {
-                                    grid-template-columns: repeat(12, 1fr) !important;
-                                }
-                            }
-                        `}</style>
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center", // Changed from 'end' for better vertical alignment when wrapped
+                        marginBottom: "1.5rem",
+                        flexWrap: "wrap", // Allow wrapping
+                        gap: "1rem" // Add gap for wrapped items
+                    }}>
+                        <div style={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "1rem", // Reduced gap
+                            flexWrap: "wrap" // Allow title and toggle to wrap
+                        }}>
+                            <div style={{
+                                fontFamily: "var(--font-mono)",
+                                fontSize: "0.8rem",
+                                color: "var(--text-secondary)",
+                                textTransform: "uppercase",
+                                letterSpacing: "0.15em",
+                                whiteSpace: "nowrap" // Prevent title break
+                            }}>
+                                {viewMode === 'dots' ? 'Grid Kehidupan' : 'Bar Progress'} {year}
+                            </div>
 
-                        {Array.from({ length: totalUnits }).map((_, i) => {
-                            const isLived = i < unitsLived;
-                            const isCurrent = i === unitsLived;
+                            {/* Toggle Button */}
+                            <button
+                                onClick={() => setViewMode(viewMode === 'dots' ? 'classic' : 'dots')}
+                                style={{
+                                    background: "transparent",
+                                    border: "1px solid var(--border)",
+                                    borderRadius: "999px",
+                                    padding: "4px 8px",
+                                    fontFamily: "var(--font-mono)",
+                                    fontSize: "0.6rem",
+                                    textTransform: "uppercase",
+                                    letterSpacing: "0.05em",
+                                    color: "var(--foreground)",
+                                    cursor: "pointer",
+                                    display: "flex",
+                                    alignItems: "center",
+                                    gap: "6px",
+                                    transition: "all 0.2s ease",
+                                    whiteSpace: "nowrap" // Prevent button break
+                                }}
+                                className="hover:bg-[var(--hover-bg)]"
+                            >
+                                {viewMode === 'dots' ? (
+                                    <>
+                                        <span>Show Bars</span>
+                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+                                    </>
+                                ) : (
+                                    <>
+                                        <span>Show Dots</span>
+                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="1"></circle><circle cx="19" cy="12" r="1"></circle><circle cx="5" cy="12" r="1"></circle><circle cx="12" cy="19" r="1"></circle><circle cx="12" cy="5" r="1"></circle></svg>
+                                    </>
+                                )}
+                            </button>
+                        </div>
 
-                            // Calculate dates based on view mode
-                            let startDate, endDate;
-                            if (viewMode === 'weeks') {
-                                startDate = addWeeks(birthDate, i);
-                                endDate = addWeeks(startDate, 1);
-                            } else if (viewMode === 'months') {
-                                startDate = addMonths(birthDate, i);
-                                endDate = addMonths(startDate, 1);
-                            } else {
-                                startDate = addYears(birthDate, i);
-                                endDate = addYears(startDate, 1);
-                            }
+                        {viewMode === 'dots' && (
+                            <div style={{
+                                fontFamily: "var(--font-mono)",
+                                fontSize: "0.65rem", // Slightly smaller
+                                color: "var(--text-secondary)",
+                                display: "flex",
+                                gap: "0.75rem", // Slightly smaller gap
+                                flexWrap: "wrap"
+                            }}>
+                                <span style={{ display: "flex", alignItems: "center", gap: "0.4rem" }}>
+                                    <span style={{ width: "8px", height: "8px", borderRadius: "50%", background: "var(--text-secondary)", opacity: 0.2 }}></span> Lewat
+                                </span>
+                                <span style={{ display: "flex", alignItems: "center", gap: "0.4rem" }}>
+                                    <span style={{ width: "8px", height: "8px", borderRadius: "50%", background: "var(--foreground)", boxShadow: "0 0 8px var(--foreground)" }}></span> Hari Ini
+                                </span>
+                                <span style={{ display: "flex", alignItems: "center", gap: "0.4rem" }}>
+                                    <span style={{ width: "8px", height: "8px", borderRadius: "50%", border: "1px solid var(--border)" }}></span> Nanti
+                                </span>
+                            </div>
+                        )}
+                    </div>
 
-                            // Age calculation
-                            let age;
-                            if (viewMode === 'weeks') age = Math.floor(i / 52);
-                            else if (viewMode === 'months') age = Math.floor(i / 12);
-                            else age = i;
+                    {/* Content Container with Min Height to prevent layout jumps - Optimized for performance */}
+                    <div style={{ minHeight: "500px", position: "relative" }}>
+                        {/* View: Dots Grid */}
+                        <div
+                            style={{
+                                display: viewMode === 'dots' ? 'flex' : 'none',
+                                flexWrap: "wrap",
+                                gap: "6px",
+                                justifyContent: "center", // Center the grid
+                                maxWidth: "900px", // Constrain width for better shape
+                                margin: "0 auto",
+                                animation: viewMode === 'dots' ? "fadeInOpacity 0.4s ease-out forwards" : "none"
+                            }}>
+                            {Array.from({ length: totalDays }, (_, i) => {
+                                const dayNum = i + 1;
+                                const isPast = dayNum < dayOfYear;
+                                const isToday = dayNum === dayOfYear;
+                                const isFuture = dayNum > dayOfYear;
 
-                            return (
-                                <div
-                                    key={i}
-                                    title={`Usia ${age} | ${formatDate(startDate)}`}
-                                    style={{
-                                        width: "100%",
-                                        aspectRatio: "1/1",
-                                        borderRadius: "50%",
-                                        backgroundColor: isLived ? "var(--foreground)" : "var(--foreground)",
-                                        opacity: isLived ? 0.9 : (isCurrent ? 1 : 0.15),
-                                        transition: "all 0.2s ease",
-                                        transform: isCurrent ? "scale(1.2)" : "scale(1)",
-                                        boxShadow: isCurrent ? "0 0 8px var(--foreground)" : "none",
-                                        border: isCurrent ? "1px solid var(--background)" : "none"
-                                    }}
-                                    className={`
-                                        ${isLived ? "hover:opacity-100" : "hover:opacity-60"}
-                                        ${isCurrent ? "animate-pulse" : ""}
-                                        cursor-help
-                                    `}
-                                />
-                            );
-                        })}
+                                // Calculate date for tooltip
+                                const date = new Date(year, 0, dayNum);
+                                const dateStr = date.toLocaleDateString('id-ID', { day: 'numeric', month: 'short' });
+
+                                return (
+                                    <div
+                                        key={i}
+                                        title={`${dateStr} (Hari ke-${dayNum})`}
+                                        style={{
+                                            width: "10px",
+                                            height: "10px",
+                                            borderRadius: "50%",
+                                            backgroundColor: isPast ? "var(--text-secondary)" : isToday ? "var(--foreground)" : "transparent",
+                                            border: isFuture ? "1px solid var(--border)" : "none",
+                                            opacity: isPast ? 0.2 : 1,
+                                            boxShadow: isToday ? "0 0 10px 2px rgba(var(--foreground-rgb), 0.3)" : "none",
+                                            transform: isToday ? "scale(1.2)" : "scale(1)",
+                                            transition: "all 0.2s cubic-bezier(0.4, 0, 0.2, 1)",
+                                            cursor: "crosshair",
+                                            position: "relative"
+                                        }}
+                                        className={isToday ? "animate-pulse-slow" : "hover:scale-150 hover:bg-[var(--foreground)] hover:opacity-100"}
+                                    />
+                                );
+                            })}
+                        </div>
+
+                        {/* View: Classic Bars */}
+                        <div
+                            style={{
+                                display: viewMode === 'classic' ? 'block' : 'none',
+                                animation: viewMode === 'classic' ? "fadeInOpacity 0.4s ease-out forwards" : "none"
+                            }}
+                        >
+                            {/* Month Progress Bars */}
+                            <div style={{
+                                padding: "1.5rem",
+                                borderRadius: "16px",
+                                backgroundColor: "var(--card-bg)",
+                                border: "1px solid var(--border)",
+                                marginBottom: "2rem"
+                            }}>
+                                <div style={{
+                                    fontFamily: "var(--font-mono)",
+                                    fontSize: "0.7rem",
+                                    color: "var(--text-secondary)",
+                                    textTransform: "uppercase",
+                                    letterSpacing: "0.15em",
+                                    marginBottom: "1.25rem"
+                                }}>
+                                    Rekap Bulanan
+                                </div>
+                                <div style={{
+                                    display: "grid",
+                                    gridTemplateColumns: "repeat(12, 1fr)",
+                                    gap: "4px"
+                                }}>
+                                    {monthData.map((m, i) => (
+                                        <div
+                                            key={i}
+                                            style={{
+                                                display: "flex",
+                                                flexDirection: "column",
+                                                alignItems: "center",
+                                                gap: "6px"
+                                            }}
+                                        >
+                                            <div
+                                                style={{
+                                                    width: "100%",
+                                                    height: "80px",
+                                                    borderRadius: "4px",
+                                                    backgroundColor: "var(--border)",
+                                                    position: "relative",
+                                                    overflow: "hidden",
+                                                    cursor: "pointer",
+                                                    transition: "all 0.3s ease"
+                                                }}
+                                                title={`${m.fullName}: ${m.passed}/${m.days} hari (${m.percentage.toFixed(0)}%)`}
+                                                onMouseEnter={() => setHoveredDay(i)}
+                                                onMouseLeave={() => setHoveredDay(null)}
+                                            >
+                                                <div style={{
+                                                    position: "absolute",
+                                                    bottom: 0,
+                                                    left: 0,
+                                                    width: "100%",
+                                                    height: `${m.percentage}%`,
+                                                    backgroundColor: m.isCurrent
+                                                        ? "var(--foreground)"
+                                                        : m.isPast
+                                                            ? "var(--text-secondary)"
+                                                            : "transparent",
+                                                    transition: "height 0.5s ease",
+                                                    borderRadius: "4px"
+                                                }} />
+                                                {m.isCurrent && (
+                                                    <div style={{
+                                                        position: "absolute",
+                                                        bottom: `${m.percentage}%`,
+                                                        left: "50%",
+                                                        transform: "translateX(-50%)",
+                                                        width: "8px",
+                                                        height: "8px",
+                                                        backgroundColor: "var(--background)",
+                                                        border: "2px solid var(--foreground)",
+                                                        borderRadius: "50%",
+                                                        transition: "bottom 0.5s ease"
+                                                    }} />
+                                                )}
+                                            </div>
+                                            <span style={{
+                                                fontFamily: "var(--font-mono)",
+                                                fontSize: "0.6rem",
+                                                color: m.isCurrent ? "var(--foreground)" : "var(--text-secondary)",
+                                                fontWeight: m.isCurrent ? 600 : 400,
+                                                textTransform: "uppercase"
+                                            }}>
+                                                {m.name}
+                                            </span>
+                                        </div>
+                                    ))}
+                                </div>
+                                {hoveredDay !== null && (
+                                    <div style={{
+                                        marginTop: "1rem",
+                                        padding: "0.75rem",
+                                        borderRadius: "8px",
+                                        backgroundColor: "var(--hover-bg)",
+                                        textAlign: "center",
+                                        fontFamily: "var(--font-mono)",
+                                        fontSize: "0.75rem",
+                                        color: "var(--text-secondary)"
+                                    }}>
+                                        <strong style={{ color: "var(--foreground)" }}>{monthData[hoveredDay].fullName}</strong>
+                                        {" · "}
+                                        {monthData[hoveredDay].passed} dari {monthData[hoveredDay].days} hari
+                                        {" · "}
+                                        {monthData[hoveredDay].percentage.toFixed(1)}% selesai
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Year Progress Bar */}
+                            <div style={{
+                                padding: "1.5rem",
+                                borderRadius: "16px",
+                                backgroundColor: "var(--card-bg)",
+                                border: "1px solid var(--border)",
+                                marginBottom: "2rem"
+                            }}>
+                                <div style={{
+                                    display: "flex",
+                                    justifyContent: "space-between",
+                                    alignItems: "center",
+                                    marginBottom: "1rem"
+                                }}>
+                                    <span style={{
+                                        fontFamily: "var(--font-mono)",
+                                        fontSize: "0.7rem",
+                                        color: "var(--text-secondary)",
+                                        textTransform: "uppercase",
+                                        letterSpacing: "0.15em"
+                                    }}>
+                                        Perjalanan Tahun Ini
+                                    </span>
+                                    <span style={{
+                                        fontFamily: "var(--font-mono)",
+                                        fontSize: "1.5rem",
+                                        fontWeight: 300,
+                                        color: "var(--foreground)"
+                                    }}>
+                                        {year}
+                                    </span>
+                                </div>
+                                <div style={{
+                                    height: "12px",
+                                    width: "100%",
+                                    backgroundColor: "var(--border)",
+                                    borderRadius: "6px",
+                                    overflow: "hidden",
+                                    position: "relative"
+                                }}>
+                                    <div style={{
+                                        height: "100%",
+                                        width: `${percentComplete}%`,
+                                        background: "linear-gradient(90deg, var(--text-secondary), var(--foreground))",
+                                        borderRadius: "6px",
+                                        transition: "width 0.5s ease",
+                                        position: "relative"
+                                    }}>
+                                        <div style={{
+                                            position: "absolute",
+                                            right: 0,
+                                            top: "50%",
+                                            transform: "translateY(-50%)",
+                                            width: "4px",
+                                            height: "18px",
+                                            backgroundColor: "var(--foreground)",
+                                            borderRadius: "2px",
+                                            boxShadow: "0 0 10px var(--foreground)"
+                                        }} />
+                                    </div>
+                                </div>
+                                <div style={{
+                                    display: "flex",
+                                    justifyContent: "space-between",
+                                    marginTop: "0.75rem",
+                                    fontFamily: "var(--font-mono)",
+                                    fontSize: "0.65rem",
+                                    color: "var(--text-secondary)"
+                                }}>
+                                    <span>1 Jan</span>
+                                    <span>{percentComplete}% selesai</span>
+                                    <span>31 Des</span>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
-                {/* Philosophical Copy */}
-                <div style={{ maxWidth: "65ch", margin: "0 auto" }} className="prose-editorial">
-                    <h2>Tentang Waktu Anda</h2>
-                    <p>
-                        Setiap titik di atas mewakili satu {unitLabel.toLowerCase()} kehidupan Anda.
-                        Jika Anda beruntung hidup hingga {LIFE_EXPECTANCY_YEARS} tahun, Anda memiliki
-                        sekitar {TOTAL_YEARS} tahun, {TOTAL_MONTHS.toLocaleString()} bulan, atau {TOTAL_WEEKS.toLocaleString()} minggu.
-                    </p>
-                    <blockquote>
-                        "Bukan bahwa kita memiliki waktu yang singkat untuk hidup, tetapi bahwa kita membuang banyak darinya."
-                        <br />
-                        <span style={{ fontSize: "1rem", marginTop: "1rem", display: "block", color: "var(--text-secondary)" }}>— Seneca</span>
-                    </blockquote>
-                    <p>
-                        Melihat kehidupan Anda tervisualisasi seperti ini mungkin terasa menakutkan, tetapi tujuannya bukan untuk membuat Anda depresi.
-                        Tujuannya adalah urgensi. Titik-titik yang telah terisi (hitam) adalah masa lalu yang tidak bisa diubah.
-                        Titik-titik yang transparan adalah masa depan, namun mereka tidak dijamin.
-                        <span className="block mt-2 font-bold text-[var(--foreground)]">
-                            Titik yang berdenyut adalah Anda saat ini.
-                        </span>
-                    </p>
-                    <p>
-                        Apa yang akan Anda lakukan dengan titik {unitLabel.toLowerCase()} ini?
-                    </p>
+                {/* Perspective Cards */}
+                <div style={{
+                    display: "grid",
+                    gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
+                    gap: "1rem",
+                    marginBottom: "4rem"
+                }}>
+                    {[
+                        {
+                            label: "Jam Tersisa",
+                            value: (daysRemaining * 24).toLocaleString('id-ID'),
+                            sub: "waktu untuk berkarya"
+                        },
+                        {
+                            label: "Akhir Pekan",
+                            value: Math.ceil(daysRemaining / 7).toString(),
+                            sub: "kesempatan istirahat"
+                        },
+                        {
+                            label: "Bulan",
+                            value: (12 - month - 1 + (1 - dayOfMonth / getDaysInMonth(year, month))).toFixed(1),
+                            sub: "untuk perubahan"
+                        }
+                    ].map((item, i) => (
+                        <div key={i} style={{
+                            padding: "1.5rem",
+                            borderRadius: "16px",
+                            border: "1px solid var(--border)",
+                            backgroundColor: "rgba(255,255,255,0.03)",
+                            display: "flex",
+                            flexDirection: "column",
+                            gap: "0.25rem",
+                            textAlign: "center"
+                        }}>
+                            <span style={{
+                                fontFamily: "var(--font-mono)",
+                                fontSize: "2rem",
+                                fontWeight: 300,
+                                color: "var(--foreground)"
+                            }}>
+                                {item.value}
+                            </span>
+                            <span style={{
+                                fontFamily: "var(--font-mono)",
+                                fontSize: "0.75rem",
+                                color: "var(--foreground)",
+                                fontWeight: 600,
+                                textTransform: "uppercase",
+                                letterSpacing: "0.1em"
+                            }}>
+                                {item.label}
+                            </span>
+                            <span style={{
+                                fontFamily: "var(--font-serif)",
+                                fontSize: "0.8rem",
+                                color: "var(--text-secondary)",
+                                fontStyle: "italic",
+                                marginTop: "0.25rem"
+                            }}>
+                                {item.sub}
+                            </span>
+                        </div>
+                    ))}
                 </div>
 
+                {/* Quote */}
                 <footer style={{
                     textAlign: "center",
-                    marginTop: "6rem",
-                    paddingTop: "2rem",
+                    padding: "2rem",
                     borderTop: "1px solid var(--border)",
-                    fontFamily: "var(--font-mono)",
-                    fontSize: "0.8rem",
-                    color: "var(--text-secondary)"
+                    marginTop: "2rem"
                 }}>
-                    <div>Data tersimpan di browser Anda.</div>
-                    <div style={{ marginTop: "0.5rem" }}>Asumsi usia harapan hidup {LIFE_EXPECTANCY_YEARS} tahun.</div>
+                    <p style={{
+                        fontFamily: "var(--font-serif)",
+                        fontSize: "1.1rem",
+                        color: "var(--text-secondary)",
+                        fontStyle: "italic",
+                        lineHeight: 1.6,
+                        maxWidth: "600px",
+                        margin: "0 auto"
+                    }}>
+                        "Waktu adalah nyawa. Kehilangan uang bisa dicari, kehilangan waktu takkan kembali."
+                    </p>
                 </footer>
             </div>
         </Container>

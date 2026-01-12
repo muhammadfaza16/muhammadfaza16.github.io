@@ -1,5 +1,4 @@
 import { Container } from "@/components/Container";
-import { ProjectGrid } from "@/components/ProjectGrid";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -9,60 +8,47 @@ export const metadata: Metadata = {
 
 export default function ProjectPage() {
     return (
-        <section style={{ paddingTop: "12vh", paddingBottom: "8rem" }}>
+        <section style={{ paddingTop: "6rem", paddingBottom: "6rem" }}>
             <Container>
                 <div className="animate-fade-in">
-                    {/* Steve Jobs Style Hero */}
-                    <div style={{ marginBottom: "6rem" }}>
-                        <h1 style={{
-                            fontFamily: "'Playfair Display', serif",
-                            fontSize: "clamp(3.5rem, 10vw, 7.5rem)",
-                            fontWeight: 400,
-                            letterSpacing: "-0.04em",
-                            lineHeight: 0.95,
-                            marginBottom: "2rem",
-                            color: "var(--foreground)",
-                            maxWidth: "15ch"
-                        }}>
-                            Selected Works.
-                        </h1>
-                        <p style={{
-                            fontFamily: "'Source Serif 4', serif",
-                            fontSize: "1.25rem",
-                            color: "var(--text-secondary)",
-                            maxWidth: "40rem",
-                            lineHeight: 1.6
-                        }}>
-                            A collection of experiments, failures, and accidental successes.
-                            Things I build when I'm not overthinking.
-                        </p>
-                    </div>
+                    <h1 style={{
+                        fontFamily: "'Playfair Display', serif",
+                        fontSize: "clamp(2.5rem, 5vw, 3.5rem)",
+                        fontWeight: 700,
+                        marginBottom: "1.5rem",
+                        color: "var(--foreground)"
+                    }}>
+                        Project
+                    </h1>
+                    <p style={{
+                        fontSize: "1.1rem",
+                        color: "var(--text-secondary)",
+                        marginBottom: "3rem",
+                        maxWidth: "42rem"
+                    }}>
+                        Tempat nampilin project-project yang lagi dikerjain. Mungkin berguna, mungkin juga cuma iseng.
+                    </p>
+                </div>
 
-                    <div className="animate-fade-in animation-delay-300">
-
-                        {/* Disclaimer */}
-                        <div style={{
-                            padding: "1rem",
-                            marginBottom: "4rem",
-                            background: "rgba(var(--foreground-rgb), 0.05)",
-                            border: "1px solid var(--border)",
-                            borderRadius: "12px",
-                            fontFamily: "var(--font-mono)",
-                            fontSize: "0.8rem",
-                            color: "var(--text-secondary)",
-                            display: "flex",
-                            alignItems: "center",
-                            gap: "1rem"
-                        }}>
-                            <span style={{ fontSize: "1.25rem" }}>⚠️</span>
-                            <div>
-                                <strong style={{ color: "var(--foreground)", display: "block", marginBottom: "0.25rem" }}>Notice</strong>
-                                The data below is currently placeholder content for demonstration purposes.
-                            </div>
-                        </div>
-
-                        <ProjectGrid />
-                    </div>
+                {/* Empty state */}
+                <div
+                    className="animate-fade-in animation-delay-200"
+                    style={{
+                        padding: "5rem 2rem",
+                        border: "1px dashed var(--border)",
+                        borderRadius: "12px",
+                        textAlign: "center",
+                        color: "var(--text-secondary)",
+                        backgroundColor: "rgba(0,0,0,0.02)"
+                    }}
+                >
+                    <p style={{ marginBottom: "0.75rem", fontSize: "3rem" }}>🚧</p>
+                    <p style={{ marginBottom: "0.5rem", fontSize: "1.25rem", fontWeight: 500 }}>
+                        Masih kosong, belum ada yang bisa di-pamer-in.
+                    </p>
+                    <p style={{ fontSize: "1rem", opacity: 0.7 }}>
+                        Lagi ngulik sesuatu... stay tuned! ✨
+                    </p>
                 </div>
             </Container>
         </section>
