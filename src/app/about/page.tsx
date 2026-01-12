@@ -25,7 +25,7 @@ function StatusPill() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, ease: "easeOut" }}
-            className="inline-flex items-center rounded-full bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-xs font-mono text-zinc-600 dark:text-zinc-400 mb-8 shadow-sm backdrop-blur-sm bg-opacity-80"
+            className="inline-flex items-center rounded-full bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-xs font-mono text-zinc-600 dark:text-zinc-400 mb-8 shadow-sm"
             style={{ padding: "0.2rem 0.6rem", gap: "0.5rem", marginBottom: "1.5rem" }}
         >
             <span className="relative flex h-2 w-2">
@@ -65,7 +65,7 @@ export default function AboutPage() {
         <div style={{ paddingBottom: "clamp(4rem, 10vh, 8rem)" }} className="relative overflow-hidden">
 
             {/* Ambient Background Gradient (Subtle) */}
-            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[500px] bg-gradient-to-b from-zinc-100/50 to-transparent dark:from-zinc-900/20 dark:to-transparent rounded-[100%] blur-3xl -z-10 pointer-events-none" />
+
 
             {/* 1. HERO: Bilingual & Casual with Motion */}
             <section style={{
