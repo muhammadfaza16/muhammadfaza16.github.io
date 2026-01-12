@@ -23,10 +23,20 @@ export function ZenProvider({ children }: { children: React.ReactNode }) {
     const [isZen, setIsZen] = useState(false);
     const pathname = usePathname();
 
-    // Reset Zen mode on route change
+    // Reset Zen mode on route change - only if leaving blog article
     useEffect(() => {
-        setIsZen(false);
-    }, [pathname]);
+        const isBlogArticle = pathname?.startsWith("/blog/") && pathname !== "/blog";
+        if (!isBlogArticle && isZen) {
+            setIsZen(false);
+        }
+    }, [pathname, isZen]);
+
+    // Force scroll to top when navigating while Zen is active
+    useEffect(() => {
+        if (isZen) {
+            window.scrollTo(0, 0);
+        }
+    }, [pathname, isZen]);
 
     // Escape key to exit Zen mode
     useEffect(() => {

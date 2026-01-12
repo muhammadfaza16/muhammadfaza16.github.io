@@ -115,7 +115,7 @@ export default async function BlogPostPage({ params }: PageProps) {
                     <ZenToggle />
                 </div>
 
-                {/* Hero Header - Zen Mode */}
+                {/* Hero Header - Read Mode */}
                 <header
                     className="animate-fade-in-up"
                     style={{
