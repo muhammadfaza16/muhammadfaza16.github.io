@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { Playfair_Display, Source_Serif_4, Space_Mono } from "next/font/google";
 import "./globals.css";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
@@ -27,26 +26,6 @@ export const metadata: Metadata = {
   },
 };
 
-// Optimize Font Loading
-const playfair = Playfair_Display({
-  subsets: ["latin"],
-  variable: "--font-serif",
-  display: "swap",
-});
-
-const sourceSerif = Source_Serif_4({
-  subsets: ["latin"],
-  variable: "--font-sans", // We use this as the primary body font
-  display: "swap",
-});
-
-const spaceMono = Space_Mono({
-  weight: ["400", "700"],
-  subsets: ["latin"],
-  variable: "--font-mono",
-  display: "swap",
-});
-
 import { ZenProvider } from "@/components/ZenContext";
 
 export default function RootLayout({
@@ -69,7 +48,7 @@ export default function RootLayout({
   };
 
   return (
-    <html lang="en" suppressHydrationWarning className={`${playfair.variable} ${sourceSerif.variable} ${spaceMono.variable}`}>
+    <html lang="en" suppressHydrationWarning>
       <body style={{ minHeight: "100svh", display: "flex", flexDirection: "column" }}>
         <script
           type="application/ld+json"
