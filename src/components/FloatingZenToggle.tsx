@@ -43,7 +43,7 @@ export function FloatingZenToggle() {
                 position: "fixed",
                 bottom: "2rem",
                 right: "2rem",
-                zIndex: 90,
+                zIndex: 40, // Below Header (z-50)
                 display: "flex",
                 alignItems: "center",
                 gap: "0.5rem",
@@ -63,10 +63,10 @@ export function FloatingZenToggle() {
                 pointerEvents: isVisible ? "auto" : "none",
             }}
             className="hover:shadow-lg hover:-translate-y-1 active:scale-95 glass p-3 md:py-3 md:px-5"
-            aria-label="Toggle Zen Mode"
+            aria-label="Toggle Read Mode"
         >
             <Eye size={18} />
-            <span className="desktop-only">Zen Mode</span>
+            <span className="desktop-only">Read Mode</span>
         </button>
     );
 }
