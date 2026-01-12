@@ -96,9 +96,10 @@ body {
   /* Larger base font size for reading */
   line-height: 1.8;
   /* Generous leading */
+  /* Generous leading */
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  transition: background-color 0.3s ease, color 0.3s ease;
+  transition: background-color 0.5s ease, color 0.5s ease;
 }
 
 /* Zen Mode Styles - Enhanced Reading Experience */
@@ -116,10 +117,8 @@ html.dark [data-zen="true"] {
 }
 
 /* Typography scaling in Zen Mode */
-[data-zen="true"] body {
-  background-color: transparent !important;
-  /* Inherit from wrapper */
-}
+/* Typography scaling in Zen Mode */
+/* [data-zen="true"] body removed as it was invalid selector structure for this context */
 
 [data-zen="true"] .prose-editorial {
   font-size: 1.5rem !important;
@@ -343,6 +342,7 @@ p {
   /* Slightly larger for that premium book feel */
   line-height: 1.8;
   color: var(--text-primary);
+  transition: all 0.5s ease;
 }
 
 .prose-editorial h2 {

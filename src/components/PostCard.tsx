@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 
 interface PostCardProps {
     slug: string;
@@ -30,18 +31,18 @@ export function PostCard({ slug, title, excerpt, date, readingTime, thumbnail, h
                             height: "80px",
                             borderRadius: "8px",
                             overflow: "hidden",
-                            backgroundColor: "var(--hover)"
+                            backgroundColor: "var(--hover)",
+                            position: "relative"
                         }}>
-                            <img
+                            <Image
                                 src={thumbnail}
                                 alt={title}
+                                fill
                                 style={{
-                                    width: "100%",
-                                    height: "100%",
                                     objectFit: "cover",
-                                    transition: "transform 0.3s ease"
                                 }}
-                                className="group-hover:scale-105"
+                                className="group-hover:scale-105 transition-transform duration-300"
+                                sizes="120px"
                             />
                         </div>
                     )}
