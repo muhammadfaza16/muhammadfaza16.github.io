@@ -125,8 +125,7 @@ export default function AboutPage() {
                 <Container>
                     <motion.div
                         initial={{ opacity: 0, y: 10 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: true }}
+                        animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.5 }}
                         className="mb-12 text-center md:text-left flex items-center gap-3"
                     >
@@ -137,8 +136,7 @@ export default function AboutPage() {
                     <motion.div
                         variants={containerVariants}
                         initial="hidden"
-                        whileInView="show"
-                        viewport={{ once: true }}
+                        animate="show"
                         className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12"
                     >
                         {[
@@ -189,8 +187,7 @@ export default function AboutPage() {
                 <Container>
                     <motion.div
                         initial={{ opacity: 0 }}
-                        whileInView={{ opacity: 1 }}
-                        viewport={{ once: true }}
+                        animate={{ opacity: 1 }}
                         className="flex items-end justify-between border-b border-[var(--border)]"
                         style={{ paddingBottom: "1.5rem", marginBottom: "2rem" }}
                     >
@@ -214,8 +211,7 @@ export default function AboutPage() {
                     <motion.div
                         variants={containerVariants}
                         initial="hidden"
-                        whileInView="show"
-                        viewport={{ once: true, margin: "-100px" }}
+                        animate="show"
                         className="grid grid-cols-1 md:grid-cols-2 gap-3"
                     >
                         {[
@@ -272,8 +268,7 @@ export default function AboutPage() {
                 <Container>
                     <motion.div
                         initial={{ opacity: 0, scale: 0.95 }}
-                        whileInView={{ opacity: 1, scale: 1 }}
-                        viewport={{ once: true }}
+                        animate={{ opacity: 1, scale: 1 }}
                         transition={{ duration: 0.5 }}
                         className="flex flex-col items-center"
                     >
@@ -289,16 +284,18 @@ export default function AboutPage() {
 
                         <div className="flex gap-4">
                             <a href="https://x.com/scienfilix" target="_blank" rel="noopener noreferrer"
-                                className="group px-4 py-2 bg-zinc-100 dark:bg-zinc-800 rounded-lg hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors flex items-center gap-2"
+                                className="group bg-zinc-100 dark:bg-zinc-800 rounded-full hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors flex items-center gap-2"
+                                style={{ padding: "0.6rem 1.25rem" }}
                             >
-                                <span className="text-sm font-mono uppercase tracking-widest text-[var(--accent)]">Twitter</span>
-                                <ArrowRight className="w-3 h-3 opacity-0 -ml-2 group-hover:opacity-100 group-hover:ml-0 transition-all" />
+                                <span className="text-sm font-mono uppercase tracking-widest text-zinc-600 dark:text-zinc-400 group-hover:text-zinc-900 dark:group-hover:text-zinc-200 transition-colors">Twitter</span>
+                                <ArrowRight className="w-3.5 h-3.5 text-zinc-400 group-hover:text-zinc-900 dark:group-hover:text-zinc-200 transition-colors -rotate-45 group-hover:rotate-0" />
                             </a>
                             <a href="https://github.com/mfazans23" target="_blank" rel="noopener noreferrer"
-                                className="group px-4 py-2 bg-zinc-100 dark:bg-zinc-800 rounded-lg hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors flex items-center gap-2"
+                                className="group bg-zinc-100 dark:bg-zinc-800 rounded-full hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors flex items-center gap-2"
+                                style={{ padding: "0.6rem 1.25rem" }}
                             >
-                                <span className="text-sm font-mono uppercase tracking-widest text-[var(--accent)]">GitHub</span>
-                                <ArrowRight className="w-3 h-3 opacity-0 -ml-2 group-hover:opacity-100 group-hover:ml-0 transition-all" />
+                                <span className="text-sm font-mono uppercase tracking-widest text-zinc-600 dark:text-zinc-400 group-hover:text-zinc-900 dark:group-hover:text-zinc-200 transition-colors">GitHub</span>
+                                <ArrowRight className="w-3.5 h-3.5 text-zinc-400 group-hover:text-zinc-900 dark:group-hover:text-zinc-200 transition-colors -rotate-45 group-hover:rotate-0" />
                             </a>
                         </div>
                     </motion.div>
