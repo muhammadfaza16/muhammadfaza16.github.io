@@ -1,12 +1,19 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { usePathname } from "next/navigation";
 import { useZen } from "./ZenContext";
 import { Eye, EyeOff } from "lucide-react";
 
 export function FloatingZenToggle() {
     const { isZen, toggleZen } = useZen();
     const [isVisible, setIsVisible] = useState(false);
+    const pathname = usePathname();
+
+    // Only show on blog article pages (e.g. /blog/something), not on the main list (/blog)
+    const isBlogArticle = pathname?.startsWith("/blog/") && pathname !== "/blog";
+
+    if (!isBlogArticle) return null;
 
     useEffect(() => {
         const handleScroll = () => {

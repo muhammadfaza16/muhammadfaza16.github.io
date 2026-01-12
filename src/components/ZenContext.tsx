@@ -1,6 +1,7 @@
 "use client";
 
 import React, { createContext, useContext, useState, useEffect } from "react";
+import { usePathname } from "next/navigation";
 
 interface ZenContextType {
     isZen: boolean;
@@ -20,6 +21,12 @@ export function useZen() {
 
 export function ZenProvider({ children }: { children: React.ReactNode }) {
     const [isZen, setIsZen] = useState(false);
+    const pathname = usePathname();
+
+    // Reset Zen mode on route change
+    useEffect(() => {
+        setIsZen(false);
+    }, [pathname]);
 
     // Escape key to exit Zen mode
     useEffect(() => {
