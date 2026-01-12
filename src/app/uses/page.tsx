@@ -1,198 +1,134 @@
 import { Container } from "@/components/Container";
-import { Disclaimer } from "@/components/Disclaimer";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
     title: "Uses | The Almanac of Broken Wanderer",
-    description: "Daftar alat tempur: hardware, software, dan desk setup.",
+    description: "Alat, software, dan hardware yang saya gunakan sehari-hari.",
 };
 
-const categories = [
+const gear = [
     {
-        name: "Hardware",
+        category: "Hardware",
         items: [
-            {
-                title: "MacBook Pro 14\" M3 Pro",
-                description: "Daily driver untuk coding dan segala pekerjaan. Performanya luar biasa untuk development.",
-            },
-            {
-                title: "Dell UltraSharp 27\" 4K Monitor",
-                description: "External monitor untuk produktivitas. Color accuracy yang bagus untuk design work.",
-            },
-            {
-                title: "Keychron K2 Pro",
-                description: "Mechanical keyboard dengan switch Gateron Brown. Perfect balance antara tactile dan noise.",
-            },
-            {
-                title: "Logitech MX Master 3S",
-                description: "Mouse yang ergonomis dengan gesture control. Sudah 3 tahun dan masih awet.",
-            },
-            {
-                title: "Sony WH-1000XM5",
-                description: "Noise cancelling headphone untuk fokus kerja. ANC-nya top tier.",
-            },
-        ],
+            { name: "MacBook Pro 14", description: "M3 Pro, Space Black. The perfect balance of power and portability." },
+            { name: "HHKB Professional Hybrid", description: "Topre switches. Once you go clack, you never go back." },
+            { name: "MX Master 3S", description: "Standard issue for productivity." },
+        ]
     },
     {
-        name: "Development",
+        category: "Software",
         items: [
-            {
-                title: "VS Code",
-                description: "Main editor untuk semua jenis development. Dengan extension yang curated.",
-            },
-            {
-                title: "Warp Terminal",
-                description: "Terminal modern dengan AI assistant. Game changer untuk CLI workflow.",
-            },
-            {
-                title: "GitHub Copilot",
-                description: "AI pair programmer yang sudah jadi bagian essential dari workflow.",
-            },
-            {
-                title: "Docker Desktop",
-                description: "Untuk containerization dan local development environment.",
-            },
-            {
-                title: "Postman",
-                description: "API testing dan documentation. Kolaborasi dengan tim jadi lebih mudah.",
-            },
-        ],
-    },
-    {
-        name: "Apps & Productivity",
-        items: [
-            {
-                title: "Raycast",
-                description: "Spotlight replacement yang supercharge Mac workflow. Extensions-nya powerful.",
-            },
-            {
-                title: "Notion",
-                description: "Second brain untuk notes, docs, dan project management.",
-            },
-            {
-                title: "Arc Browser",
-                description: "Browser yang reimagine cara kita browsing. Tab management yang brilliant.",
-            },
-            {
-                title: "Obsidian",
-                description: "Untuk personal knowledge management dan journaling.",
-            },
-            {
-                title: "Figma",
-                description: "Design tool untuk UI/UX dan brainstorming visual.",
-            },
-        ],
-    },
-    {
-        name: "Desk Setup",
-        items: [
-            {
-                title: "IKEA BEKANT Desk",
-                description: "Standing desk yang adjustable. Berganti posisi tiap beberapa jam.",
-            },
-            {
-                title: "Herman Miller Aeron",
-                description: "Investment untuk kesehatan punggung. Worth every penny.",
-            },
-            {
-                title: "Elgato Key Light",
-                description: "Untuk video calls dan content creation. Pencahayaan yang proper.",
-            },
-            {
-                title: "Rain Design mStand",
-                description: "Laptop stand yang elevate MacBook ke eye level.",
-            },
-        ],
-    },
+            { name: "VS Code", description: "With GitHub Copilot and VIM bindings." },
+            { name: "Arc Browser", description: "The operating system of the web." },
+            { name: "Obsidian", description: "Second brain. Local markdown files 4ever." },
+        ]
+    }
 ];
 
 export default function UsesPage() {
     return (
-        <section style={{ paddingTop: "15vh", paddingBottom: "10rem" }}>
-            <Container>
-                <div className="animate-fade-in" style={{ maxWidth: "65ch", margin: "0 auto" }}>
-
-                    <header style={{ marginBottom: "8rem", textAlign: "center" }}>
+        <div style={{ paddingBottom: "8rem" }}>
+            <section style={{
+                minHeight: "50vh",
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "center",
+                paddingTop: "8rem",
+                paddingBottom: "4rem"
+            }}>
+                <Container>
+                    <div className="animate-fade-in-up">
+                        <span style={{
+                            fontFamily: "var(--font-mono)",
+                            fontSize: "0.9rem",
+                            color: "var(--accent)",
+                            display: "block",
+                            marginBottom: "1.5rem",
+                            textTransform: "uppercase",
+                            letterSpacing: "0.1em"
+                        }}>
+                            The Studio
+                        </span>
                         <h1 style={{
                             fontFamily: "'Playfair Display', serif",
-                            fontSize: "clamp(4rem, 12vw, 8rem)",
+                            fontSize: "clamp(3rem, 6vw, 5rem)",
                             fontWeight: 400,
-                            letterSpacing: "-0.05em",
-                            lineHeight: 0.9,
-                            marginBottom: "3rem",
-                            color: "var(--foreground)"
+                            letterSpacing: "-0.03em",
+                            lineHeight: 1,
+                            color: "var(--foreground)",
+                            maxWidth: "18ch"
                         }}>
-                            Uses.
+                            Tools for the craft.
                         </h1>
-                        <p style={{
-                            fontFamily: "'Source Serif 4', serif",
-                            fontSize: "1.25rem",
-                            lineHeight: 1.4,
-                            color: "var(--text-secondary)",
-                            maxWidth: "40rem",
-                            margin: "0 auto",
-                            fontStyle: "italic"
-                        }}>
-                            Tools of the trade.
-                        </p>
-                    </header>
+                    </div>
+                </Container>
+            </section>
 
-                    <div className="mb-16">
-                        <Disclaimer>
-                            Konten di halaman ini masih berupa dummy/placeholder.
-                        </Disclaimer>
+            <Container>
+                <div className="animate-fade-in animation-delay-300" style={{ maxWidth: "55rem" }}>
+
+                    {/* Disclaimer */}
+                    <div style={{
+                        padding: "1rem",
+                        marginBottom: "4rem",
+                        background: "rgba(var(--foreground-rgb), 0.05)",
+                        border: "1px solid var(--border)",
+                        borderRadius: "12px",
+                        fontFamily: "var(--font-mono)",
+                        fontSize: "0.8rem",
+                        color: "var(--text-secondary)",
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "1rem"
+                    }}>
+                        <span style={{ fontSize: "1.25rem" }}>⚠️</span>
+                        <div>
+                            <strong style={{ color: "var(--foreground)", display: "block", marginBottom: "0.25rem" }}>Notice</strong>
+                            The data below is currently placeholder content for demonstration purposes.
+                        </div>
                     </div>
 
-                    {/* Categories */}
-                    <div style={{ display: "flex", flexDirection: "column", gap: "8rem" }}>
-                        {categories.map((category) => (
-                            <section key={category.name}>
-                                <h2 style={{
-                                    fontFamily: "'Playfair Display', serif",
-                                    fontSize: "2rem",
-                                    fontWeight: 400,
-                                    marginBottom: "3rem",
-                                    textAlign: "center"
-                                }}>
-                                    {category.name}
-                                </h2>
-                                <ul style={{ listStyle: "none", padding: 0, display: "flex", flexDirection: "column", gap: "2.5rem" }}>
-                                    {category.items.map((item) => (
-                                        <li key={item.title}>
-                                            <h3 style={{
-                                                fontFamily: "'Source Serif 4', serif",
-                                                fontSize: "1.25rem",
-                                                fontWeight: 500,
-                                                marginBottom: "0.5rem",
-                                                color: "var(--foreground)"
-                                            }}>
-                                                {item.title}
-                                            </h3>
-                                            <p style={{
-                                                fontSize: "1.1rem",
-                                                color: "var(--text-secondary)",
-                                                lineHeight: 1.6,
-                                                fontFamily: "'Source Serif 4', serif"
-                                            }}>
-                                                {item.description}
-                                            </p>
-                                        </li>
-                                    ))}
-                                </ul>
-                            </section>
-                        ))}
-                    </div>
-
-                    {/* Footer note */}
-                    <footer style={{ marginTop: "8rem", paddingTop: "2rem", borderTop: "1px solid var(--border)", textAlign: "center" }}>
-                        <p style={{ fontSize: "1rem", color: "var(--text-secondary)", lineHeight: 1.6, fontFamily: "'Source Serif 4', serif" }}>
-                            Halaman ini terinspirasi oleh gerakan <a href="https://uses.tech" target="_blank" rel="noopener noreferrer" className="link-underline" style={{ color: "var(--foreground)" }}>/uses</a>.<br />
-                            Semua produk di sini adalah yang benar-benar saya gunakan.
-                        </p>
-                    </footer>
-
+                    {gear.map((section, i) => (
+                        <div key={i} style={{ marginBottom: "6rem" }}>
+                            <h2 style={{
+                                fontFamily: "'Playfair Display', serif",
+                                fontSize: "1.75rem",
+                                marginBottom: "2.5rem",
+                                borderBottom: "1px solid var(--border)",
+                                paddingBottom: "1rem",
+                                display: "inline-block"
+                            }}>
+                                {section.category}
+                            </h2>
+                            <div style={{
+                                display: "grid",
+                                gridTemplateColumns: "repeat(auto-fill, minmax(250px, 1fr))",
+                                gap: "3rem"
+                            }}>
+                                {section.items.map((item, j) => (
+                                    <div key={j}>
+                                        <h3 style={{
+                                            fontFamily: "'Source Serif 4', serif",
+                                            fontSize: "1.25rem",
+                                            marginBottom: "0.75rem",
+                                            fontWeight: 500
+                                        }}>
+                                            {item.name}
+                                        </h3>
+                                        <p style={{
+                                            fontSize: "1rem",
+                                            color: "var(--text-secondary)",
+                                            lineHeight: 1.6
+                                        }}>
+                                            {item.description}
+                                        </p>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    ))}
                 </div>
             </Container>
-        </section>
+        </div>
     );
 }
