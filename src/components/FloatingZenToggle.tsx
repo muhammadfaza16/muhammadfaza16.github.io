@@ -62,7 +62,7 @@ export function FloatingZenToggle() {
                 transform: isVisible ? "translateY(0)" : "translateY(20px)",
                 pointerEvents: isVisible ? "auto" : "none",
             }}
-            className="hover:shadow-lg hover:-translate-y-1 active:scale-95 glass p-3 md:py-3 md:px-5"
+            className="zen-toggle-button hover:shadow-lg hover:-translate-y-1 active:scale-95 glass p-3 md:py-3 md:px-5"
             aria-label="Toggle Read Mode"
         >
             <Eye size={18} />
