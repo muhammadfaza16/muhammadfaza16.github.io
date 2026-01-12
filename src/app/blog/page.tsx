@@ -11,17 +11,34 @@ export default function BlogPage() {
     const posts = getAllPosts();
 
     return (
-        <section>
+        <section style={{ paddingTop: "12vh", paddingBottom: "8rem" }}>
             <Container>
-                <div className="py-24">
-                    <header className="mb-20">
-                        <h1 className="text-4xl md:text-5xl font-serif font-medium mb-6">Writing</h1>
-                        <p className="text-xl text-[var(--text-secondary)] max-w-2xl leading-relaxed">
+                <div className="animate-fade-in">
+                    <header style={{ marginBottom: "6rem" }}>
+                        <h1 style={{
+                            fontFamily: "'Playfair Display', serif",
+                            fontSize: "clamp(3.5rem, 10vw, 7.5rem)",
+                            fontWeight: 400,
+                            letterSpacing: "-0.04em",
+                            lineHeight: 0.95,
+                            marginBottom: "2rem",
+                            color: "var(--foreground)",
+                            maxWidth: "15ch"
+                        }}>
+                            Writing
+                        </h1>
+                        <p style={{
+                            fontFamily: "'Source Serif 4', serif",
+                            fontSize: "1.25rem",
+                            color: "var(--text-secondary)",
+                            maxWidth: "40rem",
+                            lineHeight: 1.6
+                        }}>
                             Random thoughts, half-baked ideas, dan segala yang keburu diketik sebelum lupa.
                         </p>
                     </header>
 
-                    <div className="flex flex-col">
+                    <div style={{ display: "flex", flexDirection: "column" }}>
                         {posts.map((post) => (
                             <PostCard
                                 key={post.slug}

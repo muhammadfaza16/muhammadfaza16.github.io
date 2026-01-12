@@ -1,4 +1,5 @@
 import { Container } from "@/components/Container";
+import { Disclaimer } from "@/components/Disclaimer";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -6,17 +7,16 @@ export const metadata: Metadata = {
     description: "Timeline perjalanan karir dan hidup saya.",
 };
 
-const DISCLAIMER = <span style={{ opacity: 0.7 }}>📝 Konten di halaman ini masih berupa dummy/placeholder. Akan segera diperbarui dengan data asli.</span>;
-
 const timeline = [
     {
         year: "2026",
         events: [
             {
                 month: "Jan",
-                title: "Launched Personal Blog",
-                description: "Memulai The Almanac of Broken Wanderer sebagai ruang untuk berbagi pemikiran dan catatan.",
-                type: "project" as const,
+                title: "Personal Blog Launch",
+                description: "Akhirnya rilis The Almanac! Bukan sekadar portfolio, tapi ruang berekspresi tanpa algoritma. Built with Next.js & unpolished thoughts.",
+                type: "Project",
+                color: "var(--foreground)"
             },
         ]
     },
@@ -25,21 +25,24 @@ const timeline = [
         events: [
             {
                 month: "Dec",
-                title: "Started Learning Agentic AI",
-                description: "Mendalami konsep AI agents dan penerapannya dalam software engineering.",
-                type: "learning" as const,
+                title: "Exploring Agentic AI",
+                description: "Mulai deep dive ke pattern AI agents. Ternyata lebih dari sekadar chatbot; ini masa depan autonomous workflow.",
+                type: "Learning",
+                color: "#9333ea" // Purple
             },
             {
                 month: "Aug",
-                title: "Promoted to Senior Engineer",
-                description: "Naik level setelah 2 tahun kontribusi di tim backend.",
-                type: "career" as const,
+                title: "Senior Engineer Promotion",
+                description: "Naik level jadi Senior. Coding berkurang, meeting bertambah, tapi impact makin luas. Shifting focus ke system design.",
+                type: "Career",
+                color: "#d97706" // Amber
             },
             {
                 month: "Mar",
-                title: "First Open Source Contribution",
-                description: "Kontribusi pertama ke project open source populer.",
-                type: "project" as const,
+                title: "Open Source Contribution",
+                description: "PR pertama merge ke major OSS project. Deg-degan tapi puas rasanya bisa contribute back ke tools yang dipakai tiap hari.",
+                type: "Project",
+                color: "var(--foreground)"
             },
         ]
     },
@@ -48,21 +51,24 @@ const timeline = [
         events: [
             {
                 month: "Nov",
-                title: "Completed Clean Architecture Book",
-                description: "Selesai membaca dan mengimplementasi prinsip-prinsip dari buku Uncle Bob.",
-                type: "learning" as const,
+                title: "Clean Architecture Implementation",
+                description: "Selesai refactor legacy core system pakai Clean Arch. Testability naik drastis, tidur jadi lebih nyenyak.",
+                type: "Learning",
+                color: "#9333ea"
             },
             {
                 month: "Jun",
-                title: "Joined New Company",
-                description: "Pindah ke perusahaan tech startup sebagai Software Engineer.",
-                type: "career" as const,
+                title: "Joined Tech Startup",
+                description: "Pindah ke environment startup yang fast-paced. Tech stack modern, kultur sat-set, dan challenge baru.",
+                type: "Career",
+                color: "#d97706"
             },
             {
                 month: "Feb",
-                title: "Built First SaaS Product",
-                description: "Merilis produk SaaS pertama sebagai side project.",
-                type: "project" as const,
+                title: "First SaaS Revenue",
+                description: "Iseng bikin side project, eh ada yang bayar. $10 pertama yang rasanya lebih manis dari gaji bulanan. Validation milestone unlocked.",
+                type: "Project",
+                color: "var(--foreground)"
             },
         ]
     },
@@ -71,166 +77,176 @@ const timeline = [
         events: [
             {
                 month: "Sep",
-                title: "Started Tech Blog Writing",
-                description: "Mulai menulis artikel teknis di Medium dan personal blog.",
-                type: "milestone" as const,
+                title: "Technical Writing",
+                description: "Mulai rutin nulis artikel teknis di Medium. Documenting my ignorance in public.",
+                type: "Milestone",
+                color: "#16a34a" // Green
             },
             {
                 month: "Jan",
-                title: "Graduated from University",
-                description: "Lulus S1 Informatika dengan fokus pada Software Engineering.",
-                type: "milestone" as const,
+                title: "University Graduation",
+                description: "Lulus S1 Informatika. Bye-bye tugas akhir, hello real world problems.",
+                type: "Milestone",
+                color: "#16a34a"
             },
         ]
     },
 ];
 
-const typeConfig = {
-    career: { emoji: "💼", color: "#3b82f6" },
-    project: { emoji: "🚀", color: "#22c55e" },
-    learning: { emoji: "📚", color: "#f59e0b" },
-    milestone: { emoji: "🏆", color: "#a855f7" },
-};
-
 export default function ChangelogPage() {
     return (
-        <Container>
-            <div className="animate-fade-in-up" style={{ maxWidth: "50rem", marginTop: "2rem", marginBottom: "6rem" }}>
+        <section style={{ paddingTop: "15vh", paddingBottom: "10rem" }}>
+            <Container>
+                <div className="animate-fade-in" style={{ maxWidth: "60rem", margin: "0 auto" }}>
 
-                <header style={{ marginBottom: "3rem" }}>
-                    <span style={{
-                        fontFamily: "var(--font-mono)",
-                        fontSize: "0.85rem",
-                        color: "var(--text-secondary)",
-                        textTransform: "uppercase",
-                        letterSpacing: "0.1em",
-                        display: "block",
-                        marginBottom: "0.5rem"
-                    }}>
-                        Personal Changelog
-                    </span>
-                    <h1 style={{
-                        fontSize: "clamp(2.5rem, 5vw, 3.5rem)",
-                        fontWeight: 700,
-                        color: "var(--foreground)"
-                    }}>
-                        Changelog
-                    </h1>
-                    <p style={{
-                        marginTop: "1rem",
-                        color: "var(--text-secondary)",
-                        lineHeight: 1.6,
-                        maxWidth: "35rem"
-                    }}>
-                        Timeline perjalanan karir, project, dan milestone penting dalam hidup saya. Seperti changelog software, tapi untuk manusia.
-                    </p>
-                </header>
+                    <header style={{ marginBottom: "8rem", textAlign: "center" }}>
+                        <h1 style={{
+                            fontFamily: "'Playfair Display', serif",
+                            fontSize: "clamp(3.5rem, 8vw, 6rem)",
+                            fontWeight: 700,
+                            letterSpacing: "-0.02em",
+                            lineHeight: 1,
+                            marginBottom: "2rem",
+                            color: "var(--foreground)"
+                        }}>
+                            Changelog.
+                        </h1>
+                        <p style={{
+                            fontFamily: "'Source Serif 4', serif",
+                            fontSize: "1.25rem",
+                            lineHeight: 1.6,
+                            color: "var(--text-secondary)",
+                            maxWidth: "40rem",
+                            margin: "0 auto",
+                            fontStyle: "italic"
+                        }}>
+                            A living history. Milestones, bugs fixed, and lessons learned along the way.
+                        </p>
+                    </header>
 
-                {/* Disclaimer */}
-                <div style={{
-                    padding: "1rem 1.5rem",
-                    backgroundColor: "var(--hover-bg)",
-                    border: "1px dashed var(--border)",
-                    borderRadius: "8px",
-                    marginBottom: "3rem",
-                    fontSize: "0.9rem",
-                    color: "var(--text-secondary)"
-                }}>
-                    {DISCLAIMER}
-                </div>
+                    <div className="mb-16">
+                        <Disclaimer>
+                            Konten di halaman ini masih berupa dummy/placeholder, tapi vibe-nya udah dapet.
+                        </Disclaimer>
+                    </div>
 
-                {/* Legend */}
-                <div style={{
-                    display: "flex",
-                    gap: "1.5rem",
-                    marginBottom: "3rem",
-                    flexWrap: "wrap"
-                }}>
-                    {Object.entries(typeConfig).map(([key, config]) => (
-                        <span key={key} style={{ fontSize: "0.85rem", color: "var(--text-secondary)", display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                            {config.emoji} {key.charAt(0).toUpperCase() + key.slice(1)}
-                        </span>
-                    ))}
-                </div>
+                    {/* Timeline */}
+                    <div style={{ position: "relative", paddingLeft: "1rem" }}>
+                        {/* Continuous Vertical Line */}
+                        <div style={{
+                            position: "absolute",
+                            top: 0,
+                            bottom: 0,
+                            left: "2rem",
+                            width: "1px",
+                            backgroundColor: "var(--border)",
+                            zIndex: -1
+                        }} />
 
-                {/* Timeline */}
-                <div style={{ position: "relative" }}>
-                    {/* Vertical Line */}
-                    <div style={{
-                        position: "absolute",
-                        left: "0.5rem",
-                        top: "2rem",
-                        bottom: "2rem",
-                        width: "2px",
-                        backgroundColor: "var(--border)"
-                    }} />
-
-                    {timeline.map((yearData) => (
-                        <div key={yearData.year} style={{ marginBottom: "3rem" }}>
-                            <h2 style={{
-                                fontFamily: "var(--font-mono)",
-                                fontSize: "1.5rem",
-                                fontWeight: 700,
-                                marginBottom: "1.5rem",
-                                paddingLeft: "2rem",
-                                color: "var(--foreground)"
-                            }}>
-                                {yearData.year}
-                            </h2>
-
-                            <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
-                                {yearData.events.map((event, idx) => {
-                                    const type = typeConfig[event.type];
-                                    return (
-                                        <div key={idx} style={{ display: "flex", gap: "1rem", position: "relative" }}>
-                                            {/* Dot */}
-                                            <div style={{
-                                                width: "1rem",
-                                                height: "1rem",
+                        <div style={{ display: "flex", flexDirection: "column", gap: "6rem" }}>
+                            {timeline.map((yearData) => (
+                                <section key={yearData.year}>
+                                    <div style={{
+                                        display: "flex",
+                                        alignItems: "center",
+                                        gap: "2rem",
+                                        marginBottom: "3rem"
+                                    }}>
+                                        <div style={{
+                                            width: "2rem", // Aligns with the vertical line
+                                            display: "flex",
+                                            justifyContent: "center"
+                                        }}>
+                                            <span style={{
+                                                width: "8px",
+                                                height: "8px",
+                                                backgroundColor: "var(--foreground)",
                                                 borderRadius: "50%",
-                                                backgroundColor: type.color,
-                                                flexShrink: 0,
-                                                marginTop: "0.25rem",
-                                                zIndex: 1,
-                                                border: "3px solid var(--background)"
+                                                boxShadow: "0 0 0 4px var(--background)" // Masking effect
                                             }} />
-
-                                            {/* Content */}
-                                            <div style={{
-                                                flex: 1,
-                                                padding: "1.25rem",
-                                                borderRadius: "8px",
-                                                backgroundColor: "var(--card-bg)",
-                                                border: "1px solid var(--border)"
-                                            }}>
-                                                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "0.5rem" }}>
-                                                    <h3 style={{ fontSize: "1rem", fontWeight: 600 }}>
-                                                        {type.emoji} {event.title}
-                                                    </h3>
-                                                    <span style={{
-                                                        fontSize: "0.75rem",
-                                                        fontFamily: "var(--font-mono)",
-                                                        color: "var(--text-secondary)",
-                                                        backgroundColor: "var(--hover-bg)",
-                                                        padding: "0.25rem 0.5rem",
-                                                        borderRadius: "4px"
-                                                    }}>
-                                                        {event.month}
-                                                    </span>
-                                                </div>
-                                                <p style={{ fontSize: "0.9rem", color: "var(--text-secondary)", lineHeight: 1.5 }}>
-                                                    {event.description}
-                                                </p>
-                                            </div>
                                         </div>
-                                    );
-                                })}
-                            </div>
-                        </div>
-                    ))}
-                </div>
+                                        <h2 style={{
+                                            fontFamily: "'Playfair Display', serif",
+                                            fontSize: "2.5rem",
+                                            fontWeight: 700,
+                                            color: "var(--foreground)"
+                                        }}>
+                                            {yearData.year}
+                                        </h2>
+                                    </div>
 
-            </div>
-        </Container>
+                                    <div style={{ display: "flex", flexDirection: "column", gap: "2rem", paddingLeft: "3.5rem" }}>
+                                        {yearData.events.map((event, idx) => {
+                                            return (
+                                                <div key={idx} className="group" style={{
+                                                    display: "grid",
+                                                    gridTemplateColumns: "1fr",
+                                                    gap: "1.5rem",
+                                                    position: "relative",
+                                                    padding: "1.5rem",
+                                                    // No card background, clean look
+                                                }}>
+                                                    <div style={{ display: "flex", gap: "1.5rem", alignItems: "flex-start" }}>
+                                                        <div style={{ flex: 1 }}>
+                                                            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: "0.5rem" }}>
+                                                                <h3 style={{
+                                                                    fontFamily: "'Playfair Display', serif",
+                                                                    fontSize: "1.5rem",
+                                                                    fontWeight: 600,
+                                                                    color: "var(--foreground)",
+                                                                    lineHeight: 1.2
+                                                                }}>
+                                                                    {event.title}
+                                                                </h3>
+                                                                <span style={{
+                                                                    fontFamily: "var(--font-mono)",
+                                                                    fontSize: "0.85rem",
+                                                                    color: "var(--text-secondary)",
+                                                                    textTransform: "uppercase",
+                                                                    letterSpacing: "0.05em",
+                                                                    fontWeight: 600
+                                                                }}>
+                                                                    {event.month}
+                                                                </span>
+                                                            </div>
+
+                                                            <p style={{
+                                                                fontSize: "1.1rem",
+                                                                color: "var(--text-secondary)",
+                                                                lineHeight: 1.6,
+                                                                fontFamily: "'Source Serif 4', serif"
+                                                            }}>
+                                                                {event.description}
+                                                            </p>
+
+                                                            <div style={{ marginTop: "0.5rem", display: "flex", gap: "0.5rem" }}>
+                                                                <span style={{
+                                                                    fontFamily: "var(--font-mono)",
+                                                                    fontSize: "0.75rem",
+                                                                    color: event.color.includes('text-') ? "var(--text-secondary)" : event.color, // Fallback for color string format
+                                                                    fontWeight: 600,
+                                                                    textTransform: "uppercase"
+                                                                }}>
+                                                                    {event.type}
+                                                                </span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+                                </section>
+                            ))}
+                        </div>
+                    </div>
+
+                    <footer style={{ marginTop: "8rem", textAlign: "center", opacity: 0.5, fontSize: "0.9rem" }}>
+                        {/* Disclaimer moved to top */}
+                    </footer>
+
+                </div>
+            </Container>
+        </section>
     );
 }

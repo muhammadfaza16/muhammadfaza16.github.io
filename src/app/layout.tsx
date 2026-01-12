@@ -4,8 +4,8 @@ import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { SkipLink } from "@/components/SkipLink";
-import { ScrollToTop } from "@/components/ScrollToTop";
 import { KonamiCode } from "@/components/KonamiCode";
+import { FloatingZenToggle } from "@/components/FloatingZenToggle";
 
 export const metadata: Metadata = {
   title: "The Almanac of Broken Wanderer.",
@@ -49,7 +49,7 @@ export default function RootLayout({
 
   return (
     <html lang="en" suppressHydrationWarning>
-      <body style={{ minHeight: "100dvh", display: "flex", flexDirection: "column" }}>
+      <body style={{ minHeight: "100svh", display: "flex", flexDirection: "column" }}>
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
@@ -57,8 +57,8 @@ export default function RootLayout({
         <ThemeProvider>
           <ZenProvider>
             <SkipLink />
-            <ScrollToTop />
             <KonamiCode />
+            <FloatingZenToggle />
             <Header />
             <main id="main-content" className="main-content-padding" style={{ flex: 1 }}>
               {children}

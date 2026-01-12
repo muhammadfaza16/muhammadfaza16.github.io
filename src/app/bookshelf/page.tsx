@@ -1,12 +1,11 @@
 import { Container } from "@/components/Container";
+import { Disclaimer } from "@/components/Disclaimer";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
     title: "Bookshelf | The Almanac of Broken Wanderer",
     description: "Koleksi buku yang telah dan sedang saya baca.",
 };
-
-const DISCLAIMER = "📚 Konten di halaman ini masih berupa dummy/placeholder. Akan segera diperbarui dengan data asli.";
 
 const books = {
     currentlyReading: [
@@ -67,153 +66,195 @@ const books = {
 
 function StarRating({ rating }: { rating: number }) {
     return (
-        <span style={{ color: "var(--accent)", letterSpacing: "2px" }}>
-            {"★".repeat(rating)}{"☆".repeat(5 - rating)}
+        <span style={{
+            color: "var(--foreground)",
+            opacity: 0.6,
+            fontSize: "0.8rem",
+            letterSpacing: "1px",
+            fontFamily: "var(--font-mono)"
+        }}>
+            {"★".repeat(rating)}
         </span>
     );
 }
 
 export default function BookshelfPage() {
     return (
-        <Container>
-            <div className="animate-fade-in-up" style={{ maxWidth: "50rem", marginTop: "2rem", marginBottom: "6rem" }}>
+        <section style={{ paddingTop: "15vh", paddingBottom: "10rem" }}>
+            <Container>
+                <div className="animate-fade-in" style={{ maxWidth: "65ch", margin: "0 auto" }}>
 
-                <header style={{ marginBottom: "3rem" }}>
-                    <span style={{
-                        fontFamily: "var(--font-mono)",
-                        fontSize: "0.85rem",
-                        color: "var(--text-secondary)",
-                        textTransform: "uppercase",
-                        letterSpacing: "0.1em",
-                        display: "block",
-                        marginBottom: "0.5rem"
-                    }}>
-                        My Reading Journey
-                    </span>
-                    <h1 style={{
-                        fontSize: "clamp(2.5rem, 5vw, 3.5rem)",
-                        fontWeight: 700,
-                        color: "var(--foreground)"
-                    }}>
-                        Bookshelf
-                    </h1>
-                </header>
+                    <header style={{ marginBottom: "6rem", textAlign: "center" }}>
+                        <h1 style={{
+                            fontFamily: "'Playfair Display', serif",
+                            fontSize: "clamp(4rem, 12vw, 8rem)",
+                            fontWeight: 400,
+                            letterSpacing: "-0.05em",
+                            lineHeight: 0.9,
+                            marginBottom: "3rem",
+                            color: "var(--foreground)"
+                        }}>
+                            Bookshelf.
+                        </h1>
+                        <p style={{
+                            fontFamily: "'Source Serif 4', serif",
+                            fontSize: "1.25rem",
+                            lineHeight: 1.4,
+                            color: "var(--text-secondary)",
+                            maxWidth: "40rem",
+                            margin: "0 auto",
+                            fontStyle: "italic"
+                        }}>
+                            Notes on what I read.
+                        </p>
+                    </header>
 
-                {/* Disclaimer */}
-                <div style={{
-                    padding: "1rem 1.5rem",
-                    backgroundColor: "var(--hover-bg)",
-                    border: "1px dashed var(--border)",
-                    borderRadius: "8px",
-                    marginBottom: "3rem",
-                    fontSize: "0.9rem",
-                    color: "var(--text-secondary)"
-                }}>
-                    {DISCLAIMER}
-                </div>
-
-                {/* Currently Reading */}
-                <section style={{ marginBottom: "4rem" }}>
-                    <h2 style={{
-                        fontFamily: "var(--font-mono)",
-                        fontSize: "1.25rem",
-                        marginBottom: "1.5rem",
-                        borderBottom: "1px solid var(--border)",
-                        paddingBottom: "0.5rem"
-                    }}>
-                        📖 Currently Reading
-                    </h2>
-                    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: "1.5rem" }}>
-                        {books.currentlyReading.map((book, i) => (
-                            <div key={i} style={{
-                                padding: "1.5rem",
-                                borderRadius: "8px",
-                                backgroundColor: "var(--card-bg)",
-                                border: "1px solid var(--border)"
-                            }}>
-                                <span style={{ fontSize: "2rem" }}>{book.cover}</span>
-                                <h3 style={{ fontSize: "1.1rem", fontWeight: 600, marginTop: "0.75rem", marginBottom: "0.25rem" }}>
-                                    {book.title}
-                                </h3>
-                                <p style={{ fontSize: "0.9rem", color: "var(--text-secondary)" }}>{book.author}</p>
-                                <div style={{ marginTop: "1rem", height: "4px", width: "100%", backgroundColor: "var(--border)", borderRadius: "2px" }}>
-                                    <div style={{ height: "100%", width: `${book.progress}%`, backgroundColor: "var(--foreground)", borderRadius: "2px" }}></div>
-                                </div>
-                                <p style={{ fontSize: "0.75rem", textAlign: "right", marginTop: "0.5rem", opacity: 0.6 }}>{book.progress}%</p>
-                            </div>
-                        ))}
+                    <div className="mb-16">
+                        <Disclaimer>
+                            Konten di halaman ini masih berupa dummy/placeholder.
+                        </Disclaimer>
                     </div>
-                </section>
 
-                {/* Finished 2025 */}
-                <section style={{ marginBottom: "4rem" }}>
-                    <h2 style={{
-                        fontFamily: "var(--font-mono)",
-                        fontSize: "1.25rem",
-                        marginBottom: "1.5rem",
-                        borderBottom: "1px solid var(--border)",
-                        paddingBottom: "0.5rem"
-                    }}>
-                        ✅ Finished in 2025
-                    </h2>
-                    <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
-                        {books.finished2025.map((book, i) => (
-                            <div key={i} style={{
-                                padding: "1.5rem",
-                                borderRadius: "8px",
-                                backgroundColor: "var(--card-bg)",
-                                border: "1px solid var(--border)",
-                                display: "flex",
-                                gap: "1.5rem",
-                                alignItems: "flex-start"
-                            }}>
-                                <span style={{ fontSize: "2.5rem" }}>{book.cover}</span>
-                                <div style={{ flex: 1 }}>
-                                    <h3 style={{ fontSize: "1.1rem", fontWeight: 600, marginBottom: "0.25rem" }}>{book.title}</h3>
-                                    <p style={{ fontSize: "0.9rem", color: "var(--text-secondary)", marginBottom: "0.5rem" }}>{book.author}</p>
-                                    <StarRating rating={book.rating} />
-                                    <p style={{ fontSize: "0.9rem", marginTop: "0.75rem", color: "var(--foreground)", opacity: 0.9, fontStyle: "italic" }}>
+                    {/* Currently Reading */}
+                    <section style={{ marginBottom: "8rem" }}>
+                        <h2 style={{
+                            fontFamily: "'Playfair Display', serif",
+                            fontSize: "2rem",
+                            fontWeight: 400,
+                            marginBottom: "3rem",
+                            textAlign: "center"
+                        }}>
+                            Reading
+                        </h2>
+                        <div style={{ display: "grid", gap: "2.5rem" }}>
+                            {books.currentlyReading.map((book, i) => (
+                                <div key={i} style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", borderBottom: "1px solid var(--border)", paddingBottom: "1.5rem" }}>
+                                    <div>
+                                        <h3 style={{
+                                            fontFamily: "'Source Serif 4', serif",
+                                            fontSize: "1.5rem",
+                                            fontWeight: 500,
+                                            marginBottom: "0.25rem",
+                                            color: "var(--foreground)"
+                                        }}>
+                                            {book.title}
+                                        </h3>
+                                        <p style={{ fontSize: "1rem", color: "var(--text-secondary)", fontFamily: "'Source Serif 4', serif" }}>by {book.author}</p>
+                                    </div>
+                                    <div style={{ textAlign: "right", minWidth: "100px" }}>
+                                        <span style={{ fontFamily: "var(--font-mono)", fontSize: "0.9rem", color: "var(--text-secondary)" }}>{book.progress}%</span>
+                                        <div style={{
+                                            height: "2px",
+                                            width: "100px",
+                                            backgroundColor: "var(--border)",
+                                            marginTop: "0.5rem",
+                                            position: "relative"
+                                        }}>
+                                            <div style={{
+                                                position: "absolute",
+                                                left: 0,
+                                                top: 0,
+                                                height: "100%",
+                                                width: `${book.progress}%`,
+                                                backgroundColor: "var(--foreground)"
+                                            }}></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </section>
+
+                    {/* Finished 2025 */}
+                    <section style={{ marginBottom: "8rem" }}>
+                        <h2 style={{
+                            fontFamily: "'Playfair Display', serif",
+                            fontSize: "2rem",
+                            fontWeight: 400,
+                            marginBottom: "3rem",
+                            textAlign: "center"
+                        }}>
+                            2025
+                        </h2>
+                        <div style={{ display: "flex", flexDirection: "column", gap: "3rem" }}>
+                            {books.finished2025.map((book, i) => (
+                                <div key={i}>
+                                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: "0.5rem" }}>
+                                        <h3 style={{
+                                            fontFamily: "'Source Serif 4', serif",
+                                            fontSize: "1.5rem",
+                                            fontWeight: 500,
+                                            color: "var(--foreground)"
+                                        }}>
+                                            {book.title}
+                                        </h3>
+                                        <StarRating rating={book.rating} />
+                                    </div>
+                                    <p style={{ fontSize: "1rem", color: "var(--text-secondary)", fontFamily: "'Source Serif 4', serif", marginBottom: "1rem" }}>by {book.author}</p>
+                                    <p style={{
+                                        fontSize: "1.1rem",
+                                        lineHeight: 1.6,
+                                        color: "var(--foreground)",
+                                        fontFamily: "'Source Serif 4', serif",
+                                        fontStyle: "italic",
+                                        opacity: 0.9
+                                    }}>
                                         "{book.review}"
                                     </p>
                                 </div>
-                            </div>
-                        ))}
-                    </div>
-                </section>
+                            ))}
+                        </div>
+                    </section>
 
-                {/* All-Time Favorites */}
-                <section>
-                    <h2 style={{
-                        fontFamily: "var(--font-mono)",
-                        fontSize: "1.25rem",
-                        marginBottom: "1.5rem",
-                        borderBottom: "1px solid var(--border)",
-                        paddingBottom: "0.5rem"
-                    }}>
-                        <span>❤️</span> All-Time Favorites
-                    </h2>
-                    <div style={{ display: "flex", flexWrap: "wrap", gap: "1rem" }}>
-                        {books.allTimeFavorites.map((book, i) => (
-                            <div key={i} style={{
-                                padding: "1rem 1.5rem",
-                                borderRadius: "8px",
-                                backgroundColor: "var(--card-bg)",
-                                border: "1px solid var(--border)",
-                                display: "flex",
-                                alignItems: "center",
-                                gap: "0.75rem"
-                            }}>
-                                <span style={{ fontSize: "1.5rem" }}>{book.cover}</span>
-                                <div>
-                                    <h3 style={{ fontSize: "1rem", fontWeight: 600 }}>{book.title}</h3>
-                                    <p style={{ fontSize: "0.8rem", color: "var(--text-secondary)" }}>{book.author}</p>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                </section>
+                    {/* All-Time Favorites */}
+                    <section>
+                        <h2 style={{
+                            fontFamily: "'Playfair Display', serif",
+                            fontSize: "2rem",
+                            fontWeight: 400,
+                            marginBottom: "3rem",
+                            textAlign: "center"
+                        }}>
+                            Favorites
+                        </h2>
+                        <ul style={{
+                            listStyle: "none",
+                            padding: 0,
+                            display: "flex",
+                            flexDirection: "column",
+                            gap: "1.5rem",
+                            textAlign: "center"
+                        }}>
+                            {books.allTimeFavorites.map((book, i) => (
+                                <li key={i}>
+                                    <span style={{
+                                        fontFamily: "'Source Serif 4', serif",
+                                        fontSize: "1.25rem",
+                                        color: "var(--foreground)"
+                                    }}>
+                                        {book.title}
+                                    </span>
+                                    <span style={{
+                                        display: "block",
+                                        fontFamily: "'Source Serif 4', serif",
+                                        fontSize: "1rem",
+                                        color: "var(--text-secondary)",
+                                        fontStyle: "italic",
+                                        marginTop: "0.25rem"
+                                    }}>
+                                        {book.author}
+                                    </span>
+                                </li>
+                            ))}
+                        </ul>
+                    </section>
 
-            </div>
-        </Container>
+                    <footer style={{ marginTop: "6rem", textAlign: "center", opacity: 0.5, fontSize: "0.9rem" }}>
+                        {/* Disclaimer moved to top */}
+                    </footer>
+
+                </div>
+            </Container>
+        </section>
     );
 }

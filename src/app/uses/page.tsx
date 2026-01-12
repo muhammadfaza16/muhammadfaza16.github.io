@@ -1,4 +1,5 @@
 import { Container } from "@/components/Container";
+import { Disclaimer } from "@/components/Disclaimer";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -6,11 +7,9 @@ export const metadata: Metadata = {
     description: "Daftar alat tempur: hardware, software, dan desk setup.",
 };
 
-const DISCLAIMER = "🛠️ Konten di halaman ini masih berupa dummy/placeholder. Akan segera diperbarui dengan data asli.";
-
 const categories = [
     {
-        name: "💻 Hardware",
+        name: "Hardware",
         items: [
             {
                 title: "MacBook Pro 14\" M3 Pro",
@@ -35,7 +34,7 @@ const categories = [
         ],
     },
     {
-        name: "🖥️ Development",
+        name: "Development",
         items: [
             {
                 title: "VS Code",
@@ -60,7 +59,7 @@ const categories = [
         ],
     },
     {
-        name: "📱 Apps & Productivity",
+        name: "Apps & Productivity",
         items: [
             {
                 title: "Raycast",
@@ -85,7 +84,7 @@ const categories = [
         ],
     },
     {
-        name: "🏠 Desk Setup",
+        name: "Desk Setup",
         items: [
             {
                 title: "IKEA BEKANT Desk",
@@ -109,100 +108,91 @@ const categories = [
 
 export default function UsesPage() {
     return (
-        <Container>
-            <div className="animate-fade-in-up" style={{ maxWidth: "50rem", marginTop: "2rem", marginBottom: "6rem" }}>
+        <section style={{ paddingTop: "15vh", paddingBottom: "10rem" }}>
+            <Container>
+                <div className="animate-fade-in" style={{ maxWidth: "65ch", margin: "0 auto" }}>
 
-                <header style={{ marginBottom: "3rem" }}>
-                    <span style={{
-                        fontFamily: "var(--font-mono)",
-                        fontSize: "0.85rem",
-                        color: "var(--text-secondary)",
-                        textTransform: "uppercase",
-                        letterSpacing: "0.1em",
-                        display: "block",
-                        marginBottom: "0.5rem"
-                    }}>
-                        My Setup
-                    </span>
-                    <h1 style={{
-                        fontSize: "clamp(2.5rem, 5vw, 3.5rem)",
-                        fontWeight: 700,
-                        color: "var(--foreground)"
-                    }}>
-                        Uses
-                    </h1>
-                    <p style={{
-                        marginTop: "1rem",
-                        color: "var(--text-secondary)",
-                        lineHeight: 1.6,
-                        maxWidth: "35rem"
-                    }}>
-                        Hardware, software, dan tools yang saya gunakan sehari-hari untuk bekerja dan berkarya.
-                    </p>
-                    <p style={{ marginTop: "0.75rem", fontSize: "0.9rem", color: "var(--text-secondary)", fontStyle: "italic" }}>
-                        Terakhir diperbarui: Januari 2026
-                    </p>
-                </header>
+                    <header style={{ marginBottom: "8rem", textAlign: "center" }}>
+                        <h1 style={{
+                            fontFamily: "'Playfair Display', serif",
+                            fontSize: "clamp(4rem, 12vw, 8rem)",
+                            fontWeight: 400,
+                            letterSpacing: "-0.05em",
+                            lineHeight: 0.9,
+                            marginBottom: "3rem",
+                            color: "var(--foreground)"
+                        }}>
+                            Uses.
+                        </h1>
+                        <p style={{
+                            fontFamily: "'Source Serif 4', serif",
+                            fontSize: "1.25rem",
+                            lineHeight: 1.4,
+                            color: "var(--text-secondary)",
+                            maxWidth: "40rem",
+                            margin: "0 auto",
+                            fontStyle: "italic"
+                        }}>
+                            Tools of the trade.
+                        </p>
+                    </header>
 
-                {/* Disclaimer */}
-                <div style={{
-                    padding: "1rem 1.5rem",
-                    backgroundColor: "var(--hover-bg)",
-                    border: "1px dashed var(--border)",
-                    borderRadius: "8px",
-                    marginBottom: "3rem",
-                    fontSize: "0.9rem",
-                    color: "var(--text-secondary)"
-                }}>
-                    {DISCLAIMER}
+                    <div className="mb-16">
+                        <Disclaimer>
+                            Konten di halaman ini masih berupa dummy/placeholder.
+                        </Disclaimer>
+                    </div>
+
+                    {/* Categories */}
+                    <div style={{ display: "flex", flexDirection: "column", gap: "8rem" }}>
+                        {categories.map((category) => (
+                            <section key={category.name}>
+                                <h2 style={{
+                                    fontFamily: "'Playfair Display', serif",
+                                    fontSize: "2rem",
+                                    fontWeight: 400,
+                                    marginBottom: "3rem",
+                                    textAlign: "center"
+                                }}>
+                                    {category.name}
+                                </h2>
+                                <ul style={{ listStyle: "none", padding: 0, display: "flex", flexDirection: "column", gap: "2.5rem" }}>
+                                    {category.items.map((item) => (
+                                        <li key={item.title}>
+                                            <h3 style={{
+                                                fontFamily: "'Source Serif 4', serif",
+                                                fontSize: "1.25rem",
+                                                fontWeight: 500,
+                                                marginBottom: "0.5rem",
+                                                color: "var(--foreground)"
+                                            }}>
+                                                {item.title}
+                                            </h3>
+                                            <p style={{
+                                                fontSize: "1.1rem",
+                                                color: "var(--text-secondary)",
+                                                lineHeight: 1.6,
+                                                fontFamily: "'Source Serif 4', serif"
+                                            }}>
+                                                {item.description}
+                                            </p>
+                                        </li>
+                                    ))}
+                                </ul>
+                            </section>
+                        ))}
+                    </div>
+
+                    {/* Footer note */}
+                    <footer style={{ marginTop: "8rem", paddingTop: "2rem", borderTop: "1px solid var(--border)", textAlign: "center" }}>
+                        <p style={{ fontSize: "1rem", color: "var(--text-secondary)", lineHeight: 1.6, fontFamily: "'Source Serif 4', serif" }}>
+                            Halaman ini terinspirasi oleh gerakan <a href="https://uses.tech" target="_blank" rel="noopener noreferrer" className="link-underline" style={{ color: "var(--foreground)" }}>/uses</a>.<br />
+                            Semua produk di sini adalah yang benar-benar saya gunakan.
+                        </p>
+                    </footer>
+
                 </div>
-
-                {/* Categories */}
-                <div style={{ display: "flex", flexDirection: "column", gap: "3rem" }}>
-                    {categories.map((category) => (
-                        <section key={category.name}>
-                            <h2 style={{
-                                fontFamily: "var(--font-mono)",
-                                fontSize: "1.25rem",
-                                marginBottom: "1.5rem",
-                                borderBottom: "1px solid var(--border)",
-                                paddingBottom: "0.5rem"
-                            }}>
-                                {category.name}
-                            </h2>
-                            <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
-                                {category.items.map((item) => (
-                                    <div
-                                        key={item.title}
-                                        style={{
-                                            padding: "1.25rem",
-                                            borderRadius: "8px",
-                                            backgroundColor: "var(--card-bg)",
-                                            border: "1px solid var(--border)",
-                                        }}
-                                    >
-                                        <h3 style={{ fontSize: "1rem", fontWeight: 600, marginBottom: "0.5rem", color: "var(--foreground)" }}>
-                                            {item.title}
-                                        </h3>
-                                        <p style={{ fontSize: "0.9rem", color: "var(--text-secondary)", lineHeight: 1.5 }}>
-                                            {item.description}
-                                        </p>
-                                    </div>
-                                ))}
-                            </div>
-                        </section>
-                    ))}
-                </div>
-
-                {/* Footer note */}
-                <footer style={{ marginTop: "4rem", paddingTop: "2rem", borderTop: "1px solid var(--border)" }}>
-                    <p style={{ fontSize: "0.85rem", color: "var(--text-secondary)", lineHeight: 1.6 }}>
-                        <span style={{ fontSize: "1.2rem" }}>💡</span> <strong>Note:</strong> Halaman ini terinspirasi oleh gerakan <a href="https://uses.tech" target="_blank" rel="noopener noreferrer" className="link-underline">/uses</a>.
-                        Semua produk di sini adalah yang benar-benar saya gunakan, bukan endorsement.
-                    </p>
-                </footer>
-
-            </div>
-        </Container>
+            </Container>
+        </section>
     );
 }
