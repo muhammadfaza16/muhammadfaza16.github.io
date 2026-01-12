@@ -28,7 +28,7 @@ export function ZenToggle() {
                 position: isZen ? "fixed" : "static",
                 bottom: isZen ? "2rem" : "auto",
                 right: isZen ? "2rem" : "auto",
-                zIndex: 100,
+                zIndex: isZen ? 100 : 10,
                 borderRadius: isZen ? "99px" : "0",
                 boxShadow: isZen ? "0 4px 20px rgba(0,0,0,0.1)" : "none"
             }}
