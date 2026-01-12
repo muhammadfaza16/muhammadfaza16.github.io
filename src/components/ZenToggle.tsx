@@ -32,7 +32,7 @@ export function ZenToggle() {
                 borderRadius: isZen ? "99px" : "0",
                 boxShadow: isZen ? "0 4px 20px rgba(0,0,0,0.1)" : "none"
             }}
-            className="hover:opacity-100 active:scale-95"
+            className="zen-toggle-button hover:opacity-100 active:scale-95"
             title={isZen ? "Exit Read Mode (Esc)" : "Enter Read Mode"}
         >
             {isZen ? <EyeOff size={16} /> : <Eye size={16} />}

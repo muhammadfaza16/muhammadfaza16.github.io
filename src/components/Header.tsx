@@ -51,11 +51,16 @@ export function Header() {
         setIsMobileMoreOpen(false);
     }, [pathname]);
 
-    // Reset mobile more menu when main menu closes
+    // Add/remove class for body styling when menu is open
     useEffect(() => {
-        if (!isMenuOpen) {
-            setIsMobileMoreOpen(false);
+        if (isMenuOpen) {
+            document.body.classList.add("menu-open");
+        } else {
+            document.body.classList.remove("menu-open");
         }
+        return () => {
+            document.body.classList.remove("menu-open");
+        };
     }, [isMenuOpen]);
 
     return (

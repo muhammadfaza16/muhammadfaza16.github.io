@@ -138,6 +138,13 @@ html.dark [data-zen="true"] {
   margin-bottom: 2.5rem !important;
 }
 
+/* Hide Read Mode buttons when mobile menu is open */
+body.menu-open .zen-toggle-container,
+body.menu-open button[aria-label="Toggle Read Mode"],
+body.menu-open .zen-toggle-button {
+  display: none !important;
+}
+
 .mobile-only {
   display: block;
 }
