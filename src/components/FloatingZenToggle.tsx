@@ -13,7 +13,7 @@ export function FloatingZenToggle() {
     // Only show on blog article pages (e.g. /blog/something), not on the main list (/blog)
     const isBlogArticle = pathname?.startsWith("/blog/") && pathname !== "/blog";
 
-    if (!isBlogArticle) return null;
+
 
     useEffect(() => {
         const handleScroll = () => {
@@ -34,7 +34,7 @@ export function FloatingZenToggle() {
     // The existing ZenToggle in blog posts floats when isZen is true.
     // If we have TWO floating buttons, that's bad.
     // So hiding this one when isZen is true avoids duplication.
-    if (isZen) return null;
+    if (isZen || !isBlogArticle) return null;
 
     return (
         <button
