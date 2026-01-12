@@ -1,4 +1,3 @@
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,500;0,8..60,600;1,400&family=Space+Mono&display=swap');
 @import "tailwindcss";
 @source "../";
 
@@ -18,9 +17,9 @@
   --spacing-24: 6rem;
   --spacing-32: 8rem;
 
-  --font-family-sans: 'Source Serif 4', serif;
-  --font-family-serif: 'Playfair Display', serif;
-  --font-family-mono: 'Space Mono', monospace;
+  --font-family-sans: var(--font-sans), serif;
+  --font-family-serif: var(--font-serif), serif;
+  --font-family-mono: var(--font-mono), monospace;
 }
 
 /* Modern Editorial Theme Definition */
@@ -30,9 +29,9 @@
   --foreground: #1A1A1A;
 
   /* Fonts - Accessible Variables */
-  --font-serif: 'Playfair Display', serif;
-  --font-sans: 'Source Serif 4', serif;
-  --font-mono: 'Space Mono', monospace;
+  --font-serif: var(--font-serif), serif;
+  --font-sans: var(--font-sans), serif;
+  --font-mono: var(--font-mono), monospace;
 
   /* Text - Softer Blacks */
   --text-primary: #1A1A1A;
@@ -89,7 +88,7 @@ html {
 body {
   background-color: var(--background);
   color: var(--foreground);
-  font-family: 'Source Serif 4', serif;
+  font-family: var(--font-sans), serif;
   /* Use Serif for body text */
   font-weight: 400;
   font-size: 1.25rem;
@@ -211,7 +210,7 @@ h3,
 h4,
 h5,
 h6 {
-  font-family: 'Playfair Display', serif;
+  font-family: var(--font-serif), serif;
   font-weight: 600;
   letter-spacing: -0.02em;
   line-height: 1.25;
@@ -249,7 +248,7 @@ p {
 }
 
 .text-mono {
-  font-family: 'JetBrains Mono', 'Fira Code', monospace;
+  font-family: var(--font-mono), monospace;
   letter-spacing: -0.02em;
 }
 
@@ -277,7 +276,7 @@ p {
 
 /* Serif Font Utility */
 .font-serif {
-  font-family: 'Playfair Display', serif !important;
+  font-family: var(--font-serif), serif !important;
 }
 
 /* Card hover effect */
@@ -302,7 +301,7 @@ p {
   position: relative;
   overflow: hidden;
   transition: all 0.3s ease;
-  font-family: 'Playfair Display', serif;
+  font-family: var(--font-serif), serif;
   letter-spacing: 0.02em;
 }
 
@@ -340,7 +339,7 @@ p {
 .prose-editorial h2 {
   margin-top: 3.5rem;
   margin-bottom: 1.5rem;
-  font-family: 'Playfair Display', serif;
+  font-family: var(--font-serif), serif;
   font-weight: 600;
   font-size: 2.25rem;
   line-height: 1.2;
@@ -351,7 +350,7 @@ p {
 .prose-editorial h3 {
   margin-top: 2.5rem;
   margin-bottom: 1rem;
-  font-family: 'Playfair Display', serif;
+  font-family: var(--font-serif), serif;
   font-weight: 500;
   font-size: 1.75rem;
   color: var(--foreground);
@@ -359,7 +358,7 @@ p {
 
 .prose-editorial p {
   margin-bottom: 2rem;
-  font-family: 'Source Serif 4', serif;
+  font-family: var(--font-sans), serif;
   font-weight: 400;
 }
 
@@ -369,7 +368,7 @@ p {
   /* Remove harsh border */
   padding: 2rem 3rem;
   margin: 3.5rem 0;
-  font-family: 'Playfair Display', serif;
+  font-family: var(--font-serif), serif;
   font-size: 1.8rem;
   font-style: italic;
   font-weight: 500;
@@ -393,7 +392,7 @@ p {
 /* Drop Cap - The "Steve Jobs" opening */
 .drop-cap::first-letter {
   float: left;
-  font-family: 'Playfair Display', serif;
+  font-family: var(--font-serif), serif;
   font-size: 5.5rem;
   /* Massive */
   line-height: 0.8;
@@ -426,7 +425,7 @@ p {
 }
 
 .prose-editorial code {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-mono), monospace;
   background: rgba(0, 0, 0, 0.05);
   padding: 0.2em 0.4em;
   border-radius: 4px;
@@ -685,8 +684,8 @@ p {
 /* Glass effect */
 .glass {
   background: rgba(255, 255, 255, 0.7);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
 }
 
 .dark .glass {
