@@ -11,6 +11,7 @@ import {
     Pencil,
     Clock
 } from "lucide-react";
+import { MusicPlayer } from "@/components/MusicPlayer";
 
 export const metadata: Metadata = {
     title: "Now | The Almanac of Broken Wanderer",
@@ -94,89 +95,6 @@ function FocusItem({
     );
 }
 
-// Music card with album art placeholder
-function MusicCard() {
-    return (
-        <a
-            href="https://www.youtube.com/watch?v=B1ynHmn0XZ4&list=RDgR5I408_tCc&index=11"
-            target="_blank"
-            rel="noopener noreferrer"
-            style={{
-                display: "flex",
-                alignItems: "center",
-                gap: "clamp(1rem, 3vw, 1.25rem)",
-                padding: "clamp(1rem, 3vw, 1.25rem)",
-                backgroundColor: "var(--card-bg)",
-                borderRadius: "16px",
-                border: "1px solid var(--border)",
-                textDecoration: "none",
-                color: "inherit",
-                transition: "all 0.3s ease"
-            }}
-            className="hover:border-[var(--border-strong)]"
-        >
-            {/* Album art placeholder with gradient */}
-            <div style={{
-                width: "clamp(56px, 15vw, 72px)",
-                height: "clamp(56px, 15vw, 72px)",
-                borderRadius: "12px",
-                background: "linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                flexShrink: 0,
-                position: "relative",
-                overflow: "hidden"
-            }}>
-                {/* Animated equalizer bars */}
-                <div style={{
-                    display: "flex",
-                    alignItems: "flex-end",
-                    gap: "3px",
-                    height: "24px"
-                }}>
-                    {[0.6, 1, 0.4, 0.8, 0.5].map((h, i) => (
-                        <div key={i} style={{
-                            width: "4px",
-                            height: `${h * 100}%`,
-                            backgroundColor: "rgba(255,255,255,0.8)",
-                            borderRadius: "2px",
-                            animation: `pulse 1.${i + 2}s ease-in-out infinite`
-                        }} />
-                    ))}
-                </div>
-            </div>
-            <div style={{ flex: 1, minWidth: 0 }}>
-                <p style={{
-                    fontSize: "clamp(0.75rem, 2vw, 0.8rem)",
-                    color: "var(--text-muted)",
-                    textTransform: "uppercase",
-                    letterSpacing: "0.05em",
-                    fontFamily: "var(--font-mono)",
-                    marginBottom: "0.25rem"
-                }}>
-                    On Repeat
-                </p>
-                <p style={{
-                    fontSize: "clamp(1rem, 2.5vw, 1.1rem)",
-                    fontWeight: 500,
-                    marginBottom: "0.25rem",
-                    fontFamily: "'Source Serif 4', serif"
-                }}>
-                    Bintang di Surga
-                </p>
-                <p style={{
-                    color: "var(--text-secondary)",
-                    fontSize: "clamp(0.8rem, 2vw, 0.9rem)",
-                    margin: 0
-                }}>
-                    Noah
-                </p>
-            </div>
-            <Headphones className="w-5 h-5" style={{ color: "var(--text-muted)", flexShrink: 0 }} />
-        </a>
-    );
-}
 
 // Status pill component
 function StatusPill({ status, time }: { status: string; time: string }) {
@@ -348,7 +266,7 @@ export default function NowPage() {
 
                     {/* Currently Playing */}
                     <section>
-                        <MusicCard />
+                        <MusicPlayer />
                     </section>
 
                     {/* Inspirational footer */}
