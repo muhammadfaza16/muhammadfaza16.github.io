@@ -1,21 +1,28 @@
 import { Container } from "@/components/Container";
 import { PostList } from "@/components/PostList";
-import { RandomQuote } from "@/components/RandomQuote";
+import { OnThisDay } from "@/components/OnThisDay";
+import { DidYouKnow } from "@/components/DidYouKnow";
+import { GradientOrb } from "@/components/GradientOrb";
+import { CurrentlyStrip } from "@/components/CurrentlyStrip";
 import { getAllPosts } from "@/lib/posts";
 import Link from "next/link";
-
 export default function HomePage() {
-  const allPosts = getAllPosts();
+  const allPosts = getAllPosts(); // Pass all posts to allow "Load More"
 
   return (
     <>
       {/* Hero Section - Steve Jobs Aesthetic */}
       <section style={{
-        paddingTop: "12vh",
-        paddingBottom: "8rem",
+        paddingTop: "calc(5rem + 4vh)", // Account for fixed header (5rem) + extra spacing
+        paddingBottom: "6rem",
+        position: "relative",
+        overflow: "hidden"
       }}>
+        {/* Gradient Orb - Visual Texture */}
+        <GradientOrb />
+
         <Container>
-          <div className="animate-fade-in-up">
+          <div className="animate-fade-in-up" style={{ position: "relative", zIndex: 1 }}>
             {/* Subtle Label */}
             <div style={{
               fontFamily: "var(--font-mono)",
@@ -33,7 +40,7 @@ export default function HomePage() {
             <h1 style={{
               fontFamily: "'Playfair Display', serif",
               fontSize: "clamp(3.5rem, 10vw, 7.5rem)",
-              fontWeight: 400, // Thin luxe feel
+              fontWeight: 400,
               lineHeight: 0.95,
               letterSpacing: "-0.04em",
               marginBottom: "3rem",
@@ -50,10 +57,19 @@ export default function HomePage() {
               fontFamily: "'Source Serif 4', serif",
               maxWidth: "40rem",
               color: "var(--text-secondary)",
-              marginBottom: "4rem"
+              marginBottom: "0"
             }} className="animate-fade-in animation-delay-200">
               Random thoughts, half-baked ideas, dan segala yang keburu diketik sebelum lupa.
             </p>
+          </div>
+        </Container>
+      </section>
+
+      {/* Currently Strip - Living Status */}
+      <section style={{ marginBottom: "4rem" }}>
+        <Container>
+          <div className="animate-fade-in animation-delay-300">
+            <CurrentlyStrip />
           </div>
         </Container>
       </section>
@@ -64,7 +80,7 @@ export default function HomePage() {
           <div className="animate-fade-in animation-delay-300">
             {/* Minimalist Header */}
             <div style={{
-              marginBottom: "4rem",
+              marginBottom: "3rem",
               display: "flex",
               alignItems: "baseline",
               justifyContent: "space-between",
@@ -91,12 +107,12 @@ export default function HomePage() {
             </div>
 
             {/* Posts List */}
-            <PostList allPosts={allPosts} />
+            <PostList allPosts={allPosts} hideThumbnails initialCount={3} />
           </div>
         </Container>
       </section>
 
-      {/* Wisdom Gacha - The "One More Thing" */}
+      {/* On This Day & Did You Know - Nerd Culture & History */}
       <section style={{
         paddingTop: "6rem",
         paddingBottom: "8rem",
@@ -105,26 +121,32 @@ export default function HomePage() {
         position: "relative"
       }}>
         <Container>
-          <div style={{ textAlign: "center", marginBottom: "4rem" }}>
-            <h2 style={{
-              fontFamily: "'Playfair Display', serif",
-              fontSize: "3rem",
-              fontWeight: 400,
-              marginBottom: "1rem"
-            }}>
-              Wisdom Gacha
-            </h2>
-            <p style={{
-              fontFamily: "var(--font-mono)",
-              fontSize: "0.9rem",
-              color: "var(--text-secondary)",
-              opacity: 0.7
-            }}>
-              Spin for a new perspective.
-            </p>
+          <div className="grid grid-cols-1 lg:grid-cols-[1fr_350px] gap-12 items-start">
+            <OnThisDay />
+            <DidYouKnow />
           </div>
 
-          <RandomQuote />
+          {/* Identity Quote - Footer Style */}
+          <div style={{ marginTop: "6rem", textAlign: "center" }}>
+            <p style={{
+              fontFamily: "'Playfair Display', serif",
+              fontSize: "1.5rem",
+              fontStyle: "italic",
+              color: "var(--foreground)",
+              marginBottom: "1rem"
+            }}>
+              "Not all those who wander are lost."
+            </p>
+            <p style={{
+              fontFamily: "var(--font-mono)",
+              fontSize: "0.85rem",
+              color: "var(--text-secondary)",
+              textTransform: "uppercase",
+              letterSpacing: "0.1em"
+            }}>
+              J.R.R. Tolkien
+            </p>
+          </div>
         </Container>
       </section>
     </>

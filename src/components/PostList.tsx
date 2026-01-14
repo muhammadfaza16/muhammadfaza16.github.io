@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState } from "react";
 import { PostCard } from "./PostCard";
 
 interface Post {
@@ -12,8 +12,14 @@ interface Post {
     thumbnail?: string;
 }
 
-export function PostList({ allPosts }: { allPosts: Post[] }) {
-    const [displayCount, setDisplayCount] = useState(5);
+interface PostListProps {
+    allPosts: Post[];
+    hideThumbnails?: boolean;
+    initialCount?: number;
+}
+
+export function PostList({ allPosts, hideThumbnails = false, initialCount = 5 }: PostListProps) {
+    const [displayCount, setDisplayCount] = useState(initialCount);
     const [animatingFrom, setAnimatingFrom] = useState(0);
     const postsToShow = allPosts.slice(0, displayCount);
     const hasMore = displayCount < allPosts.length;
@@ -26,7 +32,6 @@ export function PostList({ allPosts }: { allPosts: Post[] }) {
     return (
         <div className="flex flex-col space-y-2">
             {postsToShow.map((post, index) => {
-                // Calculate animation delay only for newly loaded posts
                 const isNewPost = index >= animatingFrom;
                 const delayIndex = isNewPost ? index - animatingFrom : index;
                 const delay = isNewPost ? delayIndex * 0.08 : 0;
@@ -48,22 +53,37 @@ export function PostList({ allPosts }: { allPosts: Post[] }) {
                             readingTime={post.readingTime || ""}
                             thumbnail={post.thumbnail}
                             hideBorderTop={index === 0}
+                            hideThumbnail={hideThumbnails}
                         />
                     </div>
                 );
             })}
 
-            {hasMore && (
+            {hasMore ? (
                 <div className="mt-12 text-center animate-fade-in">
                     <button
                         onClick={handleLoadMore}
                         className="text-[var(--text-secondary)] hover:text-[var(--foreground)] transition-colors text-sm font-medium tracking-wide"
-                        style={{ fontFamily: "'Inter', sans-serif" }}
+                        style={{ fontFamily: "var(--font-mono)" }}
                     >
                         Load more stories ↓
                     </button>
                 </div>
-            )}
+            ) : displayCount > initialCount ? (
+                <div className="mt-12 text-center animate-fade-in">
+                    <button
+                        onClick={() => {
+                            setDisplayCount(initialCount);
+                            // Optional: scroll back to top of list? 
+                            // For now just collapse.
+                        }}
+                        className="text-[var(--text-secondary)] hover:text-[var(--foreground)] transition-colors text-sm font-medium tracking-wide"
+                        style={{ fontFamily: "var(--font-mono)" }}
+                    >
+                        Show fewer stories ↑
+                    </button>
+                </div>
+            ) : null}
         </div>
     );
 }

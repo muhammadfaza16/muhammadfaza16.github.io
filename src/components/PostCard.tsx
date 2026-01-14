@@ -1,3 +1,5 @@
+"use client";
+
 import Link from "next/link";
 import Image from "next/image";
 
@@ -9,22 +11,37 @@ interface PostCardProps {
     readingTime: string;
     thumbnail?: string;
     hideBorderTop?: boolean;
+    hideThumbnail?: boolean;
 }
 
-export function PostCard({ slug, title, excerpt, date, readingTime, thumbnail, hideBorderTop }: PostCardProps) {
+export function PostCard({ slug, title, excerpt, date, readingTime, thumbnail, hideBorderTop, hideThumbnail }: PostCardProps) {
+    const showThumbnail = thumbnail && !hideThumbnail;
+
     return (
         <article
             className="group"
             style={{
                 paddingTop: "2rem",
                 paddingBottom: "2rem",
-                borderTop: hideBorderTop ? "none" : "1px solid var(--border)"
+                borderTop: hideBorderTop ? "none" : "1px solid var(--border)",
+                transition: "transform 0.3s ease, box-shadow 0.3s ease",
+                borderRadius: "8px",
+                margin: "0 -1rem",
+                padding: "2rem 1rem"
+            }}
+            onMouseEnter={(e) => {
+                e.currentTarget.style.transform = "translateY(-4px)";
+                e.currentTarget.style.boxShadow = "0 8px 24px rgba(0,0,0,0.06)";
+            }}
+            onMouseLeave={(e) => {
+                e.currentTarget.style.transform = "translateY(0)";
+                e.currentTarget.style.boxShadow = "none";
             }}
         >
             <Link href={`/blog/${slug}`} className="block">
                 <div style={{ display: "flex", gap: "1.5rem", alignItems: "flex-start" }}>
-                    {/* Thumbnail */}
-                    {thumbnail && (
+                    {/* Thumbnail - Only show if not hidden */}
+                    {showThumbnail && (
                         <div style={{
                             flexShrink: 0,
                             width: "120px",
@@ -48,7 +65,7 @@ export function PostCard({ slug, title, excerpt, date, readingTime, thumbnail, h
                     )}
 
                     {/* Content */}
-                    <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+                    <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: hideThumbnail ? "0.75rem" : "0.5rem" }}>
                         {/* Meta */}
                         <div style={{
                             display: "flex",
@@ -64,14 +81,16 @@ export function PostCard({ slug, title, excerpt, date, readingTime, thumbnail, h
                             <span>{readingTime}</span>
                         </div>
 
-                        {/* Title */}
+                        {/* Title - Enhanced when no thumbnail */}
                         <h3
                             style={{
                                 fontFamily: "'Playfair Display', serif",
-                                fontSize: "1.5rem",
-                                fontWeight: 500,
-                                lineHeight: 1.3,
-                                transition: "color 0.3s ease"
+                                fontSize: hideThumbnail ? "clamp(1.75rem, 4vw, 2.25rem)" : "1.5rem",
+                                fontWeight: hideThumbnail ? 400 : 500,
+                                lineHeight: 1.2,
+                                letterSpacing: hideThumbnail ? "-0.02em" : "0",
+                                transition: "color 0.3s ease",
+                                marginBottom: hideThumbnail ? "0.25rem" : 0
                             }}
                             className="group-hover:text-[var(--text-secondary)]"
                         >
@@ -80,9 +99,10 @@ export function PostCard({ slug, title, excerpt, date, readingTime, thumbnail, h
 
                         {/* Excerpt */}
                         <p style={{
-                            fontSize: "0.95rem",
+                            fontFamily: "'Source Serif 4', serif",
+                            fontSize: hideThumbnail ? "1.05rem" : "0.95rem",
                             lineHeight: 1.7,
-                            fontWeight: 300,
+                            fontWeight: 400,
                             display: "-webkit-box",
                             WebkitLineClamp: 2,
                             WebkitBoxOrient: "vertical",
@@ -95,12 +115,13 @@ export function PostCard({ slug, title, excerpt, date, readingTime, thumbnail, h
                         {/* Read More Arrow */}
                         <div
                             style={{
-                                paddingTop: "0.25rem",
+                                paddingTop: "0.5rem",
                                 display: "flex",
                                 alignItems: "center",
                                 gap: "0.5rem",
-                                fontSize: "0.8rem",
+                                fontSize: "0.85rem",
                                 fontWeight: 500,
+                                fontFamily: "var(--font-mono)",
                                 opacity: 0,
                                 transform: "translateX(-10px)",
                                 transition: "opacity 0.3s ease, transform 0.3s ease"
@@ -115,4 +136,3 @@ export function PostCard({ slug, title, excerpt, date, readingTime, thumbnail, h
         </article>
     );
 }
-
