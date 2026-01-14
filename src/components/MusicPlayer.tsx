@@ -72,8 +72,7 @@ export function MusicPlayer() {
 
     useEffect(() => {
         setMounted(true);
-        // Calculate initial index based on time to sync roughly across devices (optional but cool)
-        // Using 5 minute windows
+        // Calculate initial index based on time
         const minutes = Math.floor(Date.now() / 1000 / 60);
         const windowIndex = Math.floor(minutes / 5);
         setCurrentIndex(windowIndex % PLAYLIST.length);
@@ -86,9 +85,6 @@ export function MusicPlayer() {
     }, []);
 
     const currentSong = PLAYLIST[currentIndex];
-
-    // During SSR/hydration mismatch, show the first song or a loading state
-    // We'll just default to 0 in state but useEffect updates it immediately on mount
 
     return (
         <a
@@ -105,7 +101,8 @@ export function MusicPlayer() {
                 border: "1px solid var(--border)",
                 textDecoration: "none",
                 color: "inherit",
-                transition: "all 0.3s ease"
+                transition: "all 0.3s ease",
+                cursor: "pointer"
             }}
             className="hover:border-[var(--border-strong)]"
         >
@@ -161,7 +158,6 @@ export function MusicPlayer() {
                         fontWeight: 500,
                         marginBottom: "0.25rem",
                         fontFamily: "'Source Serif 4', serif",
-                        // Simple animation for text change
                         animation: mounted ? "fade-in 0.5s ease" : "none"
                     }} key={currentSong.title}>
                         {currentSong.title}
