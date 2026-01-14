@@ -7,7 +7,7 @@ import { ProjectCard } from "./ProjectCard";
 export function ProjectGrid() {
     const [filter, setFilter] = useState<string>("All");
 
-    const categories = ["All", "Web", "Mobile", "Design"];
+    const categories = ["All", "Web", "Research", "Design", "Other"];
 
     const filteredProjects = useMemo(() => {
         if (filter === "All") return projects;

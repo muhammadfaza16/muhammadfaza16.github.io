@@ -3,7 +3,7 @@ import { Metadata } from "next";
 import { Link2, ExternalLink, BookMarked, Wrench } from "lucide-react";
 
 export const metadata: Metadata = {
-    title: "Links | The Almanac of Broken Wanderer",
+    title: "Links | The Almanack of Broken Wanderer",
     description: "Koleksi resources, artikel, dan content yang menginspirasi.",
 };
 

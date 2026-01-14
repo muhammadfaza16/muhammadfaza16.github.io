@@ -3,7 +3,7 @@ import { Metadata } from "next";
 import { Monitor, Code, Laptop, Mouse, Keyboard } from "lucide-react";
 
 export const metadata: Metadata = {
-    title: "Uses | The Almanac of Broken Wanderer",
+    title: "Uses | The Almanack of Broken Wanderer",
     description: "Alat, software, dan hardware yang saya gunakan sehari-hari.",
 };
 

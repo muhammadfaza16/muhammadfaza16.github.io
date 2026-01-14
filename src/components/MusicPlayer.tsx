@@ -22,42 +22,42 @@ const PLAYLIST = [
     {
         title: "Kukatakan Dengan Indah",
         artist: "Noah",
-        url: "https://www.youtube.com/watch?v=mD0gZqR-z6A"
+        url: "https://www.youtube.com/watch?v=V-q_d2G-T-M"
     },
     {
         title: "Pemilik Hati",
         artist: "Armada",
-        url: "https://www.youtube.com/watch?v=D-j0cK5A2bQ"
+        url: "https://www.youtube.com/watch?v=s2iouw38zB4"
     },
     {
         title: "Kau Masih Kekasihku",
         artist: "Naff",
-        url: "https://www.youtube.com/watch?v=333M7tS4B4Y"
+        url: "https://www.youtube.com/watch?v=L29MaxP9PfM"
     },
     {
         title: "Apa Kabar Sayang",
         artist: "Armada",
-        url: "https://www.youtube.com/watch?v=5VdZ9LzJm6A"
+        url: "https://www.youtube.com/watch?v=_-MIFofXRNU"
     },
     {
         title: "Buka Hatimu",
         artist: "Armada",
-        url: "https://www.youtube.com/watch?v=hJ3_j9g9Zq8"
+        url: "https://www.youtube.com/watch?v=qHuPsEWxQ4s"
     },
     {
         title: "Sumpah dan Cinta Matiku",
         artist: "Nidji",
-        url: "https://www.youtube.com/watch?v=8yU7-5eX8_A"
+        url: "https://www.youtube.com/watch?v=XNOxzCRpkFg"
     },
     {
         title: "Asmara",
         artist: "Setia Band",
-        url: "https://www.youtube.com/watch?v=F0oK6-k9z-8"
+        url: "https://www.youtube.com/watch?v=k_K3jB2cQxY"
     },
     {
         title: "Harusnya Aku",
         artist: "Armada",
-        url: "https://www.youtube.com/watch?v=qE4e5f4x-6I"
+        url: "https://www.youtube.com/watch?v=9JSIBwQqD70"
     },
     {
         title: "Mimpi Yang Hilang",

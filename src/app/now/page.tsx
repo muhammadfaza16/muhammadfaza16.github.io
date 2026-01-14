@@ -14,7 +14,7 @@ import {
 import { MusicPlayer } from "@/components/MusicPlayer";
 
 export const metadata: Metadata = {
-    title: "Now | The Almanac of Broken Wanderer",
+    title: "Now | The Almanack of Broken Wanderer",
     description: "Apa yang sedang saya kerjakan sekarang.",
 };
 

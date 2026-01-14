@@ -5,31 +5,72 @@ export interface Project {
     imageUrl?: string;
     tags: string[];
     link?: string;
-    category: "Web" | "Mobile" | "Design" | "Other";
+    category: "Web" | "Mobile" | "Design" | "Research" | "Other";
 }
 
 export const projects: Project[] = [
+    // Web / Software
     {
         id: "1",
-        title: "Personal Manifesto",
-        description: "A minimalistic personal website focusing on digital gardening and thoughtful essays. Built with Next.js and Tailwind CSS.",
-        tags: ["Next.js", "React", "TypeScript", "Tailwind CSS"],
+        title: "The Almanack",
+        description: "This personal digital garden you're on. A minimalist space for essays, curated reading, and random thoughts.",
+        tags: ["Next.js", "TypeScript", "Tailwind"],
         link: "https://manifesto.dev",
         category: "Web"
     },
     {
         id: "2",
-        title: "Zen Focus App",
-        description: "A productivity application designed to help users enter a flow state through ambient sounds and pomodoro techniques.",
-        tags: ["React Native", "TypeScript", "Redux"],
-        category: "Mobile"
+        title: "Cognitive Bias Index",
+        description: "An interactive encyclopedia of 180+ cognitive biases, categorized by decision-making impact. Built to help people think better.",
+        tags: ["React", "D3.js", "Psychology"],
+        link: "#",
+        category: "Web"
     },
     {
         id: "3",
-        title: "Botanical UI Kit",
-        description: "A comprehensive UI kit for plant care applications, featuring over 100+ components and organic color palettes.",
+        title: "Econ Simulator",
+        description: "A toy model for simulating basic macroeconomic dynamics — inflation, interest rates, and GDP growth. Inspired by Poor Economics.",
+        tags: ["Python", "Streamlit", "Economics"],
+        category: "Research"
+    },
+
+    // Research / Experiments
+    {
+        id: "4",
+        title: "Behavioral Nudge Lab",
+        description: "A/B testing framework for behavioral interventions. Measuring the real-world impact of choice architecture.",
+        tags: ["Python", "Statistics", "Behavioral Econ"],
+        category: "Research"
+    },
+    {
+        id: "5",
+        title: "First Principles Notes",
+        description: "An Obsidian vault of interconnected notes. My attempt at building a second brain from Feynman to Kahneman.",
+        tags: ["Obsidian", "PKM", "Knowledge Management"],
+        category: "Other"
+    },
+    {
+        id: "6",
+        title: "Quote Gacha Engine",
+        description: "The random wisdom generator on this site. Pulling from stoics, scientists, and Indonesian thinkers.",
+        tags: ["React", "TypeScript", "Philosophy"],
+        category: "Web"
+    },
+
+    // Design / Creative
+    {
+        id: "7",
+        title: "Polymath UI Kit",
+        description: "A design system inspired by academic journals and editorial aesthetics. Clean, typography-first, and timeless.",
         tags: ["Figma", "Design System", "UI/UX"],
         category: "Design"
+    },
+    {
+        id: "8",
+        title: "Decision Journal",
+        description: "A personal tool for tracking decisions, rationale, and outcomes. Inspired by Annie Duke and Kahneman.",
+        tags: ["Notion", "Decision-Making", "Self-Improvement"],
+        category: "Other"
     }
 ];
 
