@@ -149,19 +149,22 @@ function MarqueeContent({ currentSong, currentTime, greeting, previousGreeting, 
                     position: "relative",
                     display: "inline-block",
                     color: "var(--foreground)",
-                    width: "650px", // Fixed width to prevent layout shifts
-                    overflow: "hidden", // Ensure no overflow
+                    // Removed fixed width so it adapts to text length
+                    // overflow: "hidden", // Removed to prevent clipping
                     verticalAlign: "bottom" // Align with icon
                 }}>
+                    {/* Invisible copy to set container width dynamicallly */}
+                    <span style={{ visibility: "hidden" }}>{greeting}</span>
+
                     {/* Old greeting - fades out */}
                     <span style={{
                         position: "absolute",
                         left: 0,
                         top: 0,
-                        width: "100%",
+                        width: "100%", // Matches absolute width to container width
                         whiteSpace: "nowrap",
-                        overflow: "hidden",
-                        textOverflow: "ellipsis",
+                        // overflow: "hidden",
+                        // textOverflow: "ellipsis",
                         opacity: isTransitioning ? 1 : 0,
                         transition: "opacity 1.2s ease-in-out"
                     }}>
@@ -174,19 +177,13 @@ function MarqueeContent({ currentSong, currentTime, greeting, previousGreeting, 
                         top: 0,
                         width: "100%",
                         whiteSpace: "nowrap",
-                        overflow: "hidden",
-                        textOverflow: "ellipsis",
+                        // overflow: "hidden",
+                        // textOverflow: "ellipsis",
                         opacity: isTransitioning ? 0 : 1,
                         transition: "opacity 1.2s ease-in-out"
                     }}>
                         {greeting}
                     </span>
-                    {/* Spacer to give height implicitly if needed, or just rely on absolute. 
-                        Since they are absolute, the parent needs height. 
-                        Line-height is usually sufficient. 
-                        Add a &nbsp; just to be safe for line-height.
-                    */}
-                    &nbsp;
                 </span>
             </div>
 
@@ -328,7 +325,7 @@ export function CurrentlyStrip() {
                 style={{
                     display: "flex",
                     width: "max-content",
-                    animation: "marquee 30s linear infinite",
+                    animation: "marquee 20s linear infinite", // Faster speed
                     willChange: "transform",
                     transform: "translate3d(0, 0, 0)",
                     backfaceVisibility: "hidden" as const
