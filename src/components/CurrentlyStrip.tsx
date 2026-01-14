@@ -216,7 +216,8 @@ function MarqueeContent({ currentSong, currentTime, greeting, previousGreeting, 
 }
 
 export function CurrentlyStrip() {
-    const [songIndex, setSongIndex] = useState(0);
+    // Randomize initial song start
+    const [songIndex, setSongIndex] = useState(() => Math.floor(Math.random() * playlist.length));
     const [currentTime, setCurrentTime] = useState("");
     const [greeting, setGreeting] = useState("");
     const [previousGreeting, setPreviousGreeting] = useState("");
@@ -236,10 +237,10 @@ export function CurrentlyStrip() {
         updateTime();
         const timeInterval = setInterval(updateTime, 1000);
 
-        // Rotate songs every 3 minutes
+        // Rotate songs every 60 seconds (faster than 3 mins)
         const songInterval = setInterval(() => {
             setSongIndex((prev) => (prev + 1) % playlist.length);
-        }, 3 * 60 * 1000);
+        }, 60 * 1000);
 
         // Rotate greeting every 15 seconds with crossfade effect
         const greetingInterval = setInterval(() => {
