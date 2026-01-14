@@ -2,6 +2,7 @@
 
 import { Container } from "@/components/Container";
 import { useEffect, useState } from "react";
+import { Clock, Calendar, Hourglass, TrendingUp, Sun } from "lucide-react";
 
 // Check if year is a leap year
 function isLeapYear(year: number): boolean {
@@ -32,6 +33,12 @@ function getMonthName(month: number): string {
     return months[month];
 }
 
+// Get day name in Indonesian
+function getDayName(day: number): string {
+    const days = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+    return days[day];
+}
+
 // Get days in each month
 function getDaysInMonth(year: number, month: number): number {
     return new Date(year, month + 1, 0).getDate();
@@ -40,6 +47,67 @@ function getDaysInMonth(year: number, month: number): number {
 // Format time with leading zeros
 function formatTime(num: number): string {
     return num.toString().padStart(2, '0');
+}
+
+// Stat Card Component
+function StatCard({
+    icon: Icon,
+    value,
+    label,
+    sublabel
+}: {
+    icon: React.ComponentType<{ className?: string }>;
+    value: string | number;
+    label: string;
+    sublabel: string;
+}) {
+    return (
+        <div style={{
+            padding: "clamp(1.25rem, 3vw, 1.75rem)",
+            backgroundColor: "var(--card-bg)",
+            borderRadius: "16px",
+            border: "1px solid var(--border)",
+            transition: "all 0.3s ease"
+        }} className="hover:border-[var(--border-strong)]">
+            <div style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "0.5rem",
+                marginBottom: "clamp(0.75rem, 2vw, 1rem)",
+                color: "var(--accent)"
+            }}>
+                <Icon className="w-4 h-4" />
+                <span style={{
+                    fontFamily: "var(--font-mono)",
+                    fontSize: "clamp(0.7rem, 1.8vw, 0.75rem)",
+                    textTransform: "uppercase",
+                    letterSpacing: "0.05em",
+                    color: "var(--text-muted)"
+                }}>
+                    {label}
+                </span>
+            </div>
+            <div style={{
+                fontFamily: "var(--font-mono)",
+                fontSize: "clamp(2rem, 6vw, 2.75rem)",
+                fontWeight: 200,
+                color: "var(--foreground)",
+                marginBottom: "0.35rem",
+                letterSpacing: "-0.03em",
+                lineHeight: 1
+            }}>
+                {value}
+            </div>
+            <div style={{
+                fontFamily: "'Source Serif 4', serif",
+                fontSize: "clamp(0.8rem, 2vw, 0.9rem)",
+                color: "var(--text-secondary)",
+                fontStyle: "italic"
+            }}>
+                {sublabel}
+            </div>
+        </div>
+    );
 }
 
 export default function TimePage() {
@@ -61,17 +129,20 @@ export default function TimePage() {
     const year = now.getFullYear();
     const month = now.getMonth();
     const dayOfMonth = now.getDate();
+    const dayOfWeek = now.getDay();
     const totalDays = isLeapYear(year) ? 366 : 365;
     const dayOfYear = getDayOfYear(now);
     const daysRemaining = totalDays - dayOfYear;
-    const percentComplete = ((dayOfYear / totalDays) * 100).toFixed(2);
+    const percentComplete = ((dayOfYear / totalDays) * 100).toFixed(1);
     const weekNumber = getWeekNumber(now);
 
     // Time components
     const hours = now.getHours();
     const hoursStr = formatTime(hours);
     const minutes = formatTime(now.getMinutes());
-    // const seconds = formatTime(now.getSeconds());
+
+    // Full date string
+    const fullDate = `${getDayName(dayOfWeek)}, ${dayOfMonth} ${getMonthName(month)} ${year}`;
 
     // Calculate month progress data
     const monthData = Array.from({ length: 12 }, (_, i) => {
@@ -117,93 +188,146 @@ export default function TimePage() {
     }
 
     return (
-        <section style={{ paddingTop: "15vh", paddingBottom: "10rem" }}>
-            <Container>
-                <div className="animate-fade-in" style={{ maxWidth: "65ch", margin: "0 auto" }}>
+        <div style={{ paddingBottom: "clamp(4rem, 8vh, 8rem)" }}>
+            {/* Hero Section */}
+            <section style={{
+                minHeight: "auto",
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "center",
+                paddingTop: "clamp(5rem, 12vh, 8rem)",
+                paddingBottom: "clamp(2rem, 4vh, 3rem)"
+            }}>
+                <Container>
+                    <div className="animate-fade-in-up" style={{ textAlign: "center" }}>
+                        {/* Status Pill */}
+                        <div style={{
+                            display: "inline-flex",
+                            alignItems: "center",
+                            gap: "0.5rem",
+                            padding: "0.35rem 0.75rem",
+                            backgroundColor: "var(--hover-bg)",
+                            borderRadius: "99px",
+                            fontSize: "clamp(0.7rem, 2vw, 0.8rem)",
+                            fontFamily: "var(--font-mono)",
+                            marginBottom: "clamp(1.5rem, 3vh, 2rem)"
+                        }}>
+                            <Clock className="w-3.5 h-3.5" style={{ color: "var(--accent)" }} />
+                            <span style={{ color: "var(--text-secondary)" }}>The Clock</span>
+                        </div>
 
-                    {/* 1. Header: The Clock */}
-                    <header style={{ marginBottom: "8rem", textAlign: "center" }}>
                         <h1 style={{
                             fontFamily: "'Playfair Display', serif",
-                            fontSize: "3rem",
+                            fontSize: "clamp(2.5rem, 8vw, 4.5rem)",
                             fontWeight: 400,
-                            letterSpacing: "-0.05em",
-                            marginBottom: "1rem",
-                            color: "var(--foreground)"
+                            letterSpacing: "-0.03em",
+                            lineHeight: 1.1,
+                            marginBottom: "clamp(1.5rem, 3vh, 2rem)",
+                            color: "var(--foreground)",
+                            maxWidth: "16ch",
+                            margin: "0 auto"
                         }}>
-                            Time.
+                            Every second is a choice.
                         </h1>
+
+                        {/* The Big Clock */}
                         <div style={{
                             fontFamily: "var(--font-mono)",
-                            fontSize: "clamp(4rem, 12vw, 8rem)",
-                            fontWeight: 100, // Ultra thin
+                            fontSize: "clamp(5rem, 18vw, 12rem)",
+                            fontWeight: 100,
                             color: "var(--foreground)",
                             letterSpacing: "-0.05em",
-                            lineHeight: 0.9,
+                            lineHeight: 0.85,
                             display: "flex",
                             justifyContent: "center",
                             alignItems: "baseline",
-                            gap: "1rem"
+                            gap: "clamp(0.5rem, 2vw, 1rem)",
+                            margin: "clamp(1.5rem, 3vh, 2rem) 0"
                         }}>
                             <span>{hoursStr}</span>
-                            <span style={{ opacity: 0.3, fontSize: "clamp(2rem, 6vw, 4rem)", animation: "pulse 2s infinite" }}>:</span>
+                            <span style={{ opacity: 0.3, fontSize: "clamp(2.5rem, 10vw, 6rem)", animation: "pulse 2s infinite" }}>:</span>
                             <span>{minutes}</span>
                         </div>
+
+                        {/* Date */}
+                        <p style={{
+                            fontFamily: "var(--font-mono)",
+                            fontSize: "clamp(0.8rem, 2vw, 0.9rem)",
+                            color: "var(--text-muted)",
+                            marginBottom: "clamp(1.5rem, 3vh, 2rem)"
+                        }}>
+                            {fullDate}
+                        </p>
+
                         <p style={{
                             fontFamily: "'Source Serif 4', serif",
-                            fontSize: "1.25rem",
+                            fontSize: "clamp(1rem, 2.5vw, 1.2rem)",
                             color: "var(--text-secondary)",
-                            marginTop: "2rem",
-                            fontStyle: "italic"
+                            fontStyle: "italic",
+                            maxWidth: "45ch",
+                            margin: "0 auto",
+                            lineHeight: 1.6
                         }}>
-                            "Waktu adalah nyawa."
+                            Waktu adalah komoditas paling berharga.
+                            Sekali habis, takkan kembali lagi.
                         </p>
-                    </header>
-
-                    {/* 2. Stats Grid - Minimalist */}
-                    <div style={{
-                        display: "grid",
-                        gridTemplateColumns: "repeat(2, 1fr)",
-                        gap: "4rem",
-                        marginBottom: "8rem",
-                        textAlign: "center"
-                    }}>
-                        {[
-                            { label: "Hari ke-", value: dayOfYear },
-                            { label: "Sisa", value: daysRemaining },
-                            { label: "Minggu", value: weekNumber },
-                            { label: "Progress", value: `${percentComplete}%` },
-                        ].map((stat, i) => (
-                            <div key={i}>
-                                <div style={{
-                                    fontFamily: "var(--font-mono)",
-                                    fontSize: "3rem",
-                                    fontWeight: 200,
-                                    color: "var(--foreground)",
-                                    marginBottom: "0.5rem",
-                                    letterSpacing: "-0.03em"
-                                }}>
-                                    {stat.value}
-                                </div>
-                                <div style={{
-                                    fontFamily: "'Source Serif 4', serif",
-                                    fontSize: "1rem",
-                                    color: "var(--text-secondary)",
-                                    fontStyle: "italic"
-                                }}>
-                                    {stat.label}
-                                </div>
-                            </div>
-                        ))}
                     </div>
+                </Container>
+            </section>
 
-                    {/* 3. Visualization */}
-                    <div style={{ marginBottom: "8rem" }}>
-                        <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "3rem", alignItems: "baseline" }}>
+            {/* Main Content */}
+            <Container>
+                <div className="animate-fade-in animation-delay-200" style={{ maxWidth: "42rem", margin: "0 auto" }}>
+
+                    {/* Stats Grid */}
+                    <section style={{ marginBottom: "clamp(3rem, 6vh, 4rem)" }}>
+                        <div style={{
+                            display: "grid",
+                            gridTemplateColumns: "repeat(2, 1fr)",
+                            gap: "clamp(1rem, 3vw, 1.5rem)"
+                        }}>
+                            <StatCard
+                                icon={Calendar}
+                                value={dayOfYear}
+                                label="Day of Year"
+                                sublabel={`Hari ke-${dayOfYear} dari ${totalDays}`}
+                            />
+                            <StatCard
+                                icon={Hourglass}
+                                value={daysRemaining}
+                                label="Days Remaining"
+                                sublabel="Masih ada waktu"
+                            />
+                            <StatCard
+                                icon={Sun}
+                                value={weekNumber}
+                                label="Week"
+                                sublabel={`Minggu ke-${weekNumber} tahun ini`}
+                            />
+                            <StatCard
+                                icon={TrendingUp}
+                                value={`${percentComplete}%`}
+                                label="Year Progress"
+                                sublabel={parseFloat(percentComplete) < 25 ? "Baru mulai" : parseFloat(percentComplete) < 50 ? "Hampir setengah" : parseFloat(percentComplete) < 75 ? "Lewat pertengahan" : "Mendekati akhir"}
+                            />
+                        </div>
+                    </section>
+
+                    {/* Visualization Section */}
+                    <section style={{ marginBottom: "clamp(3rem, 6vh, 4rem)" }}>
+                        <div style={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "0.75rem",
+                            marginBottom: "clamp(1.25rem, 3vh, 1.75rem)"
+                        }}>
+                            <Hourglass className="w-4 h-4" style={{ color: "var(--accent)" }} />
                             <h2 style={{
                                 fontFamily: "'Playfair Display', serif",
-                                fontSize: "2rem",
-                                fontWeight: 400,
+                                fontSize: "clamp(1.25rem, 3vw, 1.5rem)",
+                                fontWeight: 500,
+                                margin: 0,
+                                flex: 1
                             }}>
                                 Perspective
                             </h2>
@@ -213,14 +337,14 @@ export default function TimePage() {
                                     background: "transparent",
                                     border: "none",
                                     fontFamily: "var(--font-mono)",
-                                    fontSize: "0.85rem",
+                                    fontSize: "clamp(0.75rem, 2vw, 0.85rem)",
                                     color: "var(--text-secondary)",
                                     cursor: "pointer",
                                     textDecoration: "underline",
                                     padding: 0
                                 }}
                             >
-                                Switch View
+                                {viewMode === 'dots' ? 'Bar View' : 'Dot View'}
                             </button>
                         </div>
 
@@ -230,7 +354,11 @@ export default function TimePage() {
                                 display: "flex",
                                 flexWrap: "wrap",
                                 gap: "4px",
-                                justifyContent: "center"
+                                justifyContent: "center",
+                                padding: "clamp(1.25rem, 3vw, 1.75rem)",
+                                backgroundColor: "var(--card-bg)",
+                                borderRadius: "16px",
+                                border: "1px solid var(--border)"
                             }}>
                                 {Array.from({ length: totalDays }, (_, i) => {
                                     const dayNum = i + 1;
@@ -245,9 +373,9 @@ export default function TimePage() {
                                                 width: "6px",
                                                 height: "6px",
                                                 borderRadius: "50%",
-                                                backgroundColor: "var(--foreground)",
-                                                opacity: isPast ? 0.1 : isToday ? 1 : 0.05, // Very subtle future
-                                                transform: isToday ? "scale(1.5)" : "none",
+                                                backgroundColor: isToday ? "var(--accent)" : "var(--foreground)",
+                                                opacity: isPast ? 0.2 : isToday ? 1 : 0.06,
+                                                transform: isToday ? "scale(1.8)" : "none",
                                                 transition: "all 0.3s ease"
                                             }}
                                         />
@@ -258,35 +386,83 @@ export default function TimePage() {
 
                         {/* CLASSIC VIEW (BARS) */}
                         {viewMode === 'classic' && (
-                            <div>
+                            <div style={{
+                                padding: "clamp(1.25rem, 3vw, 1.75rem)",
+                                backgroundColor: "var(--card-bg)",
+                                borderRadius: "16px",
+                                border: "1px solid var(--border)"
+                            }}>
                                 {/* Year Bar */}
-                                <div style={{ marginBottom: "3rem" }}>
-                                    <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "0.5rem", fontSize: "0.9rem", fontFamily: "var(--font-mono)", color: "var(--text-secondary)" }}>
-                                        <span>2025 Progress</span>
-                                        <span>{percentComplete}%</span>
+                                <div style={{ marginBottom: "clamp(2rem, 4vh, 2.5rem)" }}>
+                                    <div style={{
+                                        display: "flex",
+                                        justifyContent: "space-between",
+                                        marginBottom: "0.75rem",
+                                        fontSize: "clamp(0.85rem, 2vw, 0.95rem)",
+                                        fontFamily: "var(--font-mono)",
+                                        color: "var(--text-secondary)"
+                                    }}>
+                                        <span>{year} Progress</span>
+                                        <span style={{ color: "var(--accent)" }}>{percentComplete}%</span>
                                     </div>
-                                    <div style={{ width: "100%", height: "2px", background: "var(--border)", position: "relative" }}>
+                                    <div style={{
+                                        width: "100%",
+                                        height: "8px",
+                                        background: "var(--hover-bg)",
+                                        borderRadius: "4px",
+                                        position: "relative",
+                                        overflow: "hidden"
+                                    }}>
                                         <div style={{
-                                            position: "absolute", left: 0, top: 0, height: "100%",
+                                            position: "absolute",
+                                            left: 0,
+                                            top: 0,
+                                            height: "100%",
                                             width: `${percentComplete}%`,
-                                            background: "var(--foreground)"
+                                            background: "var(--accent)",
+                                            borderRadius: "4px",
+                                            transition: "width 0.5s ease"
                                         }} />
                                     </div>
                                 </div>
 
                                 {/* Month Bars */}
-                                <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "2rem" }}>
+                                <div style={{
+                                    display: "grid",
+                                    gridTemplateColumns: "repeat(3, 1fr)",
+                                    gap: "clamp(1rem, 2vw, 1.5rem)"
+                                }}>
                                     {monthData.map((m, i) => (
-                                        <div key={i} style={{ opacity: m.isPast || m.isCurrent ? 1 : 0.3 }}>
-                                            <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "0.5rem", fontSize: "0.8rem", fontFamily: "var(--font-mono)", color: "var(--text-secondary)" }}>
-                                                <span>{m.name}</span>
+                                        <div key={i} style={{ opacity: m.isPast || m.isCurrent ? 1 : 0.4 }}>
+                                            <div style={{
+                                                display: "flex",
+                                                justifyContent: "space-between",
+                                                alignItems: "center",
+                                                marginBottom: "0.5rem",
+                                                fontSize: "clamp(0.75rem, 1.8vw, 0.85rem)",
+                                                fontFamily: "var(--font-mono)",
+                                                color: m.isCurrent ? "var(--accent)" : "var(--text-secondary)"
+                                            }}>
+                                                <span style={{ fontWeight: m.isCurrent ? 600 : 400 }}>{m.name}</span>
                                                 {m.isCurrent && <span>{m.percentage.toFixed(0)}%</span>}
+                                                {m.isPast && <span style={{ color: "var(--text-muted)" }}>✓</span>}
                                             </div>
-                                            <div style={{ width: "100%", height: "1px", background: "var(--border)", position: "relative" }}>
+                                            <div style={{
+                                                width: "100%",
+                                                height: "3px",
+                                                background: "var(--hover-bg)",
+                                                borderRadius: "2px",
+                                                position: "relative",
+                                                overflow: "hidden"
+                                            }}>
                                                 <div style={{
-                                                    position: "absolute", left: 0, top: 0, height: "100%",
+                                                    position: "absolute",
+                                                    left: 0,
+                                                    top: 0,
+                                                    height: "100%",
                                                     width: `${m.percentage}%`,
-                                                    background: "var(--foreground)"
+                                                    background: m.isCurrent ? "var(--accent)" : "var(--foreground)",
+                                                    borderRadius: "2px"
                                                 }} />
                                             </div>
                                         </div>
@@ -294,30 +470,39 @@ export default function TimePage() {
                                 </div>
                             </div>
                         )}
-                    </div>
+                    </section>
 
-                    {/* Quote */}
-                    <footer style={{
-                        textAlign: "center",
-                        paddingTop: "2rem",
+                    {/* Inspirational Footer */}
+                    <div style={{
+                        marginTop: "clamp(2rem, 4vh, 3rem)",
+                        paddingTop: "clamp(2rem, 4vh, 3rem)",
                         borderTop: "1px solid var(--border)",
-                        marginTop: "2rem"
+                        textAlign: "center"
                     }}>
                         <p style={{
-                            fontFamily: "'Source Serif 4', serif",
-                            fontSize: "1.1rem",
-                            color: "var(--text-secondary)",
+                            fontFamily: "'Playfair Display', serif",
+                            fontSize: "clamp(1.1rem, 3vw, 1.35rem)",
                             fontStyle: "italic",
-                            lineHeight: 1.6,
-                            maxWidth: "600px",
-                            margin: "0 auto"
+                            color: "var(--text-secondary)",
+                            maxWidth: "30ch",
+                            margin: "0 auto",
+                            lineHeight: 1.5
                         }}>
-                            "Waktu adalah nyawa. Kehilangan uang bisa dicari, kehilangan waktu takkan kembali."
+                            "Your time is limited. Don't waste it living someone else's life."
                         </p>
-                    </footer>
-
+                        <p style={{
+                            fontFamily: "var(--font-mono)",
+                            fontSize: "clamp(0.7rem, 1.5vw, 0.8rem)",
+                            color: "var(--text-muted)",
+                            marginTop: "0.75rem",
+                            textTransform: "uppercase",
+                            letterSpacing: "0.1em"
+                        }}>
+                            — Steve Jobs
+                        </p>
+                    </div>
                 </div>
             </Container>
-        </section>
+        </div>
     );
 }
