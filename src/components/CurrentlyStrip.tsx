@@ -7,6 +7,7 @@ const playlist = [
     "Sally Sendiri — Noah",
     "Kukatakan Dengan Indah — Noah",
     "Andaikan Kau Datang — Noah",
+    "Jalani Mimpi — Noah",
 ];
 
 
