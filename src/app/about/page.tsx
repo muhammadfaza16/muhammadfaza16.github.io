@@ -259,9 +259,9 @@ export default function AboutPage() {
                                 margin: 0
                             }}
                         >
-                            Nama gue Faza. By day, gue ngulik frontend dan AI. By night,
-                            gue nulis tentang hal-hal yang bikin gue penasaran.
-                            Website ini adalah brain dump gue — berantakan, tapi jujur.
+                            Hi, I'm Faza. Cuma orang biasa yang suka ngoding sambil ngopi.
+                            Ini personal log gue. Kumpulan eksperimen, catatan teknis,
+                            dan hal-hal random yang gue kerjain.
                         </motion.p>
 
                         <motion.p
@@ -273,7 +273,7 @@ export default function AboutPage() {
                                 marginTop: "clamp(1.5rem, 3vh, 2rem)"
                             }}
                         >
-                            Frontend Engineer · Jakarta
+                            Backend Engineer · AI Enthusiast · Part-time overthinker
                         </motion.p>
                     </motion.div>
                 </Container>
