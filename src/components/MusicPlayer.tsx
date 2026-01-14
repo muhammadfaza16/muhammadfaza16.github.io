@@ -33,6 +33,36 @@ const PLAYLIST = [
         title: "Kau Masih Kekasihku",
         artist: "Naff",
         url: "https://www.youtube.com/watch?v=333M7tS4B4Y"
+    },
+    {
+        title: "Apa Kabar Sayang",
+        artist: "Armada",
+        url: "https://www.youtube.com/watch?v=5VdZ9LzJm6A"
+    },
+    {
+        title: "Buka Hatimu",
+        artist: "Armada",
+        url: "https://www.youtube.com/watch?v=hJ3_j9g9Zq8"
+    },
+    {
+        title: "Sumpah dan Cinta Matiku",
+        artist: "Nidji",
+        url: "https://www.youtube.com/watch?v=8yU7-5eX8_A"
+    },
+    {
+        title: "Asmara",
+        artist: "Setia Band",
+        url: "https://www.youtube.com/watch?v=F0oK6-k9z-8"
+    },
+    {
+        title: "Harusnya Aku",
+        artist: "Armada",
+        url: "https://www.youtube.com/watch?v=qE4e5f4x-6I"
+    },
+    {
+        title: "Mimpi Yang Hilang",
+        artist: "Iklim",
+        url: "https://www.youtube.com/watch?v=P_J3K-6W_sA"
     }
 ];
 
