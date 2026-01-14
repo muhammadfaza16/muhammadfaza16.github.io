@@ -97,15 +97,24 @@ function FocusItem({
 // Music card with album art placeholder
 function MusicCard() {
     return (
-        <div style={{
-            display: "flex",
-            alignItems: "center",
-            gap: "clamp(1rem, 3vw, 1.25rem)",
-            padding: "clamp(1rem, 3vw, 1.25rem)",
-            backgroundColor: "var(--card-bg)",
-            borderRadius: "16px",
-            border: "1px solid var(--border)"
-        }}>
+        <a
+            href="https://www.youtube.com/watch?v=B1ynHmn0XZ4&list=RDgR5I408_tCc&index=11"
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "clamp(1rem, 3vw, 1.25rem)",
+                padding: "clamp(1rem, 3vw, 1.25rem)",
+                backgroundColor: "var(--card-bg)",
+                borderRadius: "16px",
+                border: "1px solid var(--border)",
+                textDecoration: "none",
+                color: "inherit",
+                transition: "all 0.3s ease"
+            }}
+            className="hover:border-[var(--border-strong)]"
+        >
             {/* Album art placeholder with gradient */}
             <div style={{
                 width: "clamp(56px, 15vw, 72px)",
@@ -154,18 +163,18 @@ function MusicCard() {
                     marginBottom: "0.25rem",
                     fontFamily: "'Source Serif 4', serif"
                 }}>
-                    Lofi Girl Radio
+                    Bintang di Surga
                 </p>
                 <p style={{
                     color: "var(--text-secondary)",
                     fontSize: "clamp(0.8rem, 2vw, 0.9rem)",
                     margin: 0
                 }}>
-                    Beats buat deep work session ☕
+                    Noah
                 </p>
             </div>
             <Headphones className="w-5 h-5" style={{ color: "var(--text-muted)", flexShrink: 0 }} />
-        </div>
+        </a>
     );
 }
 
