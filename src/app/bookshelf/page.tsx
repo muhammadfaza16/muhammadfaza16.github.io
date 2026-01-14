@@ -3,17 +3,30 @@ import { Metadata } from "next";
 import { BookOpen, Star, Clock, CheckCircle } from "lucide-react";
 
 export const metadata: Metadata = {
-    title: "Bookshelf | The Almanac of Broken Wanderer",
+    title: "Bookshelf | The Almanack of Broken Wanderer",
     description: "Koleksi buku yang telah dan sedang saya baca.",
 };
 
 const books = [
-    { title: "Thinking, Fast and Slow", author: "Daniel Kahneman", status: "Reading", notes: "Tiap chapter butuh digesting lama. Worth every minute." },
-    { title: "Clean Architecture", author: "Robert C. Martin", status: "Reading", notes: "The dependency rule changes how I think about code." },
-    { title: "Atomic Habits", author: "James Clear", status: "Finished", notes: "1% better every day compounds into something massive." },
-    { title: "Sapiens", author: "Yuval Noah Harari", status: "Finished", notes: "Humbling perspective on what it means to be human." },
-    { title: "Man's Search for Meaning", author: "Viktor E. Frankl", status: "Favorite", notes: "The kind of book that rewires your brain permanently." },
-    { title: "The Alchemist", author: "Paulo Coelho", status: "Favorite", notes: "Sometimes the journey matters more than the treasure." },
+    // Exact Sciences / Physics / Math
+    { title: "The Feynman Lectures on Physics", author: "Richard P. Feynman", status: "Favorite", notes: "The absolute gold standard for physical intuition. Not just equations, but understanding." },
+    { title: "The Beginning of Infinity", author: "David Deutsch", status: "Reading", notes: "A profound exploration of knowledge, reason, and the unlimited potential of explanation." },
+    { title: "Cosmos", author: "Carl Sagan", status: "Finished", notes: "A poetic voyage through the universe that reminds us of our place in the grand scheme." },
+    { title: "Gödel, Escher, Bach", author: "Douglas Hofstadter", status: "Reading", notes: "A fugue on minds and machines. Mental gymnastics at its finest." },
+
+    // Psychology / Human Nature
+    { title: "Behave", author: "Robert Sapolsky", status: "Favorite", notes: "The best book on human behavior, period. Biology, neuroscience, and environment converged." },
+    { title: "The Moral Animal", author: "Robert Wright", status: "Finished", notes: "Evolutionary psychology explaining why we are the way we are. Uncomfortable but necessary." },
+    { title: "Thinking, Fast and Slow", author: "Daniel Kahneman", status: "Finished", notes: "Exposing the bugs in our wetware. Essential for anyone wanting to be rational." },
+
+    // Economics / Politics / History
+    { title: "Why Nations Fail", author: "D. Acemoglu & J. Robinson", status: "Finished", notes: "Institutions matter. A robust framework for understanding global inequality." },
+    { title: "Poor Economics", author: "Abhijit Banerjee & Esther Duflo", status: "Reading", notes: "Empirical development economics. Moving beyond theory to what actually works." },
+    { title: "Guns, Germs, and Steel", author: "Jared Diamond", status: "Finished", notes: "Geographic determinism. A macro-history lens that explains the broad strokes of civilization." },
+
+    // Life / Philosophy / Taste
+    { title: "When Breath Becomes Air", author: "Paul Kalanithi", status: "Favorite", notes: "A confronting, beautiful meditation on mortality and what makes life worth living." },
+    { title: "Exhalation", author: "Ted Chiang", status: "Finished", notes: "Sci-fi that feels like philosophy. Stories that linger in your mind for years." },
 ];
 
 function StatusIcon({ status }: { status: string }) {
@@ -109,7 +122,7 @@ export default function BookshelfPage() {
                             marginBottom: "clamp(1.5rem, 3vh, 2rem)"
                         }}>
                             <BookOpen className="w-3.5 h-3.5" style={{ color: "var(--accent)" }} />
-                            <span style={{ color: "var(--text-secondary)" }}>The Library</span>
+                            <span style={{ color: "var(--text-secondary)" }}>The Polymath's Shelf</span>
                         </div>
 
                         <h1 style={{
@@ -122,19 +135,20 @@ export default function BookshelfPage() {
                             color: "var(--foreground)",
                             maxWidth: "16ch"
                         }}>
-                            I read to live more lives.
+                            Connecting the dots.
                         </h1>
 
                         <p style={{
                             fontFamily: "'Source Serif 4', serif",
                             fontSize: "clamp(1rem, 2.5vw, 1.2rem)",
                             color: "var(--text-secondary)",
-                            maxWidth: "45ch",
+                            maxWidth: "48ch",
                             lineHeight: 1.6,
                             margin: 0
                         }}>
-                            Buku-buku yang ngebentuk cara gue mikir. Some I re-read,
-                            most I highlight aggressively.
+                            From quantum mechanics to market dynamics, from evolutionary
+                            psychology to the human condition. A curated collection for understanding
+                            how the world actually works.
                         </p>
                     </div>
                 </Container>
@@ -144,26 +158,7 @@ export default function BookshelfPage() {
             <Container>
                 <div className="animate-fade-in animation-delay-200" style={{ maxWidth: "52rem" }}>
 
-                    {/* Disclaimer */}
-                    <div style={{
-                        padding: "clamp(0.875rem, 2vw, 1rem)",
-                        marginBottom: "clamp(2rem, 4vh, 3rem)",
-                        background: "rgba(var(--foreground-rgb), 0.05)",
-                        border: "1px solid var(--border)",
-                        borderRadius: "12px",
-                        fontFamily: "var(--font-mono)",
-                        fontSize: "clamp(0.7rem, 1.8vw, 0.8rem)",
-                        color: "var(--text-secondary)",
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "clamp(0.75rem, 2vw, 1rem)"
-                    }}>
-                        <span style={{ fontSize: "1.25rem" }}>⚠️</span>
-                        <div>
-                            <strong style={{ color: "var(--foreground)", display: "block", marginBottom: "0.25rem" }}>Notice</strong>
-                            The data below is currently placeholder content for demonstration purposes.
-                        </div>
-                    </div>
+
 
                     {/* Books Grid */}
                     <div style={{
