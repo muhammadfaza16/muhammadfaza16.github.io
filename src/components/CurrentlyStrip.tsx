@@ -99,12 +99,12 @@ function formatTime(date: Date): string {
     });
 }
 
-function MarqueeContent({ currentSong, currentTime, slotA, slotB, activeSlot }: {
+function MarqueeContent({ currentSong, currentTime, greeting, previousGreeting, isTransitioning }: {
     currentSong: string;
     currentTime: string;
-    slotA: string;
-    slotB: string;
-    activeSlot: "A" | "B";
+    greeting: string;
+    previousGreeting: string;
+    isTransitioning: boolean;
 }) {
     // Mood based on time of day
     const hour = new Date().getHours();
@@ -153,34 +153,38 @@ function MarqueeContent({ currentSong, currentTime, slotA, slotB, activeSlot }: 
                     // overflow: "hidden", // Removed to prevent clipping
                     verticalAlign: "bottom" // Align with icon
                 }}>
-                    {/* Invisible copy to set container width dynamicallly - ALWAYS use the longer of the two slots */}
+                    {/* Invisible copy to set container width dynamicallly - use the LONGER text to prevent clipping */}
                     <span style={{ visibility: "hidden" }}>
-                        {slotA.length > slotB.length ? slotA : slotB}
+                        {greeting.length > previousGreeting.length ? greeting : previousGreeting}
                     </span>
 
-                    {/* Slot A - fades in/out based on activeSlot */}
+                    {/* Old greeting - fades out */}
                     <span style={{
                         position: "absolute",
                         left: 0,
                         top: 0,
                         width: "100%", // Matches absolute width to container width
                         whiteSpace: "nowrap",
-                        opacity: activeSlot === "A" ? 1 : 0,
+                        // overflow: "hidden",
+                        // textOverflow: "ellipsis",
+                        opacity: isTransitioning ? 1 : 0,
                         transition: "opacity 1.2s ease-in-out"
                     }}>
-                        {slotA}
+                        {previousGreeting}
                     </span>
-                    {/* Slot B - fades in/out based on activeSlot */}
+                    {/* New greeting - fades in */}
                     <span style={{
                         position: "absolute",
                         left: 0,
                         top: 0,
                         width: "100%",
                         whiteSpace: "nowrap",
-                        opacity: activeSlot === "B" ? 1 : 0,
+                        // overflow: "hidden",
+                        // textOverflow: "ellipsis",
+                        opacity: isTransitioning ? 0 : 1,
                         transition: "opacity 1.2s ease-in-out"
                     }}>
-                        {slotB}
+                        {greeting}
                     </span>
                 </span>
             </div>
@@ -214,16 +218,15 @@ function MarqueeContent({ currentSong, currentTime, slotA, slotB, activeSlot }: 
 export function CurrentlyStrip() {
     const [songIndex, setSongIndex] = useState(0);
     const [currentTime, setCurrentTime] = useState("");
-    // Double buffer state for smooth transitions
-    const [slotA, setSlotA] = useState("");
-    const [slotB, setSlotB] = useState("");
-    const [activeSlot, setActiveSlot] = useState<"A" | "B">("A");
+    const [greeting, setGreeting] = useState("");
+    const [previousGreeting, setPreviousGreeting] = useState("");
+    const [isTransitioning, setIsTransitioning] = useState(false);
 
     useEffect(() => {
         // Initial setup
         const initialGreeting = getGreeting(new Date().getHours());
-        setSlotA(initialGreeting);
-        // slotB can start empty or same, doesn't matter as it's hidden
+        setGreeting(initialGreeting);
+        setPreviousGreeting(initialGreeting);
 
         // Update time every second
         const updateTime = () => {
@@ -242,17 +245,21 @@ export function CurrentlyStrip() {
         const greetingInterval = setInterval(() => {
             const newGreeting = getGreeting(new Date().getHours());
 
-            // Ping pong between slots
-            setActiveSlot((current) => {
-                if (current === "A") {
-                    setSlotB(newGreeting); // Prepare slot B
-                    return "B"; // Switch to B
-                } else {
-                    setSlotA(newGreeting); // Prepare slot A
-                    return "A"; // Switch to A
-                }
+            // Start transition - old text will fade out, new will fade in
+            setIsTransitioning(true);
+
+            // Immediately set the new greeting (crossfade handles the visual)
+            setGreeting((current) => {
+                setPreviousGreeting(current); // Save current as previous for crossfade
+                return newGreeting;
             });
-        }, 20000); // 20s interval for reading time + transition
+
+            // End transition after crossfade completes
+            setTimeout(() => {
+                setIsTransitioning(false);
+            }, 1200); // Match the CSS transition duration
+
+        }, 60000);
 
         return () => {
             clearInterval(timeInterval);
@@ -335,16 +342,16 @@ export function CurrentlyStrip() {
                 <MarqueeContent
                     currentSong={currentSong}
                     currentTime={currentTime}
-                    slotA={slotA}
-                    slotB={slotB}
-                    activeSlot={activeSlot}
+                    greeting={greeting}
+                    previousGreeting={previousGreeting}
+                    isTransitioning={isTransitioning}
                 />
                 <MarqueeContent
                     currentSong={currentSong}
                     currentTime={currentTime}
-                    slotA={slotA}
-                    slotB={slotB}
-                    activeSlot={activeSlot}
+                    greeting={greeting}
+                    previousGreeting={previousGreeting}
+                    isTransitioning={isTransitioning}
                 />
             </div>
         </div>
