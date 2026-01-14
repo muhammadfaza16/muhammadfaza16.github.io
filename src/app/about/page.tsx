@@ -188,17 +188,17 @@ export default function AboutPage() {
         {
             icon: MousePointer2,
             title: "Simplicity First",
-            desc: "Kalau bisa simple, kenapa harus ribet? Gue lawan entropi di setiap baris kode."
+            desc: "Kompleksitas adalah hutang. Setiap fitur yang gak perlu adalah beban yang harus dibayar nanti."
         },
         {
             icon: Atom,
             title: "First Principles",
-            desc: "Grounded in math, driven by science. Coding itu bentuk terapan dari logika murni."
+            desc: "Jangan percaya best practices secara buta. Breakdown sampai ke akar, rebuild dari situ."
         },
         {
             icon: Fingerprint,
             title: "Soulful Craft",
-            desc: "Coding itu kayak nulis puisi buat mesin. Harus elegan, efisien, dan bersih."
+            desc: "Kode yang bagus itu kayak prosa yang bagus — tiap baris punya alasan untuk ada."
         }
     ];
 
@@ -245,7 +245,7 @@ export default function AboutPage() {
                                 maxWidth: "16ch"
                             }}
                         >
-                            Building digital artifacts.
+                            I turn caffeine into code.
                         </motion.h1>
 
                         <motion.p
@@ -259,9 +259,9 @@ export default function AboutPage() {
                                 margin: 0
                             }}
                         >
-                            Hi, I'm Faza. Cuma orang biasa yang suka ngoding sambil ngopi.
-                            Ini personal log gue — kumpulan eksperimen, catatan teknis,
-                            dan hal-hal random yang gue kerjain.
+                            Nama gue Faza. By day, gue ngulik frontend dan AI. By night,
+                            gue nulis tentang hal-hal yang bikin gue penasaran.
+                            Website ini adalah brain dump gue — berantakan, tapi jujur.
                         </motion.p>
 
                         <motion.p
