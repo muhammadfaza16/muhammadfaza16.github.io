@@ -273,7 +273,7 @@ export default function AboutPage() {
                                 marginTop: "clamp(1.5rem, 3vh, 2rem)"
                             }}
                         >
-                            Software Engineer · Professional overthinker · Lover
+                            Software Engineer · Professional Overthinker · Part-time Lover
                         </motion.p>
                     </motion.div>
                 </Container>
