@@ -50,7 +50,7 @@ export function MusicPlayer() {
 
         const interval = setInterval(() => {
             setCurrentIndex((prev) => (prev + 1) % PLAYLIST.length);
-        }, 5 * 60 * 1000); // 5 minutes
+        }, 7000); // 7 seconds
 
         return () => clearInterval(interval);
     }, []);
