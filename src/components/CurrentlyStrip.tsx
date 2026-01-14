@@ -13,67 +13,67 @@ const playlist = [
 
 const greetings = {
     morning: [
-        "Joule per second? No, I measure energy in 'messages from you'. ⚡",
-        "Pagi. Entropi semesta meningkat, tapi perasaanku ke kamu tetap tertib. 🧊",
-        "Compiling my day... Missing dependency: You. 🧩",
-        "Matahari terbit itu fenomena fisika, kalau kamu balas chat itu fenomena hati. ☀️",
-        "Coffee: 100%. Motivation: 50%. Thoughts of you: Overflowing. ☕",
-        "Statistik bilang kemungkinanku bahagia naik 200% kalau kamu sapa. 📈",
-        "Newton's First Law: I will stay in bed unless acted upon by your text. 🛌",
-        "Pagi. Kamu itu konstanta di variabel kehidupanku yang kacau. 📐",
-        "Photosynthesis mode: on. But instead of sunlight, I need your attention. 🌱",
-        "Kalau oksigen itu kebutuhan primer, kamu itu kebutuhan... eh, primer juga deh. 🫧",
-        "Bangun. Dunia butuh orang pintar, aku butuh kamu. 🧠",
-        "Morning. My brain is loading, but my heart is already thinking of you. 🔄",
-        "Secangkir kopi dan notifikasi darimu: Resep awet muda. 🧂",
-        "Hypothesis: Today will be great. Proof: You exist. 📝"
+        "Joule per second? No, I measure energy in 'messages from you'. ⚡ ...garing ya?",
+        "Pagi. Entropi semesta meningkat, tapi perasaanku ke kamu tetap tertib. 🧊 ...maaf.",
+        "Compiling my day... Missing dependency: You. 🧩 ...okay that was nerdy.",
+        "Matahari terbit itu fenomena fisika, kalau kamu balas chat itu fenomena hati. ☀️ ...cringe bet.",
+        "Coffee: 100%. Motivation: 50%. Thoughts of you: Overflowing. ☕ ...sorry not sorry.",
+        "Statistik bilang kemungkinanku bahagia naik 200% kalau kamu sapa. 📈 ...datanya valid kok.",
+        "Newton's First Law: I will stay in bed unless acted upon by your text. 🛌 ...physics joke, geddit?",
+        "Pagi. Kamu itu konstanta di variabel kehidupanku yang kacau. 📐 ...cheesy? iya.",
+        "Photosynthesis mode: on. But instead of sunlight, I need your attention. 🌱 ...garing sih.",
+        "Kalau oksigen itu kebutuhan primer, kamu itu kebutuhan... eh, primer juga deh. 🫧 ...maaf.",
+        "Bangun. Dunia butuh orang pintar, aku butuh kamu. 🧠 ...cringe tapi jujur.",
+        "Morning. My brain is loading, but my heart is already thinking of you. 🔄 ...eaa.",
+        "Secangkir kopi dan notifikasi darimu: Resep awet muda. 🧂 ...lebay ya?",
+        "Hypothesis: Today will be great. Proof: You exist. 📝 ...okay that was smooth. or not."
     ],
     afternoon: [
-        "Siang. Hipotesis: Aku butuh kamu. Eksperimen: Chat ini. 🧪",
-        "Prokrastinasi produktif: Mikirin skenario kita nanti sore. 🎬",
-        "Lunch break? More like 'Daydreaming about you' break. 🥪",
-        "Gravitasi itu lemah dibanding daya tarik notifikasimu. 🪐",
-        "Sedang mengalkulasi rindu. Hasilnya: Tak terhingga. ♾️",
-        "Panas jakarta kalah sama panasnya rindu ini (cringe tapi sayang kan?). 🔥",
-        "Thermodynamics says heat flows, but my cool melts when I see you. 🍦",
-        "Siang. Jangan lupa makan, energi butuh asupan, hati butuh kepastian. 🍛",
-        "Work in progress. 90% coding, 10% wondering what you're doing. 💾",
-        "Lagi sibuk? Sama, sibuk nyari alasan buat nge-chat kamu. 📱",
-        "Siang. Matahari di atas kepala, kamu di dalam kepala. 🌤️",
-        "Is it just me, or did time stop when I looked at your photo? ⏱️",
-        "Refraction index: 1.0. My focus on you: Absolute. 🔍",
-        "Siang. Kalau kamu elemen tabel periodik, kamu pasti Copper (Cu) dan Tellurium (Te). Cute. 🧪"
+        "Siang. Hipotesis: Aku butuh kamu. Eksperimen: Chat ini. 🧪 ...sample size: 1.",
+        "Prokrastinasi produktif: Mikirin skenario kita nanti sore. 🎬 ...creative writing exercise.",
+        "Lunch break? More like 'Daydreaming about you' break. 🥪 ...jangan judge.",
+        "Gravitasi itu lemah dibanding daya tarik notifikasimu. 🪐 ...garing bet.",
+        "Sedang mengalkulasi rindu. Hasilnya: Tak terhingga. ♾️ ...error: overflow.",
+        "Panas jakarta kalah sama panasnya rindu ini. 🔥 ...cringe tapi sayang kan? ...kan?",
+        "Thermodynamics says heat flows, but my cool melts when I see you. 🍦 ...sorry.",
+        "Siang. Jangan lupa makan, energi butuh asupan, hati butuh kepastian. 🍛 ...iya itu cheesy.",
+        "Work in progress. 90% coding, 10% wondering what you're doing. 💾 ...multi-threading.",
+        "Lagi sibuk? Sama, sibuk nyari alasan buat nge-chat kamu. 📱 ...ketahuan.",
+        "Siang. Matahari di atas kepala, kamu di dalam kepala. 🌤️ ...maaf garing.",
+        "Is it just me, or did time stop when I looked at your photo? ⏱️ ...ok that was cringe.",
+        "Refraction index: 1.0. My focus on you: Absolute. 🔍 ...physics joke again. maaf.",
+        "Siang. Kalau kamu elemen tabel periodik, kamu pasti Copper (Cu) dan Tellurium (Te). Cute. 🧪 ...plis jangan tinggalin."
     ],
     evening: [
-        "Sore. Langit oranye, mood rindu, logika macet. 🌇",
-        "Golden hour photography is cool, but have you seen your own smile? 📸",
-        "Kalau senja itu data, kamu itu insight-nya. 📊",
-        "Pulang kerja, otak shutdown, mode kangen activated. 🔌",
-        "Langitnya estetik, kayak kamu pas lagi cerita random. 🎨",
-        "Sore. Efek Doppler: Semakin kamu mendekat, frekuensi jantungku makin tinggi. 💓",
-        "Sunset is nature's way of saying 'job well done'. You are my reward. 🏆",
-        "Kalau lelah, ingat: gravitasi bumi menarikmu ke bawah, tapi aku menarikmu ke pelukan (virtual). 🫂",
-        "Sore. Kopi habis, senja tipis, rindu makin sadis. ☕",
-        "Parsing sunset colors... Error: Beauty overload, just like you. 😵",
-        "Evening. The sky is blushing, probably because it saw you. 😳",
-        "Sore. Mau tebak-tebakan fisika? Kenapa aku jatuh? Karena ada gaya tarik kamu. 🍎",
-        "Commuting home. Destination: You (in my mind at least). 🚇"
+        "Sore. Langit oranye, mood rindu, logika macet. 🌇 ...puitis gagal.",
+        "Golden hour photography is cool, but have you seen your own smile? 📸 ...smooth? no? ok.",
+        "Kalau senja itu data, kamu itu insight-nya. 📊 ...sorry, data analyst brain.",
+        "Pulang kerja, otak shutdown, mode kangen activated. 🔌 ...bug or feature?",
+        "Langitnya estetik, kayak kamu pas lagi cerita random. 🎨 ...cheesy. iya tau.",
+        "Sore. Efek Doppler: Semakin kamu mendekat, frekuensi jantungku makin tinggi. 💓 ...garing banget.",
+        "Sunset is nature's way of saying 'job well done'. You are my reward. 🏆 ...cringe ya? maaf.",
+        "Kalau lelah, ingat: gravitasi bumi menarikmu ke bawah, tapi aku menarikmu ke pelukan (virtual). 🫂 ...too much?",
+        "Sore. Kopi habis, senja tipis, rindu makin sadis. ☕ ...sok puitis. gagal.",
+        "Parsing sunset colors... Error: Beauty overload, just like you. 😵 ...programmer gombal.",
+        "Evening. The sky is blushing, probably because it saw you. 😳 ...ok that was corny.",
+        "Sore. Mau tebak-tebakan fisika? Kenapa aku jatuh? Karena ada gaya tarik kamu. 🍎 ...newton would be disappointed.",
+        "Commuting home. Destination: You (in my mind at least). 🚇 ...creepy ga sih? maaf."
     ],
     night: [
-        "Malam. Dark matter itu misterius, kayak kenapa aku kangen kamu. 🌌",
-        "Sleep is crucial, but talking to you creates more serotonin. 🧬",
-        "Di antara miliaran bintang, aku sibuk nyari satu: Kamu. 🔭",
-        "Apakah kita quantum entangled? Soalnya aku kerasa kalau kamu mikirin aku. ⚛️",
-        "Goodnight. Jangan lupa simpan rindunya buat besok pagi. 📦",
-        "Malam. Teori relativitas: 1 menit nunggu balesanmu = 1 jam. ⏳",
-        "Schrödinger's text: Aku belum tau kamu kangen atau nggak sebelum kamu bales. 📦",
-        "Malam. Kalau bintang bisa bicara, mereka pasti ngomongin kamu. ✨",
-        "Are you a black hole? Because no information (or thought) can escape you. 🕳️",
-        "Sleep mode: Initiated. Dream module: Loading 'You'. 💤",
-        "Malam. Tidur gih, biar besok bisa jadi alasan orang lain (aku) senyum lagi. 🌙",
-        "Big Bang theory? More like Big Bang-et kangennya. 💥",
-        "Universe expansion is accelerating, just like my feelings for you. 🚀",
-        "Goodnight. You interact with my dreams via strong nuclear force. 💫"
+        "Malam. Dark matter itu misterius, kayak kenapa aku kangen kamu. 🌌 ...cheesy galactic level.",
+        "Sleep is crucial, but talking to you creates more serotonin. 🧬 ...science says so. trust.",
+        "Di antara miliaran bintang, aku sibuk nyari satu: Kamu. 🔭 ...cringe astronomi.",
+        "Apakah kita quantum entangled? Soalnya aku kerasa kalau kamu mikirin aku. ⚛️ ...delulu? mungkin.",
+        "Goodnight. Jangan lupa simpan rindunya buat besok pagi. 📦 ...cheesy tapi genuine.",
+        "Malam. Teori relativitas: 1 menit nunggu balesanmu = 1 jam. ⏳ ...einstein would cringe.",
+        "Schrödinger's text: Aku belum tau kamu kangen atau nggak sebelum kamu bales. 📦 ...physics joke. lagi.",
+        "Malam. Kalau bintang bisa bicara, mereka pasti ngomongin kamu. ✨ ...gombalan level langit.",
+        "Are you a black hole? Because no information (or thought) can escape you. 🕳️ ...nerdy pickup line. sorry.",
+        "Sleep mode: Initiated. Dream module: Loading 'You'. 💤 ...programmer vibes. cringe.",
+        "Malam. Tidur gih, biar besok bisa jadi alasan orang lain (aku) senyum lagi. 🌙 ...maaf cheesy.",
+        "Big Bang theory? More like Big Bang-et kangennya. 💥 ...pun intended. pun failed.",
+        "Universe expansion is accelerating, just like my feelings for you. 🚀 ...cosmology gombal.",
+        "Goodnight. You interact with my dreams via strong nuclear force. 💫 ...ok that made no sense. tidur."
     ]
 };
 
@@ -106,11 +106,20 @@ function MarqueeContent({ currentSong, currentTime, greeting, previousGreeting, 
     previousGreeting: string;
     isTransitioning: boolean;
 }) {
+    // Mood based on time of day
+    const hour = new Date().getHours();
+    let mood = "Caffeinated ☕";
+    if (hour >= 5 && hour < 9) mood = "Loading... ⏳";
+    else if (hour >= 9 && hour < 12) mood = "Productive 🎯";
+    else if (hour >= 12 && hour < 14) mood = "Food coma 🍜";
+    else if (hour >= 14 && hour < 17) mood = "Deep focus 🧠";
+    else if (hour >= 17 && hour < 20) mood = "Winding down 🌅";
+    else if (hour >= 20 && hour < 23) mood = "Overthinking 🌀";
+    else mood = "Should be sleeping 😴";
+
     const staticItems = [
-        { icon: Clock, label: "Time", value: currentTime },
         { icon: Headphones, label: "Listening", value: currentSong },
-        { icon: BookOpen, label: "Reading", value: "Thinking, Fast and Slow — Daniel Kahneman" },
-        { icon: Wrench, label: "Building", value: "AI Brand Strategist" },
+        { icon: Sparkles, label: "Mood", value: mood },
     ];
 
     return (
@@ -268,15 +277,16 @@ export function CurrentlyStrip() {
             borderTop: "1px solid var(--border)",
             borderBottom: "1px solid var(--border)",
             padding: "0.5rem 0",
-            position: "relative"
+            position: "relative",
+            borderRadius: "2px" // Subtle premium feel
         }}>
-            {/* Fade edges */}
+            {/* Fade edges - softer gradients */}
             <div style={{
                 position: "absolute",
                 left: 0,
                 top: 0,
                 bottom: 0,
-                width: "40px",
+                width: "60px", // Wider for softer transition
                 background: "linear-gradient(90deg, var(--background) 0%, transparent 100%)",
                 zIndex: 1,
                 pointerEvents: "none"
@@ -286,11 +296,31 @@ export function CurrentlyStrip() {
                 right: 0,
                 top: 0,
                 bottom: 0,
-                width: "40px",
+                width: "60px", // Wider for softer transition
                 background: "linear-gradient(270deg, var(--background) 0%, transparent 100%)",
                 zIndex: 1,
                 pointerEvents: "none"
             }} />
+
+            {/* Fixed Time element - left corner */}
+            <div style={{
+                position: "absolute",
+                left: 0,
+                top: "50%",
+                transform: "translateY(-50%)",
+                zIndex: 2,
+                display: "flex",
+                alignItems: "center",
+                gap: "0.5rem",
+                fontFamily: "var(--font-mono)",
+                fontSize: "0.75rem",
+                color: "var(--text-secondary)",
+                background: "var(--background)",
+                paddingRight: "1rem"
+            }}>
+                <Clock className="w-3 h-3" style={{ color: "var(--accent)" }} />
+                <span style={{ color: "var(--foreground)" }}>{currentTime}</span>
+            </div>
 
             {/* Running text - two copies for seamless loop */}
             <div

@@ -41,10 +41,15 @@ export function OnThisDay() {
                 color: "var(--foreground)",
                 position: "relative",
                 overflow: "hidden",
-                minHeight: "500px", // Prevent layout shift
+                minHeight: "auto", // Let content dictate height on mobile
                 display: "flex",
                 flexDirection: "column",
-                justifyContent: "center"
+                justifyContent: "center",
+                // Card-like container for consistency
+                borderRadius: "1rem",
+                border: "1px solid var(--border)",
+                padding: "clamp(1.5rem, 4vw, 2.5rem)", // Responsive padding
+                background: "var(--background)"
             }}
         >
             {/* Background "ON THIS DAY" Watermark */}
@@ -81,16 +86,16 @@ export function OnThisDay() {
                         alignItems: "center",
                         gap: "0.5rem",
                         padding: "0.5rem 1rem",
-                        background: "var(--hover-bg)",
+                        background: "var(--accent)", // Solid blue
                         borderRadius: "100px",
                         fontSize: "0.75rem",
                         fontFamily: "var(--font-mono)",
                         textTransform: "uppercase",
                         letterSpacing: "0.05em",
-                        color: "var(--text-secondary)"
+                        color: "white" // Contrast for blue bg
                     }}>
                         <Calendar className="w-3 h-3" />
-                        <span>Hari Ini Dalam Sejarah</span>
+                        <span>On This Day</span>
                     </span>
 
                     <span style={{
@@ -118,8 +123,8 @@ export function OnThisDay() {
                         marginBottom: "1.5rem",
                     }}>
                         <span style={{
-                            fontSize: "clamp(5rem, 12vw, 9rem)",
-                            lineHeight: 0.85,
+                            fontSize: "clamp(3.5rem, 10vw, 8rem)", // Smaller on mobile
+                            lineHeight: 0.9,
                             fontWeight: 400,
                             letterSpacing: "-0.04em"
                         }}>
@@ -162,7 +167,7 @@ export function OnThisDay() {
                         }}>
                             <span style={{
                                 float: "left",
-                                fontSize: "3.5em",
+                                fontSize: "clamp(2.5em, 8vw, 3.5em)", // Smaller drop cap on mobile
                                 lineHeight: 0.8,
                                 paddingRight: "0.1em",
                                 paddingTop: "0.1em",
@@ -212,23 +217,10 @@ export function OnThisDay() {
                         transform: "translateY(-50%)",
                         display: "flex",
                         flexDirection: "column",
+                        alignItems: "center", // Center all items
                         gap: "0.5rem",
                         zIndex: 10
                     }}>
-                        {/* Counter */}
-                        <span style={{
-                            fontFamily: "var(--font-mono)",
-                            fontSize: "0.65rem",
-                            color: "var(--text-secondary)",
-                            textAlign: "center",
-                            marginBottom: "0.25rem",
-                            writingMode: "vertical-rl",
-                            textOrientation: "mixed",
-                            opacity: 0.5
-                        }}>
-                            {currentIndex + 1} / {events.length}
-                        </span>
-
                         <button
                             onClick={handlePrev}
                             className="group hover:bg-[var(--hover-bg)] transition-colors backdrop-blur-sm"
@@ -247,6 +239,17 @@ export function OnThisDay() {
                         >
                             <ChevronLeft className="w-4 h-4" />
                         </button>
+
+                        {/* Counter - Between arrows */}
+                        <span style={{
+                            fontFamily: "var(--font-mono)",
+                            fontSize: "0.65rem",
+                            color: "var(--text-secondary)",
+                            opacity: 0.6,
+                            whiteSpace: "nowrap"
+                        }}>
+                            {currentIndex + 1}/{events.length}
+                        </span>
 
                         <button
                             onClick={handleNext}

@@ -31,10 +31,10 @@ export function DidYouKnow() {
                         setCurrentIndex((curr) => (curr + 1) % facts.length);
                         return 0;
                     }
-                    // Increment to reach 100% in 8 seconds (8000ms)
-                    // Interval is 100ms -> 80 steps
-                    // 100 / 80 = 1.25% per step
-                    return prev + 1.25;
+                    // Increment to reach 100% in 12 seconds (12000ms)
+                    // Interval is 100ms -> 120 steps
+                    // 100 / 120 ≈ 0.833% per step
+                    return prev + 0.833;
                 });
             }, 100);
         }
@@ -65,7 +65,7 @@ export function DidYouKnow() {
                 borderRadius: "1rem",
                 background: "var(--card-bg)",
                 border: "1px solid var(--border)",
-                padding: "2rem",
+                padding: "clamp(1.5rem, 4vw, 2rem)", // Responsive padding
                 position: "relative",
                 overflow: "hidden"
             }}
@@ -92,17 +92,18 @@ export function DidYouKnow() {
                             display: "inline-flex",
                             alignItems: "center",
                             gap: "0.5rem",
-                            padding: "0.35rem 0.85rem",
-                            background: "var(--accent)",
-                            color: "var(--background)",
+                            padding: "0.5rem 1rem",
+                            background: "var(--accent)", // Solid blue
+                            border: "none",
                             borderRadius: "100px",
                             fontSize: "0.7rem",
-                            fontWeight: 600,
+                            fontWeight: 500,
                             fontFamily: "var(--font-mono)",
                             textTransform: "uppercase",
                             letterSpacing: "0.05em",
+                            color: "white" // White text for contrast
                         }}>
-                            <Lightbulb className="w-3 h-3 fill-current" />
+                            <Lightbulb className="w-3 h-3" />
                             <span>Did You Know?</span>
                         </span>
 
@@ -147,12 +148,11 @@ export function DidYouKnow() {
                 <div key={animKey} className="animate-fade-in-up">
                     <p style={{
                         fontFamily: "'Source Serif 4', serif",
-                        fontSize: "clamp(1.25rem, 4vw, 1.75rem)",
+                        fontSize: "1.1rem",
                         fontWeight: 400,
-                        lineHeight: 1.6,
-                        color: "var(--foreground)",
-                        marginBottom: "1.5rem",
-                        maxWidth: "40ch"
+                        lineHeight: 1.7,
+                        color: "var(--text-secondary)", // Match OnThisDay
+                        marginBottom: "1.5rem"
                     }}>
                         {fact.text}
                     </p>

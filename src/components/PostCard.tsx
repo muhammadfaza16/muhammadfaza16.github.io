@@ -24,14 +24,14 @@ export function PostCard({ slug, title, excerpt, date, readingTime, thumbnail, h
                 paddingTop: "2rem",
                 paddingBottom: "2rem",
                 borderTop: hideBorderTop ? "none" : "1px solid var(--border)",
-                transition: "transform 0.3s ease, box-shadow 0.3s ease",
+                transition: "transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s cubic-bezier(0.16, 1, 0.3, 1)",
                 borderRadius: "8px",
                 margin: "0 -1rem",
                 padding: "2rem 1rem"
             }}
             onMouseEnter={(e) => {
-                e.currentTarget.style.transform = "translateY(-4px)";
-                e.currentTarget.style.boxShadow = "0 8px 24px rgba(0,0,0,0.06)";
+                e.currentTarget.style.transform = "translateY(-6px)";
+                e.currentTarget.style.boxShadow = "0 12px 32px rgba(0,0,0,0.08)";
             }}
             onMouseLeave={(e) => {
                 e.currentTarget.style.transform = "translateY(0)";
@@ -122,9 +122,9 @@ export function PostCard({ slug, title, excerpt, date, readingTime, thumbnail, h
                                 fontSize: "0.85rem",
                                 fontWeight: 500,
                                 fontFamily: "var(--font-mono)",
-                                opacity: 0,
+                                opacity: 0.3, // Slightly visible by default
                                 transform: "translateX(-10px)",
-                                transition: "opacity 0.3s ease, transform 0.3s ease"
+                                transition: "opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1), transform 0.4s cubic-bezier(0.16, 1, 0.3, 1)"
                             }}
                             className="group-hover:opacity-100 group-hover:translate-x-0"
                         >
