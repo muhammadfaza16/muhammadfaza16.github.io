@@ -235,7 +235,7 @@ export default function NowPage() {
                             margin: 0
                         }}>
                             A living document. Snapshot of current priorities,
-                            obsessions, dan hal-hal yang consuming my bandwidth right now.
+                            obsessions, dan hal-hal yang lagi makan bandwidth gue sekarang.
                         </p>
 
                         <p style={{

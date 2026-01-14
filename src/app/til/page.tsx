@@ -1,5 +1,6 @@
 import { Container } from "@/components/Container";
 import { Metadata } from "next";
+import { GraduationCap, Calendar, Tag } from "lucide-react";
 
 export const metadata: Metadata = {
     title: "TIL | The Almanac of Broken Wanderer",
@@ -27,61 +28,148 @@ const tils = [
     }
 ];
 
+function TilCard({ til }: { til: typeof tils[0] }) {
+    return (
+        <div style={{
+            padding: "clamp(1.25rem, 3vw, 1.75rem)",
+            backgroundColor: "var(--card-bg)",
+            borderRadius: "16px",
+            border: "1px solid var(--border)",
+            transition: "all 0.3s ease"
+        }} className="hover:border-[var(--border-strong)]">
+            <div style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                marginBottom: "clamp(0.75rem, 2vh, 1rem)",
+                flexWrap: "wrap",
+                gap: "0.5rem"
+            }}>
+                <div style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "0.5rem"
+                }}>
+                    <Calendar className="w-3.5 h-3.5" style={{ color: "var(--text-muted)" }} />
+                    <span style={{
+                        fontFamily: "var(--font-mono)",
+                        fontSize: "clamp(0.75rem, 1.8vw, 0.85rem)",
+                        color: "var(--text-muted)"
+                    }}>
+                        {til.date}
+                    </span>
+                </div>
+                <span style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: "0.35rem",
+                    fontFamily: "var(--font-mono)",
+                    fontSize: "clamp(0.65rem, 1.5vw, 0.75rem)",
+                    padding: "0.25rem 0.6rem",
+                    backgroundColor: "var(--hover-bg)",
+                    borderRadius: "99px",
+                    letterSpacing: "0.05em",
+                    color: "var(--text-secondary)"
+                }}>
+                    <Tag className="w-3 h-3" />
+                    {til.tag}
+                </span>
+            </div>
+            <h3 style={{
+                fontFamily: "'Source Serif 4', serif",
+                fontSize: "clamp(1.15rem, 3vw, 1.35rem)",
+                marginBottom: "clamp(0.5rem, 1.5vh, 0.75rem)",
+                lineHeight: 1.3,
+                fontWeight: 500
+            }}>
+                {til.title}
+            </h3>
+            <p style={{
+                fontSize: "clamp(0.9rem, 2.2vw, 1rem)",
+                lineHeight: 1.6,
+                color: "var(--text-secondary)",
+                margin: 0
+            }}>
+                {til.content}
+            </p>
+        </div>
+    );
+}
+
 export default function TILPage() {
     return (
-        <div style={{ paddingBottom: "8rem" }}>
+        <div style={{ paddingBottom: "clamp(4rem, 8vh, 8rem)" }}>
+            {/* Hero Section */}
             <section style={{
-                minHeight: "50vh",
+                minHeight: "auto",
                 display: "flex",
                 flexDirection: "column",
                 justifyContent: "center",
-                paddingTop: "8rem",
-                paddingBottom: "4rem"
+                paddingTop: "clamp(5rem, 12vh, 8rem)",
+                paddingBottom: "clamp(2rem, 4vh, 3rem)"
             }}>
                 <Container>
                     <div className="animate-fade-in-up">
-                        <span style={{
+                        <div style={{
+                            display: "inline-flex",
+                            alignItems: "center",
+                            gap: "0.5rem",
+                            padding: "0.35rem 0.75rem",
+                            backgroundColor: "var(--hover-bg)",
+                            borderRadius: "99px",
+                            fontSize: "clamp(0.7rem, 2vw, 0.8rem)",
                             fontFamily: "var(--font-mono)",
-                            fontSize: "0.9rem",
-                            color: "var(--accent)",
-                            display: "block",
-                            marginBottom: "1.5rem",
-                            textTransform: "uppercase",
-                            letterSpacing: "0.1em"
+                            marginBottom: "clamp(1.5rem, 3vh, 2rem)"
                         }}>
-                            The Knowledge
-                        </span>
+                            <GraduationCap className="w-3.5 h-3.5" style={{ color: "var(--accent)" }} />
+                            <span style={{ color: "var(--text-secondary)" }}>The Knowledge</span>
+                        </div>
+
                         <h1 style={{
                             fontFamily: "'Playfair Display', serif",
-                            fontSize: "clamp(3rem, 6vw, 5rem)",
+                            fontSize: "clamp(2.5rem, 8vw, 4.5rem)",
                             fontWeight: 400,
                             letterSpacing: "-0.03em",
-                            lineHeight: 1,
+                            lineHeight: 1.1,
+                            marginBottom: "clamp(1rem, 2vh, 1.5rem)",
                             color: "var(--foreground)",
-                            maxWidth: "18ch"
+                            maxWidth: "16ch"
                         }}>
-                            Daily compounds of knowledge.
+                            Daily compounds.
                         </h1>
+
+                        <p style={{
+                            fontFamily: "'Source Serif 4', serif",
+                            fontSize: "clamp(1rem, 2.5vw, 1.2rem)",
+                            color: "var(--text-secondary)",
+                            maxWidth: "45ch",
+                            lineHeight: 1.6,
+                            margin: 0
+                        }}>
+                            Micro-learnings yang gue tangkep tiap hari.
+                            Potongan kecil yang bakal jadi besar seiring waktu.
+                        </p>
                     </div>
                 </Container>
             </section>
 
+            {/* Main Content */}
             <Container>
-                <div className="animate-fade-in animation-delay-300" style={{ maxWidth: "45rem" }}>
+                <div className="animate-fade-in animation-delay-200" style={{ maxWidth: "42rem" }}>
 
                     {/* Disclaimer */}
                     <div style={{
-                        padding: "1rem",
-                        marginBottom: "4rem",
+                        padding: "clamp(0.875rem, 2vw, 1rem)",
+                        marginBottom: "clamp(2rem, 4vh, 3rem)",
                         background: "rgba(var(--foreground-rgb), 0.05)",
                         border: "1px solid var(--border)",
                         borderRadius: "12px",
                         fontFamily: "var(--font-mono)",
-                        fontSize: "0.8rem",
+                        fontSize: "clamp(0.7rem, 1.8vw, 0.8rem)",
                         color: "var(--text-secondary)",
                         display: "flex",
                         alignItems: "center",
-                        gap: "1rem"
+                        gap: "clamp(0.75rem, 2vw, 1rem)"
                     }}>
                         <span style={{ fontSize: "1.25rem" }}>⚠️</span>
                         <div>
@@ -90,54 +178,16 @@ export default function TILPage() {
                         </div>
                     </div>
 
-                    {tils.map((til, i) => (
-                        <div key={i} style={{
-                            marginBottom: "4rem",
-                            paddingBottom: "4rem",
-                            borderBottom: "1px solid var(--border)"
-                        }}>
-                            <div style={{
-                                display: "flex",
-                                justifyContent: "space-between",
-                                marginBottom: "1.5rem",
-                                alignItems: "center"
-                            }}>
-                                <span style={{
-                                    fontFamily: "var(--font-mono)",
-                                    fontSize: "0.85rem",
-                                    color: "var(--text-secondary)"
-                                }}>
-                                    {til.date}
-                                </span>
-                                <span style={{
-                                    fontFamily: "var(--font-mono)",
-                                    fontSize: "0.75rem",
-                                    padding: "0.25rem 0.75rem",
-                                    border: "1px solid var(--border)",
-                                    borderRadius: "99px",
-                                    letterSpacing: "0.05em"
-                                }}>
-                                    {til.tag}
-                                </span>
-                            </div>
-                            <h2 style={{
-                                fontFamily: "'Source Serif 4', serif",
-                                fontSize: "1.75rem",
-                                marginBottom: "1rem",
-                                lineHeight: 1.3
-                            }}>
-                                {til.title}
-                            </h2>
-                            <p style={{
-                                fontFamily: "var(--font-sans)",
-                                fontSize: "1.1rem",
-                                lineHeight: 1.7,
-                                color: "var(--text-secondary)"
-                            }}>
-                                {til.content}
-                            </p>
-                        </div>
-                    ))}
+                    {/* TIL List */}
+                    <div style={{
+                        display: "flex",
+                        flexDirection: "column",
+                        gap: "clamp(1rem, 3vw, 1.5rem)"
+                    }}>
+                        {tils.map((til, i) => (
+                            <TilCard key={i} til={til} />
+                        ))}
+                    </div>
                 </div>
             </Container>
         </div>

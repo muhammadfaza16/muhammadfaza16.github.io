@@ -1,5 +1,6 @@
 import { Container } from "@/components/Container";
 import { Metadata } from "next";
+import { Lightbulb, Sparkles } from "lucide-react";
 
 export const metadata: Metadata = {
     title: "Ideas | The Almanac of Broken Wanderer",
@@ -29,61 +30,119 @@ const ideas = [
     },
 ];
 
+function IdeaCard({ idea }: { idea: typeof ideas[0] }) {
+    return (
+        <div style={{
+            padding: "clamp(1.25rem, 3vw, 1.75rem)",
+            backgroundColor: "var(--card-bg)",
+            borderRadius: "16px",
+            border: "1px solid var(--border)",
+            borderLeft: "3px solid var(--accent)",
+            transition: "all 0.3s ease"
+        }} className="hover:border-[var(--border-strong)]">
+            <p style={{
+                fontFamily: "'Source Serif 4', serif",
+                fontSize: "clamp(1rem, 2.5vw, 1.1rem)",
+                lineHeight: 1.6,
+                color: "var(--foreground)",
+                marginBottom: "clamp(1rem, 2vh, 1.25rem)"
+            }}>
+                {idea.content}
+            </p>
+            <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
+                {idea.tags.map(tag => (
+                    <span key={tag} style={{
+                        fontFamily: "var(--font-mono)",
+                        fontSize: "clamp(0.65rem, 1.5vw, 0.75rem)",
+                        color: "var(--text-muted)",
+                        textTransform: "uppercase",
+                        letterSpacing: "0.05em",
+                        padding: "0.25rem 0.5rem",
+                        backgroundColor: "var(--hover-bg)",
+                        borderRadius: "4px"
+                    }}>
+                        #{tag}
+                    </span>
+                ))}
+            </div>
+        </div>
+    );
+}
+
 export default function IdeasPage() {
     return (
-        <div style={{ paddingBottom: "8rem" }}>
+        <div style={{ paddingBottom: "clamp(4rem, 8vh, 8rem)" }}>
+            {/* Hero Section */}
             <section style={{
-                minHeight: "50vh",
+                minHeight: "auto",
                 display: "flex",
                 flexDirection: "column",
                 justifyContent: "center",
-                paddingTop: "8rem",
-                paddingBottom: "4rem"
+                paddingTop: "clamp(5rem, 12vh, 8rem)",
+                paddingBottom: "clamp(2rem, 4vh, 3rem)"
             }}>
                 <Container>
                     <div className="animate-fade-in-up">
-                        <span style={{
+                        <div style={{
+                            display: "inline-flex",
+                            alignItems: "center",
+                            gap: "0.5rem",
+                            padding: "0.35rem 0.75rem",
+                            backgroundColor: "var(--hover-bg)",
+                            borderRadius: "99px",
+                            fontSize: "clamp(0.7rem, 2vw, 0.8rem)",
                             fontFamily: "var(--font-mono)",
-                            fontSize: "0.9rem",
-                            color: "var(--accent)",
-                            display: "block",
-                            marginBottom: "1.5rem",
-                            textTransform: "uppercase",
-                            letterSpacing: "0.1em"
+                            marginBottom: "clamp(1.5rem, 3vh, 2rem)"
                         }}>
-                            The Lab
-                        </span>
+                            <Lightbulb className="w-3.5 h-3.5" style={{ color: "var(--accent)" }} />
+                            <span style={{ color: "var(--text-secondary)" }}>The Lab</span>
+                        </div>
+
                         <h1 style={{
                             fontFamily: "'Playfair Display', serif",
-                            fontSize: "clamp(3rem, 6vw, 5rem)",
+                            fontSize: "clamp(2.5rem, 8vw, 4.5rem)",
                             fontWeight: 400,
                             letterSpacing: "-0.03em",
-                            lineHeight: 1,
+                            lineHeight: 1.1,
+                            marginBottom: "clamp(1rem, 2vh, 1.5rem)",
                             color: "var(--foreground)",
-                            maxWidth: "20ch"
+                            maxWidth: "16ch"
                         }}>
-                            Everything begins as a fragile thought.
+                            Fragile thoughts, captured.
                         </h1>
+
+                        <p style={{
+                            fontFamily: "'Source Serif 4', serif",
+                            fontSize: "clamp(1rem, 2.5vw, 1.2rem)",
+                            color: "var(--text-secondary)",
+                            maxWidth: "45ch",
+                            lineHeight: 1.6,
+                            margin: 0
+                        }}>
+                            Micro-essays dan pemikiran yang belum cukup matang
+                            buat jadi artikel, tapi terlalu berharga buat dilupain.
+                        </p>
                     </div>
                 </Container>
             </section>
 
+            {/* Main Content */}
             <Container>
-                <div className="animate-fade-in animation-delay-300" style={{ maxWidth: "65rem", margin: "0 auto" }}>
+                <div className="animate-fade-in animation-delay-200" style={{ maxWidth: "42rem" }}>
 
                     {/* Disclaimer */}
                     <div style={{
-                        padding: "1rem",
-                        marginBottom: "4rem",
+                        padding: "clamp(0.875rem, 2vw, 1rem)",
+                        marginBottom: "clamp(2rem, 4vh, 3rem)",
                         background: "rgba(var(--foreground-rgb), 0.05)",
                         border: "1px solid var(--border)",
                         borderRadius: "12px",
                         fontFamily: "var(--font-mono)",
-                        fontSize: "0.8rem",
+                        fontSize: "clamp(0.7rem, 1.8vw, 0.8rem)",
                         color: "var(--text-secondary)",
                         display: "flex",
                         alignItems: "center",
-                        gap: "1rem"
+                        gap: "clamp(0.75rem, 2vw, 1rem)"
                     }}>
                         <span style={{ fontSize: "1.25rem" }}>⚠️</span>
                         <div>
@@ -92,42 +151,40 @@ export default function IdeasPage() {
                         </div>
                     </div>
 
-                    <div style={{ columnCount: 1, columnGap: "2rem" }} className="md:columns-2 lg:columns-3">
+                    {/* Ideas List */}
+                    <div style={{
+                        display: "flex",
+                        flexDirection: "column",
+                        gap: "clamp(1rem, 3vw, 1.5rem)"
+                    }}>
                         {ideas.map((idea) => (
-                            <div key={idea.id} style={{
-                                breakInside: "avoid",
-                                marginBottom: "2rem",
-                                padding: "2rem",
-                                backgroundColor: "var(--card-bg)",
-                                borderRadius: "2px",
-                                borderLeft: "2px solid var(--accent)",
-                                position: "relative",
-                                boxShadow: "0 10px 30px -10px rgba(0,0,0,0.05)"
-                            }}>
-                                <p style={{
-                                    fontFamily: "'Source Serif 4', serif",
-                                    fontSize: "1.1rem",
-                                    lineHeight: 1.6,
-                                    color: "var(--foreground)",
-                                    marginBottom: "1.5rem"
-                                }}>
-                                    {idea.content}
-                                </p>
-                                <div style={{ display: "flex", gap: "0.5rem" }}>
-                                    {idea.tags.map(tag => (
-                                        <span key={tag} style={{
-                                            fontFamily: "var(--font-mono)",
-                                            fontSize: "0.75rem",
-                                            color: "var(--text-secondary)",
-                                            textTransform: "uppercase",
-                                            letterSpacing: "0.05em"
-                                        }}>
-                                            #{tag}
-                                        </span>
-                                    ))}
-                                </div>
-                            </div>
+                            <IdeaCard key={idea.id} idea={idea} />
                         ))}
+                    </div>
+
+                    {/* Footer quote */}
+                    <div style={{
+                        marginTop: "clamp(3rem, 6vh, 4rem)",
+                        paddingTop: "clamp(2rem, 4vh, 3rem)",
+                        borderTop: "1px solid var(--border)",
+                        textAlign: "center"
+                    }}>
+                        <div style={{
+                            display: "inline-flex",
+                            alignItems: "center",
+                            gap: "0.5rem",
+                            color: "var(--text-muted)"
+                        }}>
+                            <Sparkles className="w-4 h-4" />
+                            <span style={{
+                                fontFamily: "var(--font-mono)",
+                                fontSize: "clamp(0.7rem, 1.5vw, 0.8rem)",
+                                textTransform: "uppercase",
+                                letterSpacing: "0.1em"
+                            }}>
+                                Ideas are just the beginning
+                            </span>
+                        </div>
                     </div>
                 </div>
             </Container>
