@@ -259,7 +259,7 @@ export default function AboutPage() {
                                 margin: 0
                             }}
                         >
-                            Hi, I'm Faza. Cuma orang biasa yang suka ngoding sambil ngopi.
+                            Halo, gue Faza. Cuma orang biasa yang suka ngoding sambil ngopi.
                             Ini personal log gue. Kumpulan eksperimen, catatan teknis,
                             dan hal-hal random yang gue kerjain.
                         </motion.p>
@@ -273,7 +273,7 @@ export default function AboutPage() {
                                 marginTop: "clamp(1.5rem, 3vh, 2rem)"
                             }}
                         >
-                            Backend Engineer · AI Enthusiast · Part-time overthinker
+                            Software Engineer · Professional overthinker · Lover
                         </motion.p>
                     </motion.div>
                 </Container>
