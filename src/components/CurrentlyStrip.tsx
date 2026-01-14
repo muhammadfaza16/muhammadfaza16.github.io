@@ -193,6 +193,7 @@ function MarqueeContent({ currentSong, currentTime, greeting, previousGreeting, 
             {staticItems.map((item, i) => (
                 <div
                     key={i}
+                    // className={item.className || "flex"} // className removed from items
                     style={{
                         display: "flex",
                         alignItems: "center",
@@ -302,21 +303,23 @@ export function CurrentlyStrip() {
                 pointerEvents: "none"
             }} />
 
-            {/* Fixed Time element - left corner */}
+            {/* Fixed Time element - left corner - Visible on ALL screens */}
             <div style={{
                 position: "absolute",
                 left: 0,
                 top: "50%",
                 transform: "translateY(-50%)",
-                zIndex: 2,
+                zIndex: 10, // Higher z-index to stay on top
                 display: "flex",
                 alignItems: "center",
                 gap: "0.5rem",
                 fontFamily: "var(--font-mono)",
                 fontSize: "0.75rem",
                 color: "var(--text-secondary)",
-                background: "var(--background)",
-                paddingRight: "1rem"
+                background: "var(--background)", // Background covers marquee 
+                paddingRight: "1rem", // Blur/fade area
+                maskImage: "linear-gradient(to right, black 80%, transparent 100%)",
+                WebkitMaskImage: "linear-gradient(to right, black 80%, transparent 100%)"
             }}>
                 <Clock className="w-3 h-3" style={{ color: "var(--accent)" }} />
                 <span style={{ color: "var(--foreground)" }}>{currentTime}</span>
