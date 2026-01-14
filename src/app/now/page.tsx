@@ -68,7 +68,7 @@ function FocusItem({
                 <p style={{
                     fontSize: "clamp(0.85rem, 2vw, 0.95rem)",
                     color: "var(--text-secondary)",
-                    lineHeight: 1.5,
+                    lineHeight: 1.65,
                     margin: 0
                 }}>
                     {description}
@@ -244,7 +244,7 @@ export default function NowPage() {
                         <div style={{
                             display: "flex",
                             flexDirection: "column",
-                            gap: "0"
+                            gap: "0.5rem"
                         }}>
                             <FocusItem
                                 icon={Pencil}

@@ -85,9 +85,9 @@ function BookCard({ book }: { book: typeof books[0] }) {
                 {book.author}
             </p>
             <p style={{
-                fontSize: "clamp(0.8rem, 2vw, 0.875rem)",
+                fontSize: "clamp(0.85rem, 2vw, 0.9rem)",
                 color: "var(--text-muted)",
-                lineHeight: 1.5,
+                lineHeight: 1.65,
                 fontStyle: "italic"
             }}>
                 "{book.notes}"

@@ -67,7 +67,7 @@ export function ProjectGrid() {
                 style={{
                     display: "grid",
                     gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
-                    gap: "2rem"
+                    gap: "2.5rem"
                 }}
                 className="stagger-children"
             >

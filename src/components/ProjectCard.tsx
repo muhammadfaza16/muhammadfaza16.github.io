@@ -52,6 +52,7 @@ export function ProjectCard({ project }: ProjectCardProps) {
                         {project.category === "Web" && "⚡"}
                         {project.category === "Mobile" && "📱"}
                         {project.category === "Design" && "🎨"}
+                        {project.category === "Research" && "🔬"}
                         {project.category === "Other" && "📦"}
                     </div>
                 )}
@@ -85,18 +86,18 @@ export function ProjectCard({ project }: ProjectCardProps) {
                 </div>
 
                 <p style={{
-                    fontFamily: "var(--font-sans)",
+                    fontFamily: "'Source Serif 4', serif",
                     fontSize: "1rem",
                     color: "var(--text-secondary)",
-                    lineHeight: 1.6,
-                    marginBottom: "1rem",
+                    lineHeight: 1.7,
+                    marginBottom: "1.25rem",
                     maxWidth: "90%"
                 }}>
                     {project.description}
                 </p>
 
                 {/* Minimalist Tags */}
-                <div style={{ display: "flex", flexWrap: "wrap", gap: "0.75rem", marginTop: "auto" }}>
+                <div style={{ display: "flex", flexWrap: "wrap", gap: "1rem", marginTop: "auto" }}>
                     {project.tags.map(tag => (
                         <span key={tag} style={{
                             fontSize: "0.75rem",
