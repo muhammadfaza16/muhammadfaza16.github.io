@@ -325,7 +325,7 @@ export function CurrentlyStrip() {
                 style={{
                     display: "flex",
                     width: "max-content",
-                    animation: "marquee 20s linear infinite", // Faster speed
+                    animation: "marquee 25s linear infinite", // Slightly slower based on feedback
                     willChange: "transform",
                     transform: "translate3d(0, 0, 0)",
                     backfaceVisibility: "hidden" as const
