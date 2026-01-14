@@ -153,8 +153,10 @@ function MarqueeContent({ currentSong, currentTime, greeting, previousGreeting, 
                     // overflow: "hidden", // Removed to prevent clipping
                     verticalAlign: "bottom" // Align with icon
                 }}>
-                    {/* Invisible copy to set container width dynamicallly */}
-                    <span style={{ visibility: "hidden" }}>{greeting}</span>
+                    {/* Invisible copy to set container width dynamicallly - use the LONGER text to prevent clipping */}
+                    <span style={{ visibility: "hidden" }}>
+                        {greeting.length > previousGreeting.length ? greeting : previousGreeting}
+                    </span>
 
                     {/* Old greeting - fades out */}
                     <span style={{
