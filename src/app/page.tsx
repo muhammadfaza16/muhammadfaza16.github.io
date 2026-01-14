@@ -40,7 +40,7 @@ export default function HomePage() {
               color: "var(--foreground)",
               maxWidth: "18ch"
             }}>
-              The Almanac of Broken Wanderer.
+              The Almanack of Broken Wanderer.
             </h1>
 
             {/* Minimalist Copy */}

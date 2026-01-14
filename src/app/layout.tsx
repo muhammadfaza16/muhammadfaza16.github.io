@@ -8,16 +8,16 @@ import { KonamiCode } from "@/components/KonamiCode";
 import { FloatingZenToggle } from "@/components/FloatingZenToggle";
 
 export const metadata: Metadata = {
-  title: "The Almanac of Broken Wanderer.",
+  title: "The Almanack of Broken Wanderer.",
   description: "Tempat menyimpan ide-ide yang lewat. Sekadar menulis supaya tidak lupa.",
   keywords: ["blog", "personal", "yapping", "random thoughts", "indonesia"],
   authors: [{ name: "Author" }],
   openGraph: {
-    title: "The Almanac of Broken Wanderer.",
+    title: "The Almanack of Broken Wanderer.",
     description: "Tempat menyimpan ide-ide yang lewat.",
     type: "website",
     url: "https://manifesto.dev",
-    siteName: "The Almanac of Broken Wanderer",
+    siteName: "The Almanack of Broken Wanderer",
   },
   alternates: {
     types: {
