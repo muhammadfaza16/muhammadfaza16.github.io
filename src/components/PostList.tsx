@@ -26,7 +26,7 @@ export function PostList({ allPosts, hideThumbnails = false, initialCount = 5 }:
 
     const handleLoadMore = () => {
         setAnimatingFrom(displayCount);
-        setDisplayCount(prev => prev + 5);
+        setDisplayCount(prev => prev + 3);
     };
 
     return (

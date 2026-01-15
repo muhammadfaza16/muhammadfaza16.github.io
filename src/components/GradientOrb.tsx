@@ -12,7 +12,7 @@ export function GradientOrb() {
         let time = 0;
 
         const animate = () => {
-            time += 0.003; // Slower, more fluid movement
+            time += 0.008; // Faster, fluid movement
 
             if (primaryRef.current) {
                 // Large slow movements
@@ -57,13 +57,13 @@ export function GradientOrb() {
                 className="gradient-orb-primary"
                 style={{
                     position: "absolute",
-                    top: "30%",
+                    top: "10%",
                     left: "20%",
                     width: "clamp(300px, 70vw, 600px)",
                     height: "clamp(300px, 70vw, 600px)",
                     background: "radial-gradient(ellipse at 30% 30%, rgba(99,102,241,0.35) 0%, rgba(139,92,246,0.2) 40%, rgba(168,85,247,0.08) 70%, transparent 100%)",
-                    filter: "blur(50px)",
-                    opacity: 0.45,
+                    filter: "blur(45px)",
+                    opacity: 0.7,
                     animation: "blobMorph 10s ease-in-out infinite",
                     pointerEvents: "none",
                     zIndex: 0,
@@ -79,13 +79,13 @@ export function GradientOrb() {
                 className="gradient-orb-secondary"
                 style={{
                     position: "absolute",
-                    top: "50%",
+                    top: "30%",
                     right: "10%",
                     width: "clamp(200px, 50vw, 400px)",
                     height: "clamp(200px, 50vw, 400px)",
                     background: "radial-gradient(ellipse at 60% 40%, rgba(244,114,182,0.3) 0%, rgba(251,146,60,0.15) 45%, rgba(234,179,8,0.05) 80%, transparent 100%)",
-                    filter: "blur(55px)",
-                    opacity: 0.4,
+                    filter: "blur(50px)",
+                    opacity: 0.65,
                     animation: "blobMorph 14s ease-in-out infinite reverse",
                     pointerEvents: "none",
                     zIndex: 0,
@@ -101,13 +101,13 @@ export function GradientOrb() {
                 className="gradient-orb-tertiary"
                 style={{
                     position: "absolute",
-                    top: "15%",
+                    top: "20%",
                     right: "25%",
                     width: "clamp(150px, 35vw, 280px)",
                     height: "clamp(150px, 35vw, 280px)",
                     background: "radial-gradient(ellipse at 50% 50%, rgba(34,211,238,0.25) 0%, rgba(56,189,248,0.12) 50%, transparent 100%)",
-                    filter: "blur(45px)",
-                    opacity: 0.3,
+                    filter: "blur(40px)",
+                    opacity: 0.6,
                     animation: "blobMorph 18s ease-in-out infinite",
                     pointerEvents: "none",
                     zIndex: 0,

@@ -3,6 +3,7 @@ import { PostList } from "@/components/PostList";
 import { OnThisDay } from "@/components/OnThisDay";
 import { DidYouKnow } from "@/components/DidYouKnow";
 import { GradientOrb } from "@/components/GradientOrb";
+import { CosmicStars } from "@/components/CosmicStars";
 import { CurrentlyStrip } from "@/components/CurrentlyStrip";
 import { getAllPosts } from "@/lib/posts";
 import Link from "next/link";
@@ -12,14 +13,28 @@ export default function HomePage() {
   return (
     <>
       {/* Hero Section - Steve Jobs Aesthetic */}
-      <section style={{
-        paddingTop: "calc(5rem + 4vh)", // Account for fixed header (5rem) + extra spacing
-        paddingBottom: "8rem", // Increased breathing room
-        position: "relative",
+      {/* Ambient Background - Spans behind Header */}
+      <div style={{
+        position: "absolute",
+        top: 0,
+        left: 0,
+        width: "100%",
+        height: "120vh", // Extended to ensure coverage
+        zIndex: 0,
+        pointerEvents: "none",
         overflow: "hidden"
       }}>
-        {/* Gradient Orb - Visual Texture */}
         <GradientOrb />
+        <CosmicStars />
+      </div>
+
+      {/* Hero Section - Steve Jobs Aesthetic */}
+      <section style={{
+        paddingTop: "calc(5rem + 2vh)",
+        paddingBottom: "clamp(4rem, 8vw, 8rem)",
+        position: "relative",
+        // overflow: "hidden" removed to prevent clipping if any content extends
+      }}>
 
         <Container>
           <div className="animate-fade-in-up" style={{ position: "relative", zIndex: 1 }}>
@@ -65,59 +80,129 @@ export default function HomePage() {
         </Container>
       </section>
 
+      {/* Section Divider - Cosmic */}
+      <div style={{
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        gap: "1rem",
+        padding: "clamp(1rem, 2vw, 2rem) 0",
+        opacity: 0.4
+      }}>
+        <div style={{ flex: 1, maxWidth: "100px", height: "1px", background: "linear-gradient(to right, transparent, var(--border))" }} />
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" style={{ color: "var(--accent)" }}>
+          <circle cx="12" cy="12" r="2" fill="currentColor" />
+          <circle cx="12" cy="12" r="6" stroke="currentColor" strokeWidth="0.5" opacity="0.5" />
+          <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="0.3" opacity="0.3" />
+        </svg>
+        <div style={{ flex: 1, maxWidth: "100px", height: "1px", background: "linear-gradient(to left, transparent, var(--border))" }} />
+      </div >
+
       {/* Currently Strip - Living Status */}
-      <section style={{ marginBottom: "4rem" }}>
+      < section style={{ marginBottom: "4rem" }
+      }>
         <Container>
           <div className="animate-fade-in animation-delay-300">
             <CurrentlyStrip />
           </div>
         </Container>
-      </section>
+      </section >
 
 
 
       {/* Writing Section - Clean & Editorial */}
-      <section style={{ paddingBottom: "8rem" }}>
+      < section style={{
+        paddingTop: "clamp(3rem, 6vw, 6rem)",
+        paddingBottom: "clamp(4rem, 8vw, 8rem)",
+        borderTop: "1px solid var(--border)"
+      }}>
         <Container>
           <div className="animate-fade-in animation-delay-300">
-            {/* Minimalist Header */}
+            {/* Minimalist Header - Left Aligned */}
             <div style={{
               marginBottom: "3rem",
-              display: "flex",
-              alignItems: "baseline",
-              justifyContent: "space-between",
-              borderBottom: "1px solid var(--border)",
-              paddingBottom: "1.5rem"
+              textAlign: "left"
             }}>
+              <span style={{
+                fontFamily: "var(--font-mono)",
+                fontSize: "0.75rem",
+                color: "var(--accent)",
+                textTransform: "uppercase",
+                letterSpacing: "0.2em",
+                display: "block",
+                marginBottom: "1rem"
+              }}>
+                The Digital Garden
+              </span>
               <h2 style={{
                 fontFamily: "'Playfair Display', serif",
-                fontSize: "2.5rem",
+                fontSize: "clamp(2rem, 4vw, 3rem)",
                 fontWeight: 400,
-                color: "var(--foreground)"
+                color: "var(--foreground)",
+                marginBottom: "1rem",
+                lineHeight: 1.1
               }}>
                 Recent Notes
               </h2>
+              <p style={{
+                fontFamily: "'Source Serif 4', serif",
+                fontSize: "1.1rem",
+                color: "var(--text-secondary)",
+                maxWidth: "45ch",
+                lineHeight: 1.6,
+                margin: 0
+              }}>
+                Fragments of thought, code, dan segala yang terlintas di kepala.
+              </p>
+            </div>
+
+            {/* Posts List */}
+            <PostList allPosts={allPosts} hideThumbnails initialCount={3} />
+
+            {/* Footer Link - Left Aligned */}
+            <div style={{ marginTop: "3rem" }}>
               <Link href="/blog" style={{
                 fontFamily: "var(--font-mono)",
                 fontSize: "0.8rem",
                 textTransform: "uppercase",
                 letterSpacing: "0.1em",
-                color: "var(--text-secondary)"
-              }} className="hover:text-[var(--foreground)] transition-colors">
-                View Archive →
+                color: "var(--text-secondary)",
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "0.5rem",
+                transition: "color 0.3s ease"
+              }} className="hover:text-[var(--accent)] group">
+                <span>View Archive</span>
+                <span className="transition-transform group-hover:translate-x-1">→</span>
               </Link>
             </div>
-
-            {/* Posts List */}
-            <PostList allPosts={allPosts} hideThumbnails initialCount={3} />
           </div>
         </Container>
-      </section>
+      </section >
+
+      {/* Section Divider - Constellation */}
+      < div style={{
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        gap: "1.5rem",
+        padding: "clamp(1.5rem, 3vw, 3rem) 0",
+        opacity: 0.4
+      }}>
+        <div style={{ flex: 1, maxWidth: "120px", height: "1px", background: "linear-gradient(to right, transparent, var(--border))" }} />
+        <svg width="40" height="20" viewBox="0 0 40 20" fill="none" style={{ color: "var(--foreground)" }}>
+          <circle cx="5" cy="10" r="1.5" fill="currentColor" />
+          <circle cx="20" cy="5" r="2" fill="var(--accent)" />
+          <circle cx="35" cy="12" r="1.5" fill="currentColor" />
+          <path d="M5 10 L20 5 L35 12" stroke="currentColor" strokeWidth="0.5" opacity="0.6" />
+        </svg>
+        <div style={{ flex: 1, maxWidth: "120px", height: "1px", background: "linear-gradient(to left, transparent, var(--border))" }} />
+      </div >
 
       {/* Daily Fuel - Intellectual Nourishment */}
-      <section style={{
-        paddingTop: "6rem",
-        paddingBottom: "8rem",
+      < section style={{
+        paddingTop: "clamp(3rem, 6vw, 6rem)",
+        paddingBottom: "clamp(4rem, 8vw, 8rem)",
         backgroundColor: "var(--card-bg)",
         borderTop: "1px solid var(--border)",
         position: "relative"
@@ -125,7 +210,7 @@ export default function HomePage() {
         <Container>
           {/* Section Header - Purpose-driven */}
           <div style={{
-            marginBottom: "4rem",
+            marginBottom: "clamp(2rem, 4vw, 4rem)",
             textAlign: "center"
           }}>
             <span style={{
@@ -153,67 +238,198 @@ export default function HomePage() {
               maxWidth: "45ch",
               margin: "0 auto"
             }}>
-              One moment from history, one fact for the mind. The wanderer's daily dose.
+              A moment from history, a fact for the mind.
+              Asupan harian untuk merawat nalar dan rasa penasaran.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-[1fr_350px] gap-16 items-start">
-            <OnThisDay />
-            <DidYouKnow />
+          {/* Two-Column: Did You Know (Sidebar) | On This Day (Main) */}
+          <div className="flex flex-col lg:flex-row gap-4 lg:gap-8">
+            {/* Did You Know - Sidebar */}
+            <div className="lg:w-[350px] lg:flex-shrink-0">
+              <DidYouKnow />
+            </div>
+            {/* On This Day - Main */}
+            <div className="flex-1">
+              <OnThisDay />
+            </div>
           </div>
 
-          {/* Identity Quote - Footer Style */}
-          <Link href="/time" className="group block" style={{ marginTop: "8rem", textAlign: "center", textDecoration: "none" }}>
-            {/* Decorative Quotation Mark */}
-            <span style={{
-              display: "block",
-              fontFamily: "'Playfair Display', serif",
-              fontSize: "5rem",
-              lineHeight: 0.5,
-              color: "var(--foreground)",
-              opacity: 0.08,
-              marginBottom: "1rem",
-              userSelect: "none",
-              transition: "opacity 0.3s ease"
-            }} className="group-hover:opacity-[0.15]">"</span>
-            <p style={{
-              fontFamily: "'Playfair Display', serif",
-              fontSize: "1.5rem",
-              fontStyle: "italic",
-              color: "var(--foreground)",
-              marginBottom: "1.5rem",
-              maxWidth: "32ch",
-              margin: "0 auto 1.5rem auto"
+          {/* Wanderer's Manifesto - Full Width Impact */}
+          <div style={{
+            marginTop: "clamp(3rem, 6vw, 6rem)",
+            marginBottom: "clamp(-4rem, -8vw, -8rem)",
+            marginLeft: "calc(-50vw + 50%)",
+            marginRight: "calc(-50vw + 50%)",
+            width: "100vw",
+            background: "var(--card-bg)",
+            color: "var(--foreground)",
+            borderTop: "1px solid var(--border)",
+            borderBottom: "1px solid var(--border)",
+            padding: "clamp(3rem, 6vw, 6rem) 1.5rem",
+            position: "relative",
+            overflow: "hidden"
+          }}>
+            {/* Starfield Pattern */}
+            <div style={{
+              position: "absolute",
+              inset: 0,
+              opacity: 0.15,
+              backgroundImage: `radial-gradient(circle, var(--foreground) 1px, transparent 1px)`,
+              backgroundSize: "40px 40px",
+              pointerEvents: "none"
+            }} />
+
+            {/* Orbit Rings */}
+            <div style={{
+              position: "absolute",
+              top: "50%",
+              right: "5%",
+              transform: "translateY(-50%)",
+              width: "clamp(200px, 40vw, 400px)",
+              height: "clamp(200px, 40vw, 400px)",
+              border: "1px solid var(--border)",
+              borderRadius: "50%",
+              opacity: 0.3,
+              pointerEvents: "none"
             }}>
-              Not all those who wander are lost.
-            </p>
-            <p style={{
-              fontFamily: "var(--font-mono)",
-              fontSize: "0.8rem",
-              color: "var(--text-secondary)",
-              textTransform: "uppercase",
-              letterSpacing: "0.15em",
-              marginBottom: "1rem"
+              <div style={{
+                position: "absolute",
+                top: "15%",
+                left: "15%",
+                right: "15%",
+                bottom: "15%",
+                border: "1px solid var(--border)",
+                borderRadius: "50%",
+                opacity: 0.6
+              }} />
+              <div style={{
+                position: "absolute",
+                top: "35%",
+                left: "35%",
+                right: "35%",
+                bottom: "35%",
+                border: "1px solid var(--border)",
+                borderRadius: "50%",
+                opacity: 0.8
+              }} />
+              {/* Planet dot */}
+              <div style={{
+                position: "absolute",
+                top: "10%",
+                left: "50%",
+                width: "8px",
+                height: "8px",
+                background: "var(--accent)",
+                borderRadius: "50%",
+                transform: "translateX(-50%)"
+              }} />
+            </div>
+
+            <Link href="/time" className="group block" style={{
+              textDecoration: "none",
+              color: "inherit",
+              maxWidth: "900px",
+              margin: "0 auto",
+              position: "relative",
+              zIndex: 1
             }}>
-              — J.R.R. Tolkien
-            </p>
-            {/* Subtle CTA */}
-            <span style={{
-              fontFamily: "var(--font-mono)",
-              fontSize: "0.7rem",
-              color: "var(--accent)",
-              textTransform: "uppercase",
-              letterSpacing: "0.1em",
-              opacity: 0,
-              transform: "translateY(5px)",
-              transition: "all 0.3s ease",
-              display: "inline-block"
-            }} className="group-hover:opacity-100 group-hover:translate-y-0">
-              Explore time →
-            </span>
-          </Link>
+              {/* Quote Mark */}
+              <span style={{
+                display: "block",
+                fontFamily: "'Playfair Display', serif",
+                fontSize: "clamp(4rem, 12vw, 10rem)",
+                lineHeight: 0.5,
+                opacity: 0.15,
+                marginBottom: "1.5rem",
+                userSelect: "none",
+                transition: "opacity 0.4s ease"
+              }} className="group-hover:opacity-25">
+                "
+              </span>
+
+              {/* The Quote */}
+              <blockquote style={{
+                fontFamily: "'Playfair Display', serif",
+                fontSize: "clamp(2rem, 5vw, 4rem)",
+                fontWeight: 400,
+                fontStyle: "italic",
+                lineHeight: 1.2,
+                letterSpacing: "-0.02em",
+                marginBottom: "2rem",
+                maxWidth: "18ch"
+              }}>
+                Not all those who wander are lost.
+              </blockquote>
+
+              {/* Attribution + Context */}
+              <div style={{
+                display: "flex",
+                flexDirection: "column",
+                gap: "1.5rem"
+              }}>
+                <div style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "1rem"
+                }}>
+                  <span style={{
+                    width: "40px",
+                    height: "1px",
+                    background: "currentColor",
+                    opacity: 0.3
+                  }} />
+                  <span style={{
+                    fontFamily: "var(--font-mono)",
+                    fontSize: "0.85rem",
+                    textTransform: "uppercase",
+                    letterSpacing: "0.15em",
+                    opacity: 0.7
+                  }}>
+                    J.R.R. Tolkien
+                  </span>
+                </div>
+
+                {/* Subtext */}
+                <p style={{
+                  fontFamily: "'Source Serif 4', serif",
+                  fontSize: "1.1rem",
+                  lineHeight: 1.6,
+                  opacity: 0.6,
+                  maxWidth: "45ch"
+                }}>
+                  Sebuah pengingat bahwa perjalanan tanpa tujuan pasti bukan berarti tersesat.
+                  Kadang, kita butuh berjalan tanpa peta untuk menemukan jalan pulang.
+                </p>
+              </div>
+
+              {/* CTA */}
+              <div style={{
+                marginTop: "3rem",
+                display: "flex",
+                alignItems: "center",
+                gap: "0.75rem",
+                fontFamily: "var(--font-mono)",
+                fontSize: "0.8rem",
+                textTransform: "uppercase",
+                letterSpacing: "0.1em",
+                opacity: 0.5,
+                transition: "all 0.3s ease"
+              }} className="group-hover:opacity-100">
+                <span style={{
+                  width: "8px",
+                  height: "8px",
+                  borderRadius: "50%",
+                  background: "currentColor",
+                  animation: "pulse 2s ease-in-out infinite"
+                }} />
+                <span>Explore the passage of time</span>
+                <span className="transition-transform group-hover:translate-x-1">→</span>
+              </div>
+            </Link>
+          </div>
         </Container>
-      </section>
+      </section >
     </>
   );
 }

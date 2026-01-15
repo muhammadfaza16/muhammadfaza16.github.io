@@ -31,7 +31,7 @@ export function Footer() {
                                 fontFamily: "'Playfair Display', serif",
                                 fontSize: "2rem",
                                 fontWeight: 400,
-                                letterSpacing: "-0.04em", // Tight tracking matching Hero
+                                letterSpacing: "-0.04em",
                                 display: "inline-block",
                                 marginBottom: "1.25rem",
                                 color: "var(--foreground)",
@@ -95,8 +95,6 @@ export function Footer() {
 
                 {/* Divider */}
                 <div style={{ height: "1px", background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent)", marginBottom: "1rem" }} />
-
-
 
                 {/* Copyright */}
                 <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", justifyContent: "space-between", gap: "1rem", fontSize: "0.75rem", opacity: 0.5 }}>

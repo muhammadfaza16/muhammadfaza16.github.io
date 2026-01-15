@@ -122,11 +122,8 @@ export function PostCard({ slug, title, excerpt, date, readingTime, thumbnail, h
                                 fontSize: "0.85rem",
                                 fontWeight: 500,
                                 fontFamily: "var(--font-mono)",
-                                opacity: 0.3, // Slightly visible by default
-                                transform: "translateX(-10px)",
-                                transition: "opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1), transform 0.4s cubic-bezier(0.16, 1, 0.3, 1)"
+                                color: "var(--accent)"
                             }}
-                            className="group-hover:opacity-100 group-hover:translate-x-0"
                         >
                             Read more <span style={{ transition: "transform 0.3s ease" }} className="group-hover:translate-x-1">→</span>
                         </div>

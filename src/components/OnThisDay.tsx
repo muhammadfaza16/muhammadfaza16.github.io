@@ -41,14 +41,13 @@ export function OnThisDay() {
                 color: "var(--foreground)",
                 position: "relative",
                 overflow: "hidden",
-                minHeight: "auto", // Let content dictate height on mobile
+                height: "100%",
                 display: "flex",
                 flexDirection: "column",
                 justifyContent: "center",
-                // Card-like container for consistency
                 borderRadius: "1rem",
                 border: "1px solid var(--border)",
-                padding: "clamp(1.5rem, 4vw, 2.5rem)", // Responsive padding
+                padding: "clamp(1.5rem, 4vw, 2.5rem)",
                 background: "var(--background)"
             }}
         >
@@ -70,7 +69,7 @@ export function OnThisDay() {
                 HARI INI
             </div>
 
-            <div style={{ position: "relative", zIndex: 1, paddingRight: "3.5rem" }}>
+            <div style={{ position: "relative", zIndex: 1 }}>
                 {/* Header Badge - Cleaned up */}
                 <div style={{
                     display: "flex",
@@ -86,13 +85,14 @@ export function OnThisDay() {
                         alignItems: "center",
                         gap: "0.5rem",
                         padding: "0.5rem 1rem",
-                        background: "var(--accent)", // Solid blue
+                        background: "transparent",
+                        border: "1px solid var(--border)",
                         borderRadius: "100px",
                         fontSize: "0.75rem",
                         fontFamily: "var(--font-mono)",
                         textTransform: "uppercase",
                         letterSpacing: "0.05em",
-                        color: "white" // Contrast for blue bg
+                        color: "var(--text-secondary)"
                     }}>
                         <Calendar className="w-3 h-3" />
                         <span>On This Day</span>
@@ -152,22 +152,19 @@ export function OnThisDay() {
                     </h3>
 
                     {/* Description - Editorial Style */}
-                    <div style={{
-                        display: "grid",
-                        gridTemplateColumns: "1fr",
-                        gap: "2rem",
-                    }} className="md:grid-cols-[1fr_auto]">
+                    <div style={{ position: "relative" }}>
                         <p style={{
                             fontSize: "1.1rem",
                             lineHeight: 1.7,
                             color: "var(--text-secondary)",
                             fontFamily: "'Source Serif 4', serif",
-                            maxWidth: "45ch",
-                            margin: 0
+                            maxWidth: "100%", // Use full width available
+                            margin: 0,
+                            marginBottom: "1.5rem"
                         }}>
                             <span style={{
                                 float: "left",
-                                fontSize: "clamp(2.5em, 8vw, 3.5em)", // Smaller drop cap on mobile
+                                fontSize: "clamp(2.5em, 8vw, 3.5em)",
                                 lineHeight: 0.8,
                                 paddingRight: "0.1em",
                                 paddingTop: "0.1em",
@@ -179,12 +176,7 @@ export function OnThisDay() {
                         </p>
 
                         {/* Action / Context */}
-                        <div style={{
-                            display: "flex",
-                            flexDirection: "column",
-                            justifyContent: "flex-end",
-                            alignItems: "flex-start"
-                        }}>
+                        <div>
                             <a href={`https://en.wikipedia.org/wiki/${event.year}`}
                                 target="_blank"
                                 rel="noopener noreferrer"
@@ -208,18 +200,20 @@ export function OnThisDay() {
                     </div>
                 </div>
 
-                {/* Floating Navigation - Vertical Center Right */}
+                {/* Floating Navigation - Bottom Right */}
                 {events.length > 1 && (
                     <div style={{
                         position: "absolute",
-                        right: 0,
-                        top: "50%",
-                        transform: "translateY(-50%)",
+                        right: "0",
+                        bottom: "0",
                         display: "flex",
-                        flexDirection: "column",
-                        alignItems: "center", // Center all items
+                        flexDirection: "row",
+                        alignItems: "center",
                         gap: "0.5rem",
-                        zIndex: 10
+                        zIndex: 10,
+                        background: "linear-gradient(to left, var(--background) 70%, transparent)",
+                        paddingLeft: "2rem",
+                        paddingTop: "0.5rem"
                     }}>
                         <button
                             onClick={handlePrev}

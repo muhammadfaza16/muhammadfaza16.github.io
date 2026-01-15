@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useAudio } from "./AudioContext";
 
 // Derived values from context now
@@ -15,19 +15,75 @@ function formatTime(date: Date): string {
 }
 
 function getMood(hour: number): string {
-    if (hour >= 5 && hour < 8) return "sedang mengumpulkan nyawa";
-    if (hour >= 8 && hour < 11) return "pura-pura produktif";
-    if (hour >= 11 && hour < 13) return "butuh asupan kafein";
-    if (hour >= 13 && hour < 15) return "melawan kantuk pasca-makan";
-    if (hour >= 15 && hour < 18) return "mengejar deadline (atau senja)";
-    if (hour >= 18 && hour < 21) return "rebahan is my passion";
-    if (hour >= 21 && hour < 23) return "overthinking mode: on";
-    if (hour >= 23 || hour < 2) return "tersesat di YouTube";
-    return "zombie mode activated";
+    if (hour >= 5 && hour < 8) return "morning glow & missing u";
+    if (hour >= 8 && hour < 11) return "pretending to work, thinking of u";
+    if (hour >= 11 && hour < 14) return "craving attention (and lunch)";
+    if (hour >= 14 && hour < 17) return "sleepy eyes, dreamy mind";
+    if (hour >= 17 && hour < 19) return "golden hour lookin' at u";
+    if (hour >= 19 && hour < 22) return "saving my battery for u";
+    if (hour >= 22 || hour < 2) return "romanticizing us rn";
+    return "dreaming of u. shh.";
+}
+
+// Individual Marquee Item with Visibility Tracking
+function MarqueeItem({ item, id, onVisibilityChange }: {
+    item: { icon: React.ReactNode; label: string; text: string; onClick?: () => void; className?: string };
+    id: string;
+    onVisibilityChange: (id: string, isVisible: boolean) => void;
+}) {
+    const itemRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        // Only observe "Checking in" items
+        if (item.label !== "Checking in") return;
+
+        const observer = new IntersectionObserver(
+            ([entry]) => {
+                onVisibilityChange(id, entry.isIntersecting);
+            },
+            { threshold: 0 }
+        );
+
+        if (itemRef.current) {
+            observer.observe(itemRef.current);
+        }
+
+        return () => observer.disconnect();
+    }, [id, item.label, onVisibilityChange]);
+
+    return (
+        <div
+            ref={itemRef}
+            style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "0.5rem",
+                cursor: item.onClick ? "pointer" : "default",
+                ... (item.onClick ? { userSelect: "none" } : {})
+            }}
+            onClick={item.onClick}
+            className={item.className}
+        >
+            <span style={{ color: "var(--accent)" }}>{item.icon}</span>
+            <span style={{
+                fontFamily: "var(--font-mono)",
+                fontSize: "0.7rem",
+                textTransform: "uppercase",
+                letterSpacing: "0.05em",
+                opacity: 0.7
+            }}>
+                {item.label}:
+            </span>
+            <span style={{ whiteSpace: "nowrap", fontWeight: 500 }}>{item.text}</span>
+        </div>
+    );
 }
 
 // Helper for the continuous marquee
-function ContinuousMarquee({ items }: { items: { icon: React.ReactNode; label: string; text: string; onClick?: () => void; className?: string }[] }) {
+function ContinuousMarquee({ items, onVisibilityChange }: {
+    items: { icon: React.ReactNode; label: string; text: string; onClick?: () => void; className?: string }[];
+    onVisibilityChange: (id: string, isVisible: boolean) => void;
+}) {
     return (
         <div style={{
             display: "flex",
@@ -44,30 +100,12 @@ function ContinuousMarquee({ items }: { items: { icon: React.ReactNode; label: s
                 flexShrink: 0
             }}>
                 {items.map((item, i) => (
-                    <div
+                    <MarqueeItem
                         key={`o-${i}`}
-                        style={{
-                            display: "flex",
-                            alignItems: "center",
-                            gap: "0.5rem",
-                            cursor: item.onClick ? "pointer" : "default",
-                            ... (item.onClick ? { userSelect: "none" } : {})
-                        }}
-                        onClick={item.onClick}
-                        className={item.className}
-                    >
-                        <span style={{ color: "var(--accent)" }}>{item.icon}</span>
-                        <span style={{
-                            fontFamily: "var(--font-mono)",
-                            fontSize: "0.7rem",
-                            textTransform: "uppercase",
-                            letterSpacing: "0.05em",
-                            opacity: 0.7
-                        }}>
-                            {item.label}:
-                        </span>
-                        <span style={{ whiteSpace: "nowrap", fontWeight: 500 }}>{item.text}</span>
-                    </div>
+                        id={`o-${i}`}
+                        item={item}
+                        onVisibilityChange={onVisibilityChange}
+                    />
                 ))}
             </div>
             {/* Duplicate for infinite loop */}
@@ -79,46 +117,80 @@ function ContinuousMarquee({ items }: { items: { icon: React.ReactNode; label: s
                 flexShrink: 0
             }}>
                 {items.map((item, i) => (
-                    <div
+                    <MarqueeItem
                         key={`d-${i}`}
-                        style={{
-                            display: "flex",
-                            alignItems: "center",
-                            gap: "0.5rem",
-                            cursor: item.onClick ? "pointer" : "default",
-                            ... (item.onClick ? { userSelect: "none" } : {})
-                        }}
-                        onClick={item.onClick}
-                        className={item.className}
-                    >
-                        <span style={{ color: "var(--accent)" }}>{item.icon}</span>
-                        <span style={{
-                            fontFamily: "var(--font-mono)",
-                            fontSize: "0.7rem",
-                            textTransform: "uppercase",
-                            letterSpacing: "0.05em",
-                            opacity: 0.7
-                        }}>
-                            {item.label}:
-                        </span>
-                        <span style={{ whiteSpace: "nowrap", fontWeight: 500 }}>{item.text}</span>
-                    </div>
+                        id={`d-${i}`}
+                        item={item}
+                        onVisibilityChange={onVisibilityChange}
+                    />
                 ))}
             </div>
         </div>
     );
 }
 
+function getCheckInMessages(hour: number): string[] {
+    // 05:00 - 10:59 (Morning)
+    if (hour >= 5 && hour < 11) {
+        return [
+            "Morning, sunshine ☀️",
+            "Jangan skip sarapan ya, nanti lemes.",
+            "Semangat hari ini, aku pantau dari jauh 👀",
+            "Sending u good energy ✨",
+            "Hope your coffee hits right today."
+        ];
+    }
+    // 11:00 - 14:59 (Mid-day / Lunch)
+    if (hour >= 11 && hour < 15) {
+        return [
+            "Jangan lupa makan siang, manis.",
+            "Minum air putih yg banyak 💧",
+            "Power nap bentar gih kalau capek.",
+            "Thinking of you in the middle of chaos.",
+            "Coba senyum dikit dong :)"
+        ];
+    }
+    // 15:00 - 18:59 (Afternoon)
+    if (hour >= 15 && hour < 19) {
+        return [
+            "Masih semangat kan kerjanya?",
+            "Udah sore, jangan lembur teuing.",
+            "Counting down to freedom (and u).",
+            "Baterai sosial aman?",
+            "Take a deep breath. You got this."
+        ];
+    }
+    // 19:00 - 22:59 (Evening)
+    if (hour >= 19 && hour < 23) {
+        return [
+            "Gimana harinya? Cerita dong.",
+            "Mandi air anget enak kayaknya.",
+            "Proud of you today.",
+            "Rest well, you did great.",
+            "Dunia lagi berisik? Istirahat sini dulu."
+        ];
+    }
+    // 23:00 - 04:59 (Late Night)
+    return [
+        "Kok belum tidur? Kangen ya?",
+        "Sleep tight, mimpi indah 🌙",
+        "Jangan begadang, nanti sakit.",
+        "Matikan hp, pejamkan mata.",
+        "Dreaming of u. Shh."
+    ];
+}
+
 export function CurrentlyStrip() {
     const [currentTime, setCurrentTime] = useState("");
     const [mood, setMood] = useState("");
+    const [checkInIndex, setCheckInIndex] = useState(0);
     const [isHydrated, setIsHydrated] = useState(false);
+    const [currentHour, setCurrentHour] = useState(new Date().getHours());
 
     // Global Audio Context
     const { isPlaying, togglePlay, currentSong } = useAudio();
 
-    // Derived values
-    // const currentSong = playlist[songIndex % playlist.length] || playlist[0];
+    const checkInMessages = getCheckInMessages(currentHour);
 
     // Status items for the marquee
     const statusItems = [
@@ -131,8 +203,19 @@ export function CurrentlyStrip() {
         },
         { icon: "◎", label: "Time", text: currentTime },
         { icon: "⚡", label: "Mood", text: mood },
-        { icon: "💌", label: "Checking in", text: "Gimana harinya? Lancar kan?" },
+        { icon: "💌", label: "Checking in", text: checkInMessages[checkInIndex % checkInMessages.length] },
     ];
+
+    // Tracker for checking-in visibility
+    const visibleCheckIns = useRef(new Set<string>());
+
+    const handleVisibilityChange = (id: string, isVisible: boolean) => {
+        if (isVisible) {
+            visibleCheckIns.current.add(id);
+        } else {
+            visibleCheckIns.current.delete(id);
+        }
+    };
 
     useEffect(() => {
         setIsHydrated(true);
@@ -140,26 +223,37 @@ export function CurrentlyStrip() {
         const updateTime = () => {
             const now = new Date();
             setCurrentTime(formatTime(now));
-            setMood(getMood(now.getHours()));
+            const h = now.getHours();
+            setMood(getMood(h));
+            setCurrentHour(h);
         };
         updateTime();
         const timeInterval = setInterval(updateTime, 1000);
 
+        // Rotate check-in message every 1 minute, BUT ONLY if text itself is off-screen
+        const checkInInterval = setInterval(() => {
+            if (visibleCheckIns.current.size === 0) {
+                setCheckInIndex((prev) => prev + 1);
+            }
+        }, 60000);
+
         return () => {
             clearInterval(timeInterval);
+            clearInterval(checkInInterval);
         };
     }, []);
 
     if (!isHydrated) return null;
 
     return (
-        <div style={{
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            width: "100%",
-            gap: "1rem"
-        }}>
+        <div
+            style={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                width: "100%",
+                gap: "1rem"
+            }}>
 
             {/* Top: Marquee Pill */}
             <div
@@ -183,7 +277,7 @@ export function CurrentlyStrip() {
                 }}
                 className="pause-on-hover"
             >
-                <ContinuousMarquee items={statusItems} />
+                <ContinuousMarquee items={statusItems} onVisibilityChange={handleVisibilityChange} />
             </div>
 
             {/* Bottom: Play Control */}
@@ -217,7 +311,7 @@ export function CurrentlyStrip() {
                             margin: 0
                         }}
                     >
-                        {isPlaying ? "selamat menikmati, nona 🌹" : "Mainkan"}
+                        {isPlaying ? "Khusus buat kamu 🥀" : "Ada lagu buat kamu ✨"}
                     </p>
                     <button
                         style={{

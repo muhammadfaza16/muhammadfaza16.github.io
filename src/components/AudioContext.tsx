@@ -6,6 +6,7 @@ import { useTheme } from "./ThemeProvider";
 interface AudioContextType {
     isPlaying: boolean;
     togglePlay: () => void;
+    nextSong: () => void;
     currentSong: { title: string; audioUrl: string };
 }
 
@@ -19,13 +20,20 @@ export function useAudio() {
     return context;
 }
 
-const SONG = {
-    title: "The Man Who Can't Be Moved — The Script",
-    audioUrl: "/audio/the-man-who-cant-be-moved.mp3",
-};
+const PLAYLIST = [
+    {
+        title: "NOAH — Ini Cinta",
+        audioUrl: "/audio/NOAH - Ini Cinta (Official Audio).mp3",
+    },
+    {
+        title: "NOAH — Jalani Mimpi",
+        audioUrl: "/audio/NOAH - Jalani Mimpi (Official Audio).mp3",
+    }
+];
 
 export function AudioProvider({ children }: { children: React.ReactNode }) {
     const [isPlaying, setIsPlaying] = useState(false);
+    const [currentIndex, setCurrentIndex] = useState(0);
     const audioRef = useRef<HTMLAudioElement | null>(null);
 
     // Theme integration
@@ -60,14 +68,29 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
         setIsPlaying(!isPlaying);
     };
 
+    const nextSong = () => {
+        setCurrentIndex((prev) => (prev + 1) % PLAYLIST.length);
+        setIsPlaying(true); // Auto-play next
+    };
+
+    // Auto-play when index changes if it was already playing or triggered by next
+    useEffect(() => {
+        if (audioRef.current && isPlaying) {
+            audioRef.current.play().catch(e => console.error("Playback failed:", e));
+        }
+    }, [currentIndex, isPlaying]);
+
+    const currentSong = PLAYLIST[currentIndex];
+
     return (
-        <AudioContext.Provider value={{ isPlaying, togglePlay, currentSong: SONG }}>
+        <AudioContext.Provider value={{ isPlaying, togglePlay, nextSong, currentSong }}>
             <audio
                 ref={audioRef}
-                src={SONG.audioUrl}
-                onEnded={() => setIsPlaying(false)}
+                src={currentSong.audioUrl}
+                onEnded={nextSong}
                 onError={(e) => {
                     console.error("Audio error:", e);
+                    // Try next song on error? Or just stop.
                     setIsPlaying(false);
                 }}
             />
