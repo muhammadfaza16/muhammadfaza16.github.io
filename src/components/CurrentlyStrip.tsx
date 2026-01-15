@@ -3,30 +3,50 @@
 import { useState, useEffect, useRef } from "react";
 
 const playlist = [
-    "Sally Sendiri — Noah",
-    "Kukatakan Dengan Indah — Noah",
-    "Andaikan Kau Datang — Noah",
-    "Jalani Mimpi — Noah",
+    {
+        title: "The Man Who Can't Be Moved — The Script",
+        audioUrl: "/audio/the-man-who-cant-be-moved.mp3",
+    }
 ];
 
-// Subtle quotes — life philosophy with hidden depth, not sadboy
-const vibes = [
-    "Beberapa hal terbaik datang dari kebetulan yang tidak direncanakan.",
-    "Waktu tidak mengulang, tapi mengajarkan.",
-    "Ada keindahan di cerita yang tidak dilanjutkan.",
-    "Tidak semua yang berharga harus dimiliki.",
-    "Kadang jarak adalah bentuk penghormatan.",
-    "Yang penting bukan apa yang terjadi, tapi apa yang kamu pelajari.",
-    "Ada orang yang datang untuk mengajarkan, bukan untuk tinggal.",
-    "Hidup terlalu singkat untuk tidak jujur pada diri sendiri.",
-    "Beberapa pintu tertutup agar kamu temukan jendela.",
-    "Masa lalu adalah guru, bukan penjara.",
-    "Tidak semua perjalanan harus sampai tujuan.",
-    "Ada yang lebih indah dari jawaban: pertanyaan yang tepat.",
-    "Keberanian bukan tidak takut, tapi tetap melangkah.",
-    "Setiap orang membawa cerita yang tidak kita ketahui.",
-    "Sederhana itu pilihan, bukan keterbatasan.",
-];
+// const playlist = [
+//     {
+//         title: "Sally Sendiri — Noah",
+//         lyrics: [
+//             "Biar Sally mencariku...",
+//             "Biarkan dia terbang jauh...",
+//             "Dalam hatinya hanya satu...",
+//             "Jauh hatinya hanya ku..."
+//         ]
+//     },
+//     {
+//         title: "Kukatakan Dengan Indah — Noah",
+//         lyrics: [
+//             "Kukatakan dengan indah...",
+//             "Dengan terluka hatiku hampa...",
+//             "Sepertinya luka menghampirinya...",
+//             "Kau beri rasa yang berbeda..."
+//         ]
+//     },
+//     {
+//         title: "Andaikan Kau Datang — Noah",
+//         lyrics: [
+//             "Terlalu indah dilupakan...",
+//             "Terlalu sedih dikenangkan...",
+//             "Setelah aku jauh berjalan...",
+//             "Dan kau kutinggalkan..."
+//         ]
+//     },
+//     {
+//         title: "Jalani Mimpi — Noah",
+//         lyrics: [
+//             "Ingatlah dikala engkau sanggup...",
+//             "Melihat matahari...",
+//             "Hangatnya masih terbawa...",
+//             "Untuk melangkah hari ini..."
+//         ]
+//     },
+// ];
 
 function formatTime(date: Date): string {
     return date.toLocaleTimeString("en-US", {
@@ -49,7 +69,7 @@ function getMood(hour: number): string {
 }
 
 // Helper for the continuous marquee
-function ContinuousMarquee({ items }: { items: { icon: string; label: string; text: string }[] }) {
+function ContinuousMarquee({ items }: { items: { icon: React.ReactNode; label: string; text: string; onClick?: () => void; className?: string }[] }) {
     return (
         <div style={{
             display: "flex",
@@ -66,7 +86,18 @@ function ContinuousMarquee({ items }: { items: { icon: string; label: string; te
                 flexShrink: 0
             }}>
                 {items.map((item, i) => (
-                    <div key={`o-${i}`} style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                    <div
+                        key={`o-${i}`}
+                        style={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "0.5rem",
+                            cursor: item.onClick ? "pointer" : "default",
+                            ... (item.onClick ? { userSelect: "none" } : {})
+                        }}
+                        onClick={item.onClick}
+                        className={item.className}
+                    >
                         <span style={{ color: "var(--accent)" }}>{item.icon}</span>
                         <span style={{
                             fontFamily: "var(--font-mono)",
@@ -90,7 +121,18 @@ function ContinuousMarquee({ items }: { items: { icon: string; label: string; te
                 flexShrink: 0
             }}>
                 {items.map((item, i) => (
-                    <div key={`d-${i}`} style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                    <div
+                        key={`d-${i}`}
+                        style={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "0.5rem",
+                            cursor: item.onClick ? "pointer" : "default",
+                            ... (item.onClick ? { userSelect: "none" } : {})
+                        }}
+                        onClick={item.onClick}
+                        className={item.className}
+                    >
                         <span style={{ color: "var(--accent)" }}>{item.icon}</span>
                         <span style={{
                             fontFamily: "var(--font-mono)",
@@ -109,28 +151,70 @@ function ContinuousMarquee({ items }: { items: { icon: string; label: string; te
     );
 }
 
+import { useTheme } from "./ThemeProvider";
+
+// ... (existing code)
+
 export function CurrentlyStrip() {
     const [songIndex, setSongIndex] = useState(0);
-    const [vibeIndex, setVibeIndex] = useState(0);
     const [currentTime, setCurrentTime] = useState("");
     const [mood, setMood] = useState("");
-    const [isVibeFading, setIsVibeFading] = useState(false);
     const [isHydrated, setIsHydrated] = useState(false);
+    const [isPlaying, setIsPlaying] = useState(false);
+
+    // Theme integration
+    const { theme, setTheme } = useTheme();
+    const wasSwitchedRef = useRef(false);
+
+    // Audio ref
+    const audioRef = useRef<HTMLAudioElement | null>(null);
+
+    // Melancholy Mode Effect
+    useEffect(() => {
+        if (isPlaying && setTheme) {
+            if (theme === "light") {
+                setTheme("dark");
+                wasSwitchedRef.current = true;
+            }
+        } else if (setTheme) {
+            // When paused/stopped, revert only if we switched it
+            if (wasSwitchedRef.current) {
+                setTheme("light");
+                wasSwitchedRef.current = false;
+            }
+        }
+    }, [isPlaying, theme, setTheme]);
 
     // Derived values
     const currentSong = playlist[songIndex % playlist.length] || playlist[0];
-    const currentVibe = vibes[vibeIndex % vibes.length] || vibes[0];
+
+    // Toggle Play
+    const togglePlay = () => {
+        if (!audioRef.current) return;
+
+        if (isPlaying) {
+            audioRef.current.pause();
+        } else {
+            audioRef.current.play().catch(e => console.error("Playback failed:", e));
+        }
+        setIsPlaying(!isPlaying);
+    };
 
     // Status items for the marquee
     const statusItems = [
-        { icon: "♪", label: "Listening", text: currentSong },
+        {
+            icon: isPlaying ? "⏸" : "▶",
+            label: isPlaying ? "Playing" : "Paused",
+            text: currentSong.title,
+            onClick: togglePlay,
+            className: "hover:opacity-80 transition-opacity"
+        },
         { icon: "◎", label: "Time", text: currentTime },
         { icon: "⚡", label: "Mood", text: mood },
     ];
 
     useEffect(() => {
         setSongIndex(Math.floor(Math.random() * playlist.length));
-        setVibeIndex(Math.floor(Math.random() * vibes.length));
         setIsHydrated(true);
 
         const updateTime = () => {
@@ -142,24 +226,40 @@ export function CurrentlyStrip() {
         const timeInterval = setInterval(updateTime, 1000);
 
         const songInterval = setInterval(() => {
-            setSongIndex((prev) => (prev + 1) % playlist.length);
+            setSongIndex((prev) => {
+                const nextIndex = (prev + 1) % playlist.length;
+                return nextIndex;
+            });
         }, 180000); // 3 mins
-
-        // Rotate vibes every 10 seconds with fade
-        const vibeInterval = setInterval(() => {
-            setIsVibeFading(true);
-            setTimeout(() => {
-                setVibeIndex((prev) => (prev + 1) % vibes.length);
-                setIsVibeFading(false);
-            }, 500); // Wait for fade out
-        }, 10000);
 
         return () => {
             clearInterval(timeInterval);
             clearInterval(songInterval);
-            clearInterval(vibeInterval);
         };
     }, []);
+
+    // Handle song change effect ... (same as before)
+    useEffect(() => {
+        if (audioRef.current && currentSong.audioUrl) {
+            const currentSrc = audioRef.current.src;
+            if (!currentSrc.includes(currentSong.audioUrl)) {
+                audioRef.current.src = currentSong.audioUrl;
+                audioRef.current.load();
+
+                if (isPlaying) {
+                    const playPromise = audioRef.current.play();
+                    if (playPromise !== undefined) {
+                        playPromise.catch(e => {
+                            if (e.name !== 'AbortError') {
+                                console.error("Auto-play failed:", e);
+                                setIsPlaying(false);
+                            }
+                        });
+                    }
+                }
+            }
+        }
+    }, [currentSong, isPlaying]);
 
     if (!isHydrated) return null;
 
@@ -171,6 +271,15 @@ export function CurrentlyStrip() {
             width: "100%",
             gap: "1rem"
         }}>
+            <audio
+                ref={audioRef}
+                onEnded={() => setIsPlaying(false)}
+                onError={(e) => {
+                    console.error("Audio error:", e);
+                    setIsPlaying(false);
+                }}
+            />
+
             {/* Top: Marquee Pill */}
             <div
                 style={{
@@ -191,11 +300,12 @@ export function CurrentlyStrip() {
                     width: "clamp(300px, 90vw, 600px)",
                     overflow: "hidden"
                 }}
+                className="pause-on-hover"
             >
                 <ContinuousMarquee items={statusItems} />
             </div>
 
-            {/* Bottom: Vibe / Quote with Fade Animation */}
+            {/* Bottom: Play Control */}
             <div
                 style={{
                     height: "2rem", // Fixed height to prevent layout shift
@@ -204,22 +314,39 @@ export function CurrentlyStrip() {
                     justifyContent: "center"
                 }}
             >
-                <p
-                    style={{
-                        fontFamily: "var(--font-serif)",
-                        fontStyle: "italic",
-                        fontSize: "0.95rem",
-                        color: "var(--text-muted)",
-                        textAlign: "center",
-                        maxWidth: "60ch",
-                        margin: 0,
-                        opacity: isVibeFading ? 0 : 1,
-                        transform: isVibeFading ? "translateY(5px)" : "translateY(0)",
-                        transition: "all 0.5s ease-in-out"
-                    }}
-                >
-                    "{currentVibe}"
-                </p>
+                <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                    <p
+                        key={isPlaying ? "playing" : "idle"}
+                        className="animate-fade-in"
+                        style={{
+                            fontFamily: "var(--font-serif)",
+                            fontStyle: "italic",
+                            fontSize: "0.95rem",
+                            color: "var(--text-muted)",
+                            margin: 0
+                        }}
+                    >
+                        {isPlaying ? "selamat menikmati, nona cantik!" : "Mainkan"}
+                    </p>
+                    <button
+                        onClick={togglePlay}
+                        style={{
+                            all: "unset",
+                            cursor: "pointer",
+                            fontSize: "0.8rem",
+                            color: "var(--text-muted)",
+                            transition: "opacity 0.2s ease",
+                            opacity: 0.7,
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center"
+                        }}
+                        className="hover:opacity-100"
+                        aria-label={isPlaying ? "Pause" : "Play"}
+                    >
+                        {isPlaying ? "⏸" : "▶"}
+                    </button>
+                </div>
             </div>
         </div>
     );

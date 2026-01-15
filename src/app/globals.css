@@ -101,7 +101,7 @@ body {
   /* Generous leading */
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  transition: background-color 0.5s ease, color 0.5s ease;
+  transition: background-color 1.5s ease, color 1.5s ease;
 }
 
 /* Zen Mode Styles - Enhanced Reading Experience */
@@ -671,8 +671,12 @@ p {
   }
 
   100% {
-    transform: translate3d(-50%, 0, 0);
+    transform: translate3d(-100%, 0, 0);
   }
+}
+
+.pause-on-hover:hover * {
+  animation-play-state: paused !important;
 }
 
 .animate-fade-in {
