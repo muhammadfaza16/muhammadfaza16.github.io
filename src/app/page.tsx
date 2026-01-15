@@ -74,30 +74,7 @@ export default function HomePage() {
         </Container>
       </section>
 
-      {/* Mini About - Personal Touch */}
-      <section style={{ paddingBottom: "4rem" }}>
-        <Container>
-          <div className="animate-fade-in animation-delay-400" style={{
-            display: "flex",
-            flexDirection: "column",
-            gap: "1rem",
-            maxWidth: "50ch"
-          }}>
-            <p style={{
-              fontFamily: "'Source Serif 4', serif",
-              fontSize: "1.15rem",
-              lineHeight: 1.7,
-              color: "var(--text-secondary)"
-            }}>
-              Hi, I'm <Link href="/about" style={{
-                color: "var(--foreground)",
-                fontWeight: 500,
-                borderBottom: "1px solid var(--border)"
-              }} className="hover:border-[var(--foreground)] transition-colors">Faza</Link> — a wanderer navigating the intersection of technology, philosophy, and human experience.
-            </p>
-          </div>
-        </Container>
-      </section>
+
 
       {/* Writing Section - Clean & Editorial */}
       <section style={{ paddingBottom: "8rem" }}>

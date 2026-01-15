@@ -27,6 +27,7 @@
 :root {
   /* Bases - Warm Off-White */
   --background: #FAFAFA;
+  --background-rgb: 250, 250, 250;
   --foreground: #1A1A1A;
 
   /* Fonts - Accessible Variables */
@@ -54,6 +55,7 @@
 .dark {
   /* Bases - Deep Ink */
   --background: #111111;
+  --background-rgb: 17, 17, 17;
   --foreground: #FAFAFA;
 
   /* Text */

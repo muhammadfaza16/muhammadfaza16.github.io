@@ -8,25 +8,23 @@ export const metadata: Metadata = {
 };
 
 const books = [
-    // Exact Sciences / Physics / Math
-    { title: "The Feynman Lectures on Physics", author: "Richard P. Feynman", status: "Favorite", notes: "The absolute gold standard for physical intuition. Not just equations, but understanding." },
-    { title: "The Beginning of Infinity", author: "David Deutsch", status: "Reading", notes: "A profound exploration of knowledge, reason, and the unlimited potential of explanation." },
-    { title: "Cosmos", author: "Carl Sagan", status: "Finished", notes: "A poetic voyage through the universe that reminds us of our place in the grand scheme." },
-    { title: "Gödel, Escher, Bach", author: "Douglas Hofstadter", status: "Reading", notes: "A fugue on minds and machines. Mental gymnastics at its finest." },
+    // Current - Vision Aligned
+    { title: "Co-Intelligence", author: "Ethan Mollick", status: "Reading", notes: "Living and working with AI. Not just using it, but collaborating with it." },
+    { title: "Building a StoryBrand", author: "Donald Miller", status: "Reading", notes: "Clarifying the message. If you confuse, you'll lose." },
+    { title: "Same as Ever", author: "Morgan Housel", status: "Reading", notes: "Focusing on what never changes in a changing world. Human nature is constant." },
 
-    // Psychology / Human Nature
-    { title: "Behave", author: "Robert Sapolsky", status: "Favorite", notes: "The best book on human behavior, period. Biology, neuroscience, and environment converged." },
-    { title: "The Moral Animal", author: "Robert Wright", status: "Finished", notes: "Evolutionary psychology explaining why we are the way we are. Uncomfortable but necessary." },
-    { title: "Thinking, Fast and Slow", author: "Daniel Kahneman", status: "Finished", notes: "Exposing the bugs in our wetware. Essential for anyone wanting to be rational." },
-
-    // Economics / Politics / History
-    { title: "Why Nations Fail", author: "D. Acemoglu & J. Robinson", status: "Finished", notes: "Institutions matter. A robust framework for understanding global inequality." },
-    { title: "Poor Economics", author: "Abhijit Banerjee & Esther Duflo", status: "Reading", notes: "Empirical development economics. Moving beyond theory to what actually works." },
+    // Science Pop / History / Big Context
+    { title: "Sapiens", author: "Yuval Noah Harari", status: "Finished", notes: "The history of our species. How shared fictions enable large-scale cooperation." },
     { title: "Guns, Germs, and Steel", author: "Jared Diamond", status: "Finished", notes: "Geographic determinism. A macro-history lens that explains the broad strokes of civilization." },
+    { title: "Cosmos", author: "Carl Sagan", status: "Finished", notes: "A poetic voyage through the universe that reminds us of our place in the grand scheme." },
 
-    // Life / Philosophy / Taste
-    { title: "When Breath Becomes Air", author: "Paul Kalanithi", status: "Favorite", notes: "A confronting, beautiful meditation on mortality and what makes life worth living." },
-    { title: "Exhalation", author: "Ted Chiang", status: "Finished", notes: "Sci-fi that feels like philosophy. Stories that linger in your mind for years." },
+    // Wisdom / Philosophy / Mental Models
+    { title: "The Almanack of Naval Ravikant", author: "Eric Jorgenson", status: "Favorite", notes: "Wealth and happiness. The guide to playing long-term games with long-term people." },
+    { title: "The Psychology of Money", author: "Morgan Housel", status: "Favorite", notes: "Doing well with money isn't just about what you know. It's about how you behave." },
+    { title: "Behave", author: "Robert Sapolsky", status: "Favorite", notes: "The biology of humans at our best and worst. Complexity theory applied to us." },
+
+    // Classics
+    { title: "Thinking, Fast and Slow", author: "Daniel Kahneman", status: "Finished", notes: "Exposing the bugs in our wetware. Essential for anyone wanting to be rational." },
 ];
 
 function StatusIcon({ status }: { status: string }) {

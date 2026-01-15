@@ -207,15 +207,22 @@ export default function NowPage() {
                         }}>
                             <FocusItem
                                 icon={Brain}
-                                title="Deep diving into Agentic AI"
-                                description="Exploring LLM orchestration, tool-use patterns, dan bikin sistem yang bisa 'mikir' sendiri. Fascinating stuff."
-                                progress={65}
+                                title="Agentic AI Development"
+                                description="Building autonomous systems that can think. Mastering LLM orchestration & tool-use."
+                                progress={35}
+                                accent
+                            />
+                            <FocusItem
+                                icon={Headphones}
+                                title="English Mastery"
+                                description="Pushing for genuine fluency. Shadowing technique, daily immersion, dan active listening."
+                                progress={60}
                                 accent
                             />
                             <FocusItem
                                 icon={Sparkles}
                                 title="Building this digital garden"
-                                description="You're looking at it. Pengen bikin space yang reflects how my brain actually works—chaotic but intentional."
+                                description="A chaotic but intentional space for documenting the journey of becoming a builder."
                                 progress={40}
                                 accent
                             />
@@ -248,18 +255,18 @@ export default function NowPage() {
                         }}>
                             <FocusItem
                                 icon={Pencil}
-                                title="Writing 'The Art of Code Deletion'"
-                                description="An essay about why deleting code is harder (and more valuable) than writing it. Still drafting."
+                                title="Brand Building"
+                                description="Documenting the process. Learning how to tell stories that resonate and build trust."
                             />
                             <FocusItem
                                 icon={BookOpen}
-                                title="Reading 'Thinking, Fast and Slow'"
-                                description="Kahneman's masterpiece. Slow progress—tiap chapter butuh digesting lama. Worth it."
+                                title="Reading 'Same as Ever'"
+                                description="Understanding human nature constants. Morgan Housel never misses."
                             />
                             <FocusItem
                                 icon={Coffee}
-                                title="Experimenting with pour-over"
-                                description="Currently obsessed with V60 technique. The ritual matters as much as the result."
+                                title="V60 Pour-over Experiments"
+                                description="Chasing the perfect bloom. The ritual is just as important as the caffeine."
                             />
                         </div>
                     </section>

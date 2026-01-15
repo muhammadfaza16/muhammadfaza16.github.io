@@ -15,7 +15,8 @@ import {
     Clock,
     GraduationCap,
     Monitor,
-    User
+    User,
+    Compass
 } from "lucide-react";
 import { motion } from "framer-motion";
 
@@ -204,6 +205,7 @@ export default function AboutPage() {
 
     const archiveLinks = [
         { href: "/now", icon: Zap, title: "Now", desc: "Lagi sibuk apa sekarang" },
+        { href: "/journey", icon: Compass, title: "Journey", desc: "Long-term goals & learning log" },
         { href: "/bookshelf", icon: BookOpen, title: "Bookshelf", desc: "Koleksi bacaan" },
         { href: "/ideas", icon: Lightbulb, title: "Ideas", desc: "Gudang ide mentah" },
         { href: "/links", icon: Link2, title: "Links", desc: "Bookmark pilihan" },

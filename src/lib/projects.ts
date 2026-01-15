@@ -11,6 +11,13 @@ export interface Project {
 export const projects: Project[] = [
     // Web / Software
     {
+        id: "agent-zero",
+        title: "Agent-Zero",
+        description: "Experimental autonomous agent capable of tool use and multi-step reasoning. The playground for my AI learning journey.",
+        tags: ["Python", "LangChain", "LLMs"],
+        category: "Research"
+    },
+    {
         id: "1",
         title: "The Almanack",
         description: "This personal digital garden you're on. A minimalist space for essays, curated reading, and random thoughts.",
