@@ -1,52 +1,10 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
+import { useAudio } from "./AudioContext";
 
-const playlist = [
-    {
-        title: "The Man Who Can't Be Moved — The Script",
-        audioUrl: "/audio/the-man-who-cant-be-moved.mp3",
-    }
-];
-
-// const playlist = [
-//     {
-//         title: "Sally Sendiri — Noah",
-//         lyrics: [
-//             "Biar Sally mencariku...",
-//             "Biarkan dia terbang jauh...",
-//             "Dalam hatinya hanya satu...",
-//             "Jauh hatinya hanya ku..."
-//         ]
-//     },
-//     {
-//         title: "Kukatakan Dengan Indah — Noah",
-//         lyrics: [
-//             "Kukatakan dengan indah...",
-//             "Dengan terluka hatiku hampa...",
-//             "Sepertinya luka menghampirinya...",
-//             "Kau beri rasa yang berbeda..."
-//         ]
-//     },
-//     {
-//         title: "Andaikan Kau Datang — Noah",
-//         lyrics: [
-//             "Terlalu indah dilupakan...",
-//             "Terlalu sedih dikenangkan...",
-//             "Setelah aku jauh berjalan...",
-//             "Dan kau kutinggalkan..."
-//         ]
-//     },
-//     {
-//         title: "Jalani Mimpi — Noah",
-//         lyrics: [
-//             "Ingatlah dikala engkau sanggup...",
-//             "Melihat matahari...",
-//             "Hangatnya masih terbawa...",
-//             "Untuk melangkah hari ini..."
-//         ]
-//     },
-// ];
+// Derived values from context now
+// const playlist removed as it is handled by context for the active song
 
 function formatTime(date: Date): string {
     return date.toLocaleTimeString("en-US", {
@@ -81,7 +39,7 @@ function ContinuousMarquee({ items }: { items: { icon: React.ReactNode; label: s
             <div style={{
                 display: "flex",
                 gap: "3rem",
-                animation: "marquee 10s linear infinite",
+                animation: "marquee 25s linear infinite",
                 paddingRight: "3rem",
                 flexShrink: 0
             }}>
@@ -116,7 +74,7 @@ function ContinuousMarquee({ items }: { items: { icon: React.ReactNode; label: s
             <div style={{
                 display: "flex",
                 gap: "3rem",
-                animation: "marquee 10s linear infinite",
+                animation: "marquee 25s linear infinite",
                 paddingRight: "3rem",
                 flexShrink: 0
             }}>
@@ -151,54 +109,16 @@ function ContinuousMarquee({ items }: { items: { icon: React.ReactNode; label: s
     );
 }
 
-import { useTheme } from "./ThemeProvider";
-
-// ... (existing code)
-
 export function CurrentlyStrip() {
-    const [songIndex, setSongIndex] = useState(0);
     const [currentTime, setCurrentTime] = useState("");
     const [mood, setMood] = useState("");
     const [isHydrated, setIsHydrated] = useState(false);
-    const [isPlaying, setIsPlaying] = useState(false);
 
-    // Theme integration
-    const { theme, setTheme } = useTheme();
-    const wasSwitchedRef = useRef(false);
-
-    // Audio ref
-    const audioRef = useRef<HTMLAudioElement | null>(null);
-
-    // Melancholy Mode Effect
-    useEffect(() => {
-        if (isPlaying && setTheme) {
-            if (theme === "light") {
-                setTheme("dark");
-                wasSwitchedRef.current = true;
-            }
-        } else if (setTheme) {
-            // When paused/stopped, revert only if we switched it
-            if (wasSwitchedRef.current) {
-                setTheme("light");
-                wasSwitchedRef.current = false;
-            }
-        }
-    }, [isPlaying, theme, setTheme]);
+    // Global Audio Context
+    const { isPlaying, togglePlay, currentSong } = useAudio();
 
     // Derived values
-    const currentSong = playlist[songIndex % playlist.length] || playlist[0];
-
-    // Toggle Play
-    const togglePlay = () => {
-        if (!audioRef.current) return;
-
-        if (isPlaying) {
-            audioRef.current.pause();
-        } else {
-            audioRef.current.play().catch(e => console.error("Playback failed:", e));
-        }
-        setIsPlaying(!isPlaying);
-    };
+    // const currentSong = playlist[songIndex % playlist.length] || playlist[0];
 
     // Status items for the marquee
     const statusItems = [
@@ -211,10 +131,10 @@ export function CurrentlyStrip() {
         },
         { icon: "◎", label: "Time", text: currentTime },
         { icon: "⚡", label: "Mood", text: mood },
+        { icon: "💌", label: "Checking in", text: "Gimana harinya? Lancar kan?" },
     ];
 
     useEffect(() => {
-        setSongIndex(Math.floor(Math.random() * playlist.length));
         setIsHydrated(true);
 
         const updateTime = () => {
@@ -225,41 +145,10 @@ export function CurrentlyStrip() {
         updateTime();
         const timeInterval = setInterval(updateTime, 1000);
 
-        const songInterval = setInterval(() => {
-            setSongIndex((prev) => {
-                const nextIndex = (prev + 1) % playlist.length;
-                return nextIndex;
-            });
-        }, 180000); // 3 mins
-
         return () => {
             clearInterval(timeInterval);
-            clearInterval(songInterval);
         };
     }, []);
-
-    // Handle song change effect ... (same as before)
-    useEffect(() => {
-        if (audioRef.current && currentSong.audioUrl) {
-            const currentSrc = audioRef.current.src;
-            if (!currentSrc.includes(currentSong.audioUrl)) {
-                audioRef.current.src = currentSong.audioUrl;
-                audioRef.current.load();
-
-                if (isPlaying) {
-                    const playPromise = audioRef.current.play();
-                    if (playPromise !== undefined) {
-                        playPromise.catch(e => {
-                            if (e.name !== 'AbortError') {
-                                console.error("Auto-play failed:", e);
-                                setIsPlaying(false);
-                            }
-                        });
-                    }
-                }
-            }
-        }
-    }, [currentSong, isPlaying]);
 
     if (!isHydrated) return null;
 
@@ -271,14 +160,6 @@ export function CurrentlyStrip() {
             width: "100%",
             gap: "1rem"
         }}>
-            <audio
-                ref={audioRef}
-                onEnded={() => setIsPlaying(false)}
-                onError={(e) => {
-                    console.error("Audio error:", e);
-                    setIsPlaying(false);
-                }}
-            />
 
             {/* Top: Marquee Pill */}
             <div
@@ -314,10 +195,20 @@ export function CurrentlyStrip() {
                     justifyContent: "center"
                 }}
             >
-                <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                <div
+                    onClick={togglePlay}
+                    style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "0.5rem",
+                        cursor: "pointer",
+                        userSelect: "none"
+                    }}
+                    className="group"
+                >
                     <p
                         key={isPlaying ? "playing" : "idle"}
-                        className="animate-fade-in"
+                        className="animate-fade-in group-hover:opacity-80 transition-opacity"
                         style={{
                             fontFamily: "var(--font-serif)",
                             fontStyle: "italic",
@@ -326,13 +217,11 @@ export function CurrentlyStrip() {
                             margin: 0
                         }}
                     >
-                        {isPlaying ? "selamat menikmati, nona cantik!" : "Mainkan"}
+                        {isPlaying ? "selamat menikmati, nona 🌹" : "Mainkan"}
                     </p>
                     <button
-                        onClick={togglePlay}
                         style={{
                             all: "unset",
-                            cursor: "pointer",
                             fontSize: "0.8rem",
                             color: "var(--text-muted)",
                             transition: "opacity 0.2s ease",
@@ -341,7 +230,7 @@ export function CurrentlyStrip() {
                             alignItems: "center",
                             justifyContent: "center"
                         }}
-                        className="hover:opacity-100"
+                        className="group-hover:opacity-100"
                         aria-label={isPlaying ? "Pause" : "Play"}
                     >
                         {isPlaying ? "⏸" : "▶"}
