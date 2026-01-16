@@ -31,7 +31,7 @@ export default function HomePage() {
       {/* Hero Section - Steve Jobs Aesthetic */}
       <section style={{
         paddingTop: "calc(5rem + 2vh)",
-        paddingBottom: "clamp(1.5rem, 5vw, 6rem)", // Reduced from clamp(4rem, 8vw, 8rem)
+        paddingBottom: "clamp(4rem, 8vw, 8rem)",
         position: "relative",
         // overflow: "hidden" removed to prevent clipping if any content extends
       }}>
@@ -86,7 +86,7 @@ export default function HomePage() {
         alignItems: "center",
         justifyContent: "center",
         gap: "1rem",
-        padding: "clamp(0.5rem, 1vw, 1rem) 0", // Reduced from clamp(1rem, 2vw, 2rem)
+        padding: "clamp(1rem, 2vw, 2rem) 0",
         opacity: 0.4
       }}>
         <div style={{ flex: 1, maxWidth: "100px", height: "1px", background: "linear-gradient(to right, transparent, var(--border))" }} />

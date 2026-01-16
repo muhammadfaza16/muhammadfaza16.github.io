@@ -425,17 +425,10 @@ export function CurrentlyStrip() {
 
         const updateTime = () => {
             const now = new Date();
-            const timeStr = formatTime(now);
-            setCurrentTime(prev => prev !== timeStr ? timeStr : prev);
-
+            setCurrentTime(formatTime(now));
             const h = now.getHours();
-            setCurrentHour(prevH => {
-                if (prevH !== h) {
-                    setMoods(getMoods(h));
-                    return h;
-                }
-                return prevH;
-            });
+            setMoods(getMoods(h));
+            setCurrentHour(h);
         };
         updateTime();
         const timeInterval = setInterval(updateTime, 1000);
@@ -531,24 +524,20 @@ export function CurrentlyStrip() {
 
                 {/* Player controls row */}
                 <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                    {/* Previous Button - Only show after interaction */}
                     <div
                         onClick={(e) => {
                             e.stopPropagation();
-                            if (hasInteracted) prevSong();
+                            prevSong();
                         }}
                         style={{
                             cursor: "pointer",
                             fontSize: "0.8rem",
                             color: "var(--text-muted)",
-                            opacity: hasInteracted ? 0.5 : 0, // Hide if not interacted
-                            pointerEvents: hasInteracted ? "auto" : "none",
+                            opacity: 0.5,
                             display: "flex",
                             alignItems: "center",
-                            transition: "all 0.5s ease",
-                            padding: "4px",
-                            transform: hasInteracted ? "scale(1)" : "scale(0)",
-                            width: hasInteracted ? "auto" : 0
+                            transition: "all 0.2s ease",
+                            padding: "4px"
                         }}
                         className="hover:opacity-100"
                         title="Previous Song"
@@ -556,44 +545,39 @@ export function CurrentlyStrip() {
                         <SkipBack size={14} />
                     </div>
 
-                    {/* Play/Pause Button */}
                     <button
                         onClick={togglePlay}
                         style={{
                             all: "unset",
-                            fontSize: hasInteracted ? "0.9rem" : "1.5rem", // Larger when waiting
-                            color: hasInteracted ? "var(--text-muted)" : "var(--accent)", // Accent color initially
-                            opacity: hasInteracted ? 0.7 : 1, // Clearer initially
+                            fontSize: "0.9rem",
+                            color: "var(--text-muted)",
+                            opacity: 0.7,
                             display: "flex",
                             alignItems: "center",
                             padding: "4px",
                             cursor: "pointer",
-                            transition: "all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1)" // Bouncy transition
+                            transition: "opacity 0.2s ease"
                         }}
-                        className={hasInteracted ? "hover:opacity-100" : "hover:scale-110"}
+                        className="hover:opacity-100"
                         aria-label={isPlaying ? "Pause" : "Play"}
                     >
                         {isPlaying ? "⏸" : "▶"}
                     </button>
 
-                    {/* Next Button - Only show after interaction */}
                     <div
                         onClick={(e) => {
                             e.stopPropagation();
-                            if (hasInteracted) nextSong();
+                            nextSong();
                         }}
                         style={{
                             cursor: "pointer",
                             fontSize: "0.8rem",
                             color: "var(--text-muted)",
-                            opacity: hasInteracted ? 0.5 : 0, // Hide if not interacted
-                            pointerEvents: hasInteracted ? "auto" : "none",
+                            opacity: 0.5,
                             display: "flex",
                             alignItems: "center",
-                            transition: "all 0.5s ease",
-                            padding: "4px",
-                            transform: hasInteracted ? "scale(1)" : "scale(0)",
-                            width: hasInteracted ? "auto" : 0
+                            transition: "all 0.2s ease",
+                            padding: "4px"
                         }}
                         className="hover:opacity-100"
                         title="Next Song"
