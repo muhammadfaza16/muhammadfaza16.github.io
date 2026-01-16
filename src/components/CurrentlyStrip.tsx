@@ -26,6 +26,43 @@ function getMoods(hour: number): string[] {
     return ["dreaming of u. shh.", "3am thoughts", "why am i awake?"];
 }
 
+// Smooth text transition component
+function AnimatedText({ text, className }: { text: string, className?: string }) {
+    const [displayText, setDisplayText] = useState(text);
+    const [opacity, setOpacity] = useState(1);
+    const [width, setWidth] = useState<number | "auto">("auto");
+    const containerRef = useRef<HTMLSpanElement>(null);
+    const textRef = useRef<HTMLSpanElement>(null);
+
+    useEffect(() => {
+        if (text === displayText) return;
+
+        // Start fade out
+        setOpacity(0);
+
+        const timer = setTimeout(() => {
+            setDisplayText(text);
+            setOpacity(1);
+        }, 200); // 200ms fade out
+
+        return () => clearTimeout(timer);
+    }, [text, displayText]);
+
+    return (
+        <span
+            className={className}
+            style={{
+                opacity: opacity,
+                transition: "opacity 0.2s ease-in-out",
+                display: "inline-block",
+                whiteSpace: "nowrap"
+            }}
+        >
+            {displayText}
+        </span>
+    );
+}
+
 // Individual Marquee Item with Visibility Tracking
 function MarqueeItem({ item, id, onVisibilityChange }: {
     item: { icon: React.ReactNode; label: string; text: string; onClick?: () => void; className?: string };
@@ -75,7 +112,10 @@ function MarqueeItem({ item, id, onVisibilityChange }: {
             }}>
                 {item.label}:
             </span>
-            <span style={{ whiteSpace: "nowrap", fontWeight: 500 }}>{item.text}</span>
+            <AnimatedText
+                text={item.text}
+                className={item.className} // Pass class if needed
+            />
         </div>
     );
 }
