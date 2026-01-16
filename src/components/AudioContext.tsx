@@ -80,7 +80,18 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
     };
 
     const toggleShuffle = () => {
-        setIsShuffle(!isShuffle);
+        const newShuffleState = !isShuffle;
+        setIsShuffle(newShuffleState);
+
+        // If turning shuffle ON, play a random song immediately
+        if (newShuffleState && PLAYLIST.length > 1) {
+            let nextIndex;
+            do {
+                nextIndex = Math.floor(Math.random() * PLAYLIST.length);
+            } while (nextIndex === currentIndex);
+            setCurrentIndex(nextIndex);
+            setIsPlaying(true);
+        }
     };
 
     const nextSong = () => {
