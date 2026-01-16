@@ -30,40 +30,40 @@ const PLAYLIST = [
         audioUrl: "/audio/Alan Walker, K-391 & Emelie Hollow - Lily (Lyrics).mp3",
     },
     {
-        title: "Alan Walker — Alone",
-        audioUrl: "/audio/Alan Walker & Ava Max - Alone, Pt. II (Lyrics).mp3",
+        title: "Loreen — Tattoo",
+        audioUrl: "/audio/Loreen - Tattoo.mp3",
     },
     {
         title: "Bruno Mars — Locked Out",
         audioUrl: "/audio/Bruno Mars - Locked Out Of Heaven.mp3",
     },
     {
-        title: "John Newman — Love Me",
-        audioUrl: "/audio/John Newman - Love Me Again (Lyrics).mp3",
+        title: "Halsey — Without Me",
+        audioUrl: "/audio/Halsey - Without Me (Lyrics).mp3",
     },
     {
         title: "The Script — The Man Who",
         audioUrl: "/audio/The Script - The Man Who Can't Be Moved (Lyrics).mp3",
     },
     {
-        title: "Conan Gray — Memories",
-        audioUrl: "/audio/Conan Gray - Memories (Lyrics).mp3",
+        title: "James Arthur — Impossible",
+        audioUrl: "/audio/James Arthur - Impossible (Lyrics) (1).mp3",
     },
     {
-        title: "Halsey — Without Me",
-        audioUrl: "/audio/Halsey - Without Me (Lyrics).mp3",
+        title: "John Newman — Love Me",
+        audioUrl: "/audio/John Newman - Love Me Again (Lyrics).mp3",
     },
     {
         title: "Hoobastank — The Reason",
         audioUrl: "/audio/Hoobastank - The Reason (Lyrics).mp3",
     },
     {
-        title: "James Arthur — Impossible",
-        audioUrl: "/audio/James Arthur - Impossible (Lyrics) (1).mp3",
+        title: "Conan Gray — Memories",
+        audioUrl: "/audio/Conan Gray - Memories (Lyrics).mp3",
     },
     {
-        title: "Loreen — Tattoo",
-        audioUrl: "/audio/Loreen - Tattoo.mp3",
+        title: "Alan Walker — Alone",
+        audioUrl: "/audio/Alan Walker & Ava Max - Alone, Pt. II (Lyrics).mp3",
     }
 ];
 
