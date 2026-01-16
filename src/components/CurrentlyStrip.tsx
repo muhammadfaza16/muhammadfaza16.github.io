@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo, memo } from "react";
 import { useAudio } from "./AudioContext";
 import { Shuffle, SkipForward } from "lucide-react";
 import { getSongMessage } from "../data/songMessages";
@@ -112,8 +112,8 @@ function AnimatedText({ text, className }: { text: string, className?: string })
     );
 }
 
-// Individual Marquee Item with Visibility Tracking
-function MarqueeItem({ item, id, onVisibilityChange }: {
+// Individual Marquee Item with Visibility Tracking (Memoized)
+const MarqueeItem = memo(function MarqueeItem({ item, id, onVisibilityChange }: {
     item: { icon: React.ReactNode; label: string; text: string; onClick?: () => void; className?: string };
     id: string;
     onVisibilityChange: (id: string, isVisible: boolean) => void;
@@ -145,8 +145,10 @@ function MarqueeItem({ item, id, onVisibilityChange }: {
                 display: "flex",
                 alignItems: "center",
                 gap: "0.5rem",
+                userSelect: "none",
                 cursor: item.onClick ? "pointer" : "default",
-                ... (item.onClick ? { userSelect: "none" } : {})
+                opacity: 0.9,
+                transition: "opacity 0.2s"
             }}
             onClick={item.onClick}
             className={item.className}
@@ -167,10 +169,10 @@ function MarqueeItem({ item, id, onVisibilityChange }: {
             />
         </div>
     );
-}
+});
 
-// Helper for the continuous marquee
-function ContinuousMarquee({ items, onVisibilityChange }: {
+// Helper for the continuous marquee (Memoized)
+const ContinuousMarquee = memo(function ContinuousMarquee({ items, onVisibilityChange }: {
     items: { icon: React.ReactNode; label: string; text: string; onClick?: () => void; className?: string }[];
     onVisibilityChange: (id: string, isVisible: boolean) => void;
 }) {
@@ -205,7 +207,8 @@ function ContinuousMarquee({ items, onVisibilityChange }: {
             ))}
         </div>
     );
-}
+});
+
 
 function getCheckInMessages(hour: number): string[] {
     // 05:00 - 10:59 (Morning)
@@ -388,7 +391,10 @@ export function CurrentlyStrip() {
                         cursor: "pointer",
                         userSelect: "none",
                         textAlign: "center",
-                        minHeight: "1.4em",
+                        minHeight: "2.8em", // Fixed height for 2 lines to prevent shifts
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
                         transition: "opacity 0.3s ease"
                     }}
                     onClick={togglePlay}
