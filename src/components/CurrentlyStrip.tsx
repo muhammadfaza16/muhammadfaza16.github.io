@@ -15,15 +15,15 @@ function formatTime(date: Date): string {
     });
 }
 
-function getMood(hour: number): string {
-    if (hour >= 5 && hour < 8) return "morning glow & missing u";
-    if (hour >= 8 && hour < 11) return "pretending to work, thinking of u";
-    if (hour >= 11 && hour < 14) return "craving attention (and lunch)";
-    if (hour >= 14 && hour < 17) return "sleepy eyes, dreamy mind";
-    if (hour >= 17 && hour < 19) return "golden hour lookin' at u";
-    if (hour >= 19 && hour < 22) return "saving my battery for u";
-    if (hour >= 22 || hour < 2) return "romanticizing us rn";
-    return "dreaming of u. shh.";
+function getMoods(hour: number): string[] {
+    if (hour >= 5 && hour < 8) return ["morning glow & missing u", "coffee first, you second", "sunrise kinda vibe"];
+    if (hour >= 8 && hour < 11) return ["pretending to work, thinking of u", "email fatigue", "counting down to lunch"];
+    if (hour >= 11 && hour < 14) return ["craving attention (and lunch)", "halfway through", "fueling up"];
+    if (hour >= 14 && hour < 17) return ["sleepy eyes, dreamy mind", "afternoon slump hitting", "need a treat"];
+    if (hour >= 17 && hour < 19) return ["golden hour lookin' at u", "chasing sunsets", "finally free"];
+    if (hour >= 19 && hour < 22) return ["saving my battery for u", "scrolling paralysis", "winding down"];
+    if (hour >= 22 || hour < 2) return ["romanticizing us rn", "overthinking hours", "moonchild mode"];
+    return ["dreaming of u. shh.", "3am thoughts", "why am i awake?"];
 }
 
 // Individual Marquee Item with Visibility Tracking
@@ -183,7 +183,8 @@ function getCheckInMessages(hour: number): string[] {
 
 export function CurrentlyStrip() {
     const [currentTime, setCurrentTime] = useState("");
-    const [mood, setMood] = useState("");
+    const [moods, setMoods] = useState<string[]>([]);
+    const [moodIndex, setMoodIndex] = useState(0);
     const [checkInIndex, setCheckInIndex] = useState(0);
     const [isHydrated, setIsHydrated] = useState(false);
     const [currentHour, setCurrentHour] = useState(new Date().getHours());
@@ -203,7 +204,7 @@ export function CurrentlyStrip() {
             className: "hover:opacity-80 transition-opacity"
         },
         { icon: "◎", label: "Time", text: currentTime },
-        { icon: "⚡", label: "Mood", text: mood },
+        { icon: "⚡", label: "Mood", text: moods[moodIndex % moods.length] || "" },
         { icon: "💌", label: "Checking in", text: checkInMessages[checkInIndex % checkInMessages.length] },
     ];
 
@@ -225,22 +226,22 @@ export function CurrentlyStrip() {
             const now = new Date();
             setCurrentTime(formatTime(now));
             const h = now.getHours();
-            setMood(getMood(h));
+            setMoods(getMoods(h));
             setCurrentHour(h);
         };
         updateTime();
         const timeInterval = setInterval(updateTime, 1000);
 
-        // Rotate check-in message every 1 minute, BUT ONLY if text itself is off-screen
-        const checkInInterval = setInterval(() => {
-            if (visibleCheckIns.current.size === 0) {
-                setCheckInIndex((prev) => prev + 1);
-            }
-        }, 60000);
+        // Rotate check-in AND mood message every 10 seconds
+        // "Rolling stock" effect
+        const contentRotationInterval = setInterval(() => {
+            setCheckInIndex((prev) => prev + 1);
+            setMoodIndex((prev) => prev + 1);
+        }, 10000);
 
         return () => {
             clearInterval(timeInterval);
-            clearInterval(checkInInterval);
+            clearInterval(contentRotationInterval);
         };
     }, []);
 
