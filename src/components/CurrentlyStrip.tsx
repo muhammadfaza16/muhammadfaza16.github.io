@@ -42,7 +42,7 @@ function FixedWidthText({ text, width, className }: { text: string; width: strin
         const timer = setTimeout(() => {
             setDisplayText(text);
             setOpacity(1);
-        }, 200);
+        }, 500);
 
         return () => clearTimeout(timer);
     }, [text, displayText]);
@@ -58,7 +58,7 @@ function FixedWidthText({ text, width, className }: { text: string; width: strin
                 whiteSpace: "nowrap",
                 overflow: "hidden",
                 textOverflow: "ellipsis",
-                transition: "opacity 0.2s ease-in-out",
+                transition: "opacity 0.5s ease-in-out",
                 opacity: opacity,
                 verticalAlign: "middle",
                 textAlign: "left"
@@ -225,6 +225,49 @@ function getCheckInMessages(hour: number): string[] {
     ];
 }
 
+// Music Visualizer Component
+const MusicVisualizer = memo(function MusicVisualizer({ isPlaying }: { isPlaying: boolean }) {
+    return (
+        <div style={{
+            display: "flex",
+            alignItems: "flex-end",
+            justifyContent: "center",
+            gap: "3px",
+            height: "12px",
+            marginBottom: "0.4rem", // space between visualizer and marquee
+            opacity: 0.8
+        }}>
+            <style>
+                {`
+                    @keyframes bounce {
+                        0%, 100% { height: 3px; }
+                        50% { height: 12px; }
+                    }
+                    .bar {
+                        width: 3px;
+                        background-color: var(--accent);
+                        border-radius: 99px;
+                        transition: height 0.2s ease;
+                    }
+                    .animate-bar {
+                        animation: bounce 0.5s infinite ease-in-out;
+                    }
+                `}
+            </style>
+            {[0, 1, 2, 3].map((i) => (
+                <div
+                    key={i}
+                    className={`bar ${isPlaying ? "animate-bar" : ""}`}
+                    style={{
+                        height: isPlaying ? undefined : "3px",
+                        animationDelay: `${i * 0.1}s`
+                    }}
+                />
+            ))}
+        </div>
+    );
+});
+
 export function CurrentlyStrip() {
     const [currentTime, setCurrentTime] = useState("");
     const [moods, setMoods] = useState<string[]>([]);
@@ -240,7 +283,19 @@ export function CurrentlyStrip() {
     const checkInMessages = getCheckInMessages(currentHour);
 
     // Get song message based on current index
-    const songMessage = getSongMessage(currentSong.title, isPlaying, songMessageIndex);
+    const rawSongMessage = getSongMessage(currentSong.title, isPlaying, songMessageIndex);
+    const [displaySongMessage, setDisplaySongMessage] = useState(rawSongMessage);
+    const [msgOpacity, setMsgOpacity] = useState(1);
+
+    useEffect(() => {
+        if (rawSongMessage === displaySongMessage) return;
+        setMsgOpacity(0);
+        const timer = setTimeout(() => {
+            setDisplaySongMessage(rawSongMessage);
+            setMsgOpacity(1);
+        }, 500);
+        return () => clearTimeout(timer);
+    }, [rawSongMessage, displaySongMessage]);
 
 
 
@@ -308,6 +363,9 @@ export function CurrentlyStrip() {
                 gap: "0rem"
             }}>
 
+            {/* Top: Visualizer */}
+            <MusicVisualizer isPlaying={isPlaying} />
+
             {/* Top: Marquee Pill */}
             <div
                 style={{
@@ -347,8 +405,6 @@ export function CurrentlyStrip() {
             >
                 {/* Song message text with fade transition */}
                 <p
-                    key={`${songMessage}-${songMessageIndex}`}
-                    className="animate-fade-in"
                     style={{
                         fontFamily: "var(--font-serif)",
                         fontStyle: "italic",
@@ -363,11 +419,12 @@ export function CurrentlyStrip() {
                         display: "flex",
                         alignItems: "center", // Centered for symmetric gaps
                         justifyContent: "center",
-                        transition: "opacity 0.3s ease"
+                        transition: "opacity 0.5s ease-in-out",
+                        opacity: msgOpacity
                     }}
                     onClick={togglePlay}
                 >
-                    {songMessage}
+                    {displaySongMessage}
                 </p>
 
                 {/* Player controls row */}
