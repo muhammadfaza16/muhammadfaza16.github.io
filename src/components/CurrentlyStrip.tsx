@@ -180,39 +180,27 @@ function ContinuousMarquee({ items, onVisibilityChange }: {
             maskImage: "linear-gradient(90deg, transparent 0%, black 5%, black 95%, transparent 100%)",
             WebkitMaskImage: "linear-gradient(90deg, transparent 0%, black 5%, black 95%, transparent 100%)"
         }}>
-            <div style={{
-                display: "flex",
-                gap: "3rem",
-                animation: "marquee 25s linear infinite",
-                paddingRight: "3rem",
-                flexShrink: 0
-            }}>
-                {items.map((item, i) => (
-                    <MarqueeItem
-                        key={`o-${i}`}
-                        id={`o-${i}`}
-                        item={item}
-                        onVisibilityChange={onVisibilityChange}
-                    />
-                ))}
-            </div>
-            {/* Duplicate for infinite loop */}
-            <div style={{
-                display: "flex",
-                gap: "3rem",
-                animation: "marquee 25s linear infinite",
-                paddingRight: "3rem",
-                flexShrink: 0
-            }}>
-                {items.map((item, i) => (
-                    <MarqueeItem
-                        key={`d-${i}`}
-                        id={`d-${i}`}
-                        item={item}
-                        onVisibilityChange={onVisibilityChange}
-                    />
-                ))}
-            </div>
+            {[0, 1, 2, 3].map((key) => (
+                <div
+                    key={key}
+                    style={{
+                        display: "flex",
+                        gap: "3rem",
+                        animation: "marquee 25s linear infinite",
+                        paddingRight: "3rem",
+                        flexShrink: 0
+                    }}
+                >
+                    {items.map((item, i) => (
+                        <MarqueeItem
+                            key={`${key}-${i}`}
+                            id={`${key}-${i}`}
+                            item={item}
+                            onVisibilityChange={onVisibilityChange}
+                        />
+                    ))}
+                </div>
+            ))}
         </div>
     );
 }
