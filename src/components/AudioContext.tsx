@@ -76,7 +76,6 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
         } else {
             audioRef.current.play().catch(e => console.error("Playback failed:", e));
         }
-        setIsPlaying(!isPlaying);
     };
 
     const toggleShuffle = () => {
@@ -121,6 +120,9 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
             <audio
                 ref={audioRef}
                 src={currentSong.audioUrl}
+                preload="auto"
+                onPlay={() => setIsPlaying(true)}
+                onPause={() => setIsPlaying(false)}
                 onEnded={nextSong}
                 onError={(e) => {
                     console.error("Audio error:", e);
