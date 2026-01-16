@@ -125,12 +125,13 @@ export const SONG_MESSAGES: Record<string, { playing: string[]; paused: string[]
     },
 };
 
-// Helper function to get a random message for a song
-export function getSongMessage(songTitle: string, isPlaying: boolean): string {
+// Helper function to get a message for a song by index (for rotation)
+export function getSongMessage(songTitle: string, isPlaying: boolean, index: number = 0): string {
     const messages = SONG_MESSAGES[songTitle];
     if (!messages) {
         return isPlaying ? "This one's for you." : "Play this.";
     }
     const pool = isPlaying ? messages.playing : messages.paused;
-    return pool[Math.floor(Math.random() * pool.length)];
+    return pool[index % pool.length];
 }
+
