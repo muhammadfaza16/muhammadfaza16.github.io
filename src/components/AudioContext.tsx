@@ -5,7 +5,9 @@ import { useTheme } from "./ThemeProvider";
 
 interface AudioContextType {
     isPlaying: boolean;
+    isShuffle: boolean;
     togglePlay: () => void;
+    toggleShuffle: () => void;
     nextSong: () => void;
     currentSong: { title: string; audioUrl: string };
 }
@@ -41,6 +43,7 @@ const PLAYLIST = [
 
 export function AudioProvider({ children }: { children: React.ReactNode }) {
     const [isPlaying, setIsPlaying] = useState(false);
+    const [isShuffle, setIsShuffle] = useState(false);
     const [currentIndex, setCurrentIndex] = useState(0);
     const audioRef = useRef<HTMLAudioElement | null>(null);
 
@@ -76,8 +79,20 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
         setIsPlaying(!isPlaying);
     };
 
+    const toggleShuffle = () => {
+        setIsShuffle(!isShuffle);
+    };
+
     const nextSong = () => {
-        setCurrentIndex((prev) => (prev + 1) % PLAYLIST.length);
+        if (isShuffle && PLAYLIST.length > 1) {
+            let nextIndex;
+            do {
+                nextIndex = Math.floor(Math.random() * PLAYLIST.length);
+            } while (nextIndex === currentIndex);
+            setCurrentIndex(nextIndex);
+        } else {
+            setCurrentIndex((prev) => (prev + 1) % PLAYLIST.length);
+        }
         setIsPlaying(true); // Auto-play next
     };
 
@@ -91,7 +106,7 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
     const currentSong = PLAYLIST[currentIndex];
 
     return (
-        <AudioContext.Provider value={{ isPlaying, togglePlay, nextSong, currentSong }}>
+        <AudioContext.Provider value={{ isPlaying, isShuffle, togglePlay, toggleShuffle, nextSong, currentSong }}>
             <audio
                 ref={audioRef}
                 src={currentSong.audioUrl}

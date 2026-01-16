@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { useAudio } from "./AudioContext";
+import { Shuffle } from "lucide-react";
 
 // Derived values from context now
 // const playlist removed as it is handled by context for the active song
@@ -188,7 +189,7 @@ export function CurrentlyStrip() {
     const [currentHour, setCurrentHour] = useState(new Date().getHours());
 
     // Global Audio Context
-    const { isPlaying, togglePlay, currentSong } = useAudio();
+    const { isPlaying, togglePlay, currentSong, isShuffle, toggleShuffle } = useAudio();
 
     const checkInMessages = getCheckInMessages(currentHour);
 
@@ -313,6 +314,28 @@ export function CurrentlyStrip() {
                     >
                         {isPlaying ? "Khusus buat kamu 🥀" : "Ada lagu buat kamu ✨"}
                     </p>
+                    <div
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            toggleShuffle();
+                        }}
+                        style={{
+                            all: "unset",
+                            cursor: "pointer",
+                            fontSize: "0.8rem",
+                            color: currentSong ? (isShuffle ? "var(--accent)" : "var(--text-muted)") : "var(--text-muted)",
+                            opacity: isShuffle ? 1 : 0.5,
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            transition: "all 0.2s ease"
+                        }}
+                        className="hover:opacity-100"
+                        title={isShuffle ? "Shuffle On" : "Shuffle Off"}
+                    >
+                        <Shuffle size={14} />
+                    </div>
+
                     <button
                         style={{
                             all: "unset",
