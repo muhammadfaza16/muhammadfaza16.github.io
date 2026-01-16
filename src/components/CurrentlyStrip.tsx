@@ -425,10 +425,17 @@ export function CurrentlyStrip() {
 
         const updateTime = () => {
             const now = new Date();
-            setCurrentTime(formatTime(now));
+            const timeStr = formatTime(now);
+            setCurrentTime(prev => prev !== timeStr ? timeStr : prev);
+
             const h = now.getHours();
-            setMoods(getMoods(h));
-            setCurrentHour(h);
+            setCurrentHour(prevH => {
+                if (prevH !== h) {
+                    setMoods(getMoods(h));
+                    return h;
+                }
+                return prevH;
+            });
         };
         updateTime();
         const timeInterval = setInterval(updateTime, 1000);
