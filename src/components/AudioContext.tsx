@@ -28,6 +28,14 @@ const PLAYLIST = [
     {
         title: "NOAH — Jalani Mimpi",
         audioUrl: "/audio/NOAH - Jalani Mimpi (Official Audio).mp3",
+    },
+    {
+        title: "The Script — The Man Who Can't Be Moved",
+        audioUrl: "/audio/The Script - The Man Who Can't Be Moved (Lyrics).mp3",
+    },
+    {
+        title: "Alan Walker & Ava Max — Alone, Pt. II",
+        audioUrl: "/audio/Alan Walker & Ava Max - Alone, Pt. II (Lyrics).mp3",
     }
 ];
 
