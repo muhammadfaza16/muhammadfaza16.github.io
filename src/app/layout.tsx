@@ -6,6 +6,7 @@ import { ThemeProvider } from "@/components/ThemeProvider";
 import { SkipLink } from "@/components/SkipLink";
 import { KonamiCode } from "@/components/KonamiCode";
 import { FloatingZenToggle } from "@/components/FloatingZenToggle";
+import { NativeBrowserGuard } from "@/components/NativeBrowserGuard";
 import { AudioProvider } from "@/components/AudioContext";
 
 export const metadata: Metadata = {
@@ -60,7 +61,9 @@ export default function RootLayout({
             <ZenProvider>
               <SkipLink />
               <KonamiCode />
+              <KonamiCode />
               <FloatingZenToggle />
+              <NativeBrowserGuard />
               <Header />
               <main id="main-content" className="main-content-padding" style={{ flex: 1 }}>
                 {children}
