@@ -225,6 +225,129 @@ function getCheckInMessages(hour: number): string[] {
     ];
 }
 
+// Vibing Avatar Component (Levitation Mode)
+const VibingAvatar = memo(function VibingAvatar({ isPlaying }: { isPlaying: boolean }) {
+    return (
+        <div style={{
+            height: "55px", // Increased height for floating space
+            width: "100%",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "flex-end",
+            marginBottom: "0rem",
+            overflow: "hidden"
+        }}>
+            <style>
+                {`
+                    @keyframes float-up {
+                        0% { transform: translateY(0) rotate(0deg); }
+                        100% { transform: translateY(-14px) rotate(-2deg); }
+                    }
+                    @keyframes float-bob {
+                        0%, 100% { transform: translateY(-14px) rotate(-2deg); }
+                        50% { transform: translateY(-20px) rotate(1deg); }
+                    }
+
+                    /* State Transitions for Visibility */
+                    .sit-pose, .lie-anchor {
+                        transition: opacity 1.5s ease-in-out, transform 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+                        transform-origin: center bottom;
+                    }
+
+                    /* SITTING (Default) */
+                    .sit-pose {
+                        opacity: 1;
+                        transform: translateY(0) scale(1);
+                    }
+                    .lie-anchor {
+                        opacity: 0;
+                        transform: translateY(5px); /* Start slightly low */
+                    }
+                    
+                    /* PLAYING ACTIVE STATE */
+                    .avatar-floating .sit-pose {
+                        opacity: 0;
+                        transform: translateY(15px) rotate(-15deg) scale(0.9); /* Recline slow fade */
+                    }
+                    .avatar-floating .lie-anchor {
+                        opacity: 1;
+                        transform: translateY(0); /* Land on ground */
+                    }
+
+                    /* LEVITATION LOGIC (Inner Group) */
+                    .lie-floater {
+                        transform-origin: center center;
+                    }
+                    .avatar-floating .lie-floater {
+                        /* 
+                           1. Wait 1.5s (Lying down phase)
+                           2. Float Up (2s duration)
+                           3. Continuous Bob (Infinite, starts after float-up finishes) 
+                        */
+                        animation: 
+                            float-up 2s ease-in-out 1.5s forwards,
+                            float-bob 5s ease-in-out 3.5s infinite;
+                    }
+                `}
+            </style>
+
+            <svg
+                width="80"
+                height="55"
+                viewBox="0 0 80 55"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className={`avatar-container ${isPlaying ? "avatar-floating" : ""}`}
+                style={{
+                    color: "var(--accent)", // Matches theme
+                    overflow: "visible"
+                }}
+            >
+                {/* Sitting Pose Group */}
+                <g className="sit-pose">
+                    <path d="M40 38 L40 48" /> {/* Torso */}
+                    <path d="M40 48 L32 55" /> {/* Leg L */}
+                    <path d="M40 48 L48 55" /> {/* Leg R */}
+                    <path d="M40 40 L34 44" /> {/* Arm L */}
+                    <path d="M40 40 L46 44" /> {/* Arm R */}
+                    <circle cx="40" cy="34" r="5" /> {/* Head */}
+                </g>
+
+                {/* Lying Wrapper (Anchor for Opacity) */}
+                <g className="lie-anchor">
+                    {/* Floating Wrapper (Anchor for Levitation) */}
+                    <g className="lie-floater">
+                        <g transform="translate(10, 10)">
+                            {/* Head (looking up) */}
+                            <circle cx="12" cy="25" r="5" />
+
+                            {/* Torso */}
+                            <path d="M15 28 L35 28" />
+
+                            {/* Arms (Behind Head - Elbow Out) */}
+                            <path d="M18 28 L 5 22 L 12 25" strokeLinejoin="round" />
+
+                            {/* Right Leg (Straight) */}
+                            <path d="M35 28 L55 28" />
+                            <path d="M55 28 L58 24" strokeOpacity="0.6" />
+
+                            {/* Left Leg (Bent Knee) */}
+                            <path d="M35 28 L45 18" />
+                            <path d="M45 18 L50 28" />
+                        </g>
+                    </g>
+                </g>
+
+                {/* Grass/Ground line */}
+                <path d="M0 48 L80 48" strokeWidth="1.5" strokeOpacity="0.2" />
+            </svg>
+        </div>
+    );
+});
+
 export function CurrentlyStrip() {
     const [currentTime, setCurrentTime] = useState("");
     const [moods, setMoods] = useState<string[]>([]);
@@ -319,6 +442,9 @@ export function CurrentlyStrip() {
                 width: "100%",
                 gap: "0rem"
             }}>
+
+            {/* Top: Vibing Avatar */}
+            <VibingAvatar isPlaying={isPlaying} />
 
             {/* Top: Marquee Pill */}
             <div
