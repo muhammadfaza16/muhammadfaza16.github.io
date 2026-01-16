@@ -177,8 +177,8 @@ function ContinuousMarquee({ items, onVisibilityChange }: {
             display: "flex",
             overflow: "hidden",
             width: "100%",
-            maskImage: "linear-gradient(90deg, transparent 0%, black 5%, black 95%, transparent 100%)",
-            WebkitMaskImage: "linear-gradient(90deg, transparent 0%, black 5%, black 95%, transparent 100%)"
+            maskImage: "linear-gradient(90deg, transparent 0%, black 2%, black 98%, transparent 100%)",
+            WebkitMaskImage: "linear-gradient(90deg, transparent 0%, black 2%, black 98%, transparent 100%)"
         }}>
             {[0, 1, 2, 3].map((key) => (
                 <div
