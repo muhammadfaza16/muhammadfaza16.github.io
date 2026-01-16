@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { useAudio } from "./AudioContext";
-import { Shuffle } from "lucide-react";
+import { Shuffle, SkipForward } from "lucide-react";
 
 // Derived values from context now
 // const playlist removed as it is handled by context for the active song
@@ -277,7 +277,7 @@ export function CurrentlyStrip() {
     const [currentHour, setCurrentHour] = useState(new Date().getHours());
 
     // Global Audio Context
-    const { isPlaying, togglePlay, currentSong, isShuffle, toggleShuffle } = useAudio();
+    const { isPlaying, togglePlay, currentSong, isShuffle, toggleShuffle, nextSong } = useAudio();
 
     const checkInMessages = getCheckInMessages(currentHour);
 
@@ -379,13 +379,10 @@ export function CurrentlyStrip() {
                 }}
             >
                 <div
-                    onClick={togglePlay}
                     style={{
                         display: "flex",
                         alignItems: "center",
-                        gap: "0.5rem",
-                        cursor: "pointer",
-                        userSelect: "none"
+                        gap: "0.5rem"
                     }}
                     className="group"
                 >
@@ -397,49 +394,83 @@ export function CurrentlyStrip() {
                             fontStyle: "italic",
                             fontSize: "0.95rem",
                             color: "var(--text-muted)",
-                            margin: 0
+                            margin: 0,
+                            cursor: "pointer",
+                            userSelect: "none"
                         }}
+                        onClick={togglePlay}
                     >
                         {isPlaying ? "Khusus buat kamu 🥀" : "Ada lagu buat kamu ✨"}
                     </p>
-                    <div
-                        onClick={(e) => {
-                            e.stopPropagation();
-                            toggleShuffle();
-                        }}
-                        style={{
-                            all: "unset",
-                            cursor: "pointer",
-                            fontSize: "0.8rem",
-                            color: currentSong ? (isShuffle ? "var(--accent)" : "var(--text-muted)") : "var(--text-muted)",
-                            opacity: isShuffle ? 1 : 0.5,
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                            transition: "all 0.2s ease"
-                        }}
-                        className="hover:opacity-100"
-                        title={isShuffle ? "Shuffle On" : "Shuffle Off"}
-                    >
-                        <Shuffle size={14} />
-                    </div>
 
-                    <button
-                        style={{
-                            all: "unset",
-                            fontSize: "0.8rem",
-                            color: "var(--text-muted)",
-                            transition: "opacity 0.2s ease",
-                            opacity: 0.7,
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center"
-                        }}
-                        className="group-hover:opacity-100"
-                        aria-label={isPlaying ? "Pause" : "Play"}
-                    >
-                        {isPlaying ? "⏸" : "▶"}
-                    </button>
+                    <div style={{ display: "flex", alignItems: "center", gap: "0.25rem", marginLeft: "0.25rem" }}>
+                        <div
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                toggleShuffle();
+                            }}
+                            style={{
+                                all: "unset",
+                                cursor: "pointer",
+                                fontSize: "0.8rem",
+                                color: currentSong ? (isShuffle ? "var(--accent)" : "var(--text-muted)") : "var(--text-muted)",
+                                opacity: isShuffle ? 1 : 0.5,
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                transition: "all 0.2s ease",
+                                padding: "4px"
+                            }}
+                            className="hover:opacity-100"
+                            title={isShuffle ? "Shuffle On" : "Shuffle Off"}
+                        >
+                            <Shuffle size={14} />
+                        </div>
+
+                        <button
+                            onClick={togglePlay}
+                            style={{
+                                all: "unset",
+                                fontSize: "0.8rem",
+                                color: "var(--text-muted)",
+                                transition: "opacity 0.2s ease",
+                                opacity: 0.7,
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                padding: "4px",
+                                cursor: "pointer"
+                            }}
+                            className="group-hover:opacity-100"
+                            aria-label={isPlaying ? "Pause" : "Play"}
+                        >
+                            {isPlaying ? "⏸" : "▶"}
+                        </button>
+
+                        <button
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                nextSong();
+                            }}
+                            style={{
+                                all: "unset",
+                                fontSize: "0.8rem",
+                                color: "var(--text-muted)",
+                                transition: "opacity 0.2s ease",
+                                opacity: 0.7,
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                padding: "4px",
+                                cursor: "pointer"
+                            }}
+                            className="group-hover:opacity-100"
+                            aria-label="Next Song"
+                            title="Next Song"
+                        >
+                            <SkipForward size={14} fill="currentColor" />
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
