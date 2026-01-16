@@ -3,6 +3,8 @@
 import { useState, useEffect, useRef } from "react";
 import { useAudio } from "./AudioContext";
 import { Shuffle, SkipForward } from "lucide-react";
+import { getSongMessage } from "../data/songMessages";
+
 
 // Derived values from context now
 // const playlist removed as it is handled by context for the active song
@@ -269,6 +271,10 @@ export function CurrentlyStrip() {
 
     const checkInMessages = getCheckInMessages(currentHour);
 
+    // Get dynamic message for current song
+    const songMessage = getSongMessage(currentSong.title, isPlaying);
+
+
     // Status items for the marquee
     const statusItems = [
         {
@@ -388,7 +394,8 @@ export function CurrentlyStrip() {
                         }}
                         onClick={togglePlay}
                     >
-                        {isPlaying ? "Khusus buat kamu 🥀" : "Ada lagu buat kamu ✨"}
+                        {songMessage}
+
                     </p>
 
                     <div style={{ display: "flex", alignItems: "center", gap: "0.25rem", marginLeft: "0.25rem" }}>
