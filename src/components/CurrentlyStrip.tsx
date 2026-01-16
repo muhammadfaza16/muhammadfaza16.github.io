@@ -29,92 +29,50 @@ function getMoods(hour: number): string[] {
 }
 
 // Smooth text transition component
-function AnimatedText({ text, className }: { text: string, className?: string }) {
+// Text component with fixed width constraint to prevent layout shifts
+function FixedWidthText({ text, width, className }: { text: string; width: string; className?: string }) {
     const [displayText, setDisplayText] = useState(text);
     const [opacity, setOpacity] = useState(1);
-    const [width, setWidth] = useState<number | "auto">("auto");
-    const measureRef = useRef<HTMLSpanElement>(null);
-
-    useEffect(() => {
-        // Initial measurement
-        if (measureRef.current && width === "auto") {
-            setWidth(measureRef.current.offsetWidth);
-        }
-    }, []);
 
     useEffect(() => {
         if (text === displayText) return;
 
-        // 1. Fade out
         setOpacity(0);
 
-        // 2. Measure new width immediately (measureRef has the new 'text')
-        // We need a slight delay or force layout to ensure measureRef has updated?
-        // Actually react renders measureRef with new `text` implicitly because we render `text` in it below.
-        // But we need to wait for that render.
-        // We can do this in a separate effect or just assume measuring works if we use a layout effect or similar?
-        // Simpler: Set width inside the timeout? No, we want width to animate WITH the fade.
-
-        // Let's use a small timeout to allow measuring the new text in the hidden span
-        const measureTimer = setTimeout(() => {
-            if (measureRef.current) {
-                setWidth(measureRef.current.offsetWidth);
-            }
-        }, 0);
-
-        // 3. Update Text after fade out
-        const textTimer = setTimeout(() => {
+        const timer = setTimeout(() => {
             setDisplayText(text);
             setOpacity(1);
-        }, 200); // 200ms match transition
+        }, 200);
 
-        return () => {
-            clearTimeout(measureTimer);
-            clearTimeout(textTimer);
-        };
+        return () => clearTimeout(timer);
     }, [text, displayText]);
 
     return (
         <span
             className={className}
             style={{
-                display: "inline-flex", // Flex helps with width transition
-                width: width === "auto" ? "auto" : `${width}px`,
-                transition: "width 0.3s ease-in-out, opacity 0.2s ease-in-out",
-                opacity: opacity,
+                display: "inline-block",
+                width: width,
+                minWidth: width,
+                maxWidth: width,
                 whiteSpace: "nowrap",
-                overflow: "hidden", // Hide outgoing text if shrinking
-                verticalAlign: "bottom", // Align properly
-                position: "relative"
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                transition: "opacity 0.2s ease-in-out",
+                opacity: opacity,
+                verticalAlign: "bottom",
+                textAlign: "left"
             }}
         >
-            {/* Visible Text */}
             {displayText}
-
-            {/* Hidden Measurement Span - Always renders the *target* text (prop) */}
-            <span
-                ref={measureRef}
-                style={{
-                    position: "absolute",
-                    visibility: "hidden",
-                    height: 0,
-                    pointerEvents: "none",
-                    whiteSpace: "nowrap",
-                    // Ensure it uses same font styling as parent
-                    font: "inherit",
-                    letterSpacing: "inherit",
-                    textTransform: "inherit"
-                }}
-            >
-                {text}
-            </span>
         </span>
     );
 }
 
+
 // Individual Marquee Item with Visibility Tracking (Memoized)
 const MarqueeItem = memo(function MarqueeItem({ item, id, onVisibilityChange }: {
-    item: { icon: React.ReactNode; label: string; text: string; onClick?: () => void; className?: string };
+    item: { icon: React.ReactNode; label: string; text: string; width?: string; onClick?: () => void; className?: string };
     id: string;
     onVisibilityChange: (id: string, isVisible: boolean) => void;
 }) {
@@ -163,17 +121,19 @@ const MarqueeItem = memo(function MarqueeItem({ item, id, onVisibilityChange }: 
             }}>
                 {item.label}:
             </span>
-            <AnimatedText
+            <FixedWidthText
                 text={item.text}
-                className={item.className} // Pass class if needed
+                width={item.width || "auto"}
+                className={item.className}
             />
         </div>
     );
-});
+}
+);
 
 // Helper for the continuous marquee (Memoized)
 const ContinuousMarquee = memo(function ContinuousMarquee({ items, onVisibilityChange }: {
-    items: { icon: React.ReactNode; label: string; text: string; onClick?: () => void; className?: string }[];
+    items: { icon: React.ReactNode; label: string; text: string; width?: string; onClick?: () => void; className?: string }[];
     onVisibilityChange: (id: string, isVisible: boolean) => void;
 }) {
     return (
@@ -281,18 +241,19 @@ export function CurrentlyStrip() {
 
 
     // Status items for the marquee
-    const statusItems = [
+    const statusItems = useMemo(() => [
         {
             icon: isPlaying ? "⏸" : "▶",
             label: isPlaying ? "Playing" : "Paused",
             text: currentSong.title,
+            width: "300px",
             onClick: togglePlay,
             className: "hover:opacity-80 transition-opacity"
         },
-        { icon: "◎", label: "Time", text: currentTime },
-        { icon: "⚡", label: "Mood", text: moods[moodIndex % moods.length] || "" },
-        { icon: "💌", label: "Checking in", text: checkInMessages[checkInIndex % checkInMessages.length] },
-    ];
+        { icon: "◎", label: "Time", text: currentTime, width: "80px" },
+        { icon: "⚡", label: "Mood", text: moods[moodIndex % moods.length] || "Vibing", width: "180px" },
+        { icon: "💌", label: "Checking in", text: checkInMessages[checkInIndex % checkInMessages.length], width: "320px" },
+    ], [isPlaying, currentSong.title, currentTime, moods, moodIndex, checkInMessages, checkInIndex, togglePlay]);
 
     // Tracker for checking-in visibility
     const visibleCheckIns = useRef(new Set<string>());
@@ -371,11 +332,13 @@ export function CurrentlyStrip() {
             {/* Bottom: Play Control */}
             <div
                 style={{
-                    height: "2rem", // Fixed height to prevent layout shift
+                    minHeight: "4rem", // increased height to accommodate text + controls comfortably
                     display: "flex",
                     flexDirection: "column",
                     alignItems: "center",
-                    justifyContent: "center"
+                    justifyContent: "flex-start", // Align top, push content down with padding
+                    paddingTop: "0.5rem", // Reduced padding
+                    paddingBottom: "0.25rem"
                 }}
             >
                 {/* Song message text with fade transition */}
@@ -388,10 +351,11 @@ export function CurrentlyStrip() {
                         fontSize: "0.95rem",
                         color: "var(--text-muted)",
                         margin: 0,
+                        marginBottom: "0.25rem", // Reduced margin
                         cursor: "pointer",
                         userSelect: "none",
                         textAlign: "center",
-                        minHeight: "2.8em", // Fixed height for 2 lines to prevent shifts
+                        minHeight: "2.8em", // Fixed height for 2 lines
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "center",
@@ -403,7 +367,7 @@ export function CurrentlyStrip() {
                 </p>
 
                 {/* Player controls row */}
-                <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginTop: "0.25rem" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
                     <div
                         onClick={(e) => {
                             e.stopPropagation();
