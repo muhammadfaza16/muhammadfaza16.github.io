@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { useAudio } from "./AudioContext";
 
 interface Star {
     x: number;
@@ -17,6 +18,13 @@ interface Star {
 
 export function CosmicStars() {
     const canvasRef = useRef<HTMLCanvasElement>(null);
+
+    const { isPlaying } = useAudio();
+    const isPlayingRef = useRef(isPlaying);
+
+    useEffect(() => {
+        isPlayingRef.current = isPlaying;
+    }, [isPlaying]);
 
     useEffect(() => {
         const canvas = canvasRef.current;
@@ -50,8 +58,9 @@ export function CosmicStars() {
                     size: Math.random() < 0.9 ? Math.random() * 0.8 + 0.4 : Math.random() * 1.2 + 0.8, // Slightly smaller
                     baseOpacity: Math.random() * 0.4 + 0.05, // Range 0.05 to 0.45
                     opacity: 0, // Initial value
-                    speedX: (Math.random() - 0.5) * 0.05, // Very slow drift
-                    speedY: (Math.random() - 0.5) * 0.05,
+                    // INCREASED SPEED: Base speed doubled from 0.05 to 0.1
+                    speedX: (Math.random() - 0.5) * 0.1,
+                    speedY: (Math.random() - 0.5) * 0.1,
                     color: starColors[Math.floor(Math.random() * starColors.length)],
                     twinkleSpeed: Math.random() * 0.02 + 0.005,
                     twinklePhase: Math.random() * Math.PI * 2,
@@ -86,10 +95,15 @@ export function CosmicStars() {
         const animate = () => {
             ctx.clearRect(0, 0, width, height);
 
+            // Re-check playing status inside the loop
+            const playing = isPlayingRef.current;
+            const speedMultiplier = playing ? 3.5 : 1.0;
+            const twinkleMultiplier = playing ? 2.0 : 1.0;
+
             stars.forEach((star) => {
-                // Update position
-                star.x += star.speedX;
-                star.y += star.speedY;
+                // Update position with multiplier
+                star.x += star.speedX * speedMultiplier;
+                star.y += star.speedY * speedMultiplier;
 
                 // Wrap around screen
                 if (star.x < 0) star.x = width;
@@ -98,7 +112,7 @@ export function CosmicStars() {
                 if (star.y > height) star.y = 0;
 
                 // Update twinkle
-                star.twinklePhase += star.twinkleSpeed;
+                star.twinklePhase += star.twinkleSpeed * twinkleMultiplier;
                 star.opacity = star.baseOpacity + Math.sin(star.twinklePhase) * 0.15; // Opacity fluctuation
 
                 // Clamp opacity

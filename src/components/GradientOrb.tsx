@@ -1,42 +1,61 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { useAudio } from "./AudioContext";
 
 export function GradientOrb() {
     const primaryRef = useRef<HTMLDivElement>(null);
     const secondaryRef = useRef<HTMLDivElement>(null);
     const tertiaryRef = useRef<HTMLDivElement>(null);
 
+    const { isPlaying } = useAudio();
+    const isPlayingRef = useRef(isPlaying);
+
+    // Keep ref in sync without restarting effect
+    useEffect(() => {
+        isPlayingRef.current = isPlaying;
+    }, [isPlaying]);
+
     useEffect(() => {
         let animationId: number;
         let time = 0;
 
         const animate = () => {
-            time += 0.008; // Faster, fluid movement
+            // Dynamic speed control
+            // default: 0.015 (was 0.008) -> faster base movement
+            // playing: 0.025 -> energetic but smooth
+            const speed = isPlayingRef.current ? 0.025 : 0.015;
+            time += speed;
+
+            // Amplitude multiplier
+            const amp = isPlayingRef.current ? 1.4 : 1.0;
 
             if (primaryRef.current) {
                 // Large slow movements
-                const x = Math.sin(time * 0.5) * 40 + Math.cos(time * 0.3) * 30 + Math.sin(time * 0.7) * 20;
-                const y = Math.cos(time * 0.4) * 40 + Math.sin(time * 0.2) * 30;
-                // Subtle scale pulsing
-                const scale = 1 + Math.sin(time * 0.4) * 0.1;
+                const x = (Math.sin(time * 0.5) * 40 + Math.cos(time * 0.3) * 30 + Math.sin(time * 0.7) * 20) * amp;
+                const y = (Math.cos(time * 0.4) * 40 + Math.sin(time * 0.2) * 30) * amp;
+                // Subtle scale pulsing - deeper breathe when playing
+                const scaleAmp = isPlayingRef.current ? 0.15 : 0.1;
+                const scale = 1 + Math.sin(time * 0.4) * scaleAmp;
                 // Slow rotation
                 const rotate = time * 20;
                 primaryRef.current.style.transform = `translate(${x}px, ${y}px) scale(${scale}) rotate(${rotate}deg)`;
             }
 
             if (secondaryRef.current) {
-                const x = Math.cos(time * 0.3) * 50 + Math.sin(time * 0.5) * 40;
-                const y = Math.sin(time * 0.4) * 50 + Math.cos(time * 0.2) * 30 + Math.sin(time * 0.6) * 10;
-                const scale = 1 + Math.cos(time * 0.3) * 0.1;
+                const x = (Math.cos(time * 0.3) * 50 + Math.sin(time * 0.5) * 40) * amp;
+                const y = (Math.sin(time * 0.4) * 50 + Math.cos(time * 0.2) * 30 + Math.sin(time * 0.6) * 10) * amp;
+                const scaleAmp = isPlayingRef.current ? 0.15 : 0.1;
+                const scale = 1 + Math.cos(time * 0.3) * scaleAmp;
                 const rotate = Math.sin(time * 0.2) * 30 - time * 10;
                 secondaryRef.current.style.transform = `translate(${x}px, ${y}px) scale(${scale}) rotate(${rotate}deg)`;
             }
 
             if (tertiaryRef.current) {
-                const x = Math.sin(time * 0.4) * 60 + Math.cos(time * 0.6) * 20;
-                const y = Math.cos(time * 0.3) * 60 + Math.sin(time * 0.5) * 50;
-                const scale = 1 + Math.sin(time * 0.5) * 0.15;
+                const x = (Math.sin(time * 0.4) * 60 + Math.cos(time * 0.6) * 20) * amp;
+                const y = (Math.cos(time * 0.3) * 60 + Math.sin(time * 0.5) * 50) * amp;
+                const scaleAmp = isPlayingRef.current ? 0.2 : 0.15;
+                const scale = 1 + Math.sin(time * 0.5) * scaleAmp;
                 const rotate = Math.cos(time * 0.1) * 40 + time * 15;
                 tertiaryRef.current.style.transform = `translate(${x}px, ${y}px) scale(${scale}) rotate(${rotate}deg)`;
             }
