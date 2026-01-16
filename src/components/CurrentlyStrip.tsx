@@ -60,7 +60,7 @@ function FixedWidthText({ text, width, className }: { text: string; width: strin
                 textOverflow: "ellipsis",
                 transition: "opacity 0.2s ease-in-out",
                 opacity: opacity,
-                verticalAlign: "bottom",
+                verticalAlign: "middle",
                 textAlign: "left"
             }}
         >
@@ -152,7 +152,11 @@ const ContinuousMarquee = memo(function ContinuousMarquee({ items, onVisibilityC
                         gap: "1.25rem",
                         animation: "marquee 25s linear infinite",
                         paddingRight: "1.25rem",
-                        flexShrink: 0
+                        flexShrink: 0,
+                        transform: "translate3d(0, 0, 0)",
+                        willChange: "transform",
+                        backfaceVisibility: "hidden",
+                        WebkitBackfaceVisibility: "hidden"
                     }}
                 >
                     {items.map((item, i) => (
@@ -251,7 +255,7 @@ export function CurrentlyStrip() {
             className: "hover:opacity-80 transition-opacity"
         },
         { icon: "◎", label: "Time", text: currentTime, width: "65px" },
-        { icon: "⚡", label: "Mood", text: moods[moodIndex % moods.length] || "Vibing", width: "130px" },
+        { icon: "⚡", label: "Mood", text: moods[moodIndex % moods.length] || "Vibing", width: "160px" },
         { icon: "💌", label: "Checking in", text: checkInMessages[checkInIndex % checkInMessages.length], width: "320px" },
     ], [isPlaying, currentSong.title, currentTime, moods, moodIndex, checkInMessages, checkInIndex, togglePlay]);
 
