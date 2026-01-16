@@ -23,15 +23,6 @@ export function useAudio() {
 }
 const PLAYLIST = [
     {
-        title: "NOAH — Ini Cinta",
-
-        audioUrl: "/audio/NOAH - Ini Cinta (Official Audio).mp3",
-    },
-    {
-        title: "NOAH — Jalani Mimpi",
-        audioUrl: "/audio/NOAH - Jalani Mimpi (Official Audio).mp3",
-    },
-    {
         title: "The Script — The Man Who Can't Be Moved",
         audioUrl: "/audio/The Script - The Man Who Can't Be Moved (Lyrics).mp3",
     },
@@ -44,8 +35,16 @@ const PLAYLIST = [
         audioUrl: "/audio/Alan Walker - Faded (Lyrics).mp3",
     },
     {
+        title: "Alan Walker, K-391 & Emelie Hollow — Lily",
+        audioUrl: "/audio/Alan Walker, K-391 & Emelie Hollow - Lily (Lyrics).mp3",
+    },
+    {
         title: "Bruno Mars — Locked Out Of Heaven",
         audioUrl: "/audio/Bruno Mars - Locked Out Of Heaven.mp3",
+    },
+    {
+        title: "Conan Gray — Memories",
+        audioUrl: "/audio/Conan Gray - Memories (Lyrics).mp3",
     },
     {
         title: "Halsey — Without Me",
