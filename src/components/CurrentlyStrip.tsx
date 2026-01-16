@@ -16,14 +16,14 @@ function formatTime(date: Date): string {
 }
 
 function getMoods(hour: number): string[] {
-    if (hour >= 5 && hour < 8) return ["morning glow & missing u", "coffee first, you second", "sunrise kinda vibe"];
-    if (hour >= 8 && hour < 11) return ["pretending to work, thinking of u", "email fatigue", "counting down to lunch"];
-    if (hour >= 11 && hour < 14) return ["craving attention (and lunch)", "halfway through", "fueling up"];
-    if (hour >= 14 && hour < 17) return ["sleepy eyes, dreamy mind", "afternoon slump hitting", "need a treat"];
-    if (hour >= 17 && hour < 19) return ["golden hour lookin' at u", "chasing sunsets", "finally free"];
-    if (hour >= 19 && hour < 22) return ["saving my battery for u", "scrolling paralysis", "winding down"];
-    if (hour >= 22 || hour < 2) return ["romanticizing us rn", "overthinking hours", "moonchild mode"];
-    return ["dreaming of u. shh.", "3am thoughts", "why am i awake?"];
+    if (hour >= 5 && hour < 8) return ["lowkey missing u", "kangen dikit (banyak)", "woke up smiling"];
+    if (hour >= 8 && hour < 11) return ["distracted by u", "nungguin chat kamu", "kerja rasa rindu"];
+    if (hour >= 11 && hour < 14) return ["butuh asupan (kamu)", "halfway to seeing u", "makan siang bareng yuk?"];
+    if (hour >= 14 && hour < 17) return ["daydreaming rn", "bengong mikirin kamu", "afternoon slump < u"];
+    if (hour >= 17 && hour < 19) return ["golden hour < u", "pengen telponan", "finally free (for u)"];
+    if (hour >= 19 && hour < 22) return ["lagi dengerin lagu kita", "scrolling tapi kangen", "winding down w/ u on my mind"];
+    if (hour >= 22 || hour < 2) return ["up thinking about us", "belum bobo?", "moonchild missing sun"];
+    return ["dreaming of u. shh.", "3am thoughts of u", "kenapa belum tidur? (mikirin u)"];
 }
 
 // Smooth text transition component
@@ -221,50 +221,50 @@ function getCheckInMessages(hour: number): string[] {
     // 05:00 - 10:59 (Morning)
     if (hour >= 5 && hour < 11) {
         return [
-            "Morning, sunshine ☀️",
-            "Jangan skip sarapan ya, nanti lemes.",
+            "Morning. Mimpi aku ga?",
+            "Hope ur day is as pretty as u.",
             "Semangat hari ini, aku pantau dari jauh 👀",
-            "Sending u good energy ✨",
-            "Hope your coffee hits right today."
+            "Sending u good energy (and a kiss) ✨",
+            "Jangan lupa sarapan, manis."
         ];
     }
     // 11:00 - 14:59 (Mid-day / Lunch)
     if (hour >= 11 && hour < 15) {
         return [
-            "Jangan lupa makan siang, manis.",
-            "Minum air putih yg banyak 💧",
-            "Power nap bentar gih kalau capek.",
-            "Thinking of you in the middle of chaos.",
+            "Makan siang gih, jangan telat.",
+            "Hydrate! (Send pic?) 💧",
+            "Thinking of u at lunch.",
+            "Bored? Gabut? Chat aku.",
             "Coba senyum dikit dong :)"
         ];
     }
     // 15:00 - 18:59 (Afternoon)
     if (hour >= 15 && hour < 19) {
         return [
-            "Masih semangat kan kerjanya?",
+            "Capek ya? Semangat kerjanya.",
             "Udah sore, jangan lembur teuing.",
-            "Counting down to freedom (and u).",
-            "Baterai sosial aman?",
+            "Counting down to seeing u.",
+            "Need a break? Call me.",
             "Take a deep breath. You got this."
         ];
     }
     // 19:00 - 22:59 (Evening)
     if (hour >= 19 && hour < 23) {
         return [
-            "Gimana harinya? Cerita dong.",
-            "Mandi air anget enak kayaknya.",
-            "Proud of you today.",
+            "Cerita dong hari ini ngapain aja.",
+            "Proud of u today.",
+            "Wish u were here.",
             "Rest well, you did great.",
-            "Dunia lagi berisik? Istirahat sini dulu."
+            "Dunia lagi berisik? Sini peluk."
         ];
     }
     // 23:00 - 04:59 (Late Night)
     return [
-        "Kok belum tidur? Kangen ya?",
-        "Sleep tight, mimpi indah 🌙",
-        "Jangan begadang, nanti sakit.",
-        "Matikan hp, pejamkan mata.",
-        "Dreaming of u. Shh."
+        "Bobo yuk, udah malem.",
+        "Dream of me? Jk... unless?",
+        "Miss u. G'night.",
+        "Matikan hp, mimpikan aku.",
+        "Jangan begadang, ga baik buat rindu."
     ];
 }
 
@@ -319,12 +319,12 @@ export function CurrentlyStrip() {
         updateTime();
         const timeInterval = setInterval(updateTime, 1000);
 
-        // Rotate check-in AND mood message every 10 seconds
+        // Rotate check-in AND mood message every 20 seconds
         // "Rolling stock" effect
         const contentRotationInterval = setInterval(() => {
             setCheckInIndex((prev) => prev + 1);
             setMoodIndex((prev) => prev + 1);
-        }, 10000);
+        }, 20000);
 
         return () => {
             clearInterval(timeInterval);
