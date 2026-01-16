@@ -31,34 +31,81 @@ function AnimatedText({ text, className }: { text: string, className?: string })
     const [displayText, setDisplayText] = useState(text);
     const [opacity, setOpacity] = useState(1);
     const [width, setWidth] = useState<number | "auto">("auto");
-    const containerRef = useRef<HTMLSpanElement>(null);
-    const textRef = useRef<HTMLSpanElement>(null);
+    const measureRef = useRef<HTMLSpanElement>(null);
+
+    useEffect(() => {
+        // Initial measurement
+        if (measureRef.current && width === "auto") {
+            setWidth(measureRef.current.offsetWidth);
+        }
+    }, []);
 
     useEffect(() => {
         if (text === displayText) return;
 
-        // Start fade out
+        // 1. Fade out
         setOpacity(0);
 
-        const timer = setTimeout(() => {
+        // 2. Measure new width immediately (measureRef has the new 'text')
+        // We need a slight delay or force layout to ensure measureRef has updated?
+        // Actually react renders measureRef with new `text` implicitly because we render `text` in it below.
+        // But we need to wait for that render.
+        // We can do this in a separate effect or just assume measuring works if we use a layout effect or similar?
+        // Simpler: Set width inside the timeout? No, we want width to animate WITH the fade.
+
+        // Let's use a small timeout to allow measuring the new text in the hidden span
+        const measureTimer = setTimeout(() => {
+            if (measureRef.current) {
+                setWidth(measureRef.current.offsetWidth);
+            }
+        }, 0);
+
+        // 3. Update Text after fade out
+        const textTimer = setTimeout(() => {
             setDisplayText(text);
             setOpacity(1);
-        }, 200); // 200ms fade out
+        }, 200); // 200ms match transition
 
-        return () => clearTimeout(timer);
+        return () => {
+            clearTimeout(measureTimer);
+            clearTimeout(textTimer);
+        };
     }, [text, displayText]);
 
     return (
         <span
             className={className}
             style={{
+                display: "inline-flex", // Flex helps with width transition
+                width: width === "auto" ? "auto" : `${width}px`,
+                transition: "width 0.3s ease-in-out, opacity 0.2s ease-in-out",
                 opacity: opacity,
-                transition: "opacity 0.2s ease-in-out",
-                display: "inline-block",
-                whiteSpace: "nowrap"
+                whiteSpace: "nowrap",
+                overflow: "hidden", // Hide outgoing text if shrinking
+                verticalAlign: "bottom", // Align properly
+                position: "relative"
             }}
         >
+            {/* Visible Text */}
             {displayText}
+
+            {/* Hidden Measurement Span - Always renders the *target* text (prop) */}
+            <span
+                ref={measureRef}
+                style={{
+                    position: "absolute",
+                    visibility: "hidden",
+                    height: 0,
+                    pointerEvents: "none",
+                    whiteSpace: "nowrap",
+                    // Ensure it uses same font styling as parent
+                    font: "inherit",
+                    letterSpacing: "inherit",
+                    textTransform: "inherit"
+                }}
+            >
+                {text}
+            </span>
         </span>
     );
 }
