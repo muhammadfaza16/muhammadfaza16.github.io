@@ -331,73 +331,87 @@ export function CurrentlyStrip() {
     if (!isHydrated) return null;
 
     return (
-        <div
-            style={{
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                width: "100%",
-                gap: "1rem"
-            }}>
-
-            {/* Top: Marquee Pill */}
+        <>
+            {/* Fixed Top Message - Separated from player */}
             <div
                 style={{
-                    display: "inline-flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    gap: "0.75rem",
-                    padding: "0.5rem 1.25rem",
-                    borderRadius: "99px",
-                    backgroundColor: "rgba(var(--background-rgb), 0.5)",
-                    backdropFilter: "blur(8px)",
-                    border: "1px solid var(--border)",
-                    boxShadow: "0 2px 10px rgba(0,0,0,0.02)",
-                    fontFamily: "var(--font-mono)",
-                    fontSize: "0.75rem",
-                    color: "var(--text-secondary)",
-                    letterSpacing: "0.02em",
-                    width: "clamp(300px, 90vw, 600px)",
-                    overflow: "hidden"
-                }}
-                className="pause-on-hover"
-            >
-                <ContinuousMarquee items={statusItems} onVisibilityChange={handleVisibilityChange} />
-            </div>
-
-            {/* Bottom: Play Control */}
-            <div
-                style={{
-                    height: "2rem", // Fixed height to prevent layout shift
+                    position: "fixed",
+                    top: "18%", // Positioned visually in the upper area
+                    left: "50%",
+                    transform: "translateX(-50%)",
+                    zIndex: 40,
+                    pointerEvents: "none", // Don't block clicks
+                    width: "100%",
                     display: "flex",
-                    flexDirection: "column",
-                    alignItems: "center",
-                    justifyContent: "center"
+                    justifyContent: "center",
+                    opacity: isPlaying || currentSong ? 1 : 0, // Fade out if no song state (though usually always exists)
+                    transition: "opacity 0.5s ease"
                 }}
             >
-                {/* Song message text with fade transition */}
                 <p
                     key={`${songMessage}-${songMessageIndex}`}
                     className="animate-fade-in"
                     style={{
                         fontFamily: "var(--font-serif)",
                         fontStyle: "italic",
-                        fontSize: "0.95rem",
+                        fontSize: "1.1rem", // Slightly larger for impact
                         color: "var(--text-muted)",
                         margin: 0,
-                        cursor: "pointer",
-                        userSelect: "none",
+                        textShadow: "0 2px 10px rgba(0,0,0,0.1)",
                         textAlign: "center",
-                        minHeight: "1.4em",
                         transition: "opacity 0.3s ease"
                     }}
-                    onClick={togglePlay}
                 >
                     {songMessage}
                 </p>
+            </div>
 
-                {/* Player controls row */}
-                <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginTop: "0.25rem" }}>
+            <div
+                style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    width: "100%",
+                    gap: "1rem"
+                }}>
+
+                {/* Top: Marquee Pill */}
+                <div
+                    style={{
+                        display: "inline-flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        gap: "0.75rem",
+                        padding: "0.5rem 1.25rem",
+                        borderRadius: "99px",
+                        backgroundColor: "rgba(var(--background-rgb), 0.5)",
+                        backdropFilter: "blur(8px)",
+                        border: "1px solid var(--border)",
+                        boxShadow: "0 2px 10px rgba(0,0,0,0.02)",
+                        fontFamily: "var(--font-mono)",
+                        fontSize: "0.75rem",
+                        color: "var(--text-secondary)",
+                        letterSpacing: "0.02em",
+                        width: "clamp(300px, 90vw, 600px)",
+                        overflow: "hidden"
+                    }}
+                    className="pause-on-hover"
+                >
+                    <ContinuousMarquee items={statusItems} onVisibilityChange={handleVisibilityChange} />
+                </div>
+
+                {/* Bottom: Play Control */}
+                <div
+                    style={{
+                        height: "2rem",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        gap: "0.5rem",
+                        marginTop: "0.25rem"
+                    }}
+                >
+                    {/* Controls Only - Text Moved to Top */}
                     <div
                         onClick={(e) => {
                             e.stopPropagation();
@@ -460,6 +474,7 @@ export function CurrentlyStrip() {
                     </div>
                 </div>
             </div>
-        </div>
+        </>
     );
 }
+
