@@ -360,10 +360,25 @@ export function CurrentlyStrip() {
     // Global Audio Context
     const { isPlaying, togglePlay, currentSong, nextSong, prevSong } = useAudio();
 
+    // Interaction State for Welcome Message
+    const [hasInteracted, setHasInteracted] = useState(false);
+
+    useEffect(() => {
+        if (isPlaying) {
+            setHasInteracted(true);
+        }
+    }, [isPlaying]);
+
     const checkInMessages = getCheckInMessages(currentHour);
 
-    // Get song message based on current index
-    const rawSongMessage = getSongMessage(currentSong.title, isPlaying, songMessageIndex);
+    // Get song message based on current index and interaction state
+    let rawSongMessage = getSongMessage(currentSong.title, isPlaying, songMessageIndex);
+
+    // Override with Welcome Message if first visit (no interaction yet)
+    if (!hasInteracted && !isPlaying) {
+        rawSongMessage = "Aku tau km capek, Let me do a favour for you";
+    }
+
     const [displaySongMessage, setDisplaySongMessage] = useState(rawSongMessage);
     const [msgOpacity, setMsgOpacity] = useState(1);
 
@@ -509,20 +524,24 @@ export function CurrentlyStrip() {
 
                 {/* Player controls row */}
                 <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                    {/* Previous Button - Only show after interaction */}
                     <div
                         onClick={(e) => {
                             e.stopPropagation();
-                            prevSong();
+                            if (hasInteracted) prevSong();
                         }}
                         style={{
                             cursor: "pointer",
                             fontSize: "0.8rem",
                             color: "var(--text-muted)",
-                            opacity: 0.5,
+                            opacity: hasInteracted ? 0.5 : 0, // Hide if not interacted
+                            pointerEvents: hasInteracted ? "auto" : "none",
                             display: "flex",
                             alignItems: "center",
-                            transition: "all 0.2s ease",
-                            padding: "4px"
+                            transition: "all 0.5s ease",
+                            padding: "4px",
+                            transform: hasInteracted ? "scale(1)" : "scale(0)",
+                            width: hasInteracted ? "auto" : 0
                         }}
                         className="hover:opacity-100"
                         title="Previous Song"
@@ -530,39 +549,44 @@ export function CurrentlyStrip() {
                         <SkipBack size={14} />
                     </div>
 
+                    {/* Play/Pause Button */}
                     <button
                         onClick={togglePlay}
                         style={{
                             all: "unset",
-                            fontSize: "0.9rem",
-                            color: "var(--text-muted)",
-                            opacity: 0.7,
+                            fontSize: hasInteracted ? "0.9rem" : "1.5rem", // Larger when waiting
+                            color: hasInteracted ? "var(--text-muted)" : "var(--accent)", // Accent color initially
+                            opacity: hasInteracted ? 0.7 : 1, // Clearer initially
                             display: "flex",
                             alignItems: "center",
                             padding: "4px",
                             cursor: "pointer",
-                            transition: "opacity 0.2s ease"
+                            transition: "all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1)" // Bouncy transition
                         }}
-                        className="hover:opacity-100"
+                        className={hasInteracted ? "hover:opacity-100" : "hover:scale-110"}
                         aria-label={isPlaying ? "Pause" : "Play"}
                     >
                         {isPlaying ? "⏸" : "▶"}
                     </button>
 
+                    {/* Next Button - Only show after interaction */}
                     <div
                         onClick={(e) => {
                             e.stopPropagation();
-                            nextSong();
+                            if (hasInteracted) nextSong();
                         }}
                         style={{
                             cursor: "pointer",
                             fontSize: "0.8rem",
                             color: "var(--text-muted)",
-                            opacity: 0.5,
+                            opacity: hasInteracted ? 0.5 : 0, // Hide if not interacted
+                            pointerEvents: hasInteracted ? "auto" : "none",
                             display: "flex",
                             alignItems: "center",
-                            transition: "all 0.2s ease",
-                            padding: "4px"
+                            transition: "all 0.5s ease",
+                            padding: "4px",
+                            transform: hasInteracted ? "scale(1)" : "scale(0)",
+                            width: hasInteracted ? "auto" : 0
                         }}
                         className="hover:opacity-100"
                         title="Next Song"

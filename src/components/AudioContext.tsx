@@ -22,14 +22,6 @@ export function useAudio() {
 }
 const PLAYLIST = [
     {
-        title: "The Script — The Man Who Can't Be Moved",
-        audioUrl: "/audio/The Script - The Man Who Can't Be Moved (Lyrics).mp3",
-    },
-    {
-        title: "Alan Walker & Ava Max — Alone, Pt. II",
-        audioUrl: "/audio/Alan Walker & Ava Max - Alone, Pt. II (Lyrics).mp3",
-    },
-    {
         title: "Alan Walker — Faded",
         audioUrl: "/audio/Alan Walker - Faded (Lyrics).mp3",
     },
@@ -38,8 +30,20 @@ const PLAYLIST = [
         audioUrl: "/audio/Alan Walker, K-391 & Emelie Hollow - Lily (Lyrics).mp3",
     },
     {
+        title: "Alan Walker & Ava Max — Alone, Pt. II",
+        audioUrl: "/audio/Alan Walker & Ava Max - Alone, Pt. II (Lyrics).mp3",
+    },
+    {
         title: "Bruno Mars — Locked Out Of Heaven",
         audioUrl: "/audio/Bruno Mars - Locked Out Of Heaven.mp3",
+    },
+    {
+        title: "John Newman — Love Me Again",
+        audioUrl: "/audio/John Newman - Love Me Again (Lyrics).mp3",
+    },
+    {
+        title: "The Script — The Man Who Can't Be Moved",
+        audioUrl: "/audio/The Script - The Man Who Can't Be Moved (Lyrics).mp3",
     },
     {
         title: "Conan Gray — Memories",
@@ -56,10 +60,6 @@ const PLAYLIST = [
     {
         title: "James Arthur — Impossible",
         audioUrl: "/audio/James Arthur - Impossible (Lyrics) (1).mp3",
-    },
-    {
-        title: "John Newman — Love Me Again",
-        audioUrl: "/audio/John Newman - Love Me Again (Lyrics).mp3",
     },
     {
         title: "Loreen — Tattoo",
