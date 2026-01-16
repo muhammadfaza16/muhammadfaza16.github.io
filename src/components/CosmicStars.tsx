@@ -62,10 +62,23 @@ export function CosmicStars() {
 
         stars = createStars();
 
+        // Store previous width to detect horizontal resize
+        let prevWidth = width;
+
         const resize = () => {
-            width = canvas.width = canvas.offsetWidth;
-            height = canvas.height = canvas.offsetHeight;
-            stars = createStars();
+            const newWidth = canvas.offsetWidth;
+            const newHeight = canvas.offsetHeight;
+
+            // Update canvas dimensions
+            width = canvas.width = newWidth;
+            height = canvas.height = newHeight;
+
+            // Only regenerate stars if WIDTH changes (e.g. device rotation, window resize)
+            // If only height changes (mobile address bar), keep existing stars to prevent jarring jumps
+            if (newWidth !== prevWidth) {
+                stars = createStars();
+                prevWidth = newWidth;
+            }
         };
 
         window.addEventListener("resize", resize);
