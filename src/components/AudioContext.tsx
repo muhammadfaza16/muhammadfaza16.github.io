@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useEffect, useRef, useState } from "react";
+import { createContext, useContext, useEffect, useRef, useState, useCallback } from "react";
 import { useTheme } from "./ThemeProvider";
 
 interface AudioContextType {
@@ -26,23 +26,23 @@ const PLAYLIST = [
         audioUrl: "/audio/Alan Walker - Faded (Lyrics).mp3",
     },
     {
-        title: "Alan Walker, K-391 & Emelie Hollow — Lily",
+        title: "Alan Walker — Lily",
         audioUrl: "/audio/Alan Walker, K-391 & Emelie Hollow - Lily (Lyrics).mp3",
     },
     {
-        title: "Alan Walker & Ava Max — Alone, Pt. II",
+        title: "Alan Walker — Alone",
         audioUrl: "/audio/Alan Walker & Ava Max - Alone, Pt. II (Lyrics).mp3",
     },
     {
-        title: "Bruno Mars — Locked Out Of Heaven",
+        title: "Bruno Mars — Locked Out",
         audioUrl: "/audio/Bruno Mars - Locked Out Of Heaven.mp3",
     },
     {
-        title: "John Newman — Love Me Again",
+        title: "John Newman — Love Me",
         audioUrl: "/audio/John Newman - Love Me Again (Lyrics).mp3",
     },
     {
-        title: "The Script — The Man Who Can't Be Moved",
+        title: "The Script — The Man Who",
         audioUrl: "/audio/The Script - The Man Who Can't Be Moved (Lyrics).mp3",
     },
     {
@@ -93,7 +93,7 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [isPlaying, setTheme]);
 
-    const togglePlay = () => {
+    const togglePlay = useCallback(() => {
         if (!audioRef.current) return;
 
         if (isPlaying) {
@@ -101,19 +101,19 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
         } else {
             audioRef.current.play().catch(e => console.error("Playback failed:", e));
         }
-    };
+    }, [isPlaying]);
 
-    const nextSong = (forcePlay = false) => {
+    const nextSong = useCallback((forcePlay = false) => {
         setCurrentIndex((prev) => (prev + 1) % PLAYLIST.length);
 
         if (forcePlay) {
             setIsPlaying(true);
         }
-    };
+    }, []);
 
-    const prevSong = () => {
+    const prevSong = useCallback(() => {
         setCurrentIndex((prev) => (prev - 1 + PLAYLIST.length) % PLAYLIST.length);
-    };
+    }, []);
 
     // Auto-play when index changes if it was already playing or triggered by next
     useEffect(() => {

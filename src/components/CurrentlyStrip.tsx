@@ -72,7 +72,7 @@ function FixedWidthText({ text, width, className }: { text: string; width: strin
 
 // Individual Marquee Item with Visibility Tracking (Memoized)
 const MarqueeItem = memo(function MarqueeItem({ item, id, onVisibilityChange }: {
-    item: { icon: React.ReactNode; label: string; text: string; width?: string; onClick?: () => void; className?: string };
+    item: { icon: React.ReactNode; label: string; text: string; width?: string; labelWidth?: string; onClick?: () => void; className?: string };
     id: string;
     onVisibilityChange: (id: string, isVisible: boolean) => void;
 }) {
@@ -117,7 +117,10 @@ const MarqueeItem = memo(function MarqueeItem({ item, id, onVisibilityChange }: 
                 fontSize: "0.7rem",
                 textTransform: "uppercase",
                 letterSpacing: "0.05em",
-                opacity: 0.7
+                opacity: 0.7,
+                display: "inline-block", // Required for width
+                width: item.labelWidth || "auto", // Fixed label width
+                textAlign: "left"
             }}>
                 {item.label}:
             </span>
@@ -126,14 +129,14 @@ const MarqueeItem = memo(function MarqueeItem({ item, id, onVisibilityChange }: 
                 width={item.width || "auto"}
                 className={item.className}
             />
-        </div>
+        </div >
     );
 }
 );
 
 // Helper for the continuous marquee (Memoized)
 const ContinuousMarquee = memo(function ContinuousMarquee({ items, onVisibilityChange }: {
-    items: { icon: React.ReactNode; label: string; text: string; width?: string; onClick?: () => void; className?: string }[];
+    items: { icon: React.ReactNode; label: string; text: string; width?: string; labelWidth?: string; onClick?: () => void; className?: string }[];
     onVisibilityChange: (id: string, isVisible: boolean) => void;
 }) {
     return (
@@ -235,7 +238,7 @@ const VibingAvatar = memo(function VibingAvatar({ isPlaying }: { isPlaying: bool
             justifyContent: "center",
             alignItems: "flex-end",
             marginBottom: "0rem",
-            overflow: "hidden"
+            // overflow: "hidden" // Removed to allow notes to float up
         }}>
             <style>
                 {`
@@ -288,6 +291,34 @@ const VibingAvatar = memo(function VibingAvatar({ isPlaying }: { isPlaying: bool
                             float-up 2s ease-in-out 1.5s forwards,
                             float-bob 5s ease-in-out 3.5s infinite;
                     }
+
+                    @keyframes echo-spread {
+                        0% { transform: scale(1); opacity: 0.6; stroke-width: 1.5; }
+                        100% { transform: scale(1.5); opacity: 0; stroke-width: 0.5; }
+                    }
+                    .echo-clone {
+                        opacity: 0;
+                        transform-origin: 30px 25px; /* Center of the body cluster */
+                        pointer-events: none;
+                    }
+                    .avatar-floating .echo-clone {
+                        animation: echo-spread 3s infinite ease-out;
+                    }
+
+                    @keyframes note-float {
+                        0% { transform: translate(0, 0) rotate(0deg) scale(0.5); opacity: 0; }
+                        20% { opacity: 0.8; }
+                        100% { transform: translate(8px, -25px) rotate(15deg) scale(1); opacity: 0; }
+                    }
+                    .music-note {
+                        opacity: 0;
+                        transform-box: fill-box;
+                        transform-origin: center;
+                        pointer-events: none;
+                    }
+                    .avatar-floating .music-note {
+                        animation: note-float 4s infinite ease-out;
+                    }
                 `}
             </style>
 
@@ -321,8 +352,39 @@ const VibingAvatar = memo(function VibingAvatar({ isPlaying }: { isPlaying: bool
                     {/* Floating Wrapper (Anchor for Levitation) */}
                     <g className="lie-floater">
                         <g transform="translate(10, 10)">
+                            {/* Body Echoes (Behind body) - "Terhanyut" effect */}
+                            <g className="echo-clone" style={{ animationDelay: "3.5s" }}>
+                                <path d="M15 28 L35 28" /> {/* Torso */}
+                                <path d="M18 28 L 5 22 L 12 25" strokeLinejoin="round" /> {/* Arms */}
+                                <path d="M35 28 L55 28" /> {/* R Leg */}
+                                <path d="M55 28 L58 24" />
+                                <path d="M35 28 L45 18" /> {/* L Leg */}
+                                <path d="M45 18 L50 28" />
+                                <circle cx="12" cy="25" r="5" /> {/* Head */}
+                            </g>
+                            <g className="echo-clone" style={{ animationDelay: "4.5s" }}>
+                                <path d="M15 28 L35 28" />
+                                <path d="M18 28 L 5 22 L 12 25" strokeLinejoin="round" />
+                                <path d="M35 28 L55 28" />
+                                <path d="M55 28 L58 24" />
+                                <path d="M35 28 L45 18" />
+                                <path d="M45 18 L50 28" />
+                                <circle cx="12" cy="25" r="5" />
+                            </g>
+
                             {/* Head (looking up) */}
                             <circle cx="12" cy="25" r="5" />
+
+                            {/* Music Notes (Floating from head) */}
+                            <g className="music-note" style={{ animationDelay: "2s" }}>
+                                <circle cx="20" cy="18" r="2" fill="currentColor" />
+                                <path d="M22 18 L22 8 L28 10" strokeWidth="1.5" strokeLinecap="round" />
+                            </g>
+                            <g className="music-note" style={{ animationDelay: "4s" }}>
+                                <circle cx="10" cy="20" r="2" fill="currentColor" />
+                                <circle cx="16" cy="18" r="2" fill="currentColor" />
+                                <path d="M12 20 L12 12 L18 10 L18 18" strokeWidth="1.5" strokeLinecap="round" />
+                            </g>
 
                             {/* Torso */}
                             <path d="M15 28 L35 28" />
@@ -394,20 +456,36 @@ export function CurrentlyStrip() {
 
 
 
+    // Individually memoize items to prevent unnecessary re-renders
+    const playingItem = useMemo(() => ({
+        icon: isPlaying ? "⏸" : "▶",
+        label: isPlaying ? "Playing" : "Paused",
+        text: currentSong.title,
+        width: "220px",
+        labelWidth: "60px",
+        onClick: togglePlay,
+        className: "hover:opacity-80 transition-opacity"
+    }), [isPlaying, currentSong.title, togglePlay]);
+
+    const timeItem = useMemo(() => ({
+        icon: "◎", label: "Time", text: currentTime, width: "65px"
+    }), [currentTime]);
+
+    const moodItem = useMemo(() => ({
+        icon: "⚡", label: "Mood", text: moods[moodIndex % moods.length] || "Vibing", width: "160px"
+    }), [moods, moodIndex]);
+
+    const checkInItem = useMemo(() => ({
+        icon: "💌", label: "Checking in", text: checkInMessages[checkInIndex % checkInMessages.length], width: "320px"
+    }), [checkInMessages, checkInIndex]);
+
     // Status items for the marquee
     const statusItems = useMemo(() => [
-        {
-            icon: isPlaying ? "⏸" : "▶",
-            label: isPlaying ? "Playing" : "Paused",
-            text: currentSong.title,
-            width: "220px",
-            onClick: togglePlay,
-            className: "hover:opacity-80 transition-opacity"
-        },
-        { icon: "◎", label: "Time", text: currentTime, width: "65px" },
-        { icon: "⚡", label: "Mood", text: moods[moodIndex % moods.length] || "Vibing", width: "160px" },
-        { icon: "💌", label: "Checking in", text: checkInMessages[checkInIndex % checkInMessages.length], width: "320px" },
-    ], [isPlaying, currentSong.title, currentTime, moods, moodIndex, checkInMessages, checkInIndex, togglePlay]);
+        playingItem,
+        timeItem,
+        moodItem,
+        checkInItem
+    ], [playingItem, timeItem, moodItem, checkInItem]);
 
     // Tracker for checking-in visibility
     const visibleCheckIns = useRef(new Set<string>());

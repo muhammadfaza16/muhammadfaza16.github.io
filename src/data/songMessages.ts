@@ -2,7 +2,7 @@
 // Tone: Confident, charming, assertive but not needy. "Main character" energy.
 
 export const SONG_MESSAGES: Record<string, { playing: string[]; paused: string[] }> = {
-    "The Script — The Man Who Can't Be Moved": {
+    "The Script — The Man Who": {
         playing: [
             "I know what I want. It's you.",
             "Unshakeable. That's how I feel.",
@@ -10,7 +10,7 @@ export const SONG_MESSAGES: Record<string, { playing: string[]; paused: string[]
         ],
         paused: ["dulu lagu aja"],
     },
-    "Alan Walker & Ava Max — Alone, Pt. II": {
+    "Alan Walker — Alone": {
         playing: [
             "We're a power move together.",
             "Better when you're in the picture.",
@@ -26,7 +26,7 @@ export const SONG_MESSAGES: Record<string, { playing: string[]; paused: string[]
         ],
         paused: ["dulu lagu aja"],
     },
-    "Alan Walker, K-391 & Emelie Hollow — Lily": {
+    "Alan Walker — Lily": {
         playing: [
             "I've got you covered.",
             "Safe with me. Always.",
@@ -34,7 +34,7 @@ export const SONG_MESSAGES: Record<string, { playing: string[]; paused: string[]
         ],
         paused: ["dulu lagu aja"],
     },
-    "Bruno Mars — Locked Out Of Heaven": {
+    "Bruno Mars — Locked Out": {
         playing: [
             "You're my kind of high.",
             "Addicted to your energy.",
@@ -74,7 +74,7 @@ export const SONG_MESSAGES: Record<string, { playing: string[]; paused: string[]
         ],
         paused: ["dulu lagu aja"],
     },
-    "John Newman — Love Me Again": {
+    "John Newman — Love Me": {
         playing: [
             "Ready for round two?",
             "Undeniable connection.",
