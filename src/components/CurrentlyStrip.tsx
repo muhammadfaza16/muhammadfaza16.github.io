@@ -149,9 +149,9 @@ const ContinuousMarquee = memo(function ContinuousMarquee({ items, onVisibilityC
                     key={key}
                     style={{
                         display: "flex",
-                        gap: "3rem",
+                        gap: "1.25rem",
                         animation: "marquee 25s linear infinite",
-                        paddingRight: "3rem",
+                        paddingRight: "1.25rem",
                         flexShrink: 0
                     }}
                 >
@@ -246,12 +246,12 @@ export function CurrentlyStrip() {
             icon: isPlaying ? "⏸" : "▶",
             label: isPlaying ? "Playing" : "Paused",
             text: currentSong.title,
-            width: "300px",
+            width: "220px",
             onClick: togglePlay,
             className: "hover:opacity-80 transition-opacity"
         },
-        { icon: "◎", label: "Time", text: currentTime, width: "80px" },
-        { icon: "⚡", label: "Mood", text: moods[moodIndex % moods.length] || "Vibing", width: "180px" },
+        { icon: "◎", label: "Time", text: currentTime, width: "65px" },
+        { icon: "⚡", label: "Mood", text: moods[moodIndex % moods.length] || "Vibing", width: "130px" },
         { icon: "💌", label: "Checking in", text: checkInMessages[checkInIndex % checkInMessages.length], width: "320px" },
     ], [isPlaying, currentSong.title, currentTime, moods, moodIndex, checkInMessages, checkInIndex, togglePlay]);
 
@@ -301,7 +301,7 @@ export function CurrentlyStrip() {
                 flexDirection: "column",
                 alignItems: "center",
                 width: "100%",
-                gap: "1rem"
+                gap: "0rem"
             }}>
 
             {/* Top: Marquee Pill */}
@@ -332,12 +332,12 @@ export function CurrentlyStrip() {
             {/* Bottom: Play Control */}
             <div
                 style={{
-                    minHeight: "4rem", // increased height to accommodate text + controls comfortably
+                    minHeight: "3rem", // reduced height
                     display: "flex",
                     flexDirection: "column",
                     alignItems: "center",
-                    justifyContent: "flex-start", // Align top, push content down with padding
-                    paddingTop: "0.5rem", // Reduced padding
+                    justifyContent: "flex-start",
+                    paddingTop: "0rem", // adjusted for symmetry
                     paddingBottom: "0.25rem"
                 }}
             >
@@ -351,13 +351,13 @@ export function CurrentlyStrip() {
                         fontSize: "0.95rem",
                         color: "var(--text-muted)",
                         margin: 0,
-                        marginBottom: "0.25rem", // Reduced margin
+                        marginBottom: "0", // Reduced margin
                         cursor: "pointer",
                         userSelect: "none",
                         textAlign: "center",
                         minHeight: "2.8em", // Fixed height for 2 lines
                         display: "flex",
-                        alignItems: "center",
+                        alignItems: "center", // Centered for symmetric gaps
                         justifyContent: "center",
                         transition: "opacity 0.3s ease"
                     }}
