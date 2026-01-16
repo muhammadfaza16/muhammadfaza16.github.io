@@ -5,10 +5,9 @@ import { useTheme } from "./ThemeProvider";
 
 interface AudioContextType {
     isPlaying: boolean;
-    isShuffle: boolean;
     togglePlay: () => void;
-    toggleShuffle: () => void;
-    nextSong: () => void;
+    nextSong: (forcePlay?: boolean) => void;
+    prevSong: () => void;
     currentSong: { title: string; audioUrl: string };
 }
 
@@ -70,7 +69,6 @@ const PLAYLIST = [
 
 export function AudioProvider({ children }: { children: React.ReactNode }) {
     const [isPlaying, setIsPlaying] = useState(false);
-    const [isShuffle, setIsShuffle] = useState(false);
     const [currentIndex, setCurrentIndex] = useState(0);
     const audioRef = useRef<HTMLAudioElement | null>(null);
 
@@ -105,32 +103,16 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
         }
     };
 
-    const toggleShuffle = () => {
-        const newShuffleState = !isShuffle;
-        setIsShuffle(newShuffleState);
+    const nextSong = (forcePlay = false) => {
+        setCurrentIndex((prev) => (prev + 1) % PLAYLIST.length);
 
-        // If turning shuffle ON, play a random song immediately
-        if (newShuffleState && PLAYLIST.length > 1) {
-            let nextIndex;
-            do {
-                nextIndex = Math.floor(Math.random() * PLAYLIST.length);
-            } while (nextIndex === currentIndex);
-            setCurrentIndex(nextIndex);
+        if (forcePlay) {
             setIsPlaying(true);
         }
     };
 
-    const nextSong = () => {
-        if (isShuffle && PLAYLIST.length > 1) {
-            let nextIndex;
-            do {
-                nextIndex = Math.floor(Math.random() * PLAYLIST.length);
-            } while (nextIndex === currentIndex);
-            setCurrentIndex(nextIndex);
-        } else {
-            setCurrentIndex((prev) => (prev + 1) % PLAYLIST.length);
-        }
-        setIsPlaying(true); // Auto-play next
+    const prevSong = () => {
+        setCurrentIndex((prev) => (prev - 1 + PLAYLIST.length) % PLAYLIST.length);
     };
 
     // Auto-play when index changes if it was already playing or triggered by next
@@ -143,14 +125,14 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
     const currentSong = PLAYLIST[currentIndex];
 
     return (
-        <AudioContext.Provider value={{ isPlaying, isShuffle, togglePlay, toggleShuffle, nextSong, currentSong }}>
+        <AudioContext.Provider value={{ isPlaying, togglePlay, nextSong, prevSong, currentSong }}>
             <audio
                 ref={audioRef}
                 src={currentSong.audioUrl}
                 preload="auto"
                 onPlay={() => setIsPlaying(true)}
                 onPause={() => setIsPlaying(false)}
-                onEnded={nextSong}
+                onEnded={() => nextSong(true)}
                 onError={(e) => {
                     console.error("Audio error:", e);
                     // Try next song on error? Or just stop.

@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef, useMemo, memo } from "react";
 import { useAudio } from "./AudioContext";
-import { Shuffle, SkipForward } from "lucide-react";
+import { SkipBack, SkipForward } from "lucide-react";
 import { getSongMessage } from "../data/songMessages";
 
 
@@ -225,49 +225,6 @@ function getCheckInMessages(hour: number): string[] {
     ];
 }
 
-// Music Visualizer Component
-const MusicVisualizer = memo(function MusicVisualizer({ isPlaying }: { isPlaying: boolean }) {
-    return (
-        <div style={{
-            display: "flex",
-            alignItems: "flex-end",
-            justifyContent: "center",
-            gap: "3px",
-            height: "12px",
-            marginBottom: "0.4rem", // space between visualizer and marquee
-            opacity: 0.8
-        }}>
-            <style>
-                {`
-                    @keyframes bounce {
-                        0%, 100% { height: 3px; }
-                        50% { height: 12px; }
-                    }
-                    .bar {
-                        width: 3px;
-                        background-color: var(--accent);
-                        border-radius: 99px;
-                        transition: height 0.2s ease;
-                    }
-                    .animate-bar {
-                        animation: bounce 0.5s infinite ease-in-out;
-                    }
-                `}
-            </style>
-            {[0, 1, 2, 3].map((i) => (
-                <div
-                    key={i}
-                    className={`bar ${isPlaying ? "animate-bar" : ""}`}
-                    style={{
-                        height: isPlaying ? undefined : "3px",
-                        animationDelay: `${i * 0.1}s`
-                    }}
-                />
-            ))}
-        </div>
-    );
-});
-
 export function CurrentlyStrip() {
     const [currentTime, setCurrentTime] = useState("");
     const [moods, setMoods] = useState<string[]>([]);
@@ -278,7 +235,7 @@ export function CurrentlyStrip() {
     const [songMessageIndex, setSongMessageIndex] = useState(0);
 
     // Global Audio Context
-    const { isPlaying, togglePlay, currentSong, isShuffle, toggleShuffle, nextSong } = useAudio();
+    const { isPlaying, togglePlay, currentSong, nextSong, prevSong } = useAudio();
 
     const checkInMessages = getCheckInMessages(currentHour);
 
@@ -363,9 +320,6 @@ export function CurrentlyStrip() {
                 gap: "0rem"
             }}>
 
-            {/* Top: Visualizer */}
-            <MusicVisualizer isPlaying={isPlaying} />
-
             {/* Top: Marquee Pill */}
             <div
                 style={{
@@ -432,22 +386,22 @@ export function CurrentlyStrip() {
                     <div
                         onClick={(e) => {
                             e.stopPropagation();
-                            toggleShuffle();
+                            prevSong();
                         }}
                         style={{
                             cursor: "pointer",
                             fontSize: "0.8rem",
-                            color: isShuffle ? "var(--accent)" : "var(--text-muted)",
-                            opacity: isShuffle ? 1 : 0.5,
+                            color: "var(--text-muted)",
+                            opacity: 0.5,
                             display: "flex",
                             alignItems: "center",
                             transition: "all 0.2s ease",
                             padding: "4px"
                         }}
                         className="hover:opacity-100"
-                        title={isShuffle ? "Shuffle On" : "Shuffle Off"}
+                        title="Previous Song"
                     >
-                        <Shuffle size={14} />
+                        <SkipBack size={14} />
                     </div>
 
                     <button
