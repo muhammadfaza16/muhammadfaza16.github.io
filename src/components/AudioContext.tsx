@@ -21,10 +21,10 @@ export function useAudio() {
     }
     return context;
 }
-
 const PLAYLIST = [
     {
         title: "NOAH — Ini Cinta",
+
         audioUrl: "/audio/NOAH - Ini Cinta (Official Audio).mp3",
     },
     {
@@ -38,6 +38,34 @@ const PLAYLIST = [
     {
         title: "Alan Walker & Ava Max — Alone, Pt. II",
         audioUrl: "/audio/Alan Walker & Ava Max - Alone, Pt. II (Lyrics).mp3",
+    },
+    {
+        title: "Alan Walker — Faded",
+        audioUrl: "/audio/Alan Walker - Faded (Lyrics).mp3",
+    },
+    {
+        title: "Bruno Mars — Locked Out Of Heaven",
+        audioUrl: "/audio/Bruno Mars - Locked Out Of Heaven.mp3",
+    },
+    {
+        title: "Halsey — Without Me",
+        audioUrl: "/audio/Halsey - Without Me (Lyrics).mp3",
+    },
+    {
+        title: "Hoobastank — The Reason",
+        audioUrl: "/audio/Hoobastank - The Reason (Lyrics).mp3",
+    },
+    {
+        title: "James Arthur — Impossible",
+        audioUrl: "/audio/James Arthur - Impossible (Lyrics) (1).mp3",
+    },
+    {
+        title: "John Newman — Love Me Again",
+        audioUrl: "/audio/John Newman - Love Me Again (Lyrics).mp3",
+    },
+    {
+        title: "Loreen — Tattoo",
+        audioUrl: "/audio/Loreen - Tattoo.mp3",
     }
 ];
 
