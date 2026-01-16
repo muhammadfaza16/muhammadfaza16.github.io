@@ -76,6 +76,9 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
     const { theme, setTheme } = useTheme();
     const wasSwitchedRef = useRef(false);
 
+    // Guard for source switch pause event
+    const isSwitchingRef = useRef(false);
+
     // Melancholy Mode Effect
     useEffect(() => {
         if (isPlaying && setTheme) {
@@ -97,28 +100,40 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
         if (!audioRef.current) return;
 
         if (isPlaying) {
+            setIsPlaying(false);
             audioRef.current.pause();
         } else {
+            setIsPlaying(true);
             audioRef.current.play().catch(e => console.error("Playback failed:", e));
         }
     };
 
     const nextSong = (forcePlay = false) => {
-        setCurrentIndex((prev) => (prev + 1) % PLAYLIST.length);
-
-        if (forcePlay) {
-            setIsPlaying(true);
+        // If forcing play, OR if already playing, act as switching
+        if (forcePlay || isPlaying) {
+            if (forcePlay) setIsPlaying(true);
+            isSwitchingRef.current = true; // Flag transition
         }
+        setCurrentIndex((prev) => (prev + 1) % PLAYLIST.length);
     };
 
     const prevSong = () => {
+        // If we were playing, we want to keep playing (implied forcePlay behavior for prev usually?)
+        // The user didn't ask for forcePlay on prev, but logic implies continuity.
+        // Let's keep it safe. If playing, set flag.
+        if (isPlaying) {
+            isSwitchingRef.current = true;
+        }
         setCurrentIndex((prev) => (prev - 1 + PLAYLIST.length) % PLAYLIST.length);
     };
 
     // Auto-play when index changes if it was already playing or triggered by next
     useEffect(() => {
         if (audioRef.current && isPlaying) {
-            audioRef.current.play().catch(e => console.error("Playback failed:", e));
+            // Basic safety check: only play if paused to avoid "interrupted" errors
+            if (audioRef.current.paused) {
+                audioRef.current.play().catch(e => console.error("Playback failed:", e));
+            }
         }
     }, [currentIndex, isPlaying]);
 
@@ -130,8 +145,28 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
                 ref={audioRef}
                 src={currentSong.audioUrl}
                 preload="auto"
-                onPlay={() => setIsPlaying(true)}
-                onPause={() => setIsPlaying(false)}
+                onPlay={() => {
+                    setIsPlaying(true);
+                    isSwitchingRef.current = false; // Reset flag on successful play
+                }}
+                onPause={() => {
+                    // Ignore pause event if it's due to switching songs
+                    if (isSwitchingRef.current) {
+                        isSwitchingRef.current = false;
+                        return;
+                    }
+
+                    // Ignore pause event if buffering (readyState < 3 means likely waiting for data)
+                    // 0: HAVE_NOTHING, 1: HAVE_METADATA, 2: HAVE_CURRENT_DATA
+                    if (audioRef.current && audioRef.current.readyState < 3) {
+                        return;
+                    }
+
+                    setIsPlaying(false);
+                }}
+                onWaiting={() => {
+                    console.log("Audio buffering...");
+                }}
                 onEnded={() => nextSong(true)}
                 onError={(e) => {
                     console.error("Audio error:", e);
