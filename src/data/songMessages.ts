@@ -1,126 +1,126 @@
-// Song-specific messages - mature, implicit, confident tone
-// Speaking to crush but not needy - subtle flirting
+// Song-specific messages — Flamboyant, Masculine, Mature, English Only.
+// Tone: Confident, charming, assertive but not needy. "Main character" energy.
 
 export const SONG_MESSAGES: Record<string, { playing: string[]; paused: string[] }> = {
     "The Script — The Man Who Can't Be Moved": {
         playing: [
-            "Still here. You know where to find me.",
-            "Aku tau kamu balik.",
-            "Same spot. Same me.",
+            "I know what I want. It's you.",
+            "Unshakeable. That's how I feel.",
+            "Not going anywhere. I'm solid.",
         ],
         paused: [
-            "Play this when you're ready.",
-            "You know this one.",
+            "Persistence is key.",
+            "You know where to find me.",
         ],
     },
     "Alan Walker & Ava Max — Alone, Pt. II": {
         playing: [
-            "Better with you around.",
-            "Lebih seru kalau ada kamu.",
-            "We're not meant to be solo.",
+            "We're a power move together.",
+            "Better when you're in the picture.",
+            "Unstoppable duo energy.",
         ],
         paused: [
-            "This one hits different together.",
-            "Ada vibe buat kita.",
+            "Solo is good. We are better.",
+            "Let's elevate this.",
         ],
     },
     "Alan Walker — Faded": {
         playing: [
-            "Thinking about you. Again.",
-            "Kamu di pikiran terus.",
-            "Can't shake this feeling.",
+            "You linger on my mind.",
+            "Unforgettable. That's you.",
+            "Can't fade what's real.",
         ],
         paused: [
-            "Mood: missing someone.",
-            "You already know who.",
+            "You made an impression.",
+            "Thinking of you.",
         ],
     },
     "Alan Walker, K-391 & Emelie Hollow — Lily": {
         playing: [
-            "I got you.",
-            "Aman sama aku.",
-            "Nothing to worry about.",
+            "I've got you covered.",
+            "Safe with me. Always.",
+            "Don't worry. I handle it.",
         ],
         paused: [
-            "The protective type beat.",
-            "Main kalau butuh tenang.",
+            "I'm your sanctuary.",
+            "Lean on me.",
         ],
     },
     "Bruno Mars — Locked Out Of Heaven": {
         playing: [
-            "You do something to me.",
-            "Efek kamu tuh beda.",
-            "Heaven looks like you.",
+            "You're my kind of high.",
+            "Addicted to your energy.",
+            "You got that golden touch.",
         ],
         paused: [
-            "This one's about that feeling.",
-            "Play kalau mau melayang.",
+            "Pure ecstasy.",
+            "You're a whole vibe.",
         ],
     },
     "Conan Gray — Memories": {
         playing: [
-            "Some things don't fade.",
-            "Masih inget semuanya.",
-            "Good times stay with us.",
+            "We made history with that one.",
+            "Classics never die.",
+            "You're my favorite chapter.",
         ],
         paused: [
-            "Throwback energy.",
-            "Buat kenang-kenangan.",
+            "Timeless.",
+            "For the books.",
         ],
     },
     "Halsey — Without Me": {
         playing: [
-            "You'll figure it out.",
-            "Take your time.",
-            "I know my worth.",
+            "You know I'm the upgrade.",
+            "Irreplaceable. And you know it.",
+            "I bring the value.",
         ],
         paused: [
-            "The confident one.",
-            "Play kalau kamu mikir.",
+            "Know your worth.",
+            "I'm the one.",
         ],
     },
     "Hoobastank — The Reason": {
         playing: [
-            "You make me want to be better.",
-            "Karena kamu, aku usaha.",
-            "Changed for the right reasons.",
+            "You inspire the best in me.",
+            "Leveling up. Because of you.",
+            "I'm better. You're the reason.",
         ],
         paused: [
-            "Growth era type beat.",
-            "Play kalau kamu percaya.",
+            "Growth mindset.",
+            "My motivation.",
         ],
     },
     "James Arthur — Impossible": {
         playing: [
-            "Worth the effort.",
-            "Susah bukan berarti mustahil.",
-            "I don't give up easy.",
+            "Challenge accepted.",
+            "I don't do easy. I do worth it.",
+            "Whatever it takes.",
         ],
         paused: [
-            "The persistent type.",
-            "Play kalau butuh semangat.",
+            "Watch me make it happen.",
+            "All in.",
         ],
     },
     "John Newman — Love Me Again": {
         playing: [
-            "Second chances exist.",
-            "Masih bisa diperbaiki.",
-            "Ready when you are.",
+            "Ready for round two?",
+            "Undeniable connection.",
+            "We're not done yet.",
         ],
         paused: [
-            "Fresh start energy.",
-            "Kalau mau coba lagi.",
+            "Let's run it back.",
+            "You know you want to.",
         ],
     },
     "Loreen — Tattoo": {
         playing: [
-            "Stuck with me.",
-            "Susah dilupain.",
-            "Permanent in the best way.",
+            "I've left my mark.",
+            "Inked in your mind.",
+            "Permanent residence in my head.",
         ],
         paused: [
-            "The unforgettable one.",
-            "You wouldn't forget anyway.",
+            "Unforgettable.",
+            "I'm staying.",
         ],
     },
 };
@@ -134,4 +134,3 @@ export function getSongMessage(songTitle: string, isPlaying: boolean, index: num
     const pool = isPlaying ? messages.playing : messages.paused;
     return pool[index % pool.length];
 }
-
