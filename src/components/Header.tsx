@@ -7,6 +7,7 @@ import { Container } from "./Container";
 import { ThemeToggle } from "./ThemeToggle";
 import { DigitalClock } from "./DigitalClock";
 import { useZen } from "./ZenContext";
+import { Zap, BookOpen, Lightbulb, GraduationCap, Link2, Clock, Monitor } from "lucide-react";
 
 export function Header() {
     const pathname = usePathname();
@@ -21,17 +22,18 @@ export function Header() {
     const navLinks = [
         { href: "/blog", label: "Writing" },
         { href: "/project", label: "Project" },
+        { href: "/journey", label: "Journey" },
         { href: "/about", label: "About" },
     ];
 
     const moreLinks = [
-        { href: "/now", label: "Now", emoji: "⚡" },
-        { href: "/bookshelf", label: "Bookshelf", emoji: "📚" },
-        { href: "/ideas", label: "Ideas", emoji: "💡" },
-        { href: "/til", label: "TIL", emoji: "🎓" },
-        { href: "/links", label: "Links", emoji: "🔗" },
-        { href: "/changelog", label: "Changelog", emoji: "📝" },
-        { href: "/uses", label: "Uses", emoji: "🛠️" },
+        { href: "/now", label: "Now", icon: Zap },
+        { href: "/bookshelf", label: "Bookshelf", icon: BookOpen },
+        { href: "/ideas", label: "Ideas", icon: Lightbulb },
+        { href: "/til", label: "TIL", icon: GraduationCap },
+        { href: "/links", label: "Links", icon: Link2 },
+        { href: "/changelog", label: "Changelog", icon: Clock },
+        { href: "/uses", label: "Uses", icon: Monitor },
     ];
 
     // Close dropdown when clicking outside
@@ -173,7 +175,7 @@ export function Header() {
                                             }}
                                             className="dropdown-item-hover"
                                         >
-                                            <span>{link.emoji}</span>
+                                            <link.icon className="w-4 h-4" />
                                             <span>{link.label}</span>
                                         </Link>
                                     ))}
@@ -293,7 +295,7 @@ export function Header() {
                                 transition: "color 0.2s ease"
                             }}
                         >
-                            <span>More</span>
+                            <span>Archives</span>
                             <svg
                                 width="20"
                                 height="20"
@@ -340,7 +342,7 @@ export function Header() {
                                     }}
                                     className={`transition-colors ${isActive(link.href) ? 'text-[var(--foreground)]' : 'text-[var(--secondary)]'}`}
                                 >
-                                    <span style={{ fontSize: "1.25rem", width: "1.5rem", textAlign: "center" }}>{link.emoji}</span>
+                                    <span style={{ fontSize: "1.25rem", width: "1.5rem", display: "flex", justifyContent: "center" }}><link.icon className="w-5 h-5" /></span>
                                     <span>{link.label}</span>
                                 </Link>
                             ))}
