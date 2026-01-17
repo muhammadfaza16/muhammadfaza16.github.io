@@ -228,8 +228,270 @@ function getCheckInMessages(hour: number): string[] {
     ];
 }
 
+const POKE_RESPONSES = [
+    "Apa?", "Yo!", "Hadir!", "Sttt..",
+    "Lagi asik", "Kenapa?", "Waduh", "Hehe",
+    "Focus...", "Vibing~", "Ouch!", "Ticklish!"
+];
+
+// Timed Lyrics Data (Song Title -> Cues)
+// expressive: true = dramatic full-screen text (for asking questions, emotional moments)
+const SONG_LYRICS: Record<string, { start: number; end: number; text: string; expressive?: boolean }[]> = {
+    "Alan Walker — Faded": [
+        { start: 18, end: 21, text: "Nyanyi dikit skuy..." },
+        { start: 24.75, end: 27.5, text: "Wanna see us" },
+        { start: 28.8, end: 30, text: "Alive" },
+        { start: 31, end: 34, text: "Where are you now?", expressive: true },
+        { start: 36.3, end: 39.5, text: "Where are you now?", expressive: true },
+        { start: 41.5, end: 44.5, text: "Where are you now?", expressive: true },
+        { start: 44.7, end: 46, text: "Fantasy?" },
+        { start: 47, end: 50, text: "Where are you now?" },
+        { start: 49, end: 53, text: "Were you only imaginary?" },
+        { start: 53.6, end: 56.5, text: "Where are you now?", expressive: true },
+        { start: 57, end: 60, text: "Atlantis" },
+        { start: 58, end: 59, text: "Under the sea" },
+        { start: 61.7, end: 64, text: "Under the sea" },
+        { start: 64.4, end: 67, text: "Where are you now?" },
+        { start: 67, end: 70, text: "Another dream" },
+        { start: 70.3, end: 71.2, text: "The monster" },
+        { start: 71.3, end: 72, text: "running wild" },
+        { start: 72.1, end: 73.6, text: "inside of me" },
+        { start: 74.8, end: 75, text: "I'm fadeed" },
+        { start: 79.8, end: 86, text: "I'm fadeed" },
+        { start: 84, end: 85, text: "So lost" },
+        { start: 90.1, end: 92.5, text: "I'm faded" },
+        { start: 117.7, end: 120.6, text: "where are you now?", expressive: true },
+        { start: 133.7, end: 136, text: "Where are you now?", expressive: true },
+        { start: 136.1, end: 139, text: "Where are you now?", expressive: true },
+
+        { start: 151, end: 155, text: "Where are you now?", expressive: true },
+    ],
+    "Alan Walker — Lily": [
+        { start: 55, end: 58, text: "🎤 ..." },
+    ],
+};
+
+// Multi-Level Vibe Data (Song Title -> Timestamps with intensity levels)
+// level 1 = build up (pre-chorus)
+// level 2 = beat drop (main drop)
+const SONG_VIBES: Record<string, { start: number; end: number; level: 1 | 2 }[]> = {
+    "Alan Walker — Faded": [
+        { start: 31, end: 52, level: 1 },   // build up
+        { start: 53, end: 92, level: 2 },  // beat drop
+        // setelah 100, kembali normal
+    ],
+    // Format:
+    // "Song Title": [
+    //     { start: X, end: Y, level: 1 },  // build up
+    //     { start: Y, end: Z, level: 2 },  // beat drop
+    // ],
+};
+
 // Vibing Avatar Component (Levitation Mode)
-const VibingAvatar = memo(function VibingAvatar({ isPlaying }: { isPlaying: boolean }) {
+const VibingAvatar = memo(function VibingAvatar({ isPlaying, hour }: { isPlaying: boolean; hour: number }) {
+    const { analyser, audioRef, currentSong } = useAudio();
+    const floaterRef = useRef<SVGGElement>(null);
+    const rafRef = useRef<number | null>(null);
+
+    // Poke Interaction State
+    const [pokeResponse, setPokeResponse] = useState<string | null>(null);
+    const pokeTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+    const lastMonologueRef = useRef<number>(0); // Cooldown for auto-monologue
+    const lastLyricRef = useRef<string | null>(null); // Track displayed lyric to avoid stale closure
+
+    // Floating Lyrics State (word-by-word animation)
+    const [floatingWords, setFloatingWords] = useState<{ id: number; text: string; wordIndex: number }[]>([]);
+    const wordIdRef = useRef(0);
+
+    // Expressive Lyric State (dramatic full-screen text, word-by-word)
+    const [expressiveWords, setExpressiveWords] = useState<{ id: number; text: string; index: number }[]>([]);
+    const expressiveIdRef = useRef(0);
+
+    // Dynamic Music Notes (bass-reactive)
+    const [dynamicNotes, setDynamicNotes] = useState<{ id: number; x: number; delay: number }[]>([]);
+    const noteIdRef = useRef(0);
+    const lastNoteSpawnRef = useRef(0);
+
+    const handlePoke = () => {
+        // Prevent spamming
+        if (pokeResponse) return;
+
+        // Random reaction text
+        const text = POKE_RESPONSES[Math.floor(Math.random() * POKE_RESPONSES.length)];
+        setPokeResponse(text);
+
+        // Reset after 2s
+        if (pokeTimeoutRef.current) clearTimeout(pokeTimeoutRef.current);
+        pokeTimeoutRef.current = setTimeout(() => {
+            setPokeResponse(null);
+        }, 2000);
+    };
+
+    useEffect(() => {
+        if (!isPlaying || !analyser || !floaterRef.current) {
+            if (rafRef.current) cancelAnimationFrame(rafRef.current);
+            // Reset scale when stopped
+            if (floaterRef.current) floaterRef.current.style.transform = "scale(1)";
+            return;
+        }
+
+        const bufferLength = analyser.frequencyBinCount;
+        const dataArray = new Uint8Array(bufferLength);
+
+        const tick = () => {
+            analyser.getByteFrequencyData(dataArray);
+
+            // Calculate bass (lower frequencies)
+            let bassSum = 0;
+            const bassBinCount = 4; // Check first 4 bins (very low freq)
+            for (let i = 0; i < bassBinCount; i++) {
+                bassSum += dataArray[i];
+            }
+            const avgBass = bassSum / bassBinCount;
+
+            // Map bass (0-255) to scale (1.0 - 1.2)
+            // Threshold: only react if bass > 100 to avoid jitter
+            const scale = avgBass > 50 ? 1 + (avgBass / 255) * 0.15 : 1;
+
+            if (floaterRef.current) {
+                // Combine with CSS animation? No, CSS animation handles Y-axis float.
+                // We apply Scale on the internal group.
+                floaterRef.current.style.transform = `scale(${scale})`;
+                floaterRef.current.style.transition = 'transform 0.05s ease-out'; // Smooth out slightly
+            }
+
+            // [Bass-Reactive Music Notes]
+            const now = Date.now();
+            // Spawn notes when bass > 150 and cooldown passed (300ms between spawns)
+            if (avgBass > 150 && now - lastNoteSpawnRef.current > 300) {
+                lastNoteSpawnRef.current = now;
+                const id = noteIdRef.current++;
+                // Random X position around the avatar head
+                const x = 5 + Math.random() * 25;
+                const delay = Math.random() * 0.3;
+                setDynamicNotes(prev => [...prev, { id, x, delay }]);
+                // Remove after animation (2.5s)
+                setTimeout(() => {
+                    setDynamicNotes(prev => prev.filter(n => n.id !== id));
+                }, 2500);
+            }
+
+            // [Intensity Detection & Override]
+            // Calculate Overall Energy
+            let totalSum = 0;
+            for (let i = 0; i < bufferLength; i++) {
+                totalSum += dataArray[i];
+            }
+            const avgVol = totalSum / bufferLength;
+
+            const isHighEnergy = avgVol > 140;
+
+            // [Multi-Level Vibe Detection]
+            const currentTime = audioRef.current?.currentTime ?? 0;
+            const vibes = SONG_VIBES[currentSong.title];
+            let vibeLevel = 0; // 0 = normal, 1 = rising/falling, 2 = peak
+
+            if (vibes) {
+                for (const vibe of vibes) {
+                    if (currentTime >= vibe.start && currentTime < vibe.end) {
+                        vibeLevel = vibe.level;
+                        break;
+                    }
+                }
+            }
+
+            // High Energy Effects (Just CSS Aura/Stars, no movement changes)
+            if (floaterRef.current) {
+                // Return to normal scaling (remove extra boost/translate)
+                const finalScale = scale;
+
+                floaterRef.current.style.transform = `scale(${finalScale})`;
+                // Smoother transition for both up AND down movements
+                floaterRef.current.style.transition = 'transform 0.2s ease-in-out';
+
+                const container = floaterRef.current.closest('.avatar-container');
+                if (container) {
+                    // Remove all vibe classes first
+                    container.classList.remove('high-energy', 'vibe-level-1', 'vibe-level-2');
+
+                    // Apply appropriate class based on vibe level
+                    if (vibeLevel === 2) {
+                        container.classList.add('vibe-level-2');
+                    } else if (vibeLevel === 1) {
+                        container.classList.add('vibe-level-1');
+                    } else if (isHighEnergy) {
+                        container.classList.add('high-energy');
+                    }
+                }
+            }
+
+            // [Timed Lyrics Sync - Floating Words OR Expressive]
+            const lyrics = SONG_LYRICS[currentSong.title];
+            if (lyrics) {
+                let lyricFound = false;
+                for (const lyric of lyrics) {
+                    if (currentTime >= lyric.start && currentTime < lyric.end) {
+                        lyricFound = true;
+                        // Use start time as unique identifier (allows same text to repeat)
+                        const lyricKey = `${lyric.start}-${lyric.end}`;
+                        if (lastLyricRef.current !== lyricKey) {
+                            lastLyricRef.current = lyricKey;
+
+                            if (lyric.expressive) {
+                                // Expressive: Show dramatic text word-by-word (one at a time)
+                                const words = lyric.text.split(' ');
+                                const lyricDuration = (lyric.end - lyric.start) * 1000;
+                                // Same timing as non-expressive floating words
+                                const staggerMs = Math.min(350, Math.max(200, (lyricDuration * 0.8) / words.length));
+
+                                words.forEach((word, index) => {
+                                    setTimeout(() => {
+                                        // Clear previous and show new (one at a time)
+                                        const id = expressiveIdRef.current++;
+                                        setExpressiveWords([{ id, text: word, index }]);
+                                    }, index * staggerMs);
+                                });
+
+                                // Clear all after lyric ends
+                                setTimeout(() => {
+                                    setExpressiveWords([]);
+                                }, lyricDuration);
+                            } else {
+                                // Normal: Spawn floating words one-by-one
+                                const words = lyric.text.split(' ');
+                                const lyricDuration = (lyric.end - lyric.start) * 1000;
+                                const staggerMs = Math.min(350, Math.max(200, (lyricDuration * 0.8) / words.length));
+
+                                words.forEach((word, index) => {
+                                    setTimeout(() => {
+                                        const id = wordIdRef.current++;
+                                        setFloatingWords(prev => [...prev, { id, text: word, wordIndex: index }]);
+                                        setTimeout(() => {
+                                            setFloatingWords(prev => prev.filter(w => w.id !== id));
+                                        }, 7000);
+                                    }, index * staggerMs);
+                                });
+                            }
+                        }
+                        break;
+                    }
+                }
+                // Clear lyric ref if we're past the window
+                if (!lyricFound && lastLyricRef.current) {
+                    lastLyricRef.current = null;
+                }
+            }
+
+            rafRef.current = requestAnimationFrame(tick);
+        };
+
+        tick();
+
+        return () => {
+            if (rafRef.current) cancelAnimationFrame(rafRef.current);
+        };
+    }, [isPlaying, analyser, currentSong]);
+
     return (
         <div style={{
             height: "55px", // Increased height for floating space
@@ -238,6 +500,7 @@ const VibingAvatar = memo(function VibingAvatar({ isPlaying }: { isPlaying: bool
             justifyContent: "center",
             alignItems: "flex-end",
             marginBottom: "0rem",
+            position: "relative" // For bubble positioning
             // overflow: "hidden" // Removed to allow notes to float up
         }}>
             <style>
@@ -319,8 +582,237 @@ const VibingAvatar = memo(function VibingAvatar({ isPlaying }: { isPlaying: bool
                     .avatar-floating .music-note {
                         animation: note-float 4s infinite ease-out;
                     }
+                    
+                    /* Dynamic Bass-Reactive Notes (smooth and natural) */
+                    @keyframes dynamic-note-float {
+                        0% { 
+                            transform: translate(0, 0) scale(0.6); 
+                            opacity: 0; 
+                        }
+                        20% { 
+                            opacity: 0.8; 
+                            transform: translate(3px, -10px) scale(1); 
+                        }
+                        100% { 
+                            transform: translate(8px, -40px) scale(0.8); 
+                            opacity: 0; 
+                        }
+                    }
+                    .avatar-floating .dynamic-note {
+                        animation: dynamic-note-float 3s ease-out forwards !important;
+                    }
+
+                    /* Floating Lyrics Animation */
+                    @keyframes lyric-float {
+                        0% { 
+                            transform: translateY(0); 
+                            opacity: 0; 
+                        }
+                        5% { 
+                            opacity: 1; 
+                        }
+                        50% {
+                            opacity: 0.7;
+                        }
+                        75% {
+                            opacity: 0.3;
+                        }
+                        90% {
+                            opacity: 0;
+                        }
+                        100% { 
+                            transform: translateY(-100px); 
+                            opacity: 0; 
+                        }
+                    }
+                    .floating-lyric {
+                        position: absolute;
+                        left: 50%;
+                        top: -5px;
+                        font-size: 0.65rem;
+                        font-weight: 600;
+                        color: var(--foreground);
+                        white-space: nowrap;
+                        pointer-events: none;
+                        animation: lyric-float 6s linear forwards;
+                        text-shadow: 0 1px 3px rgba(0,0,0,0.3);
+                        will-change: transform, opacity;
+                    }
+
+                    /* Poke Animations */
+                    @keyframes poke-jump {
+                        0% { transform: translateY(0); }
+                        50% { transform: translateY(-5px); }
+                        100% { transform: translateY(0); }
+                    }
+                    .avatar-poke-active {
+                        animation: poke-jump 0.3s ease-out;
+                    }
+
+                    }
+                    
+                    /* High Energy (Reff/Drop) Effects - Smooth Transitions */
+                    .echo-clone {
+                        transition: opacity 0.8s ease-out, stroke 0.8s ease-out, stroke-width 0.5s ease-out;
+                    }
+                    .music-note {
+                        transition: filter 0.5s ease-out;
+                    }
+                    
+                    .high-energy .echo-clone {
+                        opacity: 0.6; /* Slightly stronger */
+                        stroke: #ffbd2e; /* Golden aura */
+                        stroke-width: 1.8px;
+                        /* No animation-duration change - prevents choppy restart */
+                    }
+                    .high-energy .music-note {
+                        filter: drop-shadow(0 0 4px rgba(255, 189, 46, 0.7)); /* Golden glow */
+                        /* No animation-duration change - prevents choppy restart */
+                    }
+                    .high-energy {
+                        filter: drop-shadow(0 0 6px rgba(255, 189, 46, 0.4)); /* Subtle avatar glow */
+                        transition: filter 0.5s ease-out;
+                    }
+
+                    @keyframes pop-in {
+                        0% { opacity: 0; transform: translate(-50%, 10px) scale(0.8); }
+                        100% { opacity: 1; transform: translate(-50%, 0) scale(1); }
+                    }
+
+                    /* ========== VIBE LEVEL 1: RISING / FALLING ========== */
+                    .vibe-level-1 .echo-clone {
+                        opacity: 0.6;
+                        stroke: #ffbd2e; /* Golden */
+                    }
+                    .vibe-level-1 .music-note {
+                        filter: drop-shadow(0 0 6px rgba(255, 189, 46, 0.9));
+                    }
+                    .vibe-level-1 {
+                        filter: brightness(1.1) drop-shadow(0 0 8px rgba(255, 189, 46, 0.4));
+                        transition: filter 0.8s ease-out;
+                    }
+
+                    /* ========== VIBE LEVEL 2: PEAK / ENAK BANGET ========== */
+                    .vibe-level-2 .echo-clone {
+                        opacity: 0.75;
+                        stroke: #fffb00; /* Neon Yellow */
+                    }
+                    .vibe-level-2 .music-note {
+                        filter: drop-shadow(0 0 10px rgba(255, 251, 0, 1));
+                    }
+                    .vibe-level-2 {
+                        filter: brightness(1.3) drop-shadow(0 0 15px rgba(255, 251, 0, 0.6));
+                        transition: filter 0.8s ease-out;
+                    }
+
+                    /* ========== EXPRESSIVE LYRIC (Dramatic Word-by-Word) ========== */
+                    @keyframes expressive-word {
+                        0% { 
+                            opacity: 0; 
+                            transform: translate(-50%, -50%) scale(0.6);
+                            filter: blur(4px);
+                        }
+                        20% { 
+                            opacity: 1; 
+                            transform: translate(-50%, -50%) scale(1.08);
+                            filter: blur(0);
+                        }
+                        35% { 
+                            transform: translate(-50%, -50%) scale(1);
+                        }
+                        80% { 
+                            opacity: 1; 
+                            transform: translate(-50%, -50%) scale(1);
+                        }
+                        100% { 
+                            opacity: 0; 
+                            transform: translate(-50%, -50%) scale(1.15);
+                            filter: blur(2px);
+                        }
+                    }
+                    .expressive-word {
+                        position: fixed;
+                        top: 50%;
+                        left: 50%;
+                        transform: translate(-50%, -50%);
+                        font-size: clamp(3rem, 15vw, 7rem);
+                        font-weight: 800;
+                        font-family: var(--font-serif);
+                        letter-spacing: -0.02em;
+                        color: var(--foreground);
+                        text-align: center;
+                        z-index: 9999;
+                        pointer-events: none;
+                        text-shadow: 
+                            0 0 20px rgba(255, 251, 0, 0.8),
+                            0 0 40px rgba(255, 251, 0, 0.6),
+                            0 0 80px rgba(255, 189, 46, 0.4),
+                            0 4px 20px rgba(0, 0, 0, 0.3);
+                        animation: expressive-word var(--word-duration, 1s) cubic-bezier(0.4, 0, 0.2, 1) forwards;
+                    }
                 `}
             </style>
+
+            {/* Expressive Words (Dramatic Word-by-Word) */}
+            {expressiveWords.map((word) => (
+                <div
+                    key={word.id}
+                    className="expressive-word"
+                    style={{ ['--word-duration' as string]: '0.9s' }}
+                >
+                    {word.text}
+                </div>
+            ))}
+
+            {/* Speech Bubble (HTML overlay) */}
+            {pokeResponse && (
+                <div style={{
+                    position: "absolute",
+                    top: "-25px",
+                    left: "50%",
+                    transform: "translateX(-50%)",
+                    background: "var(--foreground)",
+                    color: "var(--background)",
+                    padding: "4px 8px",
+                    borderRadius: "8px",
+                    fontSize: "0.7rem",
+                    fontFamily: "var(--font-mono)",
+                    whiteSpace: "nowrap",
+                    zIndex: 10,
+                    pointerEvents: "none",
+                    boxShadow: "0 2px 10px rgba(0,0,0,0.1)",
+                    animation: "pop-in 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards"
+                }}>
+                    {pokeResponse}
+                    {/* Tiny Triangle Pointer */}
+                    <div style={{
+                        position: "absolute",
+                        bottom: "-4px",
+                        left: "50%",
+                        width: "0",
+                        height: "0",
+                        borderLeft: "4px solid transparent",
+                        borderRight: "4px solid transparent",
+                        borderTop: "4px solid var(--foreground)",
+                        transform: "translateX(-50%)"
+                    }} />
+                </div>
+            )}
+
+            {/* Floating Lyrics (dreamy word-by-word) */}
+            {floatingWords.map((word) => (
+                <span
+                    key={word.id}
+                    className="floating-lyric"
+                    style={{
+                        // Alternating left-right spread: even words left, odd words right
+                        marginLeft: `${(word.wordIndex % 2 === 0 ? -1 : 1) * 20}px`,
+                    }}
+                >
+                    {word.text}
+                </span>
+            ))}
+
 
             <svg
                 width="80"
@@ -331,10 +823,14 @@ const VibingAvatar = memo(function VibingAvatar({ isPlaying }: { isPlaying: bool
                 strokeWidth="2"
                 strokeLinecap="round"
                 strokeLinejoin="round"
-                className={`avatar-container ${isPlaying ? "avatar-floating" : ""}`}
+                className={`avatar-container ${isPlaying ? "avatar-floating" : ""} ${pokeResponse ? "avatar-poke-active" : ""}`}
+                onClick={handlePoke}
                 style={{
                     color: "var(--accent)", // Matches theme
-                    overflow: "visible"
+                    overflow: "visible",
+                    cursor: "pointer", // Indicate interactivity
+                    userSelect: "none",
+                    position: "relative" // For bubble context if needed (though parent has it)
                 }}
             >
                 {/* Sitting Pose Group */}
@@ -345,60 +841,98 @@ const VibingAvatar = memo(function VibingAvatar({ isPlaying }: { isPlaying: bool
                     <path d="M40 40 L34 44" /> {/* Arm L */}
                     <path d="M40 40 L46 44" /> {/* Arm R */}
                     <circle cx="40" cy="34" r="5" /> {/* Head */}
+
+                    {/* Routine Props (Only visible when SITTING/NOT PLAYING) */}
+                    {!isPlaying && hour >= 5 && hour < 10 && (
+                        <g className="prop-coffee">
+                            {/* Coffee Mug in hand */}
+                            <path d="M30 42 L30 46 L34 46 L34 42 Z" fill="currentColor" />
+                            <path d="M34 43 C35 43 35 45 34 45" fill="none" strokeWidth="1" /> {/* Handle */}
+                            {/* Steam */}
+                            <path d="M31 40 L31 38" stroke="currentColor" strokeWidth="0.5" opacity="0.6">
+                                <animate attributeName="d" values="M31 40 L31 38; M31 39 L32 37; M31 40 L31 38" dur="2s" repeatCount="indefinite" />
+                                <animate attributeName="opacity" values="0.6;0;0.6" dur="2s" repeatCount="indefinite" />
+                            </path>
+                        </g>
+                    )}
+                    {!isPlaying && hour >= 10 && hour < 18 && (
+                        <g className="prop-laptop">
+                            {/* Laptop on lap */}
+                            <rect x="34" y="42" width="12" height="8" rx="1" fill="currentColor" transform="rotate(-10 40 46)" />
+                            <rect x="36" y="43" width="8" height="6" rx="0.5" fill="var(--background)" transform="rotate(-10 40 46)" />
+                        </g>
+                    )}
                 </g>
+
+                {/* Expressions / Emotes (Visible on Poke) */}
+
 
                 {/* Lying Wrapper (Anchor for Opacity) */}
                 <g className="lie-anchor">
                     {/* Floating Wrapper (Anchor for Levitation) */}
                     <g className="lie-floater">
-                        <g transform="translate(10, 10)">
-                            {/* Body Echoes (Behind body) - "Terhanyut" effect */}
-                            <g className="echo-clone" style={{ animationDelay: "3.5s" }}>
-                                <path d="M15 28 L35 28" /> {/* Torso */}
-                                <path d="M18 28 L 5 22 L 12 25" strokeLinejoin="round" /> {/* Arms */}
-                                <path d="M35 28 L55 28" /> {/* R Leg */}
-                                <path d="M55 28 L58 24" />
-                                <path d="M35 28 L45 18" /> {/* L Leg */}
-                                <path d="M45 18 L50 28" />
-                                <circle cx="12" cy="25" r="5" /> {/* Head */}
-                            </g>
-                            <g className="echo-clone" style={{ animationDelay: "4.5s" }}>
+                        {/* Audio Reactive Scale Wrapper */}
+                        <g ref={floaterRef} style={{ transformOrigin: "30px 35px" }}>
+                            <g transform="translate(10, 10)">
+                                {/* Body Echoes (Behind body) - "Terhanyut" effect */}
+                                <g className="echo-clone" style={{ animationDelay: "3.5s" }}>
+                                    <path d="M15 28 L35 28" /> {/* Torso */}
+                                    <path d="M18 28 L 5 22 L 12 25" strokeLinejoin="round" /> {/* Arms */}
+                                    <path d="M35 28 L55 28" /> {/* R Leg */}
+                                    <path d="M55 28 L58 24" />
+                                    <path d="M35 28 L45 18" /> {/* L Leg */}
+                                    <path d="M45 18 L50 28" />
+                                    <circle cx="12" cy="25" r="5" /> {/* Head */}
+                                </g>
+                                <g className="echo-clone" style={{ animationDelay: "4.5s" }}>
+                                    <path d="M15 28 L35 28" />
+                                    <path d="M18 28 L 5 22 L 12 25" strokeLinejoin="round" />
+                                    <path d="M35 28 L55 28" />
+                                    <path d="M55 28 L58 24" />
+                                    <path d="M35 28 L45 18" />
+                                    <path d="M45 18 L50 28" />
+                                    <circle cx="12" cy="25" r="5" />
+                                </g>
+
+                                {/* Head (looking up) */}
+                                <circle cx="12" cy="25" r="5" />
+
+                                {/* Music Notes (Floating from head) */}
+                                <g className="music-note" style={{ animationDelay: "2s" }}>
+                                    <circle cx="20" cy="18" r="2" fill="currentColor" />
+                                    <path d="M22 18 L22 8 L28 10" strokeWidth="1.5" strokeLinecap="round" />
+                                </g>
+                                <g className="music-note" style={{ animationDelay: "4s" }}>
+                                    <circle cx="10" cy="20" r="2" fill="currentColor" />
+                                    <circle cx="16" cy="18" r="2" fill="currentColor" />
+                                    <path d="M12 20 L12 12 L18 10 L18 18" strokeWidth="1.5" strokeLinecap="round" />
+                                </g>
+
+                                {/* Dynamic Bass-Reactive Notes */}
+                                {dynamicNotes.map((note) => (
+                                    <g
+                                        key={note.id}
+                                        className="music-note dynamic-note"
+                                        style={{ animationDelay: `${note.delay}s` }}
+                                    >
+                                        <circle cx={note.x} cy="18" r="2" fill="currentColor" />
+                                        <path d={`M${note.x + 2} 18 L${note.x + 2} 8 L${note.x + 8} 10`} strokeWidth="1.5" strokeLinecap="round" />
+                                    </g>
+                                ))}
+                                {/* Torso */}
                                 <path d="M15 28 L35 28" />
+
+                                {/* Arms */}
                                 <path d="M18 28 L 5 22 L 12 25" strokeLinejoin="round" />
+
+                                {/* R Leg */}
                                 <path d="M35 28 L55 28" />
                                 <path d="M55 28 L58 24" />
+
+                                {/* L Leg */}
                                 <path d="M35 28 L45 18" />
                                 <path d="M45 18 L50 28" />
-                                <circle cx="12" cy="25" r="5" />
                             </g>
-
-                            {/* Head (looking up) */}
-                            <circle cx="12" cy="25" r="5" />
-
-                            {/* Music Notes (Floating from head) */}
-                            <g className="music-note" style={{ animationDelay: "2s" }}>
-                                <circle cx="20" cy="18" r="2" fill="currentColor" />
-                                <path d="M22 18 L22 8 L28 10" strokeWidth="1.5" strokeLinecap="round" />
-                            </g>
-                            <g className="music-note" style={{ animationDelay: "4s" }}>
-                                <circle cx="10" cy="20" r="2" fill="currentColor" />
-                                <circle cx="16" cy="18" r="2" fill="currentColor" />
-                                <path d="M12 20 L12 12 L18 10 L18 18" strokeWidth="1.5" strokeLinecap="round" />
-                            </g>
-
-                            {/* Torso */}
-                            <path d="M15 28 L35 28" />
-
-                            {/* Arms (Behind Head - Elbow Out) */}
-                            <path d="M18 28 L 5 22 L 12 25" strokeLinejoin="round" />
-
-                            {/* Right Leg (Straight) */}
-                            <path d="M35 28 L55 28" />
-                            <path d="M55 28 L58 24" strokeOpacity="0.6" />
-
-                            {/* Left Leg (Bent Knee) */}
-                            <path d="M35 28 L45 18" />
-                            <path d="M45 18 L50 28" />
                         </g>
                     </g>
                 </g>
@@ -406,7 +940,7 @@ const VibingAvatar = memo(function VibingAvatar({ isPlaying }: { isPlaying: bool
                 {/* Grass/Ground line */}
                 <path d="M0 48 L80 48" strokeWidth="1.5" strokeOpacity="0.2" />
             </svg>
-        </div>
+        </div >
     );
 });
 
@@ -420,7 +954,7 @@ export function CurrentlyStrip() {
     const [songMessageIndex, setSongMessageIndex] = useState(0);
 
     // Global Audio Context
-    const { isPlaying, togglePlay, currentSong, nextSong, prevSong } = useAudio();
+    const { isPlaying, togglePlay, currentSong, nextSong, prevSong, audioRef } = useAudio();
 
     // Interaction State for Welcome Message
     const [hasInteracted, setHasInteracted] = useState(false);
@@ -537,7 +1071,7 @@ export function CurrentlyStrip() {
             }}>
 
             {/* Top: Vibing Avatar */}
-            <VibingAvatar isPlaying={isPlaying} />
+            <VibingAvatar isPlaying={isPlaying} hour={currentHour} />
 
             {/* Top: Marquee Pill */}
             <div

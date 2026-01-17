@@ -9,6 +9,8 @@ interface AudioContextType {
     nextSong: (forcePlay?: boolean) => void;
     prevSong: () => void;
     currentSong: { title: string; audioUrl: string };
+    analyser: AnalyserNode | null;
+    audioRef: React.RefObject<HTMLAudioElement | null>;
 }
 
 const AudioContext = createContext<AudioContextType | undefined>(undefined);
@@ -70,7 +72,11 @@ const PLAYLIST = [
 export function AudioProvider({ children }: { children: React.ReactNode }) {
     const [isPlaying, setIsPlaying] = useState(false);
     const [currentIndex, setCurrentIndex] = useState(0);
+    const [analyser, setAnalyser] = useState<AnalyserNode | null>(null);
+
     const audioRef = useRef<HTMLAudioElement | null>(null);
+    const audioContextRef = useRef<AudioContext | null>(null);
+    const sourceRef = useRef<MediaElementAudioSourceNode | null>(null);
 
     // Theme integration
     const { theme, setTheme } = useTheme();
@@ -93,15 +99,43 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [isPlaying, setTheme]);
 
+    const initializeAudio = useCallback(() => {
+        if (!audioRef.current || sourceRef.current) return; // Already initialized
+
+        try {
+            const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
+            const ctx = new AudioContextClass();
+            audioContextRef.current = ctx;
+
+            const analyserNode = ctx.createAnalyser();
+            analyserNode.fftSize = 64; // Low bin count for performance & bass focus
+
+            const source = ctx.createMediaElementSource(audioRef.current);
+            source.connect(analyserNode);
+            analyserNode.connect(ctx.destination);
+
+            sourceRef.current = source;
+            setAnalyser(analyserNode);
+        } catch (error) {
+            console.error("Failed to initialize Web Audio API:", error);
+        }
+    }, []);
+
     const togglePlay = useCallback(() => {
         if (!audioRef.current) return;
+
+        initializeAudio(); // Ensure context is ready on interaction
+
+        if (audioContextRef.current?.state === 'suspended') {
+            audioContextRef.current.resume();
+        }
 
         if (isPlaying) {
             audioRef.current.pause();
         } else {
             audioRef.current.play().catch(e => console.error("Playback failed:", e));
         }
-    }, [isPlaying]);
+    }, [isPlaying, initializeAudio]);
 
     const nextSong = useCallback((forcePlay = false) => {
         setCurrentIndex((prev) => (prev + 1) % PLAYLIST.length);
@@ -125,9 +159,10 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
     const currentSong = PLAYLIST[currentIndex];
 
     return (
-        <AudioContext.Provider value={{ isPlaying, togglePlay, nextSong, prevSong, currentSong }}>
+        <AudioContext.Provider value={{ isPlaying, togglePlay, nextSong, prevSong, currentSong, analyser, audioRef }}>
             <audio
                 ref={audioRef}
+                crossOrigin="anonymous"
                 src={currentSong.audioUrl}
                 preload="auto"
                 onPlay={() => setIsPlaying(true)}
