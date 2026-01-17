@@ -1111,7 +1111,7 @@ export function CurrentlyStrip() {
                         animation: 'welcome-fade 5s ease-in-out forwards'
                     }}
                 >
-                    Selamat menikmati
+                    Good choice, baby!
                     <style>{`
                         @keyframes welcome-fade {
                             0% { opacity: 0; transform: translate(-50%, -50%) scale(0.98); }
