@@ -9,9 +9,10 @@ export interface HistoricEvent {
 }
 
 export const historicEvents: HistoricEvent[] = [
+    // Jan 14
     {
         year: 2005,
-        month: 0, // January
+        month: 0,
         day: 14,
         title: "Pendaratan di Titan",
         description: "Bayangin, tahun segini kita berhasil mendaratin probe Huygens di Titan, bulannya Saturnus. Itu dunia yang mirip Bumi tapi isinya danau metana. Kayak fiksi ilmiah tapi beneran kejadian.",
@@ -19,31 +20,16 @@ export const historicEvents: HistoricEvent[] = [
     },
     {
         year: 1967,
-        month: 0, // January
+        month: 0,
         day: 14,
         title: "The Human Be-In",
         description: "Awal mula Summer of Love di San Francisco. Hippies, aktivis, semuanya kumpul ngerayain kebebasan. Vibes-nya pasti seru banget, jaman di mana orang-orang mulai berani beda.",
         category: "History"
     },
-    {
-        year: 1954,
-        month: 0, // January
-        day: 14,
-        title: "Marilyn & DiMaggio",
-        description: "Marilyn Monroe nikah sama legenda baseball Joe DiMaggio hari ini. Pasangan power couple pada masanya, kayak seleb jaman sekarang tapi lebih ikonik.",
-        category: "Arts"
-    },
-    {
-        year: 1875,
-        month: 0, // January
-        day: 14,
-        title: "Albert Schweitzer",
-        description: "Lahirnya si jenius Albert Schweitzer. Dokter, musisi, filsuf, peraih Nobel... multitasking level dewa. Dia ngajarin kita soal 'reverence for life'.",
-        category: "History"
-    },
+    // Jan 15
     {
         year: 2001,
-        month: 0, // January
+        month: 0,
         day: 15,
         title: "Lahirnya Wikipedia",
         description: "Wikipedia rilis hari ini. Sumpah, kalau gak ada mereka, skripsi kita semua bakal gimana nasibnya? Jendela pengetahuan dunia jadi kebuka lebar banget.",
@@ -51,27 +37,156 @@ export const historicEvents: HistoricEvent[] = [
     },
     {
         year: 1929,
-        month: 0, // January
+        month: 0,
         day: 15,
         title: "Martin Luther King Jr.",
         description: "Sang legenda lahir hari ini. Dia yang bikin mimpi soal kesetaraan jadi perjuangan nyata. Kata-katanya masih merinding kalau didenger sampe sekarang.",
         category: "History"
     },
+    // Jan 16
     {
         year: 1969,
-        month: 0, // January
+        month: 0,
         day: 16,
         title: "Docking di Angkasa",
         description: "Pertama kalinya dua pesawat berawak (Soyuz 4 & 5) parkir bareng di orbit dan tukeran kru. Kayak salaman di luar angkasa. Keren banget ga sih teknologi jaman dulu?",
         category: "Space"
     },
+    // Jan 17
     {
-        year: 27,
-        month: 0, // January
-        day: 16,
-        title: "Kekaisaran dimulai",
-        description: "Octavianus dapet gelar 'Augustus', dan resmi deh jadi Kaisar Romawi pertama. Dari sini Pax Romana dimulai. Awal dari sejarah panjang yang sering kita liat di film-film.",
+        year: 1929,
+        month: 0,
+        day: 17,
+        title: "Debut Popeye",
+        description: "Popeye si Pelaut muncul pertama kali di komik strip. Gara-gara dia, anak-anak sedunia jadi mau makan bayam. Influencer kesehatan paling sukses pada masanya.",
+        category: "Arts"
+    },
+    {
+        year: 1773,
+        month: 0,
+        day: 17,
+        title: "Captain Cook di Antartika",
+        description: "Captain Cook jadi orang pertama yang nembus Lingkar Antartika. Bayangin dinginnya kayak apa, padahal belum ada teknologi thermal heat.",
         category: "History"
+    },
+    // Jan 18
+    {
+        year: 2012,
+        month: 0,
+        day: 18,
+        title: "Wikipedia Blackout",
+        description: "Wikipedia English mati suri 24 jam buat protes SOPA/PIPA. Hari di mana mahasiswa sedunia panik massal. Bukti kalau internet bersatu itu powerful banget.",
+        category: "Technology"
+    },
+    {
+        year: 1912,
+        month: 0,
+        day: 18,
+        title: "Nyesek di Kutub Selatan",
+        description: "Robert Falcon Scott akhirnya nyampe di Kutub Selatan, cuma buat nemuin kalau Roald Amundsen udah nyampe duluan sebulan lalu. Definition of 'sakit tapi tidak berdarah'.",
+        category: "History"
+    },
+    {
+        year: 1896,
+        month: 0,
+        day: 18,
+        title: "Mesin X-Ray Dipamerin",
+        description: "Mesin X-Ray pertama kali didemoin. Dulu orang takut dikira sihir atau ngerusak privasi, sekarang kalau jatoh dikit nyarinya ginian.",
+        category: "Science"
+    },
+    // Jan 19
+    {
+        year: 2006,
+        month: 0,
+        day: 19,
+        title: "New Horizons ke Pluto",
+        description: "NASA ngeluncurin New Horizons. Perjalanan 9 tahun cuma buat say hi dan kirim foto hati di permukaan Pluto. LDR (Long Distance Rocket) paling worth it.",
+        category: "Space"
+    },
+    {
+        year: 1983,
+        month: 0,
+        day: 19,
+        title: "Apple Lisa",
+        description: "Apple ngerilis 'Lisa', komputer komersial pertama pake GUI & mouse. Harganya selangit dan gak laku, tapi dia nenek moyangnya Mac yang lo pake sekarang.",
+        category: "Technology"
+    },
+    {
+        year: 2008,
+        month: 0,
+        day: 19,
+        title: "Breaking Bad Tayang",
+        description: "Episode pertama Breaking Bad tayang. Walter White belum botak. Siapa sangka guru kimia awkward bisa jadi kingpin paling badass di TV series history?",
+        category: "Arts"
+    },
+    // Jan 20
+    {
+        year: 1993,
+        month: 0,
+        day: 20,
+        title: "RIP Audrey Hepburn",
+        description: "Dunia kehilangan Audrey Hepburn. Bukan cuma icon fashion, tapi juga manusia berhati emas. Bukti kalau cantik itu soal attitude dan kebaikan, bukan cuma visual.",
+        category: "Arts"
+    },
+    {
+        year: 1892,
+        month: 0,
+        day: 20,
+        title: "Basket Pertama",
+        description: "Game basket resmi pertama dimainin di YMCA. Skor akhirnya? 1-0. Bayangin nonton basket tapi skornya kayak sepak bola tarkam, bosen gak tuh?",
+        category: "History"
+    },
+    // Jan 21
+    {
+        year: 1976,
+        month: 0,
+        day: 21,
+        title: "Concorde Terbang",
+        description: "Concorde mulai penerbangan komersial. Pesawat supersonik yang bisa bikin London-New York cuma 3 jam. Sayang udah pensiun, padahal estetik banget bentuknya.",
+        category: "Technology"
+    },
+    // Jan 22
+    {
+        year: 1984,
+        month: 0,
+        day: 22,
+        title: "Iklan '1984' Apple",
+        description: "Iklan legendaris Apple tayang pas Super Bowl. Ridley Scott yang bikin. Macintosh diperkenalkan sebagai pemberontak lawan tirani IBM. Marketing level dewa.",
+        category: "Technology"
+    },
+    {
+        year: 2008,
+        month: 0,
+        day: 22,
+        title: "RIP Heath Ledger",
+        description: "Kita kehilangan Heath Ledger. Joker terbaik sepanjang masa. Why so serious? Because we miss actual talent like him.",
+        category: "Arts"
+    },
+    // Jan 23
+    {
+        year: 1957,
+        month: 0,
+        day: 23,
+        title: "Frisbee Lahir",
+        description: "Wham-O mulai produksi 'Pluto Platters' a.k.a Frisbee. Awalnya dari mainan piring kue, sekarang jadi olahraga. Kadang ide iseng emang bisa jadi duit.",
+        category: "History"
+    },
+    // Jan 24
+    {
+        year: 1984,
+        month: 0,
+        day: 24,
+        title: "Macintosh Rilis",
+        description: "Steve Jobs ngenalin Macintosh 128K. 'Hello'. Komputer yang senyum pas dinyalain. Titik balik di mana komputer mulai jadi 'personal'.",
+        category: "Technology"
+    },
+    {
+        year: 2004,
+        month: 0,
+        day: 25,
+        title: "Opportunity di Mars",
+        description: "Rover Opportunity mendarat di Mars. Targetnya cuma 90 hari, eh dia survive 14 tahun. Robot paling tangguh dan setia di tata surya.",
+        category: "Space"
     }
 ];
 
