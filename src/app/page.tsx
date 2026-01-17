@@ -132,7 +132,7 @@ export default function HomePage() {
                 display: "block",
                 marginBottom: "1rem"
               }}>
-                The Digital Garden
+                Isi Kepala & Hati
               </span>
               <h2 style={{
                 fontFamily: "'Playfair Display', serif",
@@ -152,7 +152,7 @@ export default function HomePage() {
                 lineHeight: 1.6,
                 margin: 0
               }}>
-                Fragments of thought, code, dan segala yang terlintas di kepala.
+                Kumpulan celoteh, kode yang mungkin error, dan hal-hal yang sayang kalau cuma disimpen sendiri.
               </p>
             </div>
 
@@ -221,7 +221,7 @@ export default function HomePage() {
               letterSpacing: "0.2em",
               display: "block",
               marginBottom: "1rem"
-            }}>Daily Fuel</span>
+            }}>Daily Spark</span>
             <h2 style={{
               fontFamily: "'Playfair Display', serif",
               fontSize: "clamp(1.75rem, 4vw, 2.5rem)",
@@ -238,8 +238,7 @@ export default function HomePage() {
               maxWidth: "45ch",
               margin: "0 auto"
             }}>
-              A moment from history, a fact for the mind.
-              Asupan harian untuk merawat nalar dan rasa penasaran.
+              Koleksi fakta random biar kamu makin pinter, atau seenggaknya kita punya bahan obrolan seru.
             </p>
           </div>
 
