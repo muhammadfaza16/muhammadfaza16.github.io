@@ -148,7 +148,7 @@ export function DidYouKnow() {
                             color: "var(--text-secondary)"
                         }}>
                             <Lightbulb className="w-3 h-3" />
-                            <span>Did You Know?</span>
+                            <span>Eh, Tau Ga?</span>
                         </span>
                     </div>
 

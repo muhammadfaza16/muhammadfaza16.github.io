@@ -13,8 +13,8 @@ export const historicEvents: HistoricEvent[] = [
         year: 2005,
         month: 0, // January
         day: 14,
-        title: "Pendaratan Huygens di Titan",
-        description: "Probe Huygens milik ESA berhasil mendarat di bulan Saturnus, Titan, menjadi wahana antariksa pertama yang mendarat di dunia luar tata surya. Misi ini mengungkap dunia yang mirip Bumi namun asing, dengan danau metana dan medan es.",
+        title: "Pendaratan di Titan",
+        description: "Bayangin, tahun segini kita berhasil mendaratin probe Huygens di Titan, bulannya Saturnus. Itu dunia yang mirip Bumi tapi isinya danau metana. Kayak fiksi ilmiah tapi beneran kejadian.",
         category: "Space"
     },
     {
@@ -22,55 +22,55 @@ export const historicEvents: HistoricEvent[] = [
         month: 0, // January
         day: 14,
         title: "The Human Be-In",
-        description: "'Human Be-In' digelar di Golden Gate Park, San Francisco, menjadi awal dari Summer of Love. Ini adalah momen kunci bagi gerakan kontra-kultur, menyatukan hippie, aktivis, dan intelektual untuk merayakan kebebasan pribadi.",
+        description: "Awal mula Summer of Love di San Francisco. Hippies, aktivis, semuanya kumpul ngerayain kebebasan. Vibes-nya pasti seru banget, jaman di mana orang-orang mulai berani beda.",
         category: "History"
     },
     {
         year: 1954,
         month: 0, // January
         day: 14,
-        title: "Pernikahan Marilyn Monroe",
-        description: "Marilyn Monroe menikah dengan legenda baseball Joe DiMaggio di Balai Kota San Francisco. Pernikahan dua ikon budaya pop Amerika ini menjadi berita utama di seluruh dunia, menyatukan dunia hiburan dan olahraga.",
+        title: "Marilyn & DiMaggio",
+        description: "Marilyn Monroe nikah sama legenda baseball Joe DiMaggio hari ini. Pasangan power couple pada masanya, kayak seleb jaman sekarang tapi lebih ikonik.",
         category: "Arts"
     },
     {
         year: 1875,
         month: 0, // January
         day: 14,
-        title: "Albert Schweitzer Lahir",
-        description: "Albert Schweitzer, teolog, musisi, filsuf, dan dokter peraih Nobel Perdamaian, lahir. Ia dikenal karena konsep 'Penghormatan terhadap Kehidupan' dan pengabdian kemanusiaannya di Afrika.",
+        title: "Albert Schweitzer",
+        description: "Lahirnya si jenius Albert Schweitzer. Dokter, musisi, filsuf, peraih Nobel... multitasking level dewa. Dia ngajarin kita soal 'reverence for life'.",
         category: "History"
     },
     {
         year: 2001,
         month: 0, // January
         day: 15,
-        title: "Peluncuran Wikipedia",
-        description: "Jimmy Wales dan Larry Sanger meluncurkan Wikipedia, ensiklopedia bebas dengan konten terbuka. Ini secara radikal mendemokratisasi akses dan produksi pengetahuan.",
+        title: "Lahirnya Wikipedia",
+        description: "Wikipedia rilis hari ini. Sumpah, kalau gak ada mereka, skripsi kita semua bakal gimana nasibnya? Jendela pengetahuan dunia jadi kebuka lebar banget.",
         category: "Technology"
     },
     {
         year: 1929,
         month: 0, // January
         day: 15,
-        title: "Kelahiran Martin Luther King Jr.",
-        description: "Martin Luther King Jr. lahir di Atlanta. Aktivisme damai dan kepemimpinannya yang visioner dalam Gerakan Hak Sipil mengubah wajah Amerika, menantang ketidakadilan rasial dengan kekuatan kata-kata dan aksi tanpa kekerasan.",
+        title: "Martin Luther King Jr.",
+        description: "Sang legenda lahir hari ini. Dia yang bikin mimpi soal kesetaraan jadi perjuangan nyata. Kata-katanya masih merinding kalau didenger sampe sekarang.",
         category: "History"
     },
     {
         year: 1969,
         month: 0, // January
         day: 16,
-        title: "Dokking Soyuz 4 dan 5",
-        description: "Wahana antariksa Soviet Soyuz 4 dan Soyuz 5 melakukan penyambungan (docking) pertama antara dua pesawat berawak di orbit, serta transfer kru antar kendaraan.",
+        title: "Docking di Angkasa",
+        description: "Pertama kalinya dua pesawat berawak (Soyuz 4 & 5) parkir bareng di orbit dan tukeran kru. Kayak salaman di luar angkasa. Keren banget ga sih teknologi jaman dulu?",
         category: "Space"
     },
     {
         year: 27,
         month: 0, // January
         day: 16,
-        title: "Gelar 'Augustus'",
-        description: "Senat Romawi memberikan gelar 'Augustus' (Yang Mulia) kepada Octavianus, menandai dimulainya Kekaisaran Romawi. Transisi dari Republik ke Kekaisaran ini mengakhiri satu abad perang saudara dan memulai era Pax Romana.",
+        title: "Kekaisaran dimulai",
+        description: "Octavianus dapet gelar 'Augustus', dan resmi deh jadi Kaisar Romawi pertama. Dari sini Pax Romana dimulai. Awal dari sejarah panjang yang sering kita liat di film-film.",
         category: "History"
     }
 ];
@@ -80,7 +80,7 @@ export const fallbackEvent: HistoricEvent[] = [{
     month: 6,
     day: 20,
     title: "Satu Langkah Kecil",
-    description: "Apollo 11 mendarat di Bulan. Neil Armstrong dan Buzz Aldrin menjadi manusia pertama yang menjejakkan kaki di permukaan bulan, sebuah pencapaian monumental dalam rekayasa dan eksplorasi manusia yang mendefinisikan ulang batas kemungkinan.",
+    description: "Neil Armstrong nginjek Bulan hari ini. Langkah kecil buat dia, tapi lompatan raksasa buat kita semua. Momen bukti kalau manusia itu limitnya cuma imajinasi.",
     category: "Space"
 }];
 

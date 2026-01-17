@@ -66,7 +66,7 @@ export function OnThisDay() {
                 fontFamily: "var(--font-sans)",
                 letterSpacing: "-0.05em"
             }}>
-                HARI INI
+                REWIND
             </div>
 
             <div style={{ position: "relative", zIndex: 1 }}>
@@ -95,7 +95,7 @@ export function OnThisDay() {
                         color: "var(--text-secondary)"
                     }}>
                         <Calendar className="w-3 h-3" />
-                        <span>On This Day</span>
+                        <span>Throwback Nih</span>
                     </span>
 
                     <span style={{
@@ -193,7 +193,7 @@ export function OnThisDay() {
                                     borderBottom: "1px solid var(--border)"
                                 }}
                             >
-                                Lihat timeline
+                                Baca cerita lengkapnya
                                 <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
                             </a>
                         </div>
