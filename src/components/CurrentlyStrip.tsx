@@ -102,7 +102,7 @@ const MarqueeItem = memo(function MarqueeItem({ item, id, onVisibilityChange }: 
             style={{
                 display: "flex",
                 alignItems: "center",
-                gap: "0.5rem",
+                gap: "0.25rem",
                 userSelect: "none",
                 cursor: item.onClick ? "pointer" : "default",
                 opacity: 0.9,
@@ -241,13 +241,13 @@ const SONG_LYRICS: Record<string, { start: number; end: number; text: string; ex
         { start: 18, end: 21, text: "Nyanyi dikit skuy..." },
         { start: 24.75, end: 27.5, text: "Wanna see us" },
         { start: 28.8, end: 30, text: "Alive" },
-        { start: 31, end: 34, text: "Where are you now?", expressive: true },
-        { start: 36.3, end: 39.5, text: "Where are you now?", expressive: true },
-        { start: 41.5, end: 44.5, text: "Where are you now?", expressive: true },
+        { start: 31, end: 34, text: "Where are you now?" },
+        { start: 36.3, end: 39.5, text: "Where are you now?" },
+        { start: 41.5, end: 44.5, text: "Where are you now?" },
         { start: 44.7, end: 46, text: "Fantasy?" },
         { start: 47, end: 50, text: "Where are you now?" },
         { start: 49, end: 53, text: "Were you only imaginary?" },
-        { start: 53.6, end: 56.5, text: "Where are you now?", expressive: true },
+        { start: 53.6, end: 56.5, text: "WHERE ARE YOU NOW?", expressive: true },
         { start: 57, end: 60, text: "Atlantis" },
         { start: 58, end: 59, text: "Under the sea" },
         { start: 61.7, end: 64, text: "Under the sea" },
@@ -260,11 +260,8 @@ const SONG_LYRICS: Record<string, { start: number; end: number; text: string; ex
         { start: 79.8, end: 86, text: "I'm fadeed" },
         { start: 84, end: 85, text: "So lost" },
         { start: 90.1, end: 92.5, text: "I'm faded" },
-        { start: 117.7, end: 120.6, text: "where are you now?", expressive: true },
-        { start: 133.7, end: 136, text: "Where are you now?", expressive: true },
-        { start: 136.1, end: 139, text: "Where are you now?", expressive: true },
-
-        { start: 151, end: 155, text: "Where are you now?", expressive: true },
+        { start: 117.7, end: 120.6, text: "where are you now?" },
+        { start: 151, end: 155, text: "WHERE ARE YOU NOW?", expressive: true },
     ],
     "Alan Walker — Lily": [
         { start: 55, end: 58, text: "🎤 ..." },
@@ -832,6 +829,7 @@ const VibingAvatar = memo(function VibingAvatar({ isPlaying, hour }: { isPlaying
                     userSelect: "none",
                     position: "relative" // For bubble context if needed (though parent has it)
                 }}
+                aria-label="faza"
             >
                 {/* Sitting Pose Group */}
                 <g className="sit-pose">
@@ -939,6 +937,7 @@ const VibingAvatar = memo(function VibingAvatar({ isPlaying, hour }: { isPlaying
 
                 {/* Grass/Ground line */}
                 <path d="M0 48 L80 48" strokeWidth="1.5" strokeOpacity="0.2" />
+                <title>faza</title>
             </svg>
         </div >
     );
@@ -958,12 +957,19 @@ export function CurrentlyStrip() {
 
     // Interaction State for Welcome Message
     const [hasInteracted, setHasInteracted] = useState(false);
+    const [showWelcomeText, setShowWelcomeText] = useState(false);
 
     useEffect(() => {
-        if (isPlaying) {
+        if (isPlaying && !hasInteracted) {
+            // First time playing - show welcome text
             setHasInteracted(true);
+            setShowWelcomeText(true);
+            // Hide after 5 seconds
+            setTimeout(() => {
+                setShowWelcomeText(false);
+            }, 5000);
         }
-    }, [isPlaying]);
+    }, [isPlaying, hasInteracted]);
 
     const checkInMessages = getCheckInMessages(currentHour);
 
@@ -972,7 +978,7 @@ export function CurrentlyStrip() {
 
     // Override with Welcome Message if first visit (no interaction yet)
     if (!hasInteracted && !isPlaying) {
-        rawSongMessage = "Aku tau km capek, Let me do a favour for you";
+        rawSongMessage = "Chill bentar sini, aku temenin";
     }
 
     const [displaySongMessage, setDisplaySongMessage] = useState(rawSongMessage);
@@ -1013,13 +1019,27 @@ export function CurrentlyStrip() {
         icon: "💌", label: "Checking in", text: checkInMessages[checkInIndex % checkInMessages.length], width: "320px"
     }), [checkInMessages, checkInIndex]);
 
-    // Status items for the marquee
-    const statusItems = useMemo(() => [
-        playingItem,
-        timeItem,
-        moodItem,
-        checkInItem
-    ], [playingItem, timeItem, moodItem, checkInItem]);
+    // Initial visit welcome messages for marquee
+    const welcomeItems = useMemo(() => [
+        { icon: "✨", label: "Hey", text: "Capek ya? Sini duduk bentar..." },
+        { icon: "🎧", label: "Here", text: "Aku punya lagu yang mungkin bisa bantu" },
+        { icon: "💫", label: "Vibe", text: "Tekan play, let me take care of the rest" },
+    ], []);
+
+    // Status items for the marquee (switch based on interaction state)
+    const statusItems = useMemo(() => {
+        // Show welcome items if user hasn't interacted yet
+        if (!hasInteracted && !isPlaying) {
+            return welcomeItems;
+        }
+        // Normal items after interaction
+        return [
+            playingItem,
+            timeItem,
+            moodItem,
+            checkInItem
+        ];
+    }, [hasInteracted, isPlaying, welcomeItems, playingItem, timeItem, moodItem, checkInItem]);
 
     // Tracker for checking-in visibility
     const visibleCheckIns = useRef(new Set<string>());
@@ -1069,6 +1089,39 @@ export function CurrentlyStrip() {
                 width: "100%",
                 gap: "0rem"
             }}>
+
+            {/* Welcome Text */}
+            {showWelcomeText && (
+                <div
+                    style={{
+                        position: 'fixed',
+                        top: '50%',
+                        left: '50%',
+                        transform: 'translate(-50%, -50%)',
+                        fontSize: 'clamp(2rem, 10vw, 3.5rem)',
+                        fontWeight: 500,
+                        fontFamily: 'var(--font-serif)',
+                        fontStyle: 'italic',
+                        letterSpacing: '-0.01em',
+                        color: 'var(--foreground)',
+                        textAlign: 'center',
+                        zIndex: 9999,
+                        pointerEvents: 'none',
+                        opacity: 0,
+                        animation: 'welcome-fade 5s ease-in-out forwards'
+                    }}
+                >
+                    Selamat menikmati
+                    <style>{`
+                        @keyframes welcome-fade {
+                            0% { opacity: 0; transform: translate(-50%, -50%) scale(0.98); }
+                            15% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+                            85% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+                            100% { opacity: 0; transform: translate(-50%, -50%) scale(1.01); }
+                        }
+                    `}</style>
+                </div>
+            )}
 
             {/* Top: Vibing Avatar */}
             <VibingAvatar isPlaying={isPlaying} hour={currentHour} />
@@ -1136,39 +1189,43 @@ export function CurrentlyStrip() {
 
                 {/* Player controls row */}
                 <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                    <div
-                        onClick={(e) => {
-                            e.stopPropagation();
-                            prevSong();
-                        }}
-                        style={{
-                            cursor: "pointer",
-                            fontSize: "0.8rem",
-                            color: "var(--text-muted)",
-                            opacity: 0.5,
-                            display: "flex",
-                            alignItems: "center",
-                            transition: "all 0.2s ease",
-                            padding: "4px"
-                        }}
-                        className="hover:opacity-100"
-                        title="Previous Song"
-                    >
-                        <SkipBack size={14} />
-                    </div>
+                    {/* Hide prev/next buttons in initial state */}
+                    {hasInteracted && (
+                        <div
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                prevSong();
+                            }}
+                            style={{
+                                cursor: "pointer",
+                                fontSize: "0.8rem",
+                                color: "var(--text-muted)",
+                                opacity: 0.5,
+                                display: "flex",
+                                alignItems: "center",
+                                transition: "all 0.2s ease",
+                                padding: "4px"
+                            }}
+                            className="hover:opacity-100"
+                            title="Previous Song"
+                        >
+                            <SkipBack size={14} />
+                        </div>
+                    )}
 
                     <button
                         onClick={togglePlay}
                         style={{
                             all: "unset",
-                            fontSize: "0.9rem",
-                            color: "var(--text-muted)",
-                            opacity: 0.7,
+                            fontSize: (!hasInteracted && !isPlaying) ? "1.5rem" : "0.9rem",
+                            color: "var(--foreground)",
+                            opacity: (!hasInteracted && !isPlaying) ? 0.8 : 0.7,
                             display: "flex",
                             alignItems: "center",
+                            justifyContent: "center",
                             padding: "4px",
                             cursor: "pointer",
-                            transition: "opacity 0.2s ease"
+                            transition: "all 0.8s cubic-bezier(0.4, 0, 0.2, 1)"
                         }}
                         className="hover:opacity-100"
                         aria-label={isPlaying ? "Pause" : "Play"}
@@ -1176,26 +1233,28 @@ export function CurrentlyStrip() {
                         {isPlaying ? "⏸" : "▶"}
                     </button>
 
-                    <div
-                        onClick={(e) => {
-                            e.stopPropagation();
-                            nextSong();
-                        }}
-                        style={{
-                            cursor: "pointer",
-                            fontSize: "0.8rem",
-                            color: "var(--text-muted)",
-                            opacity: 0.5,
-                            display: "flex",
-                            alignItems: "center",
-                            transition: "all 0.2s ease",
-                            padding: "4px"
-                        }}
-                        className="hover:opacity-100"
-                        title="Next Song"
-                    >
-                        <SkipForward size={14} />
-                    </div>
+                    {hasInteracted && (
+                        <div
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                nextSong();
+                            }}
+                            style={{
+                                cursor: "pointer",
+                                fontSize: "0.8rem",
+                                color: "var(--text-muted)",
+                                opacity: 0.5,
+                                display: "flex",
+                                alignItems: "center",
+                                transition: "all 0.2s ease",
+                                padding: "4px"
+                            }}
+                            className="hover:opacity-100"
+                            title="Next Song"
+                        >
+                            <SkipForward size={14} />
+                        </div>
+                    )}
                 </div>
             </div>
         </div>
