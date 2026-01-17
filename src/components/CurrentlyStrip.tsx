@@ -958,14 +958,20 @@ export function CurrentlyStrip() {
     // Global Audio Context
     const { isPlaying, togglePlay, currentSong, nextSong, prevSong, audioRef } = useAudio();
 
-    // Interaction State for Welcome Message
-    const [hasInteracted, setHasInteracted] = useState(false);
+    // Interaction State for Welcome Message - persist to sessionStorage (resets on new visit)
+    const [hasInteracted, setHasInteracted] = useState(() => {
+        if (typeof window !== 'undefined') {
+            return sessionStorage.getItem('player_interacted') === 'true';
+        }
+        return false;
+    });
     const [showWelcomeText, setShowWelcomeText] = useState(false);
 
     useEffect(() => {
         if (isPlaying && !hasInteracted) {
             // First time playing - show welcome text
             setHasInteracted(true);
+            sessionStorage.setItem('player_interacted', 'true');
             setShowWelcomeText(true);
             // Hide after 5 seconds
             setTimeout(() => {

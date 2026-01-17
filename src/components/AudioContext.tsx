@@ -99,6 +99,17 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [isPlaying, setTheme]);
 
+    // Resume AudioContext when tab becomes visible again
+    useEffect(() => {
+        const handleVisibilityChange = () => {
+            if (!document.hidden && audioContextRef.current?.state === 'suspended') {
+                audioContextRef.current.resume();
+            }
+        };
+        document.addEventListener('visibilitychange', handleVisibilityChange);
+        return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
+    }, []);
+
     const initializeAudio = useCallback(() => {
         if (!audioRef.current || sourceRef.current) return; // Already initialized
 
