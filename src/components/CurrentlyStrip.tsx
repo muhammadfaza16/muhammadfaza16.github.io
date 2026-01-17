@@ -238,7 +238,7 @@ const POKE_RESPONSES = [
 // expressive: true = dramatic full-screen text (for asking questions, emotional moments)
 const SONG_LYRICS: Record<string, { start: number; end: number; text: string; expressive?: boolean }[]> = {
     "Alan Walker — Faded": [
-        { start: 18, end: 21, text: "Nyanyi dikit skuy..." },
+        { start: 18, end: 21, text: "Nyanyi bareng skuy..." },
         { start: 24.75, end: 27.5, text: "Wanna see us" },
         { start: 28.8, end: 30, text: "Alive" },
         { start: 31, end: 34, text: "Where are you now?" },
@@ -262,6 +262,9 @@ const SONG_LYRICS: Record<string, { start: number; end: number; text: string; ex
         { start: 90.1, end: 92.5, text: "I'm faded" },
         { start: 117.7, end: 120.6, text: "where are you now?" },
         { start: 151, end: 155, text: "WHERE ARE YOU NOW?", expressive: true },
+        { start: 156, end: 158, text: "Dah... Maap berisik" },
+
+
     ],
     "Alan Walker — Lily": [
         { start: 55, end: 58, text: "🎤 ..." },
@@ -1224,6 +1227,8 @@ export function CurrentlyStrip() {
                             alignItems: "center",
                             justifyContent: "center",
                             padding: "4px",
+                            background: "transparent",
+                            WebkitTapHighlightColor: "transparent",
                             cursor: "pointer",
                             transition: "all 0.8s cubic-bezier(0.4, 0, 0.2, 1)"
                         }}
