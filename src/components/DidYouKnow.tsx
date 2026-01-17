@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { getAllFacts, Fact } from "@/data/didYouKnow";
 import { Lightbulb, Sparkles, Play, Pause, Shuffle, Copy, Check, ExternalLink, ChevronLeft, ChevronRight } from "lucide-react";
 
@@ -8,7 +8,8 @@ export function DidYouKnow() {
     const [facts, setFacts] = useState<Fact[]>([]);
     const [currentIndex, setCurrentIndex] = useState(0);
     const [isVisible, setIsVisible] = useState(false);
-    const [isAutoPlaying, setIsAutoPlaying] = useState(true);
+    const [isAutoPlaying, setIsAutoPlaying] = useState(false);
+    const containerRef = useRef<HTMLDivElement>(null);
     const [progress, setProgress] = useState(0);
     const [copied, setCopied] = useState(false);
     const [mindBlown, setMindBlown] = useState(false);
@@ -18,6 +19,22 @@ export function DidYouKnow() {
         setCurrentIndex(Math.floor(Math.random() * getAllFacts().length));
         const timer = setTimeout(() => setIsVisible(true), 100);
         return () => clearTimeout(timer);
+    }, []);
+
+    // Auto-play only when visible
+    useEffect(() => {
+        const observer = new IntersectionObserver(
+            ([entry]) => {
+                setIsAutoPlaying(entry.isIntersecting);
+            },
+            { threshold: 0.5 }
+        );
+
+        if (containerRef.current) {
+            observer.observe(containerRef.current);
+        }
+
+        return () => observer.disconnect();
     }, []);
 
     useEffect(() => {
@@ -84,6 +101,7 @@ export function DidYouKnow() {
 
     return (
         <div
+            ref={containerRef}
             style={{
                 borderRadius: "1rem",
                 background: "var(--card-bg)",

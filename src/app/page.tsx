@@ -142,7 +142,7 @@ export default function HomePage() {
                 marginBottom: "1rem",
                 lineHeight: 1.1
               }}>
-                Recent Notes
+                Recent Yaps
               </h2>
               <p style={{
                 fontFamily: "'Source Serif 4', serif",
