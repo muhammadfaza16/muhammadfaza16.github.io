@@ -416,8 +416,10 @@ const VibingAvatar = memo(function VibingAvatar({ isPlaying, hour, lyrics, narra
                                 const words = lyric.text.split(' ');
                                 const lyricDuration = (lyric.end - lyric.start) * 1000;
 
-                                // Adjusted stagger (Fast for Faded, Fixed for others)
-                                const staggerMs = isFaded ? 250 : 350;
+                                // Adjusted stagger (Dynamic Fast for Faded, Fixed 350ms for others)
+                                const staggerMs = isFaded
+                                    ? Math.min(350, Math.max(200, (lyricDuration * 0.8) / words.length))
+                                    : 350;
 
                                 words.forEach((word: string, index: number) => {
                                     setTimeout(() => {
@@ -436,8 +438,10 @@ const VibingAvatar = memo(function VibingAvatar({ isPlaying, hour, lyrics, narra
                                 const words = lyric.text.split(' ');
                                 const lyricDuration = (lyric.end - lyric.start) * 1000;
 
-                                // Adjusted stagger (Fast for Faded, Fixed for others)
-                                const staggerMs = isFaded ? 200 : 350;
+                                // Adjusted stagger (Dynamic Fast for Faded, Fixed 350ms for others)
+                                const staggerMs = isFaded
+                                    ? Math.min(350, Math.max(200, (lyricDuration * 0.8) / words.length))
+                                    : 350;
 
                                 words.forEach((word: string, index: number) => {
                                     setTimeout(() => {
