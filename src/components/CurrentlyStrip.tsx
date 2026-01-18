@@ -257,7 +257,7 @@ const SONG_VIBES: Record<string, { start: number; end: number; level: 1 | 2 }[]>
 };
 
 // Vibing Avatar Component (Levitation Mode)
-const VibingAvatar = memo(function VibingAvatar({ isPlaying, hour, lyrics }: { isPlaying: boolean; hour: number; lyrics: LyricItem[] }) {
+const VibingAvatar = memo(function VibingAvatar({ isPlaying, hour, lyrics, narrativeText }: { isPlaying: boolean; hour: number; lyrics: LyricItem[], narrativeText?: string }) {
     const { analyser, audioRef, currentSong } = useAudio();
     const floaterRef = useRef<SVGGElement>(null);
     const rafRef = useRef<number | null>(null);
@@ -460,7 +460,30 @@ const VibingAvatar = memo(function VibingAvatar({ isPlaying, hour, lyrics }: { i
         return () => {
             if (rafRef.current) cancelAnimationFrame(rafRef.current);
         };
-    }, [isPlaying, analyser, currentSong]);
+    }, [isPlaying, analyser, currentSong, lyrics]);
+
+    // Separate Effect for Narrative Text (Immediate Trigger)
+    useEffect(() => {
+        if (!narrativeText) return;
+
+        // Trigger floating words animation immediately
+        const words = narrativeText.split(' ');
+        // Calculate reading duration based on length
+        const duration = Math.max(2000, words.length * 300);
+        const staggerMs = Math.min(350, Math.max(150, (duration * 0.8) / words.length));
+
+        words.forEach((word: string, index: number) => {
+            setTimeout(() => {
+                const id = wordIdRef.current++;
+                setFloatingWords(prev => [...prev, { id, text: word, wordIndex: index }]);
+                setTimeout(() => {
+                    setFloatingWords(prev => prev.filter(w => w.id !== id));
+                }, 7000); // 7s lifetime
+            }, index * staggerMs);
+        });
+
+    }, [narrativeText]);
+
 
     return (
         <div style={{
@@ -1031,11 +1054,11 @@ export function CurrentlyStrip() {
 
     const checkInItem = useMemo(() => ({
         icon: "💬",
-        label: "Soul", // Changed from "Checking in" to "Soul" or "Note"
-        text: displayCheckIn || "...", // The Narrative Text
-        width: "300px",  // Give it plenty of space
+        label: "Soul",
+        text: "Listening...", // Static text or removed? Let's keep it minimal.
+        width: "140px",
         labelWidth: "40px"
-    }), [displayCheckIn]);
+    }), []);
 
     // Initial visit welcome messages for marquee
     const welcomeItems = useMemo(() => [
@@ -1141,8 +1164,8 @@ export function CurrentlyStrip() {
             )}
 
             {/* Top: Vibing Avatar */}
-            {/* We pass narrative as lyrics for floating effects */}
-            <VibingAvatar isPlaying={isPlaying} hour={currentHour} lyrics={narrativeLyricItem} />
+            {/* We pass narrative text directly to prop */}
+            <VibingAvatar isPlaying={isPlaying} hour={currentHour} lyrics={[]} narrativeText={narrative.text} />
 
             {/* Top: Marquee Pill */}
             <div
