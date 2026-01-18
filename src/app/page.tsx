@@ -1,3 +1,4 @@
+import { ScrollReveal } from "@/components/ScrollReveal";
 import { Container } from "@/components/Container";
 import { PostList } from "@/components/PostList";
 import { OnThisDay } from "@/components/OnThisDay";
@@ -42,46 +43,48 @@ export default function HomePage() {
         }}>
 
           <Container>
-            <div className="animate-fade-in-up" style={{ position: "relative", zIndex: 1 }}>
-              {/* Subtle Label */}
-              <div style={{
-                fontFamily: "var(--font-mono)",
-                fontSize: "0.85rem",
-                color: "var(--accent)",
-                marginBottom: "2rem",
-                textTransform: "uppercase",
-                letterSpacing: "0.15em",
-                fontWeight: 500
-              }}>
-                Personal Manifesto
+            <ScrollReveal>
+              <div style={{ position: "relative", zIndex: 1 }}>
+                {/* Subtle Label */}
+                <div style={{
+                  fontFamily: "var(--font-mono)",
+                  fontSize: "0.85rem",
+                  color: "var(--accent)",
+                  marginBottom: "2rem",
+                  textTransform: "uppercase",
+                  letterSpacing: "0.15em",
+                  fontWeight: 500
+                }}>
+                  Personal Manifesto
+                </div>
+
+                {/* Massive Title */}
+                <h1 style={{
+                  fontFamily: "'Playfair Display', serif",
+                  fontSize: "clamp(3.5rem, 10vw, 7.5rem)",
+                  fontWeight: 400,
+                  lineHeight: 0.95,
+                  letterSpacing: "-0.04em",
+                  marginBottom: "3rem",
+                  color: "var(--foreground)",
+                  maxWidth: "18ch"
+                }}>
+                  The Almanack of Broken Wanderer.
+                </h1>
+
+                {/* Minimalist Copy */}
+                <p style={{
+                  fontSize: "1.35rem",
+                  lineHeight: 1.6,
+                  fontFamily: "'Source Serif 4', serif",
+                  maxWidth: "40rem",
+                  color: "var(--text-secondary)",
+                  marginBottom: "0"
+                }}>
+                  Random thoughts, half-baked ideas, dan segala yang keburu diketik sebelum lupa.
+                </p>
               </div>
-
-              {/* Massive Title */}
-              <h1 style={{
-                fontFamily: "'Playfair Display', serif",
-                fontSize: "clamp(3.5rem, 10vw, 7.5rem)",
-                fontWeight: 400,
-                lineHeight: 0.95,
-                letterSpacing: "-0.04em",
-                marginBottom: "3rem",
-                color: "var(--foreground)",
-                maxWidth: "18ch"
-              }}>
-                The Almanack of Broken Wanderer.
-              </h1>
-
-              {/* Minimalist Copy */}
-              <p style={{
-                fontSize: "1.35rem",
-                lineHeight: 1.6,
-                fontFamily: "'Source Serif 4', serif",
-                maxWidth: "40rem",
-                color: "var(--text-secondary)",
-                marginBottom: "0"
-              }} className="animate-fade-in animation-delay-200">
-                Random thoughts, half-baked ideas, dan segala yang keburu diketik sebelum lupa.
-              </p>
-            </div>
+            </ScrollReveal>
           </Container>
         </section>
       </ZenHideable>
@@ -110,7 +113,7 @@ export default function HomePage() {
       <ZenCenteredSection>
         <Container>
           <div className="animate-fade-in animation-delay-300">
-            <CurrentlyStrip />
+            <ScrollReveal delay={200}><CurrentlyStrip /></ScrollReveal>
           </div>
         </Container>
       </ZenCenteredSection>
