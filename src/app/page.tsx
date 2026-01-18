@@ -4,7 +4,7 @@ import { OnThisDay } from "@/components/OnThisDay";
 import { DidYouKnow } from "@/components/DidYouKnow";
 import { GradientOrb } from "@/components/GradientOrb";
 import { CosmicStars } from "@/components/CosmicStars";
-
+import { MilkyWay } from "@/components/MilkyWay";
 import { CurrentlyStrip } from "@/components/CurrentlyStrip";
 import { ZenHideable } from "@/components/ZenHideable";
 import { ZenCenteredSection } from "@/components/ZenCenteredSection";
@@ -27,7 +27,7 @@ export default function HomePage() {
         pointerEvents: "none",
         overflow: "hidden"
       }}>
-
+        <MilkyWay />
         <GradientOrb />
         <CosmicStars />
       </div>
