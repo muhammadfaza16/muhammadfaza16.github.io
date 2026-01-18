@@ -22,7 +22,8 @@ export function MilkyWay() {
                 zIndex: 1, // Above background but below content
                 overflow: "hidden",
                 opacity: isZen ? 0.5 : 0.15, // Reduced opacity
-                transition: "opacity 1s ease-in-out"
+                transition: "opacity 1s ease-in-out",
+                willChange: "opacity" // Hint for container opacity
             }}
         >
             {/* Main Milky Way band - diagonal across screen */}
@@ -53,7 +54,8 @@ export function MilkyWay() {
                     `,
                     filter: "blur(30px)",
                     transform: "rotate(-25deg)",
-                    animation: "milkyway-drift 120s ease-in-out infinite alternate"
+                    animation: "milkyway-drift 120s ease-in-out infinite alternate",
+                    willChange: "transform"
                 }}
             />
 
@@ -81,7 +83,8 @@ export function MilkyWay() {
                     `,
                     filter: "blur(50px)",
                     transform: "rotate(-30deg)",
-                    animation: "milkyway-drift 180s ease-in-out infinite alternate-reverse"
+                    animation: "milkyway-drift 180s ease-in-out infinite alternate-reverse",
+                    willChange: "transform"
                 }}
             />
 
@@ -108,7 +111,8 @@ export function MilkyWay() {
                     filter: "blur(20px)",
                     transform: "rotate(-25deg)",
                     mixBlendMode: "multiply",
-                    animation: "milkyway-drift 150s ease-in-out infinite alternate"
+                    animation: "milkyway-drift 150s ease-in-out infinite alternate",
+                    willChange: "transform"
                 }}
             />
 

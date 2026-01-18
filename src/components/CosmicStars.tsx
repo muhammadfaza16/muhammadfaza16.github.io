@@ -52,7 +52,8 @@ export function CosmicStars() {
 
         const createStars = () => {
             const area = width * height;
-            const count = Math.floor(area / 4000); // Density control
+            // Mobile-focused optimization: Cap stars at 100 to prevent battery drain on high-DPI screens
+            const count = Math.min(Math.floor(area / 4000), 100);
             const newStars: Star[] = [];
 
             for (let i = 0; i < count; i++) {

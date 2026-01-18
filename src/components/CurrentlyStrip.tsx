@@ -1245,12 +1245,19 @@ export function CurrentlyStrip() {
     useEffect(() => {
         setIsHydrated(true);
 
+        let lastHour = -1; // Local tracking to prevent mood array re-creation
+
         const updateTime = () => {
             const now = new Date();
-            setCurrentTime(formatTime(now));
+            setCurrentTime(formatTime(now)); // React bails out if string is same
+
             const h = now.getHours();
-            setMoods(getMoods(h));
-            setCurrentHour(h);
+            // Only update moods if hour actually changes to avoid re-renders
+            if (h !== lastHour) {
+                setMoods(getMoods(h));
+                setCurrentHour(h);
+                lastHour = h;
+            }
         };
         updateTime();
         const timeInterval = setInterval(updateTime, 1000);
