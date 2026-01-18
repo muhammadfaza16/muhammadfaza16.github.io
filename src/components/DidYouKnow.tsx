@@ -8,7 +8,7 @@ export function DidYouKnow() {
     const [facts, setFacts] = useState<Fact[]>([]);
     const [currentIndex, setCurrentIndex] = useState(0);
     const [isVisible, setIsVisible] = useState(false);
-    const [isAutoPlaying, setIsAutoPlaying] = useState(false);
+    const [isAutoPlaying, setIsAutoPlaying] = useState(true);
     const containerRef = useRef<HTMLDivElement>(null);
     const [progress, setProgress] = useState(0);
     const [copied, setCopied] = useState(false);
@@ -19,22 +19,6 @@ export function DidYouKnow() {
         setCurrentIndex(Math.floor(Math.random() * getAllFacts().length));
         const timer = setTimeout(() => setIsVisible(true), 100);
         return () => clearTimeout(timer);
-    }, []);
-
-    // Auto-play only when visible
-    useEffect(() => {
-        const observer = new IntersectionObserver(
-            ([entry]) => {
-                setIsAutoPlaying(entry.isIntersecting);
-            },
-            { threshold: 0.5 }
-        );
-
-        if (containerRef.current) {
-            observer.observe(containerRef.current);
-        }
-
-        return () => observer.disconnect();
     }, []);
 
     useEffect(() => {
