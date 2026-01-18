@@ -2,33 +2,41 @@
 
 import { useEffect, useRef } from "react";
 import { useAudio } from "./AudioContext";
+import { useZen } from "./ZenContext";
 
 export function GradientOrb() {
     const primaryRef = useRef<HTMLDivElement>(null);
     const secondaryRef = useRef<HTMLDivElement>(null);
     const tertiaryRef = useRef<HTMLDivElement>(null);
+    const bottomLeftRef = useRef<HTMLDivElement>(null);
+    const bottomRightRef = useRef<HTMLDivElement>(null);
 
     const { isPlaying } = useAudio();
+    const { isZen } = useZen();
     const isPlayingRef = useRef(isPlaying);
+    const isZenRef = useRef(isZen);
 
-    // Keep ref in sync without restarting effect
+    // Keep refs in sync without restarting effect
     useEffect(() => {
         isPlayingRef.current = isPlaying;
-    }, [isPlaying]);
+        isZenRef.current = isZen;
+    }, [isPlaying, isZen]);
 
     useEffect(() => {
         let animationId: number;
         let time = 0;
 
         const animate = () => {
-            // Dynamic speed control
+            // Dynamic speed control - more energetic in Zen mode
             // default: 0.015 (was 0.008) -> faster base movement
             // playing: 0.025 -> energetic but smooth
-            const speed = isPlayingRef.current ? 0.025 : 0.015;
+            // zen: 0.03 -> immersive flow
+            const zenActive = isZenRef.current;
+            const speed = zenActive ? 0.03 : (isPlayingRef.current ? 0.025 : 0.015);
             time += speed;
 
-            // Amplitude multiplier
-            const amp = isPlayingRef.current ? 1.4 : 1.0;
+            // Amplitude multiplier - higher in Zen for more dramatic movement
+            const amp = zenActive ? 1.8 : (isPlayingRef.current ? 1.4 : 1.0);
 
             if (primaryRef.current) {
                 // Large slow movements
@@ -58,6 +66,24 @@ export function GradientOrb() {
                 const scale = 1 + Math.sin(time * 0.5) * scaleAmp;
                 const rotate = Math.cos(time * 0.1) * 40 + time * 15;
                 tertiaryRef.current.style.transform = `translate(${x}px, ${y}px) scale(${scale}) rotate(${rotate}deg)`;
+            }
+
+            // Bottom left orb - warm pink/magenta
+            if (bottomLeftRef.current) {
+                const x = (Math.sin(time * 0.35) * 50 + Math.cos(time * 0.25) * 30) * amp;
+                const y = (Math.cos(time * 0.45) * 40 + Math.sin(time * 0.35) * 20) * amp;
+                const scale = 1 + Math.sin(time * 0.6) * 0.12;
+                const rotate = -time * 8;
+                bottomLeftRef.current.style.transform = `translate(${x}px, ${y}px) scale(${scale}) rotate(${rotate}deg)`;
+            }
+
+            // Bottom right orb - teal/emerald
+            if (bottomRightRef.current) {
+                const x = (Math.cos(time * 0.4) * 45 + Math.sin(time * 0.55) * 25) * amp;
+                const y = (Math.sin(time * 0.35) * 35 + Math.cos(time * 0.45) * 25) * amp;
+                const scale = 1 + Math.cos(time * 0.55) * 0.14;
+                const rotate = time * 12;
+                bottomRightRef.current.style.transform = `translate(${x}px, ${y}px) scale(${scale}) rotate(${rotate}deg)`;
             }
 
             animationId = requestAnimationFrame(animate);
@@ -131,6 +157,48 @@ export function GradientOrb() {
                     pointerEvents: "none",
                     zIndex: 0,
                     borderRadius: "50% 50% 40% 60% / 60% 40% 60% 40%",
+                    willChange: "transform"
+                }}
+            />
+
+            {/* Bottom Left Orb - Warm pink/magenta */}
+            <div
+                ref={bottomLeftRef}
+                aria-hidden="true"
+                style={{
+                    position: "absolute",
+                    bottom: "10%",
+                    left: "5%",
+                    width: "clamp(180px, 40vw, 350px)",
+                    height: "clamp(180px, 40vw, 350px)",
+                    background: "radial-gradient(ellipse at 40% 60%, rgba(236,72,153,0.3) 0%, rgba(219,39,119,0.15) 45%, rgba(190,24,93,0.05) 80%, transparent 100%)",
+                    filter: "blur(45px)",
+                    opacity: 0.55,
+                    animation: "blobMorph 16s ease-in-out infinite",
+                    pointerEvents: "none",
+                    zIndex: 0,
+                    borderRadius: "55% 45% 60% 40% / 45% 55% 45% 55%",
+                    willChange: "transform"
+                }}
+            />
+
+            {/* Bottom Right Orb - Teal/emerald */}
+            <div
+                ref={bottomRightRef}
+                aria-hidden="true"
+                style={{
+                    position: "absolute",
+                    bottom: "15%",
+                    right: "10%",
+                    width: "clamp(150px, 35vw, 300px)",
+                    height: "clamp(150px, 35vw, 300px)",
+                    background: "radial-gradient(ellipse at 50% 50%, rgba(20,184,166,0.3) 0%, rgba(16,185,129,0.15) 50%, transparent 100%)",
+                    filter: "blur(40px)",
+                    opacity: 0.5,
+                    animation: "blobMorph 20s ease-in-out infinite reverse",
+                    pointerEvents: "none",
+                    zIndex: 0,
+                    borderRadius: "45% 55% 50% 50% / 55% 45% 55% 45%",
                     willChange: "transform"
                 }}
             />

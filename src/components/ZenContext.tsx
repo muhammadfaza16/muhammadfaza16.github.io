@@ -23,10 +23,13 @@ export function ZenProvider({ children }: { children: React.ReactNode }) {
     const [isZen, setIsZen] = useState(false);
     const pathname = usePathname();
 
-    // Reset Zen mode on route change - only if leaving blog article
+    // Reset Zen mode on route change - except for homepage and blog articles
     useEffect(() => {
+        const isHomepage = pathname === "/";
         const isBlogArticle = pathname?.startsWith("/blog/") && pathname !== "/blog";
-        if (!isBlogArticle && isZen) {
+        const zenAllowedRoutes = isHomepage || isBlogArticle;
+
+        if (!zenAllowedRoutes && isZen) {
             setIsZen(false);
         }
     }, [pathname, isZen]);
@@ -48,6 +51,18 @@ export function ZenProvider({ children }: { children: React.ReactNode }) {
 
         window.addEventListener("keydown", handleKeyDown);
         return () => window.removeEventListener("keydown", handleKeyDown);
+    }, [isZen]);
+
+    // Lock body scroll when Zen is active
+    useEffect(() => {
+        if (isZen) {
+            document.body.style.overflow = "hidden";
+        } else {
+            document.body.style.overflow = "";
+        }
+        return () => {
+            document.body.style.overflow = "";
+        };
     }, [isZen]);
 
     return (

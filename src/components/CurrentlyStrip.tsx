@@ -3,7 +3,8 @@
 import { useState, useEffect, useRef, useMemo, memo } from "react";
 import { useAudio } from "./AudioContext";
 import { useNarrative } from "./NarrativeContext"; // Import Narrative Hook
-import { SkipBack, SkipForward } from "lucide-react";
+import { useZen } from "./ZenContext"; // Import Zen Hook
+import { SkipBack, SkipForward, Sparkles, X } from "lucide-react";
 import { getSongMessage } from "../data/songMessages";
 
 
@@ -942,6 +943,7 @@ const VibingAvatar = memo(function VibingAvatar({ isPlaying, hour, lyrics, narra
 export function CurrentlyStrip() {
     const { isPlaying, togglePlay, currentSong, nextSong, prevSong, hasInteracted } = useAudio();
     const narrative = useNarrative(); // Use the hook
+    const { isZen, toggleZen } = useZen(); // Zen mode state
 
     const [currentTime, setCurrentTime] = useState("");
     const [currentHour, setCurrentHour] = useState(0);
@@ -1212,7 +1214,7 @@ export function CurrentlyStrip() {
                             animation: "tooltip-enter 0.5s ease-out forwards"
                         }}
                     >
-                        Hey, hello. Selamat datang di Taman Langit gue. Faza di sini.
+                        Hey, hello. Selamat datang di Taman Langit gue. Faza here.
                         <style>{`
                             @keyframes tooltip-enter {
                                 0% { opacity: 0; }
@@ -1360,6 +1362,31 @@ export function CurrentlyStrip() {
                             title="Next Song"
                         >
                             <SkipForward size={14} />
+                        </div>
+                    )}
+
+                    {/* Zen Mode Toggle - Mobile focused */}
+                    {hasInteracted && (
+                        <div
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                toggleZen();
+                            }}
+                            style={{
+                                cursor: "pointer",
+                                fontSize: "0.8rem",
+                                color: isZen ? "var(--accent)" : "var(--text-muted)",
+                                opacity: isZen ? 1 : 0.5,
+                                display: "flex",
+                                alignItems: "center",
+                                transition: "all 0.2s ease",
+                                padding: "4px",
+                                marginLeft: "4px" // Extra spacing
+                            }}
+                            className="hover:opacity-100"
+                            title={isZen ? "Exit Zen Mode" : "Enter Zen Mode"}
+                        >
+                            {isZen ? <X size={14} /> : <Sparkles size={14} />}
                         </div>
                     )}
                 </div>

@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import { useAudio } from "./AudioContext";
+import { useZen } from "./ZenContext";
 
 interface Star {
     x: number;
@@ -20,11 +21,14 @@ export function CosmicStars() {
     const canvasRef = useRef<HTMLCanvasElement>(null);
 
     const { isPlaying } = useAudio();
+    const { isZen } = useZen();
     const isPlayingRef = useRef(isPlaying);
+    const isZenRef = useRef(isZen);
 
     useEffect(() => {
         isPlayingRef.current = isPlaying;
-    }, [isPlaying]);
+        isZenRef.current = isZen;
+    }, [isPlaying, isZen]);
 
     useEffect(() => {
         const canvas = canvasRef.current;
@@ -97,8 +101,12 @@ export function CosmicStars() {
 
             // Re-check playing status inside the loop
             const playing = isPlayingRef.current;
-            const speedMultiplier = playing ? 3.5 : 1.0;
-            const twinkleMultiplier = playing ? 2.0 : 1.0;
+            const zenActive = isZenRef.current;
+
+            // Zen mode: even faster and brighter
+            const speedMultiplier = zenActive ? 5.0 : (playing ? 3.5 : 1.0);
+            const twinkleMultiplier = zenActive ? 3.0 : (playing ? 2.0 : 1.0);
+            const opacityBoost = zenActive ? 0.3 : 0;
 
             stars.forEach((star) => {
                 // Update position with multiplier
@@ -113,7 +121,7 @@ export function CosmicStars() {
 
                 // Update twinkle
                 star.twinklePhase += star.twinkleSpeed * twinkleMultiplier;
-                star.opacity = star.baseOpacity + Math.sin(star.twinklePhase) * 0.15; // Opacity fluctuation
+                star.opacity = star.baseOpacity + opacityBoost + Math.sin(star.twinklePhase) * 0.15;
 
                 // Clamp opacity
                 if (star.opacity < 0) star.opacity = 0;
