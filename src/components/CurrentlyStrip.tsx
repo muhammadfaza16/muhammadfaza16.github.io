@@ -416,10 +416,8 @@ const VibingAvatar = memo(function VibingAvatar({ isPlaying, hour, lyrics, narra
                                 const words = lyric.text.split(' ');
                                 const lyricDuration = (lyric.end - lyric.start) * 1000;
 
-                                // Adjusted stagger (Fast for Faded, Balanced for others)
-                                const staggerMs = isFaded
-                                    ? Math.min(350, Math.max(200, (lyricDuration * 0.8) / words.length))
-                                    : Math.min(500, Math.max(250, (lyricDuration * 0.9) / words.length));
+                                // Adjusted stagger (Fast for Faded, Fixed for others)
+                                const staggerMs = isFaded ? 250 : 350;
 
                                 words.forEach((word: string, index: number) => {
                                     setTimeout(() => {
@@ -438,10 +436,8 @@ const VibingAvatar = memo(function VibingAvatar({ isPlaying, hour, lyrics, narra
                                 const words = lyric.text.split(' ');
                                 const lyricDuration = (lyric.end - lyric.start) * 1000;
 
-                                // Adjusted stagger (Fast for Faded, Balanced for others)
-                                const staggerMs = isFaded
-                                    ? Math.min(350, Math.max(200, (lyricDuration * 0.8) / words.length))
-                                    : Math.min(600, Math.max(300, (lyricDuration * 0.9) / words.length));
+                                // Adjusted stagger (Fast for Faded, Fixed for others)
+                                const staggerMs = isFaded ? 200 : 350;
 
                                 words.forEach((word: string, index: number) => {
                                     setTimeout(() => {
@@ -479,10 +475,11 @@ const VibingAvatar = memo(function VibingAvatar({ isPlaying, hour, lyrics, narra
 
         // Trigger floating words animation immediately
         const words = narrativeText.split(' ');
-        // Calculate reading duration based on length
-        const duration = Math.max(2500, words.length * 400); // Balanced duration
-        // Balanced stagger for "Convos"
-        const staggerMs = Math.min(700, Math.max(350, (duration * 0.9) / words.length));
+        // Calculate reading duration for cleanup reference only
+        const duration = Math.max(2500, words.length * 350);
+
+        // Fixed stagger for "Convos" - Standard reading pace
+        const staggerMs = 350;
 
         words.forEach((word: string, index: number) => {
             setTimeout(() => {
@@ -575,7 +572,7 @@ const VibingAvatar = memo(function VibingAvatar({ isPlaying, hour, lyrics, narra
 
                     @keyframes note-float {
                         0% { transform: translate(0, 0) rotate(0deg) scale(0.5); opacity: 0; }
-                        20% { opacity: 0.8; }
+                        20% { opacity: 0.35; }
                         100% { transform: translate(8px, -25px) rotate(15deg) scale(1); opacity: 0; }
                     }
                     .music-note {
@@ -595,7 +592,7 @@ const VibingAvatar = memo(function VibingAvatar({ isPlaying, hour, lyrics, narra
                             opacity: 0; 
                         }
                         20% { 
-                            opacity: 0.8; 
+                            opacity: 0.4; 
                             transform: translate(3px, -10px) scale(1); 
                         }
                         100% { 
