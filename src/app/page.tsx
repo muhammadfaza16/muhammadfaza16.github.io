@@ -127,7 +127,9 @@ export default function HomePage() {
             <div className="animate-fade-in animation-delay-300">
               {/* Minimalist Header - Left Aligned */}
               <div style={{
-                marginBottom: "1.5rem",
+                marginBottom: "3rem",
+                paddingBottom: "2rem",
+                borderBottom: "1px solid var(--border)",
                 textAlign: "left"
               }}>
                 <span style={{
@@ -162,14 +164,6 @@ export default function HomePage() {
                   Kumpulan celoteh, kode yang mungkin error, dan hal-hal yang sayang kalau cuma disimpen sendiri.
                 </p>
               </div>
-
-              <div style={{
-                width: "40px",
-                height: "1px",
-                background: "var(--text-secondary)",
-                margin: "0 0 2rem 0",
-                opacity: 0.3
-              }} />
 
               {/* Posts List */}
               <PostList allPosts={allPosts} hideThumbnails initialCount={3} />
