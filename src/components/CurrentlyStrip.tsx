@@ -407,69 +407,106 @@ const VibingAvatar = memo(function VibingAvatar({ isPlaying, hour, lyrics, narra
     };
 
     useEffect(() => {
-        if (!isPlaying || !analyser || !floaterRef.current) {
+        // [MODIFIED] Run loop if playing, even if analyser is missing (for mobile stability)
+        if (!isPlaying) {
             if (rafRef.current) cancelAnimationFrame(rafRef.current);
-            // Reset scale when stopped
             if (floaterRef.current) floaterRef.current.style.transform = "scale(1)";
             return;
         }
 
-        const bufferLength = analyser.frequencyBinCount;
-        const dataArray = new Uint8Array(bufferLength);
+        const bufferLength = analyser ? analyser.frequencyBinCount : 0;
+        const dataArray = analyser ? new Uint8Array(bufferLength) : new Uint8Array(0);
 
         const tick = () => {
-            analyser.getByteFrequencyData(dataArray);
+            // [MODIFIED] Audio Analysis / Simulation
+            let avgBass = 0;
+            let avgVol = 0;
 
-            // Calculate bass (lower frequencies)
-            let bassSum = 0;
-            const bassBinCount = 4; // Check first 4 bins (very low freq)
-            for (let i = 0; i < bassBinCount; i++) {
-                bassSum += dataArray[i];
+            if (analyser) {
+                // Real Analysis (Desktop/If enabled)
+                analyser.getByteFrequencyData(dataArray);
+
+                // Calculate bass (lower frequencies)
+                let bassSum = 0;
+                const bassBinCount = 4;
+                for (let i = 0; i < bassBinCount; i++) {
+                    bassSum += dataArray[i];
+                }
+                avgBass = bassSum / bassBinCount;
+
+                // Calculate Overall Energy
+                let totalSum = 0;
+                for (let i = 0; i < bufferLength; i++) {
+                    totalSum += dataArray[i];
+                }
+                avgVol = totalSum / bufferLength;
+
+            } else {
+                // [NEW] Simulation Mode (Mobile/No Analyser)
+                // Use Vibe Data to simulate energy
+                const currentTime = audioRef.current?.currentTime ?? 0;
+                const vibes = SONG_VIBES[currentSong.title];
+                let currentVibeLevel = 0;
+                
+                if (vibes) {
+                    for (const vibe of vibes) {
+                        if (currentTime >= vibe.start && currentTime < vibe.end) {
+                            currentVibeLevel = vibe.level;
+                            break;
+                        }
+                    }
+                }
+
+                // Simulate Bass based on Vibe Level
+                // Base: Breathing (Sine wave)
+                const pulse = (Math.sin(Date.now() / 500) + 1) / 2; // 0 to 1
+
+                if (currentVibeLevel === 2) {
+                    // BEAT DROP: High simulated bass to trigger notes
+                    // Random spikes to mimic beat
+                     avgBass = 160 + (Math.random() * 50); 
+                     avgVol = 180;
+                } else if (currentVibeLevel === 1) {
+                    // BUILD UP
+                    avgBass = 80 + (pulse * 40);
+                    avgVol = 100;
+                } else {
+                    // CHILL
+                    avgBass = 20 + (pulse * 20); 
+                    avgVol = 50;
+                }
             }
-            const avgBass = bassSum / bassBinCount;
 
             // Map bass (0-255) to scale (1.0 - 1.2)
-            // Threshold: only react if bass > 100 to avoid jitter
+            // Threshold: only react if bass > 100 to avoid jitter relative to real or sim data
             const scale = avgBass > 50 ? 1 + (avgBass / 255) * 0.15 : 1;
 
             if (floaterRef.current) {
-                // Combine with CSS animation? No, CSS animation handles Y-axis float.
-                // We apply Scale on the internal group.
                 floaterRef.current.style.transform = `scale(${scale})`;
-                floaterRef.current.style.transition = 'transform 0.05s ease-out'; // Smooth out slightly
+                floaterRef.current.style.transition = 'transform 0.05s ease-out';
             }
 
             // [Bass-Reactive Music Notes]
             const now = Date.now();
-            // Spawn notes when bass > 150 and cooldown passed (300ms between spawns)
+            // Spawn notes when bass > 150 and cooldown passed.
+            // Works for both Real (High Bass) and Sim (Level 2 sets bass > 160)
             if (avgBass > 150 && now - lastNoteSpawnRef.current > 300) {
                 lastNoteSpawnRef.current = now;
                 const id = noteIdRef.current++;
-                // Random X position around the avatar head
-                const x = 5 + Math.random() * 25;
+                const x = 5 + Math.random() * 25; // Random X around head
                 const delay = Math.random() * 0.3;
                 setDynamicNotes(prev => [...prev, { id, x, delay }]);
-                // Remove after animation (2.5s)
                 setTimeout(() => {
                     setDynamicNotes(prev => prev.filter(n => n.id !== id));
                 }, 2500);
             }
 
             // [Intensity Detection & Override]
-            // Calculate Overall Energy
-            let totalSum = 0;
-            for (let i = 0; i < bufferLength; i++) {
-                totalSum += dataArray[i];
-            }
-            const avgVol = totalSum / bufferLength;
-
-            const isHighEnergy = avgVol > 140;
-
-            // [Multi-Level Vibe Detection]
+            // Re-calc vibe level for class application
             const currentTime = audioRef.current?.currentTime ?? 0;
             const vibes = SONG_VIBES[currentSong.title];
-            let vibeLevel = 0; // 0 = normal, 1 = rising/falling, 2 = peak
-
+            let vibeLevel = 0; 
+            
             if (vibes) {
                 for (const vibe of vibes) {
                     if (currentTime >= vibe.start && currentTime < vibe.end) {
@@ -479,75 +516,54 @@ const VibingAvatar = memo(function VibingAvatar({ isPlaying, hour, lyrics, narra
                 }
             }
 
-            // High Energy Effects (Just CSS Aura/Stars, no movement changes)
+            // High Energy Effects (CSS Aura/Stars)
             if (floaterRef.current) {
-                // Return to normal scaling (remove extra boost/translate)
-                const finalScale = scale;
-
-                floaterRef.current.style.transform = `scale(${finalScale})`;
-                // Smoother transition for both up AND down movements
-                floaterRef.current.style.transition = 'transform 0.2s ease-in-out';
-
                 const container = floaterRef.current.closest('.avatar-container');
                 if (container) {
-                    // Remove all vibe classes first
                     container.classList.remove('high-energy', 'vibe-level-1', 'vibe-level-2');
-
-                    // Apply appropriate class based on vibe level
+                    
                     if (vibeLevel === 2) {
                         container.classList.add('vibe-level-2');
                     } else if (vibeLevel === 1) {
                         container.classList.add('vibe-level-1');
-                    } else if (isHighEnergy) {
+                    } else if (avgVol > 140) { // Fallback to volume check
                         container.classList.add('high-energy');
                     }
                 }
             }
 
-            // [Timed Lyrics Sync - Floating Words OR Expressive]
-            // [Timed Lyrics Sync - Floating Words OR Expressive]
-            // const lyrics = SONG_LYRICS[currentSong.title]; // Removed, passed as prop
+            // [Timed Lyrics Sync] - Independent of analyser now!
             if (lyrics) {
                 let lyricFound = false;
                 for (const lyric of lyrics) {
                     if (currentTime >= lyric.start && currentTime < lyric.end) {
                         lyricFound = true;
-                        // Use start time as unique identifier (allows same text to repeat)
                         const lyricKey = `${lyric.start}-${lyric.end}`;
+                        
                         if (lastLyricRef.current !== lyricKey) {
                             lastLyricRef.current = lyricKey;
-
-                            // Special handling for "Faded" to keep its fast tempo
                             const isFaded = currentSong.title.includes("Faded");
 
                             if (lyric.expressive) {
-                                // Expressive: Show dramatic text word-by-word (one at a time)
                                 const words = lyric.text.split(' ');
                                 const lyricDuration = (lyric.end - lyric.start) * 1000;
-
-                                // Adjusted stagger (Dynamic Fast for Faded, Fixed 350ms for others)
                                 const staggerMs = isFaded
                                     ? Math.min(350, Math.max(200, (lyricDuration * 0.8) / words.length))
                                     : 350;
 
                                 words.forEach((word: string, index: number) => {
                                     setTimeout(() => {
-                                        // Clear previous and show new (one at a time)
                                         const id = expressiveIdRef.current++;
                                         setExpressiveWords([{ id, text: word, index }]);
                                     }, index * staggerMs);
                                 });
 
-                                // Clear all after lyric ends
                                 setTimeout(() => {
                                     setExpressiveWords([]);
                                 }, lyricDuration);
                             } else {
-                                // Normal: Spawn floating words one-by-one
                                 const words = lyric.text.split(' ');
                                 const lyricDuration = (lyric.end - lyric.start) * 1000;
-
-                                // Adjusted stagger (Dynamic Fast for Faded, Fixed 350ms for others)
                                 const staggerMs = isFaded
                                     ? Math.min(350, Math.max(200, (lyricDuration * 0.8) / words.length))
                                     : 350;
@@ -566,7 +582,6 @@ const VibingAvatar = memo(function VibingAvatar({ isPlaying, hour, lyrics, narra
                         break;
                     }
                 }
-                // Clear lyric ref if we're past the window
                 if (!lyricFound && lastLyricRef.current) {
                     lastLyricRef.current = null;
                 }
