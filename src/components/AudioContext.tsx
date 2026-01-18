@@ -199,31 +199,7 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [isPlaying, setTheme]);
 
-    // Pause/Resume audio when tab visibility changes
-    const wasPlayingBeforeHiddenRef = useRef(false);
 
-    useEffect(() => {
-        const handleVisibilityChange = () => {
-            if (document.hidden) {
-                // Tab became hidden - pause if playing
-                if (audioRef.current && !audioRef.current.paused) {
-                    wasPlayingBeforeHiddenRef.current = true;
-                    audioRef.current.pause();
-                }
-            } else {
-                // Tab became visible - resume if was playing before
-                if (audioContextRef.current?.state === 'suspended') {
-                    audioContextRef.current.resume();
-                }
-                if (wasPlayingBeforeHiddenRef.current && audioRef.current) {
-                    audioRef.current.play().catch(() => { });
-                    wasPlayingBeforeHiddenRef.current = false;
-                }
-            }
-        };
-        document.addEventListener('visibilitychange', handleVisibilityChange);
-        return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
-    }, []);
 
     const initializeAudio = useCallback(() => {
         if (!audioRef.current || sourceRef.current) return; // Already initialized
@@ -284,6 +260,38 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
     }, [currentIndex, isPlaying]);
 
     const currentSong = PLAYLIST[currentIndex];
+
+    // Media Session API (Lock Screen Controls)
+    useEffect(() => {
+        if (!currentSong || !("mediaSession" in navigator)) return;
+
+        navigator.mediaSession.metadata = new MediaMetadata({
+            title: currentSong.title.split("—")[1]?.trim() || currentSong.title,
+            artist: currentSong.title.split("—")[0]?.trim() || "Faza's Playlist",
+            album: "Taman Langit",
+            artwork: [
+                { src: "/icon.png", sizes: "192x192", type: "image/png" }
+            ]
+        });
+
+        navigator.mediaSession.setActionHandler("play", () => {
+            togglePlay();
+        });
+        navigator.mediaSession.setActionHandler("pause", () => {
+            togglePlay();
+        });
+        navigator.mediaSession.setActionHandler("previoustrack", () => prevSong());
+        navigator.mediaSession.setActionHandler("nexttrack", () => nextSong());
+
+        return () => {
+            if ("mediaSession" in navigator) {
+                navigator.mediaSession.setActionHandler("play", null);
+                navigator.mediaSession.setActionHandler("pause", null);
+                navigator.mediaSession.setActionHandler("previoustrack", null);
+                navigator.mediaSession.setActionHandler("nexttrack", null);
+            }
+        };
+    }, [currentSong, togglePlay, nextSong, prevSong]);
 
     return (
         <AudioContext.Provider value={{ isPlaying, togglePlay, nextSong, prevSong, currentSong, analyser, audioRef, hasInteracted }}>
