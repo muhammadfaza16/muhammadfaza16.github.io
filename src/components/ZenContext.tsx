@@ -24,10 +24,26 @@ export function ZenProvider({ children }: { children: React.ReactNode }) {
     const [isZen, setIsZen] = useState(false);
     const pathname = usePathname();
     const { isPlaying } = useAudio();
+    const hasManuallyExited = React.useRef(false); // Track manual exit
 
-    // Auto-enter Zen mode when music starts playing
+    const isBlogArticle = pathname?.startsWith("/blog/") && pathname !== "/blog";
+
+    const handleSetZen = (value: boolean) => {
+        setIsZen(value);
+        if (!value) hasManuallyExited.current = true; // User explicitly exited
+    };
+
+    const handleToggleZen = () => {
+        setIsZen(prev => {
+            const next = !prev;
+            if (!next) hasManuallyExited.current = true; // User explicitly exited
+            return next;
+        });
+    };
+
+    // Auto-enter Zen mode when music starts playing (CONSENT AWARE)
     useEffect(() => {
-        if (isPlaying) {
+        if (isPlaying && !hasManuallyExited.current) {
             setIsZen(true);
         }
     }, [isPlaying]);
@@ -35,16 +51,14 @@ export function ZenProvider({ children }: { children: React.ReactNode }) {
     // Reset Zen mode on route change - except for homepage and blog articles
     useEffect(() => {
         const isHomepage = pathname === "/";
-        const isBlogArticle = pathname?.startsWith("/blog/") && pathname !== "/blog";
         const zenAllowedRoutes = isHomepage || isBlogArticle;
 
         if (!zenAllowedRoutes && isZen) {
             setIsZen(false);
         }
-    }, [pathname, isZen]);
+    }, [pathname, isZen, isBlogArticle]);
 
     // Force scroll to top when navigating while Zen is active
-    // Force scroll to top when navigating while Zen is active OR when entering Zen
     useEffect(() => {
         if (isZen) {
             window.scrollTo(0, 0);
@@ -56,6 +70,7 @@ export function ZenProvider({ children }: { children: React.ReactNode }) {
         const handleKeyDown = (e: KeyboardEvent) => {
             if (e.key === "Escape" && isZen) {
                 setIsZen(false);
+                hasManuallyExited.current = true; // User explicitly exited
             }
         };
 
@@ -63,9 +78,9 @@ export function ZenProvider({ children }: { children: React.ReactNode }) {
         return () => window.removeEventListener("keydown", handleKeyDown);
     }, [isZen]);
 
-    // Lock body scroll when Zen is active
+    // Lock body scroll when Zen is active (ONLY if not reading an article)
     useEffect(() => {
-        if (isZen) {
+        if (isZen && !isBlogArticle) {
             document.body.style.overflow = "hidden";
         } else {
             document.body.style.overflow = "";
@@ -73,10 +88,10 @@ export function ZenProvider({ children }: { children: React.ReactNode }) {
         return () => {
             document.body.style.overflow = "";
         };
-    }, [isZen]);
+    }, [isZen, isBlogArticle]);
 
     return (
-        <ZenContext.Provider value={{ isZen, toggleZen: () => setIsZen(prev => !prev), setZen: setIsZen }}>
+        <ZenContext.Provider value={{ isZen, toggleZen: handleToggleZen, setZen: handleSetZen }}>
             <div
                 data-zen={isZen}
                 className="transition-all duration-700 ease-[cubic-bezier(0.22,1,0.36,1)]"
@@ -84,8 +99,9 @@ export function ZenProvider({ children }: { children: React.ReactNode }) {
                     display: "flex",
                     flexDirection: "column",
                     minHeight: "100vh",
-                    height: isZen ? "100vh" : "auto",
-                    overflow: isZen ? "hidden" : "visible"
+                    // Only lock height/overflow if Zen is active AND we are NOT reading
+                    height: (isZen && !isBlogArticle) ? "100vh" : "auto",
+                    overflow: (isZen && !isBlogArticle) ? "hidden" : "visible"
                 }}
             >
                 {children}
