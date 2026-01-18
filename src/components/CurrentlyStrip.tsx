@@ -1061,6 +1061,12 @@ const VibingAvatar = memo(function VibingAvatar({ isPlaying, hour, lyrics, narra
     );
 });
 
+const WELCOME_MESSAGES = [
+    "Hey, hello. Selamat datang di Taman Langit. Faza di sini.",
+    "Ada perlu apa ya jauh-jauh ke sini?"
+];
+
+
 export function CurrentlyStrip() {
     const { isPlaying, togglePlay, currentSong, nextSong, prevSong, hasInteracted } = useAudio();
     const narrative = useNarrative(); // Use the hook
@@ -1336,10 +1342,7 @@ export function CurrentlyStrip() {
                         }}
                     >
                         <TypewriterText
-                            texts={[
-                                "Hey, hello. Selamat datang di Taman Langit. Faza di sini.",
-                                "Ada perlu apa ya jauh-jauh ke sini?"
-                            ]}
+                            texts={WELCOME_MESSAGES}
                             speed={60}
                             deleteSpeed={50}
                             pauseDuration={3000}
