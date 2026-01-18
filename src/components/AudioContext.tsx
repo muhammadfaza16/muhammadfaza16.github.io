@@ -202,6 +202,13 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
 
 
     const initializeAudio = useCallback(() => {
+        // DISABLED for Mobile Reliability (Background Play)
+        // Connecting MediaElementSource hijacks the audio stream into Web Audio API,
+        // which gets suspended by iOS/Android in background.
+        // We strictly use native <audio> behavior now.
+        return;
+
+        /* 
         if (!audioRef.current || sourceRef.current) return; // Already initialized
 
         try {
@@ -212,7 +219,7 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
             // Keep Alive Logic: Force resume if browser suspends context (critical for background play)
             ctx.onstatechange = () => {
                 if (ctx.state === 'suspended' && audioRef.current && !audioRef.current.paused) {
-                    ctx.resume();
+                   ctx.resume();
                 }
             };
 
@@ -228,6 +235,7 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
         } catch (error) {
             console.error("Failed to initialize Web Audio API:", error);
         }
+        */
     }, []);
 
     const togglePlay = useCallback(() => {
