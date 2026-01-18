@@ -412,8 +412,8 @@ const VibingAvatar = memo(function VibingAvatar({ isPlaying, hour, lyrics, narra
                                 // Expressive: Show dramatic text word-by-word (one at a time)
                                 const words = lyric.text.split(' ');
                                 const lyricDuration = (lyric.end - lyric.start) * 1000;
-                                // Slower stagger for dramatic effect
-                                const staggerMs = Math.min(600, Math.max(300, (lyricDuration * 0.9) / words.length));
+                                // Adjusted stagger (balanced)
+                                const staggerMs = Math.min(500, Math.max(250, (lyricDuration * 0.9) / words.length));
 
                                 words.forEach((word: string, index: number) => {
                                     setTimeout(() => {
@@ -431,8 +431,8 @@ const VibingAvatar = memo(function VibingAvatar({ isPlaying, hour, lyrics, narra
                                 // Normal: Spawn floating words one-by-one
                                 const words = lyric.text.split(' ');
                                 const lyricDuration = (lyric.end - lyric.start) * 1000;
-                                // Increased minimum stagger for better vertical spacing
-                                const staggerMs = Math.min(700, Math.max(350, (lyricDuration * 0.9) / words.length));
+                                // Adjusted stagger (balanced)
+                                const staggerMs = Math.min(600, Math.max(300, (lyricDuration * 0.9) / words.length));
 
                                 words.forEach((word: string, index: number) => {
                                     setTimeout(() => {
@@ -471,9 +471,9 @@ const VibingAvatar = memo(function VibingAvatar({ isPlaying, hour, lyrics, narra
         // Trigger floating words animation immediately
         const words = narrativeText.split(' ');
         // Calculate reading duration based on length
-        const duration = Math.max(3000, words.length * 500); // Increased base duration
-        // Much slower stagger for "Convos" to prevent crowding
-        const staggerMs = Math.min(900, Math.max(450, (duration * 0.9) / words.length));
+        const duration = Math.max(2500, words.length * 400); // Balanced duration
+        // Balanced stagger for "Convos"
+        const staggerMs = Math.min(700, Math.max(350, (duration * 0.9) / words.length));
 
         words.forEach((word: string, index: number) => {
             setTimeout(() => {
