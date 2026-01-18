@@ -12,10 +12,11 @@ export function GradientOrb() {
     const bottomLeftRef = useRef<HTMLDivElement>(null);
     const bottomRightRef = useRef<HTMLDivElement>(null);
 
-    const { isPlaying, currentSong } = useAudio();
+    const { isPlaying, currentSong, analyser } = useAudio();
     const { isZen } = useZen();
     const isPlayingRef = useRef(isPlaying);
     const isZenRef = useRef(isZen);
+    const analyserRef = useRef(analyser); // Ref for loop access
 
     // Get current theme based on song title
     const theme = useMemo(() => {
@@ -27,70 +28,107 @@ export function GradientOrb() {
     useEffect(() => {
         isPlayingRef.current = isPlaying;
         isZenRef.current = isZen;
-    }, [isPlaying, isZen]);
+        analyserRef.current = analyser;
+    }, [isPlaying, isZen, analyser]);
 
     useEffect(() => {
         let animationId: number;
         let time = 0;
 
+        // Data buffer for audio analysis
+        // We assume fftSize=64 (set in AudioContext), so frequencyBinCount is 32.
+        const dataArray = new Uint8Array(32);
+        let bassSmoothed = 0; // Smoothed value for scale interpolation
+
         const animate = () => {
-            // Dynamic speed control - more energetic in Zen mode
-            // default: 0.015 (was 0.008) -> faster base movement
-            // playing: 0.025 -> energetic but smooth
-            // zen: 0.03 -> immersive flow
+            // Dynamic speed control
             const zenActive = isZenRef.current;
-            const speed = zenActive ? 0.03 : (isPlayingRef.current ? 0.025 : 0.015);
+            const playing = isPlayingRef.current;
+
+            const speed = zenActive ? 0.03 : (playing ? 0.025 : 0.015);
             time += speed;
 
-            // Amplitude multiplier - higher in Zen for more dramatic movement
-            const amp = zenActive ? 1.8 : (isPlayingRef.current ? 1.4 : 1.0);
+            // Amplitude multiplier
+            const amp = zenActive ? 1.8 : (playing ? 1.4 : 1.0);
 
+            // Audio Reactive Scaling Calculation
+            let currentScaleBoost = 0;
+
+            if (playing && analyserRef.current) {
+                // Get real-time frequency data
+                analyserRef.current.getByteFrequencyData(dataArray);
+
+                // Bass is usually in the lowest bins. With fftSize=64, bin 0 covers ~0-600Hz.
+                // We'll trust bin 0 for the "Kick/Thump" factor.
+                const bassEnergy = dataArray[0];
+
+                // Normalize 0-255 to 0.0-1.0
+                const targetBoost = (bassEnergy / 255);
+
+                // Smooth interpolation (Attack fast, release slow-ish)
+                bassSmoothed += (targetBoost - bassSmoothed) * 0.2;
+
+                // Max scale impact: +30% size on max bass
+                currentScaleBoost = bassSmoothed * 0.3;
+            } else {
+                // Simulated breathing when not playing/no analyzer
+                // Keeping it subtle
+                const breathFreq = playing ? 0.4 : 0.4;
+                const breathAmp = playing ? 0.15 : 0.1;
+                // Since 'playing' implies we SHOULD have analyzer, this fallback is mostly for paused state
+                currentScaleBoost = Math.sin(time * breathFreq) * breathAmp;
+
+                // Reset smoother so it doesn't jump when song starts
+                if (!playing) bassSmoothed = 0;
+            }
+
+            // Apply transforms
             if (primaryRef.current) {
-                // Large slow movements
                 const x = (Math.sin(time * 0.5) * 40 + Math.cos(time * 0.3) * 30 + Math.sin(time * 0.7) * 20) * amp;
                 const y = (Math.cos(time * 0.4) * 40 + Math.sin(time * 0.2) * 30) * amp;
-                // Subtle scale pulsing - deeper breathe when playing
-                const scaleAmp = isPlayingRef.current ? 0.15 : 0.1;
-                const scale = 1 + Math.sin(time * 0.4) * scaleAmp;
-                // Slow rotation
+
+                const scale = 1 + currentScaleBoost;
                 const rotate = time * 20;
-                primaryRef.current.style.transform = `translate(${x}px, ${y}px) scale(${scale}) rotate(${rotate}deg)`;
+                primaryRef.current.style.transform = `translate3d(${x}px, ${y}px, 0) scale(${scale}) rotate(${rotate}deg)`;
             }
 
             if (secondaryRef.current) {
                 const x = (Math.cos(time * 0.3) * 50 + Math.sin(time * 0.5) * 40) * amp;
                 const y = (Math.sin(time * 0.4) * 50 + Math.cos(time * 0.2) * 30 + Math.sin(time * 0.6) * 10) * amp;
-                const scaleAmp = isPlayingRef.current ? 0.15 : 0.1;
-                const scale = 1 + Math.cos(time * 0.3) * scaleAmp;
+
+                // Secondary slightly offset or different reaction? For now sync is cleaner.
+                const scale = 1 + (currentScaleBoost * 0.8); // Slightly less reactive
                 const rotate = Math.sin(time * 0.2) * 30 - time * 10;
-                secondaryRef.current.style.transform = `translate(${x}px, ${y}px) scale(${scale}) rotate(${rotate}deg)`;
+                secondaryRef.current.style.transform = `translate3d(${x}px, ${y}px, 0) scale(${scale}) rotate(${rotate}deg)`;
             }
 
             if (tertiaryRef.current) {
                 const x = (Math.sin(time * 0.4) * 60 + Math.cos(time * 0.6) * 20) * amp;
                 const y = (Math.cos(time * 0.3) * 60 + Math.sin(time * 0.5) * 50) * amp;
-                const scaleAmp = isPlayingRef.current ? 0.2 : 0.15;
-                const scale = 1 + Math.sin(time * 0.5) * scaleAmp;
+
+                const scale = 1 + (currentScaleBoost * 1.1); // More reactive
                 const rotate = Math.cos(time * 0.1) * 40 + time * 15;
-                tertiaryRef.current.style.transform = `translate(${x}px, ${y}px) scale(${scale}) rotate(${rotate}deg)`;
+                tertiaryRef.current.style.transform = `translate3d(${x}px, ${y}px, 0) scale(${scale}) rotate(${rotate}deg)`;
             }
 
-            // Bottom left orb - follows secondary theme
+            // Bottom left orb
             if (bottomLeftRef.current) {
                 const x = (Math.sin(time * 0.35) * 50 + Math.cos(time * 0.25) * 30) * amp;
                 const y = (Math.cos(time * 0.45) * 40 + Math.sin(time * 0.35) * 20) * amp;
-                const scale = 1 + Math.sin(time * 0.6) * 0.12;
+
+                const scale = 1 + (currentScaleBoost * 0.9);
                 const rotate = -time * 8;
-                bottomLeftRef.current.style.transform = `translate(${x}px, ${y}px) scale(${scale}) rotate(${rotate}deg)`;
+                bottomLeftRef.current.style.transform = `translate3d(${x}px, ${y}px, 0) scale(${scale}) rotate(${rotate}deg)`;
             }
 
-            // Bottom right orb - follows primary theme
+            // Bottom right orb
             if (bottomRightRef.current) {
                 const x = (Math.cos(time * 0.4) * 45 + Math.sin(time * 0.55) * 25) * amp;
                 const y = (Math.sin(time * 0.35) * 35 + Math.cos(time * 0.45) * 25) * amp;
-                const scale = 1 + Math.cos(time * 0.55) * 0.14;
+
+                const scale = 1 + currentScaleBoost;
                 const rotate = time * 12;
-                bottomRightRef.current.style.transform = `translate(${x}px, ${y}px) scale(${scale}) rotate(${rotate}deg)`;
+                bottomRightRef.current.style.transform = `translate3d(${x}px, ${y}px, 0) scale(${scale}) rotate(${rotate}deg)`;
             }
 
             animationId = requestAnimationFrame(animate);
@@ -98,7 +136,7 @@ export function GradientOrb() {
 
         animate();
         return () => cancelAnimationFrame(animationId);
-    }, []);
+    }, []); // Empty deps because we use refs for latest values
 
     return (
         <>
