@@ -143,6 +143,30 @@ const PLAYLIST = [
     {
         title: "The Script — The Man Who...",
         audioUrl: "/audio/The%20Script%20-%20The%20Man%20Who....mp3"
+    },
+    {
+        title: "Arash feat. Helena — One Day",
+        audioUrl: "/audio/ARASH%20feat%20Helena%20-%20ONE%20DAY%20(Official%20Video).mp3"
+    },
+    {
+        title: "Arash feat. Helena — Broken Angel",
+        audioUrl: "/audio/Arash%20feat.%20Helena%20-%20Broken%20Angel%20(Official%20Video).mp3"
+    },
+    {
+        title: "Kygo & Selena Gomez — It Ain't Me",
+        audioUrl: "/audio/Kygo%20&%20Selena%20Gomez%20-%20It%20Ain't%20Me%20(Audio).mp3"
+    },
+    {
+        title: "Martin Garrix & Bebe Rexha — In The Name Of Love",
+        audioUrl: "/audio/Martin%20Garrix%20&%20Bebe%20Rexha%20-%20In%20The%20Name%20Of%20Love%20(Official%20Video).mp3"
+    },
+    {
+        title: "Prateek Kuhad — Co2",
+        audioUrl: "/audio/Prateek%20Kuhad%20-%20Co2%20(Official%20Audio).mp3"
+    },
+    {
+        title: "Selena Gomez — Love You Like a Love Song",
+        audioUrl: "/audio/Selena%20Gomez%20-%20Love%20You%20Like%20a%20Love%20Song%20(Lyrics)%20no%20one%20compares%20you%20stand%20alone.mp3"
     }
 ];
 
@@ -177,11 +201,26 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [isPlaying, setTheme]);
 
-    // Resume AudioContext when tab becomes visible again
+    // Pause/Resume audio when tab visibility changes
+    const wasPlayingBeforeHiddenRef = useRef(false);
+
     useEffect(() => {
         const handleVisibilityChange = () => {
-            if (!document.hidden && audioContextRef.current?.state === 'suspended') {
-                audioContextRef.current.resume();
+            if (document.hidden) {
+                // Tab became hidden - pause if playing
+                if (audioRef.current && !audioRef.current.paused) {
+                    wasPlayingBeforeHiddenRef.current = true;
+                    audioRef.current.pause();
+                }
+            } else {
+                // Tab became visible - resume if was playing before
+                if (audioContextRef.current?.state === 'suspended') {
+                    audioContextRef.current.resume();
+                }
+                if (wasPlayingBeforeHiddenRef.current && audioRef.current) {
+                    audioRef.current.play().catch(() => { });
+                    wasPlayingBeforeHiddenRef.current = false;
+                }
             }
         };
         document.addEventListener('visibilitychange', handleVisibilityChange);
