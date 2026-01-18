@@ -75,7 +75,7 @@ export function Header() {
                 right: 0,
                 zIndex: 50,
                 borderBottom: "1px solid var(--border)",
-                transition: "background-color 0.3s ease, border-color 0.3s ease, transform 0.5s ease, opacity 0.5s ease",
+                transition: "background-color 0.3s ease, border-color 0.3s ease, transform 0.7s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1)",
                 height: "5rem", // Fixed height for consistency
                 transform: isZen ? "translateY(-100%)" : "translateY(0)",
                 opacity: isZen ? 0 : 1,

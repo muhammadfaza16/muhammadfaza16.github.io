@@ -24,15 +24,19 @@ export function ZenHideable({ children, hideInZen = false, showOnlyInZen = false
     return (
         <div
             style={{
+                display: "grid",
+                gridTemplateRows: shouldHide ? "0fr" : "1fr",
                 opacity: shouldHide ? 0 : 1,
+                filter: shouldHide ? "blur(10px)" : "blur(0px)",
+                transform: shouldHide ? "scale(0.98)" : "scale(1)", // Subtle scale for depth
                 pointerEvents: shouldHide ? "none" : "auto",
-                maxHeight: shouldHide ? 0 : "none",
-                overflow: shouldHide ? "hidden" : "visible",
-                transition: "opacity 0.5s ease-in-out, max-height 0.5s ease-in-out"
+                transition: "all 0.7s cubic-bezier(0.22, 1, 0.36, 1)"
             }}
             aria-hidden={shouldHide}
         >
-            {children}
+            <div style={{ overflow: "hidden" }}>
+                {children}
+            </div>
         </div>
     );
 }

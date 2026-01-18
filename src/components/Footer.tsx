@@ -16,8 +16,10 @@ export function Footer() {
             paddingBottom: "3rem",
             borderTop: "1px solid var(--border)",
             opacity: isZen ? 0 : 1,
+            filter: isZen ? "blur(10px)" : "blur(0px)",
+            transform: isZen ? "translateY(20px)" : "translateY(0)",
             pointerEvents: isZen ? "none" : "auto",
-            transition: "opacity 0.5s ease"
+            transition: "all 0.7s cubic-bezier(0.22, 1, 0.36, 1)"
         }}>
             <Container>
                 {/* Main Footer Content */}

@@ -11,13 +11,11 @@ export function FloatingZenToggle() {
     const pathname = usePathname();
 
     // Only show on blog article pages (e.g. /blog/something), not on the main list (/blog)
+    // Only show on blog article pages (e.g. /blog/something), not on the main list (/blog)
     const isBlogArticle = pathname?.startsWith("/blog/") && pathname !== "/blog";
-
-
 
     useEffect(() => {
         const handleScroll = () => {
-            // Show button after scrolling down 100px
             if (window.scrollY > 100) {
                 setIsVisible(true);
             } else {
@@ -29,12 +27,11 @@ export function FloatingZenToggle() {
         return () => window.removeEventListener("scroll", handleScroll);
     }, []);
 
-    // If we are already in Zen mode, let the existing ZenToggle handle it (it floats when active).
-    // OR we can handle it here too.
-    // The existing ZenToggle in blog posts floats when isZen is true.
-    // If we have TWO floating buttons, that's bad.
-    // So hiding this one when isZen is true avoids duplication.
-    if (isZen || !isBlogArticle) return null;
+    // Hide if not blog article, unmount.
+    if (!isBlogArticle) return null;
+
+    // Logic: Hide if Zen is active OR if not scrolled enough
+    const shouldShow = isVisible && !isZen;
 
     return (
         <button
@@ -57,10 +54,10 @@ export function FloatingZenToggle() {
                 fontSize: "0.8rem",
                 textTransform: "uppercase",
                 letterSpacing: "0.1em",
-                transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
-                opacity: isVisible ? 1 : 0,
-                transform: isVisible ? "translateY(0)" : "translateY(20px)",
-                pointerEvents: isVisible ? "auto" : "none",
+                transition: "all 0.7s cubic-bezier(0.22, 1, 0.36, 1)",
+                opacity: shouldShow ? 1 : 0,
+                transform: shouldShow ? "translateY(0)" : "translateY(20px)",
+                pointerEvents: shouldShow ? "auto" : "none",
             }}
             className="zen-toggle-button hover:shadow-lg hover:-translate-y-1 active:scale-95 glass p-3 md:py-3 md:px-5"
             aria-label="Toggle Read Mode"
