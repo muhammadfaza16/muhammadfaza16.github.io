@@ -102,6 +102,7 @@ export function DidYouKnow() {
     return (
         <div
             ref={containerRef}
+            onClick={togglePlay}
             style={{
                 borderRadius: "1rem",
                 background: "var(--card-bg)",
@@ -111,7 +112,9 @@ export function DidYouKnow() {
                 overflow: "hidden",
                 height: "100%",
                 display: "flex",
-                flexDirection: "column"
+                flexDirection: "column",
+                cursor: "pointer",
+                transition: "border-color 0.3s ease"
             }}
         >
             {/* Decorative Sparkles */}
@@ -156,7 +159,7 @@ export function DidYouKnow() {
                     <div style={{ display: "flex", alignItems: "center", gap: "0.25rem" }}>
                         {/* Prev Button */}
                         <button
-                            onClick={handlePrev}
+                            onClick={(e) => { e.stopPropagation(); handlePrev(); }}
                             className="group hover:bg-[var(--hover-bg)] transition-colors"
                             style={{
                                 padding: "0.4rem",
@@ -176,7 +179,7 @@ export function DidYouKnow() {
 
                         {/* Next Button */}
                         <button
-                            onClick={handleNext}
+                            onClick={(e) => { e.stopPropagation(); handleNext(); }}
                             className="group hover:bg-[var(--hover-bg)] transition-colors"
                             style={{
                                 padding: "0.4rem",
@@ -199,7 +202,7 @@ export function DidYouKnow() {
 
                         {/* Shuffle Button */}
                         <button
-                            onClick={handleShuffle}
+                            onClick={(e) => { e.stopPropagation(); handleShuffle(); }}
                             className="group hover:bg-[var(--hover-bg)] transition-colors"
                             style={{
                                 padding: "0.4rem",
@@ -220,7 +223,7 @@ export function DidYouKnow() {
 
                         {/* Play/Pause Button */}
                         <button
-                            onClick={togglePlay}
+                            onClick={(e) => { e.stopPropagation(); togglePlay(); }}
                             className="group hover:bg-[var(--hover-bg)] transition-colors"
                             style={{
                                 padding: "0.4rem",
@@ -302,6 +305,7 @@ export function DidYouKnow() {
                                 opacity: 0.7,
                                 transition: "opacity 0.2s"
                             }}
+                            onClick={(e) => e.stopPropagation()}
                         >
                             <ExternalLink className="w-3 h-3" />
                             <span className="group-hover:underline">Verifikasi</span>
@@ -311,7 +315,7 @@ export function DidYouKnow() {
                         <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
                             {/* Copy Button */}
                             <button
-                                onClick={handleCopy}
+                                onClick={(e) => { e.stopPropagation(); handleCopy(); }}
                                 className="group hover:bg-[var(--hover-bg)] transition-all"
                                 style={{
                                     padding: "0.4rem 0.6rem",
@@ -334,7 +338,7 @@ export function DidYouKnow() {
 
                             {/* Mind Blown Button */}
                             <button
-                                onClick={handleMindBlown}
+                                onClick={(e) => { e.stopPropagation(); handleMindBlown(); }}
                                 className={`group transition-all ${mindBlown ? 'scale-110' : 'hover:scale-105'}`}
                                 style={{
                                     padding: "0.4rem 0.6rem",
