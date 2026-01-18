@@ -998,25 +998,8 @@ export function CurrentlyStrip() {
         return [];
     }, [currentSong, isSpecialLyricSong]);
 
-    // Lyrics for Avatar (Still using old system? No, we should probably pipe narrative here too?)
-    // For now, let's keep the Avatar visualizer using the narrative text if we want floating words
-    // OR we can keep the old lyric system for the "VibingAvatar" specific sync if desired.
-    // The user requirement was "song lyrics... max experience".
-    // So ideally the "floating words" should also come from the narrative engine.
-    // But the architecture of VibingAvatar expects `LyricItem[]`.
-    // Let's adapt VibingAvatar later if needed. For now let's focus on the Marquee Narrative.
-    // We'll pass an empty array to VibingAvatar to disable old lyrics or keep them parallel?
-    // "Conversation" suggests it replaces the lyrics.
-    // Let's try to feed the current narrative line as a "single lyric item" to the avatar for visual effect?
-    // The Avatar logic splits by spaces.
-    const narrativeLyricItem: LyricItem[] = useMemo(() => {
-        if (!narrative.text) return [];
-        return [{
-            start: 0,
-            end: 99999, // Always active until text changes
-            text: narrative.text
-        }];
-    }, [narrative.text]);
+    // narrativeLyricItem removed as it is no longer used.
+
 
 
     useEffect(() => {
@@ -1075,10 +1058,10 @@ export function CurrentlyStrip() {
     const checkInItem = useMemo(() => ({
         icon: "💬",
         label: "Soul",
-        text: "Listening...", // Static text or removed? Let's keep it minimal.
-        width: "140px",
+        text: narrative.text || "...", // Restore dynamic text to fix layout jumping
+        width: "300px",
         labelWidth: "40px"
-    }), []);
+    }), [narrative.text]);
 
     // Initial visit welcome messages for marquee
     const welcomeItems = useMemo(() => [
