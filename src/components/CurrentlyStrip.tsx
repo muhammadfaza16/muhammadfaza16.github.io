@@ -464,7 +464,7 @@ const VibingAvatar = memo(function VibingAvatar({ isPlaying, hour, lyrics, narra
 
     // Separate Effect for Narrative Text (Immediate Trigger)
     useEffect(() => {
-        if (!narrativeText) return;
+        if (!narrativeText || !isPlaying) return; // Only show floating text when playing
 
         // Trigger floating words animation immediately
         const words = narrativeText.split(' ');
@@ -967,8 +967,12 @@ export function CurrentlyStrip() {
 
     // We only change the message when song changes or rotation happens
     const displaySongMessage = useMemo(() => {
+        // Initial onboarding text
+        if (!hasInteracted && !isPlaying) {
+            return "Capek ya? Sini chill bentar aku temenin.";
+        }
         return getSongMessage(currentSong.title, isPlaying, songMessageIndex);
-    }, [currentSong, isPlaying, songMessageIndex]);
+    }, [currentSong, isPlaying, songMessageIndex, hasInteracted]);
 
     // Check-in Message (THE NARRATIVE TEXT)
     // We use the text from the narrative engine directly
@@ -977,6 +981,19 @@ export function CurrentlyStrip() {
     // "Welcome" text state (only shows once on very first interaction ever if we wanted,
     // but here we might just keep it simple)
     const [showWelcomeText, setShowWelcomeText] = useState(false);
+
+    // Avatar Tooltip State
+    const [showAvatarTooltip, setShowAvatarTooltip] = useState(false);
+
+    useEffect(() => {
+        if (isHydrated) {
+            setShowAvatarTooltip(true);
+            const timer = setTimeout(() => {
+                setShowAvatarTooltip(false);
+            }, 10000); // 10 seconds
+            return () => clearTimeout(timer);
+        }
+    }, [isHydrated]);
 
     // Lyrics logic - Restored for Manual/Special Songs (e.g. Faded)
     // We need to check if these are "special" lyrics or just generic time-based ones.
@@ -1169,13 +1186,50 @@ export function CurrentlyStrip() {
             {/* Top: Vibing Avatar */}
             {/* We pass narrative text directly to prop */}
             {/* Top: Vibing Avatar */}
-            {/* Logic: If manual lyrics exist (Faded), use them. Otherwise use Narrative text. */}
-            <VibingAvatar
-                isPlaying={isPlaying}
-                hour={currentHour}
-                lyrics={manualLyrics}
-                narrativeText={manualLyrics.length > 0 ? undefined : narrative.text}
-            />
+            {/* Top: Vibing Avatar Section (Relative wrapper for tooltip) */}
+            <div style={{ position: "relative" }}>
+                {/* Avatar Tooltip - disappears when playing */}
+                {!isPlaying && (
+                    <div
+                        style={{
+                            position: "absolute",
+                            top: "16px", // Right at the top edge
+                            left: "50%",
+                            transform: "translate(-50%, -100%)",
+                            maxWidth: "140px",
+                            width: "max-content",
+                            marginBottom: "0px",
+                            fontSize: "0.65rem", // Smaller
+                            fontFamily: "var(--font-mono)",
+                            color: "var(--foreground)",
+                            opacity: 0.7,
+                            textShadow: "0 1px 2px rgba(0,0,0,0.3)",
+                            lineHeight: 1.2, // Tighter line spacing
+                            whiteSpace: "normal",
+                            textAlign: "center",
+                            zIndex: 10,
+                            pointerEvents: "none",
+                            animation: "tooltip-enter 0.5s ease-out forwards"
+                        }}
+                    >
+                        Hey, hello. Selamat datang di Taman Langit gue. Faza di sini.
+                        <style>{`
+                            @keyframes tooltip-enter {
+                                0% { opacity: 0; }
+                                100% { opacity: 0.7; }
+                            }
+                        `}</style>
+                    </div>
+                )}
+
+                {/* Logic: If manual lyrics exist (Faded), use them. Otherwise use Narrative text. */}
+                <VibingAvatar
+                    isPlaying={isPlaying}
+                    hour={currentHour}
+                    lyrics={manualLyrics}
+                    narrativeText={manualLyrics.length > 0 ? undefined : narrative.text}
+                />
+            </div>
 
             {/* Top: Marquee Pill */}
             <div
