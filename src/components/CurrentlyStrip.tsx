@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef, useMemo, memo } from "react";
 import { useAudio } from "./AudioContext";
+import { useNarrative } from "./NarrativeContext"; // Import Narrative Hook
 import { SkipBack, SkipForward } from "lucide-react";
 import { getSongMessage } from "../data/songMessages";
 
@@ -138,7 +139,10 @@ const MarqueeItem = memo(function MarqueeItem({ item, id, onVisibilityChange }: 
 const ContinuousMarquee = memo(function ContinuousMarquee({ items, onVisibilityChange }: {
     items: { icon: React.ReactNode; label: string; text: string; width?: string; labelWidth?: string; onClick?: () => void; className?: string }[];
     onVisibilityChange: (id: string, isVisible: boolean) => void;
+    narrativeText?: string; // Trigger update on text change
 }) {
+    // Force re-render/animate when narrativeText changes if needed.
+    // Since 'items' will change, this is handled by React defaut.
     return (
         <div style={{
             display: "flex",
@@ -913,30 +917,69 @@ const VibingAvatar = memo(function VibingAvatar({ isPlaying, hour, lyrics }: { i
 });
 
 export function CurrentlyStrip() {
+    const { isPlaying, togglePlay, currentSong, nextSong, prevSong, hasInteracted } = useAudio();
+    const narrative = useNarrative(); // Use the hook
+
     const [currentTime, setCurrentTime] = useState("");
+    const [currentHour, setCurrentHour] = useState(0);
+
+    // Initial hydration fix
+    const [isHydrated, setIsHydrated] = useState(false);
+
+    // Unfreeze narrative on mount (page revisit)
+    useEffect(() => {
+        if (isHydrated) {
+            narrative.unfreeze();
+        }
+    }, [isHydrated]); // Run once after hydration
+
+    // Moods now rotate based on time
     const [moods, setMoods] = useState<string[]>([]);
     const [moodIndex, setMoodIndex] = useState(0);
-    const [checkInIndex, setCheckInIndex] = useState(0);
-    const [isHydrated, setIsHydrated] = useState(false);
-    const [currentHour, setCurrentHour] = useState(new Date().getHours());
+    const displayMood = moods.length > 0 ? moods[moodIndex % moods.length] : "";
+
+    // Song Messages (under play button)
     const [songMessageIndex, setSongMessageIndex] = useState(0);
+    const [msgOpacity, setMsgOpacity] = useState(1);
 
-    // Global Audio Context
-    const { isPlaying, togglePlay, currentSong, nextSong, prevSong, audioRef } = useAudio();
+    // We only change the message when song changes or rotation happens
+    const displaySongMessage = useMemo(() => {
+        return getSongMessage(currentSong.title, isPlaying, songMessageIndex);
+    }, [currentSong, isPlaying, songMessageIndex]);
 
-    // Interaction State for Welcome Message - persist to sessionStorage (resets on new visit)
-    const [hasInteracted, setHasInteracted] = useState(() => {
-        if (typeof window !== 'undefined') {
-            return sessionStorage.getItem('player_interacted') === 'true';
-        }
-        return false;
-    });
+    // Check-in Message (THE NARRATIVE TEXT)
+    // We use the text from the narrative engine directly
+    const displayCheckIn = narrative.text;
+
+    // "Welcome" text state (only shows once on very first interaction ever if we wanted,
+    // but here we might just keep it simple)
     const [showWelcomeText, setShowWelcomeText] = useState(false);
+
+    // Lyrics for Avatar (Still using old system? No, we should probably pipe narrative here too?)
+    // For now, let's keep the Avatar visualizer using the narrative text if we want floating words
+    // OR we can keep the old lyric system for the "VibingAvatar" specific sync if desired.
+    // The user requirement was "song lyrics... max experience".
+    // So ideally the "floating words" should also come from the narrative engine.
+    // But the architecture of VibingAvatar expects `LyricItem[]`.
+    // Let's adapt VibingAvatar later if needed. For now let's focus on the Marquee Narrative.
+    // We'll pass an empty array to VibingAvatar to disable old lyrics or keep them parallel?
+    // "Conversation" suggests it replaces the lyrics.
+    // Let's try to feed the current narrative line as a "single lyric item" to the avatar for visual effect?
+    // The Avatar logic splits by spaces.
+    const narrativeLyricItem: LyricItem[] = useMemo(() => {
+        if (!narrative.text) return [];
+        return [{
+            start: 0,
+            end: 99999, // Always active until text changes
+            text: narrative.text
+        }];
+    }, [narrative.text]);
+
 
     useEffect(() => {
         if (isPlaying && !hasInteracted) {
             // First time playing - show welcome text
-            setHasInteracted(true);
+            // setHasInteracted(true); // This is now managed by useAudio
             sessionStorage.setItem('player_interacted', 'true');
             setShowWelcomeText(true);
             // Hide after 5 seconds
@@ -946,54 +989,53 @@ export function CurrentlyStrip() {
         }
     }, [isPlaying, hasInteracted]);
 
-    const checkInMessages = getCheckInMessages(currentHour);
-
-    // Get song message based on current index and interaction state
-    let rawSongMessage = getSongMessage(currentSong.title, isPlaying, songMessageIndex);
-
-    // Dynamic Lyrics (Memoized to prevent flickering during playback, updates when song changes or hour changes significantly)
-    // We pass isPlaying so it doesn't regenerate when just pausing, but we want it to be fresh per song.
-    const lyrics = useMemo(() => {
-        return getDynamicLyrics(currentSong.title);
-    }, [currentSong.title]); // Only regenerate on song change
-
-    const [displaySongMessage, setDisplaySongMessage] = useState(rawSongMessage);
-    const [msgOpacity, setMsgOpacity] = useState(1);
-
-    useEffect(() => {
-        if (rawSongMessage === displaySongMessage) return;
-        setMsgOpacity(0);
-        const timer = setTimeout(() => {
-            setDisplaySongMessage(rawSongMessage);
-            setMsgOpacity(1);
-        }, 500);
-        return () => clearTimeout(timer);
-    }, [rawSongMessage, displaySongMessage]);
+    // This useEffect is no longer needed as displaySongMessage is a useMemo
+    // and rawSongMessage is removed.
+    // useEffect(() => {
+    //     if (rawSongMessage === displaySongMessage) return;
+    //     setMsgOpacity(0);
+    //     const timer = setTimeout(() => {
+    //         setDisplaySongMessage(rawSongMessage);
+    //         setMsgOpacity(1);
+    //     }, 500);
+    //     return () => clearTimeout(timer);
+    // }, [rawSongMessage, displaySongMessage]);
 
 
 
-    // Individually memoize items to prevent unnecessary re-renders
+    // Individually memoize items to prevent unnecessary    // Memoized Items
     const playingItem = useMemo(() => ({
-        icon: isPlaying ? "⏸" : "▶",
-        label: isPlaying ? "Playing" : "Paused",
+        icon: "🎵",
+        label: "Playing",
         text: currentSong.title,
-        width: "220px",
+        width: "200px", // Fixed width for song title
         labelWidth: "60px",
-        onClick: togglePlay,
-        className: "hover:opacity-80 transition-opacity"
-    }), [isPlaying, currentSong.title, togglePlay]);
+        className: "marquee-song-title"
+    }), [currentSong.title]);
 
     const timeItem = useMemo(() => ({
-        icon: "◎", label: "Time", text: currentTime, width: "65px"
+        icon: "🕒",
+        label: "Local",
+        text: currentTime + " (WIB)",
+        width: "110px",
+        labelWidth: "50px"
     }), [currentTime]);
 
     const moodItem = useMemo(() => ({
-        icon: "⚡", label: "Mood", text: moods[moodIndex % moods.length] || "Vibing", width: "160px"
-    }), [moods, moodIndex]);
+        icon: "✨",
+        label: "Vibe",
+        text: displayMood,
+        width: "180px",
+        labelWidth: "40px"
+    }), [displayMood]);
 
     const checkInItem = useMemo(() => ({
-        icon: "💌", label: "Checking in", text: checkInMessages[checkInIndex % checkInMessages.length], width: "320px"
-    }), [checkInMessages, checkInIndex]);
+        icon: "💬",
+        label: "Soul", // Changed from "Checking in" to "Soul" or "Note"
+        text: displayCheckIn || "...", // The Narrative Text
+        width: "300px",  // Give it plenty of space
+        labelWidth: "40px"
+    }), [displayCheckIn]);
 
     // Initial visit welcome messages for marquee
     const welcomeItems = useMemo(() => [
@@ -1041,9 +1083,8 @@ export function CurrentlyStrip() {
         updateTime();
         const timeInterval = setInterval(updateTime, 1000);
 
-        // Rotate check-in, mood message, and song message every 20 seconds
+        // Rotate mood message and song message every 20 seconds
         const contentRotationInterval = setInterval(() => {
-            setCheckInIndex((prev) => prev + 1);
             setMoodIndex((prev) => prev + 1);
             setSongMessageIndex((prev) => prev + 1);
         }, 20000);
@@ -1100,7 +1141,8 @@ export function CurrentlyStrip() {
             )}
 
             {/* Top: Vibing Avatar */}
-            <VibingAvatar isPlaying={isPlaying} hour={currentHour} lyrics={lyrics} />
+            {/* We pass narrative as lyrics for floating effects */}
+            <VibingAvatar isPlaying={isPlaying} hour={currentHour} lyrics={narrativeLyricItem} />
 
             {/* Top: Marquee Pill */}
             <div

@@ -11,6 +11,7 @@ interface AudioContextType {
     currentSong: { title: string; audioUrl: string };
     analyser: AnalyserNode | null;
     audioRef: React.RefObject<HTMLAudioElement | null>;
+    hasInteracted: boolean;
 }
 
 const AudioContext = createContext<AudioContextType | undefined>(undefined);
@@ -149,6 +150,7 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
     const [isPlaying, setIsPlaying] = useState(false);
     const [currentIndex, setCurrentIndex] = useState(0);
     const [analyser, setAnalyser] = useState<AnalyserNode | null>(null);
+    const [hasInteracted, setHasInteracted] = useState(false);
 
     const audioRef = useRef<HTMLAudioElement | null>(null);
     const audioContextRef = useRef<AudioContext | null>(null);
@@ -212,6 +214,7 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
         if (!audioRef.current) return;
 
         initializeAudio(); // Ensure context is ready on interaction
+        setHasInteracted(true);
 
         if (audioContextRef.current?.state === 'suspended') {
             audioContextRef.current.resume();
@@ -246,7 +249,7 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
     const currentSong = PLAYLIST[currentIndex];
 
     return (
-        <AudioContext.Provider value={{ isPlaying, togglePlay, nextSong, prevSong, currentSong, analyser, audioRef }}>
+        <AudioContext.Provider value={{ isPlaying, togglePlay, nextSong, prevSong, currentSong, analyser, audioRef, hasInteracted }}>
             <audio
                 ref={audioRef}
                 crossOrigin="anonymous"

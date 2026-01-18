@@ -8,6 +8,7 @@ import { KonamiCode } from "@/components/KonamiCode";
 import { FloatingZenToggle } from "@/components/FloatingZenToggle";
 import { NativeBrowserGuard } from "@/components/NativeBrowserGuard";
 import { AudioProvider } from "@/components/AudioContext";
+import { NarrativeProvider } from "@/components/NarrativeContext";
 
 export const metadata: Metadata = {
   title: "The Almanack of Broken Wanderer.",
@@ -57,20 +58,22 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
         <ThemeProvider>
-          <AudioProvider>
-            <ZenProvider>
-              <SkipLink />
-              <KonamiCode />
-              <KonamiCode />
-              <FloatingZenToggle />
-              <NativeBrowserGuard />
-              <Header />
-              <main id="main-content" className="main-content-padding" style={{ flex: 1 }}>
-                {children}
-              </main>
-              <Footer />
-            </ZenProvider>
-          </AudioProvider>
+          <NarrativeProvider>
+            <AudioProvider>
+              <ZenProvider>
+                <SkipLink />
+                <KonamiCode />
+                <KonamiCode />
+                <FloatingZenToggle />
+                <NativeBrowserGuard />
+                <Header />
+                <main id="main-content" className="main-content-padding" style={{ flex: 1 }}>
+                  {children}
+                </main>
+                <Footer />
+              </ZenProvider>
+            </AudioProvider>
+          </NarrativeProvider>
         </ThemeProvider>
       </body>
     </html>

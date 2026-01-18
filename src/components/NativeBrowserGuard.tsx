@@ -27,6 +27,16 @@ export function NativeBrowserGuard() {
         sessionStorage.setItem("native-browser-guard-dismissed", "true");
     };
 
+    // Auto disappear after 8 seconds
+    useEffect(() => {
+        if (isVisible) {
+            const timer = setTimeout(() => {
+                handleDismiss();
+            }, 8000);
+            return () => clearTimeout(timer);
+        }
+    }, [isVisible]);
+
     if (!isVisible) return null;
 
     return (
@@ -78,9 +88,9 @@ export function NativeBrowserGuard() {
                         color: "var(--text-secondary)",
                         lineHeight: 1.4
                     }}>
-                        For the best audio experience. <br />
+                        For the full experience. <br />
                         <span style={{ opacity: 0.8, fontStyle: "italic" }}>
-                            Buka di browser bawaan (Chrome/Safari) biar lebih enak dengernya. ✨
+                            Buka di browser bawaan (Chrome/Safari) biar experience-nya maksimal. ✨
                         </span>
                     </p>
                 </div>
