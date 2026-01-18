@@ -36,6 +36,7 @@ export function NarrativeProvider({ children }: { children: React.ReactNode }) {
     // Refs for timer management to avoid closure staleness
     const timerRef = useRef<NodeJS.Timeout | null>(null);
     const stateRef = useRef(state);
+    const isInitializedRef = useRef(false); // Track initialization
 
     // Sync ref with state
     useEffect(() => {
@@ -53,7 +54,9 @@ export function NarrativeProvider({ children }: { children: React.ReactNode }) {
             try {
                 const parsed = JSON.parse(saved);
                 // On reload/return: Set frozen to true, but keep the index
-                setState({ ...parsed, isFrozen: true });
+                const restoredState = { ...parsed, isFrozen: true };
+                setState(restoredState);
+                stateRef.current = restoredState; // Sync ref immediately
             } catch (e) {
                 console.error("Failed to load narrative state", e);
                 startNewSession();
@@ -61,6 +64,7 @@ export function NarrativeProvider({ children }: { children: React.ReactNode }) {
         } else {
             startNewSession();
         }
+        isInitializedRef.current = true; // Mark as initialized
 
         // Cleanup on unmount (user navigates away)
         return () => {
@@ -164,7 +168,14 @@ export function NarrativeProvider({ children }: { children: React.ReactNode }) {
 
     // Public Action: Unfreeze (called by UI on mount if frozen)
     const unfreeze = () => {
-        if (!stateRef.current.isFrozen) return;
+        // If not frozen, but also not initialized, might need to start fresh
+        if (!stateRef.current.isFrozen) {
+            // If we have no text but are initialized, start a new thread
+            if (isInitializedRef.current && !stateRef.current.text && !timerRef.current) {
+                startNextThread();
+            }
+            return;
+        }
 
         // Play Bridge First
         const bridge = BRIDGE_LINES[Math.floor(Math.random() * BRIDGE_LINES.length)];
