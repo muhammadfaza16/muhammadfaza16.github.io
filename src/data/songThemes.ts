@@ -59,7 +59,37 @@ export const SONG_THEMES: Record<string, ThemeColors> = {
         primary: "rgba(6, 182, 212, 0.4)", // Cyan
         secondary: "rgba(59, 130, 246, 0.3)", // Blue
         tertiary: "rgba(244, 63, 94, 0.2)", // Rose (Ava Max)
-    }
+    },
+    "Arash feat. Helena — One Day": {
+        primary: "rgba(234, 179, 8, 0.4)", // Yellow/Gold
+        secondary: "rgba(249, 115, 22, 0.3)", // Orange
+        tertiary: "rgba(120, 53, 15, 0.2)", // Brown
+    },
+    "Arash feat. Helena — Broken Angel": {
+        primary: "rgba(245, 158, 11, 0.4)", // Amber
+        secondary: "rgba(180, 83, 9, 0.3)", // Dark Amber
+        tertiary: "rgba(0, 0, 0, 0.2)", // Black/Shadow
+    },
+    "Kygo & Selena Gomez — It Ain't Me": {
+        primary: "rgba(236, 72, 153, 0.4)", // Pink
+        secondary: "rgba(14, 165, 233, 0.3)", // Sky Blue
+        tertiary: "rgba(245, 208, 254, 0.2)", // Pale Purple
+    },
+    "Martin Garrix & Bebe Rexha — In The Name Of Love": {
+        primary: "rgba(59, 130, 246, 0.4)", // Blue
+        secondary: "rgba(6, 182, 212, 0.3)", // Cyan
+        tertiary: "rgba(255, 255, 255, 0.2)", // White/Light
+    },
+    "Prateek Kuhad — Co2": {
+        primary: "rgba(253, 186, 116, 0.4)", // Orange/Peach
+        secondary: "rgba(252, 165, 165, 0.3)", // Red/Pink
+        tertiary: "rgba(120, 113, 108, 0.2)", // Warm Grey
+    },
+    "Selena Gomez — Love You Like a Love Song": {
+        primary: "rgba(192, 38, 211, 0.4)", // Fuchsia
+        secondary: "rgba(232, 121, 249, 0.3)", // Light Purple
+        tertiary: "rgba(76, 29, 149, 0.2)", // Dark Violet
+    },
 };
 
 export const DEFAULT_THEME: ThemeColors = {

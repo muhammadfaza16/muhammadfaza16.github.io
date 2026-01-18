@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useMemo } from "react";
 import { useAudio } from "./AudioContext";
 import { useZen } from "./ZenContext";
+import { SONG_THEMES, DEFAULT_THEME } from "../data/songThemes";
 
 export function GradientOrb() {
     const primaryRef = useRef<HTMLDivElement>(null);
@@ -11,10 +12,16 @@ export function GradientOrb() {
     const bottomLeftRef = useRef<HTMLDivElement>(null);
     const bottomRightRef = useRef<HTMLDivElement>(null);
 
-    const { isPlaying } = useAudio();
+    const { isPlaying, currentSong } = useAudio();
     const { isZen } = useZen();
     const isPlayingRef = useRef(isPlaying);
     const isZenRef = useRef(isZen);
+
+    // Get current theme based on song title
+    const theme = useMemo(() => {
+        if (!currentSong) return DEFAULT_THEME;
+        return SONG_THEMES[currentSong.title] || DEFAULT_THEME;
+    }, [currentSong]);
 
     // Keep refs in sync without restarting effect
     useEffect(() => {
@@ -68,7 +75,7 @@ export function GradientOrb() {
                 tertiaryRef.current.style.transform = `translate(${x}px, ${y}px) scale(${scale}) rotate(${rotate}deg)`;
             }
 
-            // Bottom left orb - warm pink/magenta
+            // Bottom left orb - follows secondary theme
             if (bottomLeftRef.current) {
                 const x = (Math.sin(time * 0.35) * 50 + Math.cos(time * 0.25) * 30) * amp;
                 const y = (Math.cos(time * 0.45) * 40 + Math.sin(time * 0.35) * 20) * amp;
@@ -77,7 +84,7 @@ export function GradientOrb() {
                 bottomLeftRef.current.style.transform = `translate(${x}px, ${y}px) scale(${scale}) rotate(${rotate}deg)`;
             }
 
-            // Bottom right orb - teal/emerald
+            // Bottom right orb - follows primary theme
             if (bottomRightRef.current) {
                 const x = (Math.cos(time * 0.4) * 45 + Math.sin(time * 0.55) * 25) * amp;
                 const y = (Math.sin(time * 0.35) * 35 + Math.cos(time * 0.45) * 25) * amp;
@@ -106,14 +113,15 @@ export function GradientOrb() {
                     left: "20%",
                     width: "clamp(300px, 70vw, 600px)",
                     height: "clamp(300px, 70vw, 600px)",
-                    background: "radial-gradient(ellipse at 30% 30%, rgba(99,102,241,0.35) 0%, rgba(139,92,246,0.2) 40%, rgba(168,85,247,0.08) 70%, transparent 100%)",
+                    background: `radial-gradient(ellipse at 30% 30%, ${theme.primary} 0%, rgba(139,92,246,0.2) 40%, rgba(168,85,247,0.08) 70%, transparent 100%)`, // Mixing dynamic primary with static base for depth
                     filter: "blur(45px)",
                     opacity: 0.7,
                     animation: "blobMorph 10s ease-in-out infinite",
                     pointerEvents: "none",
                     zIndex: 0,
                     borderRadius: "60% 40% 30% 70% / 60% 30% 70% 40%",
-                    willChange: "transform"
+                    willChange: "transform",
+                    transition: "background 1s ease-in-out"
                 }}
             />
 
@@ -128,14 +136,15 @@ export function GradientOrb() {
                     right: "10%",
                     width: "clamp(200px, 50vw, 400px)",
                     height: "clamp(200px, 50vw, 400px)",
-                    background: "radial-gradient(ellipse at 60% 40%, rgba(244,114,182,0.3) 0%, rgba(251,146,60,0.15) 45%, rgba(234,179,8,0.05) 80%, transparent 100%)",
+                    background: `radial-gradient(ellipse at 60% 40%, ${theme.secondary} 0%, rgba(251,146,60,0.15) 45%, rgba(234,179,8,0.05) 80%, transparent 100%)`,
                     filter: "blur(50px)",
                     opacity: 0.65,
                     animation: "blobMorph 14s ease-in-out infinite reverse",
                     pointerEvents: "none",
                     zIndex: 0,
                     borderRadius: "40% 60% 70% 30% / 40% 70% 30% 60%",
-                    willChange: "transform"
+                    willChange: "transform",
+                    transition: "background 1s ease-in-out"
                 }}
             />
 
@@ -150,14 +159,15 @@ export function GradientOrb() {
                     right: "25%",
                     width: "clamp(150px, 35vw, 280px)",
                     height: "clamp(150px, 35vw, 280px)",
-                    background: "radial-gradient(ellipse at 50% 50%, rgba(34,211,238,0.25) 0%, rgba(56,189,248,0.12) 50%, transparent 100%)",
+                    background: `radial-gradient(ellipse at 50% 50%, ${theme.tertiary} 0%, rgba(56,189,248,0.12) 50%, transparent 100%)`,
                     filter: "blur(40px)",
                     opacity: 0.6,
                     animation: "blobMorph 18s ease-in-out infinite",
                     pointerEvents: "none",
                     zIndex: 0,
                     borderRadius: "50% 50% 40% 60% / 60% 40% 60% 40%",
-                    willChange: "transform"
+                    willChange: "transform",
+                    transition: "background 1s ease-in-out"
                 }}
             />
 
@@ -171,14 +181,15 @@ export function GradientOrb() {
                     left: "5%",
                     width: "clamp(180px, 40vw, 350px)",
                     height: "clamp(180px, 40vw, 350px)",
-                    background: "radial-gradient(ellipse at 40% 60%, rgba(236,72,153,0.3) 0%, rgba(219,39,119,0.15) 45%, rgba(190,24,93,0.05) 80%, transparent 100%)",
+                    background: `radial-gradient(ellipse at 40% 60%, ${theme.secondary} 0%, rgba(219,39,119,0.15) 45%, rgba(190,24,93,0.05) 80%, transparent 100%)`,
                     filter: "blur(45px)",
                     opacity: 0.55,
                     animation: "blobMorph 16s ease-in-out infinite",
                     pointerEvents: "none",
                     zIndex: 0,
                     borderRadius: "55% 45% 60% 40% / 45% 55% 45% 55%",
-                    willChange: "transform"
+                    willChange: "transform",
+                    transition: "background 1s ease-in-out"
                 }}
             />
 
@@ -192,14 +203,15 @@ export function GradientOrb() {
                     right: "10%",
                     width: "clamp(150px, 35vw, 300px)",
                     height: "clamp(150px, 35vw, 300px)",
-                    background: "radial-gradient(ellipse at 50% 50%, rgba(20,184,166,0.3) 0%, rgba(16,185,129,0.15) 50%, transparent 100%)",
+                    background: `radial-gradient(ellipse at 50% 50%, ${theme.primary} 0%, rgba(16,185,129,0.15) 50%, transparent 100%)`,
                     filter: "blur(40px)",
                     opacity: 0.5,
                     animation: "blobMorph 20s ease-in-out infinite reverse",
                     pointerEvents: "none",
                     zIndex: 0,
                     borderRadius: "45% 55% 50% 50% / 55% 45% 55% 45%",
-                    willChange: "transform"
+                    willChange: "transform",
+                    transition: "background 1s ease-in-out"
                 }}
             />
         </>

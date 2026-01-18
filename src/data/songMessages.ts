@@ -249,6 +249,58 @@ export const SONG_MESSAGES: Record<string, { playing: string[] }> = {
             "Not going anywhere. I'm solid.",
         ],
     },
+
+    // --- Arash ---
+    "Arash feat. Helena — One Day": {
+        playing: [
+            "Just wait. I'm coming.",
+            "Distance is just a number.",
+            "My word is bond.",
+        ],
+    },
+    "Arash feat. Helena — Broken Angel": {
+        playing: [
+            "I'm here to fix it.",
+            "You're not alone in this.",
+            "I got you. Always.",
+        ],
+    },
+
+    // --- Kygo ---
+    "Kygo & Selena Gomez — It Ain't Me": {
+        playing: [
+            "I set the standard.",
+            "Know your worth.",
+            "Moving on to better things.",
+        ],
+    },
+
+    // --- Martin Garrix ---
+    "Martin Garrix & Bebe Rexha — In The Name Of Love": {
+        playing: [
+            "I'd do it all for us.",
+            "No limits. Just us.",
+            "Test me. I'll prove it.",
+        ],
+    },
+
+    // --- Prateek Kuhad ---
+    "Prateek Kuhad — Co2": {
+        playing: [
+            "You're my atmosphere.",
+            "Can't breathe without this.",
+            "Purest vibe we got.",
+        ],
+    },
+
+    // --- Selena Gomez ---
+    "Selena Gomez — Love You Like a Love Song": {
+        playing: [
+            "On repeat in my head.",
+            "My favorite melody.",
+            "Instant classic.",
+        ],
+    },
 };
 
 // Helper function to get a message for a song by index (for rotation)
