@@ -127,9 +127,7 @@ export default function HomePage() {
             <div className="animate-fade-in animation-delay-300">
               {/* Minimalist Header - Left Aligned */}
               <div style={{
-                marginBottom: "3rem",
-                paddingBottom: "2rem",
-                borderBottom: "1px solid var(--border)",
+                marginBottom: "1.5rem",
                 textAlign: "left"
               }}>
                 <span style={{

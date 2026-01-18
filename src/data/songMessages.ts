@@ -17,7 +17,7 @@ export const SONG_MESSAGES: Record<string, { playing: string[] }> = {
             "Unstoppable duo energy.",
         ],
     },
-    "Alan Walker — Darkside (feat. AuRa...": {
+    "Alan Walker — Darkside": {
         playing: [
             "Embrace the mystery.",
             "We own the night.",
@@ -173,6 +173,22 @@ export const SONG_MESSAGES: Record<string, { playing: string[] }> = {
         ],
     },
 
+    // --- One Direction ---
+    "One Direction — Night Changes": {
+        playing: [
+            "Just how fast the night changes.",
+            "Nothing stays the same.",
+            "But this moment? It's ours.",
+        ],
+    },
+    "One Direction — Story of My Life": {
+        playing: [
+            "Written in these walls.",
+            "The story of us.",
+            "Frozen in time.",
+        ],
+    },
+
     // --- Peterpan / Noah ---
     "Peterpan — Ku Katakan Dengan Indah": {
         playing: [
@@ -223,14 +239,7 @@ export const SONG_MESSAGES: Record<string, { playing: string[] }> = {
         ],
     },
 
-    // --- MAGIC! ---
-    "MAGIC! — Rude": {
-        playing: [
-            "I'm gonna get what's mine.",
-            "Confidence is key.",
-            "Try to stop me.",
-        ],
-    },
+
 
     // --- Melanie Martinez ---
     "Melanie Martinez — Play Date": {

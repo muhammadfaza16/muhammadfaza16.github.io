@@ -8,6 +8,114 @@ import { ZenHideable } from "./ZenHideable";
 import { SkipBack, SkipForward, Sparkles, X } from "lucide-react";
 import { getSongMessage } from "../data/songMessages";
 
+// Helper component for typewriter effect
+// Helper component for typewriter effect (Infinite Loop + Human Touch)
+// Helper component for typewriter effect (Infinite Loop + Human Touch + Typos)
+// Now supports multiple texts cycling!
+function TypewriterText({
+    text,
+    texts,
+    speed = 60,
+    deleteSpeed = 30,
+    pauseDuration = 2000
+}: {
+    text?: string;
+    texts?: string[];
+    speed?: number;
+    deleteSpeed?: number;
+    pauseDuration?: number
+}) {
+    const [displayedText, setDisplayedText] = useState("");
+    const [isDeleting, setIsDeleting] = useState(false);
+    const [isTypo, setIsTypo] = useState(false);
+    const [textIndex, setTextIndex] = useState(0);
+
+    // Normalize input to array
+    const textQueue = useMemo(() => texts || (text ? [text] : []), [text, texts]);
+    const currentFullText = textQueue[textIndex % textQueue.length] || "";
+
+    // Cursor blinking effect
+    const [isCursorVisible, setIsCursorVisible] = useState(true);
+    useEffect(() => {
+        const cursorTimer = setInterval(() => {
+            setIsCursorVisible((prev) => !prev);
+        }, 500);
+        return () => clearInterval(cursorTimer);
+    }, []);
+
+    useEffect(() => {
+        let timeout: NodeJS.Timeout;
+
+        const currentSpeed = isDeleting
+            ? deleteSpeed
+            : speed + (Math.random() * (speed * 0.5)); // fast variance
+
+        if (isDeleting) {
+            // Deleting Phase
+            setIsTypo(false);
+            if (displayedText.length > 0) {
+                timeout = setTimeout(() => {
+                    setDisplayedText(currentFullText.substring(0, displayedText.length - 1));
+                }, deleteSpeed);
+            } else {
+                // Done deleting, switch text and restart
+                timeout = setTimeout(() => {
+                    setIsDeleting(false);
+                    setTextIndex((prev) => prev + 1);
+                }, 800);
+            }
+        } else {
+            // Typing Phase
+            if (isTypo) {
+                // Reaction time to realize typo
+                timeout = setTimeout(() => {
+                    setDisplayedText((prev) => prev.slice(0, -1));
+                    setIsTypo(false);
+                }, 400);
+            } else if (displayedText.length < currentFullText.length) {
+                // Chance to make a typo (5%)
+                const shouldTypo = Math.random() < 0.05 && displayedText.length > 2 && displayedText.length < currentFullText.length - 3;
+
+                if (shouldTypo) {
+                    const keyboard = "abcdefghijklmnopqrstuvwxyz";
+                    const randomChar = keyboard.charAt(Math.floor(Math.random() * keyboard.length));
+                    timeout = setTimeout(() => {
+                        setDisplayedText((prev) => prev + randomChar);
+                        setIsTypo(true);
+                    }, currentSpeed);
+                } else {
+                    // Type correct char
+                    timeout = setTimeout(() => {
+                        setDisplayedText(currentFullText.substring(0, displayedText.length + 1));
+                    }, currentSpeed);
+                }
+            } else {
+                // Done typing, wait before deleting
+                timeout = setTimeout(() => {
+                    setIsDeleting(true);
+                }, pauseDuration);
+            }
+        }
+
+        return () => clearTimeout(timeout);
+    }, [displayedText, isDeleting, isTypo, textIndex, textQueue, currentFullText, speed, deleteSpeed, pauseDuration]);
+
+    return (
+        <span>
+            {displayedText}
+            <span style={{
+                display: "inline-block",
+                width: "2px",
+                height: "1em",
+                backgroundColor: "currentColor",
+                marginLeft: "2px",
+                verticalAlign: "middle",
+                opacity: isCursorVisible ? 1 : 0,
+                transition: "opacity 0.1s"
+            }} />
+        </span>
+    );
+}
 
 // Derived values from context now
 // const playlist removed as it is handled by context for the active song
@@ -1227,7 +1335,15 @@ export function CurrentlyStrip() {
                             animation: "tooltip-enter 0.5s ease-out forwards"
                         }}
                     >
-                        Hey, hello. Selamat datang di Taman Langit gue. Faza here.
+                        <TypewriterText
+                            texts={[
+                                "Hey, hello. Selamat datang di Taman Langit. Faza di sini.",
+                                "Ada perlu apa ya jauh-jauh ke sini?"
+                            ]}
+                            speed={60}
+                            deleteSpeed={50}
+                            pauseDuration={3000}
+                        />
                         <style>{`
                             @keyframes tooltip-enter {
                                 0% { opacity: 0; }
