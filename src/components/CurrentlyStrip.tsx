@@ -408,12 +408,18 @@ const VibingAvatar = memo(function VibingAvatar({ isPlaying, hour, lyrics, narra
                         if (lastLyricRef.current !== lyricKey) {
                             lastLyricRef.current = lyricKey;
 
+                            // Special handling for "Faded" to keep its fast tempo
+                            const isFaded = currentSong.title.includes("Faded");
+
                             if (lyric.expressive) {
                                 // Expressive: Show dramatic text word-by-word (one at a time)
                                 const words = lyric.text.split(' ');
                                 const lyricDuration = (lyric.end - lyric.start) * 1000;
-                                // Adjusted stagger (balanced)
-                                const staggerMs = Math.min(500, Math.max(250, (lyricDuration * 0.9) / words.length));
+
+                                // Adjusted stagger (Fast for Faded, Balanced for others)
+                                const staggerMs = isFaded
+                                    ? Math.min(350, Math.max(200, (lyricDuration * 0.8) / words.length))
+                                    : Math.min(500, Math.max(250, (lyricDuration * 0.9) / words.length));
 
                                 words.forEach((word: string, index: number) => {
                                     setTimeout(() => {
@@ -431,8 +437,11 @@ const VibingAvatar = memo(function VibingAvatar({ isPlaying, hour, lyrics, narra
                                 // Normal: Spawn floating words one-by-one
                                 const words = lyric.text.split(' ');
                                 const lyricDuration = (lyric.end - lyric.start) * 1000;
-                                // Adjusted stagger (balanced)
-                                const staggerMs = Math.min(600, Math.max(300, (lyricDuration * 0.9) / words.length));
+
+                                // Adjusted stagger (Fast for Faded, Balanced for others)
+                                const staggerMs = isFaded
+                                    ? Math.min(350, Math.max(200, (lyricDuration * 0.8) / words.length))
+                                    : Math.min(600, Math.max(300, (lyricDuration * 0.9) / words.length));
 
                                 words.forEach((word: string, index: number) => {
                                     setTimeout(() => {

@@ -2,6 +2,7 @@
 
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
+import { useAudio } from "./AudioContext";
 
 interface ZenContextType {
     isZen: boolean;
@@ -22,6 +23,14 @@ export function useZen() {
 export function ZenProvider({ children }: { children: React.ReactNode }) {
     const [isZen, setIsZen] = useState(false);
     const pathname = usePathname();
+    const { isPlaying } = useAudio();
+
+    // Auto-enter Zen mode when music starts playing
+    useEffect(() => {
+        if (isPlaying) {
+            setIsZen(true);
+        }
+    }, [isPlaying]);
 
     // Reset Zen mode on route change - except for homepage and blog articles
     useEffect(() => {
