@@ -25,14 +25,6 @@ export function useAudio() {
 }
 const PLAYLIST = [
     {
-        title: "Alan Walker — Alone Pt II",
-        audioUrl: "/audio/Alan%20Walker%20-%20Alone%20Pt%20II.mp3"
-    },
-    {
-        title: "Alan Walker — Alone",
-        audioUrl: "/audio/Alan%20Walker%20-%20Alone.mp3"
-    },
-    {
         title: "Alan Walker — Darkside (feat. AuRa...",
         audioUrl: "/audio/Alan%20Walker%20-%20Darkside%20(feat.%20AuRa....mp3"
     },
@@ -41,12 +33,96 @@ const PLAYLIST = [
         audioUrl: "/audio/Alan%20Walker%20-%20Faded.mp3"
     },
     {
-        title: "Alan Walker — Sing Me To Sleep",
-        audioUrl: "/audio/Alan%20Walker%20-%20Sing%20Me%20To%20Sleep.mp3"
+        title: "Harry Styles — Sign of the Times",
+        audioUrl: "/audio/Harry%20Styles%20-%20Sign%20of%20the%20Times.mp3"
+    },
+    {
+        title: "Arash feat. Helena — One Day",
+        audioUrl: "/audio/ARASH%20feat%20Helena%20-%20ONE%20DAY%20(Official%20Video).mp3"
+    },
+    {
+        title: "Lord Huron — The Night We Met",
+        audioUrl: "/audio/Lord%20Huron%20-%20The%20Night%20We%20Met.mp3"
+    },
+    {
+        title: "Selena Gomez — Love You Like a Love Song",
+        audioUrl: "/audio/Selena%20Gomez%20-%20Love%20You%20Like%20a%20Love%20Song%20(Lyrics)%20no%20one%20compares%20you%20stand%20alone.mp3"
     },
     {
         title: "Alan Walker — The Spectre",
         audioUrl: "/audio/Alan%20Walker%20-%20The%20Spectre.mp3"
+    },
+    {
+        title: "Bruno Mars — It Will Rain",
+        audioUrl: "/audio/Bruno%20Mars%20-%20It%20Will%20Rain.mp3"
+    },
+    {
+        title: "Prateek Kuhad — Co2",
+        audioUrl: "/audio/Prateek%20Kuhad%20-%20Co2%20(Official%20Audio).mp3"
+    },
+    {
+        title: "John Newman — Love Me Again",
+        audioUrl: "/audio/John%20Newman%20-%20Love%20Me%20Again.mp3"
+    },
+    {
+        title: "Loreen — Tattoo",
+        audioUrl: "/audio/Loreen%20-%20Tattoo.mp3"
+    },
+    {
+        title: "MAGIC! — Rude",
+        audioUrl: "/audio/MAGIC!%20-%20Rude.mp3"
+    },
+    {
+        title: "Astrid S — Hurts So Good",
+        audioUrl: "/audio/Astrid%20S%20-%20Hurts%20So%20Good.mp3"
+    },
+    {
+        title: "Arash feat. Helena — Broken Angel",
+        audioUrl: "/audio/Arash%20feat.%20Helena%20-%20Broken%20Angel%20(Official%20Video).mp3"
+    },
+    {
+        title: "Ellie Goulding — Love Me Like You Do",
+        audioUrl: "/audio/Ellie%20Goulding%20-%20Love%20Me%20Like%20You%20Do.mp3"
+    },
+    {
+        title: "Hoobastank — The Reason",
+        audioUrl: "/audio/Hoobastank%20-%20The%20Reason.mp3"
+    },
+    {
+        title: "Noah — Separuh Aku",
+        audioUrl: "/audio/Noah%20-%20Separuh%20Aku.mp3"
+    },
+    {
+        title: "Bruno Mars — Locked Out Of Heaven",
+        audioUrl: "/audio/Bruno%20Mars%20-%20Locked%20Out%20Of%20Heaven.mp3"
+    },
+    {
+        title: "Lukas Graham — 7 Years",
+        audioUrl: "/audio/Lukas%20Graham%20-%207%20Years.mp3"
+    },
+    {
+        title: "Melanie Martinez — Play Date",
+        audioUrl: "/audio/Melanie%20Martinez%20-%20Play%20Date.mp3"
+    },
+    {
+        title: "The Script — The Man Who...",
+        audioUrl: "/audio/The%20Script%20-%20The%20Man%20Who....mp3"
+    },
+    {
+        title: "James Arthur — Impossible",
+        audioUrl: "/audio/James%20Arthur%20-%20Impossible.mp3"
+    },
+    {
+        title: "Alan Walker — Sing Me To Sleep",
+        audioUrl: "/audio/Alan%20Walker%20-%20Sing%20Me%20To%20Sleep.mp3"
+    },
+    {
+        title: "Alan Walker — Alone Pt II",
+        audioUrl: "/audio/Alan%20Walker%20-%20Alone%20Pt%20II.mp3"
+    },
+    {
+        title: "Alan Walker — Alone",
+        audioUrl: "/audio/Alan%20Walker%20-%20Alone.mp3"
     },
     {
         title: "Alan Walker — Lily",
@@ -61,28 +137,12 @@ const PLAYLIST = [
         audioUrl: "/audio/Arctic%20Monkeys%20-%20I%20Wanna%20Be%20Yours.mp3"
     },
     {
-        title: "Astrid S — Hurts So Good",
-        audioUrl: "/audio/Astrid%20S%20-%20Hurts%20So%20Good.mp3"
-    },
-    {
-        title: "Bruno Mars — It Will Rain",
-        audioUrl: "/audio/Bruno%20Mars%20-%20It%20Will%20Rain.mp3"
-    },
-    {
-        title: "Bruno Mars — Locked Out Of Heaven",
-        audioUrl: "/audio/Bruno%20Mars%20-%20Locked%20Out%20Of%20Heaven.mp3"
-    },
-    {
         title: "Bruno Mars — Talking To The Moon",
         audioUrl: "/audio/Bruno%20Mars%20-%20Talking%20To%20The%20Moon.mp3"
     },
     {
         title: "Conan Gray — Memories",
         audioUrl: "/audio/Conan%20Gray%20-%20Memories.mp3"
-    },
-    {
-        title: "Ellie Goulding — Love Me Like You Do",
-        audioUrl: "/audio/Ellie%20Goulding%20-%20Love%20Me%20Like%20You%20Do.mp3"
     },
     {
         title: "Glass Animals — You look so...",
@@ -93,64 +153,12 @@ const PLAYLIST = [
         audioUrl: "/audio/Halsey%20-%20Without%20Me.mp3"
     },
     {
-        title: "Harry Styles — Sign of the Times",
-        audioUrl: "/audio/Harry%20Styles%20-%20Sign%20of%20the%20Times.mp3"
-    },
-    {
-        title: "Hoobastank — The Reason",
-        audioUrl: "/audio/Hoobastank%20-%20The%20Reason.mp3"
-    },
-    {
-        title: "James Arthur — Impossible",
-        audioUrl: "/audio/James%20Arthur%20-%20Impossible.mp3"
-    },
-    {
-        title: "John Newman — Love Me Again",
-        audioUrl: "/audio/John%20Newman%20-%20Love%20Me%20Again.mp3"
-    },
-    {
         title: "Peterpan — Ku Katakan Dengan Indah",
         audioUrl: "/audio/Peterpan%20-%20Ku%20Katakan%20Dengan%20Indah.mp3"
     },
     {
-        title: "Lord Huron — The Night We Met",
-        audioUrl: "/audio/Lord%20Huron%20-%20The%20Night%20We%20Met.mp3"
-    },
-    {
-        title: "Loreen — Tattoo",
-        audioUrl: "/audio/Loreen%20-%20Tattoo.mp3"
-    },
-    {
-        title: "Lukas Graham — 7 Years",
-        audioUrl: "/audio/Lukas%20Graham%20-%207%20Years.mp3"
-    },
-    {
-        title: "MAGIC! — Rude",
-        audioUrl: "/audio/MAGIC!%20-%20Rude.mp3"
-    },
-    {
-        title: "Melanie Martinez — Play Date",
-        audioUrl: "/audio/Melanie%20Martinez%20-%20Play%20Date.mp3"
-    },
-    {
         title: "Noah — Ini Cinta",
         audioUrl: "/audio/Noah%20-%20Ini%20Cinta.mp3"
-    },
-    {
-        title: "Noah — Separuh Aku",
-        audioUrl: "/audio/Noah%20-%20Separuh%20Aku.mp3"
-    },
-    {
-        title: "The Script — The Man Who...",
-        audioUrl: "/audio/The%20Script%20-%20The%20Man%20Who....mp3"
-    },
-    {
-        title: "Arash feat. Helena — One Day",
-        audioUrl: "/audio/ARASH%20feat%20Helena%20-%20ONE%20DAY%20(Official%20Video).mp3"
-    },
-    {
-        title: "Arash feat. Helena — Broken Angel",
-        audioUrl: "/audio/Arash%20feat.%20Helena%20-%20Broken%20Angel%20(Official%20Video).mp3"
     },
     {
         title: "Kygo & Selena Gomez — It Ain't Me",
@@ -159,16 +167,10 @@ const PLAYLIST = [
     {
         title: "Martin Garrix & Bebe Rexha — In The Name Of Love",
         audioUrl: "/audio/Martin%20Garrix%20&%20Bebe%20Rexha%20-%20In%20The%20Name%20Of%20Love%20(Official%20Video).mp3"
-    },
-    {
-        title: "Prateek Kuhad — Co2",
-        audioUrl: "/audio/Prateek%20Kuhad%20-%20Co2%20(Official%20Audio).mp3"
-    },
-    {
-        title: "Selena Gomez — Love You Like a Love Song",
-        audioUrl: "/audio/Selena%20Gomez%20-%20Love%20You%20Like%20a%20Love%20Song%20(Lyrics)%20no%20one%20compares%20you%20stand%20alone.mp3"
     }
 ];
+
+
 
 export function AudioProvider({ children }: { children: React.ReactNode }) {
     const [isPlaying, setIsPlaying] = useState(false);
