@@ -44,11 +44,12 @@ export function ZenProvider({ children }: { children: React.ReactNode }) {
     }, [pathname, isZen]);
 
     // Force scroll to top when navigating while Zen is active
+    // Force scroll to top when navigating while Zen is active OR when entering Zen
     useEffect(() => {
         if (isZen) {
             window.scrollTo(0, 0);
         }
-    }, [pathname]);
+    }, [pathname, isZen]);
 
     // Escape key to exit Zen mode
     useEffect(() => {
@@ -82,7 +83,9 @@ export function ZenProvider({ children }: { children: React.ReactNode }) {
                 style={{
                     display: "flex",
                     flexDirection: "column",
-                    minHeight: "100vh"
+                    minHeight: "100vh",
+                    height: isZen ? "100vh" : "auto",
+                    overflow: isZen ? "hidden" : "visible"
                 }}
             >
                 {children}
