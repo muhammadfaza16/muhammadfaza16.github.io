@@ -45,7 +45,7 @@ export function GradientOrb() {
             const zenActive = isZenRef.current;
             const playing = isPlayingRef.current;
 
-            const speed = zenActive ? 0.03 : (playing ? 0.025 : 0.015);
+            const speed = zenActive ? 0.03 : (playing ? 0.04 : 0.015);
             time += speed;
 
             // Amplitude multiplier
@@ -72,10 +72,13 @@ export function GradientOrb() {
                 currentScaleBoost = bassSmoothed * 0.3;
             } else {
                 // Simulated breathing when not playing/no analyzer
-                // Keeping it subtle
-                const breathFreq = playing ? 0.4 : 0.4;
-                const breathAmp = playing ? 0.15 : 0.1;
-                // Since 'playing' implies we SHOULD have analyzer, this fallback is mostly for paused state
+                // Overclocked: 1.5Hz = 90BPM pulse. 0.25 amp = Deep breath.
+                const breathFreq = playing ? 1.5 : 0.4;
+                const breathAmp = playing ? 0.25 : 0.15;
+
+                // Use absolute Math.sin to prevent negative scale or weird snapping?
+                // No, sin is -1 to 1. We want 1 + boost.
+                // If sin is -1, 1 - 0.25 = 0.75. Safe.
                 currentScaleBoost = Math.sin(time * breathFreq) * breathAmp;
 
                 // Reset smoother so it doesn't jump when song starts
