@@ -978,6 +978,26 @@ export function CurrentlyStrip() {
     // but here we might just keep it simple)
     const [showWelcomeText, setShowWelcomeText] = useState(false);
 
+    // Lyrics logic - Restored for Manual/Special Songs (e.g. Faded)
+    // We need to check if these are "special" lyrics or just generic time-based ones.
+    // Actually, getDynamicLyrics returns time-based ones by default if not Faded.
+    // But the user WANTS "Faded" manual lyrics.
+    // If the song is "Faded", getDynamicLyrics returns the specific array.
+    // If it's another song, it returns the generic banks.
+    // We want: Faded -> Manual Lyrics. Others -> Narrative Engine.
+
+    // We can check if the song is in a "Special List" or just use the fact that non-special songs return generic arrays.
+    // A cleaner way: Check if getDynamicLyrics returns the generic bank.
+    // Or just check the song title.
+    const isSpecialLyricSong = ["Alan Walker — Faded"].includes(currentSong.title);
+
+    const manualLyrics = useMemo(() => {
+        if (isSpecialLyricSong) {
+            return getDynamicLyrics(currentSong.title);
+        }
+        return [];
+    }, [currentSong, isSpecialLyricSong]);
+
     // Lyrics for Avatar (Still using old system? No, we should probably pipe narrative here too?)
     // For now, let's keep the Avatar visualizer using the narrative text if we want floating words
     // OR we can keep the old lyric system for the "VibingAvatar" specific sync if desired.
@@ -1165,7 +1185,14 @@ export function CurrentlyStrip() {
 
             {/* Top: Vibing Avatar */}
             {/* We pass narrative text directly to prop */}
-            <VibingAvatar isPlaying={isPlaying} hour={currentHour} lyrics={[]} narrativeText={narrative.text} />
+            {/* Top: Vibing Avatar */}
+            {/* Logic: If manual lyrics exist (Faded), use them. Otherwise use Narrative text. */}
+            <VibingAvatar
+                isPlaying={isPlaying}
+                hour={currentHour}
+                lyrics={manualLyrics}
+                narrativeText={manualLyrics.length > 0 ? undefined : narrative.text}
+            />
 
             {/* Top: Marquee Pill */}
             <div
