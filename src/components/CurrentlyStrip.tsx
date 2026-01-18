@@ -1040,27 +1040,27 @@ export function CurrentlyStrip() {
     }), [currentSong.title]);
 
     const timeItem = useMemo(() => ({
-        icon: "🕒",
-        label: "Local",
-        text: currentTime + " (WIB)",
-        width: "110px",
-        labelWidth: "50px"
+        icon: "◎",
+        label: "Time",
+        text: currentTime,
+        width: "65px",
+        labelWidth: "40px" // Adjusted to legacy
     }), [currentTime]);
 
     const moodItem = useMemo(() => ({
-        icon: "✨",
-        label: "Vibe",
+        icon: "⚡",
+        label: "Mood",
         text: displayMood,
-        width: "180px",
+        width: "160px",
         labelWidth: "40px"
     }), [displayMood]);
 
     const checkInItem = useMemo(() => ({
-        icon: "💬",
-        label: "Soul",
-        text: narrative.text || "...", // Restore dynamic text to fix layout jumping
-        width: "300px",
-        labelWidth: "40px"
+        icon: "💌",
+        label: "Checking in",
+        text: narrative.text || "Thinking of u...",
+        width: "320px",
+        labelWidth: "90px" // Legacy width
     }), [narrative.text]);
 
     // Initial visit welcome messages for marquee
