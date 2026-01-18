@@ -164,6 +164,58 @@ export const facts: Fact[] = [
     {
         text: "Matamu punya resolusi 576 megapixel. Kamera tercanggih pun kalah. Makanya kalau aku bilang kamu kelihatan detail banget di mataku, itu fakta teknis.",
         category: "Science"
+    },
+    {
+        text: "Kalau semua DNA di tubuh kamu ditarik lurus dan disambungin, panjangnya bisa bolak-balik Bumi ke Pluto sampai 17 kali. Bayangin, di dalem tubuh mungil ini ada galaksi biologis yang lagi cosplay jadi manusia. You are huge, literally.",
+        category: "Science"
+    },
+    {
+        text: "Secara fisika kuantum, kita gak pernah beneran saling sentuh. Elektron di kulitku menolak elektron di kulitmu karena gaya elektromagnetik. Jadi sebenernya, kita selalu LDR... sedeket apapun kita duduk, masih ada jarak atomik yang misahin.",
+        category: "Science"
+    },
+    {
+        text: "Di deket lubang hitam, waktu melambat parah karena gravitasi ekstrem. 1 jam di sana setara 7 tahun di Bumi. Tempat paling cocok buat nungguin balesan chat kamu yang kadang lama banget—biar gak kerasa tua di jalan.",
+        category: "Space"
+    },
+    {
+        text: "Asam lambung kamu (pH 1-2) itu saking kuatnya bisa melelehkan silet besi dalam beberapa jam. Tubuh kita diem-diem nampung bahan kimia berbahaya tapi tetep santuy. Kalo kamu ngerasa lembek, inget aja 'daleman' kamu itu metal banget.",
+        category: "Science"
+    },
+    {
+        text: "Pas kamu bangun tidur, otak kamu ngehasilin listrik sekitar 23 watt—cukup buat nyalain lampu bohlam kecil. So yes, secara harfiah kamu itu 'bright'. You literally light up my world (gombal dikit gak ngaruh kan ya?).",
+        category: "Science"
+    },
+    {
+        text: "Dalam eksperimen Celah Ganda (Double Slit), partikel bisa berubah perilaku dari gelombang jadi butiran cuma karena 'dilihat'. Alam semesta aja bisa salting kalau diperhatiin, apalagi aku kalau kamu liatin terus.",
+        category: "Science"
+    },
+    {
+        text: "Tardigrada (beruang air) bisa idup di ruang hampa, kena radiasi nuklir, direbus, sampe dibekuin di nol mutlak. Dia hewan paling tangguh di alam semesta... nomer dua setelah kamu pas lagi bilang 'aku gapapa' padahal rapuh.",
+        category: "Nature"
+    },
+    {
+        text: "85% oksigen yang kita hirup asalnya dari fitoplankton di laut, bukan dari hutan hujan. Mereka kecil, gak keliatan, tapi diem-diem nopang kehidupan satu planet. Mirip kayak support system ya? Gak banyak omong tapi ngasih napas.",
+        category: "Nature"
+    },
+    {
+        text: "Pohon punya internet bawah tanah lewat jaringan jamur (mycelium) di akarnya. Mereka bisa saling kirim nutrisi, bahkan ngasih warning kalau ada hama. Hutan itu sebenernya grup chat raksasa yang gak pernah sepi member.",
+        category: "Nature"
+    },
+    {
+        text: "Satu sendok teh bintang neutron beratnya 6 miliar ton. Itu sama kayak berat seluruh manusia di Bumi dipadetin jadi satu sendok gula. Space is heavy... lebih berat dari rindu, eh enggak deng, masih beratan rindu sama kamu.",
+        category: "Space"
+    },
+    {
+        text: "Hampir semua emas di Bumi berasal dari tabrakan bintang neutron miliaran tahun lalu yang menghujani planet kita. Jadi cincin di jarimu itu aslinya serpihan mayat bintang yang meledak. Fancy zombie dust.",
+        category: "Space"
+    },
+    {
+        text: "Menurut Teori Relativitas, waktu berjalan lebih cepat di kepalamu dibanding di kakimu karena gravitasi lebih kuat di bawah. Bedanya cuma nanodetik sih, tapi secara teknis kepala kamu lebih tua dari kakimu. Pantes kadang overthinking duluan sebelum melangkah.",
+        category: "Science"
+    },
+    {
+        text: "Velociraptor aslinya berbulu lebat dan cuma seukuran ayam kalkun, bukan botak licin kayak di Jurassic Park. Mereka lebih mirip ayam marah daripada monster pembunuh. Bukti kalau kadang ekspektasi kita (atau film) yang terlalu drama.",
+        category: "History"
     }
 ];
 

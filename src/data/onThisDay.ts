@@ -180,6 +180,77 @@ export const historicEvents: HistoricEvent[] = [
         description: "Steve Jobs ngenalin Macintosh 128K. 'Hello'. Komputer yang senyum pas dinyalain. Titik balik di mana komputer mulai jadi 'personal'.",
         category: "Technology"
     },
+    // Jan 19 (Additional)
+    {
+        year: 2012,
+        month: 0,
+        day: 19,
+        title: "Penutupan Megaupload",
+        description: "FBI menutup Megaupload. Hari berkabung nasional buat kita yang suka download gratisan. Kim Dotcom drama banget waktu itu, tapi internet gak pernah sama lagi abis ini.",
+        category: "Technology"
+    },
+    {
+        year: 1809,
+        month: 0,
+        day: 19,
+        title: "Edgar Allan Poe Lahir",
+        description: "Master of horror & mystery lahir hari ini. Tanpa dia, mungkin gak ada Sherlock Holmes atau vibes gothic yang estetik. The OG emo king.",
+        category: "Arts"
+    },
+    // Jan 20 (Additional)
+    {
+        year: 1982,
+        month: 0,
+        day: 20,
+        title: "Ozzy vs Kelelawar",
+        description: "Ozzy Osbourne ngegigit kepala kelelawar di panggung. Dikira mainan karet, taunya beneran. Moment paling absurd di sejarah rock n roll. Hygiene level: -100, Aura level: +1000.",
+        category: "Arts"
+    },
+    // Jan 21
+    {
+        year: 1950,
+        month: 0,
+        day: 21,
+        title: "RIP George Orwell",
+        description: "Penulis '1984' meninggal. Dia yang ngingetin kita waspada sama 'Big Brother'. Ironisnya, sekarang kita sukarela ngasih data ke Big Tech. He warned us, bestie.",
+        category: "Arts"
+    },
+    // Jan 22 (Additional)
+    {
+        year: 2006,
+        month: 0,
+        day: 22,
+        title: "Kobe Cetak 81 Poin",
+        description: "Kobe Bryant nyetak 81 poin lawan Raptors. Second highest in NBA history. Black Mamba mode on fire. Definisi 'carry the team' yang sebenernya.",
+        category: "History"
+    },
+    // Jan 23 (Additional)
+    {
+        year: 1986,
+        month: 0,
+        day: 23,
+        title: "Rock Hall of Fame Pertama",
+        description: "Induksi pertama Rock & Roll Hall of Fame. Elvis, Chuck Berry, James Brown. Avengers-nya musik ngumpul. Kalo ada mesin waktu, pengen banget nonton ini.",
+        category: "Arts"
+    },
+    // Jan 24 (Additional)
+    {
+        year: 1935,
+        month: 0,
+        day: 24,
+        title: "Bir Kaleng Pertama",
+        description: "Bir kaleng pertama kali dijual. Game changer buat pesta dan nongkrong. Bayangin kalo kita masih harus bawa gentong kayu kemana-mana. Repot.",
+        category: "History"
+    },
+    // Jan 25 (Additional)
+    {
+        year: 1980,
+        month: 0,
+        day: 25,
+        title: "Paul McCartney Deportasi",
+        description: "Paul McCartney dideportasi dari Jepang gara-gara bawa 'oleh-oleh' ganja. 9 hari di penjara Tokyo. Bahkan Beatle pun gak kebal hukum. A wild start to the 80s.",
+        category: "Arts"
+    },
     {
         year: 2004,
         month: 0,
