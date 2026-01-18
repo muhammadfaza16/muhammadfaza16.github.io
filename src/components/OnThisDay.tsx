@@ -85,14 +85,15 @@ export function OnThisDay() {
                         alignItems: "center",
                         gap: "0.5rem",
                         padding: "0.5rem 1rem",
-                        background: "transparent",
-                        border: "1px solid var(--border)",
+                        background: "#60A5F4",
+                        backdropFilter: "none",
+                        border: "1px solid #60A5F4",
                         borderRadius: "100px",
                         fontSize: "0.75rem",
                         fontFamily: "var(--font-mono)",
                         textTransform: "uppercase",
                         letterSpacing: "0.05em",
-                        color: "var(--text-secondary)"
+                        color: "#FFFFFF"
                     }}>
                         <Calendar className="w-3 h-3" />
                         <span>Throwback Nih</span>
