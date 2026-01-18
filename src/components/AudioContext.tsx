@@ -24,48 +24,124 @@ export function useAudio() {
 }
 const PLAYLIST = [
     {
-        title: "Alan Walker — Faded",
-        audioUrl: "/audio/Alan Walker - Faded (Lyrics).mp3",
-    },
-    {
-        title: "Alan Walker — Lily",
-        audioUrl: "/audio/Alan Walker, K-391 & Emelie Hollow - Lily (Lyrics).mp3",
-    },
-    {
-        title: "Loreen — Tattoo",
-        audioUrl: "/audio/Loreen - Tattoo.mp3",
-    },
-    {
-        title: "Bruno Mars — Locked Out",
-        audioUrl: "/audio/Bruno Mars - Locked Out Of Heaven.mp3",
-    },
-    {
-        title: "Halsey — Without Me",
-        audioUrl: "/audio/Halsey - Without Me (Lyrics).mp3",
-    },
-    {
-        title: "The Script — The Man Who",
-        audioUrl: "/audio/The Script - The Man Who Can't Be Moved (Lyrics).mp3",
-    },
-    {
-        title: "James Arthur — Impossible",
-        audioUrl: "/audio/James Arthur - Impossible (Lyrics) (1).mp3",
-    },
-    {
-        title: "John Newman — Love Me",
-        audioUrl: "/audio/John Newman - Love Me Again (Lyrics).mp3",
-    },
-    {
-        title: "Hoobastank — The Reason",
-        audioUrl: "/audio/Hoobastank - The Reason (Lyrics).mp3",
-    },
-    {
-        title: "Conan Gray — Memories",
-        audioUrl: "/audio/Conan Gray - Memories (Lyrics).mp3",
+        title: "Alan Walker — Alone Pt II",
+        audioUrl: "/audio/Alan%20Walker%20-%20Alone%20Pt%20II.mp3"
     },
     {
         title: "Alan Walker — Alone",
-        audioUrl: "/audio/Alan Walker & Ava Max - Alone, Pt. II (Lyrics).mp3",
+        audioUrl: "/audio/Alan%20Walker%20-%20Alone.mp3"
+    },
+    {
+        title: "Alan Walker — Darkside (feat. AuRa...",
+        audioUrl: "/audio/Alan%20Walker%20-%20Darkside%20(feat.%20AuRa....mp3"
+    },
+    {
+        title: "Alan Walker — Faded",
+        audioUrl: "/audio/Alan%20Walker%20-%20Faded.mp3"
+    },
+    {
+        title: "Alan Walker — Sing Me To Sleep",
+        audioUrl: "/audio/Alan%20Walker%20-%20Sing%20Me%20To%20Sleep.mp3"
+    },
+    {
+        title: "Alan Walker — The Spectre",
+        audioUrl: "/audio/Alan%20Walker%20-%20The%20Spectre.mp3"
+    },
+    {
+        title: "Alan Walker — Lily",
+        audioUrl: "/audio/Alan%20Walker%20-%20Lily.mp3"
+    },
+    {
+        title: "Alan Walker — On My Way",
+        audioUrl: "/audio/Alan%20Walker%20-%20On%20My%20Way.mp3"
+    },
+    {
+        title: "Arctic Monkeys — I Wanna Be Yours",
+        audioUrl: "/audio/Arctic%20Monkeys%20-%20I%20Wanna%20Be%20Yours.mp3"
+    },
+    {
+        title: "Astrid S — Hurts So Good",
+        audioUrl: "/audio/Astrid%20S%20-%20Hurts%20So%20Good.mp3"
+    },
+    {
+        title: "Bruno Mars — It Will Rain",
+        audioUrl: "/audio/Bruno%20Mars%20-%20It%20Will%20Rain.mp3"
+    },
+    {
+        title: "Bruno Mars — Locked Out Of Heaven",
+        audioUrl: "/audio/Bruno%20Mars%20-%20Locked%20Out%20Of%20Heaven.mp3"
+    },
+    {
+        title: "Bruno Mars — Talking To The Moon",
+        audioUrl: "/audio/Bruno%20Mars%20-%20Talking%20To%20The%20Moon.mp3"
+    },
+    {
+        title: "Conan Gray — Memories",
+        audioUrl: "/audio/Conan%20Gray%20-%20Memories.mp3"
+    },
+    {
+        title: "Ellie Goulding — Love Me Like You Do",
+        audioUrl: "/audio/Ellie%20Goulding%20-%20Love%20Me%20Like%20You%20Do.mp3"
+    },
+    {
+        title: "Glass Animals — You look so...",
+        audioUrl: "/audio/Glass%20Animals%20-%20You%20look%20so....mp3"
+    },
+    {
+        title: "Halsey — Without Me",
+        audioUrl: "/audio/Halsey%20-%20Without%20Me.mp3"
+    },
+    {
+        title: "Harry Styles — Sign of the Times",
+        audioUrl: "/audio/Harry%20Styles%20-%20Sign%20of%20the%20Times.mp3"
+    },
+    {
+        title: "Hoobastank — The Reason",
+        audioUrl: "/audio/Hoobastank%20-%20The%20Reason.mp3"
+    },
+    {
+        title: "James Arthur — Impossible",
+        audioUrl: "/audio/James%20Arthur%20-%20Impossible.mp3"
+    },
+    {
+        title: "John Newman — Love Me Again",
+        audioUrl: "/audio/John%20Newman%20-%20Love%20Me%20Again.mp3"
+    },
+    {
+        title: "Peterpan — Ku Katakan Dengan Indah",
+        audioUrl: "/audio/Peterpan%20-%20Ku%20Katakan%20Dengan%20Indah.mp3"
+    },
+    {
+        title: "Lord Huron — The Night We Met",
+        audioUrl: "/audio/Lord%20Huron%20-%20The%20Night%20We%20Met.mp3"
+    },
+    {
+        title: "Loreen — Tattoo",
+        audioUrl: "/audio/Loreen%20-%20Tattoo.mp3"
+    },
+    {
+        title: "Lukas Graham — 7 Years",
+        audioUrl: "/audio/Lukas%20Graham%20-%207%20Years.mp3"
+    },
+    {
+        title: "MAGIC! — Rude",
+        audioUrl: "/audio/MAGIC!%20-%20Rude.mp3"
+    },
+    {
+        title: "Melanie Martinez — Play Date",
+        audioUrl: "/audio/Melanie%20Martinez%20-%20Play%20Date.mp3"
+    },
+    {
+        title: "Noah — Ini Cinta",
+        audioUrl: "/audio/Noah%20-%20Ini%20Cinta.mp3"
+    },
+    {
+        title: "Noah — Separuh Aku",
+        audioUrl: "/audio/Noah%20-%20Separuh%20Aku.mp3"
+    },
+    {
+        title: "The Script — The Man Who...",
+        audioUrl: "/audio/The%20Script%20-%20The%20Man%20Who....mp3"
     }
 ];
 

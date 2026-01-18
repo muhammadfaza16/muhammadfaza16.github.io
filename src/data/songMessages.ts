@@ -1,14 +1,14 @@
 // Song-specific messages — Flamboyant, Masculine, Mature, English Only.
 // Tone: Confident, charming, assertive but not needy. "Main character" energy.
 
-export const SONG_MESSAGES: Record<string, { playing: string[]; paused: string[] }> = {
-    "The Script — The Man Who": {
+export const SONG_MESSAGES: Record<string, { playing: string[] }> = {
+    // --- Alan Walker ---
+    "Alan Walker — Alone Pt II": {
         playing: [
-            "I know what I want. It's you.",
-            "Unshakeable. That's how I feel.",
-            "Not going anywhere. I'm solid.",
+            "We're doing this my way.",
+            "Unstoppable force.",
+            "Watch us take over.",
         ],
-        paused: ["dulu lagu aja"],
     },
     "Alan Walker — Alone": {
         playing: [
@@ -16,7 +16,13 @@ export const SONG_MESSAGES: Record<string, { playing: string[]; paused: string[]
             "Better when you're in the picture.",
             "Unstoppable duo energy.",
         ],
-        paused: ["dulu lagu aja"],
+    },
+    "Alan Walker — Darkside (feat. AuRa...": {
+        playing: [
+            "Embrace the mystery.",
+            "We own the night.",
+            "No fear, just power.",
+        ],
     },
     "Alan Walker — Faded": {
         playing: [
@@ -24,7 +30,20 @@ export const SONG_MESSAGES: Record<string, { playing: string[]; paused: string[]
             "Unforgettable. That's you.",
             "Can't fade what's real.",
         ],
-        paused: ["dulu lagu aja"],
+    },
+    "Alan Walker — Sing Me To Sleep": {
+        playing: [
+            "Peace in the chaos.",
+            "My sanctuary.",
+            "Rest easy, I got this.",
+        ],
+    },
+    "Alan Walker — The Spectre": {
+        playing: [
+            "They can't ignore us.",
+            "Living rent-free in their heads.",
+            "We are the moment.",
+        ],
     },
     "Alan Walker — Lily": {
         playing: [
@@ -32,159 +51,203 @@ export const SONG_MESSAGES: Record<string, { playing: string[]; paused: string[]
             "Safe with me. Always.",
             "Don't worry. I handle it.",
         ],
-        paused: ["dulu lagu aja"],
     },
-    "Bruno Mars — Locked Out": {
+    "Alan Walker — On My Way": {
+        playing: [
+            "Nothing stops me.",
+            "Destination: Greatness.",
+            "I make my own path.",
+        ],
+    },
+
+    // --- Arctic Monkeys ---
+    "Arctic Monkeys — I Wanna Be Yours": {
+        playing: [
+            "All in. No half measures.",
+            "Yours? I like the sound of that.",
+            "Devoted. Intensely.",
+        ],
+    },
+
+    // --- Astrid S ---
+    "Astrid S — Hurts So Good": { // Note: Assuming standard key if not explicitly mapped in context yet, but context used "Astrid S — Hurts So Good"
+        playing: [
+            "Worth every second.",
+            "I thrive on the intensity.",
+            "Can't get enough.",
+        ],
+    },
+
+    // --- Bruno Mars ---
+    "Bruno Mars — It Will Rain": {
+        playing: [
+            "I'm the storm and the shelter.",
+            "You know I'm essential.",
+            "Can't picture it without me.",
+        ],
+    },
+    "Bruno Mars — Locked Out Of Heaven": {
         playing: [
             "You're my kind of high.",
             "Addicted to your energy.",
             "You got that golden touch.",
         ],
-        paused: ["dulu lagu aja"],
     },
+    "Bruno Mars — Talking To The Moon": {
+        playing: [
+            "Even distance knows my name.",
+            "sending signals.",
+            "The world listens when I speak.",
+        ],
+    },
+
+    // --- Conan Gray ---
     "Conan Gray — Memories": {
         playing: [
             "We made history with that one.",
             "Classics never die.",
             "You're my favorite chapter.",
         ],
-        paused: ["dulu lagu aja"],
     },
+
+    // --- Ellie Goulding ---
+    "Ellie Goulding — Love Me Like You Do": {
+        playing: [
+            "Only you can keep up.",
+            "Match my energy.",
+            "We set the standard.",
+        ],
+    },
+
+    // --- Glass Animals ---
+    "Glass Animals — You look so...": {
+        playing: [
+            "Captivating chaos.",
+            "I see right through it.",
+            "Raw and real.",
+        ],
+    },
+
+    // --- Halsey ---
     "Halsey — Without Me": {
         playing: [
             "You know I'm the upgrade.",
             "Irreplaceable. And you know it.",
             "I bring the value.",
         ],
-        paused: ["dulu lagu aja"],
     },
+
+    // --- Harry Styles ---
+    "Harry Styles — Sign of the Times": {
+        playing: [
+            "Ahead of the curve.",
+            "Timeless energy.",
+            "We define the era.",
+        ],
+    },
+
+    // --- Hoobastank ---
     "Hoobastank — The Reason": {
         playing: [
             "You inspire the best in me.",
             "Leveling up. Because of you.",
             "I'm better. You're the reason.",
         ],
-        paused: ["dulu lagu aja"],
     },
+
+    // --- James Arthur ---
     "James Arthur — Impossible": {
         playing: [
             "Challenge accepted.",
             "I don't do easy. I do worth it.",
             "Whatever it takes.",
         ],
-        paused: ["dulu lagu aja"],
     },
-    "John Newman — Love Me": {
+
+    // --- John Newman ---
+    "John Newman — Love Me Again": {
         playing: [
             "Ready for round two?",
             "Undeniable connection.",
             "We're not done yet.",
         ],
-        paused: ["dulu lagu aja"],
     },
+
+    // --- Peterpan / Noah ---
+    "Peterpan — Ku Katakan Dengan Indah": {
+        playing: [
+            "Says it best.",
+            "Poetry in motion.",
+            "Listen closely.",
+        ],
+    },
+    "Noah — Ini Cinta": {
+        playing: [
+            "This is the real deal.",
+            "No doubting this.",
+            "Pure instinct.",
+        ],
+    },
+    "Noah — Separuh Aku": {
+        playing: [
+            "My other half.",
+            "Complete with you.",
+            "You fill the silence.",
+        ],
+    },
+
+    // --- Lord Huron ---
+    "Lord Huron — The Night We Met": {
+        playing: [
+            "A moment for the books.",
+            "Legendary starts.",
+            "Unforgettable night.",
+        ],
+    },
+
+    // --- Loreen ---
     "Loreen — Tattoo": {
         playing: [
             "I've left my mark.",
             "Inked in your mind.",
             "Permanent residence in my head.",
         ],
-        paused: ["dulu lagu aja"],
     },
-    "Coldplay — A Sky Full Of Stars": {
+
+    // --- Lukas Graham ---
+    "Lukas Graham — 7 Years": {
         playing: [
-            "You light everything up.",
-            "My world looks better with you.",
-            "Pure magic. That's you.",
+            "Building a legacy.",
+            "Look how far we've come.",
+            "Story in the making.",
         ],
-        paused: ["dulu lagu aja"],
     },
-    "Coldplay — Viva La Vida": {
+
+    // --- MAGIC! ---
+    "MAGIC! — Rude": {
         playing: [
-            "We rule our own world.",
-            "Top of the world feeling.",
-            "Legacy? We're making it.",
+            "I'm gonna get what's mine.",
+            "Confidence is key.",
+            "Try to stop me.",
         ],
-        paused: ["dulu lagu aja"],
     },
-    "David Guetta & Sia — Titanium": {
+
+    // --- Melanie Martinez ---
+    "Melanie Martinez — Play Date": {
         playing: [
-            "Bulletproof. Nothing breaks us.",
-            "Stronger than they know.",
-            "We stand tall.",
+            "Not just a game to me.",
+            "I play to win.",
+            "Checkmate.",
         ],
-        paused: ["dulu lagu aja"],
     },
-    "Eminem — Mockingbird": {
+
+    // --- The Script ---
+    "The Script — The Man Who...": {
         playing: [
-            "I'll do anything for my people.",
-            "Protecting what's mine.",
-            "Stay strong. I got you.",
+            "I know what I want. It's you.",
+            "Unshakeable. That's how I feel.",
+            "Not going anywhere. I'm solid.",
         ],
-        paused: ["dulu lagu aja"],
-    },
-    "James Arthur — Say You Won't Let Go": {
-        playing: [
-            "I'm in this for the long haul.",
-            "You're the one. Simple as that.",
-            "Growing old with you? Deal.",
-        ],
-        paused: ["dulu lagu aja"],
-    },
-    "Maroon 5 — Payphone": {
-        playing: [
-            "Still here. Still trying.",
-            "Not giving up easily.",
-            "One more shot?",
-        ],
-        paused: ["dulu lagu aja"],
-    },
-    "One Direction — Night Changes": {
-        playing: [
-            "We're getting better with time.",
-            "Just getting started.",
-            "Change is good with you.",
-        ],
-        paused: ["dulu lagu aja"],
-    },
-    "One Direction — Story of My Life": {
-        playing: [
-            "Building something real.",
-            "You're in my chapters.",
-            "This story needs you.",
-        ],
-        paused: ["dulu lagu aja"],
-    },
-    "Passenger — Let Her Go": {
-        playing: [
-            "I know what I have.",
-            "Not letting this slip.",
-            "Value you? Always.",
-        ],
-        paused: ["dulu lagu aja"],
-    },
-    "Rachel Platten — Fight Song": {
-        playing: [
-            "Watch me make it happen.",
-            "I've got plenty of fight left.",
-            "Just watch me.",
-        ],
-        paused: ["dulu lagu aja"],
-    },
-    "Sia — Chandelier": {
-        playing: [
-            "Living large tonight.",
-            "All in. No regrets.",
-            "Let's make a scene.",
-        ],
-        paused: ["dulu lagu aja"],
-    },
-    "Wiz Khalifa ft. Charlie Puth — See You Again": {
-        playing: [
-            "Bond like ours lasts forever.",
-            "Family first. Always.",
-            "See you at the top.",
-        ],
-        paused: ["dulu lagu aja"],
     },
 };
 

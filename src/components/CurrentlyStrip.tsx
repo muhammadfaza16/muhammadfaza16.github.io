@@ -234,42 +234,7 @@ const POKE_RESPONSES = [
     "Focus...", "Vibing~", "Ouch!", "Ticklish!"
 ];
 
-// Timed Lyrics Data (Song Title -> Cues)
-// expressive: true = dramatic full-screen text (for asking questions, emotional moments)
-const SONG_LYRICS: Record<string, { start: number; end: number; text: string; expressive?: boolean }[]> = {
-    "Alan Walker — Faded": [
-        { start: 18, end: 21, text: "Nyanyi bareng skuy..." },
-        { start: 24.75, end: 27.5, text: "Wanna see us" },
-        { start: 28.8, end: 30, text: "Alive" },
-        { start: 31, end: 34, text: "Where are you now?" },
-        { start: 36.3, end: 39.5, text: "Where are you now?" },
-        { start: 41.5, end: 44.5, text: "Where are you now?" },
-        { start: 44.7, end: 46, text: "Fantasy?" },
-        { start: 47, end: 50, text: "Where are you now?" },
-        { start: 49, end: 53, text: "Were you only imaginary?" },
-        { start: 53.6, end: 56.5, text: "WHERE ARE YOU NOW?", expressive: true },
-        { start: 57, end: 60, text: "Atlantis" },
-        { start: 58, end: 59, text: "Under the sea" },
-        { start: 61.7, end: 64, text: "Under the sea" },
-        { start: 64.4, end: 67, text: "Where are you now?" },
-        { start: 67, end: 70, text: "Another dream" },
-        { start: 70.3, end: 71.2, text: "The monster" },
-        { start: 71.3, end: 72, text: "running wild" },
-        { start: 72.1, end: 73.6, text: "inside of me" },
-        { start: 74.8, end: 75, text: "I'm fadeed" },
-        { start: 79.8, end: 86, text: "I'm fadeed" },
-        { start: 84, end: 85, text: "So lost" },
-        { start: 90.1, end: 92.5, text: "I'm faded" },
-        { start: 117.7, end: 120.6, text: "where are you now?" },
-        { start: 151, end: 155, text: "WHERE ARE YOU NOW?", expressive: true },
-        { start: 156, end: 158, text: "Dah... Maap berisik" },
-
-
-    ],
-    "Alan Walker — Lily": [
-        { start: 55, end: 58, text: "🎤 ..." },
-    ],
-};
+import { getDynamicLyrics, LyricItem } from "../data/songLyrics";
 
 // Multi-Level Vibe Data (Song Title -> Timestamps with intensity levels)
 // level 1 = build up (pre-chorus)
@@ -288,7 +253,7 @@ const SONG_VIBES: Record<string, { start: number; end: number; level: 1 | 2 }[]>
 };
 
 // Vibing Avatar Component (Levitation Mode)
-const VibingAvatar = memo(function VibingAvatar({ isPlaying, hour }: { isPlaying: boolean; hour: number }) {
+const VibingAvatar = memo(function VibingAvatar({ isPlaying, hour, lyrics }: { isPlaying: boolean; hour: number; lyrics: LyricItem[] }) {
     const { analyser, audioRef, currentSong } = useAudio();
     const floaterRef = useRef<SVGGElement>(null);
     const rafRef = useRef<number | null>(null);
@@ -426,7 +391,8 @@ const VibingAvatar = memo(function VibingAvatar({ isPlaying, hour }: { isPlaying
             }
 
             // [Timed Lyrics Sync - Floating Words OR Expressive]
-            const lyrics = SONG_LYRICS[currentSong.title];
+            // [Timed Lyrics Sync - Floating Words OR Expressive]
+            // const lyrics = SONG_LYRICS[currentSong.title]; // Removed, passed as prop
             if (lyrics) {
                 let lyricFound = false;
                 for (const lyric of lyrics) {
@@ -444,7 +410,7 @@ const VibingAvatar = memo(function VibingAvatar({ isPlaying, hour }: { isPlaying
                                 // Same timing as non-expressive floating words
                                 const staggerMs = Math.min(350, Math.max(200, (lyricDuration * 0.8) / words.length));
 
-                                words.forEach((word, index) => {
+                                words.forEach((word: string, index: number) => {
                                     setTimeout(() => {
                                         // Clear previous and show new (one at a time)
                                         const id = expressiveIdRef.current++;
@@ -462,7 +428,7 @@ const VibingAvatar = memo(function VibingAvatar({ isPlaying, hour }: { isPlaying
                                 const lyricDuration = (lyric.end - lyric.start) * 1000;
                                 const staggerMs = Math.min(350, Math.max(200, (lyricDuration * 0.8) / words.length));
 
-                                words.forEach((word, index) => {
+                                words.forEach((word: string, index: number) => {
                                     setTimeout(() => {
                                         const id = wordIdRef.current++;
                                         setFloatingWords(prev => [...prev, { id, text: word, wordIndex: index }]);
@@ -985,10 +951,11 @@ export function CurrentlyStrip() {
     // Get song message based on current index and interaction state
     let rawSongMessage = getSongMessage(currentSong.title, isPlaying, songMessageIndex);
 
-    // Override with Welcome Message if first visit (no interaction yet)
-    if (!hasInteracted && !isPlaying) {
-        rawSongMessage = "Chill bentar sini, aku temenin";
-    }
+    // Dynamic Lyrics (Memoized to prevent flickering during playback, updates when song changes or hour changes significantly)
+    // We pass isPlaying so it doesn't regenerate when just pausing, but we want it to be fresh per song.
+    const lyrics = useMemo(() => {
+        return getDynamicLyrics(currentSong.title);
+    }, [currentSong.title]); // Only regenerate on song change
 
     const [displaySongMessage, setDisplaySongMessage] = useState(rawSongMessage);
     const [msgOpacity, setMsgOpacity] = useState(1);
@@ -1133,7 +1100,7 @@ export function CurrentlyStrip() {
             )}
 
             {/* Top: Vibing Avatar */}
-            <VibingAvatar isPlaying={isPlaying} hour={currentHour} />
+            <VibingAvatar isPlaying={isPlaying} hour={currentHour} lyrics={lyrics} />
 
             {/* Top: Marquee Pill */}
             <div
