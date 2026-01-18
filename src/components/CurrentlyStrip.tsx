@@ -3,7 +3,8 @@
 import { useState, useEffect, useRef, useMemo, memo } from "react";
 import { useAudio } from "./AudioContext";
 import { useNarrative } from "./NarrativeContext"; // Import Narrative Hook
-import { useZen } from "./ZenContext"; // Import Zen Hook
+import { useZen } from "./ZenContext";
+import { ZenHideable } from "./ZenHideable";
 import { SkipBack, SkipForward, Sparkles, X } from "lucide-react";
 import { getSongMessage } from "../data/songMessages";
 
@@ -1246,29 +1247,31 @@ export function CurrentlyStrip() {
             </div>
 
             {/* Top: Marquee Pill */}
-            <div
-                style={{
-                    display: "inline-flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    gap: "0.75rem",
-                    padding: "0.5rem 1.25rem",
-                    borderRadius: "99px",
-                    backgroundColor: "rgba(var(--background-rgb), 0.5)",
-                    backdropFilter: "blur(8px)",
-                    border: "1px solid var(--border)",
-                    boxShadow: "0 2px 10px rgba(0,0,0,0.02)",
-                    fontFamily: "var(--font-mono)",
-                    fontSize: "0.75rem",
-                    color: "var(--text-secondary)",
-                    letterSpacing: "0.02em",
-                    width: "clamp(300px, 90vw, 600px)",
-                    overflow: "hidden"
-                }}
-                className="pause-on-hover"
-            >
-                <ContinuousMarquee items={statusItems} onVisibilityChange={handleVisibilityChange} />
-            </div>
+            <ZenHideable showOnlyInZen>
+                <div
+                    style={{
+                        display: "inline-flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        gap: "0.75rem",
+                        padding: "0.5rem 1.25rem",
+                        borderRadius: "99px",
+                        backgroundColor: "rgba(var(--background-rgb), 0.5)",
+                        backdropFilter: "blur(8px)",
+                        border: "1px solid var(--border)",
+                        boxShadow: "0 2px 10px rgba(0,0,0,0.02)",
+                        fontFamily: "var(--font-mono)",
+                        fontSize: "0.75rem",
+                        color: "var(--text-secondary)",
+                        letterSpacing: "0.02em",
+                        width: "clamp(300px, 90vw, 600px)",
+                        overflow: "hidden"
+                    }}
+                    className="pause-on-hover"
+                >
+                    <ContinuousMarquee items={statusItems} onVisibilityChange={handleVisibilityChange} />
+                </div>
+            </ZenHideable>
 
             {/* Bottom: Play Control */}
             <div
