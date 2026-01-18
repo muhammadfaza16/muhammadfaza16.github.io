@@ -209,6 +209,13 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
             const ctx = new AudioContextClass();
             audioContextRef.current = ctx;
 
+            // Keep Alive Logic: Force resume if browser suspends context (critical for background play)
+            ctx.onstatechange = () => {
+                if (ctx.state === 'suspended' && audioRef.current && !audioRef.current.paused) {
+                    ctx.resume();
+                }
+            };
+
             const analyserNode = ctx.createAnalyser();
             analyserNode.fftSize = 64; // Low bin count for performance & bass focus
 
