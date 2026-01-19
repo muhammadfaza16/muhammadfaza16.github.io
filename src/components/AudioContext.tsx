@@ -206,6 +206,51 @@ const PLAYLIST = [
     {
         title: "One Direction — Story of My Life",
         audioUrl: "/audio/Story%20of%20my%20Life%20-%20ONE%20DIRECTION%20(Lyrics%20Video).mp3"
+    },
+    // New Additions
+    {
+        title: "Imagine Dragons — Believer",
+        audioUrl: "/audio/Imagine%20Dragons%20-%20Believer%20(Official%20Music%20Video).mp3"
+    },
+    {
+        title: "twenty one pilots — Ride",
+        audioUrl: "/audio/twenty%20one%20pilots%20-%20Ride%20(Official%20Video).mp3"
+    },
+    {
+        title: "The Script — Superheroes",
+        audioUrl: "/audio/The%20Script%20-%20Superheroes%20(Lyrics).mp3"
+    },
+    {
+        title: "The Script — Hall of Fame",
+        audioUrl: "/audio/The%20Script%20-%20Hall%20Of%20Fame%20(Lyrics).mp3"
+    },
+    {
+        title: "The Chainsmokers & Coldplay — Something Just Like This",
+        audioUrl: "/audio/The%20Chainsmokers%20&%20Coldplay%20-%20Something%20Just%20Like%20This%20(Official%20Lyric%20Video).mp3"
+    },
+    {
+        title: "Camila Cabello — Never Be the Same",
+        audioUrl: "/audio/@camilacabello%20-%20Never%20Be%20the%20Same%20(Lyrics).mp3"
+    },
+    {
+        title: "Coldplay — Hymn For The Weekend",
+        audioUrl: "/audio/Coldplay%20-%20Hymn%20For%20The%20Weekend%20(Lyrics).mp3"
+    },
+    {
+        title: "Demi Lovato — Heart Attack",
+        audioUrl: "/audio/Demi%20Lovato%20-%20Heart%20Attack%20(Lyrics).mp3"
+    },
+    {
+        title: "Imagine Dragons — Bad Liar",
+        audioUrl: "/audio/Imagine%20Dragons%20-%20Bad%20Liar%20(Lyrics).mp3"
+    },
+    {
+        title: "The Chainsmokers — Closer",
+        audioUrl: "/audio/The%20Chainsmokers%20-%20Closer%20(Lyrics)%20ft.%20Halsey%20(1).mp3"
+    },
+    {
+        title: "The Chainsmokers — Don't Let Me Down",
+        audioUrl: "/audio/The%20Chainsmokers%20-%20Don't%20Let%20Me%20Down%20(Lyrics)%20ft.%20Daya.mp3"
     }
 ].filter(song => song.title !== "Alan Walker — On My Way"); // Filter out invalid entries if any
 
