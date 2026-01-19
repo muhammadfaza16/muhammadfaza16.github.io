@@ -215,6 +215,7 @@ export function DeepThoughtLibrary() {
                                 background: `radial-gradient(circle at center, var(--daily-accent), transparent 70%)`,
                                 opacity: 0.08,
                                 zIndex: 0,
+                                pointerEvents: "none", // Ensure it doesn't block clicks
                                 transition: "background 0.5s ease"
                             }} />
 
@@ -341,7 +342,9 @@ export function DeepThoughtLibrary() {
                                 style={{
                                     marginTop: "2rem",
                                     paddingTop: "2rem",
-                                    borderTop: "1px solid var(--border)"
+                                    borderTop: "1px solid var(--border)",
+                                    position: "relative",
+                                    zIndex: 10
                                 }}
                             >
                                 <div className="flex items-center gap-6 w-full md:w-auto justify-center">
