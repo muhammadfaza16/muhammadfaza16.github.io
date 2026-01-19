@@ -11,6 +11,7 @@ import { ZenHideable } from "@/components/ZenHideable";
 import { ZenCenteredSection } from "@/components/ZenCenteredSection";
 import { getAllPosts } from "@/lib/posts";
 import Link from "next/link";
+import { DeepThoughtLibrary } from "@/components/DeepThoughtLibrary";
 export default function HomePage() {
   const allPosts = getAllPosts(); // Pass all posts to allow "Load More"
 
@@ -263,7 +264,22 @@ export default function HomePage() {
                 <OnThisDay />
               </div>
             </div>
+          </Container>
+        </section>
+      </ZenHideable>
 
+      {/* Deep Thought Library - Cosmic Knowledge */}
+      <ZenHideable hideInZen>
+        <DeepThoughtLibrary />
+      </ZenHideable>
+
+      <ZenHideable hideInZen>
+        <section style={{
+          paddingBottom: "clamp(4rem, 8vw, 8rem)",
+          background: "var(--card-bg)",
+          overflow: "hidden"
+        }}>
+          <Container>
             {/* Wanderer's Manifesto - Full Width Impact */}
             <div style={{
               marginTop: "clamp(3rem, 6vw, 6rem)",
@@ -439,7 +455,7 @@ export default function HomePage() {
             </div>
           </Container>
         </section >
-      </ZenHideable>
+      </ZenHideable >
     </>
   );
 }
