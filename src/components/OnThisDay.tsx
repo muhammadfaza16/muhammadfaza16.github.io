@@ -95,14 +95,12 @@ export function OnThisDay() {
                 boxShadow: "0 20px 40px -20px rgba(0,0,0,0.1)",
                 transition: "all 0.5s ease"
             }}>
-                {/* Bloom Effect */}
+                {/* Bloom Effect - Optimized */}
                 <div style={{
                     position: "absolute",
                     inset: "0",
-                    background: "var(--widget-accent)",
-                    opacity: 0.05,
-                    filter: "blur(80px)",
-                    transform: "scale(0.8)",
+                    background: `radial-gradient(circle at center, var(--widget-accent), transparent 70%)`,
+                    opacity: 0.08,
                     zIndex: 0,
                     transition: "background 0.5s ease"
                 }} />

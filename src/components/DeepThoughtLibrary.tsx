@@ -208,14 +208,12 @@ export function DeepThoughtLibrary() {
                             transform: isAnimating ? "translateY(10px) scale(0.98)" : "translateY(0) scale(1)",
                             overflow: "hidden"
                         }}>
-                            {/* Card Background Bloom */}
+                            {/* Card Background Bloom - Optimized */}
                             <div style={{
                                 position: "absolute",
                                 inset: "0",
-                                background: "var(--daily-accent)",
-                                opacity: 0.05,
-                                filter: "blur(80px)",
-                                transform: "scale(0.8)",
+                                background: `radial-gradient(circle at center, var(--daily-accent), transparent 70%)`,
+                                opacity: 0.08,
                                 zIndex: 0,
                                 transition: "background 0.5s ease"
                             }} />

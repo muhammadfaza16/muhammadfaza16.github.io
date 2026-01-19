@@ -10,7 +10,6 @@ export function DidYouKnow() {
     const [isVisible, setIsVisible] = useState(false);
     const [isAutoPlaying, setIsAutoPlaying] = useState(true);
     const containerRef = useRef<HTMLDivElement>(null);
-    const [progress, setProgress] = useState(0);
     const [copied, setCopied] = useState(false);
     const [mindBlown, setMindBlown] = useState(false);
 
@@ -21,22 +20,8 @@ export function DidYouKnow() {
         return () => clearTimeout(timer);
     }, []);
 
-    useEffect(() => {
-        let interval: NodeJS.Timeout;
-        if (isAutoPlaying && facts.length > 1) {
-            interval = setInterval(() => {
-                setProgress((prev) => {
-                    if (prev >= 100) {
-                        setCurrentIndex((curr) => (curr + 1) % facts.length);
-                        setMindBlown(false); // Reset reaction for new fact
-                        return 0;
-                    }
-                    return prev + 0.833; // 12 seconds
-                });
-            }, 100);
-        }
-        return () => { if (interval) clearInterval(interval); };
-    }, [isAutoPlaying, facts.length]);
+    // Effect for reset removed (handled by key prop remount)
+
 
     const togglePlay = () => setIsAutoPlaying((prev) => !prev);
 
@@ -55,7 +40,6 @@ export function DidYouKnow() {
         setIsVisible(false);
         setTimeout(() => {
             setCurrentIndex((prev) => (prev + 1) % facts.length);
-            setProgress(0);
             setMindBlown(false);
             setIsVisible(true);
         }, 300);
@@ -65,7 +49,6 @@ export function DidYouKnow() {
         setIsVisible(false);
         setTimeout(() => {
             setCurrentIndex((prev) => (prev - 1 + facts.length) % facts.length);
-            setProgress(0);
             setMindBlown(false);
             setIsVisible(true);
         }, 300);
@@ -78,7 +61,6 @@ export function DidYouKnow() {
             do { newIndex = Math.floor(Math.random() * facts.length); }
             while (newIndex === currentIndex && facts.length > 1);
             setCurrentIndex(newIndex);
-            setProgress(0);
             setMindBlown(false);
             setIsVisible(true);
         }, 300);
@@ -159,29 +141,42 @@ export function DidYouKnow() {
                 boxShadow: "0 20px 40px -20px rgba(0,0,0,0.1)",
                 transition: "all 0.5s ease"
             }}>
-                {/* Bloom Effect */}
+                {/* Bloom Effect - Optimized (No Blur Filter) */}
                 <div style={{
                     position: "absolute",
                     inset: "0",
-                    background: "var(--widget-accent)",
-                    opacity: 0.05,
-                    filter: "blur(80px)",
-                    transform: "scale(0.8)",
+                    background: `radial-gradient(circle at 50% 0%, var(--widget-accent), transparent 70%)`,
+                    opacity: 0.08, // Slightly higher opacity since we removed blur
                     zIndex: 0,
                     transition: "background 0.5s ease"
                 }} />
 
-                {/* Progress Bar - Auto-play Timer */}
-                <div style={{
-                    position: "absolute",
-                    top: 0,
-                    left: 0,
-                    height: "3px",
-                    background: "var(--widget-accent)",
-                    width: `${progress}%`,
-                    transition: "width 0.1s linear, background 0.5s ease", // Linear for timer
-                    zIndex: 2
-                }} />
+                {/* Progress Bar - CSS Animation (GPU Accelerated) */}
+                <style>
+                    {`
+                        @keyframes progress-loading {
+                            from { width: 0%; }
+                            to { width: 100%; }
+                        }
+                    `}
+                </style>
+                <div
+                    key={currentIndex} // Force remount to restart animation
+                    style={{
+                        position: "absolute",
+                        top: 0,
+                        left: 0,
+                        height: "3px",
+                        background: "var(--widget-accent)",
+                        zIndex: 2,
+                        width: "0%", // Start at 0
+                        animation: `progress-loading 12s linear forwards`,
+                        animationPlayState: isAutoPlaying && isVisible ? "running" : "paused"
+                    }}
+                    onAnimationEnd={() => {
+                        handleNext();
+                    }}
+                />
 
                 {/* Decorative Icon - Moved to background/bottom to avoid overlap */}
                 <Lightbulb
