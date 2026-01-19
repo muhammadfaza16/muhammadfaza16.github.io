@@ -125,6 +125,111 @@ export const deepFacts: DeepFact[] = [
         book: "Good to Great",
         author: "Jim Collins",
         category: "Business"
+    },
+    {
+        title: "The 10,000 Hour Rule",
+        text: "Malcolm Gladwell bilang butuh 10.000 jam latihan yang *deliberate* buat bener-bener menguasai *skill* kompleks sampai ke level *mastery*. Ini bukan cuma soal ngulang-ngulang, tapi dedikasi total di setiap detiknya. Kedengarannya melelahkan sih. Tapi kalau itu syarat buat jadi ahli dalam memahami dan membahagiakan kamu, *I honestly wouldn't mind practicing for the rest of my life*.",
+        book: "Outliers",
+        author: "Malcolm Gladwell",
+        category: "Sociology"
+    },
+    {
+        title: "Heisenberg's Uncertainty",
+        text: "Prinsip ketidakpastian bilang kita gak bisa tahu posisi dan momentum partikel secara bersamaan dengan presisi sempurna; makin akurat kita ukur satu variabel, makin *blur* variabel lainnya. Alam semesta fundamentalnya emang penuh misteri yang gak bisa diprediksi. Tapi prinsip ini patah kalau soal kamu. Karena di mana pun kamu berada (posisi), aku selalu tahu kalau arah hidupku (momentum) tujuannya cuma ke kamu.",
+        book: "Physics and Philosophy",
+        author: "Werner Heisenberg",
+        category: "Physics"
+    },
+    {
+        title: "The Selfish Gene",
+        text: "Richard Dawkins bilang tujuan utama gen cuma mereplikasi diri sendiri, dan tubuh kita ini sebenernya cuma 'kendaraan' sementara yang diprogram buat ngelindungin kode genetik itu. Secara biologis, cinta itu cuma trik evolusi biar kita tetep *survive*. Dingin banget ya? Tapi kalau gen aku egois, kenapa mereka sekarang sibuk ngirim sinyal kimia 'dopamin' tiap kali aku liat kamu? *Checkmate, biology.*",
+        book: "The Selfish Gene",
+        author: "Richard Dawkins",
+        category: "Biology"
+    },
+    {
+        title: "Confirmation Bias",
+        text: "Manusia punya tendensi alami buat memilah informasi: kita cuma terima apa yang cocok sama keyakinan kita dan nge-blokir fakta yang berlawanan. Otak kita emang suka nipu biar ego kita aman. *Guilty as charged.* Aku selalu percaya kalau 'cinta itu nyata', dan sekarang tiap kali liat kamu, otak aku langsung teriak: 'TUH KAN BENER!'. Kamu adalah bukti validasi bias aku.",
+        book: "The Art of Thinking Clearly",
+        author: "Rolf Dobelli",
+        category: "Psychology"
+    },
+    {
+        title: "The Butterfly Effect",
+        text: "Teori Chaos bilang kepakan sayap kupu-kupu di Brazil bisa bikin tornado di Texas; perubahan super kecil di awal bisa micu dampak raksasa di akhir yang gak terduga. Sistem kehidupan itu sensitif banget sama kondisi awal. Efek domino dari hal kecil itu nyata. Satu chat 'hi' iseng dari kamu waktu itu dampaknya masif banget: bikin badai perasaan di hati aku yang sampe sekarang belum reda.",
+        book: "Chaos: Making a New Science",
+        author: "James Gleick",
+        category: "Physics"
+    },
+    {
+        title: "Neuroplasticity",
+        text: "Otak itu plastis, bisa berubah struktur fisiknya tergantung kebiasaan kita; *neurons that fire together, wire together*. Jalur syaraf baru kebentuk setiap kali kita fokus sama sesuatu yang intens. Karena aku mikirin kamu terus tiap hari, secara harfiah kamu udah ngerubah struktur neuron di otak aku. Kamu bukan cuma ada di pikiran, kamu udah jadi bagian fisik dari anatomi otakku.",
+        book: "The Brain That Changes Itself",
+        author: "Norman Doidge",
+        category: "Neuroscience"
+    },
+    {
+        title: "The Pareto Principle",
+        text: "Prinsip 80/20 bilang 80% hasil (output) biasanya cuma datang dari 20% penyebab vital (input); ketimpangan ini ada di mana-mana, dari bisnis sampe kebun kacang polongnya Pareto. Efisiensi itu kuncinya. *Applying this to my life:* 20% waktu yang aku abisin ngobrol sama kamu, nyumbang 80% kebahagiaan harian aku. Jadi secara matematis, investasi waktu sama kamu itu ROI (*Return on Investment*)-nya paling tinggi.",
+        book: "The 80/20 Principle",
+        author: "Richard Koch",
+        category: "Productivity"
+    },
+    {
+        title: "Loss Aversion",
+        text: "Secara psikologis, rasa sakit kehilangan Rp100.000 itu dua kali lebih kuat daripada senangnya nemu Rp100.000. *Loss aversion* ini ngejelasin kenapa aku posesif dikit. Karena bayangan kehilangan kamu tuh sakitnya bakal berkali-kali lipat dibanding senengnya pas dapet kamu.",
+        book: "Predictably Irrational",
+        author: "Dan Ariely",
+        category: "Psychology"
+    },
+    {
+        title: "Dark Matter",
+        text: "Hampir 85% gravitasi di alam semesta asalnya dari 'Dark Matter' yang gak kelihatan tapi ngiket galaksi biar gak buyar. Rasa sayang aku ke kamu tuh kayak *Dark Matter*. Mungkin gak selalu kelihatan di permukaan, tapi itu satu-satunya hal yang nahan dunia aku biar gak berantakan.",
+        book: "Astrophysics for People in a Hurry",
+        author: "Neil deGrasse Tyson",
+        category: "Physics"
+    },
+    {
+        title: "Zero to One",
+        text: "Peter Thiel bilang 'Zero to One' itu lompatan vertikal menciptakan inovasi yang bener-bener baru, beda sama '1 to N' yang cuma kompetisi nambahin kuantitas dari apa yang udah ada. *True magic happens in uniqueness.* Mantan-mantan aku mungkin '1 to N', repetisi doang. Tapi kamu itu 'Zero to One'. Unik, original, dan bikin aku ngerasain hal yang belum pernah ada sebelumnya.",
+        book: "Zero to One",
+        author: "Peter Thiel",
+        category: "Business"
+    },
+    {
+        title: "The Paradox of Choice",
+        text: "Makin banyak pilihan, manusia makin gak bahagia dan cemas. Toko dengan 24 selai bikin pembeli bingung dibanding toko dengan 6 selai. Dunia dating apps ngasih jutaan pilihan, tapi bikin pusing. Untungnya, pas ketemu kamu, 'paradox' itu ilang. Pilihan aku jadi simpel banget: cuma kamu.",
+        book: "The Paradox of Choice",
+        author: "Barry Schwartz",
+        category: "Psychology"
+    },
+    {
+        title: "Deep Work",
+        text: "Di era distraksi ini, kemampuan fokus tanpa gangguan (*Deep Work*) itu *superpower*. Ini adalah kondisi kognitif puncak di mana otak diperes maksimal tanpa jeda notifikasi atau gangguan trivial. Susah banget buat fokus sekarang. Tapi anehnya, kalau lagi sama kamu, dunia sekeliling rasanya nge-blur dan aku otomatis masuk mode *Deep Work*. Fokus aku ke kamu tuh absolut.",
+        book: "Deep Work",
+        author: "Cal Newport",
+        category: "Productivity"
+    },
+    {
+        title: "Survival of the Fittest",
+        text: "Darwin bukan bilang 'yang terkuat' yang menang, tapi 'yang paling bisa beradaptasi' terhadap perubahan lingkungan yang drastis. Spesies yang kaku bakal punah, yang fleksibel yang bakal nurunin gen. Dulu aku kaku banget, tapi demi ngimbangin kamu, aku belajar melunak dan kompromi. Evolusi karakter aku ini bukti kalau aku serius bertahan hidup di ekosistem hati kamu.",
+        book: "On the Origin of Species",
+        author: "Charles Darwin",
+        category: "Biology"
+    },
+    {
+        title: "Atomic Habits",
+        text: "Perubahan besar dimulai dari kebiasaan kecil; perbaikan 1% yang konsisten bakal numpuk jadi transformasi identitas yang solid seiring waktu. Sukses itu produk dari rutinitas harian, bukan sekadar motivasi sesaat. Kirim 'pagi', nanyain 'udah makan?', dengerin curhat. Itu semua atomic habits. Kelihatannya sepele, tapi *compound interest*-nya bikin fondasi kita kuat banget. Aku gak bangun Candi Prambanan semalam, aku numpuk bata kecil tiap hari buat kamu.",
+        book: "Atomic Habits",
+        author: "James Clear",
+        category: "Self-Help"
+    },
+    {
+        title: "Grit",
+        text: "Rahasia sukses jangka panjang bukan bakat bawaan, tapi *GRIT*: kombinasi maut antara *passion* yang konsisten dan *perseverance* (kegigihan) buat bangkit tiap kali jatuh. Ini soal lari maraton, bukan *sprint*. Mungkin aku bukan cowok paling berbakat atau ganteng yang pernah kamu temuin. Tapi soal *grit*—soal seberapa keras aku bakal usaha buat pertahanin kamu—aku berani diadu sama siapa aja.",
+        book: "Grit",
+        author: "Angela Duckworth",
+        category: "Psychology"
     }
 ];
 
