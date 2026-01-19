@@ -72,7 +72,17 @@ A dedicated "Opening Conversation" for first-time visitors to smooth the transit
     3.  **Action:** "Pick a song. Any song. Let's see where it takes us."
 *   **Impact:** Sets the "Persona" tone immediately. Not a tool, but a host.
 
-## 7. Proposed Data Structure
+## 7. Feature: First Music Onboarding (The First Play)
+Ensuring the very first song played feels special, not just a standard flow.
+
+*   **Logic:** Check `localStorage` for `has_played_music`.
+*   **Trigger:** When user hits PLAY for the very first time.
+*   **Flow:**
+    *   *Override Phase 1 (Hook):* Instead of generic opener, say: "Good choice for a first track." or "Finally. I've been waiting for you to press play."
+    *   *Then:* Transition normally into Phase 2 (Bridge).
+*   **Impact:** Acknowledges the "start" of the shared listening session.
+
+## 8. Proposed Data Structure
 
 ```typescript
 type ConversationTopic = 'science' | 'philosophy' | 'history' | 'romance' | 'casual' | 'music_bridge';
@@ -110,7 +120,7 @@ export const SONG_CONVOS: Record<string, ConversationCheck[]> = {
 };
 ```
 
-## 8. Next Steps
+## 9. Next Steps
 1.  **Pilot Project:** Implement this structure for 1-2 key songs (e.g., "Faded").
 2.  **Data Collection:** Gather timestamps and timestamps for "Key Moments" in these songs.
 3.  **Engine Update:** Update `CurrentlyStrip.tsx` (or a new `NarrativeEngine.tsx`) to consume this new timeline-based data.
