@@ -40,25 +40,48 @@ export function DidYouKnow() {
 
     const togglePlay = () => setIsAutoPlaying((prev) => !prev);
 
-    const handleShuffle = () => {
-        let newIndex;
-        do { newIndex = Math.floor(Math.random() * facts.length); }
-        while (newIndex === currentIndex && facts.length > 1);
-        setCurrentIndex(newIndex);
-        setProgress(0);
-        setMindBlown(false);
-    };
-
-    const handlePrev = () => {
-        setCurrentIndex((prev) => (prev - 1 + facts.length) % facts.length);
-        setProgress(0);
-        setMindBlown(false);
+    const getCategoryColor = (category: string) => {
+        const cat = category.toLowerCase();
+        if (["science", "physics", "chemistry"].some(c => cat.includes(c))) return "#0ea5e9"; // Sky
+        if (["space", "astronomy"].some(c => cat.includes(c))) return "#8b5cf6"; // Violet
+        if (["nature", "biology"].some(c => cat.includes(c))) return "#10b981"; // Emerald
+        if (["history", "archeology"].some(c => cat.includes(c))) return "#f59e0b"; // Amber
+        if (["tech", "technology"].some(c => cat.includes(c))) return "#3b82f6"; // Blue
+        if (["philosophy", "psychology"].some(c => cat.includes(c))) return "#ec4899"; // Pink
+        return "#64748b"; // Default Slate
     };
 
     const handleNext = () => {
-        setCurrentIndex((prev) => (prev + 1) % facts.length);
-        setProgress(0);
-        setMindBlown(false);
+        setIsVisible(false);
+        setTimeout(() => {
+            setCurrentIndex((prev) => (prev + 1) % facts.length);
+            setProgress(0);
+            setMindBlown(false);
+            setIsVisible(true);
+        }, 300);
+    };
+
+    const handlePrev = () => {
+        setIsVisible(false);
+        setTimeout(() => {
+            setCurrentIndex((prev) => (prev - 1 + facts.length) % facts.length);
+            setProgress(0);
+            setMindBlown(false);
+            setIsVisible(true);
+        }, 300);
+    };
+
+    const handleShuffle = () => {
+        setIsVisible(false);
+        setTimeout(() => {
+            let newIndex;
+            do { newIndex = Math.floor(Math.random() * facts.length); }
+            while (newIndex === currentIndex && facts.length > 1);
+            setCurrentIndex(newIndex);
+            setProgress(0);
+            setMindBlown(false);
+            setIsVisible(true);
+        }, 300);
     };
 
     const handleCopy = async () => {
@@ -72,23 +95,59 @@ export function DidYouKnow() {
 
     const handleMindBlown = () => {
         setMindBlown(true);
-        // Could also persist to localStorage for "favorites" feature later
+    };
+
+    // Swipe handling
+    const touchStartX = useRef<number | null>(null);
+    const touchEndX = useRef<number | null>(null);
+    const minSwipeDistance = 50;
+
+    const onTouchStart = (e: React.TouchEvent) => {
+        touchEndX.current = null;
+        touchStartX.current = e.targetTouches[0].clientX;
+    };
+
+    const onTouchMove = (e: React.TouchEvent) => {
+        touchEndX.current = e.targetTouches[0].clientX;
+    };
+
+    const onTouchEnd = () => {
+        if (!touchStartX.current || !touchEndX.current) return;
+        const distance = touchStartX.current - touchEndX.current;
+        if (distance > minSwipeDistance) handleNext();
+        else if (distance < -minSwipeDistance) handlePrev();
     };
 
     if (facts.length === 0) return null;
 
     const fact = facts[currentIndex];
-    const animKey = `fact-${currentIndex}`;
-
+    const accentColor = getCategoryColor(fact.category);
     // Generate Wikipedia search link as fallback source
     const sourceLink = fact.source || `https://www.google.com/search?q=${encodeURIComponent(fact.text.slice(0, 80))}`;
 
     return (
         <div
             ref={containerRef}
-            onClick={togglePlay}
+            onTouchStart={onTouchStart}
+            onTouchMove={onTouchMove}
+            onTouchEnd={onTouchEnd}
+            onClick={(e) => {
+                // Prevent toggling if clicking a button or link
+                if ((e.target as HTMLElement).closest('button, a')) return;
+                togglePlay();
+            }}
             style={{
-                borderRadius: "1rem",
+                position: "relative",
+                height: "100%",
+                display: "flex",
+                flexDirection: "column",
+                cursor: "pointer", // Hint that it's clickable
+                // @ts-ignore
+                "--widget-accent": accentColor
+            } as React.CSSProperties}
+        >
+            <div style={{
+                borderRadius: "1.5rem",
                 background: "var(--card-bg)",
                 border: "1px solid var(--border)",
                 padding: "clamp(1.5rem, 4vw, 2rem)",
@@ -97,275 +156,207 @@ export function DidYouKnow() {
                 height: "100%",
                 display: "flex",
                 flexDirection: "column",
-                cursor: "pointer",
-                transition: "border-color 0.3s ease"
-            }}
-        >
-            {/* Decorative Sparkles */}
-            <Sparkles
-                className="absolute top-4 right-4 text-[var(--accent)] opacity-20 w-12 h-12 rotate-12 pointer-events-none"
-                strokeWidth={1}
-            />
-
-            <div style={{ position: "relative", zIndex: 1, flex: 1, display: "flex", flexDirection: "column" }}>
-                {/* Header */}
+                boxShadow: "0 20px 40px -20px rgba(0,0,0,0.1)",
+                transition: "all 0.5s ease"
+            }}>
+                {/* Bloom Effect */}
                 <div style={{
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "space-between",
-                    marginBottom: "1rem",
-                    opacity: isVisible ? 1 : 0,
-                    transform: isVisible ? "translateY(0)" : "translateY(10px)",
-                    transition: "all 0.6s cubic-bezier(0.16, 1, 0.3, 1)"
-                }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
-                        <span style={{
-                            display: "inline-flex",
-                            alignItems: "center",
-                            gap: "0.5rem",
-                            padding: "0.5rem 1rem",
-                            background: "#60A5F4",
-                            backdropFilter: "none",
-                            border: "1px solid #60A5F4",
-                            borderRadius: "100px",
-                            fontSize: "0.7rem",
-                            fontWeight: 500,
-                            fontFamily: "var(--font-mono)",
-                            textTransform: "uppercase",
-                            letterSpacing: "0.05em",
-                            color: "#FFFFFF"
-                        }}>
-                            <Lightbulb className="w-3 h-3" />
-                            <span>Eh, Tau Ga?</span>
-                        </span>
-                    </div>
+                    position: "absolute",
+                    inset: "0",
+                    background: "var(--widget-accent)",
+                    opacity: 0.05,
+                    filter: "blur(80px)",
+                    transform: "scale(0.8)",
+                    zIndex: 0,
+                    transition: "background 0.5s ease"
+                }} />
 
-                    {/* Controls Row */}
-                    <div style={{ display: "flex", alignItems: "center", gap: "0.25rem" }}>
-                        {/* Prev Button */}
-                        <button
-                            onClick={(e) => { e.stopPropagation(); handlePrev(); }}
-                            className="group hover:bg-[var(--hover-bg)] transition-colors"
-                            style={{
-                                padding: "0.4rem",
-                                borderRadius: "50%",
-                                border: "1px solid var(--border)",
-                                color: "var(--text-secondary)",
-                                cursor: "pointer",
-                                display: "flex",
-                                alignItems: "center",
-                                justifyContent: "center",
-                                background: "transparent"
-                            }}
-                            aria-label="Previous fact"
-                        >
-                            <ChevronLeft className="w-3.5 h-3.5 group-hover:text-[var(--foreground)]" />
-                        </button>
-
-                        {/* Next Button */}
-                        <button
-                            onClick={(e) => { e.stopPropagation(); handleNext(); }}
-                            className="group hover:bg-[var(--hover-bg)] transition-colors"
-                            style={{
-                                padding: "0.4rem",
-                                borderRadius: "50%",
-                                border: "1px solid var(--border)",
-                                color: "var(--text-secondary)",
-                                cursor: "pointer",
-                                display: "flex",
-                                alignItems: "center",
-                                justifyContent: "center",
-                                background: "transparent"
-                            }}
-                            aria-label="Next fact"
-                        >
-                            <ChevronRight className="w-3.5 h-3.5 group-hover:text-[var(--foreground)]" />
-                        </button>
-
-                        {/* Divider */}
-                        <span style={{ width: "1px", height: "16px", background: "var(--border)", marginLeft: "0.25rem", marginRight: "0.25rem" }} />
-
-                        {/* Shuffle Button */}
-                        <button
-                            onClick={(e) => { e.stopPropagation(); handleShuffle(); }}
-                            className="group hover:bg-[var(--hover-bg)] transition-colors"
-                            style={{
-                                padding: "0.4rem",
-                                borderRadius: "50%",
-                                border: "1px solid var(--border)",
-                                color: "var(--text-secondary)",
-                                cursor: "pointer",
-                                display: "flex",
-                                alignItems: "center",
-                                justifyContent: "center",
-                                background: "transparent"
-                            }}
-                            aria-label="Random fact"
-                            title="Surprise me!"
-                        >
-                            <Shuffle className="w-3.5 h-3.5 group-hover:text-[var(--foreground)]" />
-                        </button>
-
-                        {/* Play/Pause Button */}
-                        <button
-                            onClick={(e) => { e.stopPropagation(); togglePlay(); }}
-                            className="group hover:bg-[var(--hover-bg)] transition-colors"
-                            style={{
-                                padding: "0.4rem",
-                                borderRadius: "50%",
-                                border: "1px solid var(--border)",
-                                color: "var(--text-secondary)",
-                                cursor: "pointer",
-                                display: "flex",
-                                alignItems: "center",
-                                justifyContent: "center",
-                                background: "transparent"
-                            }}
-                            aria-label={isAutoPlaying ? "Pause" : "Play"}
-                        >
-                            {isAutoPlaying ? (
-                                <Pause className="w-3.5 h-3.5 fill-current group-hover:text-[var(--foreground)]" />
-                            ) : (
-                                <Play className="w-3.5 h-3.5 fill-current ml-0.5 group-hover:text-[var(--foreground)]" />
-                            )}
-                        </button>
-                    </div>
-                </div>
-
-                {/* Category + Counter */}
+                {/* Progress Bar - Auto-play Timer */}
                 <div style={{
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "space-between",
-                    marginBottom: "1rem",
-                    fontFamily: "var(--font-mono)",
-                    fontSize: "0.75rem",
-                    color: "var(--text-secondary)"
-                }}>
-                    <span key={animKey} style={{ animation: "fadeIn 0.5s ease-out", color: "var(--accent)" }}>
-                        {fact.category}
-                    </span>
-                    <span style={{ opacity: 0.6 }}>
-                        {currentIndex + 1} / {facts.length}
-                    </span>
-                </div>
+                    position: "absolute",
+                    top: 0,
+                    left: 0,
+                    height: "3px",
+                    background: "var(--widget-accent)",
+                    width: `${progress}%`,
+                    transition: "width 0.1s linear, background 0.5s ease", // Linear for timer
+                    zIndex: 2
+                }} />
 
-                {/* Content */}
-                <div key={animKey} className="animate-fade-in-up" style={{ flex: 1 }}>
-                    <p style={{
-                        fontFamily: "'Source Serif 4', serif",
-                        fontSize: "1.1rem",
-                        fontWeight: 400,
-                        lineHeight: 1.7,
-                        color: "var(--foreground)",
-                        marginBottom: "1.5rem"
-                    }}>
-                        {fact.text}
-                    </p>
-                </div>
+                {/* Decorative Icon - Moved to background/bottom to avoid overlap */}
+                <Lightbulb
+                    className="absolute -bottom-4 -right-4 opacity-[0.03] w-32 h-32 -rotate-12 pointer-events-none"
+                    style={{ color: "var(--widget-accent)", transition: "color 0.5s ease" }}
+                />
 
-                {/* Footer: Actions + Progress */}
-                <div>
-                    {/* Action Buttons */}
-                    <div style={{
-                        display: "flex",
+                {/* Header Actions */}
+                <div className="flex items-center justify-between relative z-10 mb-6">
+                    {/* Brand Pill - Matches OnThisDay */}
+                    <span style={{
+                        display: "inline-flex",
                         alignItems: "center",
-                        justifyContent: "space-between",
-                        marginBottom: "1rem"
+                        gap: "0.5rem",
+                        padding: "0.25rem 0.75rem",
+                        borderRadius: "100px",
+                        border: "1px solid var(--widget-accent)",
+                        background: "rgba(var(--background-rgb), 0.5)",
+                        backdropFilter: "blur(4px)"
                     }}>
-                        {/* Left: Source Link */}
-                        <a
-                            href={sourceLink}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="group"
-                            style={{
-                                display: "inline-flex",
-                                alignItems: "center",
-                                gap: "0.35rem",
-                                fontSize: "0.75rem",
-                                fontFamily: "var(--font-mono)",
-                                color: "var(--text-secondary)",
-                                textDecoration: "none",
-                                opacity: 0.7,
-                                transition: "opacity 0.2s"
-                            }}
-                            onClick={(e) => e.stopPropagation()}
-                        >
-                            <ExternalLink className="w-3 h-3" />
-                            <span className="group-hover:underline">Verifikasi</span>
-                        </a>
+                        <Lightbulb className="w-3 h-3" style={{ color: "var(--widget-accent)" }} />
+                        <span style={{
+                            fontFamily: "var(--font-mono)",
+                            fontSize: "0.65rem",
+                            color: "var(--widget-accent)",
+                            textTransform: "uppercase",
+                            letterSpacing: "0.1em",
+                            fontWeight: 600
+                        }}>
+                            Eh, Tau Gak?
+                        </span>
+                    </span>
 
-                        {/* Right: Reactions */}
-                        <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                            {/* Copy Button */}
+                    <div className="flex items-center gap-3">
+                        <span style={{
+                            fontSize: "0.7rem",
+                            fontFamily: "var(--font-mono)",
+                            color: "var(--text-secondary)",
+                            opacity: 0.5
+                        }}>
+                            {currentIndex + 1} / {facts.length}
+                        </span>
+
+                        <div className="w-[1px] h-3 bg-[var(--border)] opacity-50" />
+
+                        <div className="flex items-center gap-1">
                             <button
-                                onClick={(e) => { e.stopPropagation(); handleCopy(); }}
-                                className="group hover:bg-[var(--hover-bg)] transition-all"
-                                style={{
-                                    padding: "0.4rem 0.6rem",
-                                    borderRadius: "100px",
-                                    border: "1px solid var(--border)",
-                                    color: copied ? "var(--accent)" : "var(--text-secondary)",
-                                    cursor: "pointer",
-                                    display: "flex",
-                                    alignItems: "center",
-                                    gap: "0.35rem",
-                                    background: "transparent",
-                                    fontSize: "0.7rem",
-                                    fontFamily: "var(--font-mono)"
-                                }}
-                                aria-label="Copy fact"
+                                onClick={handleMindBlown}
+                                className={`p-1.5 rounded-full transition-all active:scale-95 ${mindBlown ? "bg-[rgba(var(--accent-rgb),0.1)]" : "hover:bg-[var(--hover-bg)]"}`}
+                                title="Mind Blown!"
+                                style={{ color: mindBlown ? "var(--widget-accent)" : "var(--text-secondary)" }}
                             >
-                                {copied ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
-                                <span>{copied ? "Copied!" : "Copy"}</span>
+                                <span style={{ fontSize: "0.9rem" }}>🤯</span>
                             </button>
-
-                            {/* Mind Blown Button */}
                             <button
-                                onClick={(e) => { e.stopPropagation(); handleMindBlown(); }}
-                                className={`group transition-all ${mindBlown ? 'scale-110' : 'hover:scale-105'}`}
-                                style={{
-                                    padding: "0.4rem 0.6rem",
-                                    borderRadius: "100px",
-                                    border: mindBlown ? "1px solid var(--accent)" : "1px solid var(--border)",
-                                    color: mindBlown ? "var(--accent)" : "var(--text-secondary)",
-                                    cursor: "pointer",
-                                    display: "flex",
-                                    alignItems: "center",
-                                    gap: "0.35rem",
-                                    background: mindBlown ? "rgba(var(--accent-rgb), 0.1)" : "transparent",
-                                    fontSize: "0.8rem",
-                                    transition: "all 0.2s ease"
-                                }}
-                                aria-label="Mind blown!"
+                                onClick={handleCopy}
+                                className="p-1.5 rounded-full hover:bg-[var(--hover-bg)] text-[var(--text-secondary)] hover:text-[var(--widget-accent)] transition-all active:scale-95"
+                                title="Copy"
                             >
-                                <span>🤯</span>
+                                {copied ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
                             </button>
                         </div>
                     </div>
+                </div>
 
-                    {/* Progress Bar */}
+                {/* Main Content */}
+                <div style={{
+                    flex: 1,
+                    display: "flex",
+                    flexDirection: "column",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    textAlign: "center",
+                    position: "relative",
+                    zIndex: 1,
+                    opacity: isVisible ? 1 : 0,
+                    transform: isVisible ? "translateY(0)" : "translateY(10px)",
+                    transition: "all 0.4s ease"
+                }}>
+                    {/* Category Pill */}
                     <div style={{
-                        height: "2px",
-                        width: "100%",
-                        background: "var(--border)",
-                        position: "relative",
-                        overflow: "hidden",
-                        borderRadius: "1px",
-                        opacity: 0.8
+                        display: "inline-flex",
+                        alignItems: "center",
+                        gap: "0.5rem",
+                        padding: "0.25rem 0.75rem",
+                        borderRadius: "100px",
+                        border: "1px solid var(--border)",
+                        marginBottom: "1.5rem",
+                        background: "var(--card-bg)"
                     }}>
-                        <div style={{
-                            position: "absolute",
-                            left: 0,
-                            top: 0,
-                            bottom: 0,
-                            background: "var(--accent)",
-                            height: "100%",
-                            width: `${progress}%`,
-                            transition: "width 0.1s linear"
-                        }} />
+                        <span style={{
+                            fontFamily: "var(--font-mono)",
+                            fontSize: "0.65rem",
+                            color: "var(--widget-accent)",
+                            textTransform: "uppercase",
+                            letterSpacing: "0.1em",
+                            fontWeight: 600
+                        }}>
+                            {fact.category}
+                        </span>
                     </div>
+
+                    {/* The Fact */}
+                    <p style={{
+                        fontFamily: "'Playfair Display', serif",
+                        fontSize: "clamp(1.15rem, 3vw, 1.35rem)",
+                        lineHeight: 1.5,
+                        color: "var(--foreground)",
+                        fontStyle: "italic",
+                        marginBottom: "1.5rem",
+                        maxWidth: "90%"
+                    }}>
+                        "{fact.text}"
+                    </p>
+
+                    <a
+                        href={sourceLink}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="group flex items-center gap-1.5 text-[var(--text-secondary)] hover:text-[var(--widget-accent)] transition-colors px-3 py-1 rounded-full hover:bg-[var(--hover-bg)]"
+                        style={{ fontSize: "0.7rem", fontFamily: "var(--font-mono)" }}
+                    >
+                        <span>Verifikasi</span>
+                        <ExternalLink className="w-3 h-3 opacity-50 group-hover:opacity-100" />
+                    </a>
+                </div>
+
+                {/* Spacing Separator */}
+                <div style={{
+                    width: "100%",
+                    height: "1px",
+                    background: "var(--border)",
+                    opacity: 0.5,
+                    marginTop: "0.75rem",
+                    marginBottom: "0.75rem"
+                }} />
+
+                {/* Footer Controls */}
+                <div
+                    className="flex items-center justify-between gap-3 relative z-10"
+                    style={{
+                        paddingTop: "0.25rem" // Additional padding if needed
+                    }}
+                >
+                    <button
+                        onClick={handlePrev}
+                        className="h-10 w-10 shrink-0 rounded-full border border-[var(--border)] text-[var(--text-secondary)] hover:text-[var(--widget-accent)] hover:border-[var(--widget-accent)] flex items-center justify-center transition-all active:scale-95 bg-[rgba(125,125,125,0.05)] hover:bg-[rgba(125,125,125,0.1)]"
+                    >
+                        <ChevronLeft className="w-4 h-4" />
+                    </button>
+
+                    <button
+                        onClick={togglePlay}
+                        className="h-10 w-10 shrink-0 rounded-full border border-[var(--border)] text-[var(--text-secondary)] hover:text-[var(--widget-accent)] hover:border-[var(--widget-accent)] flex items-center justify-center transition-all active:scale-95 bg-[rgba(125,125,125,0.05)] hover:bg-[rgba(125,125,125,0.1)]"
+                        title={isAutoPlaying ? "Pause" : "Play"}
+                    >
+                        {isAutoPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4 ml-0.5" />}
+                    </button>
+
+                    <button
+                        onClick={handleShuffle}
+                        className="flex-1 h-10 rounded-full border border-[var(--border)] text-[var(--text-secondary)] hover:text-[var(--widget-accent)] hover:border-[var(--widget-accent)] flex items-center justify-center gap-2 transition-all active:scale-95 bg-[rgba(125,125,125,0.05)] hover:bg-[rgba(125,125,125,0.1)] px-4"
+                    >
+                        <Shuffle className="w-3.5 h-3.5" />
+                        <span style={{ fontFamily: "var(--font-mono)", fontSize: "0.7rem", textTransform: "uppercase", letterSpacing: "0.15em", fontWeight: 500 }}>
+                            Random
+                        </span>
+                    </button>
+
+                    <button
+                        onClick={handleNext}
+                        className="h-10 w-10 shrink-0 rounded-full border border-[var(--border)] text-[var(--text-secondary)] hover:text-[var(--widget-accent)] hover:border-[var(--widget-accent)] flex items-center justify-center transition-all active:scale-95 bg-[rgba(125,125,125,0.05)] hover:bg-[rgba(125,125,125,0.1)]"
+                    >
+                        <ChevronRight className="w-4 h-4" />
+                    </button>
                 </div>
             </div>
         </div>

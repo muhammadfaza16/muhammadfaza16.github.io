@@ -12,11 +12,44 @@ export function DeepThoughtLibrary() {
     const [isAnimating, setIsAnimating] = useState(false);
     const [copied, setCopied] = useState(false);
 
+    // Swipe handling
+    const touchStartX = useRef<number | null>(null);
+    const touchEndX = useRef<number | null>(null);
+    const minSwipeDistance = 50;
+
     useEffect(() => {
         setFacts(getAllDeepFacts());
         // Random start
         setCurrentIndex(Math.floor(Math.random() * getAllDeepFacts().length));
     }, []);
+
+    // Keyboard navigation
+    useEffect(() => {
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if (e.key === "ArrowLeft") {
+                handlePrev();
+            } else if (e.key === "ArrowRight") {
+                handleNext();
+            }
+        };
+
+        window.addEventListener("keydown", handleKeyDown);
+        return () => window.removeEventListener("keydown", handleKeyDown);
+    }, [facts, isAnimating]); // Dependencies needed to access latest state if not using functional updates with refs, 
+    // but here we call handlePrev/Next which use functional state updates or depend on current closure.
+    // Actually handleNext checks isAnimating, which is state. 
+    // Better to keep dependencies or use refs for isAnimating to avoid stale closures if the effect re-runs often.
+    // Since handleNext/Prev are robust (check isAnimating), re-attaching listener is fine.
+
+    const getCategoryColor = (category: string) => {
+        const cat = category.toLowerCase();
+        if (["physics", "astronomy", "neuroscience", "chemistry"].some(c => cat.includes(c))) return "#0ea5e9"; // Cyan/Sky
+        if (["psychology", "mindfulness", "philosophy"].some(c => cat.includes(c))) return "#8b5cf6"; // Violet
+        if (["growth", "productivity", "business", "finance"].some(c => cat.includes(c))) return "#10b981"; // Emerald
+        if (["history", "sociology", "biography"].some(c => cat.includes(c))) return "#f59e0b"; // Amber
+        if (["biology", "self-help", "love", "relationships"].some(c => cat.includes(c))) return "#ec4899"; // Pink
+        return "#3b82f6"; // Default Blue
+    };
 
     const handleNext = () => {
         if (isAnimating) return;
@@ -56,9 +89,33 @@ export function DeepThoughtLibrary() {
         setTimeout(() => setCopied(false), 2000);
     };
 
+    const onTouchStart = (e: React.TouchEvent) => {
+        touchEndX.current = null;
+        touchStartX.current = e.targetTouches[0].clientX;
+    };
+
+    const onTouchMove = (e: React.TouchEvent) => {
+        touchEndX.current = e.targetTouches[0].clientX;
+    };
+
+    const onTouchEnd = () => {
+        if (!touchStartX.current || !touchEndX.current) return;
+
+        const distance = touchStartX.current - touchEndX.current;
+        const isLeftSwipe = distance > minSwipeDistance;
+        const isRightSwipe = distance < -minSwipeDistance;
+
+        if (isLeftSwipe) {
+            handleNext();
+        } else if (isRightSwipe) {
+            handlePrev();
+        }
+    };
+
     if (facts.length === 0) return null;
 
     const fact = facts[currentIndex];
+    const accentColor = getCategoryColor(fact.category);
 
     return (
         <section style={{
@@ -67,8 +124,10 @@ export function DeepThoughtLibrary() {
             position: "relative",
             overflow: "hidden",
             borderTop: "1px solid var(--border)",
-            background: "linear-gradient(to bottom, var(--background), var(--card-bg))"
-        }}>
+            background: "linear-gradient(to bottom, var(--background), var(--card-bg))",
+            // @ts-ignore
+            "--daily-accent": accentColor // Define local variable for this section
+        } as React.CSSProperties}>
             {/* Background Texture - Subtle Grid */}
             <div style={{
                 position: "absolute",
@@ -91,13 +150,14 @@ export function DeepThoughtLibrary() {
                         <span style={{
                             fontFamily: "var(--font-mono)",
                             fontSize: "0.75rem",
-                            color: "var(--accent)",
+                            color: "var(--daily-accent)",
                             textTransform: "uppercase",
                             letterSpacing: "0.2em",
                             display: "inline-flex",
                             alignItems: "center",
                             gap: "0.5rem",
-                            marginBottom: "1rem"
+                            marginBottom: "1rem",
+                            transition: "color 0.5s ease"
                         }}>
                             <BookOpen className="w-3 h-3" />
                             Library of Thoughts
@@ -125,34 +185,40 @@ export function DeepThoughtLibrary() {
                     </div>
 
                     {/* The Fact Card */}
-                    <div style={{
-                        maxWidth: "800px",
-                        margin: "0 auto",
-                        position: "relative"
-                    }}>
+                    <div
+                        style={{
+                            maxWidth: "800px",
+                            margin: "0 auto",
+                            position: "relative"
+                        }}
+                        onTouchStart={onTouchStart}
+                        onTouchMove={onTouchMove}
+                        onTouchEnd={onTouchEnd}
+                    >
                         {/* Card Background Bloom */}
                         <div style={{
                             position: "absolute",
                             inset: "0",
-                            background: "var(--accent)",
+                            background: "var(--daily-accent)",
                             opacity: 0.05,
                             filter: "blur(80px)",
                             transform: "scale(0.8)",
-                            zIndex: 0
+                            zIndex: 0,
+                            transition: "background 0.5s ease"
                         }}></div>
 
                         <div style={{
                             background: "var(--card-bg)",
                             border: "1px solid var(--border)",
                             borderRadius: "1.5rem",
-                            padding: "clamp(1.5rem, 5vw, 4rem)", // Reduced minimum padding for mobile
+                            padding: "clamp(1.5rem, 5vw, 4rem)",
                             position: "relative",
                             zIndex: 1,
                             boxShadow: "0 20px 40px -20px rgba(0,0,0,0.1)",
                             transition: "opacity 0.3s ease, transform 0.3s ease",
                             opacity: isAnimating ? 0 : 1,
                             transform: isAnimating ? "translateY(10px) scale(0.98)" : "translateY(0) scale(1)",
-                            overflow: "hidden" // Ensure progress bar stays inside
+                            overflow: "hidden"
                         }}>
                             {/* Progress Bar Top - Simple Line */}
                             <div style={{
@@ -160,14 +226,15 @@ export function DeepThoughtLibrary() {
                                 top: 0,
                                 left: 0,
                                 height: "3px",
-                                background: "var(--accent)", // Flat color
+                                background: "var(--daily-accent)",
                                 width: `${((currentIndex + 1) / facts.length) * 100}%`,
-                                transition: "width 0.5s ease"
+                                transition: "width 0.5s ease, background 0.5s ease"
                             }} />
 
-                            {/* Decorative Quote Icon - Blue Tint */}
+                            {/* Decorative Quote Icon */}
                             <Quote
-                                className="absolute top-4 left-4 md:top-8 md:left-8 text-[var(--accent)] opacity-20 w-8 h-8 md:w-12 md:h-12 rotate-180 pointer-events-none"
+                                className="absolute top-4 left-4 md:top-8 md:left-8 opacity-20 w-8 h-8 md:w-12 md:h-12 rotate-180 pointer-events-none"
+                                style={{ color: "var(--daily-accent)", transition: "color 0.5s ease" }}
                             />
 
                             {/* Action Buttons (Top Right) */}
@@ -182,16 +249,20 @@ export function DeepThoughtLibrary() {
                                 </span>
                                 <button
                                     onClick={handleCopy}
-                                    className="p-2 rounded-full hover:bg-[var(--hover-bg)] text-[var(--text-secondary)] hover:text-[var(--accent)] transition-all active:scale-95"
+                                    className="p-2 rounded-full hover:bg-[var(--hover-bg)] text-[var(--text-secondary)] hover:text-[var(--daily-accent)] transition-all active:scale-95"
                                     title="Copy to clipboard"
                                 >
-                                    {copied ? <Check className="w-4 h-4 text-[var(--accent)]" /> : <Copy className="w-4 h-4" />}
+                                    {copied ?
+                                        <Check className="w-4 h-4" style={{ color: "var(--daily-accent)" }} /> :
+                                        <Copy className="w-4 h-4" />
+                                    }
                                 </button>
                             </div>
 
-                            {/* Decorative Sparkles (Adjusted position) */}
+                            {/* Decorative Sparkles */}
                             <Sparkles
-                                className="absolute bottom-4 left-4 text-[var(--accent)] opacity-20 w-8 h-8 pointer-events-none"
+                                className="absolute bottom-4 left-4 opacity-20 w-8 h-8 pointer-events-none"
+                                style={{ color: "var(--daily-accent)", transition: "color 0.5s ease" }}
                             />
 
                             {/* Book & Author Tag */}
@@ -213,22 +284,23 @@ export function DeepThoughtLibrary() {
                                     className="group flex items-center gap-2 rounded-full transition-all hover:bg-[var(--hover-bg)]"
                                     style={{
                                         textDecoration: "none",
-                                        border: "1px solid var(--accent)",
-                                        padding: "0.5rem 1.75rem" // Forced padding inline
-                                        // Removed gradient & shadow
+                                        border: "1px solid var(--daily-accent)",
+                                        padding: "0.5rem 1.75rem",
+                                        transition: "border-color 0.5s ease"
                                     }}
                                 >
                                     <span style={{
                                         fontFamily: "var(--font-mono)",
                                         fontSize: "0.75rem",
-                                        color: "var(--accent)", // Signature Blue Text
+                                        color: "var(--daily-accent)",
                                         textTransform: "uppercase",
                                         letterSpacing: "0.05em",
-                                        fontWeight: 600
+                                        fontWeight: 600,
+                                        transition: "color 0.5s ease"
                                     }}>
                                         {fact.book}
                                     </span>
-                                    <ExternalLink className="w-3 h-3 text-[var(--accent)] opacity-70 group-hover:opacity-100" />
+                                    <ExternalLink className="w-3 h-3 opacity-70 group-hover:opacity-100" style={{ color: "var(--daily-accent)" }} />
                                 </a>
                                 <span style={{
                                     fontFamily: "var(--font-mono)",
@@ -243,20 +315,20 @@ export function DeepThoughtLibrary() {
                             <div style={{ textAlign: "center", marginBottom: "2rem" }}>
                                 <h3 style={{
                                     fontFamily: "'Playfair Display', serif",
-                                    fontSize: "clamp(1.5rem, 5vw, 2rem)", // Increased size
+                                    fontSize: "clamp(1.5rem, 5vw, 2rem)",
                                     marginBottom: "1.5rem",
                                     color: "var(--foreground)",
                                     lineHeight: 1.2,
-                                    fontStyle: "italic", // Editorial flair
+                                    fontStyle: "italic",
                                     fontWeight: 600
                                 }}>
                                     {fact.title}
                                 </h3>
                                 <p style={{
                                     fontFamily: "'Source Serif 4', serif",
-                                    fontSize: "clamp(1.1rem, 2.5vw, 1.35rem)", // Larger, more readable
+                                    fontSize: "clamp(1.1rem, 2.5vw, 1.35rem)",
                                     lineHeight: 1.8,
-                                    color: "var(--text-secondary)", // Back to softer gray
+                                    color: "var(--text-secondary)",
                                     marginBottom: 0,
                                     opacity: 0.9
                                 }}>
@@ -276,7 +348,7 @@ export function DeepThoughtLibrary() {
                                 <div className="flex items-center gap-6 w-full md:w-auto justify-center">
                                     <button
                                         onClick={handlePrev}
-                                        className="h-12 w-12 rounded-full transition-all border border-[var(--border)] text-[var(--text-secondary)] hover:text-[var(--accent)] hover:border-[var(--accent)] active:scale-95 touch-manipulation flex items-center justify-center bg-[rgba(125,125,125,0.05)] hover:bg-[rgba(125,125,125,0.1)]"
+                                        className="h-12 w-12 rounded-full transition-all border border-[var(--border)] text-[var(--text-secondary)] hover:text-[var(--daily-accent)] hover:border-[var(--daily-accent)] active:scale-95 touch-manipulation flex items-center justify-center bg-[rgba(125,125,125,0.05)] hover:bg-[rgba(125,125,125,0.1)]"
                                         aria-label="Previous thought"
                                     >
                                         <ChevronLeft className="w-5 h-5 absolute" style={{ transform: 'translateX(-1px)' }} />
@@ -285,7 +357,7 @@ export function DeepThoughtLibrary() {
                                     {/* Shuffle - Middle on Mobile */}
                                     <button
                                         onClick={handleShuffle}
-                                        className="flex-1 md:flex-none flex items-center justify-center gap-2 h-12 px-8 rounded-full transition-all border border-[var(--border)] text-[var(--text-secondary)] hover:text-[var(--accent)] hover:border-[var(--accent)] active:scale-95 touch-manipulation group bg-[rgba(125,125,125,0.05)] hover:bg-[rgba(125,125,125,0.1)]"
+                                        className="flex-1 md:flex-none flex items-center justify-center gap-2 h-12 px-8 rounded-full transition-all border border-[var(--border)] text-[var(--text-secondary)] hover:text-[var(--daily-accent)] hover:border-[var(--daily-accent)] active:scale-95 touch-manipulation group bg-[rgba(125,125,125,0.05)] hover:bg-[rgba(125,125,125,0.1)]"
                                     >
                                         <Shuffle className="w-4 h-4 transition-transform group-hover:rotate-180" />
                                         <span style={{ fontFamily: "var(--font-mono)", fontSize: "0.8rem", textTransform: "uppercase", letterSpacing: "0.1em", fontWeight: 500 }}>
@@ -295,11 +367,14 @@ export function DeepThoughtLibrary() {
 
                                     <button
                                         onClick={handleNext}
-                                        className="h-12 w-12 rounded-full transition-all border border-[var(--border)] text-[var(--text-secondary)] hover:text-[var(--accent)] hover:border-[var(--accent)] active:scale-95 touch-manipulation flex items-center justify-center bg-[rgba(125,125,125,0.05)] hover:bg-[rgba(125,125,125,0.1)]"
+                                        className="h-12 w-12 rounded-full transition-all border border-[var(--border)] text-[var(--text-secondary)] hover:text-[var(--daily-accent)] hover:border-[var(--daily-accent)] active:scale-95 touch-manipulation flex items-center justify-center bg-[rgba(125,125,125,0.05)] hover:bg-[rgba(125,125,125,0.1)]"
                                         aria-label="Next thought"
                                     >
                                         <ChevronRight className="w-5 h-5 absolute" style={{ transform: 'translateX(1px)' }} />
                                     </button>
+                                </div>
+                                <div className="hidden md:block text-xs text-[var(--text-secondary)] opacity-50 font-mono mt-2">
+                                    Protip: Use Arrow Keys ← → to navigate
                                 </div>
                             </div>
 

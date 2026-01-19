@@ -17,255 +17,267 @@ export function OnThisDay() {
         return () => clearTimeout(timer);
     }, []);
 
-    // Auto-rotation removed as per user request
+    const getCategoryColor = (category: string) => {
+        const cat = category.toLowerCase();
+        if (["history", "war", "politics"].some(c => cat.includes(c))) return "#f59e0b"; // Amber
+        if (["technology", "tech", "science"].some(c => cat.includes(c))) return "#3b82f6"; // Blue
+        if (["arts", "music", "film", "culture"].some(c => cat.includes(c))) return "#ec4899"; // Pink
+        if (["space", "astronomy"].some(c => cat.includes(c))) return "#8b5cf6"; // Violet
+        return "#64748b"; // Slade
+    };
 
     const handleNext = () => {
-        setCurrentIndex((prev) => (prev + 1) % events.length);
+        setIsVisible(false);
+        setTimeout(() => {
+            setCurrentIndex((prev) => (prev + 1) % events.length);
+            setIsVisible(true);
+        }, 300);
     };
 
     const handlePrev = () => {
-        setCurrentIndex((prev) => (prev - 1 + events.length) % events.length);
+        setIsVisible(false);
+        setTimeout(() => {
+            setCurrentIndex((prev) => (prev - 1 + events.length) % events.length);
+            setIsVisible(true);
+        }, 300);
+    };
+
+    // Swipe handling
+    const touchStartX = useRef<number | null>(null);
+    const touchEndX = useRef<number | null>(null);
+    const minSwipeDistance = 50;
+
+    const onTouchStart = (e: React.TouchEvent) => {
+        touchEndX.current = null;
+        touchStartX.current = e.targetTouches[0].clientX;
+    };
+
+    const onTouchMove = (e: React.TouchEvent) => {
+        touchEndX.current = e.targetTouches[0].clientX;
+    };
+
+    const onTouchEnd = () => {
+        if (!touchStartX.current || !touchEndX.current) return;
+        const distance = touchStartX.current - touchEndX.current;
+        if (distance > minSwipeDistance) handleNext();
+        else if (distance < -minSwipeDistance) handlePrev();
     };
 
     if (events.length === 0) return null;
 
     const event = events[currentIndex];
-
-    // Animation key to force re-render specific elements on change
-    const animKey = `event-${currentIndex}`;
+    const accentColor = getCategoryColor(event.category);
 
     return (
         <div
+            onTouchStart={onTouchStart}
+            onTouchMove={onTouchMove}
+            onTouchEnd={onTouchEnd}
             style={{
-                fontFamily: "'Playfair Display', serif",
-                color: "var(--foreground)",
+                position: "relative",
+                height: "100%",
+                display: "flex",
+                flexDirection: "column",
+                // @ts-ignore
+                "--widget-accent": accentColor
+            } as React.CSSProperties}
+        >
+            <div style={{
+                borderRadius: "1.5rem",
+                background: "var(--card-bg)",
+                border: "1px solid var(--border)",
+                padding: "clamp(1.5rem, 4vw, 2rem)",
                 position: "relative",
                 overflow: "hidden",
                 height: "100%",
                 display: "flex",
                 flexDirection: "column",
-                justifyContent: "center",
-                borderRadius: "1rem",
-                border: "1px solid var(--border)",
-                padding: "clamp(1.5rem, 4vw, 2.5rem)",
-                background: "var(--background)"
-            }}
-        >
-            {/* Background "ON THIS DAY" Watermark */}
-            <div style={{
-                position: "absolute",
-                top: "50%",
-                left: "50%",
-                transform: "translate(-50%, -50%)",
-                fontSize: "clamp(4rem, 15vw, 12rem)",
-                opacity: 0.03,
-                fontWeight: 700,
-                whiteSpace: "nowrap",
-                pointerEvents: "none",
-                zIndex: 0,
-                fontFamily: "var(--font-sans)",
-                letterSpacing: "-0.05em"
+                boxShadow: "0 20px 40px -20px rgba(0,0,0,0.1)",
+                transition: "all 0.5s ease"
             }}>
-                REWIND
-            </div>
-
-            <div style={{ position: "relative", zIndex: 1 }}>
-                {/* Header Badge - Cleaned up */}
+                {/* Bloom Effect */}
                 <div style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "0.75rem",
-                    marginBottom: "2rem",
-                    opacity: isVisible ? 1 : 0,
-                    transform: isVisible ? "translateY(0)" : "translateY(20px)",
-                    transition: "all 0.8s cubic-bezier(0.16, 1, 0.3, 1)"
+                    position: "absolute",
+                    inset: "0",
+                    background: "var(--widget-accent)",
+                    opacity: 0.05,
+                    filter: "blur(80px)",
+                    transform: "scale(0.8)",
+                    zIndex: 0,
+                    transition: "background 0.5s ease"
+                }} />
+
+                {/* Progress Bar */}
+                <div style={{
+                    position: "absolute",
+                    top: 0,
+                    left: 0,
+                    height: "3px",
+                    background: "var(--widget-accent)",
+                    width: `${((currentIndex + 1) / events.length) * 100}%`,
+                    transition: "width 0.5s ease, background 0.5s ease",
+                    zIndex: 2
+                }} />
+
+                {/* Background Watermark */}
+                <div style={{
+                    position: "absolute",
+                    top: "50%",
+                    left: "50%",
+                    transform: "translate(-50%, -50%) rotate(-10deg)",
+                    fontSize: "clamp(4rem, 12vw, 8rem)",
+                    opacity: 0.02,
+                    fontWeight: 900,
+                    whiteSpace: "nowrap",
+                    pointerEvents: "none",
+                    zIndex: 0,
+                    fontFamily: "var(--font-sans)",
+                    color: "var(--foreground)"
                 }}>
+                    {event.year}
+                </div>
+
+                {/* Header */}
+                <div
+                    className="flex items-center justify-between relative z-10"
+                    style={{ marginBottom: "2.5rem" }} // Inline style to force spacing
+                >
                     <span style={{
                         display: "inline-flex",
                         alignItems: "center",
                         gap: "0.5rem",
-                        padding: "0.5rem 1rem",
-                        background: "#60A5F4",
-                        backdropFilter: "none",
-                        border: "1px solid #60A5F4",
+                        padding: "0.25rem 0.75rem",
                         borderRadius: "100px",
-                        fontSize: "0.75rem",
-                        fontFamily: "var(--font-mono)",
-                        textTransform: "uppercase",
-                        letterSpacing: "0.05em",
-                        color: "#FFFFFF"
+                        border: "1px solid var(--widget-accent)",
+                        background: "rgba(var(--background-rgb), 0.5)",
+                        backdropFilter: "blur(4px)"
                     }}>
-                        <Calendar className="w-3 h-3" />
-                        <span>Throwback Nih</span>
-                    </span>
-
-                    <span style={{
-                        height: "1px",
-                        width: "20px",
-                        background: "var(--border)"
-                    }} className="hidden sm:block" />
-
-                    <span key={animKey} style={{
-                        fontSize: "0.85rem",
-                        fontFamily: "var(--font-mono)",
-                        color: "var(--accent)",
-                        animation: "fadeIn 0.5s ease-out"
-                    }}>
-                        {event.category}
-                    </span>
-                </div>
-
-                {/* Content Container with Animation Key */}
-                <div key={animKey} className="animate-fade-in-up">
-                    {/* Massive Year */}
-                    <div style={{
-                        display: "flex",
-                        flexDirection: "column",
-                        marginBottom: "1.5rem",
-                    }}>
-                        <span style={{
-                            fontSize: "clamp(3.5rem, 10vw, 8rem)", // Smaller on mobile
-                            lineHeight: 0.9,
-                            fontWeight: 400,
-                            letterSpacing: "-0.04em"
-                        }}>
-                            {event.year}
-                        </span>
-                        <span style={{
-                            fontSize: "1.5rem",
-                            fontFamily: "var(--font-mono)",
-                            color: "var(--accent)",
-                            marginTop: "0.5rem",
-                            opacity: 0.8
-                        }}>
-                            {new Date(event.year, event.month, event.day).toLocaleDateString("id-ID", { day: "numeric", month: "long" })}
-                        </span>
-                    </div>
-
-                    {/* Title */}
-                    <h3 style={{
-                        fontSize: "clamp(1.5rem, 3vw, 2.5rem)",
-                        fontWeight: 500,
-                        marginBottom: "1.5rem",
-                        lineHeight: 1.2,
-                    }}>
-                        {event.title}
-                    </h3>
-
-                    {/* Description - Editorial Style */}
-                    <div style={{ position: "relative" }}>
-                        <p style={{
-                            fontSize: "1.1rem",
-                            lineHeight: 1.7,
-                            color: "var(--text-secondary)",
-                            fontFamily: "'Source Serif 4', serif",
-                            maxWidth: "100%", // Use full width available
-                            margin: 0,
-                            marginBottom: "1.5rem"
-                        }}>
-                            <span style={{
-                                float: "left",
-                                fontSize: "clamp(2.5em, 8vw, 3.5em)",
-                                lineHeight: 0.8,
-                                paddingRight: "0.1em",
-                                paddingTop: "0.1em",
-                                color: "var(--foreground)"
-                            }}>
-                                {event.description.charAt(0)}
-                            </span>
-                            {event.description.slice(1)}
-                        </p>
-
-                        {/* Action / Context */}
-                        <div>
-                            <a href={`https://en.wikipedia.org/wiki/${event.year}`}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="group"
-                                style={{
-                                    display: "inline-flex",
-                                    alignItems: "center",
-                                    gap: "0.5rem",
-                                    fontSize: "0.9rem",
-                                    fontFamily: "var(--font-mono)",
-                                    color: "var(--foreground)",
-                                    textDecoration: "none",
-                                    paddingBottom: "2px",
-                                    borderBottom: "1px solid var(--border)"
-                                }}
-                            >
-                                Baca cerita lengkapnya
-                                <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1 shrink-0" />
-                            </a>
-                        </div>
-                    </div>
-                </div>
-
-                {/* Floating Navigation - Bottom Right */}
-                {events.length > 1 && (
-                    <div style={{
-                        position: "absolute",
-                        right: "0",
-                        bottom: "0",
-                        display: "flex",
-                        flexDirection: "row",
-                        alignItems: "center",
-                        gap: "0.5rem",
-                        zIndex: 10,
-                        background: "linear-gradient(to left, var(--background) 70%, transparent)",
-                        paddingLeft: "2rem",
-                        paddingTop: "0.5rem"
-                    }}>
-                        <button
-                            onClick={handlePrev}
-                            className="group hover:bg-[var(--hover-bg)] transition-colors backdrop-blur-sm"
-                            style={{
-                                padding: "0.75rem",
-                                borderRadius: "50%",
-                                border: "1px solid var(--border)",
-                                color: "var(--foreground)",
-                                cursor: "pointer",
-                                display: "flex",
-                                alignItems: "center",
-                                justifyContent: "center",
-                                background: "rgba(255,255,255,0.05)"
-                            }}
-                            aria-label="Previous event"
-                        >
-                            <ChevronLeft className="w-4 h-4" />
-                        </button>
-
-                        {/* Counter - Between arrows */}
+                        <Calendar className="w-3 h-3" style={{ color: "var(--widget-accent)" }} />
                         <span style={{
                             fontFamily: "var(--font-mono)",
                             fontSize: "0.65rem",
-                            color: "var(--text-secondary)",
-                            opacity: 0.6,
-                            whiteSpace: "nowrap"
+                            color: "var(--widget-accent)",
+                            textTransform: "uppercase",
+                            letterSpacing: "0.1em",
+                            fontWeight: 600
                         }}>
-                            {currentIndex + 1}/{events.length}
+                            On This Day
                         </span>
+                    </span>
 
-                        <button
-                            onClick={handleNext}
-                            className="group hover:bg-[var(--hover-bg)] transition-colors backdrop-blur-sm"
-                            style={{
-                                padding: "0.75rem",
-                                borderRadius: "50%",
-                                border: "1px solid var(--border)",
-                                color: "var(--foreground)",
-                                cursor: "pointer",
-                                display: "flex",
-                                alignItems: "center",
-                                justifyContent: "center",
-                                background: "rgba(255,255,255,0.05)"
-                            }}
-                            aria-label="Next event"
-                        >
-                            <ChevronRight className="w-4 h-4" />
-                        </button>
+                    <span style={{
+                        fontSize: "0.7rem",
+                        fontFamily: "var(--font-mono)",
+                        color: "var(--text-secondary)",
+                        opacity: 0.5
+                    }}>
+                        {currentIndex + 1} / {events.length}
+                    </span>
+                </div>
+
+                {/* Content */}
+                <div style={{
+                    flex: 1,
+                    display: "flex",
+                    flexDirection: "column",
+                    justifyContent: "center", // Center vertically
+                    position: "relative",
+                    zIndex: 1,
+                    opacity: isVisible ? 1 : 0,
+                    transform: isVisible ? "translateY(0)" : "translateY(10px)",
+                    transition: "all 0.4s ease"
+                }}>
+                    {/* Year */}
+                    <div style={{ marginBottom: "1.25rem" }}>
+                        <span style={{
+                            fontFamily: "var(--font-mono)",
+                            fontSize: "0.85rem",
+                            color: "var(--widget-accent)",
+                            display: "block",
+                            marginBottom: "0.85rem" // Inline style to force spacing
+                        }}>
+                            {event.category} • {event.year}
+                        </span>
+                        <h3 style={{
+                            fontFamily: "'Playfair Display', serif",
+                            fontSize: "clamp(1.5rem, 3.5vw, 2rem)",
+                            fontWeight: 500,
+                            lineHeight: 1.2,
+                            color: "var(--foreground)",
+                            marginBottom: "1rem"
+                        }}>
+                            {event.title}
+                        </h3>
                     </div>
-                )}
+
+                    <p style={{
+                        fontFamily: "'Source Serif 4', serif",
+                        fontSize: "1.05rem",
+                        lineHeight: 1.7,
+                        color: "var(--text-secondary)",
+                        marginBottom: "1.5rem",
+                        display: "-webkit-box",
+                        WebkitLineClamp: 4,
+                        WebkitBoxOrient: "vertical",
+                        overflow: "hidden"
+                    }}>
+                        {event.description}
+                    </p>
+
+                    <a href={`https://en.wikipedia.org/wiki/${event.year}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="group inline-flex items-center gap-2 text-[var(--widget-accent)] hover:underline decoration-1 underline-offset-4 w-fit"
+                        style={{ fontFamily: "var(--font-mono)", fontSize: "0.75rem", textTransform: "uppercase", letterSpacing: "0.05em" }}
+                    >
+                        <span>Read History</span>
+                        <ArrowRight className="w-3 h-3 transition-transform group-hover:translate-x-1" />
+                    </a>
+                </div>
+
+                {/* Spacing Separator */}
+                <div style={{
+                    width: "100%",
+                    height: "1px",
+                    background: "var(--border)",
+                    opacity: 0.5,
+                    marginTop: "0.75rem",
+                    marginBottom: "0.75rem"
+                }} />
+
+                {/* Footer Controls */}
+                <div
+                    className="flex items-center justify-between gap-2 relative z-10"
+                    style={{
+                        paddingTop: "0.25rem"
+                    }}
+                >
+                    <button
+                        onClick={handlePrev}
+                        className="h-10 w-10 rounded-full border border-[var(--border)] text-[var(--text-secondary)] hover:text-[var(--widget-accent)] hover:border-[var(--widget-accent)] flex items-center justify-center transition-all active:scale-95 bg-[rgba(125,125,125,0.05)] hover:bg-[rgba(125,125,125,0.1)]"
+                    >
+                        <ChevronLeft className="w-4 h-4" />
+                    </button>
+
+                    {/* Date Display */}
+                    <div style={{
+                        fontFamily: "var(--font-mono)",
+                        fontSize: "0.75rem",
+                        color: "var(--text-secondary)",
+                        letterSpacing: "0.05em",
+                        textTransform: "uppercase"
+                    }}>
+                        {new Date(2000, event.month, event.day).toLocaleDateString("id-ID", { day: "numeric", month: "long" })}
+                    </div>
+
+                    <button
+                        onClick={handleNext}
+                        className="h-10 w-10 rounded-full border border-[var(--border)] text-[var(--text-secondary)] hover:text-[var(--widget-accent)] hover:border-[var(--widget-accent)] flex items-center justify-center transition-all active:scale-95 bg-[rgba(125,125,125,0.05)] hover:bg-[rgba(125,125,125,0.1)]"
+                    >
+                        <ChevronRight className="w-4 h-4" />
+                    </button>
+                </div>
+
             </div>
         </div>
     );

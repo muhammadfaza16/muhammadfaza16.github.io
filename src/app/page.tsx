@@ -210,6 +210,9 @@ export default function HomePage() {
           <div style={{ flex: 1, maxWidth: "120px", height: "1px", background: "linear-gradient(to left, transparent, var(--border))" }} />
         </div >
 
+        {/* Deep Thought Library - Cosmic Knowledge */}
+        <DeepThoughtLibrary />
+
         {/* Daily Fuel - Intellectual Nourishment */}
         < section style={{
           paddingTop: "clamp(3rem, 6vw, 6rem)",
@@ -253,25 +256,22 @@ export default function HomePage() {
               </p>
             </div>
 
-            {/* Two-Column: Did You Know (Sidebar) | On This Day (Main) */}
+            {/* Two-Column: On This Day (Sidebar) | Did You Know (Main) */}
             <div className="flex flex-col lg:flex-row gap-4 lg:gap-8">
-              {/* Did You Know - Sidebar */}
+              {/* On This Day - Sidebar */}
               <div className="lg:w-[350px] lg:flex-shrink-0">
-                <DidYouKnow />
-              </div>
-              {/* On This Day - Main */}
-              <div className="flex-1">
                 <OnThisDay />
+              </div>
+              {/* Did You Know - Main */}
+              <div className="flex-1">
+                <DidYouKnow />
               </div>
             </div>
           </Container>
         </section>
       </ZenHideable>
 
-      {/* Deep Thought Library - Cosmic Knowledge */}
-      <ZenHideable hideInZen>
-        <DeepThoughtLibrary />
-      </ZenHideable>
+
 
       <ZenHideable hideInZen>
         <section style={{
