@@ -195,18 +195,6 @@ export function DeepThoughtLibrary() {
                         onTouchMove={onTouchMove}
                         onTouchEnd={onTouchEnd}
                     >
-                        {/* Card Background Bloom */}
-                        <div style={{
-                            position: "absolute",
-                            inset: "0",
-                            background: "var(--daily-accent)",
-                            opacity: 0.05,
-                            filter: "blur(80px)",
-                            transform: "scale(0.8)",
-                            zIndex: 0,
-                            transition: "background 0.5s ease"
-                        }}></div>
-
                         <div style={{
                             background: "var(--card-bg)",
                             border: "1px solid var(--border)",
@@ -220,6 +208,18 @@ export function DeepThoughtLibrary() {
                             transform: isAnimating ? "translateY(10px) scale(0.98)" : "translateY(0) scale(1)",
                             overflow: "hidden"
                         }}>
+                            {/* Card Background Bloom */}
+                            <div style={{
+                                position: "absolute",
+                                inset: "0",
+                                background: "var(--daily-accent)",
+                                opacity: 0.05,
+                                filter: "blur(80px)",
+                                transform: "scale(0.8)",
+                                zIndex: 0,
+                                transition: "background 0.5s ease"
+                            }} />
+
                             {/* Progress Bar Top - Simple Line */}
                             <div style={{
                                 position: "absolute",
@@ -228,7 +228,8 @@ export function DeepThoughtLibrary() {
                                 height: "3px",
                                 background: "var(--daily-accent)",
                                 width: `${((currentIndex + 1) / facts.length) * 100}%`,
-                                transition: "width 0.5s ease, background 0.5s ease"
+                                transition: "width 0.5s ease, background 0.5s ease",
+                                zIndex: 2
                             }} />
 
                             {/* Decorative Quote Icon */}
