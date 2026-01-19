@@ -61,7 +61,18 @@ To elevate the experience from "Program" to "Persona":
 *   **Reaction:** "Yah... lagi enak-enaknya. Toilet break?" or "Jangan lama-lama."
 *   **Impact:** Agency. The avatar "minds" being interrupted.
 
-## 6. Proposed Data Structure
+## 6. Feature: The Warm Welcome (Narrative Onboarding)
+A dedicated "Opening Conversation" for first-time visitors to smooth the transition into the app.
+
+*   **Logic:** Check `localStorage` for `has_met_avatar`.
+*   **Trigger:** First interaction (Click/Tap) OR Autoplay (if allowed).
+*   **Flow:**
+    1.  **Greeting:** "Hey... you made it." (Not jumping straight to music).
+    2.  **Context Setting:** "This isn't just a playlist. It's a collection of my thoughts. Ready to dive in?"
+    3.  **Action:** "Pick a song. Any song. Let's see where it takes us."
+*   **Impact:** Sets the "Persona" tone immediately. Not a tool, but a host.
+
+## 7. Proposed Data Structure
 
 ```typescript
 type ConversationTopic = 'science' | 'philosophy' | 'history' | 'romance' | 'casual' | 'music_bridge';
@@ -99,7 +110,7 @@ export const SONG_CONVOS: Record<string, ConversationCheck[]> = {
 };
 ```
 
-## 7. Next Steps
+## 8. Next Steps
 1.  **Pilot Project:** Implement this structure for 1-2 key songs (e.g., "Faded").
 2.  **Data Collection:** Gather timestamps and timestamps for "Key Moments" in these songs.
 3.  **Engine Update:** Update `CurrentlyStrip.tsx` (or a new `NarrativeEngine.tsx`) to consume this new timeline-based data.
