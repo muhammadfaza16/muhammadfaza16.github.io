@@ -92,11 +92,23 @@ Beyond just chatting, the avatar must provide *emotional value* (Validation, Aff
     *   *Subtle Affection:* "You know, the world is noisy. I'm glad we have this quiet corner." (Validating the shared moment).
 *   **Goal:** User feels *seen* and *appreciated*, not just entertained.
 
-## 9. Proposed Data Structure
+## 9. Feature: Time-of-Day Context Logic
+To avoid awkward "Good morning" vibes at 2 AM, the engine filters content based on real-world time.
+
+*   **Logic:** `new Date().getHours()` determines the valid pool of messages.
+*   **Time Slots:**
+    *   *Morning (05-11):* Energetic, "Start the day", Optimistic.
+    *   *Afternoon (11-18):* Productive, Casual, "Keep going".
+    *   *Evening (18-23):* Winding down, Romantic, Relaxed.
+    *   *Late Night (23-05):* Deep, Intimate, "Insomniac hours", Existential.
+*   **Implementation:** Data structure includes an optional `validHours` array or `timeContext` tag.
+
+## 10. Proposed Data Structure
 
 ```typescript
 type ConversationTopic = 'science' | 'philosophy' | 'history' | 'romance' | 'casual' | 'music_bridge';
 
+interface ConversationCheck {
 interface ConversationCheck {
     timestamp: number; // Seconds
     text: string | ((nextSongTitle?: string) => string); // Dynamic text creator
@@ -104,6 +116,7 @@ interface ConversationCheck {
     mood: 'curious' | 'intense' | 'smart' | 'flirty';
     pose?: 'leaning_in' | 'chill' | 'bouncing' | 'annoyed'; // Body language override
     memoryCheck?: { type: 'streak', count: number, message: string }; // Optional memory trigger
+    timeContext?: 'morning' | 'day' | 'night' | 'late_night' | 'any'; // NEW: Time filter
 }
 
 export const SONG_CONVOS: Record<string, ConversationCheck[]> = {
@@ -130,7 +143,7 @@ export const SONG_CONVOS: Record<string, ConversationCheck[]> = {
 };
 ```
 
-## 10. Next Steps
+## 11. Next Steps
 1.  **Pilot Project:** Implement this structure for 1-2 key songs (e.g., "Faded").
 2.  **Data Collection:** Gather timestamps and timestamps for "Key Moments" in these songs.
 3.  **Engine Update:** Update `CurrentlyStrip.tsx` (or a new `NarrativeEngine.tsx`) to consume this new timeline-based data.
