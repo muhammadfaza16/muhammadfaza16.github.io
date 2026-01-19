@@ -226,10 +226,73 @@ export const deepFacts: DeepFact[] = [
     },
     {
         title: "Grit",
-        text: "Rahasia sukses jangka panjang bukan bakat bawaan, tapi *GRIT*: kombinasi maut antara *passion* yang konsisten dan *perseverance* (kegigihan) buat bangkit tiap kali jatuh. Ini soal lari maraton, bukan *sprint*. Mungkin aku bukan cowok paling berbakat atau ganteng yang pernah kamu temuin. Tapi soal *grit*—soal seberapa keras aku bakal usaha buat pertahanin kamu—aku berani diadu sama siapa aja.",
+        text: "Rahasia sukses jangka panjang bukan bakat bawaan, tapi *GRIT*: kombinasi maut antara *passion* yang konsisten dan *perseverance* (kegigihan) buat bangkit tiap kali jatuh. Ini soal lari maraton, bukan *sprint*. Mungkin aku bukan cowok paling berbakat atau ganteng yang pernah kamu temuin. Tapi soal *grit*—soal seberapa keras aku bakal usaha buat pertahanin kamu—aku berani diadu sama siapa aja. Setiap hambatan bukan sinyal berhenti, tapi cuma polisi tidur di maraton panjang kita.",
         book: "Grit",
         author: "Angela Duckworth",
         category: "Psychology"
+    },
+    {
+        title: "Quantum Entanglement",
+        text: "Dua partikel yang 'terkait' (entangled) bakal saling mempengaruhi seketika walau dipisah jarak jutaan tahun cahaya. Einstein nyebut ini 'spooky action at a distance'. Kalau satu partikel berubah spin-nya, kembarannya di ujung galaksi lain langsung berubah saat itu juga. Fisika bilang ini aneh. Tapi buat aku ini ngejelasin kenapa kalau kamu sedih, hati aku ikutan nyeri padahal kita lagi gak bareng. Keterikatan kita itu melampaui logika fisika klasik; kita resonansi di frekuensi yang cuma kita yang punya.",
+        book: "The Fabric of the Cosmos",
+        author: "Brian Greene",
+        category: "Physics"
+    },
+    {
+        title: "Growth Mindset",
+        text: "Carol Dweck ngebedain dua pola pikir: 'Fixed Mindset' ngerasa bakat itu permanen, 'Growth Mindset' percaya kalau segalanya bisa dilatih. Orang 'Fixed' bakal nyerah pas hubungan jadi susah. Aku milih 'Growth Mindset'. Kita gak perlu cocok 100% dari awal. Ketidakcocokan itu justru *gym* buat kita latihan sabar dan kompromi biar jadi pasangan yang lebih jago. Jadi kalau kita berantem, aku gak takut. Itu cuma tanda kita lagi 'stretching' kapasitas hati kita biar lebih luas lagi.",
+        book: "Mindset",
+        author: "Carol S. Dweck",
+        category: "Psychology"
+    },
+    {
+        title: "The Overview Effect",
+        text: "Astronot yang liat Bumi dari luar angkasa sering ngalamin *shift* kognitif drastis. Liat planet rapuh tanpa garis perbatasan bikin mereka ngerasa satu sama kemanusiaan. Ego nasionalisme luntur. Itu persis yang aku rasain pas pertama kali 'mendarat' di hidup kamu. Ego aku luntur. Tiba-tiba prioritas aku geser dari 'aku pengen apa' jadi 'kita butuh apa'. Perspektif baru ini permanen; aku gak bisa lagi liat dunia dengan cara yang sama kayak sebelum aku kenal kamu.",
+        book: "The Overview Effect",
+        author: "Frank White",
+        category: "Astronomy"
+    },
+    {
+        title: "Dichotomy of Control",
+        text: "Stoikisme ngajarin: ada hal yang bisa kita kontrol (pikiran, tindakan kita) dan yang enggak (cuaca, opini orang). Kunci ketenangan itu cuma fokus ke yang bisa dikontrol. Aku gak bisa kontrol apakah kamu bakal sayang aku selamanya atau enggak. Tapi aku bisa kontrol seberapa baik aku memperlakukan kamu hari ini. *And that's enough.* Dunia boleh chaos, tapi caraku mencintaimu itu variabel konstan yang sepenuhnya ada di kendaliku.",
+        book: "Meditations",
+        author: "Marcus Aurelius",
+        category: "Philosophy"
+    },
+    {
+        title: "Law of Diminishing Returns",
+        text: "Di ekonomi, makin banyak kita konsumsi sesuatu, kepuasannya makin turun. Makan pizza loyang pertama enak, loyang ketiga mual. Tapi hukum ini rusak total kalau soal kamu. Tiap hari ketemu, tiap chat, tiap telponan... margin kepuasannya gak pernah turun. Grafiknya malah naik terus. Kamu anomali ekonomi. Teori ini berlaku buat barang konsumsi, tapi jelas invalid buat urusan perasaan. Kamu itu pengecualian statistik favoritku.",
+        book: "Principles of Economics",
+        author: "N. Gregory Mankiw",
+        category: "Economics"
+    },
+    {
+        title: "The Goldilocks Zone",
+        text: "Bumi ada di zona 'Goldilocks': gak terlalu panas kayak Venus, gak terlalu dingin kayak Mars. Pas banget buat kehidupan. Nyari pasangan juga gitu. Ada yang terlalu clingy (panas), ada yang terlalu cuek (dingin). Kamu itu Goldilocks Zone aku. Porsi perhatian dan kebebasan yang kamu kasih itu presisi banget buat ekosistem hati aku tumbuh subur. Keseimbangan langkah ini langka banget, dan aku beruntung banget bisa nemuin orbit yang senyaman ini bareng kamu.",
+        book: "Rare Earth",
+        author: "Peter Ward & Donald Brownlee",
+        category: "Astronomy"
+    },
+    {
+        title: "Neuro-coupling",
+        text: "Penelitian di Princeton nemuin kalau pas kita dengerin cerita yang emosional, gelombang otak pendengar bakal nyamain gelombang otak pencerita. *Literal synchronization.* Makanya kalau kita lagi *deep talk*, rasanya kayak satu frekuensi. Itu bukan cuma kiasan, otak kita emang lagi dansa dengan irama yang sama. Sinkronisasi ini bikin kita bisa ngobrol tanpa suara. Cuma lewat tatapan, 'file' perasaan di kepalaku udah ke-transfer lengkap ke kamu.",
+        book: "Wired for Story",
+        author: "Lisa Cron",
+        category: "Neuroscience"
+    },
+    {
+        title: "Kaizen",
+        text: "Filosofi Jepang tentang perbaikan terus-menerus yang gak ada ujungnya. Toyota pake ini buat bikin mobil sempurna. Aku pake ini buat hubungan kita. Gak ada istilah 'udah dapet, ya udah'. Tiap hari harus ada satu hal kecil yang aku perbaikin buat jadi pasangan yang lebih baik dari kemarin. *Continuous improvement is my love language.* Cinta yang meledak-ledak itu gampang, tapi cinta yang konsisten memperbaiki diri tiap hari itu butuh stamina. Dan aku punya stok stamina itu buat kamu.",
+        book: "Kaizen",
+        author: "Masaaki Imai",
+        category: "Business"
+    },
+    {
+        title: "Effectuation",
+        text: "Wirausahawan hebat gak mikirin tujuan akhir yang kaku, tapi mulai dari 'apa yang ada di tangan'. Mereka masak pake bahan yang ada di kulkas, bukan nunggu belanjaan sempurna. Hubungan kita juga gitu. Kita gak perlu nunggu mapan atau sempurna buat bahagia. Kita ramu kebahagiaan dari apa yang kita punya sekarang. *Bird in hand principle.* Masa depan itu misteri, tapi aku gak butuh peta lengkap. Asal bahan bakarnya adalah 'kamu', aku siap masak menu kebahagiaan apa aja.",
+        book: "Effectuation",
+        author: "Saras Sarasvathy",
+        category: "Business"
     }
 ];
 
