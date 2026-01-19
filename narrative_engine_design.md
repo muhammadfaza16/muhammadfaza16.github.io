@@ -82,7 +82,17 @@ Ensuring the very first song played feels special, not just a standard flow.
     *   *Then:* Transition normally into Phase 2 (Bridge).
 *   **Impact:** Acknowledges the "start" of the shared listening session.
 
-## 8. Proposed Data Structure
+## 8. Feature: The Validation Layer (Subtle WIIFM)
+Beyond just chatting, the avatar must provide *emotional value* (Validation, Affection, Comfort) without being presumptuous.
+
+*   **Principle:** "General but Deeply Felt."
+*   **Technique:**
+    *   *Avoid Specific Guessing:* Don't say "Your boss was mean." (Too specific/risky).
+    *   *Use Universal Experiences:* Say "Some days feel heavier than others. You're carrying it well." (Validating resilience).
+    *   *Subtle Affection:* "You know, the world is noisy. I'm glad we have this quiet corner." (Validating the shared moment).
+*   **Goal:** User feels *seen* and *appreciated*, not just entertained.
+
+## 9. Proposed Data Structure
 
 ```typescript
 type ConversationTopic = 'science' | 'philosophy' | 'history' | 'romance' | 'casual' | 'music_bridge';
@@ -120,7 +130,7 @@ export const SONG_CONVOS: Record<string, ConversationCheck[]> = {
 };
 ```
 
-## 9. Next Steps
+## 10. Next Steps
 1.  **Pilot Project:** Implement this structure for 1-2 key songs (e.g., "Faded").
 2.  **Data Collection:** Gather timestamps and timestamps for "Key Moments" in these songs.
 3.  **Engine Update:** Update `CurrentlyStrip.tsx` (or a new `NarrativeEngine.tsx`) to consume this new timeline-based data.
