@@ -245,6 +245,36 @@ export const SONG_THEMES: Record<string, ThemeColors> = {
         secondary: "rgba(236, 72, 153, 0.3)", // Pink
         tertiary: "rgba(253, 224, 71, 0.2)", // Yellow
     },
+    "Camila Cabello — Never Be the Same": {
+        primary: "rgba(220, 38, 38, 0.4)", // Red
+        secondary: "rgba(153, 27, 27, 0.3)", // Dark Red
+        tertiary: "rgba(0, 0, 0, 0.2)", // Black
+    },
+    "Coldplay — Hymn For The Weekend": {
+        primary: "rgba(234, 179, 8, 0.4)", // Gold
+        secondary: "rgba(6, 182, 212, 0.3)", // Cyan
+        tertiary: "rgba(217, 70, 239, 0.2)", // Magenta
+    },
+    "Demi Lovato — Heart Attack": {
+        primary: "rgba(185, 28, 28, 0.4)", // Crimson
+        secondary: "rgba(0, 0, 0, 0.3)", // Black
+        tertiary: "rgba(255, 255, 255, 0.2)", // White
+    },
+    "Imagine Dragons — Bad Liar": {
+        primary: "rgba(239, 68, 68, 0.4)", // Red
+        secondary: "rgba(255, 255, 255, 0.3)", // White
+        tertiary: "rgba(107, 114, 128, 0.2)", // Grey
+    },
+    "The Chainsmokers — Closer": {
+        primary: "rgba(99, 102, 241, 0.4)", // Indigo
+        secondary: "rgba(236, 72, 153, 0.3)", // Pink
+        tertiary: "rgba(6, 182, 212, 0.2)", // Cyan
+    },
+    "The Chainsmokers — Don't Let Me Down": {
+        primary: "rgba(251, 191, 36, 0.4)", // Yellow
+        secondary: "rgba(79, 70, 229, 0.3)", // Indigo
+        tertiary: "rgba(0, 0, 0, 0.2)", // Black
+    },
 };
 
 export const DEFAULT_THEME: ThemeColors = {

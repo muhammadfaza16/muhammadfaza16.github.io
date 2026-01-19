@@ -334,6 +334,48 @@ export const SONG_MESSAGES: Record<string, { playing: string[] }> = {
             "Just someone I can turn to.",
         ],
     },
+    "Camila Cabello — Never Be the Same": {
+        playing: [
+            "Just one hit of you.",
+            "I'll never be the same.",
+            "Intoxicated by you.",
+        ],
+    },
+    "Coldplay — Hymn For The Weekend": {
+        playing: [
+            "Life is a drink.",
+            "Love's like a symphony.",
+            "Feeling drunk and high.",
+        ],
+    },
+    "Demi Lovato — Heart Attack": {
+        playing: [
+            "Putting my defenses up.",
+            "Never thought I'd fall.",
+            "You make me wanna act like a girl.",
+        ],
+    },
+    "Imagine Dragons — Bad Liar": {
+        playing: [
+            "Look me in the eyes.",
+            "I can't be what you want me to be.",
+            "I'm a bad liar.",
+        ],
+    },
+    "The Chainsmokers — Closer": {
+        playing: [
+            "We ain't ever getting older.",
+            "Pull the sheets right off the corner.",
+            "Stay with me.",
+        ],
+    },
+    "The Chainsmokers — Don't Let Me Down": {
+        playing: [
+            "Don't let me down.",
+            "I need you right now.",
+            "I think I'm losing my mind.",
+        ],
+    },
 };
 
 // Helper function to get a message for a song by index (for rotation)
