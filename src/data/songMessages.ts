@@ -298,6 +298,42 @@ export const SONG_MESSAGES: Record<string, { playing: string[] }> = {
             "Frozen in time.",
         ],
     },
+    // New Additions
+    "Imagine Dragons — Believer": {
+        playing: [
+            "Pain made me a believer.",
+            "Break me down, build me up.",
+            "My spirit can't be broken.",
+        ],
+    },
+    "twenty one pilots — Ride": {
+        playing: [
+            "Taking my time on my ride.",
+            "Falling for you, falling for this.",
+            "Just enjoy the journey.",
+        ],
+    },
+    "The Script — Superheroes": {
+        playing: [
+            "Turning pain into power.",
+            "Every day, every hour.",
+            "You've got a superhero in you.",
+        ],
+    },
+    "The Script — Hall of Fame": {
+        playing: [
+            "Standing in the hall of fame.",
+            "Dedication is all you need.",
+            "Burn with the brightest flame.",
+        ],
+    },
+    "The Chainsmokers & Coldplay — Something Just Like This": {
+        playing: [
+            "I want something just like this.",
+            "Not looking for superpowers.",
+            "Just someone I can turn to.",
+        ],
+    },
 };
 
 // Helper function to get a message for a song by index (for rotation)

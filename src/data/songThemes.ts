@@ -219,6 +219,32 @@ export const SONG_THEMES: Record<string, ThemeColors> = {
         secondary: "rgba(168, 162, 158, 0.3)", // Light Grey
         tertiary: "rgba(251, 146, 60, 0.2)", // Orange
     },
+    // New Additions
+    "Imagine Dragons — Believer": {
+        primary: "rgba(249, 115, 22, 0.4)", // Organge/Pain
+        secondary: "rgba(234, 179, 8, 0.3)", // Yellow
+        tertiary: "rgba(30, 41, 59, 0.2)", // Dark
+    },
+    "twenty one pilots — Ride": {
+        primary: "rgba(220, 38, 38, 0.4)", // Red
+        secondary: "rgba(0, 0, 0, 0.3)", // Black
+        tertiary: "rgba(255, 255, 255, 0.2)", // White
+    },
+    "The Script — Superheroes": {
+        primary: "rgba(6, 182, 212, 0.4)", // Cyan
+        secondary: "rgba(16, 185, 129, 0.3)", // Emerald
+        tertiary: "rgba(251, 191, 36, 0.2)", // Amber
+    },
+    "The Script — Hall of Fame": {
+        primary: "rgba(234, 179, 8, 0.4)", // Gold
+        secondary: "rgba(251, 191, 36, 0.3)", // Amber
+        tertiary: "rgba(0, 0, 0, 0.2)", // Black
+    },
+    "The Chainsmokers & Coldplay — Something Just Like This": {
+        primary: "rgba(14, 165, 233, 0.4)", // Sky Blue
+        secondary: "rgba(236, 72, 153, 0.3)", // Pink
+        tertiary: "rgba(253, 224, 71, 0.2)", // Yellow
+    },
 };
 
 export const DEFAULT_THEME: ThemeColors = {
