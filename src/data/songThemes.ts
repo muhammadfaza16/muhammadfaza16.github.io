@@ -172,6 +172,138 @@ export const SONG_THEMES: Record<string, ThemeColors> = {
         secondary: "rgba(134, 239, 172, 0.3)", // Light Green
         tertiary: "rgba(253, 186, 116, 0.2)", // Warm
     },
+    "Axwell Λ Ingrosso — More Than You Know": {
+        primary: "rgba(220, 38, 38, 0.4)", // Red
+        secondary: "rgba(251, 191, 36, 0.3)", // Gold
+        tertiary: "rgba(0, 0, 0, 0.2)", // Black
+    },
+    // Batch 2 Additions
+    "Henry Moodie — Drunk Text": {
+        primary: "rgba(107, 114, 128, 0.4)", // Gray
+        secondary: "rgba(251, 146, 60, 0.3)", // Orange
+        tertiary: "rgba(0, 0, 0, 0.2)", // Black
+    },
+    "Alan Walker — Not You": {
+        primary: "rgba(6, 182, 212, 0.4)", // Cyan
+        secondary: "rgba(255, 255, 255, 0.3)", // White
+        tertiary: "rgba(30, 58, 138, 0.2)", // Dark Blue
+    },
+    "Ava Max — Kings & Queens": {
+        primary: "rgba(147, 51, 234, 0.4)", // Purple
+        secondary: "rgba(234, 179, 8, 0.3)", // Gold
+        tertiary: "rgba(0, 0, 0, 0.2)", // Black
+    },
+    "Ava Max — Sweet but Psycho": {
+        primary: "rgba(236, 72, 153, 0.4)", // Hot Pink
+        secondary: "rgba(220, 38, 38, 0.3)", // Red
+        tertiary: "rgba(255, 255, 255, 0.2)", // White
+    },
+    "Harry Styles — As It Was": {
+        primary: "rgba(220, 38, 38, 0.4)", // Red
+        secondary: "rgba(59, 130, 246, 0.3)", // Blue
+        tertiary: "rgba(255, 255, 255, 0.2)", // White
+    },
+    "Justin Bieber — Despacito": {
+        primary: "rgba(234, 179, 8, 0.4)", // Yellow
+        secondary: "rgba(249, 115, 22, 0.3)", // Orange
+        tertiary: "rgba(59, 130, 246, 0.2)", // Blue
+    },
+    "Justin Bieber — Ghost": {
+        primary: "rgba(255, 255, 255, 0.4)", // White
+        secondary: "rgba(148, 163, 184, 0.3)", // Silver
+        tertiary: "rgba(71, 85, 105, 0.2)", // Slate
+    },
+    "Lewis Capaldi — Before You Go": {
+        primary: "rgba(30, 58, 138, 0.4)", // Dark Blue
+        secondary: "rgba(100, 116, 139, 0.3)", // Slate
+        tertiary: "rgba(0, 0, 0, 0.2)", // Black
+    },
+    "Lewis Capaldi — Someone You Loved": {
+        primary: "rgba(185, 28, 28, 0.4)", // Dark Red
+        secondary: "rgba(0, 0, 0, 0.3)", // Black
+        tertiary: "rgba(156, 163, 175, 0.2)", // Gray
+    },
+    "Lost Sky — Fearless pt.II": {
+        primary: "rgba(59, 130, 246, 0.4)", // Electric Blue
+        secondary: "rgba(250, 204, 21, 0.3)", // Yellow
+        tertiary: "rgba(255, 255, 255, 0.2)", // White
+    },
+    "Olivia Rodrigo — Happier": {
+        primary: "rgba(139, 92, 246, 0.4)", // Violet
+        secondary: "rgba(244, 114, 182, 0.3)", // Pink
+        tertiary: "rgba(255, 255, 255, 0.2)", // White
+    },
+    "James Arthur — Rewrite The Stars": {
+        primary: "rgba(88, 28, 135, 0.4)", // Deep Purple
+        secondary: "rgba(236, 72, 153, 0.3)", // Pink
+        tertiary: "rgba(30, 58, 138, 0.2)", // Dark Blue
+    },
+    "Shawn Mendes — There's Nothing Holding Me Back": {
+        primary: "rgba(14, 165, 233, 0.4)", // Sky Blue
+        secondary: "rgba(34, 211, 238, 0.3)", // Cyan
+        tertiary: "rgba(255, 255, 255, 0.2)", // White
+    },
+    "SLANDER — Love is Gone": {
+        primary: "rgba(15, 23, 42, 0.5)", // Dark Slate
+        secondary: "rgba(59, 130, 246, 0.3)", // Blue
+        tertiary: "rgba(148, 163, 184, 0.2)", // Periwinkle
+    },
+    "Taio Cruz — Dynamite": {
+        primary: "rgba(239, 68, 68, 0.4)", // Red
+        secondary: "rgba(245, 158, 11, 0.3)", // Amber
+        tertiary: "rgba(255, 255, 255, 0.2)", // White
+    },
+    "Timbaland — Apologize": {
+        primary: "rgba(127, 29, 29, 0.4)", // Dark Red
+        secondary: "rgba(75, 85, 99, 0.3)", // Gray
+        tertiary: "rgba(0, 0, 0, 0.2)", // Black
+    },
+    "Tove Lo — Habits": {
+        primary: "rgba(236, 72, 153, 0.4)", // Pink
+        secondary: "rgba(16, 185, 129, 0.3)", // Green
+        tertiary: "rgba(255, 255, 255, 0.2)", // White
+    },
+    "Troye Sivan — Angel Baby": {
+        primary: "rgba(167, 139, 250, 0.4)", // Soft Purple
+        secondary: "rgba(251, 207, 232, 0.3)", // Pastel Pink
+        tertiary: "rgba(196, 181, 253, 0.2)", // Lavender
+    },
+    "Witt Lowry — Into Your Arms": {
+        primary: "rgba(249, 115, 22, 0.4)", // Orange
+        secondary: "rgba(253, 186, 116, 0.3)", // Peach
+        tertiary: "rgba(120, 53, 15, 0.2)", // Warm Brown
+    },
+    // Final Batch Additions
+    "Akon — Right Now (Na Na Na)": {
+        primary: "rgba(16, 185, 129, 0.4)", // Green
+        secondary: "rgba(234, 179, 8, 0.3)", // Gold
+        tertiary: "rgba(0, 0, 0, 0.2)", // Black
+    },
+    "Benson Boone — In the Stars": {
+        primary: "rgba(251, 191, 36, 0.4)", // Soft Gold
+        secondary: "rgba(255, 255, 255, 0.3)", // White
+        tertiary: "rgba(245, 158, 11, 0.2)", // Amber
+    },
+    "David Guetta — I'm Good (Blue)": {
+        primary: "rgba(59, 130, 246, 0.4)", // Blue
+        secondary: "rgba(255, 255, 255, 0.3)", // White
+        tertiary: "rgba(6, 182, 212, 0.2)", // Neon Cyan
+    },
+    "Dean Lewis — Be Alright": {
+        primary: "rgba(30, 58, 138, 0.4)", // Dark Blue
+        secondary: "rgba(156, 163, 175, 0.3)", // Grey
+        tertiary: "rgba(107, 114, 128, 0.2)", // Slate
+    },
+    "DJ Snake & Justin Bieber — Let Me Love You": {
+        primary: "rgba(20, 184, 166, 0.4)", // Teal
+        secondary: "rgba(236, 72, 153, 0.3)", // Pink
+        tertiary: "rgba(255, 255, 255, 0.2)", // White
+    },
+    "Elektronomia — Sky High": {
+        primary: "rgba(14, 165, 233, 0.4)", // Sky Blue
+        secondary: "rgba(255, 255, 255, 0.3)", // White
+        tertiary: "rgba(56, 189, 248, 0.2)", // Light Blue
+    },
     // Added specific requests here
     "Conan Gray — Memories": {
         primary: "rgba(251, 146, 60, 0.4)", // Orange (Nostalgia)

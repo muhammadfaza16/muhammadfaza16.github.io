@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, useEffect, useRef, useMemo, memo } from "react";
-import { useAudio } from "./AudioContext";
-import { useNarrative } from "./NarrativeContext"; // Import Narrative Hook
+import { useAudio, PLAYLIST } from "./AudioContext";
+import { useNarrativeEngine } from "../hooks/useNarrativeEngine"; // Import Narrative Engine Hook
 import { useZen } from "./ZenContext";
 import { ZenHideable } from "./ZenHideable";
 import { SkipBack, SkipForward, Sparkles, X } from "lucide-react";
@@ -367,7 +367,21 @@ const SONG_VIBES: Record<string, { start: number; end: number; level: 1 | 2 }[]>
 };
 
 // Vibing Avatar Component (Levitation Mode)
-const VibingAvatar = memo(function VibingAvatar({ isPlaying, hour, lyrics, narrativeText }: { isPlaying: boolean; hour: number; lyrics: LyricItem[], narrativeText?: string }) {
+const VibingAvatar = memo(function VibingAvatar({
+    isPlaying,
+    hour,
+    lyrics,
+    narrativeText,
+    mood,
+    pose
+}: {
+    isPlaying: boolean;
+    hour: number;
+    lyrics: LyricItem[];
+    narrativeText?: string;
+    mood?: 'curious' | 'intense' | 'smart' | 'flirty' | 'chill';
+    pose?: 'leaning_in' | 'chill' | 'bouncing' | 'annoyed';
+}) {
     const { analyser, audioRef, currentSong } = useAudio();
     const floaterRef = useRef<SVGGElement>(null);
     const rafRef = useRef<number | null>(null);
@@ -447,7 +461,7 @@ const VibingAvatar = memo(function VibingAvatar({ isPlaying, hour, lyrics, narra
                 const currentTime = audioRef.current?.currentTime ?? 0;
                 const vibes = SONG_VIBES[currentSong.title];
                 let currentVibeLevel = 0;
-                
+
                 if (vibes) {
                     for (const vibe of vibes) {
                         if (currentTime >= vibe.start && currentTime < vibe.end) {
@@ -464,15 +478,15 @@ const VibingAvatar = memo(function VibingAvatar({ isPlaying, hour, lyrics, narra
                 if (currentVibeLevel === 2) {
                     // BEAT DROP: High simulated bass to trigger notes
                     // Random spikes to mimic beat
-                     avgBass = 160 + (Math.random() * 50); 
-                     avgVol = 180;
+                    avgBass = 160 + (Math.random() * 50);
+                    avgVol = 180;
                 } else if (currentVibeLevel === 1) {
                     // BUILD UP
                     avgBass = 80 + (pulse * 40);
                     avgVol = 100;
                 } else {
                     // CHILL
-                    avgBass = 20 + (pulse * 20); 
+                    avgBass = 20 + (pulse * 20);
                     avgVol = 50;
                 }
             }
@@ -505,8 +519,8 @@ const VibingAvatar = memo(function VibingAvatar({ isPlaying, hour, lyrics, narra
             // Re-calc vibe level for class application
             const currentTime = audioRef.current?.currentTime ?? 0;
             const vibes = SONG_VIBES[currentSong.title];
-            let vibeLevel = 0; 
-            
+            let vibeLevel = 0;
+
             if (vibes) {
                 for (const vibe of vibes) {
                     if (currentTime >= vibe.start && currentTime < vibe.end) {
@@ -521,7 +535,7 @@ const VibingAvatar = memo(function VibingAvatar({ isPlaying, hour, lyrics, narra
                 const container = floaterRef.current.closest('.avatar-container');
                 if (container) {
                     container.classList.remove('high-energy', 'vibe-level-1', 'vibe-level-2');
-                    
+
                     if (vibeLevel === 2) {
                         container.classList.add('vibe-level-2');
                     } else if (vibeLevel === 1) {
@@ -539,7 +553,7 @@ const VibingAvatar = memo(function VibingAvatar({ isPlaying, hour, lyrics, narra
                     if (currentTime >= lyric.start && currentTime < lyric.end) {
                         lyricFound = true;
                         const lyricKey = `${lyric.start}-${lyric.end}`;
-                        
+
                         if (lastLyricRef.current !== lyricKey) {
                             lastLyricRef.current = lyricKey;
                             const isFaded = currentSong.title.includes("Faded");
@@ -953,10 +967,10 @@ const VibingAvatar = memo(function VibingAvatar({ isPlaying, hour, lyrics, narra
                 strokeWidth="2"
                 strokeLinecap="round"
                 strokeLinejoin="round"
-                className={`avatar-container ${isPlaying ? "avatar-floating" : ""} ${pokeResponse ? "avatar-poke-active" : ""}`}
+                className={`avatar-container ${isPlaying ? "avatar-floating" : ""} ${pokeResponse ? "avatar-poke-active" : ""} ${pose ? `pose-${pose}` : ""}`}
                 onClick={handlePoke}
                 style={{
-                    color: "var(--accent)", // Matches theme
+                    color: mood === 'intense' ? '#ff4d4d' : mood === 'flirty' ? '#ff69b4' : "var(--accent)", // Mood color overrides
                     overflow: "visible",
                     cursor: "pointer", // Indicate interactivity
                     userSelect: "none",
@@ -1077,14 +1091,30 @@ const VibingAvatar = memo(function VibingAvatar({ isPlaying, hour, lyrics, narra
 });
 
 const WELCOME_MESSAGES = [
-    "Hey, hello. Selamat datang di Taman Langit. Faza di sini.",
-    "Ada perlu apa ya jauh-jauh ke sini?"
+    "Hey... you made it.",
+    "This isn't just a playlist.",
+    "It's a collection of my thoughts.",
+    "Ready to dive in?"
 ];
 
 
 export function CurrentlyStrip() {
-    const { isPlaying, togglePlay, currentSong, nextSong, prevSong, hasInteracted } = useAudio();
-    const narrative = useNarrative(); // Use the hook
+    // Destructure audio context with audioRef for the engine
+    const { isPlaying, togglePlay, currentSong, nextSong, prevSong, hasInteracted, audioRef } = useAudio();
+
+    // Calculate Next Song for Bridging Logic
+    const currentIndex = PLAYLIST.findIndex(s => s.title === currentSong.title);
+    const nextIndex = (currentIndex + 1) % PLAYLIST.length;
+    const nextSongTitle = PLAYLIST[nextIndex].title;
+
+    // Initialize Narrative Engine
+    const narrative = useNarrativeEngine({
+        currentSongTitle: currentSong.title,
+        isPlaying,
+        audioRef,
+        nextSongTitle // Pass it to engine
+    });
+
     const { isZen, toggleZen } = useZen(); // Zen mode state
 
     const [currentTime, setCurrentTime] = useState("");
@@ -1092,13 +1122,6 @@ export function CurrentlyStrip() {
 
     // Initial hydration fix
     const [isHydrated, setIsHydrated] = useState(false);
-
-    // Unfreeze narrative on mount (page revisit)
-    useEffect(() => {
-        if (isHydrated) {
-            narrative.unfreeze();
-        }
-    }, [isHydrated]); // Run once after hydration
 
     // Moods now rotate based on time
     const [moods, setMoods] = useState<string[]>([]);
@@ -1113,7 +1136,7 @@ export function CurrentlyStrip() {
     const displaySongMessage = useMemo(() => {
         // Initial onboarding text
         if (!hasInteracted && !isPlaying) {
-            return "Capek ya? Sini chill bentar aku temenin.";
+            return "Pick a song. Let's see where it takes us.";
         }
         return getSongMessage(currentSong.title, isPlaying, songMessageIndex);
     }, [currentSong, isPlaying, songMessageIndex, hasInteracted]);
@@ -1226,9 +1249,9 @@ export function CurrentlyStrip() {
 
     // Initial visit welcome messages for marquee
     const welcomeItems = useMemo(() => [
-        { icon: "✨", label: "Hey", text: "Capek ya? Sini duduk bentar..." },
-        { icon: "🎧", label: "Here", text: "Aku punya lagu yang mungkin bisa bantu" },
-        { icon: "💫", label: "Vibe", text: "Tekan play, let me take care of the rest" },
+        { icon: "👋", label: "Hey", text: "You made it. Finally." },
+        { icon: "🧠", label: "Info", text: "This isn't just a playlist. It's my collection of thoughts." },
+        { icon: "▶️", label: "Action", text: "Pick a song. Let's see where it takes us." },
     ], []);
 
     // Status items for the marquee (switch based on interaction state)
@@ -1384,6 +1407,8 @@ export function CurrentlyStrip() {
                     hour={currentHour}
                     lyrics={manualLyrics}
                     narrativeText={manualLyrics.length > 0 ? undefined : narrative.text}
+                    mood={narrative.mood}
+                    pose={narrative.pose}
                 />
             </div>
 

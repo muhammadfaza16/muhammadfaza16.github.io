@@ -233,6 +233,190 @@ export const SONG_MESSAGES: Record<string, { playing: string[] }> = {
             "You know where to find me.",
         ],
     },
+    "Axwell Λ Ingrosso — More Than You Know": {
+        playing: [
+            "More than you know.",
+            "I just need to get it off my chest.",
+            "You're the best.",
+        ],
+    },
+    // Batch 2 Additions
+    "Henry Moodie — Drunk Text": {
+        playing: [
+            "Words I shouldn't say.",
+            "Thinking 'bout you.",
+            "Just a drunk text.",
+        ],
+    },
+    "Alan Walker — Not You": {
+        playing: [
+            "You're not you anymore.",
+            "See the lights fade.",
+            "It's not you.",
+        ],
+    },
+    "Ava Max — Kings & Queens": {
+        playing: [
+            "To all of the queens.",
+            "Making it on our own.",
+            "We are the rulers.",
+        ],
+    },
+    "Ava Max — Sweet but Psycho": {
+        playing: [
+            "A little bit mental.",
+            "Grab a cop gun kind of crazy.",
+            "Sweet but psycho.",
+        ],
+    },
+    "Harry Styles — As It Was": {
+        playing: [
+            "It's not the same.",
+            "As it was.",
+            "Gravity's holding me back.",
+        ],
+    },
+    "Justin Bieber — Despacito": {
+        playing: [
+            "Slowly.",
+            "Feel the rhythm.",
+            "Pasito a pasito.",
+        ],
+    },
+    "Justin Bieber — Ghost": {
+        playing: [
+            "Miss you more than life.",
+            "I settle for the ghost of you.",
+            "Memory lane.",
+        ],
+    },
+    "Lewis Capaldi — Before You Go": {
+        playing: [
+            "Before you go.",
+            "Was there something I could say?",
+            "Hurts so much.",
+        ],
+    },
+    "Lewis Capaldi — Someone You Loved": {
+        playing: [
+            "I let my guard down.",
+            "Kind of love we made.",
+            "Somebody to know.",
+        ],
+    },
+    "Lost Sky — Fearless pt.II": {
+        playing: [
+            "Fearless.",
+            "Flying high.",
+            "Nothing can stop us.",
+        ],
+    },
+    "Olivia Rodrigo — Happier": {
+        playing: [
+            "Hope you're happy.",
+            "But not like how you were with me.",
+            "Selfish, I know.",
+        ],
+    },
+    "James Arthur — Rewrite The Stars": {
+        playing: [
+            "Rewrite the stars.",
+            "Say you were made to be mine.",
+            "Fate is pulling you miles away.",
+        ],
+    },
+    "Shawn Mendes — There's Nothing Holding Me Back": {
+        playing: [
+            "Nothing holding me back.",
+            "Follow you anywhere.",
+            "You take me places.",
+        ],
+    },
+    "SLANDER — Love is Gone": {
+        playing: [
+            "Love is gone.",
+            "I'm sorry.",
+            "Don't leave me alone.",
+        ],
+    },
+    "Taio Cruz — Dynamite": {
+        playing: [
+            "I throw my hands up in the air.",
+            "We gon' light it up.",
+            "Like dynamite.",
+        ],
+    },
+    "Timbaland — Apologize": {
+        playing: [
+            "It's too late to apologize.",
+            "I loved you with a fire red.",
+            "Yeah, it's too late.",
+        ],
+    },
+    "Tove Lo — Habits": {
+        playing: [
+            "Stay high.",
+            "To keep you off my mind.",
+            "All the time.",
+        ],
+    },
+    "Troye Sivan — Angel Baby": {
+        playing: [
+            "You're my angel baby.",
+            "Start a cult with me.",
+            "Saved me from myself.",
+        ],
+    },
+    "Witt Lowry — Into Your Arms": {
+        playing: [
+            "Into your arms.",
+            "I'm out of my head.",
+            "Safe with you.",
+        ],
+    },
+    // Final Batch Additions
+    "Akon — Right Now (Na Na Na)": {
+        playing: [
+            "I can't lie.",
+            "I miss you.",
+            "Right now.",
+        ],
+    },
+    "Benson Boone — In the Stars": {
+        playing: [
+            "In the stars.",
+            "I'm still holding on.",
+            "Don't wanna say goodbye.",
+        ],
+    },
+    "David Guetta — I'm Good (Blue)": {
+        playing: [
+            "I'm good, yeah.",
+            "Best interaction.",
+            "Feeling alright.",
+        ],
+    },
+    "Dean Lewis — Be Alright": {
+        playing: [
+            "It's gonna be alright.",
+            "Let her go.",
+            "Everything works out.",
+        ],
+    },
+    "DJ Snake & Justin Bieber — Let Me Love You": {
+        playing: [
+            "Let me love you.",
+            "Don't you give up.",
+            "I won't give up.",
+        ],
+    },
+    "Elektronomia — Sky High": {
+        playing: [
+            "Sky high.",
+            "Limitless.",
+            "Flying free.",
+        ],
+    },
     // Added specific requests here
     "Conan Gray — Memories": {
         playing: [
