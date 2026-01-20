@@ -5,8 +5,10 @@ import { useAudio, PLAYLIST } from "./AudioContext";
 import { useNarrativeEngine } from "../hooks/useNarrativeEngine"; // Import Narrative Engine Hook
 import { useZen } from "./ZenContext";
 import { ZenHideable } from "./ZenHideable";
-import { SkipBack, SkipForward, Sparkles, X } from "lucide-react";
+import { SkipBack, SkipForward, Sparkles, X, AlignLeft } from "lucide-react";
 import { getSongMessage } from "../data/songMessages";
+import { LyricsDisplay } from "./LyricsDisplay";
+import { motion, AnimatePresence } from "framer-motion";
 
 // Helper component for typewriter effect
 // Helper component for typewriter effect (Infinite Loop + Human Touch)
@@ -1152,6 +1154,9 @@ export function CurrentlyStrip() {
     // Avatar Tooltip State
     const [showAvatarTooltip, setShowAvatarTooltip] = useState(false);
 
+    // Lyrics Mode State
+    const [showLyrics, setShowLyrics] = useState(false);
+
     useEffect(() => {
         if (isHydrated) {
             setShowAvatarTooltip(true);
@@ -1357,10 +1362,22 @@ export function CurrentlyStrip() {
                 </div>
             )}
 
-            {/* Top: Vibing Avatar */}
-            {/* We pass narrative text directly to prop */}
-            {/* Top: Vibing Avatar */}
-            {/* Top: Vibing Avatar Section (Relative wrapper for tooltip) */}
+            {/* Lyrics Layer (Sky) - Appears above avatar with smooth height animation */}
+            <AnimatePresence>
+                {showLyrics && (
+                    <motion.div
+                        initial={{ height: 0, opacity: 0, marginBottom: 0 }}
+                        animate={{ height: "auto", opacity: 1, marginBottom: "1rem" }}
+                        exit={{ height: 0, opacity: 0, marginBottom: 0 }}
+                        transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }} // Apple-like ease
+                        style={{ overflow: "hidden", width: "100%" }}
+                    >
+                        <LyricsDisplay />
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
+            {/* Avatar Layer - Always visible but shifted down when lyrics appear */}
             <div style={{ position: "relative" }}>
                 {/* Avatar Tooltip - disappears when playing */}
                 {!isPlaying && (
@@ -1438,6 +1455,7 @@ export function CurrentlyStrip() {
                     <ContinuousMarquee items={statusItems} onVisibilityChange={handleVisibilityChange} />
                 </div>
             </ZenHideable>
+
 
             {/* Bottom: Play Control */}
             <div
@@ -1546,6 +1564,31 @@ export function CurrentlyStrip() {
                         </div>
                     )}
 
+                    {/* Lyrics Toggle */}
+                    {hasInteracted && (
+                        <div
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                setShowLyrics(prev => !prev);
+                            }}
+                            style={{
+                                cursor: "pointer",
+                                fontSize: "0.8rem",
+                                color: showLyrics ? "var(--accent)" : "var(--text-muted)",
+                                opacity: showLyrics ? 1 : 0.5,
+                                display: "flex",
+                                alignItems: "center",
+                                transition: "all 0.2s ease",
+                                padding: "4px",
+                                marginLeft: "4px"
+                            }}
+                            className="hover:opacity-100"
+                            title="Lyrics"
+                        >
+                            <AlignLeft size={14} />
+                        </div>
+                    )}
+
                     {/* Zen Mode Toggle - Mobile focused */}
                     {hasInteracted && (
                         <div
@@ -1572,6 +1615,6 @@ export function CurrentlyStrip() {
                     )}
                 </div>
             </div>
-        </div>
+        </div >
     );
 }
