@@ -1,110 +1,86 @@
 [
     {
-        "time": 6,
+        "time": 9.5,
         "text": "First things first"
     },
     {
-        "time": 7.5,
-        "text": "I'ma say all the words inside my head"
+        "time": 11.2,
+        "text": "I'm a say all the words inside my head"
     },
     {
-        "time": 10,
-        "text": "I'm fired up and tired of the way that things have been"
-    },
-    {
-        "time": 13,
-        "text": "Oh-ooh"
-    },
-    {
-        "time": 15,
-        "text": "The way that things have been, oh-ooh"
+        "time": 13.5,
+        "text": "I'm fired up and tired of the way that things have been, oh-ooh"
     },
     {
         "time": 19,
-        "text": "Second things second"
-    },
-    {
-        "time": 20.5,
-        "text": "Don't you tell me what you think that I could be"
+        "text": "The way that things have been, oh-ooh"
     },
     {
         "time": 23,
-        "text": "I'm the one at the sail, I'm the master of my sea"
+        "text": "Second things second"
     },
     {
-        "time": 26,
-        "text": "Oh-ooh"
+        "time": 24.5,
+        "text": "Don't you tell me what you think that I could be"
     },
     {
-        "time": 28,
+        "time": 27,
+        "text": "I'm the one at the sail, I'm the master of my sea, oh-ooh"
+    },
+    {
+        "time": 32.5,
         "text": "The master of my sea, oh-ooh"
     },
     {
-        "time": 32,
+        "time": 36,
         "text": "I was broken from a young age"
     },
     {
-        "time": 33.5,
+        "time": 38,
         "text": "Taking my sulking to the masses"
     },
     {
-        "time": 35,
+        "time": 40,
         "text": "Writing my poems for the few"
     },
     {
-        "time": 37,
+        "time": 41.5,
         "text": "That look at me, took to me, shook to me, feeling me"
     },
     {
-        "time": 40,
+        "time": 43.5,
         "text": "Singing from heartache from the pain"
     },
     {
-        "time": 42,
-        "text": "Taking my message from the veins"
+        "time": 45,
+        "text": "Thinking my message from the veins"
     },
     {
-        "time": 43.5,
+        "time": 46.5,
         "text": "Speaking my lesson from the brain"
     },
     {
-        "time": 45,
+        "time": 48,
         "text": "Seeing the beauty through the..."
     },
     {
-        "time": 46,
-        "text": "PAIN!"
+        "time": 50,
+        "text": "Pain! You made me a, you made me a believer, believer"
     },
     {
-        "time": 47,
-        "text": "You made me a, you made me a believer, believer"
+        "time": 56.5,
+        "text": "Pain! You break me down and build me up, believer, believer"
     },
     {
-        "time": 52,
-        "text": "PAIN!"
+        "time": 63,
+        "text": "Pain! Oh, let the bullets fly, oh, let them rain"
     },
     {
-        "time": 53.5,
-        "text": "You break me down and build me up, believer, believer"
+        "time": 68.5,
+        "text": "My life, my love, my drive, it came from... Pain!"
     },
     {
-        "time": 59,
-        "text": "PAIN!"
-    },
-    {
-        "time": 61,
-        "text": "Oh let the bullets fly, oh let them rain"
-    },
-    {
-        "time": 64,
-        "text": "My life, my love, my drive, it came from..."
-    },
-    {
-        "time": 66,
-        "text": "PAIN!"
-    },
-    {
-        "time": 67.5,
+        "time": 73,
         "text": "You made me a, you made me a believer, believer"
     }
 ]
