@@ -130,28 +130,62 @@ export function StarGlass() {
                         </div>
                     ) : (
                         <>
-                            <textarea
-                                value={text}
-                                onChange={(e) => setText(e.target.value)}
-                                placeholder="Aku lagi kepikiran soal..."
-                                disabled={isReleasing}
-                                style={{
-                                    width: "100%",
-                                    height: "150px",
-                                    padding: "1rem",
-                                    borderRadius: "0.75rem",
-                                    border: "1px solid var(--border)",
-                                    background: "var(--background)",
-                                    fontFamily: "'Source Serif 4', serif",
-                                    fontSize: "1rem",
-                                    color: "var(--foreground)",
-                                    resize: "none",
-                                    outline: "none",
-                                    transition: "all 0.5s ease",
-                                    opacity: isReleasing ? 0 : 1,
-                                    transform: isReleasing ? "scale(0.95)" : "scale(1)"
-                                }}
-                            />
+                            <div style={{ position: "relative" }}>
+                                <textarea
+                                    value={text}
+                                    onChange={(e) => setText(e.target.value)}
+                                    placeholder="Aku lagi kepikiran soal..."
+                                    disabled={isReleasing}
+                                    style={{
+                                        width: "100%",
+                                        height: "150px",
+                                        padding: "1rem",
+                                        borderRadius: "0.75rem",
+                                        border: "1px solid var(--border)",
+                                        background: "var(--background)",
+                                        fontFamily: "'Source Serif 4', serif",
+                                        fontSize: "1rem",
+                                        color: "var(--foreground)",
+                                        resize: "none",
+                                        outline: "none",
+                                        transition: "all 1.5s cubic-bezier(0.4, 0, 0.2, 1)", // Cosmic slow transition
+                                        opacity: isReleasing ? 0 : 1,
+                                        transform: isReleasing ? "translateY(-50px) scale(0.9) rotate(1deg)" : "translateY(0) scale(1) rotate(0deg)",
+                                        filter: isReleasing ? "blur(12px) brightness(1.5)" : "blur(0px) brightness(1)",
+                                        letterSpacing: isReleasing ? "0.5em" : "normal" // Text expanding into stars
+                                    }}
+                                />
+
+                                {/* Cosmic Particles - Only visible during release */}
+                                {isReleasing && (
+                                    <div style={{ position: "absolute", inset: 0, pointerEvents: "none", overflow: "hidden" }}>
+                                        {[...Array(12)].map((_, i) => (
+                                            <div
+                                                key={i}
+                                                className="animate-float" // Assuming global animate-float exists, or I'll add inline style animation
+                                                style={{
+                                                    position: "absolute",
+                                                    left: `${Math.random() * 100}%`,
+                                                    top: `${Math.random() * 100}%`,
+                                                    width: `${Math.random() * 4 + 2}px`,
+                                                    height: `${Math.random() * 4 + 2}px`,
+                                                    borderRadius: "50%",
+                                                    background: "var(--widget-accent)",
+                                                    opacity: 0,
+                                                    animation: `floatUp ${1 + Math.random()}s ease-out forwards`,
+                                                    animationDelay: `${Math.random() * 0.5}s`
+                                                }}
+                                            />
+                                        ))}
+                                        <style jsx>{`
+                                            @keyframes floatUp {
+                                                0% { transform: translateY(0); opacity: 1; }
+                                                100% { transform: translateY(-100px); opacity: 0; }
+                                            }
+                                        `}</style>
+                                    </div>
+                                )}
+                            </div>
 
                             <div style={{ marginTop: "1.5rem", display: "flex", justifyContent: "flex-end" }}>
                                 <button
@@ -167,7 +201,7 @@ export function StarGlass() {
                                     }}
                                 >
                                     <Send style={{ width: "14px", height: "14px" }} />
-                                    {isReleasing ? "Melepas..." : "Lepaskan"}
+                                    {isReleasing ? "Meluruhkan..." : "Lepaskan"}
                                 </button>
                             </div>
                         </>

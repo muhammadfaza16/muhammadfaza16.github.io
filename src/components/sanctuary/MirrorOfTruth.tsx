@@ -2,17 +2,22 @@
 
 import { useState } from "react";
 import { Sparkles } from "lucide-react";
+import { useSanctuary } from "@/components/sanctuary/SanctuaryContext";
 
 const TRUTHS = [
-    "Kamu lebih kuat dari yang kamu kira. Serius.",
-    "Usahamu itu penting, meskipun nggak ada yang lihat.",
-    "Istirahat bukan kelemahan. Kamu berhak capek.",
-    "Kamu layak dicintai, dan dimaafin. Terutama oleh dirimu sendiri.",
-    "Langkah kecil tetap langkah. Pelan nggak apa-apa."
+    "Kamu itu 'stardust'. Terbuat dari material yang sama kayak bintang-bintang. Kuat udah ada di DNA semestamu.",
+    "Cahaya bintang butuh perjalanan panjang buat kelihatan. Usahamu juga gitu; mungkin belum kerasa sekarang, tapi 'cahaya'-nya lagi on the way. Tungguin.",
+    "Matahari aja tenggelam tiap hari buat recharge. Masa kamu mau bersinar 24 jam non-stop? Istirahat itu hukum alam, bukan dosa.",
+    "Semesta nggak pernah bikin produk gagal. Kalau kamu ada di sini, berarti eksistensimu emang dibutuhin buat keseimbangan kosmos. You belong here.",
+    "Bumi muter pelan banget kalau dirasain, tapi dia nggak pernah berhenti. Kamu juga gitu. Pelan nggak apa-apa, asal orbitmu jalan terus."
 ];
 
 export function MirrorOfTruth() {
-    const [revealedIndex, setRevealedIndex] = useState<number | null>(null);
+    const { unlockedTruths, unlockTruth, lastTruthRevealDate } = useSanctuary();
+
+    // Check if we can reveal a new truth today
+    const today = new Date().toISOString().split('T')[0];
+    const canRevealNew = lastTruthRevealDate !== today;
 
     return (
         <div style={{
@@ -70,6 +75,17 @@ export function MirrorOfTruth() {
                             Cermin Jujur
                         </span>
                     </span>
+
+                    {!canRevealNew && (
+                        <span style={{
+                            fontSize: "0.7rem",
+                            fontFamily: "var(--font-mono)",
+                            color: "var(--text-secondary)",
+                            opacity: 0.7
+                        }}>
+                            Besok lagi, ya.
+                        </span>
+                    )}
                 </div>
 
                 {/* Content */}
@@ -98,26 +114,42 @@ export function MirrorOfTruth() {
 
                     {/* Truth Cards */}
                     <div style={{ display: "flex", flexWrap: "wrap", gap: "0.75rem", justifyContent: "center" }}>
-                        {TRUTHS.map((truth, i) => (
-                            <button
-                                key={i}
-                                onClick={() => setRevealedIndex(revealedIndex === i ? null : i)}
-                                className="rounded-xl border border-[var(--border)] text-[var(--text-secondary)] hover:text-[var(--widget-accent)] hover:border-[var(--widget-accent)] transition-all active:scale-95 bg-[rgba(125,125,125,0.05)] hover:bg-[rgba(125,125,125,0.1)]"
-                                style={{
-                                    padding: "1rem 1.25rem",
-                                    fontFamily: revealedIndex === i ? "'Playfair Display', serif" : "var(--font-mono)",
-                                    fontSize: revealedIndex === i ? "1rem" : "0.7rem",
-                                    fontStyle: revealedIndex === i ? "italic" : "normal",
-                                    textTransform: revealedIndex === i ? "none" : "uppercase",
-                                    letterSpacing: revealedIndex === i ? "0" : "0.1em",
-                                    color: revealedIndex === i ? "var(--foreground)" : "var(--text-secondary)",
-                                    minWidth: revealedIndex === i ? "200px" : "auto",
-                                    transition: "all 0.3s ease"
-                                }}
-                            >
-                                {revealedIndex === i ? truth : `Kebenaran ${i + 1}`}
-                            </button>
-                        ))}
+                        {TRUTHS.map((truth, i) => {
+                            const isRevealed = unlockedTruths.includes(i);
+
+                            return (
+                                <button
+                                    key={i}
+                                    onClick={() => {
+                                        if (isRevealed) return; // Do nothing if already revealed
+                                        if (canRevealNew) unlockTruth(i);
+                                    }}
+                                    disabled={!isRevealed && !canRevealNew}
+                                    className="rounded-xl border transition-all active:scale-95"
+                                    style={{
+                                        padding: "1rem 1.25rem",
+                                        fontFamily: isRevealed ? "'Playfair Display', serif" : "var(--font-mono)",
+                                        fontSize: isRevealed ? "1rem" : "0.7rem",
+                                        fontStyle: isRevealed ? "italic" : "normal",
+                                        textTransform: isRevealed ? "none" : "uppercase",
+                                        letterSpacing: isRevealed ? "0" : "0.1em",
+                                        color: isRevealed ? "var(--foreground)" : "var(--text-secondary)",
+                                        minWidth: isRevealed ? "200px" : "auto",
+                                        borderColor: isRevealed
+                                            ? "var(--widget-accent)"
+                                            : (!canRevealNew ? "transparent" : "var(--border)"),
+                                        background: isRevealed
+                                            ? "rgba(14, 165, 233, 0.05)"
+                                            : (!canRevealNew ? "rgba(125,125,125,0.02)" : "rgba(125,125,125,0.05)"),
+                                        cursor: isRevealed ? "default" : (!canRevealNew ? "not-allowed" : "pointer"),
+                                        opacity: (!isRevealed && !canRevealNew) ? 0.5 : 1,
+
+                                    }}
+                                >
+                                    {isRevealed ? truth : `Kebenaran ${i + 1}`}
+                                </button>
+                            );
+                        })}
                     </div>
                 </div>
             </div>

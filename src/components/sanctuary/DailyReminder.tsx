@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Sun, RefreshCw } from "lucide-react";
+import { Sun } from "lucide-react";
+import { useSanctuary } from "@/components/sanctuary/SanctuaryContext";
 
 const REMINDERS = [
     "Hari ini, cukup jadi dirimu. Itu udah lebih dari cukup.",
@@ -38,23 +39,13 @@ const REMINDERS = [
 ];
 
 export function DailyReminder() {
-    const [reminder, setReminder] = useState("");
-    const [dayOfYear, setDayOfYear] = useState(0);
+    const { dailyQuoteIndex, refreshDailyQuote } = useSanctuary();
 
     useEffect(() => {
-        const now = new Date();
-        const start = new Date(now.getFullYear(), 0, 0);
-        const diff = now.getTime() - start.getTime();
-        const oneDay = 1000 * 60 * 60 * 24;
-        const day = Math.floor(diff / oneDay);
-        setDayOfYear(day);
-        setReminder(REMINDERS[day % REMINDERS.length]);
-    }, []);
+        refreshDailyQuote(REMINDERS.length);
+    }, [refreshDailyQuote]);
 
-    const shuffle = () => {
-        const randomIndex = Math.floor(Math.random() * REMINDERS.length);
-        setReminder(REMINDERS[randomIndex]);
-    };
+    const reminder = REMINDERS[dailyQuoteIndex] || REMINDERS[0];
 
     return (
         <div style={{
@@ -112,14 +103,6 @@ export function DailyReminder() {
                             Pengingat Hari Ini
                         </span>
                     </span>
-
-                    <button
-                        onClick={shuffle}
-                        className="h-8 w-8 rounded-full border border-[var(--border)] text-[var(--text-secondary)] hover:text-[var(--widget-accent)] hover:border-[var(--widget-accent)] flex items-center justify-center transition-all active:scale-95 bg-[rgba(125,125,125,0.05)] hover:bg-[rgba(125,125,125,0.1)]"
-                        title="Acak"
-                    >
-                        <RefreshCw style={{ width: "14px", height: "14px" }} />
-                    </button>
                 </div>
 
                 {/* Reminder Content */}

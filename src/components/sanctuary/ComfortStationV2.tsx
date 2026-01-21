@@ -27,7 +27,7 @@ const content = {
     }
 };
 
-export function ComfortStation() {
+export function ComfortStationV2() {
     const { setMood } = useSanctuary();
     const [mode, setMode] = useState<Mode>(null);
     const [isPlaying, setIsPlaying] = useState(false);
@@ -112,14 +112,11 @@ export function ComfortStation() {
                     <span style={{
                         display: "inline-flex",
                         alignItems: "center",
-                        gap: "0.75rem",
-                        padding: "1rem 3rem", // Debug: Nuclear padding
+                        gap: "0.5rem",
+                        padding: "0.5rem 1.25rem",
                         borderRadius: "100px",
                         border: "1px solid var(--widget-accent)",
-                        background: "rgba(var(--background-rgb), 0.5)",
-                        whiteSpace: "nowrap",
-                        minWidth: "fit-content",
-                        flexShrink: 0
+                        background: "rgba(var(--background-rgb), 0.5)"
                     }}>
                         <Wind style={{ width: "12px", height: "12px", color: "var(--widget-accent)" }} />
                         <span style={{
@@ -130,7 +127,7 @@ export function ComfortStation() {
                             letterSpacing: "0.1em",
                             fontWeight: 600
                         }}>
-                            Jujur-jujuran Aja ✨
+                            Jujur-jujuran Aja
                         </span>
                     </span>
                 </div>
@@ -148,75 +145,8 @@ export function ComfortStation() {
                         zIndex: 1
                     }} className="animate-fade-in">
 
-                        {/* DECORATIVE DREAMY BACKGROUND */}
-                        <div style={{
-                            position: "absolute",
-                            top: "50%",
-                            left: "50%",
-                            transform: "translate(-50%, -50%)",
-                            width: "120%", // Wider to fill
-                            height: "120%",
-                            pointerEvents: "none",
-                            zIndex: -1,
-                            overflow: "hidden",
-                            opacity: 0.8 // Overall brighter
-                        }}>
-                            {/* Soft Nebula Glow - Expanded */}
-                            <div style={{
-                                position: "absolute",
-                                top: "50%",
-                                left: "50%",
-                                transform: "translate(-50%, -50%)",
-                                width: "400px",
-                                height: "400px",
-                                background: "radial-gradient(circle, var(--widget-accent) 0%, transparent 70%)",
-                                opacity: 0.08,
-                                filter: "blur(50px)",
-                                animation: "pulse 10s infinite ease-in-out"
-                            }} />
-
-                            {/* Constellation Map */}
-                            <svg style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", opacity: 0.2 }} viewBox="0 0 400 400">
-                                {/* Constellation 1 */}
-                                <path d="M 100 150 L 150 100 L 220 120" stroke="var(--widget-accent)" strokeWidth="0.5" fill="none" />
-                                <circle cx="100" cy="150" r="1.5" fill="var(--widget-accent)" />
-                                <circle cx="150" cy="100" r="1.5" fill="var(--widget-accent)" />
-                                <circle cx="220" cy="120" r="1.5" fill="var(--widget-accent)" />
-
-                                {/* Constellation 2 */}
-                                <path d="M 280 250 L 320 200 L 350 220" stroke="var(--widget-accent)" strokeWidth="0.5" fill="none" />
-                                <circle cx="280" cy="250" r="1.5" fill="var(--widget-accent)" />
-                                <circle cx="320" cy="200" r="1.5" fill="var(--widget-accent)" />
-                                <circle cx="350" cy="220" r="1.5" fill="var(--widget-accent)" />
-
-                                {/* Loose Stars */}
-                                <circle cx="50" cy="300" r="1" fill="var(--widget-accent)" opacity="0.5" />
-                                <circle cx="350" cy="50" r="1" fill="var(--widget-accent)" opacity="0.5" />
-                                <circle cx="200" cy="350" r="1" fill="var(--widget-accent)" opacity="0.5" />
-                            </svg>
-
-                            {/* Floating Sparkles - Increased Count */}
-                            {[...Array(12)].map((_, i) => (
-                                <Sparkles key={i} style={{
-                                    position: "absolute",
-                                    top: `${10 + Math.random() * 80}%`,
-                                    left: `${10 + Math.random() * 80}%`,
-                                    width: `${6 + Math.random() * 10}px`,
-                                    height: `${6 + Math.random() * 10}px`,
-                                    color: "var(--widget-accent)",
-                                    opacity: 0,
-                                    animation: `twinkle ${2 + Math.random() * 5}s infinite ease-in-out`,
-                                    animationDelay: `${Math.random() * 4}s`
-                                }} />
-                            ))}
-
-                            <style jsx>{`
-                                @keyframes twinkle {
-                                    0%, 100% { opacity: 0.1; transform: scale(0.8) rotate(0deg); }
-                                    50% { opacity: 0.6; transform: scale(1.2) rotate(45deg); }
-                                }
-                            `}</style>
-                        </div>
+                        {/* Clean Spacer */}
+                        <div style={{ height: "2rem" }} />
 
                         <h3 style={{
                             fontFamily: "'Playfair Display', serif",
@@ -245,12 +175,16 @@ export function ComfortStation() {
                                 <button
                                     key={m}
                                     onClick={() => handleSetMode(m)}
-                                    className="h-10 rounded-full border border-[var(--border)] text-[var(--text-secondary)] hover:text-[var(--accent)] hover:border-[var(--accent)] flex items-center justify-center transition-all active:scale-95 bg-[rgba(125,125,125,0.05)] hover:bg-[rgba(125,125,125,0.1)] px-4 backdrop-blur-sm"
+                                    className="h-10 rounded-full border border-[var(--border)] text-[var(--text-secondary)] hover:text-[var(--accent)] hover:border-[var(--accent)] flex items-center justify-center transition-all active:scale-95 bg-[rgba(125,125,125,0.05)] hover:bg-[rgba(125,125,125,0.1)] backdrop-blur-sm"
                                     style={{
                                         fontFamily: "var(--font-mono)",
                                         fontSize: "0.7rem",
                                         textTransform: "uppercase",
-                                        letterSpacing: "0.1em"
+                                        letterSpacing: "0.1em",
+                                        paddingLeft: "24px",
+                                        paddingRight: "24px",
+                                        whiteSpace: "nowrap",
+                                        minWidth: "fit-content"
                                     }}
                                 >
                                     {m === "anxious" && "Kepala Ruwet"}
@@ -350,13 +284,17 @@ export function ComfortStation() {
                         {/* Play Button */}
                         <button
                             onClick={() => setIsPlaying(!isPlaying)}
-                            className="h-10 rounded-full border border-[var(--border)] text-[var(--text-secondary)] hover:text-[var(--widget-accent)] hover:border-[var(--widget-accent)] flex items-center justify-center gap-2 transition-all active:scale-95 bg-[rgba(125,125,125,0.05)] hover:bg-[rgba(125,125,125,0.1)] px-4"
+                            className="h-10 rounded-full border border-[var(--border)] text-[var(--text-secondary)] hover:text-[var(--widget-accent)] hover:border-[var(--widget-accent)] flex items-center justify-center gap-2 transition-all active:scale-95 bg-[rgba(125,125,125,0.05)] hover:bg-[rgba(125,125,125,0.1)]"
                             style={{
                                 fontFamily: "var(--font-mono)",
                                 fontSize: "0.7rem",
                                 textTransform: "uppercase",
                                 letterSpacing: "0.1em",
-                                fontWeight: 500
+                                fontWeight: 500,
+                                paddingLeft: "24px",
+                                paddingRight: "24px",
+                                whiteSpace: "nowrap",
+                                minWidth: "fit-content"
                             }}
                         >
                             {isPlaying ? <Pause style={{ width: "14px", height: "14px" }} /> : <Play style={{ width: "14px", height: "14px" }} />}

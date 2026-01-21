@@ -63,11 +63,11 @@ export function CosmicStars() {
                     size: Math.random() < 0.9 ? Math.random() * 0.8 + 0.4 : Math.random() * 1.2 + 0.8, // Slightly smaller
                     baseOpacity: Math.random() * 0.4 + 0.05, // Range 0.05 to 0.45
                     opacity: 0, // Initial value
-                    // INCREASED SPEED: Base speed doubled from 0.05 to 0.1
-                    speedX: (Math.random() - 0.5) * 0.1,
-                    speedY: (Math.random() - 0.5) * 0.1,
+                    // INCREASED SPEED: Base speed heavily boosted for "AGRESSIVE" feel
+                    speedX: (Math.random() - 0.5) * 0.15, // 0.15 base
+                    speedY: (Math.random() - 0.5) * 0.15,
                     color: starColors[Math.floor(Math.random() * starColors.length)],
-                    twinkleSpeed: Math.random() * 0.02 + 0.005,
+                    twinkleSpeed: Math.random() * 0.03 + 0.01,
                     twinklePhase: Math.random() * Math.PI * 2,
                 });
             }
@@ -104,9 +104,10 @@ export function CosmicStars() {
             const playing = isPlayingRef.current;
             const zenActive = isZenRef.current;
 
-            // Zen mode: even faster and brighter
-            const speedMultiplier = zenActive ? 5.0 : (playing ? 3.5 : 1.0);
-            const twinkleMultiplier = zenActive ? 3.0 : (playing ? 2.0 : 1.0);
+            // Zen mode: Warp speed
+            // Normal: Faster drift
+            const speedMultiplier = zenActive ? 8.0 : (playing ? 6.0 : 2.5); // Significantly faster
+            const twinkleMultiplier = zenActive ? 4.0 : (playing ? 3.0 : 1.5); // More sparkly
             const opacityBoost = zenActive ? 0.3 : 0;
 
             stars.forEach((star) => {
@@ -122,7 +123,7 @@ export function CosmicStars() {
 
                 // Update twinkle
                 star.twinklePhase += star.twinkleSpeed * twinkleMultiplier;
-                star.opacity = star.baseOpacity + opacityBoost + Math.sin(star.twinklePhase) * 0.15;
+                star.opacity = star.baseOpacity + opacityBoost + Math.sin(star.twinklePhase) * 0.2; // Stronger twinkle
 
                 // Clamp opacity
                 if (star.opacity < 0) star.opacity = 0;

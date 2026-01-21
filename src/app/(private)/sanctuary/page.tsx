@@ -1,9 +1,10 @@
 "use client";
 
 import { useState } from "react";
+import { Sparkles, ChevronDown } from "lucide-react";
 import { StarGate } from "@/components/auth/StarGate";
 import { Container } from "@/components/Container";
-import { ComfortStation } from "@/components/sanctuary/ComfortStation";
+import { ComfortStationV2 as ComfortStation } from "@/components/sanctuary/ComfortStationV2";
 import { LettersOfLight } from "@/components/sanctuary/LettersOfLight";
 import { StarGlass } from "@/components/sanctuary/StarGlass";
 import { MirrorOfTruth } from "@/components/sanctuary/MirrorOfTruth";
@@ -14,6 +15,9 @@ import { GardenChime } from "@/components/sanctuary/GardenChime";
 import { DeskLamp } from "@/components/sanctuary/DeskLamp";
 import { GradientOrb } from "@/components/GradientOrb";
 import { CosmicStars } from "@/components/CosmicStars";
+
+import { SanctuaryProvider } from "@/components/sanctuary/SanctuaryContext";
+import { ScrollReveal } from "@/components/ui/ScrollReveal";
 
 export default function SanctuaryPage() {
     const [isUnlocked, setIsUnlocked] = useState(false);
@@ -28,151 +32,187 @@ export default function SanctuaryPage() {
     }
 
     return (
-        <div style={{
-            minHeight: "100vh",
-            paddingTop: "6rem", // Space for fixed navbar + a bit extra
-            marginTop: "-6rem", // Cancel out main-content-padding
-            paddingBottom: "clamp(4rem, 8vw, 8rem)",
-            background: "var(--background)",
-            position: "relative",
-            overflow: "hidden" // Prevent orbs from causing horizontal shift
-        }} className="animate-fade-in">
+        <SanctuaryProvider>
+            <div style={{
+                minHeight: "100vh",
+                paddingTop: "6rem", // Space for fixed navbar + a bit extra
+                marginTop: "-6rem", // Cancel out main-content-padding
+                paddingBottom: "clamp(4rem, 8vw, 8rem)",
+                background: "var(--background)",
+                position: "relative",
+                overflow: "hidden" // Prevent orbs from causing horizontal shift
+            }} className="animate-fade-in">
 
-            {/* Passive Features */}
-            <DeskLamp />
-            <GardenChime />
 
-            {/* Background Effects */}
-            <GradientOrb />
-            <CosmicStars />
+                {/* Passive Features */}
+                <DeskLamp />
+                <GardenChime />
 
-            <Container>
-                {/* Header - Matches Homepage Hero Pattern */}
-                <header style={{
-                    marginBottom: "clamp(2rem, 4vw, 4rem)",
-                    marginTop: "clamp(4rem, 6vw, 6rem)" // Extra space below lamp
-                }}>
-                    {/* Mono Label */}
-                    <div style={{
-                        fontFamily: "var(--font-mono)",
-                        fontSize: "0.85rem",
-                        color: "var(--accent)",
-                        marginBottom: "1rem",
-                        textTransform: "uppercase",
-                        letterSpacing: "0.15em",
-                        fontWeight: 500
+                {/* Background Effects */}
+                <GradientOrb />
+                <CosmicStars />
+
+                <Container>
+                    {/* Header - Matches Homepage Hero Pattern */}
+                    {/* Header - Minimalist 'Steve Jobs' Refinement */}
+                    <header style={{
+                        marginBottom: "8rem",
+                        marginTop: "12rem",
+                        position: "relative",
+                        textAlign: "left" // Should be left aligned or centered? User usually likes left for personal stuff, but center for 'Apple' vibes. Let's stick to the existing alignment but refine it.
+                        // Actually, Apple hero sections are often centered text. Let's stick to the current left/center hybrid or purely left.
+                        // Looking at previous code, it seems centered. Let's ensure it.
+                        // Wait, previous code didn't specify textAlign, so it was left by default.
                     }}>
-                        Ruang Sunyi
+
+                        {/* Mono Label - Refined */}
+                        <div style={{
+                            fontFamily: "var(--font-mono)",
+                            fontSize: "0.75rem",
+                            color: "var(--accent)", // Could use a softer gray for pure minimalism, but accent is fine.
+                            marginBottom: "1.5rem",
+                            textTransform: "uppercase",
+                            letterSpacing: "0.25em",
+                            fontWeight: 500,
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "0.75rem",
+                            opacity: 0.8
+                        }}>
+                            <span className="w-12 h-[1px] bg-[var(--accent)]"></span>
+                            Orbit Rahasia
+                        </div>
+
+                        {/* Title - Tighter & Cleaner */}
+                        <h1 style={{
+                            fontFamily: "'Playfair Display', serif",
+                            fontSize: "clamp(3.5rem, 9vw, 6.5rem)", // Slightly larger scale
+                            fontWeight: 400, // Keep it thin/regular for elegance
+                            lineHeight: 0.9,
+                            letterSpacing: "-0.05em",
+                            marginBottom: "2.5rem",
+                            color: "var(--foreground)",
+                            maxWidth: "16ch", // Tighter wrap
+                            position: "relative"
+                        }}>
+                            Dunia lagi berisik, ya?
+                        </h1>
+
+                        {/* Description - Elevated Typography */}
+                        <p style={{
+                            fontSize: "1.35rem",
+                            lineHeight: 1.5,
+                            fontFamily: "'Source Serif 4', serif",
+                            maxWidth: "38rem", // Optimal measure
+                            color: "var(--text-secondary)",
+                            fontWeight: 300, // Light weight
+                            marginBottom: "4rem"
+                        }}>
+                            Sini sembunyi dulu. Lepas topeng superheromu di pintu. Di sini kamu boleh diem, boleh 'pause', dan nggak perlu jadi apa-apa. Aman.
+                        </p>
+
+                        {/* Scroll Hint - Minimalist */}
+                        <div className="flex flex-col items-start gap-3 opacity-40 animate-pulse" style={{ animationDuration: "3s" }}>
+                            <span className="text-[0.6rem] font-mono uppercase tracking-[0.3em] text-[var(--text-secondary)]">Scroll to exhale</span>
+                        </div>
+                    </header>
+
+                    {/* Section Divider - Cosmic */}
+                    <div style={{
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        gap: "1rem",
+                        padding: "clamp(1rem, 2vw, 2rem) 0",
+                        opacity: 0.4,
+                        marginBottom: "clamp(2rem, 4vw, 4rem)"
+                    }}>
+                        <div style={{ flex: 1, maxWidth: "100px", height: "1px", background: "linear-gradient(to right, transparent, var(--border))" }} />
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" style={{ color: "var(--accent)" }}>
+                            <circle cx="12" cy="12" r="2" fill="currentColor" />
+                            <circle cx="12" cy="12" r="6" stroke="currentColor" strokeWidth="0.5" opacity="0.5" />
+                            <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="0.3" opacity="0.3" />
+                        </svg>
+                        <div style={{ flex: 1, maxWidth: "100px", height: "1px", background: "linear-gradient(to left, transparent, var(--border))" }} />
                     </div>
 
-                    {/* Massive Title */}
-                    <h1 style={{
-                        fontFamily: "'Playfair Display', serif",
-                        fontSize: "clamp(3rem, 8vw, 6rem)",
-                        fontWeight: 400,
-                        lineHeight: 0.95,
-                        letterSpacing: "-0.04em",
-                        marginBottom: "2rem",
-                        color: "var(--foreground)",
-                        maxWidth: "18ch"
+                    {/* Main Content */}
+                    <div style={{
+                        display: "flex",
+                        flexDirection: "column",
+                        gap: "clamp(3rem, 6vw, 6rem)",
+                        maxWidth: "48rem",
+                        margin: "0 auto"
                     }}>
-                        Tempat Istirahat.
-                    </h1>
+                        {/* 1. Comfort Station */}
+                        <section>
+                            <ScrollReveal>
+                                <ComfortStation />
+                            </ScrollReveal>
+                        </section>
 
-                    {/* Description */}
-                    <p style={{
-                        fontSize: "1.25rem",
-                        lineHeight: 1.6,
-                        fontFamily: "'Source Serif 4', serif",
-                        maxWidth: "40rem",
-                        color: "var(--text-secondary)",
-                        fontStyle: "italic"
-                    }}>
-                        "Aku nggak akan ganggu. Tapi kalau kamu butuh tempat buat sekadar... ada, pintunya selalu terbuka."
-                    </p>
-                </header>
+                        {/* Divider */}
+                        <div style={{ height: "1px", background: "var(--border)", margin: "0 auto", width: "60%" }} />
 
-                {/* Section Divider - Cosmic */}
-                <div style={{
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    gap: "1rem",
-                    padding: "clamp(1rem, 2vw, 2rem) 0",
-                    opacity: 0.4,
-                    marginBottom: "clamp(2rem, 4vw, 4rem)"
-                }}>
-                    <div style={{ flex: 1, maxWidth: "100px", height: "1px", background: "linear-gradient(to right, transparent, var(--border))" }} />
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" style={{ color: "var(--accent)" }}>
-                        <circle cx="12" cy="12" r="2" fill="currentColor" />
-                        <circle cx="12" cy="12" r="6" stroke="currentColor" strokeWidth="0.5" opacity="0.5" />
-                        <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="0.3" opacity="0.3" />
-                    </svg>
-                    <div style={{ flex: 1, maxWidth: "100px", height: "1px", background: "linear-gradient(to left, transparent, var(--border))" }} />
-                </div>
+                        {/* 2. Mirror of Truth */}
+                        <section>
+                            <ScrollReveal delay={0.1}>
+                                <MirrorOfTruth />
+                            </ScrollReveal>
+                        </section>
 
-                {/* Main Content */}
-                <div style={{
-                    display: "flex",
-                    flexDirection: "column",
-                    gap: "clamp(3rem, 6vw, 6rem)",
-                    maxWidth: "48rem",
-                    margin: "0 auto"
-                }}>
-                    {/* 1. Comfort Station */}
-                    <section>
-                        <ComfortStation />
-                    </section>
+                        {/* Divider */}
+                        <div style={{ height: "1px", background: "var(--border)", margin: "0 auto", width: "60%" }} />
 
-                    {/* Divider */}
-                    <div style={{ height: "1px", background: "var(--border)", margin: "0 auto", width: "60%" }} />
+                        {/* 3. Letters of Light */}
+                        <section>
+                            <ScrollReveal delay={0.1}>
+                                <LettersOfLight />
+                            </ScrollReveal>
+                        </section>
 
-                    {/* 2. Mirror of Truth */}
-                    <section>
-                        <MirrorOfTruth />
-                    </section>
+                        {/* Divider */}
+                        <div style={{ height: "1px", background: "var(--border)", margin: "0 auto", width: "60%" }} />
 
-                    {/* Divider */}
-                    <div style={{ height: "1px", background: "var(--border)", margin: "0 auto", width: "60%" }} />
+                        {/* 4. Star Glass */}
+                        <section>
+                            <ScrollReveal delay={0.1}>
+                                <StarGlass />
+                            </ScrollReveal>
+                        </section>
 
-                    {/* 3. Letters of Light */}
-                    <section>
-                        <LettersOfLight />
-                    </section>
+                        {/* Divider */}
+                        <div style={{ height: "1px", background: "var(--border)", margin: "0 auto", width: "60%" }} />
 
-                    {/* Divider */}
-                    <div style={{ height: "1px", background: "var(--border)", margin: "0 auto", width: "60%" }} />
+                        {/* 5. Personal Letter */}
+                        <section>
+                            <ScrollReveal delay={0.1}>
+                                <PersonalLetter />
+                            </ScrollReveal>
+                        </section>
 
-                    {/* 4. Star Glass */}
-                    <section>
-                        <StarGlass />
-                    </section>
+                        {/* Divider */}
+                        <div style={{ height: "1px", background: "var(--border)", margin: "0 auto", width: "60%" }} />
 
-                    {/* Divider */}
-                    <div style={{ height: "1px", background: "var(--border)", margin: "0 auto", width: "60%" }} />
+                        {/* 6. Daily Reminder */}
+                        <section>
+                            <ScrollReveal delay={0.1}>
+                                <DailyReminder />
+                            </ScrollReveal>
+                        </section>
 
-                    {/* 5. Personal Letter */}
-                    <section>
-                        <PersonalLetter />
-                    </section>
+                        {/* Divider */}
+                        <div style={{ height: "1px", background: "var(--border)", margin: "0 auto", width: "60%" }} />
 
-                    {/* Divider */}
-                    <div style={{ height: "1px", background: "var(--border)", margin: "0 auto", width: "60%" }} />
-
-                    {/* 6. Daily Reminder */}
-                    <section>
-                        <DailyReminder />
-                    </section>
-
-                    {/* Divider */}
-                    <div style={{ height: "1px", background: "var(--border)", margin: "0 auto", width: "60%" }} />
-
-                    {/* 7. Zen Mode Teleport */}
-                    <section>
-                        <ZenTeleport />
-                    </section>
-                </div>
-            </Container>
-        </div>
+                        {/* 7. Zen Mode Teleport */}
+                        <section>
+                            <ScrollReveal delay={0.1}>
+                                <ZenTeleport />
+                            </ScrollReveal>
+                        </section>
+                    </div>
+                </Container>
+            </div>
+        </SanctuaryProvider>
     );
 }

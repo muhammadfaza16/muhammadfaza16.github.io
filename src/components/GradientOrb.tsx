@@ -41,15 +41,16 @@ export function GradientOrb() {
         let bassSmoothed = 0; // Smoothed value for scale interpolation
 
         const animate = () => {
-            // Dynamic speed control
+            // Dynamic speed control - AGGRESSIVE BOOST
             const zenActive = isZenRef.current;
             const playing = isPlayingRef.current;
 
-            const speed = zenActive ? 0.03 : (playing ? 0.04 : 0.015);
+            // Much faster base speed
+            const speed = zenActive ? 0.04 : (playing ? 0.06 : 0.03);
             time += speed;
 
-            // Amplitude multiplier
-            const amp = zenActive ? 1.8 : (playing ? 1.4 : 1.0);
+            // Amplitude multiplier - WIDER MOVEMENT
+            const amp = zenActive ? 2.0 : (playing ? 1.6 : 1.2);
 
             // Audio Reactive Scaling Calculation
             let currentScaleBoost = 0;
@@ -68,13 +69,13 @@ export function GradientOrb() {
                 // Smooth interpolation (Attack fast, release slow-ish)
                 bassSmoothed += (targetBoost - bassSmoothed) * 0.2;
 
-                // Max scale impact: +30% size on max bass
-                currentScaleBoost = bassSmoothed * 0.3;
+                // Max scale impact: +40% size on max bass (Boosted)
+                currentScaleBoost = bassSmoothed * 0.4;
             } else {
                 // Simulated breathing when not playing/no analyzer
                 // Overclocked: 1.5Hz = 90BPM pulse. 0.25 amp = Deep breath.
-                const breathFreq = playing ? 1.5 : 0.4;
-                const breathAmp = playing ? 0.25 : 0.15;
+                const breathFreq = playing ? 2.0 : 0.6; // Faster breathing
+                const breathAmp = playing ? 0.3 : 0.2; // Deeper breathing
 
                 // Use absolute Math.sin to prevent negative scale or weird snapping?
                 // No, sin is -1 to 1. We want 1 + boost.
@@ -85,52 +86,53 @@ export function GradientOrb() {
                 if (!playing) bassSmoothed = 0;
             }
 
-            // Apply transforms
+            // Apply transforms - REMOVED PARALLAX, PURE LOGIC
+            // Added explicit random offsets to time to desync orbits
+
             if (primaryRef.current) {
-                const x = (Math.sin(time * 0.5) * 40 + Math.cos(time * 0.3) * 30 + Math.sin(time * 0.7) * 20) * amp;
-                const y = (Math.cos(time * 0.4) * 40 + Math.sin(time * 0.2) * 30) * amp;
+                const x = (Math.sin(time * 0.5) * 50 + Math.cos(time * 0.3) * 40 + Math.sin(time * 0.7) * 20) * amp;
+                const y = (Math.cos(time * 0.4) * 50 + Math.sin(time * 0.2) * 40) * amp;
 
                 const scale = 1 + currentScaleBoost;
-                const rotate = time * 20;
+                const rotate = time * 25;
                 primaryRef.current.style.transform = `translate3d(${x}px, ${y}px, 0) scale(${scale}) rotate(${rotate}deg)`;
             }
 
             if (secondaryRef.current) {
-                const x = (Math.cos(time * 0.3) * 50 + Math.sin(time * 0.5) * 40) * amp;
-                const y = (Math.sin(time * 0.4) * 50 + Math.cos(time * 0.2) * 30 + Math.sin(time * 0.6) * 10) * amp;
+                const x = (Math.cos(time * 0.3) * 60 + Math.sin(time * 0.5) * 50) * amp;
+                const y = (Math.sin(time * 0.4) * 60 + Math.cos(time * 0.2) * 40 + Math.sin(time * 0.6) * 15) * amp;
 
-                // Secondary slightly offset or different reaction? For now sync is cleaner.
-                const scale = 1 + (currentScaleBoost * 0.8); // Slightly less reactive
-                const rotate = Math.sin(time * 0.2) * 30 - time * 10;
+                const scale = 1 + (currentScaleBoost * 0.8);
+                const rotate = Math.sin(time * 0.2) * 40 - time * 15;
                 secondaryRef.current.style.transform = `translate3d(${x}px, ${y}px, 0) scale(${scale}) rotate(${rotate}deg)`;
             }
 
             if (tertiaryRef.current) {
-                const x = (Math.sin(time * 0.4) * 60 + Math.cos(time * 0.6) * 20) * amp;
-                const y = (Math.cos(time * 0.3) * 60 + Math.sin(time * 0.5) * 50) * amp;
+                const x = (Math.sin(time * 0.4) * 70 + Math.cos(time * 0.6) * 30) * amp;
+                const y = (Math.cos(time * 0.3) * 70 + Math.sin(time * 0.5) * 60) * amp;
 
-                const scale = 1 + (currentScaleBoost * 1.1); // More reactive
-                const rotate = Math.cos(time * 0.1) * 40 + time * 15;
+                const scale = 1 + (currentScaleBoost * 1.1);
+                const rotate = Math.cos(time * 0.1) * 50 + time * 20;
                 tertiaryRef.current.style.transform = `translate3d(${x}px, ${y}px, 0) scale(${scale}) rotate(${rotate}deg)`;
             }
 
             // Bottom left orb
             if (bottomLeftRef.current) {
-                const x = (Math.sin(time * 0.35) * 50 + Math.cos(time * 0.25) * 30) * amp;
-                const y = (Math.cos(time * 0.45) * 40 + Math.sin(time * 0.35) * 20) * amp;
+                const x = (Math.sin(time * 0.35) * 60 + Math.cos(time * 0.25) * 40) * amp;
+                const y = (Math.cos(time * 0.45) * 50 + Math.sin(time * 0.35) * 30) * amp;
 
                 const scale = 1 + (currentScaleBoost * 0.9);
-                const rotate = -time * 8;
+                const rotate = -time * 12;
                 bottomLeftRef.current.style.transform = `translate3d(${x}px, ${y}px, 0) scale(${scale}) rotate(${rotate}deg)`;
             }
 
             // Bottom right orb
             if (bottomRightRef.current) {
-                const x = (Math.cos(time * 0.4) * 45 + Math.sin(time * 0.55) * 25) * amp;
-                const y = (Math.sin(time * 0.35) * 35 + Math.cos(time * 0.45) * 25) * amp;
+                const x = (Math.cos(time * 0.4) * 55 + Math.sin(time * 0.55) * 35) * amp;
+                const y = (Math.sin(time * 0.35) * 45 + Math.cos(time * 0.45) * 35) * amp;
 
                 const scale = 1 + currentScaleBoost;
-                const rotate = time * 12;
+                const rotate = time * 18;
                 bottomRightRef.current.style.transform = `translate3d(${x}px, ${y}px, 0) scale(${scale}) rotate(${rotate}deg)`;
             }
 
