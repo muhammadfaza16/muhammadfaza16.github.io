@@ -1,13 +1,13 @@
 "use client";
 
 import React, { createContext, useContext, useState, useEffect } from "react";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useAudio } from "./AudioContext";
 
 interface ZenContextType {
     isZen: boolean;
     toggleZen: () => void;
-    setZen: (value: boolean) => void;
+    setZen: (value: boolean, returnTo?: string) => void;
 }
 
 const ZenContext = createContext<ZenContextType | undefined>(undefined);
@@ -23,20 +23,39 @@ export function useZen() {
 export function ZenProvider({ children }: { children: React.ReactNode }) {
     const [isZen, setIsZen] = useState(false);
     const pathname = usePathname();
+    const router = useRouter();
     const { isPlaying } = useAudio();
     const hasManuallyExited = React.useRef(false); // Track manual exit
+    const returnToPath = React.useRef<string | null>(null); // Track where to return after Zen exit
 
     const isBlogArticle = pathname?.startsWith("/blog/") && pathname !== "/blog";
 
-    const handleSetZen = (value: boolean) => {
+    const handleSetZen = (value: boolean, returnTo?: string) => {
+        if (value && returnTo) {
+            returnToPath.current = returnTo; // Store where to return
+        }
         setIsZen(value);
-        if (!value) hasManuallyExited.current = true; // User explicitly exited
+        if (!value) {
+            hasManuallyExited.current = true; // User explicitly exited
+            // Navigate back to origin if set
+            if (returnToPath.current) {
+                router.push(returnToPath.current);
+                returnToPath.current = null; // Clear after use
+            }
+        }
     };
 
     const handleToggleZen = () => {
         setIsZen(prev => {
             const next = !prev;
-            if (!next) hasManuallyExited.current = true; // User explicitly exited
+            if (!next) {
+                hasManuallyExited.current = true; // User explicitly exited
+                // Navigate back to origin if set
+                if (returnToPath.current) {
+                    router.push(returnToPath.current);
+                    returnToPath.current = null; // Clear after use
+                }
+            }
             return next;
         });
     };
@@ -48,10 +67,11 @@ export function ZenProvider({ children }: { children: React.ReactNode }) {
         }
     }, [isPlaying]);
 
-    // Reset Zen mode on route change - except for homepage and blog articles
+    // Reset Zen mode on route change - except for homepage, blog articles, and sanctuary
     useEffect(() => {
         const isHomepage = pathname === "/";
-        const zenAllowedRoutes = isHomepage || isBlogArticle;
+        const isSanctuary = pathname === "/sanctuary";
+        const zenAllowedRoutes = isHomepage || isBlogArticle || isSanctuary;
 
         if (!zenAllowedRoutes && isZen) {
             setIsZen(false);
@@ -69,14 +89,19 @@ export function ZenProvider({ children }: { children: React.ReactNode }) {
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
             if (e.key === "Escape" && isZen) {
-                setIsZen(false);
                 hasManuallyExited.current = true; // User explicitly exited
+                // Navigate back to origin if set
+                if (returnToPath.current) {
+                    router.push(returnToPath.current);
+                    returnToPath.current = null;
+                }
+                setIsZen(false);
             }
         };
 
         window.addEventListener("keydown", handleKeyDown);
         return () => window.removeEventListener("keydown", handleKeyDown);
-    }, [isZen]);
+    }, [isZen, router]);
 
     // Lock body scroll when Zen is active (ONLY if not reading an article)
     useEffect(() => {

@@ -9,6 +9,7 @@ import { SkipBack, SkipForward, Sparkles, X, AlignLeft } from "lucide-react";
 import { getSongMessage } from "../data/songMessages";
 import { LyricsDisplay } from "./LyricsDisplay";
 import { motion, AnimatePresence } from "framer-motion";
+import { LyricsRecorder } from "./LyricsRecorder";
 
 // Helper component for typewriter effect
 // Helper component for typewriter effect (Infinite Loop + Human Touch)
@@ -1157,6 +1158,20 @@ export function CurrentlyStrip() {
     // Lyrics Mode State
     const [showLyrics, setShowLyrics] = useState(false);
 
+    // Recorder Mode State (Hidden)
+    const [showRecorder, setShowRecorder] = useState(false);
+
+    // Keyboard shortcut for Rec Mode
+    useEffect(() => {
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if (e.shiftKey && e.key === "R") {
+                setShowRecorder(prev => !prev);
+            }
+        };
+        window.addEventListener("keydown", handleKeyDown);
+        return () => window.removeEventListener("keydown", handleKeyDown);
+    }, []);
+
     useEffect(() => {
         if (isHydrated) {
             setShowAvatarTooltip(true);
@@ -1180,12 +1195,22 @@ export function CurrentlyStrip() {
     // Or just check the song title.
     const isSpecialLyricSong = ["Alan Walker — Faded"].includes(currentSong.title);
 
-    const manualLyrics = useMemo(() => {
-        if (isSpecialLyricSong) {
-            return getDynamicLyrics(currentSong.title);
-        }
-        return [];
-    }, [currentSong, isSpecialLyricSong]);
+    const [manualLyrics, setManualLyrics] = useState<LyricItem[]>([]);
+
+    // Asynchronously fetch dynamic lyrics
+    useEffect(() => {
+        let isMounted = true;
+        const fetchLyrics = async () => {
+            if (isSpecialLyricSong) {
+                const lyrics = await getDynamicLyrics(currentSong.title);
+                if (isMounted) setManualLyrics(lyrics);
+            } else {
+                if (isMounted) setManualLyrics([]);
+            }
+        };
+        fetchLyrics();
+        return () => { isMounted = false; };
+    }, [currentSong.title, isSpecialLyricSong]);
 
     // narrativeLyricItem removed as it is no longer used.
 
@@ -1419,8 +1444,9 @@ export function CurrentlyStrip() {
                 )}
 
                 {/* Logic: If manual lyrics exist (Faded), use them. Otherwise use Narrative text. */}
+                {/* [OPTIMIZATION] Pause visualizer when Recorder is open to prevent lag/hangs */}
                 <VibingAvatar
-                    isPlaying={isPlaying}
+                    isPlaying={isPlaying && !showRecorder}
                     hour={currentHour}
                     lyrics={manualLyrics}
                     narrativeText={manualLyrics.length > 0 ? undefined : narrative.text}
@@ -1428,6 +1454,12 @@ export function CurrentlyStrip() {
                     pose={narrative.pose}
                 />
             </div>
+            {/* Rec Mode Overlay */}
+            <AnimatePresence>
+                {showRecorder && (
+                    <LyricsRecorder onClose={() => setShowRecorder(false)} />
+                )}
+            </AnimatePresence>
 
             {/* Top: Marquee Pill */}
             <ZenHideable showOnlyInZen>
