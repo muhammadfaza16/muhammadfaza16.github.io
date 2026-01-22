@@ -36,25 +36,30 @@ export default function ChronospherePage() {
                         <div className="w-full h-px bg-gradient-to-r from-transparent via-foreground to-transparent opacity-[0.06] mb-20" />
 
                         {/* HERO HEADER */}
-                        <header className="mb-28 mt-36 relative text-left">
-                            {/* Zone Badge */}
-                            <div className="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full bg-rose-500/8 text-rose-400/90 mb-10 border border-rose-500/15 animate-fade-in">
-                                <Clock size={11} />
-                                <span className="font-mono text-[9px] uppercase tracking-[0.2em] font-medium">
-                                    The Chronosphere
+                        <header className="mb-24 mt-24 relative text-center">
+                            {/* Floating Label */}
+                            <div
+                                className="inline-flex items-center gap-2 px-3 py-1 rounded-full mb-12"
+                                style={{
+                                    backgroundColor: 'rgba(244, 63, 94, 0.05)',
+                                    border: '1px solid rgba(244, 63, 94, 0.1)'
+                                }}
+                            >
+                                <span className="font-mono text-[10px] uppercase tracking-[0.3em] font-medium text-rose-400/90">
+                                    Chronosphere
                                 </span>
                             </div>
 
                             {/* Title */}
-                            <h1 className="font-serif text-[clamp(2.75rem,8vw,5rem)] font-light leading-[1.05] tracking-[-0.02em] mb-10 text-foreground/95 max-w-[18ch]">
-                                Counting down to someone special.
+                            <h1
+                                className="font-serif text-[clamp(2.5rem,6vw,4rem)] font-light leading-tight tracking-tight mb-8 text-foreground/90 mx-auto max-w-[20ch]"
+                            >
+                                Waiting for the <span className="italic text-rose-400/80">moment</span> everything changes.
                             </h1>
 
                             {/* Description */}
-                            <p className="text-[1.1rem] md:text-[1.25rem] leading-[1.7] font-serif text-white/40 italic max-w-xl font-light tracking-wide">
-                                Time moves differently when you're waiting for something beautiful.
-                                This is your compass, your calendar, your gentle reminder that every
-                                day brings you closer.
+                            <p className="text-[1.1rem] leading-relaxed font-serif text-white/40 italic max-w-lg mx-auto font-light tracking-wide">
+                                "Time isn't just passing. It's accumulating towards something beautiful."
                             </p>
                         </header>
 
