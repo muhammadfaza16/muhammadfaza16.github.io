@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
 import { Sparkles } from "lucide-react";
 import { useSanctuary } from "@/components/sanctuary/SanctuaryContext";
+import { GlassCard } from "@/components/sanctuary/ui/GlassCard";
 
 const TRUTHS = [
     "Kamu itu 'stardust'. Terbuat dari material yang sama kayak bintang-bintang. Kuat udah ada di DNA semestamu.",
@@ -20,31 +20,8 @@ export function MirrorOfTruth() {
     const canRevealNew = lastTruthRevealDate !== today;
 
     return (
-        <div style={{
-            position: "relative",
-            // @ts-ignore
-            "--widget-accent": "#0ea5e9" // Cyan
-        } as React.CSSProperties}>
-            <div style={{
-                borderRadius: "1.5rem",
-                background: "var(--card-bg)",
-                border: "1px solid var(--border)",
-                padding: "clamp(1.5rem, 4vw, 2rem)",
-                position: "relative",
-                overflow: "hidden",
-                boxShadow: "0 20px 40px -20px rgba(0,0,0,0.1)",
-                transition: "all 0.5s ease"
-            }}>
-                {/* Bloom Effect */}
-                <div style={{
-                    position: "absolute",
-                    inset: "0",
-                    background: `radial-gradient(circle at center, var(--widget-accent), transparent 70%)`,
-                    opacity: 0.08,
-                    zIndex: 0,
-                    transition: "background 0.5s ease"
-                }} />
-
+        <div style={{ position: "relative" }}>
+            <GlassCard accentColor="#0ea5e9">
                 {/* Header */}
                 <div style={{
                     display: "flex",
@@ -152,7 +129,7 @@ export function MirrorOfTruth() {
                         })}
                     </div>
                 </div>
-            </div>
+            </GlassCard>
         </div>
     );
 }

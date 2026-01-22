@@ -1,8 +1,9 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Wind, Moon, Heart, X, Play, Pause, Sparkles } from "lucide-react";
+import { Wind, Moon, Heart, X, Play, Pause } from "lucide-react";
 import { useSanctuary } from "@/components/sanctuary/SanctuaryContext";
+import { GlassCard } from "@/components/sanctuary/ui/GlassCard";
 
 type Mode = "anxious" | "lonely" | "sleepless" | null;
 
@@ -32,9 +33,6 @@ export function ComfortStationV2() {
     const [mode, setMode] = useState<Mode>(null);
     const [isPlaying, setIsPlaying] = useState(false);
 
-    // Audio refs (Future implementation)
-    // const audioRef = useRef<HTMLAudioElement | null>(null);
-
     const handleSetMode = (m: Mode) => {
         setMode(m);
         setMood(m);
@@ -45,61 +43,57 @@ export function ComfortStationV2() {
     const ActiveIcon = activeContent?.icon || Wind;
     const accentColor = activeContent?.color || "var(--accent)";
 
-    // Breathing Animation Variants
-    const breatheVariants = {
-        inhale: { scale: 1.5, opacity: 1, transition: { duration: 4, ease: "easeInOut" } },
-        hold: { scale: 1.5, opacity: 1, transition: { duration: 4 } },
-        exhale: { scale: 1.0, opacity: 0.8, transition: { duration: 4, ease: "easeInOut" } }
-    };
-
-    const [breathState, setBreathState] = useState("inhale");
-
+    // Audio Logic
     useEffect(() => {
-        if (mode === "anxious") {
-            const sequence = async () => {
-                while (true) { // Infinite loop for breathing
-                    setBreathState("inhale");
-                    await new Promise(r => setTimeout(r, 4000));
-                    setBreathState("hold");
-                    await new Promise(r => setTimeout(r, 4000));
-                    setBreathState("exhale");
-                    await new Promise(r => setTimeout(r, 4000));
-                }
-            };
-            // Simplification: CSS/Framer is better than this potential memory leak loop if not handled carefully.
-            // Using direct Framer Motion animate prop with keyframes is safer and cleaner.
+        let audio: HTMLAudioElement | null = null;
+        let fadeId: NodeJS.Timeout;
+
+        if (isPlaying && mode) {
+            // Placeholder URLs for ambience - using standard nature sounds
+            let soundUrl = "";
+            if (mode === "anxious") soundUrl = "https://cdn.pixabay.com/download/audio/2021/09/06/audio_362247d403.mp3?filename=forest-wind-19615.mp3"; // Wind
+            if (mode === "lonely") soundUrl = "https://cdn.pixabay.com/download/audio/2022/07/04/audio_366113e642.mp3?filename=soft-rain-ambient-111163.mp3"; // Rain
+            if (mode === "sleepless") soundUrl = "https://cdn.pixabay.com/download/audio/2022/10/05/audio_651d957545.mp3?filename=night-crickets-117565.mp3"; // Crickets
+
+            audio = new Audio(soundUrl);
+            audio.loop = true;
+            audio.volume = 0; // Fade in start
+            audio.play().catch(e => console.log("Audio play failed (user interaction needed first)", e));
+
+            // Fade in
+            fadeId = setInterval(() => {
+                if (audio && audio.volume < 0.5) audio.volume = Math.min(0.5, audio.volume + 0.05);
+                else clearInterval(fadeId);
+            }, 200);
         }
-    }, [mode]);
+
+        return () => {
+            if (fadeId) clearInterval(fadeId);
+            if (audio) {
+                // Quick Fade out then pause
+                const currentAudio = audio; // Capture current audio for closure
+                const fadeOut = setInterval(() => {
+                    if (currentAudio.volume > 0.05) {
+                        currentAudio.volume -= 0.05;
+                    } else {
+                        currentAudio.pause();
+                        clearInterval(fadeOut);
+                    }
+                }, 100);
+            }
+        };
+    }, [isPlaying, mode]);
 
     return (
-        <div style={{
-            position: "relative",
-            // @ts-ignore
-            "--widget-accent": accentColor
-        } as React.CSSProperties}>
-            <div style={{
-                borderRadius: "1.5rem",
-                background: "var(--card-bg)",
-                border: "1px solid var(--border)",
-                padding: "clamp(1.5rem, 4vw, 2rem)",
-                position: "relative",
-                overflow: "hidden",
-                minHeight: mode ? "480px" : "400px",
-                display: "flex",
-                flexDirection: "column",
-                boxShadow: "0 20px 40px -20px rgba(0,0,0,0.1)",
-                transition: "all 0.5s ease"
-            }}>
-                {/* Bloom Effect */}
-                <div style={{
-                    position: "absolute",
-                    inset: "0",
-                    background: `radial-gradient(circle at 50% 0%, var(--widget-accent), transparent 70%)`,
-                    opacity: 0.08,
-                    zIndex: 0,
-                    transition: "background 0.5s ease"
-                }} />
-
+        <div style={{ position: "relative" }}>
+            <GlassCard
+                accentColor={accentColor}
+                style={{
+                    minHeight: mode ? "480px" : "400px",
+                    display: "flex",
+                    flexDirection: "column"
+                }}
+            >
                 {/* Header */}
                 <div style={{
                     display: "flex",
@@ -230,7 +224,6 @@ export function ComfortStationV2() {
                             position: "relative"
                         }} className={mode === "anxious" ? "animate-breathe-custom" : "animate-pulse"}>
                             {/* CSS for custom breathe will be added globally or inline style simulation */}
-                            {/* Using a simple CSS approach for now to stay lightweight without framer refactor heavyweight */}
                             <style jsx>{`
                                 @keyframes breathe {
                                     0%, 100% { transform: scale(1); opacity: 0.8; }
@@ -302,7 +295,7 @@ export function ComfortStationV2() {
                         </button>
                     </div>
                 )}
-            </div>
+            </GlassCard>
         </div>
     );
 }

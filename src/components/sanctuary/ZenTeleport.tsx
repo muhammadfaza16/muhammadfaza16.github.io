@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { Headphones, Sparkles } from "lucide-react";
 import { useZen } from "@/components/ZenContext";
 import { useAudio } from "@/components/AudioContext";
+import { GlassCard } from "@/components/sanctuary/ui/GlassCard";
 
 export function ZenTeleport() {
     const router = useRouter();
@@ -20,32 +21,11 @@ export function ZenTeleport() {
     };
 
     return (
-        <div style={{
-            position: "relative",
-            // @ts-ignore
-            "--widget-accent": "#8b5cf6" // Violet
-        } as React.CSSProperties}>
-            <div style={{
-                borderRadius: "1.5rem",
-                background: "var(--card-bg)",
-                border: "1px solid var(--border)",
-                padding: "clamp(2rem, 5vw, 3rem)",
-                position: "relative",
-                overflow: "hidden",
-                boxShadow: "0 20px 40px -20px rgba(0,0,0,0.1)",
-                transition: "all 0.5s ease",
-                textAlign: "center"
-            }}>
-                {/* Bloom Effect - More dramatic */}
-                <div style={{
-                    position: "absolute",
-                    inset: "0",
-                    background: `radial-gradient(circle at 50% 50%, var(--widget-accent), transparent 60%)`,
-                    opacity: 0.12,
-                    zIndex: 0,
-                    transition: "background 0.5s ease"
-                }} />
-
+        <div style={{ position: "relative" }}>
+            <GlassCard
+                accentColor="#8b5cf6"
+                style={{ textAlign: "center", padding: "clamp(2rem, 5vw, 3rem)" }}
+            >
                 {/* Floating Stars Decoration */}
                 <div style={{
                     position: "absolute",
@@ -142,7 +122,7 @@ export function ZenTeleport() {
                         Kamu dibawa ke halaman utama, tapi lebih sunyi
                     </p>
                 </div>
-            </div>
+            </GlassCard>
         </div>
     );
 }

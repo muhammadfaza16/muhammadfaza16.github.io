@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import { Sun } from "lucide-react";
 import { useSanctuary } from "@/components/sanctuary/SanctuaryContext";
+import { GlassCard } from "@/components/sanctuary/ui/GlassCard";
 
 const REMINDERS = [
     "Hari ini, cukup jadi dirimu. Itu udah lebih dari cukup.",
@@ -48,31 +49,8 @@ export function DailyReminder() {
     const reminder = REMINDERS[dailyQuoteIndex] || REMINDERS[0];
 
     return (
-        <div style={{
-            position: "relative",
-            // @ts-ignore
-            "--widget-accent": "#10b981" // Emerald
-        } as React.CSSProperties}>
-            <div style={{
-                borderRadius: "1.5rem",
-                background: "var(--card-bg)",
-                border: "1px solid var(--border)",
-                padding: "clamp(1.5rem, 4vw, 2rem)",
-                position: "relative",
-                overflow: "hidden",
-                boxShadow: "0 20px 40px -20px rgba(0,0,0,0.1)",
-                transition: "all 0.5s ease"
-            }}>
-                {/* Bloom Effect */}
-                <div style={{
-                    position: "absolute",
-                    inset: "0",
-                    background: `radial-gradient(circle at 50% 50%, var(--widget-accent), transparent 70%)`,
-                    opacity: 0.08,
-                    zIndex: 0,
-                    transition: "background 0.5s ease"
-                }} />
-
+        <div style={{ position: "relative" }}>
+            <GlassCard accentColor="#10b981">
                 {/* Header */}
                 <div style={{
                     display: "flex",
@@ -122,7 +100,7 @@ export function DailyReminder() {
                         "{reminder}"
                     </p>
                 </div>
-            </div>
+            </GlassCard>
         </div>
     );
 }

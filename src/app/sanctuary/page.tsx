@@ -9,6 +9,7 @@ import { CosmicStars } from "@/components/CosmicStars";
 import { ZenTeleport } from "@/components/sanctuary/ZenTeleport";
 import { DeskLamp } from "@/components/sanctuary/DeskLamp";
 import { GardenChime } from "@/components/sanctuary/GardenChime";
+import { SanctuaryHero } from "@/components/sanctuary/SanctuaryHero";
 import { SanctuaryProvider } from "@/components/sanctuary/SanctuaryContext";
 import { ScrollReveal } from "@/components/ui/ScrollReveal";
 
@@ -38,87 +39,8 @@ export default function SanctuaryPage() {
 
                 <Container>
 
-                    {/* 1. HERO SECTION */}
-                    <header style={{
-                        marginBottom: "4rem",
-                        marginTop: "10rem",
-                        position: "relative",
-                        textAlign: "left"
-                    }}>
-                        {/* Dedication Badge */}
-                        {/* Dedication Badge */}
-                        <div style={{
-                            display: 'inline-flex',
-                            alignItems: 'center',
-                            gap: '0.5rem',
-                            padding: '0.25rem 0.75rem',
-                            borderRadius: '100px',
-                            backgroundColor: 'rgba(37, 99, 235, 0.05)',
-                            border: '1px solid rgba(37, 99, 235, 0.2)',
-                            marginBottom: '1.5rem',
-                            color: 'var(--accent)'
-                        }} className="animate-fade-in">
-                            <Sparkles size={12} />
-                            <span style={{
-                                fontFamily: 'var(--font-mono)',
-                                fontSize: '0.625rem',
-                                textTransform: 'uppercase',
-                                letterSpacing: '0.15em',
-                                fontWeight: 600,
-                                opacity: 0.8
-                            }}>
-                                Ruang Untukmu
-                            </span>
-                        </div>
-
-                        {/* Title */}
-                        <h1 style={{
-                            fontFamily: "'Playfair Display', serif",
-                            fontSize: "clamp(3.5rem, 9vw, 6rem)",
-                            fontWeight: 400,
-                            lineHeight: 0.95,
-                            letterSpacing: "-0.04em",
-                            marginBottom: "2.5rem",
-                            color: "var(--foreground)",
-                            maxWidth: "18ch",
-                            position: "relative"
-                        }}>
-                            Sini, pulang sebentar.
-                        </h1>
-
-                        {/* Description */}
-                        <p style={{
-                            fontSize: "1.35rem",
-                            lineHeight: 1.6,
-                            fontFamily: "'Source Serif 4', serif",
-                            maxWidth: "38rem",
-                            color: "var(--text-secondary)",
-                            fontWeight: 300,
-                            marginBottom: "4rem"
-                        }}>
-                            Dunia di luar lagi berisik banget, ya? Gapapa.
-                            Taruh dulu berat di pundakmu di depan pintu.
-                            Di sini, kamu nggak perlu jadi kuat. Cukup jadi kamu.
-                        </p>
-
-                        {/* Separator */}
-                        <div style={{
-                            width: "100%",
-                            height: "1px",
-                            background: "linear-gradient(to right, transparent, var(--foreground), transparent)",
-                            opacity: 0.08,
-                            marginBottom: "4rem"
-                        }} />
-
-                        {/* 2. ZEN TELEPORT */}
-                        <div style={{
-                            marginBottom: "4rem",
-                            display: "flex",
-                            justifyContent: "center"
-                        }}>
-                            <ZenTeleport />
-                        </div>
-                    </header>
+                    {/* 1. HERO SECTION (Dynamic) */}
+                    <SanctuaryHero />
 
 
                     {/* 3. MOBILE-FIRST ACTION STACK */}

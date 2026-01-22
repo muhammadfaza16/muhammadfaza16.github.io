@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { Sparkles, Send } from "lucide-react";
 
+import { GlassCard } from "@/components/sanctuary/ui/GlassCard";
+
 export function StarGlass() {
     const [text, setText] = useState("");
     const [isReleasing, setIsReleasing] = useState(false);
@@ -11,40 +13,18 @@ export function StarGlass() {
     const handleRelease = () => {
         if (!text.trim()) return;
         setIsReleasing(true);
+        // Duration matches the cosmic animation
         setTimeout(() => {
             setText("");
             setIsReleasing(false);
             setShowSuccess(true);
             setTimeout(() => setShowSuccess(false), 3000);
-        }, 1500);
+        }, 2000);
     };
 
     return (
-        <div style={{
-            position: "relative",
-            // @ts-ignore
-            "--widget-accent": "#f59e0b" // Amber
-        } as React.CSSProperties}>
-            <div style={{
-                borderRadius: "1.5rem",
-                background: "var(--card-bg)",
-                border: "1px solid var(--border)",
-                padding: "clamp(1.5rem, 4vw, 2rem)",
-                position: "relative",
-                overflow: "hidden",
-                boxShadow: "0 20px 40px -20px rgba(0,0,0,0.1)",
-                transition: "all 0.5s ease"
-            }}>
-                {/* Bloom Effect */}
-                <div style={{
-                    position: "absolute",
-                    inset: "0",
-                    background: `radial-gradient(circle at 50% 100%, var(--widget-accent), transparent 70%)`,
-                    opacity: 0.08,
-                    zIndex: 0,
-                    transition: "background 0.5s ease"
-                }} />
-
+        <div style={{ position: "relative" }}>
+            <GlassCard accentColor="#f59e0b">
                 {/* Header */}
                 <div style={{
                     display: "flex",
@@ -148,39 +128,41 @@ export function StarGlass() {
                                         color: "var(--foreground)",
                                         resize: "none",
                                         outline: "none",
-                                        transition: "all 1.5s cubic-bezier(0.4, 0, 0.2, 1)", // Cosmic slow transition
+                                        transition: "all 2s cubic-bezier(0.4, 0, 0.2, 1)",
                                         opacity: isReleasing ? 0 : 1,
-                                        transform: isReleasing ? "translateY(-50px) scale(0.9) rotate(1deg)" : "translateY(0) scale(1) rotate(0deg)",
-                                        filter: isReleasing ? "blur(12px) brightness(1.5)" : "blur(0px) brightness(1)",
-                                        letterSpacing: isReleasing ? "0.5em" : "normal" // Text expanding into stars
+                                        transform: isReleasing ? "scale(1.1) translateY(-20px)" : "scale(1) translateY(0)",
+                                        filter: isReleasing ? "blur(20px) brightness(2) contrast(1.5)" : "blur(0px) brightness(1) contrast(1)",
+                                        letterSpacing: isReleasing ? "1em" : "normal",
+                                        clipPath: isReleasing ? "inset(0 0 100% 0)" : "inset(0 0 0 0)" // Wipe effect
                                     }}
                                 />
 
-                                {/* Cosmic Particles - Only visible during release */}
+                                {/* Cosmic Particles - Shatter Effect */}
                                 {isReleasing && (
                                     <div style={{ position: "absolute", inset: 0, pointerEvents: "none", overflow: "hidden" }}>
-                                        {[...Array(12)].map((_, i) => (
+                                        {[...Array(20)].map((_, i) => (
                                             <div
                                                 key={i}
-                                                className="animate-float" // Assuming global animate-float exists, or I'll add inline style animation
                                                 style={{
                                                     position: "absolute",
                                                     left: `${Math.random() * 100}%`,
                                                     top: `${Math.random() * 100}%`,
-                                                    width: `${Math.random() * 4 + 2}px`,
-                                                    height: `${Math.random() * 4 + 2}px`,
-                                                    borderRadius: "50%",
+                                                    width: `${Math.random() * 6 + 2}px`,
+                                                    height: `${Math.random() * 6 + 2}px`,
+                                                    borderRadius: "2px", // Square particles like glass shards
                                                     background: "var(--widget-accent)",
                                                     opacity: 0,
-                                                    animation: `floatUp ${1 + Math.random()}s ease-out forwards`,
+                                                    boxShadow: "0 0 10px var(--widget-accent)",
+                                                    animation: `shatterUp ${1.5 + Math.random()}s ease-out forwards`,
                                                     animationDelay: `${Math.random() * 0.5}s`
                                                 }}
                                             />
                                         ))}
+                                        {/* Inline Keyframes for Shatter */}
                                         <style jsx>{`
-                                            @keyframes floatUp {
-                                                0% { transform: translateY(0); opacity: 1; }
-                                                100% { transform: translateY(-100px); opacity: 0; }
+                                            @keyframes shatterUp {
+                                                0% { transform: translateY(0) rotate(0deg) scale(1); opacity: 1; }
+                                                100% { transform: translateY(-150px) rotate(${Math.random() * 360}deg) scale(0); opacity: 0; }
                                             }
                                         `}</style>
                                     </div>
@@ -207,7 +189,7 @@ export function StarGlass() {
                         </>
                     )}
                 </div>
-            </div>
+            </GlassCard>
         </div>
     );
 }
