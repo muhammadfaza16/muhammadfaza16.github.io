@@ -35,11 +35,17 @@ const TRUTHS = [
 function StepRadar({ onSelect }: { onSelect: (mood: keyof typeof MOOD_CONTENT) => void }) {
     return (
         <div className="flex flex-col items-center text-center animate-fade-in">
-            <div className="w-16 h-16 rounded-full bg-emerald-500/10 flex items-center justify-center text-emerald-400 mb-6 border border-emerald-500/20">
+            <div style={{
+                width: '4rem', height: '4rem', borderRadius: '50%',
+                background: 'rgba(16, 185, 129, 0.1)',
+                border: '1px solid rgba(16, 185, 129, 0.2)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                color: '#34d399', marginBottom: '2rem'
+            }}>
                 <Wind size={24} />
             </div>
-            <h2 className="font-serif text-2xl mb-2">Cek Radar</h2>
-            <p className="font-serif text-[var(--text-secondary)] mb-8 max-w-xs">
+            <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: '1.5rem', marginBottom: '0.5rem', color: 'var(--foreground)' }}>Cek Radar</h2>
+            <p style={{ fontFamily: "'Source Serif 4', serif", fontSize: '1rem', color: 'var(--text-secondary)', marginBottom: '2rem', maxWidth: '20rem', lineHeight: 1.6 }}>
                 Gimana cuaca di dalem sana hari ini? Ada badai atau cerah?
             </p>
             <div className="grid grid-cols-1 gap-3 w-full max-w-xs">
@@ -48,13 +54,14 @@ function StepRadar({ onSelect }: { onSelect: (mood: keyof typeof MOOD_CONTENT) =
                         key={key}
                         onClick={() => onSelect(key)}
                         className="flex items-center gap-4 p-4 rounded-xl border border-[var(--border)] bg-[var(--card-bg)] hover:border-[var(--accent)] transition-all text-left group"
+                        style={{ padding: '1rem', gap: '1rem' }}
                     >
-                        <div className="w-10 h-10 rounded-full flex items-center justify-center bg-[var(--background)]" style={{ color: data.color }}>
+                        <div style={{ width: '2.5rem', height: '2.5rem', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--background)', color: data.color }}>
                             <data.icon size={18} />
                         </div>
                         <div>
-                            <div className="font-serif text-lg leading-tight group-hover:text-[var(--foreground)]">{data.title}</div>
-                            <div className="text-xs text-[var(--text-secondary)] mt-0.5">{data.desc}</div>
+                            <div style={{ fontFamily: "'Playfair Display', serif", fontSize: '1.125rem', lineHeight: 1.2, color: 'var(--foreground)' }}>{data.title}</div>
+                            <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginTop: '0.25rem' }}>{data.desc}</div>
                         </div>
                     </button>
                 ))}
@@ -182,7 +189,7 @@ function StepLiftoff() {
             <div className="w-24 h-24 rounded-full bg-[var(--accent)]/10 flex items-center justify-center text-[var(--accent)] mb-8 border border-[var(--accent)]/20 animate-pulse">
                 <Plane size={40} className="transform -rotate-45" />
             </div>
-            <h2 className="font-serif text-3xl mb-4">Ready for Takeoff.</h2>
+            <h2 className="font-serif text-3xl mb-4">Siap Lepas Landas.</h2>
             <p className="font-serif text-lg text-[var(--text-secondary)] mb-10 max-w-xs">
                 Sistem dicek. Bahan bakar diisi. Lensa dikalibrasi. Beban dibuang.<br /><br />
                 Selamat terbang hari ini, Kapten.

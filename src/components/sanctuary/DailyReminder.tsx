@@ -109,8 +109,8 @@ export function DailyReminder() {
                 <div style={{
                     position: "relative",
                     zIndex: 1,
-                    textAlign: "center",
-                    padding: "1rem 0"
+                    textAlign: "left",
+                    padding: "0.5rem 0"
                 }}>
                     <p style={{
                         fontFamily: "'Playfair Display', serif",

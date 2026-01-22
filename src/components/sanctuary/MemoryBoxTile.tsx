@@ -63,7 +63,7 @@ export function MemoryBoxTile() {
                                 letterSpacing: "0.1em",
                                 fontWeight: 600
                             }}>
-                                The Chronosphere
+                                Kronosphere
                             </span>
                         </span>
 

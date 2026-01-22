@@ -129,7 +129,7 @@ export function ZenTeleport() {
                         }}
                     >
                         <Headphones style={{ width: "18px", height: "18px" }} />
-                        <span>Masuk Zen Mode</span>
+                        <span>Masuk Mode Zen</span>
                     </button>
 
                     <p style={{
@@ -139,7 +139,7 @@ export function ZenTeleport() {
                         opacity: 0.5,
                         marginTop: "1.5rem"
                     }}>
-                        Kamu akan dibawa ke halaman utama dengan mode immersive
+                        Kamu dibawa ke halaman utama, tapi lebih sunyi
                     </p>
                 </div>
             </div>
