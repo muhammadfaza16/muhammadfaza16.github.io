@@ -107,7 +107,7 @@ export default function InnerOrbitPage() {
                             fontWeight: 300,
                             marginBottom: '2rem'
                         }}>
-                            Dunia tak akan berhenti berputar hanya karena kita lelah, namun di sini, waktu adalah milikmu sepenuhnya. Sebelum gravitasi rutinitas menarikmu kembali, mari pelankan denyut dan kalibrasi pandangan. Isi kembali tangki semangat yang mulai mengering, dan lepaskan beban-beban kecil yang tak seharusnya kamu bawa terbang lebih jauh. Karena setiap perjalanan besar berhak dimulai dengan langkah yang jauh lebih ringan.
+                            Pelankan denyut sebentar. Mari kalibrasi pandangan, isi kembali semangat, dan lepaskan beban yang tak perlu dibawa terbang lebih jauh hari ini.
                         </p>
                     </header>
 
