@@ -343,6 +343,99 @@ export const PLAYLIST = [
     {
         title: "Mike Posner — I Took A Pill In Ibiza",
         audioUrl: "/audio/Mike%20Posner%20-%20I%20Took%20A%20Pill%20In%20Ibiza%20(SeeB%20Remix).mp3"
+    },
+    // Batch 3 Inputs (New Song Folder)
+    {
+        title: "Kodaline — All I Want",
+        audioUrl: "/audio/All%20I%20Want.mp3"
+    },
+    {
+        title: "Cigarettes After Sex — Apocalypse",
+        audioUrl: "/audio/Apocalypse.mp3"
+    },
+    {
+        title: "Armada — Apa Kabar Sayang",
+        audioUrl: "/audio/Armada%20-%20Apa%20Kabar%20Sayang%20(Official%20Music%20Video).mp3"
+    },
+    {
+        title: "Mac DeMarco — Chamber of Reflection",
+        audioUrl: "/audio/Chamber%20Of%20Reflection.mp3"
+    },
+    {
+        title: "Cigarettes After Sex — Cry",
+        audioUrl: "/audio/Cry%20-%20Cigarettes%20After%20Sex.mp3"
+    },
+    {
+        title: "Djo — End of Beginning",
+        audioUrl: "/audio/Djo%20-%20End%20Of%20Beginning%20(Lyrics).mp3"
+    },
+    {
+        title: "Element — Rahasia Hati",
+        audioUrl: "/audio/Element%20-%20Rahasia%20Hati%20%20Lirik%20Lagu.mp3"
+    },
+    {
+        title: "Seventeen — Hal Terindah",
+        audioUrl: "/audio/Hal%20Terindah%20-%20Seventeen%20%20Lirik%20Lagu.mp3"
+    },
+    {
+        title: "Joji — Glimpse of Us",
+        audioUrl: "/audio/Joji%20-%20%20Glimpse%20of%20Us.mp3"
+    },
+    {
+        title: "Kerispatih — Mengenangmu",
+        audioUrl: "/audio/Kerispatih%20-%20Mengenangmu%20%20Lirik%20Lagu.mp3"
+    },
+    {
+        title: "Kerispatih — Tapi Bukan Aku",
+        audioUrl: "/audio/Kerispatih%20-%20Tapi%20Bukan%20Aku%20(Official%20Music%20Video%20NAGASWARA).mp3"
+    },
+    {
+        title: "NaFF — Kau Masih Kekasihku",
+        audioUrl: "/audio/NaFF%20-%20Kau%20Masih%20Kekasihku%20(Lirik%20Video).mp3"
+    },
+    {
+        title: "NaFF — Kenanglah Aku",
+        audioUrl: "/audio/Naff%20-%20Kenanglah%20Aku%20%20Lirik.mp3"
+    },
+    {
+        title: "NaFF — Tak Seindah Cinta Yang Semestinya",
+        audioUrl: "/audio/Naff%20-%20Tak%20seindah%20Cinta%20Yang%20Semestinya%20(Lyrics).mp3"
+    },
+    {
+        title: "NaFF — Terendap Laraku",
+        audioUrl: "/audio/Naff%20-%20Terendap%20Laraku%20(Lyrics).mp3"
+    },
+    {
+        title: "Gigi Perez — Sailor Song",
+        audioUrl: "/audio/Sailor%20Song.mp3"
+    },
+    {
+        title: "Phoebe Bridgers — Scott Street",
+        audioUrl: "/audio/Scott%20Street.mp3"
+    },
+    {
+        title: "Sheila On 7 — Sephia",
+        audioUrl: "/audio/Sephia%20-%20shiela%20on%207%20(%20lyrics%20).mp3"
+    },
+    {
+        title: "Sheila On 7 — Dan...",
+        audioUrl: "/audio/Sheila%20On%207%20%20Dan...%20%20Lirik%20Lagu.mp3"
+    },
+    {
+        title: "Beach House — Space Song",
+        audioUrl: "/audio/Space%20Song%20-%20Beach%20House%20(OFFICIAL%20AUDIO).mp3"
+    },
+    {
+        title: "The 1975 — About You",
+        audioUrl: "/audio/The%201975%20-%20About%20You%20(Official).mp3"
+    },
+    {
+        title: "d4vd — Romantic Homicide",
+        audioUrl: "/audio/d4vd%20-%20Romantic%20Homicide%20(Official%20Audio).mp3"
+    },
+    {
+        title: "sombr — back to friends",
+        audioUrl: "/audio/sombr%20-%20back%20to%20friends%20(official%20audio).mp3"
     }
 ].filter(song => song.title !== "Alan Walker — On My Way"); // Filter out invalid entries if any
 

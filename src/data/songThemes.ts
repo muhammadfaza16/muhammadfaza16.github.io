@@ -407,6 +407,122 @@ export const SONG_THEMES: Record<string, ThemeColors> = {
         secondary: "rgba(79, 70, 229, 0.3)", // Indigo
         tertiary: "rgba(0, 0, 0, 0.2)", // Black
     },
+    // Batch 3 Inputs (New Song Folder)
+    "Kodaline — All I Want": {
+        primary: "rgba(100, 116, 139, 0.4)", // Slate
+        secondary: "rgba(148, 163, 184, 0.3)", // Light Slate
+        tertiary: "rgba(15, 23, 42, 0.2)", // Dark
+    },
+    "Cigarettes After Sex — Apocalypse": {
+        primary: "rgba(24, 24, 27, 0.8)", // Black/Zinc
+        secondary: "rgba(82, 82, 91, 0.4)", // Zinc
+        tertiary: "rgba(255, 255, 255, 0.1)", // White
+    },
+    "Armada — Apa Kabar Sayang": {
+        primary: "rgba(120, 53, 15, 0.4)", // Brown
+        secondary: "rgba(251, 146, 60, 0.3)", // Orange
+        tertiary: "rgba(254, 243, 199, 0.2)", // Cream
+    },
+    "Mac DeMarco — Chamber of Reflection": {
+        primary: "rgba(59, 130, 246, 0.4)", // Blue
+        secondary: "rgba(239, 68, 68, 0.3)", // Red
+        tertiary: "rgba(124, 58, 237, 0.2)", // Violet
+    },
+    "Cigarettes After Sex — Cry": {
+        primary: "rgba(30, 58, 138, 0.4)", // Dark Blue
+        secondary: "rgba(0, 0, 0, 0.3)", // Black
+        tertiary: "rgba(100, 116, 139, 0.2)", // Slate
+    },
+    "Djo — End of Beginning": {
+        primary: "rgba(71, 85, 105, 0.4)", // Slate
+        secondary: "rgba(56, 189, 248, 0.3)", // Sky
+        tertiary: "rgba(14, 165, 233, 0.2)", // Light Blue
+    },
+    "Element — Rahasia Hati": {
+        primary: "rgba(153, 27, 27, 0.4)", // Dark Red
+        secondary: "rgba(127, 29, 29, 0.3)", // Maroon
+        tertiary: "rgba(0, 0, 0, 0.2)", // Black
+    },
+    "Seventeen — Hal Terindah": {
+        primary: "rgba(244, 114, 182, 0.4)", // Pink
+        secondary: "rgba(253, 186, 116, 0.3)", // Peach
+        tertiary: "rgba(255, 255, 255, 0.2)", // White
+    },
+    "Joji — Glimpse of Us": {
+        primary: "rgba(0, 0, 0, 0.6)", // Black
+        secondary: "rgba(255, 255, 255, 0.2)", // White
+        tertiary: "rgba(113, 113, 122, 0.2)", // Zinc
+    },
+    "Kerispatih — Mengenangmu": {
+        primary: "rgba(30, 41, 59, 0.4)", // Dark Slate
+        secondary: "rgba(51, 65, 85, 0.3)", // Slate
+        tertiary: "rgba(148, 163, 184, 0.2)", // Light Slate
+    },
+    "Kerispatih — Tapi Bukan Aku": {
+        primary: "rgba(127, 29, 29, 0.4)", // Dark Red
+        secondary: "rgba(82, 82, 91, 0.3)", // Zinc
+        tertiary: "rgba(0, 0, 0, 0.2)", // Black
+    },
+    "NaFF — Kau Masih Kekasihku": {
+        primary: "rgba(59, 130, 246, 0.4)", // Blue
+        secondary: "rgba(148, 163, 184, 0.3)", // Silver
+        tertiary: "rgba(255, 255, 255, 0.2)", // White
+    },
+    "NaFF — Kenanglah Aku": {
+        primary: "rgba(249, 115, 22, 0.4)", // Orange
+        secondary: "rgba(107, 114, 128, 0.3)", // Grey
+        tertiary: "rgba(254, 215, 170, 0.2)", // Light Orange
+    },
+    "NaFF — Tak Seindah Cinta Yang Semestinya": {
+        primary: "rgba(107, 33, 168, 0.4)", // Purple
+        secondary: "rgba(88, 28, 135, 0.3)", // Dark Purple
+        tertiary: "rgba(147, 51, 234, 0.2)", // Light Purple
+    },
+    "NaFF — Terendap Laraku": {
+        primary: "rgba(15, 23, 42, 0.5)", // Darkest Slate
+        secondary: "rgba(30, 58, 138, 0.3)", // Dark Blue
+        tertiary: "rgba(71, 85, 105, 0.2)", // Slate
+    },
+    "Gigi Perez — Sailor Song": {
+        primary: "rgba(13, 148, 136, 0.4)", // Teal
+        secondary: "rgba(20, 184, 166, 0.3)", // Light Teal
+        tertiary: "rgba(255, 255, 255, 0.2)", // White
+    },
+    "Phoebe Bridgers — Scott Street": {
+        primary: "rgba(87, 83, 78, 0.4)", // Stone
+        secondary: "rgba(120, 113, 108, 0.3)", // Warm Grey
+        tertiary: "rgba(168, 162, 158, 0.2)", // Light Stone
+    },
+    "Sheila On 7 — Sephia": {
+        primary: "rgba(88, 28, 135, 0.4)", // Deep Purple
+        secondary: "rgba(0, 0, 0, 0.3)", // Black
+        tertiary: "rgba(192, 38, 211, 0.2)", // Fuchsia
+    },
+    "Sheila On 7 — Dan...": {
+        primary: "rgba(21, 128, 61, 0.4)", // Green
+        secondary: "rgba(120, 53, 15, 0.3)", // Brown
+        tertiary: "rgba(253, 224, 71, 0.2)", // Yellow
+    },
+    "Beach House — Space Song": {
+        primary: "rgba(244, 114, 182, 0.4)", // Pink
+        secondary: "rgba(168, 85, 247, 0.3)", // Purple
+        tertiary: "rgba(255, 255, 255, 0.2)", // Stars
+    },
+    "The 1975 — About You": {
+        primary: "rgba(244, 244, 245, 0.4)", // Zinc/White
+        secondary: "rgba(249, 168, 212, 0.3)", // Light Pink
+        tertiary: "rgba(0, 0, 0, 0.2)", // Black
+    },
+    "d4vd — Romantic Homicide": {
+        primary: "rgba(69, 10, 10, 0.6)", // Deepest Red
+        secondary: "rgba(0, 0, 0, 0.5)", // Black
+        tertiary: "rgba(153, 27, 27, 0.2)", // Red
+    },
+    "sombr — back to friends": {
+        primary: "rgba(51, 65, 85, 0.4)", // Slate
+        secondary: "rgba(148, 163, 184, 0.3)", // Light Slate
+        tertiary: "rgba(203, 213, 225, 0.2)", // White/Grey
+    },
 };
 
 export const DEFAULT_THEME: ThemeColors = {

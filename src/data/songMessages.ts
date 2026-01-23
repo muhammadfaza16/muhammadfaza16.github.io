@@ -560,6 +560,168 @@ export const SONG_MESSAGES: Record<string, { playing: string[] }> = {
             "I think I'm losing my mind.",
         ],
     },
+    // Batch 3 Inputs (New Song Folder)
+    "Kodaline — All I Want": {
+        playing: [
+            "All I want is nothing more.",
+            "To hear you knocking at my door.",
+            "If you loved me, why'd you leave?",
+        ],
+    },
+    "Cigarettes After Sex — Apocalypse": {
+        playing: [
+            "Got the music in you.",
+            "Sharing all your secrets.",
+            "Leap of faith.",
+        ],
+    },
+    "Armada — Apa Kabar Sayang": {
+        playing: [
+            "How have you been?",
+            "It's been a long time.",
+            "Still missing you.",
+        ],
+    },
+    "Mac DeMarco — Chamber of Reflection": {
+        playing: [
+            "Alone again.",
+            "Understand what this is.",
+            "Spend some time away.",
+        ],
+    },
+    "Cigarettes After Sex — Cry": {
+        playing: [
+            "Don't cry.",
+            "I'll never let you go.",
+            "Falling in love.",
+        ],
+    },
+    "Djo — End of Beginning": {
+        playing: [
+            "And when I'm back in Chicago.",
+            "Face it, you're just a ghost.",
+            "End of beginning.",
+        ],
+    },
+    "Element — Rahasia Hati": {
+        playing: [
+            "Secret of the heart.",
+            "Only you understand.",
+            "Buried deep inside.",
+        ],
+    },
+    "Seventeen — Hal Terindah": {
+        playing: [
+            "The most beautiful thing.",
+            "You are my best.",
+            "Never letting go.",
+        ],
+    },
+    "Joji — Glimpse of Us": {
+        playing: [
+            "A glimpse of us.",
+            "Perfect story.",
+            "Looking for you in her.",
+        ],
+    },
+    "Kerispatih — Mengenangmu": {
+        playing: [
+            "Remembering you.",
+            "In every breath.",
+            "You're still here.",
+        ],
+    },
+    "Kerispatih — Tapi Bukan Aku": {
+        playing: [
+            "It wasn't me.",
+            "You chose him.",
+            "Hurts the most.",
+        ],
+    },
+    "NaFF — Kau Masih Kekasihku": {
+        playing: [
+            "Still my lover.",
+            "Deep in my heart.",
+            "Always yours.",
+        ],
+    },
+    "NaFF — Kenanglah Aku": {
+        playing: [
+            "Remember me.",
+            "When I'm gone.",
+            "Our story lives on.",
+        ],
+    },
+    "NaFF — Tak Seindah Cinta Yang Semestinya": {
+        playing: [
+            "Not as beautiful.",
+            "Reality hits.",
+            "We tried our best.",
+        ],
+    },
+    "NaFF — Terendap Laraku": {
+        playing: [
+            "Buried pain.",
+            "Deep inside.",
+            "Scars remain.",
+        ],
+    },
+    "Gigi Perez — Sailor Song": {
+        playing: [
+            "Oh my love.",
+            "Kiss me on the mouth.",
+            "Like a sailor song.",
+        ],
+    },
+    "Phoebe Bridgers — Scott Street": {
+        playing: [
+            "Walking down Scott Street.",
+            "Do you feel ashamed?",
+            "Stranger now.",
+        ],
+    },
+    "Sheila On 7 — Sephia": {
+        playing: [
+            "Hey, Sephia.",
+            "Release me.",
+            "Dark lover.",
+        ],
+    },
+    "Sheila On 7 — Dan...": {
+        playing: [
+            "And if...",
+            "Forgive me.",
+            "Forget me.",
+        ],
+    },
+    "Beach House — Space Song": {
+        playing: [
+            "Fall back into place.",
+            "Tender mess.",
+            "Space song.",
+        ],
+    },
+    "The 1975 — About You": {
+        playing: [
+            "Do you think I have forgotten?",
+            "About you.",
+            "I'll never let go.",
+        ],
+    },
+    "d4vd — Romantic Homicide": {
+        playing: [
+            "In the back of my mind.",
+            "Killed this love.",
+            "Romantic homicide.",
+        ],
+    },
+    "sombr — back to friends": {
+        playing: [
+            "Back to friends.",
+            "Strangers again.",
+            "Hurt too much.",
+        ],
+    },
 };
 
 // Helper function to get a message for a song by index (for rotation)
