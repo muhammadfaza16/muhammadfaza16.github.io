@@ -15,10 +15,11 @@ import { ScrollReveal } from "@/components/ui/ScrollReveal";
 
 import { MemoryBoxTile } from "@/components/sanctuary/MemoryBoxTile";
 import { DailyReminder } from "@/components/sanctuary/DailyReminder";
+import { ConcertEntryTile } from "@/components/sanctuary/ConcertEntryTile";
 
 export default function SanctuaryPage() {
     return (
-        <SanctuaryProvider>
+        <>
             <div style={{
                 minHeight: "100vh",
                 paddingTop: "6rem",
@@ -167,10 +168,14 @@ export default function SanctuaryPage() {
                             <MemoryBoxTile />
                         </ScrollReveal>
 
+                        {/* 4. EVENT: Concert Entry */}
+                        <ScrollReveal delay={0.4}>
+                            <ConcertEntryTile />
+                        </ScrollReveal>
                     </section>
 
                 </Container>
             </div>
-        </SanctuaryProvider>
+        </>
     );
 }
