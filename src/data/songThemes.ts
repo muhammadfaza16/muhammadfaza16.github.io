@@ -12,7 +12,7 @@ export const SONG_THEMES: Record<string, ThemeColors> = {
         tertiary: "rgba(253, 224, 71, 0.2)", // Yellow
     },
     // 2. Play
-    "Alan Walker, K-391, Tungevaag, Mangoo — Play": {
+    "Alan Walker — Play": {
         primary: "rgba(16, 185, 129, 0.4)", // Green/Play
         secondary: "rgba(6, 182, 212, 0.3)", // Cyan
         tertiary: "rgba(244, 114, 182, 0.2)", // Pink
@@ -55,7 +55,7 @@ export const SONG_THEMES: Record<string, ThemeColors> = {
         secondary: "rgba(59, 130, 246, 0.3)", // Blue
         tertiary: "rgba(244, 63, 94, 0.2)", // Rose (Ava Max)
     },
-    "Edward Maya — Stereo Love": {
+    "Edward Maya, Vika Jigulina — Stereo love": {
         primary: "rgba(236, 72, 153, 0.4)", // Pink
         secondary: "rgba(244, 114, 182, 0.3)", // Light Pink
         tertiary: "rgba(139, 92, 246, 0.2)", // Violet
@@ -80,7 +80,7 @@ export const SONG_THEMES: Record<string, ThemeColors> = {
         secondary: "rgba(165, 180, 252, 0.3)", // Light Indigo
         tertiary: "rgba(30, 58, 138, 0.2)", // Dark Blue
     },
-    "Arash feat. Helena — One Day": {
+    "ARASH feat Helena — ONE DAY": {
         primary: "rgba(234, 179, 8, 0.4)", // Yellow/Gold
         secondary: "rgba(249, 115, 22, 0.3)", // Orange
         tertiary: "rgba(120, 53, 15, 0.2)", // Brown
@@ -162,6 +162,11 @@ export const SONG_THEMES: Record<string, ThemeColors> = {
         secondary: "rgba(71, 85, 105, 0.3)", // Slate
         tertiary: "rgba(148, 163, 184, 0.2)", // Silver
     },
+    "Sheila On 7 — Dan": {
+        primary: "rgba(34, 197, 94, 0.4)", // Green
+        secondary: "rgba(74, 222, 128, 0.3)", // Light Green
+        tertiary: "rgba(253, 224, 71, 0.2)", // Yellow
+    },
     "Peterpan — Ku Katakan Dengan Indah": {
         primary: "rgba(34, 197, 94, 0.4)", // Green
         secondary: "rgba(74, 222, 128, 0.3)", // Light Green
@@ -233,7 +238,7 @@ export const SONG_THEMES: Record<string, ThemeColors> = {
         secondary: "rgba(244, 114, 182, 0.3)", // Pink
         tertiary: "rgba(255, 255, 255, 0.2)", // White
     },
-    "James Arthur — Rewrite The Stars": {
+    "Rewrite The Stars — James Arthur ft. Anne-Marie": {
         primary: "rgba(88, 28, 135, 0.4)", // Deep Purple
         secondary: "rgba(236, 72, 153, 0.3)", // Pink
         tertiary: "rgba(30, 58, 138, 0.2)", // Dark Blue
@@ -274,7 +279,7 @@ export const SONG_THEMES: Record<string, ThemeColors> = {
         tertiary: "rgba(120, 53, 15, 0.2)", // Warm Brown
     },
     // Final Batch Additions
-    "Akon — Right Now (Na Na Na)": {
+    "Akon — Right Now Na Na Na": {
         primary: "rgba(16, 185, 129, 0.4)", // Green
         secondary: "rgba(234, 179, 8, 0.3)", // Gold
         tertiary: "rgba(0, 0, 0, 0.2)", // Black
@@ -284,7 +289,7 @@ export const SONG_THEMES: Record<string, ThemeColors> = {
         secondary: "rgba(255, 255, 255, 0.3)", // White
         tertiary: "rgba(245, 158, 11, 0.2)", // Amber
     },
-    "David Guetta — I'm Good (Blue)": {
+    "David Guetta, Bebe Rexha — I'm good (Blue)": {
         primary: "rgba(59, 130, 246, 0.4)", // Blue
         secondary: "rgba(255, 255, 255, 0.3)", // White
         tertiary: "rgba(6, 182, 212, 0.2)", // Neon Cyan
@@ -294,7 +299,7 @@ export const SONG_THEMES: Record<string, ThemeColors> = {
         secondary: "rgba(156, 163, 175, 0.3)", // Grey
         tertiary: "rgba(107, 114, 128, 0.2)", // Slate
     },
-    "DJ Snake & Justin Bieber — Let Me Love You": {
+    "DJ Snake, Justin Bieber — Let Me Love You": {
         primary: "rgba(20, 184, 166, 0.4)", // Teal
         secondary: "rgba(236, 72, 153, 0.3)", // Pink
         tertiary: "rgba(255, 255, 255, 0.2)", // White
@@ -382,6 +387,22 @@ export const SONG_THEMES: Record<string, ThemeColors> = {
         secondary: "rgba(153, 27, 27, 0.3)", // Dark Red
         tertiary: "rgba(0, 0, 0, 0.2)", // Black
     },
+    // New mappings for @ based filenames
+    "@camilacabello — Never Be the Same": {
+        primary: "rgba(220, 38, 38, 0.4)", // Red
+        secondary: "rgba(153, 27, 27, 0.3)", // Dark Red
+        tertiary: "rgba(0, 0, 0, 0.2)", // Black
+    },
+    "@HenryMoodie — drunk text": {
+        primary: "rgba(107, 114, 128, 0.4)", // Gray
+        secondary: "rgba(251, 146, 60, 0.3)", // Orange
+        tertiary: "rgba(0, 0, 0, 0.2)", // Black
+    },
+    "Alan Walker & Emma Steinbakken — Not You": {
+        primary: "rgba(6, 182, 212, 0.4)", // Cyan
+        secondary: "rgba(255, 255, 255, 0.3)", // White
+        tertiary: "rgba(30, 58, 138, 0.2)", // Dark Blue
+    },
     "Coldplay — Hymn For The Weekend": {
         primary: "rgba(234, 179, 8, 0.4)", // Gold
         secondary: "rgba(6, 182, 212, 0.3)", // Cyan
@@ -407,6 +428,138 @@ export const SONG_THEMES: Record<string, ThemeColors> = {
         secondary: "rgba(79, 70, 229, 0.3)", // Indigo
         tertiary: "rgba(0, 0, 0, 0.2)", // Black
     },
+    // Restored Classics
+    "The 1975 — About You": {
+        primary: "rgba(30, 41, 59, 0.4)", // Dark Slate
+        secondary: "rgba(148, 163, 184, 0.3)", // Cool Grey
+        tertiary: "rgba(255, 255, 255, 0.2)", // White Fog
+    },
+    "Arctic Monkeys — I Wanna Be Yours": {
+        primary: "rgba(15, 23, 42, 0.5)", // Black/Night
+        secondary: "rgba(51, 65, 85, 0.3)", // Slate
+        tertiary: "rgba(255, 255, 255, 0.1)", // Starlight
+    },
+    "Beach House — Space Song": {
+        primary: "rgba(79, 70, 229, 0.4)", // Indigo
+        secondary: "rgba(192, 132, 252, 0.3)", // Lavender
+        tertiary: "rgba(244, 114, 182, 0.2)", // Pink
+    },
+    "Cigarettes After Sex — Apocalypse": {
+        primary: "rgba(24, 24, 27, 0.5)", // Almost Black
+        secondary: "rgba(113, 113, 122, 0.3)", // Zinc
+        tertiary: "rgba(255, 255, 255, 0.1)", // Smoke
+    },
+    "Current Joys — New Flesh": {
+        primary: "rgba(153, 27, 27, 0.4)", // Dark Red
+        secondary: "rgba(30, 41, 59, 0.3)", // Slate
+        tertiary: "rgba(0, 0, 0, 0.2)", // Black
+    },
+    "d4vd — Here With Me": {
+        primary: "rgba(244, 114, 182, 0.4)", // Pink
+        secondary: "rgba(251, 207, 232, 0.3)", // Soft Pink
+        tertiary: "rgba(255, 255, 255, 0.2)", // White
+    },
+    "Eyedress — Jealous": {
+        primary: "rgba(190, 18, 60, 0.4)", // Rose Red
+        secondary: "rgba(88, 28, 135, 0.3)", // Purple
+        tertiary: "rgba(0, 0, 0, 0.2)", // Black
+    },
+    "girl in red — we fell in love in october": {
+        primary: "rgba(180, 83, 9, 0.4)", // Autumn Orange
+        secondary: "rgba(234, 179, 8, 0.3)", // Gold
+        tertiary: "rgba(120, 53, 15, 0.2)", // Brown
+    },
+    "Glass Animals — Heat Waves": {
+        primary: "rgba(249, 115, 22, 0.4)", // Heat Orange
+        secondary: "rgba(59, 130, 246, 0.3)", // Blue Heat
+        tertiary: "rgba(16, 185, 129, 0.2)", // Emerald
+    },
+    "Grouplove — Tongue Tied": {
+        primary: "rgba(14, 165, 233, 0.4)", // Sky Blue
+        secondary: "rgba(236, 72, 153, 0.3)", // Pink
+        tertiary: "rgba(250, 204, 21, 0.2)", // Yellow
+    },
+    "Joji — Glimpse of Us": {
+        primary: "rgba(63, 63, 70, 0.4)", // Zinc
+        secondary: "rgba(161, 161, 170, 0.3)", // Grey
+        tertiary: "rgba(255, 255, 255, 0.1)", // White
+    },
+    "JVKE — golden hour": {
+        primary: "rgba(234, 179, 8, 0.4)", // Gold
+        secondary: "rgba(249, 115, 22, 0.3)", // Orange
+        tertiary: "rgba(255, 255, 255, 0.2)", // Glare
+    },
+    "M83 — Midnight City": {
+        primary: "rgba(88, 28, 135, 0.4)", // Deep Purple
+        secondary: "rgba(217, 70, 239, 0.3)", // Fuchsia
+        tertiary: "rgba(6, 182, 212, 0.2)", // Neon Cyan
+    },
+    "MGMT — Little Dark Age": {
+        primary: "rgba(17, 24, 39, 0.5)", // Dark
+        secondary: "rgba(109, 40, 217, 0.3)", // Purple
+        tertiary: "rgba(75, 85, 99, 0.2)", // Grey
+    },
+    "Mother Mother — Hayloft": {
+        primary: "rgba(153, 27, 27, 0.4)", // Rustic Red
+        secondary: "rgba(251, 146, 60, 0.3)", // Orange
+        tertiary: "rgba(0, 0, 0, 0.2)", // Black
+    },
+    "Rex Orange County — Best Friend": {
+        primary: "rgba(249, 115, 22, 0.4)", // Orange
+        secondary: "rgba(253, 224, 71, 0.3)", // Yellow
+        tertiary: "rgba(16, 185, 129, 0.2)", // Green
+    },
+    "Roar — I Can't Handle Change": {
+        primary: "rgba(239, 68, 68, 0.4)", // Red
+        secondary: "rgba(0, 0, 0, 0.3)", // Black
+        tertiary: "rgba(255, 255, 255, 0.2)", // White
+    },
+    "Surf Curse — Freaks": {
+        primary: "rgba(185, 28, 28, 0.4)", // Blood Red
+        secondary: "rgba(0, 0, 0, 0.3)", // Black
+        tertiary: "rgba(156, 163, 175, 0.2)", // Grey
+    },
+    "The Neighbourhood — Sweater Weather": {
+        primary: "rgba(100, 116, 139, 0.4)", // Cool Grey
+        secondary: "rgba(15, 23, 42, 0.3)", // Darkness
+        tertiary: "rgba(255, 255, 255, 0.1)", // Cold Air
+    },
+    "Tame Impala — The Less I Know The Better": {
+        primary: "rgba(217, 70, 239, 0.4)", // Trippy Purple
+        secondary: "rgba(236, 72, 153, 0.3)", // Pink
+        tertiary: "rgba(34, 211, 238, 0.2)", // Cyan
+    },
+    "Television — So Far So Good": {
+        primary: "rgba(71, 85, 105, 0.4)", // Slate
+        secondary: "rgba(30, 41, 59, 0.3)", // Dark
+        tertiary: "rgba(148, 163, 184, 0.2)", // Silver
+    },
+    "Vacations — Young": {
+        primary: "rgba(253, 224, 71, 0.4)", // Yellow
+        secondary: "rgba(59, 130, 246, 0.3)", // Sky Blue
+        tertiary: "rgba(255, 255, 255, 0.2)", // White
+    },
+    "Yot Club — YKWIM?": {
+        primary: "rgba(124, 58, 237, 0.4)", // Violet
+        secondary: "rgba(251, 113, 133, 0.3)", // Reddish Pink
+        tertiary: "rgba(30, 58, 138, 0.2)", // Deep Blue
+    },
+    // Missing Surgical One
+    "sombr — back to friends": {
+        primary: "rgba(30, 41, 59, 0.5)", // Dark
+        secondary: "rgba(148, 163, 184, 0.3)", // Grey
+        tertiary: "rgba(255, 255, 255, 0.1)", // White
+    },
+    "NaFF — Terendap Laraku": {
+        primary: "rgba(51, 65, 85, 0.5)", // Dark Slate
+        secondary: "rgba(148, 163, 184, 0.3)", // Silver
+        tertiary: "rgba(255, 255, 255, 0.1)", // White
+    },
+    "Gigi Perez — Sailor Song": {
+        primary: "rgba(15, 23, 42, 0.5)", // Navy Blue
+        secondary: "rgba(217, 70, 239, 0.3)", // Siren Purple
+        tertiary: "rgba(255, 255, 255, 0.2)", // Sea Foam
+    }
 };
 
 export const DEFAULT_THEME: ThemeColors = {

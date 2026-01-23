@@ -11,7 +11,7 @@ export const SONG_MESSAGES: Record<string, { playing: string[] }> = {
         ],
     },
     // 2. Play
-    "Alan Walker, K-391, Tungevaag, Mangoo — Play": {
+    "Alan Walker — Play": {
         playing: [
             "Press play. World off.",
             "Level up.",
@@ -70,7 +70,7 @@ export const SONG_MESSAGES: Record<string, { playing: string[] }> = {
             "Unstoppable duo energy.",
         ],
     },
-    "Edward Maya — Stereo Love": {
+    "Edward Maya, Vika Jigulina — Stereo love": {
         playing: [
             "Timeless beat. Timeless us.",
             "When music hits different.",
@@ -105,7 +105,7 @@ export const SONG_MESSAGES: Record<string, { playing: string[] }> = {
             "Rest easy, I got this.",
         ],
     },
-    "Arash feat. Helena — One Day": {
+    "ARASH feat Helena — ONE DAY": {
         playing: [
             "Just wait. I'm coming.",
             "Distance is just a number.",
@@ -219,6 +219,13 @@ export const SONG_MESSAGES: Record<string, { playing: string[] }> = {
             "Unforgettable night.",
         ],
     },
+    "Sheila On 7 — Dan": {
+        playing: [
+            "Classic mood.",
+            "Nostalgia hits hard.",
+            "Sing along.",
+        ],
+    },
     "Peterpan — Ku Katakan Dengan Indah": {
         playing: [
             "Says it best.",
@@ -318,7 +325,7 @@ export const SONG_MESSAGES: Record<string, { playing: string[] }> = {
             "Selfish, I know.",
         ],
     },
-    "James Arthur — Rewrite The Stars": {
+    "Rewrite The Stars — James Arthur ft. Anne-Marie": {
         playing: [
             "Rewrite the stars.",
             "Say you were made to be mine.",
@@ -375,7 +382,7 @@ export const SONG_MESSAGES: Record<string, { playing: string[] }> = {
         ],
     },
     // Final Batch Additions
-    "Akon — Right Now (Na Na Na)": {
+    "Akon — Right Now Na Na Na": {
         playing: [
             "I can't lie.",
             "I miss you.",
@@ -389,7 +396,7 @@ export const SONG_MESSAGES: Record<string, { playing: string[] }> = {
             "Don't wanna say goodbye.",
         ],
     },
-    "David Guetta — I'm Good (Blue)": {
+    "David Guetta, Bebe Rexha — I'm good (Blue)": {
         playing: [
             "I'm good, yeah.",
             "Best interaction.",
@@ -403,7 +410,7 @@ export const SONG_MESSAGES: Record<string, { playing: string[] }> = {
             "Everything works out.",
         ],
     },
-    "DJ Snake & Justin Bieber — Let Me Love You": {
+    "DJ Snake, Justin Bieber — Let Me Love You": {
         playing: [
             "Let me love you.",
             "Don't you give up.",
@@ -525,6 +532,28 @@ export const SONG_MESSAGES: Record<string, { playing: string[] }> = {
             "Intoxicated by you.",
         ],
     },
+    // New mappings for @ based filenames
+    "@camilacabello — Never Be the Same": {
+        playing: [
+            "Just one hit of you.",
+            "I'll never be the same.",
+            "Intoxicated by you.",
+        ],
+    },
+    "@HenryMoodie — drunk text": {
+        playing: [
+            "Words I shouldn't say.",
+            "Thinking 'bout you.",
+            "Just a drunk text.",
+        ],
+    },
+    "Alan Walker & Emma Steinbakken — Not You": {
+        playing: [
+            "You're not you anymore.",
+            "See the lights fade.",
+            "It's not you.",
+        ],
+    },
     "Coldplay — Hymn For The Weekend": {
         playing: [
             "Life is a drink.",
@@ -560,6 +589,190 @@ export const SONG_MESSAGES: Record<string, { playing: string[] }> = {
             "I think I'm losing my mind.",
         ],
     },
+    // Restored Classics
+    "The 1975 — About You": {
+        playing: [
+            "You stick in my head.",
+            "Timeless vibe.",
+            "Can't forget you.",
+        ],
+    },
+    "Arctic Monkeys — I Wanna Be Yours": {
+        playing: [
+            "Setting the mood.",
+            "All yours.",
+            "Deep cuts only.",
+        ],
+    },
+    "Beach House — Space Song": {
+        playing: [
+            "Floating away.",
+            "Cosmic connection.",
+            "Lost in the stars.",
+        ],
+    },
+    "Cigarettes After Sex — Apocalypse": {
+        playing: [
+            "Slow burn.",
+            "Nothing else matters.",
+            "Just us.",
+        ],
+    },
+    "Current Joys — New Flesh": {
+        playing: [
+            "Raw emotion.",
+            "Feel every beat.",
+            "Real talk.",
+        ],
+    },
+    "d4vd — Here With Me": {
+        playing: [
+            "Right where I belong.",
+            "Don't need anything else.",
+            "Perfect moment.",
+        ],
+    },
+    "Eyedress — Jealous": {
+        playing: [
+            "They wish they were us.",
+            "Unmatched energy.",
+            "Exclusive access.",
+        ],
+    },
+    "girl in red — we fell in love in october": {
+        playing: [
+            "Seasonal classic.",
+            "Memories unlocked.",
+            "Vibes consistent.",
+        ],
+    },
+    "Glass Animals — Heat Waves": {
+        playing: [
+            "Heat rising.",
+            "Can't ignore the signs.",
+            "Late night anthem.",
+        ],
+    },
+    "Grouplove — Tongue Tied": {
+        playing: [
+            "No words needed.",
+            "Just dance.",
+            "Living in the moment.",
+        ],
+    },
+    "Joji — Glimpse of Us": {
+        playing: [
+            "Flashback.",
+            "Hard to forget.",
+            "Lingering thoughts.",
+        ],
+    },
+    "JVKE — golden hour": {
+        playing: [
+            "You shine different.",
+            "Golden energy.",
+            "Capture the light.",
+        ],
+    },
+    "M83 — Midnight City": {
+        playing: [
+            "City lights, late nights.",
+            "We run this town.",
+            "Electric feel.",
+        ],
+    },
+    "MGMT — Little Dark Age": {
+        playing: [
+            "Iconic era.",
+            "Defining the moment.",
+            "Dark yet bright.",
+        ],
+    },
+    "Mother Mother — Hayloft": {
+        playing: [
+            "Chaotic good.",
+            "High energy.",
+            "Wild card.",
+        ],
+    },
+    "Rex Orange County — Best Friend": {
+        playing: [
+            "Day one vibes.",
+            "Loyalty royalty.",
+            "Unbreakable bond.",
+        ],
+    },
+    "Roar — I Can't Handle Change": {
+        playing: [
+            "Growth is messy.",
+            "But we adapt.",
+            "Leveling up.",
+        ],
+    },
+    "Surf Curse — Freaks": {
+        playing: [
+            "Proudly different.",
+            "Stand out.",
+            "Not like the others.",
+        ],
+    },
+    "The Neighbourhood — Sweater Weather": {
+        playing: [
+            "Too cold?",
+            "Get closer.",
+            "Classic moves.",
+        ],
+    },
+    "Tame Impala — The Less I Know The Better": {
+        playing: [
+            "Groove is undeniable.",
+            "Don't overthink it.",
+            "Just feel it.",
+        ],
+    },
+    "Television — So Far So Good": {
+        playing: [
+            "Smooth sailing.",
+            "On the right track.",
+            "Keep it rolling.",
+        ],
+    },
+    "Vacations — Young": {
+        playing: [
+            "Forever young spirit.",
+            "Golden days.",
+            "Making memories.",
+        ],
+    },
+    "Yot Club — YKWIM?": {
+        playing: [
+            "You get it.",
+            "Unspoken understanding.",
+            "Vibe check passed.",
+        ],
+    },
+    // Missing Surgical One
+    "sombr — back to friends": {
+        playing: [
+            "Circle small.",
+            "Vision clear.",
+            "Moving on.",
+        ],
+    },
+    "NaFF — Terendap Laraku": {
+        playing: [
+            "Deep feelings.",
+            "Resurfacing.",
+            "Classic indo vibes.",
+        ],
+    },
+    "Gigi Perez — Sailor Song": {
+        playing: [
+            "Siren call.",
+            "Pulling you in.",
+            "Enchanting.",
+        ],
+    }
 };
 
 // Helper function to get a message for a song by index (for rotation)
