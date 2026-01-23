@@ -198,17 +198,25 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
     const nextSong = useCallback((forcePlay = false) => {
         // OPTIMISTIC: Reset buffering immediately so UI shows title
         setIsBuffering(false);
+        if (forcePlay) {
+            setIsPlaying(true);
+        }
         setCurrentIndex((prev) => (prev + 1) % PLAYLIST.length);
         // Buffering will naturally trigger on source change
     }, []);
 
-    const prevSong = useCallback(() => {
+    const prevSong = useCallback((forcePlay = false) => {
         setIsBuffering(false);
+        if (forcePlay) {
+            setIsPlaying(true);
+        }
         setCurrentIndex((prev) => (prev - 1 + PLAYLIST.length) % PLAYLIST.length);
     }, []);
 
     // Auto-play when index changes if it was already playing or triggered by next
     useEffect(() => {
+        // If we are playing (or forcePlay was set to true which updated isPlaying),
+        // we need to ensure the new track plays.
         if (audioRef.current && isPlaying) {
             // Mobile Auto-Play Fix: Small timeout to ensure DOM is ready and state is clean
             const timer = setTimeout(() => {
@@ -216,6 +224,7 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
                 if (playPromise !== undefined) {
                     playPromise.catch(e => {
                         console.error("Auto-playback failed:", e);
+                        // If it failed because of "user interaction", we might need to revert isPlaying
                     });
                 }
             }, 50); // 50ms ticks allowing browser event loop to catch up
@@ -292,7 +301,7 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
                 ref={audioRef}
                 crossOrigin="anonymous"
                 src={currentSong.audioUrl}
-                preload="none" // DEFAULT: Zero data usage until interaction
+                preload="metadata" // Changed to metadata for mobile background stability
                 onPlay={() => setIsPlaying(true)}
                 onPause={() => setIsPlaying(false)}
                 onWaiting={() => setIsBuffering(true)} // Buffer started

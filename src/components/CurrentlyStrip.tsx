@@ -1107,6 +1107,15 @@ export function CurrentlyStrip() {
     // Debounced Buffering State (to avoid flickering "Buffering..." on fast loads)
     const [showBufferingUI, setShowBufferingUI] = useState(false);
 
+    // Track song changes to temporarily show title
+    const [justChangedSong, setJustChangedSong] = useState(false);
+
+    useEffect(() => {
+        setJustChangedSong(true);
+        const timer = setTimeout(() => setJustChangedSong(false), 5000); // Show title for 5s
+        return () => clearTimeout(timer);
+    }, [currentSong]);
+
     useEffect(() => {
         let timer: NodeJS.Timeout;
         if (isBuffering) {
@@ -1152,16 +1161,20 @@ export function CurrentlyStrip() {
     const [msgOpacity, setMsgOpacity] = useState(1);
 
     // We only change the message when song changes or rotation happens
+    // We only change the message when song changes or rotation happens
     const displaySongMessage = useMemo(() => {
-        // Buffering State (Highest Priority) - Only if DEEP buffering
+        // Buffering State (Highest Priority)
         if (showBufferingUI) return "Buffering...";
+
+        // UX FIX: Show Title immediately after song change (priority over narrative)
+        if (justChangedSong) return currentSong.title;
 
         // Initial onboarding text
         if (!hasInteracted && !isPlaying) {
             return "Pick a song. Let's see where it takes us.";
         }
         return getSongMessage(currentSong.title, isPlaying, songMessageIndex);
-    }, [currentSong, isPlaying, songMessageIndex, hasInteracted, showBufferingUI]);
+    }, [currentSong, isPlaying, songMessageIndex, hasInteracted, showBufferingUI, justChangedSong]);
 
     // Check-in Message (THE NARRATIVE TEXT)
     // We use the text from the narrative engine directly
