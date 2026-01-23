@@ -343,6 +343,19 @@ export const PLAYLIST = [
     {
         title: "Mike Posner — I Took A Pill In Ibiza",
         audioUrl: "/audio/Mike%20Posner%20-%20I%20Took%20A%20Pill%20In%20Ibiza%20(SeeB%20Remix).mp3"
+    },
+    // New Additions (Surgical Recovery)
+    {
+        title: "sombr — back to friends",
+        audioUrl: "/audio/sombr%20-%20back%20to%20friends%20(Lyrics).mp3"
+    },
+    {
+        title: "NaFF — Terendap Laraku",
+        audioUrl: "/audio/NaFF%20-%20Terendap%20Laraku%20(Official%20Music%20Video).mp3"
+    },
+    {
+        title: "Gigi Perez — Sailor Song",
+        audioUrl: "/audio/Gigi%20Perez%20-%20Sailor%20Song%20(Official%20Lyric%20Video).mp3"
     }
 ].filter(song => song.title !== "Alan Walker — On My Way"); // Filter out invalid entries if any
 
