@@ -45,3 +45,7 @@ next-env.d.ts
 src/data/secrets.json
 !src/app/api/posts/route.ts
 !src/app/api/upload/route.ts
+
+# PWA
+public/sw.js
+public/workbox-*.js

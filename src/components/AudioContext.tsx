@@ -12,6 +12,8 @@ interface AudioContextType {
     analyser: AnalyserNode | null;
     audioRef: React.RefObject<HTMLAudioElement | null>;
     hasInteracted: boolean;
+    isBuffering: boolean;
+    warmup: () => void;
 }
 
 const AudioContext = createContext<AudioContextType | undefined>(undefined);
@@ -130,6 +132,7 @@ export const PLAYLIST = [
 
 export function AudioProvider({ children }: { children: React.ReactNode }) {
     const [isPlaying, setIsPlaying] = useState(false);
+    const [isBuffering, setIsBuffering] = useState(false); // NEW: Track buffering state
     const [currentIndex, setCurrentIndex] = useState(0);
     const [analyser, setAnalyser] = useState<AnalyserNode | null>(null);
     const [hasInteracted, setHasInteracted] = useState(false);
@@ -160,42 +163,9 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
     }, [isPlaying, setTheme]);
 
 
-
     const initializeAudio = useCallback(() => {
-        // DISABLED for Mobile Reliability (Background Play)
-        // Connecting MediaElementSource hijacks the audio stream into Web Audio API,
-        // which gets suspended by iOS/Android in background.
-        // We strictly use native <audio> behavior now.
+        // DISABLED for Mobile Reliability (Background Play) aka "The Native Way"
         return;
-
-        /* 
-        if (!audioRef.current || sourceRef.current) return; // Already initialized
-
-        try {
-            const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
-            const ctx = new AudioContextClass();
-            audioContextRef.current = ctx;
-
-            // Keep Alive Logic: Force resume if browser suspends context (critical for background play)
-            ctx.onstatechange = () => {
-                if (ctx.state === 'suspended' && audioRef.current && !audioRef.current.paused) {
-                   ctx.resume();
-                }
-            };
-
-            const analyserNode = ctx.createAnalyser();
-            analyserNode.fftSize = 64; // Low bin count for performance & bass focus
-
-            const source = ctx.createMediaElementSource(audioRef.current);
-            source.connect(analyserNode);
-            analyserNode.connect(ctx.destination);
-
-            sourceRef.current = source;
-            setAnalyser(analyserNode);
-        } catch (error) {
-            console.error("Failed to initialize Web Audio API:", error);
-        }
-        */
     }, []);
 
     const togglePlay = useCallback(() => {
@@ -211,16 +181,23 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
         if (isPlaying) {
             audioRef.current.pause();
         } else {
-            audioRef.current.play().catch(e => console.error("Playback failed:", e));
+            const playPromise = audioRef.current.play();
+            if (playPromise !== undefined) {
+                playPromise
+                    .then(() => {
+                        // Playback started successfully
+                    })
+                    .catch(e => {
+                        console.error("Playback failed:", e);
+                        setIsPlaying(false);
+                    });
+            }
         }
     }, [isPlaying, initializeAudio]);
 
     const nextSong = useCallback((forcePlay = false) => {
         setCurrentIndex((prev) => (prev + 1) % PLAYLIST.length);
-
-        if (forcePlay) {
-            setIsPlaying(true);
-        }
+        // Buffering will naturally trigger on source change
     }, []);
 
     const prevSong = useCallback(() => {
@@ -230,7 +207,10 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
     // Auto-play when index changes if it was already playing or triggered by next
     useEffect(() => {
         if (audioRef.current && isPlaying) {
-            audioRef.current.play().catch(e => console.error("Playback failed:", e));
+            const playPromise = audioRef.current.play();
+            if (playPromise !== undefined) {
+                playPromise.catch(e => console.error("Auto-playback failed:", e));
+            }
         }
     }, [currentIndex, isPlaying]);
 
@@ -249,12 +229,8 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
             ]
         });
 
-        navigator.mediaSession.setActionHandler("play", () => {
-            togglePlay();
-        });
-        navigator.mediaSession.setActionHandler("pause", () => {
-            togglePlay();
-        });
+        navigator.mediaSession.setActionHandler("play", () => togglePlay());
+        navigator.mediaSession.setActionHandler("pause", () => togglePlay());
         navigator.mediaSession.setActionHandler("previoustrack", () => prevSong());
         navigator.mediaSession.setActionHandler("nexttrack", () => nextSong());
 
@@ -268,20 +244,57 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
         };
     }, [currentSong, togglePlay, nextSong, prevSong]);
 
+    // Mobile/Smart Preloading Logic
+    const warmup = useCallback(() => {
+        // Just creating the audio object or setting src warms up the connection
+        if (audioRef.current && audioRef.current.preload === 'none') {
+            audioRef.current.preload = 'metadata'; // Upgrade to metadata on hover/touch
+        }
+    }, []);
+
+    // Smart Strategy: "The Next Song" Prefetcher
+    useEffect(() => {
+        if (!isPlaying || isBuffering) return;
+
+        // Wait for network to be "Idle" (simulated by timeout after stable play)
+        // If playing smoothly for 10 seconds, assume bandwidth is free to fetch next song.
+        const idleFetcher = setTimeout(() => {
+            const nextIndex = (currentIndex + 1) % PLAYLIST.length;
+            const nextUrl = PLAYLIST[nextIndex].audioUrl;
+
+            // Check if already preloaded to avoid duplicates
+            if (!document.querySelector(`link[rel="preload"][href="${nextUrl}"]`)) {
+                // Std DOM way to prefetch audio
+                const link = document.createElement('link');
+                link.rel = 'preload';
+                link.as = 'audio';
+                link.href = nextUrl;
+                document.head.appendChild(link);
+                console.log(`[SmartLoader] Prefetching next song: ${PLAYLIST[nextIndex].title}`);
+            }
+        }, 10000); // 10s delay
+
+        return () => clearTimeout(idleFetcher);
+    }, [currentIndex, isPlaying, isBuffering]);
+
     return (
-        <AudioContext.Provider value={{ isPlaying, togglePlay, nextSong, prevSong, currentSong, analyser, audioRef, hasInteracted }}>
+        <AudioContext.Provider value={{ isPlaying, isBuffering, togglePlay, nextSong, prevSong, currentSong, analyser, audioRef, hasInteracted, warmup }}>
             <audio
                 ref={audioRef}
                 crossOrigin="anonymous"
                 src={currentSong.audioUrl}
-                preload="auto"
+                preload="none" // DEFAULT: Zero data usage until interaction
                 onPlay={() => setIsPlaying(true)}
                 onPause={() => setIsPlaying(false)}
+                onWaiting={() => setIsBuffering(true)} // Buffer started
+                onPlaying={() => setIsBuffering(false)} // Buffer finished, playing
+                onCanPlay={() => setIsBuffering(false)} // Adequate data to start
+                onLoadedData={() => setIsBuffering(false)} // First frame loaded
                 onEnded={() => nextSong(true)}
                 onError={(e) => {
                     console.error("Audio error:", e);
-                    // Try next song on error? Or just stop.
                     setIsPlaying(false);
+                    setIsBuffering(false);
                 }}
             />
             {children}

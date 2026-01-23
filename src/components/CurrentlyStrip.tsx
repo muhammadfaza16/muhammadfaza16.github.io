@@ -1102,7 +1102,7 @@ const WELCOME_MESSAGES = [
 
 export function CurrentlyStrip() {
     // Destructure audio context with audioRef for the engine
-    const { isPlaying, togglePlay, currentSong, nextSong, prevSong, hasInteracted, audioRef } = useAudio();
+    const { isPlaying, isBuffering, togglePlay, currentSong, nextSong, prevSong, hasInteracted, audioRef, warmup } = useAudio();
 
     // Calculate Next Song for Bridging Logic
     const currentIndex = PLAYLIST.findIndex(s => s.title === currentSong.title);
@@ -1136,12 +1136,15 @@ export function CurrentlyStrip() {
 
     // We only change the message when song changes or rotation happens
     const displaySongMessage = useMemo(() => {
+        // Buffering State (Highest Priority)
+        if (isBuffering) return "Buffering...";
+
         // Initial onboarding text
         if (!hasInteracted && !isPlaying) {
             return "Pick a song. Let's see where it takes us.";
         }
         return getSongMessage(currentSong.title, isPlaying, songMessageIndex);
-    }, [currentSong, isPlaying, songMessageIndex, hasInteracted]);
+    }, [currentSong, isPlaying, songMessageIndex, hasInteracted, isBuffering]);
 
     // Check-in Message (THE NARRATIVE TEXT)
     // We use the text from the narrative engine directly
@@ -1220,13 +1223,13 @@ export function CurrentlyStrip() {
 
     // Individually memoize items to prevent unnecessary    // Memoized Items
     const playingItem = useMemo(() => ({
-        icon: "🎵",
-        label: "Playing",
-        text: currentSong.title,
+        icon: isBuffering ? "⏳" : "🎵",
+        label: isBuffering ? "Status" : "Playing",
+        text: isBuffering ? "Buffering..." : currentSong.title,
         width: "200px", // Fixed width for song title
         labelWidth: "60px",
         className: "marquee-song-title"
-    }), [currentSong.title]);
+    }), [currentSong.title, isBuffering]);
 
     const timeItem = useMemo(() => ({
         icon: "◎",
@@ -1420,7 +1423,7 @@ export function CurrentlyStrip() {
 
                 {/* Logic: If manual lyrics exist (Faded), use them. Otherwise use Narrative text. */}
                 <VibingAvatar
-                    isPlaying={isPlaying}
+                    isPlaying={isPlaying && !isBuffering} // NEW condition: Pause avatar if buffering
                     hour={currentHour}
                     lyrics={manualLyrics}
                     narrativeText={manualLyrics.length > 0 ? undefined : narrative.text}
@@ -1521,6 +1524,8 @@ export function CurrentlyStrip() {
 
                     <button
                         onClick={togglePlay}
+                        onMouseEnter={warmup} // SMART LOAD: Desktop Hover
+                        onTouchStart={warmup} // SMART LOAD: Mobile Touch Start (100ms win)
                         style={{
                             all: "unset",
                             fontSize: (!hasInteracted && !isPlaying) ? "1.5rem" : "0.9rem",

@@ -6,7 +6,7 @@ import { useLyrics } from "../hooks/useLyrics";
 import { cn } from "../lib/utils";
 
 export function LyricsDisplay() {
-    const { currentSong, audioRef, isPlaying } = useAudio();
+    const { currentSong, audioRef, isPlaying, isBuffering } = useAudio();
     const { lyrics, loading, error } = useLyrics(currentSong.title);
 
     const [activeIndex, setActiveIndex] = useState<number>(-1);
@@ -40,7 +40,7 @@ export function LyricsDisplay() {
             rafRef.current = requestAnimationFrame(sync);
         };
 
-        if (isPlaying) {
+        if (isPlaying && !isBuffering) {
             rafRef.current = requestAnimationFrame(sync);
         } else {
             if (rafRef.current) cancelAnimationFrame(rafRef.current);
@@ -49,7 +49,7 @@ export function LyricsDisplay() {
         return () => {
             if (rafRef.current) cancelAnimationFrame(rafRef.current);
         };
-    }, [lyrics, isPlaying, audioRef, activeIndex]);
+    }, [lyrics, isPlaying, isBuffering, audioRef, activeIndex]);
 
     // Reset index on song change
     useEffect(() => {
