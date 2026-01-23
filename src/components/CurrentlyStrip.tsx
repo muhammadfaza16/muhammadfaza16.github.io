@@ -1123,7 +1123,7 @@ export function CurrentlyStrip() {
             // This hides short network hiccups or fast song switches
             timer = setTimeout(() => {
                 setShowBufferingUI(true);
-            }, 1000);
+            }, 2500);
         } else {
             setShowBufferingUI(false);
         }
