@@ -196,21 +196,30 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
     }, [isPlaying, initializeAudio]);
 
     const nextSong = useCallback((forcePlay = false) => {
+        // OPTIMISTIC: Reset buffering immediately so UI shows title
+        setIsBuffering(false);
         setCurrentIndex((prev) => (prev + 1) % PLAYLIST.length);
         // Buffering will naturally trigger on source change
     }, []);
 
     const prevSong = useCallback(() => {
+        setIsBuffering(false);
         setCurrentIndex((prev) => (prev - 1 + PLAYLIST.length) % PLAYLIST.length);
     }, []);
 
     // Auto-play when index changes if it was already playing or triggered by next
     useEffect(() => {
         if (audioRef.current && isPlaying) {
-            const playPromise = audioRef.current.play();
-            if (playPromise !== undefined) {
-                playPromise.catch(e => console.error("Auto-playback failed:", e));
-            }
+            // Mobile Auto-Play Fix: Small timeout to ensure DOM is ready and state is clean
+            const timer = setTimeout(() => {
+                const playPromise = audioRef.current?.play();
+                if (playPromise !== undefined) {
+                    playPromise.catch(e => {
+                        console.error("Auto-playback failed:", e);
+                    });
+                }
+            }, 50); // 50ms ticks allowing browser event loop to catch up
+            return () => clearTimeout(timer);
         }
     }, [currentIndex, isPlaying]);
 

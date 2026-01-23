@@ -1104,6 +1104,23 @@ export function CurrentlyStrip() {
     // Destructure audio context with audioRef for the engine
     const { isPlaying, isBuffering, togglePlay, currentSong, nextSong, prevSong, hasInteracted, audioRef, warmup } = useAudio();
 
+    // Debounced Buffering State (to avoid flickering "Buffering..." on fast loads)
+    const [showBufferingUI, setShowBufferingUI] = useState(false);
+
+    useEffect(() => {
+        let timer: NodeJS.Timeout;
+        if (isBuffering) {
+            // Wait 1s before shouting "Buffering..." to the user
+            // This hides short network hiccups or fast song switches
+            timer = setTimeout(() => {
+                setShowBufferingUI(true);
+            }, 1000);
+        } else {
+            setShowBufferingUI(false);
+        }
+        return () => clearTimeout(timer);
+    }, [isBuffering]);
+
     // Calculate Next Song for Bridging Logic
     const currentIndex = PLAYLIST.findIndex(s => s.title === currentSong.title);
     const nextIndex = (currentIndex + 1) % PLAYLIST.length;
@@ -1136,15 +1153,15 @@ export function CurrentlyStrip() {
 
     // We only change the message when song changes or rotation happens
     const displaySongMessage = useMemo(() => {
-        // Buffering State (Highest Priority)
-        if (isBuffering) return "Buffering...";
+        // Buffering State (Highest Priority) - Only if DEEP buffering
+        if (showBufferingUI) return "Buffering...";
 
         // Initial onboarding text
         if (!hasInteracted && !isPlaying) {
             return "Pick a song. Let's see where it takes us.";
         }
         return getSongMessage(currentSong.title, isPlaying, songMessageIndex);
-    }, [currentSong, isPlaying, songMessageIndex, hasInteracted, isBuffering]);
+    }, [currentSong, isPlaying, songMessageIndex, hasInteracted, showBufferingUI]);
 
     // Check-in Message (THE NARRATIVE TEXT)
     // We use the text from the narrative engine directly
@@ -1223,13 +1240,13 @@ export function CurrentlyStrip() {
 
     // Individually memoize items to prevent unnecessary    // Memoized Items
     const playingItem = useMemo(() => ({
-        icon: isBuffering ? "⏳" : "🎵",
-        label: isBuffering ? "Status" : "Playing",
-        text: isBuffering ? "Buffering..." : currentSong.title,
+        icon: showBufferingUI ? "⏳" : "🎵",
+        label: showBufferingUI ? "Status" : "Playing",
+        text: showBufferingUI ? "Buffering..." : currentSong.title,
         width: "200px", // Fixed width for song title
         labelWidth: "60px",
         className: "marquee-song-title"
-    }), [currentSong.title, isBuffering]);
+    }), [currentSong.title, showBufferingUI]);
 
     const timeItem = useMemo(() => ({
         icon: "◎",
@@ -1423,7 +1440,11 @@ export function CurrentlyStrip() {
 
                 {/* Logic: If manual lyrics exist (Faded), use them. Otherwise use Narrative text. */}
                 <VibingAvatar
-                    isPlaying={isPlaying && !isBuffering} // NEW condition: Pause avatar if buffering
+                    // UX FIX: Avatar "Optimistically" floats during buffering.
+                    // Only sit if we are paused / stopped.
+                    // If buffering, we stay "Playing" (Floating) but maybe the internal wiggle pauses?
+                    // actually user prefers it to just "stay floating". keeping isPlaying=true achieves that.
+                    isPlaying={isPlaying}
                     hour={currentHour}
                     lyrics={manualLyrics}
                     narrativeText={manualLyrics.length > 0 ? undefined : narrative.text}
