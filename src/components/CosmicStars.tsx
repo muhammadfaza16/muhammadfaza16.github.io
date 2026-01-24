@@ -158,7 +158,7 @@ export function CosmicStars() {
                 height: "100%",
                 pointerEvents: "none",
                 zIndex: 0, // Behind content, but verify vs GradientOrb
-                mixBlendMode: "screen", // Helps stars blend nicely
+                // mixBlendMode removed for mobile performance (reduces compositor load)
             }}
             aria-hidden="true"
         />
