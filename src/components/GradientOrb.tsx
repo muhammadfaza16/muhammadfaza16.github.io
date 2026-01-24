@@ -34,19 +34,38 @@ export function GradientOrb() {
     useEffect(() => {
         let animationId: number;
         let time = 0;
+        let lastFrameTime = 0;
+        const TARGET_FPS = 30;
+        const FRAME_INTERVAL = 1000 / TARGET_FPS;
 
         // Data buffer for audio analysis
         // We assume fftSize=64 (set in AudioContext), so frequencyBinCount is 32.
         const dataArray = new Uint8Array(32);
         let bassSmoothed = 0; // Smoothed value for scale interpolation
 
-        const animate = () => {
+        const animate = (timestamp: number) => {
+            animationId = requestAnimationFrame(animate);
+
+            // Throttle FPS
+            const elapsed = timestamp - lastFrameTime;
+            if (elapsed < FRAME_INTERVAL) return;
+
+            // Adjust next frame time (clamped to avoid spiral on lag)
+            lastFrameTime = timestamp - (elapsed % FRAME_INTERVAL);
+
+            // Speed Compensation:
+            // Calculate how many 60fps frames passed in this interval to normalize speed.
+            // Standard 60fps frame is ~16.66ms.
+            // If elapsed is 33ms, multiplier is ~2.0.
+            const timeDeltaMultiplier = elapsed / 16.666;
+
             // Dynamic speed control
             const zenActive = isZenRef.current;
             const playing = isPlayingRef.current;
 
-            const speed = zenActive ? 0.03 : (playing ? 0.04 : 0.015);
-            time += speed;
+            // Base speed (tuned for 60fps originally) * Delta Multiplier
+            const baseSpeed = zenActive ? 0.03 : (playing ? 0.04 : 0.015);
+            time += baseSpeed * timeDeltaMultiplier;
 
             // Amplitude multiplier
             const amp = zenActive ? 1.8 : (playing ? 1.4 : 1.0);
@@ -66,7 +85,9 @@ export function GradientOrb() {
                 const targetBoost = (bassEnergy / 255);
 
                 // Smooth interpolation (Attack fast, release slow-ish)
-                bassSmoothed += (targetBoost - bassSmoothed) * 0.2;
+                // Adjustment for lower FPS: Increase lerp factor to maintain responsiveness
+                const lerpFactor = 0.2 * timeDeltaMultiplier; // Compensate for fewer updates
+                bassSmoothed += (targetBoost - bassSmoothed) * Math.min(lerpFactor, 1.0);
 
                 // Max scale impact: +30% size on max bass
                 currentScaleBoost = bassSmoothed * 0.3;
@@ -133,11 +154,9 @@ export function GradientOrb() {
                 const rotate = time * 12;
                 bottomRightRef.current.style.transform = `translate3d(${x}px, ${y}px, 0) scale(${scale}) rotate(${rotate}deg)`;
             }
-
-            animationId = requestAnimationFrame(animate);
         };
 
-        animate();
+        animationId = requestAnimationFrame(animate); 
         return () => cancelAnimationFrame(animationId);
     }, []); // Empty deps because we use refs for latest values
 
