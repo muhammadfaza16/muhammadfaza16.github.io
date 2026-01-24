@@ -1100,7 +1100,7 @@ const WELCOME_MESSAGES = [
 
 export function CurrentlyStrip() {
     // Destructure audio context with audioRef for the engine
-    const { isPlaying, isBuffering, togglePlay, currentSong, nextSong, prevSong, hasInteracted, audioRef, warmup } = useAudio();
+    const { isPlaying, isBuffering, togglePlay, currentSong, nextSong, prevSong, jumpToSong, hasInteracted, audioRef, warmup } = useAudio();
 
     // Debounced Buffering State (to avoid flickering "Buffering..." on fast loads)
     const [showBufferingUI, setShowBufferingUI] = useState(false);
@@ -1111,6 +1111,8 @@ export function CurrentlyStrip() {
     // Expanded Menu State
     const [isSettingsOpen, setIsSettingsOpen] = useState(false);
     const [showMarquee, setShowMarquee] = useState(true);
+    const [showNarrative, setShowNarrative] = useState(true);
+    const [isPlaylistOpen, setIsPlaylistOpen] = useState(false);
 
     useEffect(() => {
         setJustChangedSong(true);
