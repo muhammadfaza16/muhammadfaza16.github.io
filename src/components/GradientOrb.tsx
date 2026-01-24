@@ -34,38 +34,19 @@ export function GradientOrb() {
     useEffect(() => {
         let animationId: number;
         let time = 0;
-        let lastFrameTime = 0;
-        const TARGET_FPS = 30;
-        const FRAME_INTERVAL = 1000 / TARGET_FPS;
 
         // Data buffer for audio analysis
         // We assume fftSize=64 (set in AudioContext), so frequencyBinCount is 32.
         const dataArray = new Uint8Array(32);
         let bassSmoothed = 0; // Smoothed value for scale interpolation
 
-        const animate = (timestamp: number) => {
-            animationId = requestAnimationFrame(animate);
-
-            // Throttle FPS
-            const elapsed = timestamp - lastFrameTime;
-            if (elapsed < FRAME_INTERVAL) return;
-
-            // Adjust next frame time (clamped to avoid spiral on lag)
-            lastFrameTime = timestamp - (elapsed % FRAME_INTERVAL);
-
-            // Speed Compensation:
-            // Calculate how many 60fps frames passed in this interval to normalize speed.
-            // Standard 60fps frame is ~16.66ms.
-            // If elapsed is 33ms, multiplier is ~2.0.
-            const timeDeltaMultiplier = elapsed / 16.666;
-
+        const animate = () => {
             // Dynamic speed control
             const zenActive = isZenRef.current;
             const playing = isPlayingRef.current;
 
-            // Base speed (tuned for 60fps originally) * Delta Multiplier
-            const baseSpeed = zenActive ? 0.03 : (playing ? 0.04 : 0.015);
-            time += baseSpeed * timeDeltaMultiplier;
+            const speed = zenActive ? 0.03 : (playing ? 0.04 : 0.015);
+            time += speed;
 
             // Amplitude multiplier
             const amp = zenActive ? 1.8 : (playing ? 1.4 : 1.0);
@@ -85,9 +66,7 @@ export function GradientOrb() {
                 const targetBoost = (bassEnergy / 255);
 
                 // Smooth interpolation (Attack fast, release slow-ish)
-                // Adjustment for lower FPS: Increase lerp factor to maintain responsiveness
-                const lerpFactor = 0.2 * timeDeltaMultiplier; // Compensate for fewer updates
-                bassSmoothed += (targetBoost - bassSmoothed) * Math.min(lerpFactor, 1.0);
+                bassSmoothed += (targetBoost - bassSmoothed) * 0.2;
 
                 // Max scale impact: +30% size on max bass
                 currentScaleBoost = bassSmoothed * 0.3;
@@ -154,9 +133,11 @@ export function GradientOrb() {
                 const rotate = time * 12;
                 bottomRightRef.current.style.transform = `translate3d(${x}px, ${y}px, 0) scale(${scale}) rotate(${rotate}deg)`;
             }
+
+            animationId = requestAnimationFrame(animate);
         };
 
-        animationId = requestAnimationFrame(animate); 
+        animate();
         return () => cancelAnimationFrame(animationId);
     }, []); // Empty deps because we use refs for latest values
 
@@ -174,7 +155,7 @@ export function GradientOrb() {
                     width: "clamp(300px, 70vw, 600px)",
                     height: "clamp(300px, 70vw, 600px)",
                     background: `radial-gradient(ellipse at 30% 30%, ${theme.primary} 0%, rgba(139,92,246,0.2) 40%, rgba(168,85,247,0.08) 70%, transparent 100%)`, // Mixing dynamic primary with static base for depth
-                    filter: "blur(45px)",
+                    filter: "blur(20px)",
                     opacity: 0.7,
                     animation: "blobMorph 10s ease-in-out infinite",
                     pointerEvents: "none",
@@ -197,7 +178,7 @@ export function GradientOrb() {
                     width: "clamp(200px, 50vw, 400px)",
                     height: "clamp(200px, 50vw, 400px)",
                     background: `radial-gradient(ellipse at 60% 40%, ${theme.secondary} 0%, rgba(251,146,60,0.15) 45%, rgba(234,179,8,0.05) 80%, transparent 100%)`,
-                    filter: "blur(50px)",
+                    filter: "blur(25px)",
                     opacity: 0.65,
                     animation: "blobMorph 14s ease-in-out infinite reverse",
                     pointerEvents: "none",
@@ -220,7 +201,7 @@ export function GradientOrb() {
                     width: "clamp(150px, 35vw, 280px)",
                     height: "clamp(150px, 35vw, 280px)",
                     background: `radial-gradient(ellipse at 50% 50%, ${theme.tertiary} 0%, rgba(56,189,248,0.12) 50%, transparent 100%)`,
-                    filter: "blur(40px)",
+                    filter: "blur(20px)",
                     opacity: 0.6,
                     animation: "blobMorph 18s ease-in-out infinite",
                     pointerEvents: "none",
@@ -242,7 +223,7 @@ export function GradientOrb() {
                     width: "clamp(180px, 40vw, 350px)",
                     height: "clamp(180px, 40vw, 350px)",
                     background: `radial-gradient(ellipse at 40% 60%, ${theme.secondary} 0%, rgba(219,39,119,0.15) 45%, rgba(190,24,93,0.05) 80%, transparent 100%)`,
-                    filter: "blur(45px)",
+                    filter: "blur(20px)",
                     opacity: 0.55,
                     animation: "blobMorph 16s ease-in-out infinite",
                     pointerEvents: "none",
@@ -264,7 +245,7 @@ export function GradientOrb() {
                     width: "clamp(150px, 35vw, 300px)",
                     height: "clamp(150px, 35vw, 300px)",
                     background: `radial-gradient(ellipse at 50% 50%, ${theme.primary} 0%, rgba(16,185,129,0.15) 50%, transparent 100%)`,
-                    filter: "blur(40px)",
+                    filter: "blur(20px)",
                     opacity: 0.5,
                     animation: "blobMorph 20s ease-in-out infinite reverse",
                     pointerEvents: "none",
