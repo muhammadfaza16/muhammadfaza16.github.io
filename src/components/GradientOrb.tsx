@@ -34,6 +34,7 @@ export function GradientOrb() {
     useEffect(() => {
         let animationId: number;
         let time = 0;
+        let frameCount = 0;
 
         // Data buffer for audio analysis
         // We assume fftSize=64 (set in AudioContext), so frequencyBinCount is 32.
@@ -55,8 +56,12 @@ export function GradientOrb() {
             let currentScaleBoost = 0;
 
             if (playing && analyserRef.current) {
-                // Get real-time frequency data
-                analyserRef.current.getByteFrequencyData(dataArray);
+                // PHASE 2 OPTIMIZATION: CPU Saver
+                // Only poll audio data every 4th frame (approx 15fps effective analysis).
+                // Visual smoothing (lerp) below handles inter-frame smoothness.
+                if (frameCount % 4 === 0) {
+                    analyserRef.current.getByteFrequencyData(dataArray);
+                }
 
                 // Bass is usually in the lowest bins. With fftSize=64, bin 0 covers ~0-600Hz.
                 // We'll trust bin 0 for the "Kick/Thump" factor.
@@ -134,6 +139,7 @@ export function GradientOrb() {
                 bottomRightRef.current.style.transform = `translate3d(${x}px, ${y}px, 0) scale(${scale}) rotate(${rotate}deg)`;
             }
 
+            frameCount++;
             animationId = requestAnimationFrame(animate);
         };
 
