@@ -62,42 +62,42 @@ export function PlaylistDrawer({
                 }}
             />
 
-            {/* Bottom Sheet Drawer */}
+            {/* Floating Glass Drawer */}
             <div
                 style={{
                     position: "fixed",
-                    bottom: 0,
-                    left: 0,
-                    right: 0,
-                    height: "55vh", // Reduced height (User feedback: "too close to top")
-                    maxHeight: "85vh",
-                    backgroundColor: "rgba(22, 22, 24, 0.95)",
-                    backdropFilter: "blur(40px) saturate(180%)",
-                    WebkitBackdropFilter: "blur(40px) saturate(180%)",
-                    borderTopLeftRadius: "28px",
-                    borderTopRightRadius: "28px",
-                    borderTop: "1px solid rgba(255,255,255,0.1)",
-                    boxShadow: "0 -20px 60px rgba(0,0,0,0.5)",
-                    transform: isOpen ? "translateY(0)" : "translateY(100%)",
-                    transition: "transform 0.4s cubic-bezier(0.19, 1, 0.22, 1)",
+                    bottom: "16px",
+                    left: "16px",
+                    right: "16px",
+                    height: "60vh",
+                    maxHeight: "60vh",
+                    backgroundColor: "rgba(10, 10, 12, 0.65)", // High transparency
+                    backdropFilter: "blur(60px) saturate(200%)",
+                    WebkitBackdropFilter: "blur(60px) saturate(200%)",
+                    borderRadius: "28px", // Fully rounded
+                    border: "1px solid rgba(255,255,255,0.08)",
+                    boxShadow: "0 20px 60px rgba(0,0,0,0.5)",
+                    transform: isOpen ? "translateY(0) scale(1)" : "translateY(20px) scale(0.95)",
+                    opacity: isOpen ? 1 : 0,
+                    transition: "all 0.4s cubic-bezier(0.19, 1, 0.22, 1)",
                     zIndex: 9999,
                     color: "white",
                     display: "flex",
                     flexDirection: "column",
-                    paddingTop: "0.75rem"
+                    paddingTop: "0.5rem"
                 }}
             >
-                {/* Drag Handle */}
+                {/* Drag Handle / Indicator */}
                 <div
                     onClick={onClose}
                     style={{
-                        width: "36px",
-                        height: "4px",
-                        backgroundColor: "rgba(255,255,255,0.25)",
+                        width: "32px",
+                        height: "3px",
+                        backgroundColor: "rgba(255,255,255,0.15)",
                         borderRadius: "100px",
                         alignSelf: "center",
                         marginTop: "8px",
-                        marginBottom: "4px",
+                        marginBottom: "2px",
                         cursor: "pointer",
                         flexShrink: 0
                     }}
@@ -105,7 +105,7 @@ export function PlaylistDrawer({
 
                 {/* Header */}
                 <div style={{
-                    padding: "1rem 1.5rem 0.75rem 1.5rem",
+                    padding: "0.75rem 1.25rem 0.5rem 1.25rem",
                     display: "flex",
                     justifyContent: "space-between",
                     alignItems: "center",
@@ -113,10 +113,11 @@ export function PlaylistDrawer({
                 }}>
                     <h3 style={{
                         margin: 0,
-                        fontSize: "1.75rem",
+                        fontSize: "1.5rem",
                         fontWeight: 600,
                         fontFamily: "var(--font-serif)",
-                        color: "#fff"
+                        color: "rgba(255,255,255,0.95)",
+                        letterSpacing: "-0.02em"
                     }}>
                         Library
                     </h3>
@@ -124,14 +125,15 @@ export function PlaylistDrawer({
                     <div
                         onClick={onClose}
                         style={{
-                            padding: "8px",
+                            padding: "6px",
                             borderRadius: "50%",
-                            backgroundColor: "rgba(255,255,255,0.1)",
+                            backgroundColor: "rgba(255,255,255,0.08)",
                             cursor: "pointer",
-                            display: "flex"
+                            display: "flex",
+                            transition: "background 0.2s"
                         }}
                     >
-                        <X size={18} color="rgba(255,255,255,0.8)" />
+                        <X size={16} color="rgba(255,255,255,0.7)" />
                     </div>
                 </div>
 
@@ -142,10 +144,10 @@ export function PlaylistDrawer({
                     style={{
                         flex: 1,
                         overflowY: "auto",
-                        padding: "0 1rem 4rem 1rem",
+                        padding: "0 0.5rem 1rem 0.5rem", // Tighter padding
                         display: "flex",
                         flexDirection: "column",
-                        gap: "4px"
+                        gap: "2px" // Minimal gap
                     }}
                 >
                     {PLAYLIST.map((song, index) => {
@@ -159,24 +161,26 @@ export function PlaylistDrawer({
                                 style={{
                                     display: "flex",
                                     alignItems: "center",
-                                    gap: "0.85rem",
-                                    padding: "12px 14px", // Increased touch target
-                                    borderRadius: "14px",
-                                    backgroundColor: isActive ? "rgba(255,255,255,0.12)" : "transparent",
+                                    gap: "0.75rem",
+                                    padding: "8px 10px", // Compact padding
+                                    borderRadius: "12px",
+                                    backgroundColor: isActive ? "rgba(255,255,255,0.1)" : "transparent",
                                     cursor: "pointer",
-                                    transition: "background 0.2s"
+                                    transition: "all 0.2s"
                                 }}
+                                className="group"
                             >
                                 <div style={{
-                                    width: "24px",
+                                    width: "20px",
                                     textAlign: "center",
-                                    fontSize: "0.8rem",
-                                    color: isActive ? "var(--accent)" : "rgba(255,255,255,0.3)",
+                                    fontSize: "0.75rem",
+                                    color: isActive ? "var(--accent)" : "rgba(255,255,255,0.2)",
                                     fontFamily: "var(--font-mono)",
-                                    flexShrink: 0
+                                    flexShrink: 0,
+                                    fontWeight: 500
                                 }}>
                                     {isActive && isPlaying ? (
-                                        <BarChart2 size={14} style={{ animation: "pulse 2s infinite" }} />
+                                        <BarChart2 size={12} style={{ animation: "pulse 2s infinite" }} />
                                     ) : (
                                         String(index + 1).padStart(2, '0')
                                     )}
@@ -184,26 +188,25 @@ export function PlaylistDrawer({
 
                                 <div style={{ flex: 1, minWidth: 0 }}>
                                     <div style={{
-                                        color: isActive ? "#fff" : "rgba(255,255,255,0.9)",
-                                        fontSize: "0.95rem",
+                                        color: isActive ? "#fff" : "rgba(255,255,255,0.8)",
+                                        fontSize: "0.9rem",
                                         fontWeight: isActive ? 600 : 400,
                                         fontFamily: "var(--font-sans)",
-                                        // Allow wrapping (2 lines max)
                                         display: "-webkit-box",
-                                        WebkitLineClamp: 2,
+                                        WebkitLineClamp: 1, // Single line typically cleaner for compact, but 2 if needed
                                         WebkitBoxOrient: "vertical",
                                         overflow: "hidden",
-                                        lineHeight: "1.3"
+                                        letterSpacing: "-0.01em"
                                     }}>
                                         {song.title.split("—")[1]?.trim() || song.title}
                                     </div>
                                     <div style={{
-                                        fontSize: "0.75rem",
-                                        color: "rgba(255,255,255,0.5)",
+                                        fontSize: "0.7rem",
+                                        color: "rgba(255,255,255,0.4)",
                                         whiteSpace: "nowrap",
                                         overflow: "hidden",
                                         textOverflow: "ellipsis",
-                                        marginTop: "2px"
+                                        marginTop: "0px"
                                     }}>
                                         {song.title.split("—")[0]?.trim() || "Unknown Artist"}
                                     </div>
