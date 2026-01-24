@@ -5,15 +5,12 @@ import { useAudio, PLAYLIST } from "./AudioContext";
 import { useNarrativeEngine } from "../hooks/useNarrativeEngine"; // Import Narrative Engine Hook
 import { useZen } from "./ZenContext";
 import { ZenHideable } from "./ZenHideable";
-import { SkipBack, SkipForward, Sparkles, X, AlignLeft } from "lucide-react";
+import { SkipBack, SkipForward, Sparkles, X, AlignLeft, Sliders, Monitor } from "lucide-react";
 import { getSongMessage } from "../data/songMessages";
 import { LyricsDisplay } from "./LyricsDisplay";
 import { motion, AnimatePresence } from "framer-motion";
 
 // Helper component for typewriter effect
-// Helper component for typewriter effect (Infinite Loop + Human Touch)
-// Helper component for typewriter effect (Infinite Loop + Human Touch + Typos)
-// Now supports multiple texts cycling!
 function TypewriterText({
     text,
     texts,
@@ -1110,6 +1107,10 @@ export function CurrentlyStrip() {
     // Track song changes to temporarily show title
     const [justChangedSong, setJustChangedSong] = useState(false);
 
+    // Expanded Menu State
+    const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+    const [showMarquee, setShowMarquee] = useState(true);
+
     useEffect(() => {
         setJustChangedSong(true);
         const timer = setTimeout(() => setJustChangedSong(false), 5000); // Show title for 5s
@@ -1467,31 +1468,33 @@ export function CurrentlyStrip() {
             </div>
 
             {/* Top: Marquee Pill */}
-            <ZenHideable showOnlyInZen>
-                <div
-                    style={{
-                        display: "inline-flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        gap: "0.75rem",
-                        padding: "0.5rem 1.25rem",
-                        borderRadius: "99px",
-                        backgroundColor: "rgba(var(--background-rgb), 0.5)",
-                        backdropFilter: "blur(8px)",
-                        border: "1px solid var(--border)",
-                        boxShadow: "0 2px 10px rgba(0,0,0,0.02)",
-                        fontFamily: "var(--font-mono)",
-                        fontSize: "0.75rem",
-                        color: "var(--text-secondary)",
-                        letterSpacing: "0.02em",
-                        width: "clamp(300px, 90vw, 600px)",
-                        overflow: "hidden"
-                    }}
-                    className="pause-on-hover"
-                >
-                    <ContinuousMarquee items={statusItems} onVisibilityChange={handleVisibilityChange} />
-                </div>
-            </ZenHideable>
+            {showMarquee && (
+                <ZenHideable showOnlyInZen>
+                    <div
+                        style={{
+                            display: "inline-flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            gap: "0.75rem",
+                            padding: "0.5rem 1.25rem",
+                            borderRadius: "99px",
+                            backgroundColor: "rgba(var(--background-rgb), 0.5)",
+                            backdropFilter: "blur(8px)",
+                            border: "1px solid var(--border)",
+                            boxShadow: "0 2px 10px rgba(0,0,0,0.02)",
+                            fontFamily: "var(--font-mono)",
+                            fontSize: "0.75rem",
+                            color: "var(--text-secondary)",
+                            letterSpacing: "0.02em",
+                            width: "clamp(300px, 90vw, 600px)",
+                            overflow: "hidden"
+                        }}
+                        className="pause-on-hover"
+                    >
+                        <ContinuousMarquee items={statusItems} onVisibilityChange={handleVisibilityChange} />
+                    </div>
+                </ZenHideable>
+            )}
 
 
             {/* Bottom: Play Control */}
@@ -1531,127 +1534,174 @@ export function CurrentlyStrip() {
                 </p>
 
                 {/* Player controls row */}
-                <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                    {/* Hide prev/next buttons in initial state */}
-                    {hasInteracted && (
-                        <div
-                            onClick={(e) => {
-                                e.stopPropagation();
-                                prevSong();
-                            }}
+                <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "0.5rem" }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                        {/* Hide prev/next buttons in initial state */}
+                        {hasInteracted && (
+                            <div
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    prevSong();
+                                }}
+                                style={{
+                                    cursor: "pointer",
+                                    fontSize: "0.8rem",
+                                    color: "var(--text-muted)",
+                                    opacity: 0.5,
+                                    display: "flex",
+                                    alignItems: "center",
+                                    transition: "all 0.2s ease",
+                                    padding: "4px"
+                                }}
+                                className="hover:opacity-100"
+                                title="Previous Song"
+                            >
+                                <SkipBack size={14} />
+                            </div>
+                        )}
+
+                        <button
+                            onClick={togglePlay}
+                            onMouseEnter={warmup} // SMART LOAD: Desktop Hover
+                            onTouchStart={warmup} // SMART LOAD: Mobile Touch Start (100ms win)
                             style={{
-                                cursor: "pointer",
-                                fontSize: "0.8rem",
-                                color: "var(--text-muted)",
-                                opacity: 0.5,
+                                all: "unset",
+                                fontSize: (!hasInteracted && !isPlaying) ? "1.5rem" : "0.9rem",
+                                color: "var(--foreground)",
+                                opacity: (!hasInteracted && !isPlaying) ? 0.8 : 0.7,
                                 display: "flex",
                                 alignItems: "center",
-                                transition: "all 0.2s ease",
-                                padding: "4px"
-                            }}
-                            className="hover:opacity-100"
-                            title="Previous Song"
-                        >
-                            <SkipBack size={14} />
-                        </div>
-                    )}
-
-                    <button
-                        onClick={togglePlay}
-                        onMouseEnter={warmup} // SMART LOAD: Desktop Hover
-                        onTouchStart={warmup} // SMART LOAD: Mobile Touch Start (100ms win)
-                        style={{
-                            all: "unset",
-                            fontSize: (!hasInteracted && !isPlaying) ? "1.5rem" : "0.9rem",
-                            color: "var(--foreground)",
-                            opacity: (!hasInteracted && !isPlaying) ? 0.8 : 0.7,
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                            padding: "4px",
-                            background: "transparent",
-                            WebkitTapHighlightColor: "transparent",
-                            cursor: "pointer",
-                            transition: "all 0.8s cubic-bezier(0.4, 0, 0.2, 1)"
-                        }}
-                        className="hover:opacity-100"
-                        aria-label={isPlaying ? "Pause" : "Play"}
-                    >
-                        {isPlaying ? "⏸" : "▶"}
-                    </button>
-
-                    {hasInteracted && (
-                        <div
-                            onClick={(e) => {
-                                e.stopPropagation();
-                                nextSong();
-                            }}
-                            style={{
-                                cursor: "pointer",
-                                fontSize: "0.8rem",
-                                color: "var(--text-muted)",
-                                opacity: 0.5,
-                                display: "flex",
-                                alignItems: "center",
-                                transition: "all 0.2s ease",
-                                padding: "4px"
-                            }}
-                            className="hover:opacity-100"
-                            title="Next Song"
-                        >
-                            <SkipForward size={14} />
-                        </div>
-                    )}
-
-                    {/* Lyrics Toggle */}
-                    {hasInteracted && (
-                        <div
-                            onClick={(e) => {
-                                e.stopPropagation();
-                                setShowLyrics(prev => !prev);
-                            }}
-                            style={{
-                                cursor: "pointer",
-                                fontSize: "0.8rem",
-                                color: showLyrics ? "var(--accent)" : "var(--text-muted)",
-                                opacity: showLyrics ? 1 : 0.5,
-                                display: "flex",
-                                alignItems: "center",
-                                transition: "all 0.2s ease",
+                                justifyContent: "center",
                                 padding: "4px",
-                                marginLeft: "4px"
-                            }}
-                            className="hover:opacity-100"
-                            title="Lyrics"
-                        >
-                            <AlignLeft size={14} />
-                        </div>
-                    )}
-
-                    {/* Zen Mode Toggle - Mobile focused */}
-                    {hasInteracted && (
-                        <div
-                            onClick={(e) => {
-                                e.stopPropagation();
-                                toggleZen();
-                            }}
-                            style={{
+                                background: "transparent",
+                                WebkitTapHighlightColor: "transparent",
                                 cursor: "pointer",
-                                fontSize: "0.8rem",
-                                color: isZen ? "var(--accent)" : "var(--text-muted)",
-                                opacity: isZen ? 1 : 0.5,
-                                display: "flex",
-                                alignItems: "center",
-                                transition: "all 0.2s ease",
-                                padding: "4px",
-                                marginLeft: "4px" // Extra spacing
+                                transition: "all 0.8s cubic-bezier(0.4, 0, 0.2, 1)"
                             }}
                             className="hover:opacity-100"
-                            title={isZen ? "Exit Zen Mode" : "Enter Zen Mode"}
+                            aria-label={isPlaying ? "Pause" : "Play"}
                         >
-                            {isZen ? <X size={14} /> : <Sparkles size={14} />}
-                        </div>
-                    )}
+                            {isPlaying ? "⏸" : "▶"}
+                        </button>
+
+                        {hasInteracted && (
+                            <div
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    nextSong();
+                                }}
+                                style={{
+                                    cursor: "pointer",
+                                    fontSize: "0.8rem",
+                                    color: "var(--text-muted)",
+                                    opacity: 0.5,
+                                    display: "flex",
+                                    alignItems: "center",
+                                    transition: "all 0.2s ease",
+                                    padding: "4px"
+                                }}
+                                className="hover:opacity-100"
+                                title="Next Song"
+                            >
+                                <SkipForward size={14} />
+                            </div>
+                        )}
+
+                        {/* Settings Toggle (The Gateway) */}
+                        {hasInteracted && (
+                            <div
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    setIsSettingsOpen(!isSettingsOpen);
+                                }}
+                                style={{
+                                    cursor: "pointer",
+                                    fontSize: "0.8rem",
+                                    color: isSettingsOpen ? "var(--foreground)" : "var(--text-muted)",
+                                    opacity: isSettingsOpen ? 1 : 0.5,
+                                    display: "flex",
+                                    alignItems: "center",
+                                    transition: "all 0.2s ease",
+                                    padding: "4px",
+                                    marginLeft: "4px",
+                                    transform: isSettingsOpen ? "rotate(90deg)" : "rotate(0deg)"
+                                }}
+                                className="hover:opacity-100"
+                                title="Settings"
+                            >
+                                <Sliders size={14} />
+                            </div>
+                        )}
+                    </div>
+
+                    {/* Expanded Menu (The Reveal) */}
+                    <AnimatePresence>
+                        {isSettingsOpen && (
+                            <motion.div
+                                initial={{ height: 0, opacity: 0, marginTop: 0 }}
+                                animate={{ height: "auto", opacity: 1, marginTop: "0.25rem" }}
+                                exit={{ height: 0, opacity: 0, marginTop: 0 }}
+                                transition={{ duration: 0.3, ease: [0.19, 1, 0.22, 1] }}
+                                style={{
+                                    display: "flex",
+                                    alignItems: "center",
+                                    gap: "0.75rem",
+                                    overflow: "hidden"
+                                }}
+                            >
+                                {/* Running Text Toggle */}
+                                <div
+                                    onClick={() => setShowMarquee(!showMarquee)}
+                                    style={{
+                                        cursor: "pointer",
+                                        opacity: showMarquee ? 1 : 0.4,
+                                        color: showMarquee ? "var(--foreground)" : "var(--text-muted)",
+                                        transition: "all 0.2s",
+                                        display: "flex",
+                                        alignItems: "center",
+                                        justifyContent: "center"
+                                    }}
+                                    title="Toggle Running Text"
+                                >
+                                    <Monitor size={14} />
+                                </div>
+
+                                {/* Lyrics Toggle */}
+                                <div
+                                    onClick={() => setShowLyrics(!showLyrics)}
+                                    style={{
+                                        cursor: "pointer",
+                                        opacity: showLyrics ? 1 : 0.4,
+                                        color: showLyrics ? "var(--foreground)" : "var(--text-muted)",
+                                        transition: "all 0.2s",
+                                        display: "flex",
+                                        alignItems: "center",
+                                        justifyContent: "center"
+                                    }}
+                                    title="Toggle Lyrics"
+                                >
+                                    <AlignLeft size={14} />
+                                </div>
+
+                                {/* Zen Mode Toggle */}
+                                <div
+                                    onClick={toggleZen}
+                                    style={{
+                                        cursor: "pointer",
+                                        opacity: isZen ? 1 : 0.4,
+                                        color: isZen ? "var(--foreground)" : "var(--text-muted)",
+                                        transition: "all 0.2s",
+                                        display: "flex",
+                                        alignItems: "center",
+                                        justifyContent: "center"
+                                    }}
+                                    title="Toggle Zen Mode"
+                                >
+                                    {isZen ? <X size={14} /> : <Sparkles size={14} />}
+                                </div>
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
                 </div>
             </div>
         </div >
