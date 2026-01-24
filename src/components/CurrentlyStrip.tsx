@@ -5,9 +5,10 @@ import { useAudio, PLAYLIST } from "./AudioContext";
 import { useNarrativeEngine } from "../hooks/useNarrativeEngine"; // Import Narrative Engine Hook
 import { useZen } from "./ZenContext";
 import { ZenHideable } from "./ZenHideable";
-import { SkipBack, SkipForward, Sparkles, X, AlignLeft, Sliders, Monitor } from "lucide-react";
+import { SkipBack, SkipForward, Sparkles, X, AlignLeft, Sliders, Monitor, ListMusic, MessageSquare } from "lucide-react";
 import { getSongMessage } from "../data/songMessages";
 import { LyricsDisplay } from "./LyricsDisplay";
+import { PlaylistDrawer } from "./PlaylistDrawer";
 import { motion, AnimatePresence } from "framer-motion";
 
 // Helper component for typewriter effect
@@ -1639,7 +1640,7 @@ export function CurrentlyStrip() {
                         {isSettingsOpen && (
                             <motion.div
                                 initial={{ height: 0, opacity: 0, marginTop: 0 }}
-                                animate={{ height: "auto", opacity: 1, marginTop: "0.25rem" }}
+                                animate={{ height: "auto", opacity: 1, marginTop: "0.5rem" }}
                                 exit={{ height: 0, opacity: 0, marginTop: 0 }}
                                 transition={{ duration: 0.3, ease: [0.19, 1, 0.22, 1] }}
                                 style={{
@@ -1649,6 +1650,23 @@ export function CurrentlyStrip() {
                                     overflow: "hidden"
                                 }}
                             >
+                                {/* Playlist Toggle */}
+                                <div
+                                    onClick={() => setIsPlaylistOpen(true)}
+                                    style={{
+                                        cursor: "pointer",
+                                        opacity: 0.7,
+                                        color: "var(--foreground)",
+                                        transition: "all 0.2s",
+                                        display: "flex",
+                                        alignItems: "center",
+                                        justifyContent: "center"
+                                    }}
+                                    title="Open Library"
+                                >
+                                    <ListMusic size={14} />
+                                </div>
+
                                 {/* Running Text Toggle */}
                                 <div
                                     onClick={() => setShowMarquee(!showMarquee)}
@@ -1664,6 +1682,23 @@ export function CurrentlyStrip() {
                                     title="Toggle Running Text"
                                 >
                                     <Monitor size={14} />
+                                </div>
+
+                                {/* Narrative Toggle */}
+                                <div
+                                    onClick={() => setShowNarrative(!showNarrative)}
+                                    style={{
+                                        cursor: "pointer",
+                                        opacity: showNarrative ? 1 : 0.4,
+                                        color: showNarrative ? "var(--foreground)" : "var(--text-muted)",
+                                        transition: "all 0.2s",
+                                        display: "flex",
+                                        alignItems: "center",
+                                        justifyContent: "center"
+                                    }}
+                                    title="Toggle Narrative"
+                                >
+                                    <MessageSquare size={14} />
                                 </div>
 
                                 {/* Lyrics Toggle */}
@@ -1704,6 +1739,14 @@ export function CurrentlyStrip() {
                     </AnimatePresence>
                 </div>
             </div>
+
+            <PlaylistDrawer
+                isOpen={isPlaylistOpen}
+                onClose={() => setIsPlaylistOpen(false)}
+                currentSongTitle={currentSong.title}
+                onPlaySong={jumpToSong}
+                isPlaying={isPlaying}
+            />
         </div >
     );
 }
