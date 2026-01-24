@@ -69,8 +69,8 @@ export function PlaylistDrawer({
                     bottom: 0,
                     left: 0,
                     right: 0,
-                    height: "65vh",
-                    maxHeight: "65vh",
+                    height: "55vh", // Reduced height (User feedback: "too close to top")
+                    maxHeight: "85vh",
                     backgroundColor: "rgba(22, 22, 24, 0.95)",
                     backdropFilter: "blur(40px) saturate(180%)",
                     WebkitBackdropFilter: "blur(40px) saturate(180%)",
@@ -84,7 +84,7 @@ export function PlaylistDrawer({
                     color: "white",
                     display: "flex",
                     flexDirection: "column",
-                    paddingTop: "0.5rem"
+                    paddingTop: "0.75rem"
                 }}
             >
                 {/* Drag Handle */}
@@ -96,7 +96,7 @@ export function PlaylistDrawer({
                         backgroundColor: "rgba(255,255,255,0.25)",
                         borderRadius: "100px",
                         alignSelf: "center",
-                        marginTop: "12px",
+                        marginTop: "8px",
                         marginBottom: "4px",
                         cursor: "pointer",
                         flexShrink: 0
@@ -105,7 +105,7 @@ export function PlaylistDrawer({
 
                 {/* Header */}
                 <div style={{
-                    padding: "1rem 1.5rem 0.5rem 1.5rem",
+                    padding: "1rem 1.5rem 0.75rem 1.5rem",
                     display: "flex",
                     justifyContent: "space-between",
                     alignItems: "center",
@@ -142,10 +142,10 @@ export function PlaylistDrawer({
                     style={{
                         flex: 1,
                         overflowY: "auto",
-                        padding: "0 1rem 3rem 1rem",
+                        padding: "0 1rem 4rem 1rem",
                         display: "flex",
                         flexDirection: "column",
-                        gap: "2px"
+                        gap: "4px"
                     }}
                 >
                     {PLAYLIST.map((song, index) => {
@@ -159,10 +159,10 @@ export function PlaylistDrawer({
                                 style={{
                                     display: "flex",
                                     alignItems: "center",
-                                    gap: "0.75rem",
-                                    padding: "10px 12px",
-                                    borderRadius: "12px",
-                                    backgroundColor: isActive ? "rgba(255,255,255,0.1)" : "transparent",
+                                    gap: "0.85rem",
+                                    padding: "12px 14px", // Increased touch target
+                                    borderRadius: "14px",
+                                    backgroundColor: isActive ? "rgba(255,255,255,0.12)" : "transparent",
                                     cursor: "pointer",
                                     transition: "background 0.2s"
                                 }}
@@ -172,7 +172,8 @@ export function PlaylistDrawer({
                                     textAlign: "center",
                                     fontSize: "0.8rem",
                                     color: isActive ? "var(--accent)" : "rgba(255,255,255,0.3)",
-                                    fontFamily: "var(--font-mono)"
+                                    fontFamily: "var(--font-mono)",
+                                    flexShrink: 0
                                 }}>
                                     {isActive && isPlaying ? (
                                         <BarChart2 size={14} style={{ animation: "pulse 2s infinite" }} />
@@ -186,10 +187,13 @@ export function PlaylistDrawer({
                                         color: isActive ? "#fff" : "rgba(255,255,255,0.9)",
                                         fontSize: "0.95rem",
                                         fontWeight: isActive ? 600 : 400,
-                                        whiteSpace: "nowrap",
+                                        fontFamily: "var(--font-sans)",
+                                        // Allow wrapping (2 lines max)
+                                        display: "-webkit-box",
+                                        WebkitLineClamp: 2,
+                                        WebkitBoxOrient: "vertical",
                                         overflow: "hidden",
-                                        textOverflow: "ellipsis",
-                                        fontFamily: "var(--font-sans)"
+                                        lineHeight: "1.3"
                                     }}>
                                         {song.title.split("—")[1]?.trim() || song.title}
                                     </div>
@@ -198,7 +202,8 @@ export function PlaylistDrawer({
                                         color: "rgba(255,255,255,0.5)",
                                         whiteSpace: "nowrap",
                                         overflow: "hidden",
-                                        textOverflow: "ellipsis"
+                                        textOverflow: "ellipsis",
+                                        marginTop: "2px"
                                     }}>
                                         {song.title.split("—")[0]?.trim() || "Unknown Artist"}
                                     </div>

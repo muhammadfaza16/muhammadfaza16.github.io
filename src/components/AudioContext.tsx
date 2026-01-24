@@ -8,6 +8,7 @@ interface AudioContextType {
     togglePlay: () => void;
     nextSong: (forcePlay?: boolean) => void;
     prevSong: () => void;
+    jumpToSong: (index: number) => void;
     currentSong: { title: string; audioUrl: string };
     analyser: AnalyserNode | null;
     audioRef: React.RefObject<HTMLAudioElement | null>;
@@ -213,6 +214,12 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
         setCurrentIndex((prev) => (prev - 1 + PLAYLIST.length) % PLAYLIST.length);
     }, []);
 
+    const jumpToSong = useCallback((index: number) => {
+        setIsBuffering(false);
+        setIsPlaying(true);
+        setCurrentIndex(index);
+    }, []);
+
     // Auto-play when index changes if it was already playing or triggered by next
     useEffect(() => {
         // If we are playing (or forcePlay was set to true which updated isPlaying),
@@ -296,7 +303,7 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
     }, [currentIndex, isPlaying, isBuffering]);
 
     return (
-        <AudioContext.Provider value={{ isPlaying, isBuffering, togglePlay, nextSong, prevSong, currentSong, analyser, audioRef, hasInteracted, warmup }}>
+        <AudioContext.Provider value={{ isPlaying, isBuffering, togglePlay, nextSong, prevSong, jumpToSong, currentSong, analyser, audioRef, hasInteracted, warmup }}>
             <audio
                 ref={audioRef}
                 crossOrigin="anonymous"
