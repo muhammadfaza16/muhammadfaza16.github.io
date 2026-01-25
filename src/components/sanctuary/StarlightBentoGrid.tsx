@@ -125,7 +125,7 @@ export function StarlightBentoGrid() {
         { title: "Movie", href: "/movies", icon: <Film />, gradient: "linear-gradient(135deg, #ef4444, #b91c1c)" },
         { title: "Wishlist", href: "/wishlist", icon: <Gift />, gradient: "linear-gradient(135deg, #9333ea, #7e22ce)" },
         { title: "Playlist", href: "/playlist", icon: <Music />, gradient: "linear-gradient(135deg, #ec4899, #db2777)" }, // Apple Music style pink
-        { title: "Clock", href: "/chronosphere", icon: <Clock />, gradient: "linear-gradient(135deg, #334155, #0f172a)" }, // Sleek dark clock
+        { title: "Clock", href: "/time", icon: <Clock />, gradient: "linear-gradient(135deg, #334155, #0f172a)" }, // Sleek dark clock
     ];
 
     return (
