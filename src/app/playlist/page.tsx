@@ -28,6 +28,7 @@ export default function ImmersiveMusicPage() {
                 __html: `
         header, footer, .zen-toggle-floating { display: none !important; }
         #main-content { padding-top: 0 !important; }
+        html, body { overflow: hidden !important; overscroll-behavior: none; }
       `}} />
 
 
