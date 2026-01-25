@@ -38,10 +38,10 @@ export function JarvisHero() {
     if (!mounted) return null;
 
     return (
-        <section className="relative min-h-[80vh] flex flex-col items-center justify-center text-center overflow-hidden">
+        <section className="relative min-h-[70vh] md:min-h-[85vh] flex flex-col items-center justify-center text-center overflow-hidden pb-10">
 
             {/* THE ORB - Ethereal Core */}
-            <div className="relative w-64 h-64 mb-12 transform-gpu">
+            <div className="relative w-48 h-48 md:w-64 md:h-64 mb-8 md:mb-12 transform-gpu">
                 {/* Core Pulse */}
                 <div className="absolute inset-0 bg-blue-500/20 rounded-full blur-3xl animate-pulse-slow"></div>
                 <div className="absolute inset-10 bg-indigo-500/30 rounded-full blur-2xl animate-pulse-slower delay-75"></div>
@@ -53,21 +53,21 @@ export function JarvisHero() {
             </div>
 
             <Container>
-                <div className="space-y-6 relative z-10">
+                <div className="space-y-4 md:space-y-6 relative z-10 px-4">
 
                     {/* System Status Label */}
-                    <div className="flex items-center justify-center gap-2 text-xs font-mono tracking-[0.3em] text-blue-300/70 uppercase">
-                        <span className="w-2 h-2 rounded-full bg-blue-400 animate-ping" />
+                    <div className="flex items-center justify-center gap-2 text-[0.6rem] md:text-xs font-mono tracking-[0.3em] text-blue-300/70 uppercase">
+                        <span className="w-1.5 h-1.5 md:w-2 md:h-2 rounded-full bg-blue-400 animate-ping" />
                         <span>Identity Core: Online</span>
                     </div>
 
                     {/* Main Greeting */}
-                    <h1 className="font-sans text-4xl md:text-6xl lg:text-7xl font-light tracking-tight text-white/90 drop-shadow-[0_0_15px_rgba(255,255,255,0.3)]">
+                    <h1 className="font-sans text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-light tracking-tight text-white/90 drop-shadow-[0_0_15px_rgba(255,255,255,0.3)] leading-tight">
                         {greeting}
                     </h1>
 
                     {/* Dynamic Subtext */}
-                    <p className="font-serif text-lg md:text-xl text-white/50 max-w-xl mx-auto leading-relaxed">
+                    <p className="font-serif text-base md:text-xl text-white/50 max-w-xl mx-auto leading-relaxed px-4">
                         {subtext}
                     </p>
 
@@ -76,7 +76,7 @@ export function JarvisHero() {
 
             {/* Decorative HUD Elements */}
             <div className="absolute bottom-10 left-0 right-0 flex justify-center opacity-30">
-                <div className="h-px w-32 bg-gradient-to-r from-transparent via-white to-transparent" />
+                <div className="h-px w-20 md:w-32 bg-gradient-to-r from-transparent via-white to-transparent" />
             </div>
 
         </section>

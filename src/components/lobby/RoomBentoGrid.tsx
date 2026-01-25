@@ -30,7 +30,6 @@ const RoomCard = ({ title, description, href, className = "", icon, themeColor, 
                     height: "100%",
                     position: "relative",
                     overflow: "hidden",
-                    borderRadius: "2.5rem",
                     border: "1px solid var(--border)",
                     background: "var(--card-bg)",
                     boxShadow: "0 20px 40px -15px rgba(0,0,0,0.2)",
@@ -39,7 +38,7 @@ const RoomCard = ({ title, description, href, className = "", icon, themeColor, 
                     justifyContent: "space-between",
                     transition: "all 0.5s cubic-bezier(0.16, 1, 0.3, 1)",
                 }}
-                className="transform-gpu card-hover"
+                className="transform-gpu card-hover rounded-2xl md:rounded-[2.5rem]"
             >
                 {/* Background Image Container */}
                 <div className="absolute inset-0 z-0">
@@ -82,18 +81,15 @@ const RoomCard = ({ title, description, href, className = "", icon, themeColor, 
                 </div>
 
                 {/* Content Container */}
-                <div style={{ position: "relative", zIndex: 10, padding: "2.5rem", height: "100%", display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
+                <div style={{ position: "relative", zIndex: 10, height: "100%", display: "flex", flexDirection: "column", justifyContent: "space-between" }} className="p-5 md:p-10">
                     <div>
                         <div
                             style={{
-                                marginBottom: "2rem",
-                                width: "4rem",
-                                height: "4rem",
+                                marginBottom: "1rem",
                                 display: "flex",
                                 alignItems: "center",
                                 justifyContent: "center",
-                                borderRadius: "1.25rem",
-                                fontSize: "2rem",
+                                fontSize: "1.5rem",
                                 background: "rgba(255, 255, 255, 0.15)",
                                 border: "1px solid rgba(255, 255, 255, 0.3)",
                                 backdropFilter: "blur(12px)",
@@ -102,36 +98,35 @@ const RoomCard = ({ title, description, href, className = "", icon, themeColor, 
                                 transition: "all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275)",
                                 color: "white",
                             }}
-                            className="group-hover:scale-110 group-hover:rotate-6 group-hover:background-white/20"
+                            className="w-10 h-10 rounded-xl md:w-16 md:h-16 md:rounded-[1.25rem] md:mb-8 md:text-2xl group-hover:scale-110 group-hover:rotate-6 group-hover:background-white/20"
                         >
                             {icon}
                         </div>
 
                         <h3
                             style={{
-                                fontSize: "1.75rem",
                                 fontWeight: 700,
                                 color: "white", // Keep white for impact on images
-                                marginBottom: "1rem",
                                 letterSpacing: "-0.04em",
                                 textShadow: "0 2px 15px rgba(0,0,0,0.5)",
                                 lineHeight: 1.1,
                                 fontFamily: "var(--font-serif)",
                             }}
+                            className="text-lg md:text-[1.75rem] mb-2 md:mb-4"
                         >
                             {title}
                         </h3>
 
                         <p
                             style={{
-                                fontSize: "1rem",
-                                lineHeight: 1.6,
+                                lineHeight: 1.4,
                                 color: "rgba(255, 255, 255, 0.9)", // High contrast white
                                 margin: 0,
                                 textShadow: "0 1px 10px rgba(0,0,0,0.8)",
                                 fontFamily: "var(--font-sans)",
                                 maxWidth: "28ch",
                             }}
+                            className="text-xs md:text-base hidden sm:block"
                         >
                             {description}
                         </p>
@@ -149,7 +144,7 @@ const RoomCard = ({ title, description, href, className = "", icon, themeColor, 
                             color: "rgba(255, 255, 255, 0.7)",
                             transition: "all 0.3s ease",
                         }}
-                        className="group-hover:text-white"
+                        className="group-hover:text-white hidden md:flex"
                     >
                         <span style={{ borderBottom: "1px solid rgba(255,255,255,0.3)", paddingBottom: "2px" }}>Explore Room</span>
                         <svg
@@ -230,11 +225,25 @@ export function RoomBentoGrid() {
                 width: "100%",
                 maxWidth: "1400px",
                 margin: "0 auto",
-                padding: "8rem 2rem",
             }}
         >
+            <style>{`
+                .bento-grid {
+                    display: grid;
+                    grid-template-columns: repeat(2, 1fr);
+                    gap: 15px;
+                    padding: 20px;
+                }
+                @media (min-width: 768px) {
+                    .bento-grid {
+                        grid-template-columns: repeat(3, 1fr);
+                        gap: 32px;
+                        padding: 128px 32px;
+                    }
+                }
+            `}</style>
             {/* Dynamic Header */}
-            <div style={{ marginBottom: '4rem', padding: '0 1rem' }}>
+            <div style={{ marginBottom: '1.5rem', padding: '0 20px' }} className="md:mb-16 md:px-8">
                 <motion.div
                     initial={{ opacity: 0, x: -20 }}
                     whileInView={{ opacity: 1, x: 0 }}
@@ -243,35 +252,28 @@ export function RoomBentoGrid() {
                 >
                     <h2 style={{
                         color: 'var(--foreground)', // Theme aware title
-                        fontSize: 'var(--spacing-10, 3rem)',
                         fontWeight: 700,
                         letterSpacing: '-0.04em',
-                        marginBottom: '1rem',
                         fontFamily: 'var(--font-serif)',
-                    }}>
+                    }} className="text-3xl md:text-5xl mb-2 md:mb-4">
                         The Sanctuary Rooms
                     </h2>
                     <div style={{
-                        width: '4rem',
-                        height: '6px',
                         background: 'var(--accent)',
                         borderRadius: '3px'
-                    }} />
+                    }} className="w-12 h-1 md:w-16 md:h-1.5" />
                 </motion.div>
             </div>
 
-            <div
-                className="grid grid-cols-1 gap-8 md:grid-cols-3 md:grid-rows-3"
-                style={{
-                    display: "grid",
-                }}
-            >
+            <div className="bento-grid">
                 {rooms.map((room, idx) => (
                     <RoomCard
                         key={idx}
                         {...room}
                         delay={idx * 0.1}
-                        className={`${room.className} ${idx % 2 === 0 ? 'min-h-[300px]' : 'min-h-[250px]'} md:min-h-0`}
+                        // Mobile: 2 columns.
+                        // Desktop: Original spans.
+                        className={`${room.className.replace('col-span-1', '').replace('md:', '')} ${idx === 3 ? 'col-span-2 md:col-span-3' : 'col-span-1'} md:${room.className} ${idx % 2 === 0 ? 'min-h-[160px] md:min-h-[300px]' : 'min-h-[160px] md:min-h-[250px]'} md:min-h-0`}
                     />
                 ))}
             </div>
