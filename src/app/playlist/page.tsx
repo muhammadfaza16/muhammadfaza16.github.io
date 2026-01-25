@@ -28,7 +28,7 @@ export default function ImmersiveMusicPage() {
                 __html: `
         header, footer, .zen-toggle-floating { display: none !important; }
         #main-content { padding-top: 0 !important; }
-        html, body { overflow: hidden !important; overscroll-behavior: none; }
+        html, body { overflow: hidden !important; overscroll-behavior: none; touch-action: none; height: 100svh !important; }
       `}} />
 
 
@@ -52,7 +52,7 @@ export default function ImmersiveMusicPage() {
             <main style={{
                 position: "relative",
                 zIndex: 10,
-                minHeight: "100vh",
+                height: "100svh",
                 display: "flex",
                 flexDirection: "column",
                 alignItems: "center",

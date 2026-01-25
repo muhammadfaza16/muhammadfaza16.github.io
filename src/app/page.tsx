@@ -6,7 +6,6 @@ import { MilkyWay } from "@/components/MilkyWay";
 import { ZenHideable } from "@/components/ZenHideable";
 import { JarvisHero } from "@/components/lobby/JarvisHero";
 import { RoomBentoGrid } from "@/components/lobby/RoomBentoGrid";
-import { IosStatusBar } from "@/components/sanctuary/IosStatusBar";
 
 export default function HomePage() {
 
@@ -16,10 +15,8 @@ export default function HomePage() {
         __html: `
         header, footer, .zen-toggle-floating { display: none !important; }
         #main-content { padding-top: 0 !important; }
+        html, body { overflow: hidden !important; overscroll-behavior: none; touch-action: none; height: 100svh !important; }
       `}} />
-
-      {/* iOS Status Bar */}
-      <IosStatusBar />
 
       {/* Ambient Background - Spans whole screen */}
       <div style={{
@@ -41,8 +38,8 @@ export default function HomePage() {
         <main style={{
           position: "relative",
           zIndex: 1,
-          paddingTop: "44px", // Status bar height
-          minHeight: "100vh",
+          paddingTop: "1rem", // Removed Status bar height offset
+          height: "100svh",
           display: "flex",
           flexDirection: "column",
           justifyContent: "flex-start",
