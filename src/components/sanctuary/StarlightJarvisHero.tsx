@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Container } from "@/components/Container";
-import { SketchMusicPlayer } from "./SketchMusicPlayer";
+import { CurrentlyStrip } from "@/components/CurrentlyStrip";
 
 const JARVIS_REMINDERS = [
     "Jangan lupa minum air, Wanderer. Tubuhmu butuh hidrasi untuk berpikir jernih.",
@@ -107,16 +107,11 @@ export function StarlightJarvisHero() {
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.8, delay: 0.3 }}
                         style={{
-                            maxWidth: "500px",
-                            background: "rgba(255,255,255,0.03)",
-                            backdropFilter: "blur(20px)",
-                            borderRadius: "2rem",
-                            padding: "1rem",
-                            border: "1px solid rgba(255,255,255,0.05)",
-                            boxShadow: "0 20px 40px -10px rgba(0,0,0,0.3)"
+                            width: "100%",
+                            maxWidth: "800px", // Give more space for CurrentlyStrip
                         }}
                     >
-                        <SketchMusicPlayer />
+                        <CurrentlyStrip />
                     </motion.div>
 
                 </div>
