@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { motion } from "framer-motion";
+import { motion, Variants } from "framer-motion";
 import { Play, Music, Heart, Globe, Mic2, Shuffle, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { ZenHideable } from "@/components/ZenHideable";
@@ -114,20 +114,20 @@ const NowPlayingBar = () => (
     </motion.div>
 );
 
-const cardVariants = {
+const cardVariants: Variants = {
     rest: { scale: 1 },
     hover: { scale: 1.02 }
 };
 
-const imageVariants = {
+const imageVariants: Variants = {
     rest: { scale: 1 },
     hover: {
         scale: 1.05,
-        transition: { duration: 0.7, ease: [0.2, 0.8, 0.2, 1] }
+        transition: { duration: 0.7, ease: [0.2, 0.8, 0.2, 1] as const }
     }
 };
 
-const playButtonVariants = {
+const playButtonVariants: Variants = {
     rest: { opacity: 0, y: 10, scale: 0.9 },
     hover: {
         opacity: 1,
