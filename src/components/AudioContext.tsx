@@ -294,6 +294,11 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
                 link.rel = 'preload';
                 link.as = 'audio';
                 link.href = nextUrl;
+                // Suppress errors to avoid "Uncaught (in promise) Event" crashes
+                link.onerror = () => {
+                    console.warn(`[SmartLoader] Preload failed for: ${nextUrl}`);
+                    link.remove();
+                };
                 document.head.appendChild(link);
                 console.log(`[SmartLoader] Prefetching next song: ${PLAYLIST[nextIndex].title}`);
             }
