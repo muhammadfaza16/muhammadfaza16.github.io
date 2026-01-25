@@ -18,101 +18,78 @@ const BentoCard = ({ title, description, href, icon, color, className = "", dela
     return (
         <Link href={href} className={`group relative block h-full ${className}`} style={{ textDecoration: 'none' }}>
             <motion.div
-                initial={{ opacity: 0, scale: 0.95 }}
-                whileInView={{ opacity: 1, scale: 1 }}
+                initial={{ opacity: 0, y: 10 }}
+                whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                transition={{ duration: 0.5, delay }}
-                whileHover={{ y: -8, scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
+                transition={{ duration: 0.4, delay }}
                 style={{
                     height: "100%",
                     position: "relative",
                     overflow: "hidden",
-                    borderRadius: "2rem",
-                    background: "rgba(255, 255, 255, 0.03)",
-                    border: "1px solid rgba(255, 255, 255, 0.08)",
-                    backdropFilter: "blur(20px)",
-                    WebkitBackdropFilter: "blur(20px)",
-                    padding: "2rem",
+                    borderRadius: "1.5rem", // Softer, iPhone-like corners
+                    background: "rgba(255, 255, 255, 0.02)",
+                    border: "1px solid rgba(255, 255, 255, 0.05)",
+                    backdropFilter: "blur(12px)",
+                    WebkitBackdropFilter: "blur(12px)",
+                    padding: "1.25rem", // Compact padding
                     display: "flex",
                     flexDirection: "column",
-                    justifyContent: "space-between",
-                    boxShadow: "0 10px 30px -5px rgba(0,0,0,0.3)",
-                    transition: "border-color 0.3s ease, background 0.3s ease",
+                    gap: "0.75rem",
+                    transition: "all 0.4s cubic-bezier(0.16, 1, 0.3, 1)",
                 }}
-                className="hover:border-white/20 hover:bg-white/5"
+                className="hover:border-white/10 hover:bg-white/5"
             >
-                {/* Glow Effect */}
-                <div
-                    style={{
-                        position: "absolute",
-                        top: "-20%",
-                        right: "-20%",
-                        width: "60%",
-                        height: "60%",
-                        background: `radial-gradient(circle, ${color}20 0%, transparent 70%)`,
-                        zIndex: 0,
-                        pointerEvents: "none",
-                        transition: "opacity 0.5s ease",
-                    }}
-                    className="group-hover:opacity-100 opacity-50"
-                />
-
-                <div style={{ position: "relative", zIndex: 10 }}>
+                <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between" }}>
                     <div style={{
-                        width: "3rem",
-                        height: "3rem",
-                        borderRadius: "1rem",
-                        background: `${color}15`,
-                        border: `1px solid ${color}30`,
+                        width: "2.5rem",
+                        height: "2.5rem",
+                        borderRadius: "0.75rem",
+                        background: `${color}10`,
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "center",
-                        fontSize: "1.5rem",
-                        marginBottom: "1.5rem",
-                        boxShadow: `0 8px 20px -5px ${color}30`,
-                        transition: "transform 0.4s ease",
-                    }} className="group-hover:scale-110 group-hover:rotate-3">
+                        fontSize: "1.25rem",
+                        transition: "transform 0.3s ease",
+                    }} className="group-hover:scale-110">
                         {icon}
                     </div>
 
+                    <div style={{
+                        opacity: 0,
+                        transition: "opacity 0.3s ease",
+                        color: "rgba(255,255,255,0.4)",
+                    }} className="group-hover:opacity-100">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                            <path d="M7 17L17 7M17 7H7M17 7V17" />
+                        </svg>
+                    </div>
+                </div>
+
+                <div style={{ marginTop: "auto" }}>
                     <h3 style={{
-                        fontSize: "1.25rem",
-                        fontWeight: 700,
+                        fontSize: "1rem", // Smaller, cleaner font
+                        fontWeight: 600,
                         color: "white",
-                        marginBottom: "0.5rem",
-                        letterSpacing: "-0.02em",
+                        marginBottom: "0.25rem",
+                        letterSpacing: "-0.01em",
                         fontFamily: "var(--font-serif)",
                     }}>
                         {title}
                     </h3>
 
                     <p style={{
-                        fontSize: "0.85rem",
-                        lineHeight: 1.5,
-                        color: "rgba(255, 255, 255, 0.5)",
+                        fontSize: "0.75rem", // Tiny but clear
+                        lineHeight: 1.3,
+                        color: "rgba(255, 255, 255, 0.4)",
                         margin: 0,
                         fontFamily: "var(--font-sans)",
-                        transition: "color 0.3s ease",
-                    }} className="group-hover:text-white/80">
+                        display: "-webkit-box",
+                        WebkitLineClamp: 2,
+                        WebkitBoxOrient: "vertical",
+                        overflow: "hidden",
+                    }}>
                         {description}
                     </p>
-                </div>
-
-                <div style={{
-                    marginTop: "1.5rem",
-                    fontSize: "0.65rem",
-                    fontWeight: 800,
-                    textTransform: "uppercase",
-                    letterSpacing: "0.15em",
-                    color: "rgba(255, 255, 255, 0.3)",
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "0.5rem",
-                    zIndex: 10,
-                }} className="group-hover:text-white/60">
-                    Open Archive
-                    <span style={{ transition: "transform 0.3s ease" }} className="group-hover:translate-x-1">→</span>
                 </div>
             </motion.div>
         </Link>
@@ -123,107 +100,112 @@ export function StarlightBentoGrid() {
     const archives = [
         {
             title: "Writing",
-            description: "Himpunan esai, opini, dan narasi panjang yang mengalir.",
+            description: "Himpunan esai, opini, dan narasi panjang.",
             href: "/blog",
             icon: "✍️",
-            color: "#8B5CF6", // Violet
-            className: "md:col-span-2 md:row-span-2 min-h-[280px]",
+            color: "#8B5CF6",
+            className: "col-span-1 row-span-1",
         },
         {
             title: "Notes",
-            description: "Quick snippets and fragmented thoughts.",
+            description: "Quick snippets and thoughts.",
             href: "/notes",
             icon: "📝",
-            color: "#3B82F6", // Blue
-            className: "md:col-span-1 md:row-span-1 min-h-[180px]",
+            color: "#3B82F6",
+            className: "col-span-1 row-span-1",
         },
         {
             title: "TIL",
-            description: "Today I Learned. Small wins in knowledge.",
+            description: "Small wins in knowledge.",
             href: "/til",
             icon: "💡",
-            color: "#10B981", // Emerald
-            className: "md:col-span-1 md:row-span-1 min-h-[180px]",
+            color: "#10B981",
+            className: "col-span-1 row-span-1",
         },
         {
             title: "Journey",
-            description: "The chronological path of a broken wanderer.",
+            description: "Path of a broken wanderer.",
             href: "/journey",
             icon: "🗺️",
-            color: "#F59E0B", // Amber
-            className: "md:col-span-1 md:row-span-2 min-h-[220px]",
+            color: "#F59E0B",
+            className: "col-span-1 row-span-1",
         },
         {
             title: "Ideas",
-            description: "Setengah matang, tapi punya potensi meledak.",
+            description: "Potensi yang meledak.",
             href: "/ideas",
             icon: "🧠",
-            color: "#EC4899", // Pink
-            className: "md:col-span-1 md:row-span-1 min-h-[180px]",
+            color: "#EC4899",
+            className: "col-span-1 row-span-1",
         },
         {
             title: "Bookshelf",
-            description: "Apa yang saya baca (dan belum selesai dibaca).",
+            description: "Apa yang saya baca.",
             href: "/bookshelf",
             icon: "📚",
-            color: "#6366F1", // Indigo
-            className: "md:col-span-1 md:row-span-1 min-h-[180px]",
+            color: "#6366F1",
+            className: "col-span-1 row-span-1",
         },
         {
             title: "Links",
-            description: "The rabbit holes I've found on the internet.",
+            description: "Digital rabbit holes.",
             href: "/links",
             icon: "🔗",
-            color: "#06B6D4", // Cyan
-            className: "md:col-span-1 md:row-span-1 min-h-[180px]",
+            color: "#06B6D4",
+            className: "col-span-1 row-span-1",
         },
         {
             title: "Movie",
-            description: "Watchlist and thoughts on cinematic magic.",
+            description: "Cinematic magic logs.",
             href: "/movies",
             icon: "🎬",
-            color: "#EF4444", // Red
-            className: "md:col-span-1 md:row-span-1 min-h-[180px]",
+            color: "#EF4444",
+            className: "col-span-1 row-span-1",
         },
         {
             title: "Wishlist",
-            description: "Hal-hal yang sedang saya dambakan.",
+            description: "Dambaan personal.",
             href: "/wishlist",
             icon: "🎁",
-            color: "#A855F7", // Purple
-            className: "md:col-span-1 md:row-span-1 min-h-[180px]",
+            color: "#A855F7",
+            className: "col-span-1 row-span-1",
         },
     ];
 
     return (
         <section style={{
-            padding: "4rem 1.5rem",
-            maxWidth: "1280px",
+            padding: "2rem 1rem 8rem",
+            maxWidth: "1000px", // More compact
             margin: "0 auto",
             position: "relative",
             zIndex: 10,
         }}>
-            <div style={{ marginBottom: "3rem" }}>
+            <div style={{ marginBottom: "2rem", paddingLeft: "0.25rem" }}>
                 <h2 style={{
                     fontFamily: "var(--font-serif)",
-                    fontSize: "2.5rem",
+                    fontSize: "1.75rem",
                     color: "white",
-                    marginBottom: "1rem",
-                    letterSpacing: "-0.03em",
+                    marginBottom: "0.5rem",
+                    letterSpacing: "-0.02em",
                 }}>
                     Arsip Memori
                 </h2>
-                <div style={{ width: "3rem", height: "4px", background: "var(--accent)", borderRadius: "2px" }} />
+                <div style={{ width: "2rem", height: "3px", background: "var(--accent)", borderRadius: "2px" }} />
             </div>
 
             <div
-                className="grid grid-cols-1 gap-5 md:grid-cols-4 md:grid-rows-4"
+                className="grid grid-cols-2 gap-4 md:grid-cols-4 lg:grid-cols-5"
                 style={{
                     display: "grid",
                 }}
             >
                 {archives.map((item, idx) => (
-                    <BentoCard key={idx} {...item} delay={idx * 0.05} />
+                    <BentoCard
+                        key={idx}
+                        {...item}
+                        delay={idx * 0.04}
+                        className="aspect-square" // Make it look like app icons
+                    />
                 ))}
             </div>
         </section>
