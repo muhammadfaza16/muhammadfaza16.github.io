@@ -4,6 +4,7 @@ import React from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { motion } from "framer-motion";
+import { Sparkles, Hammer, Users, Archive, Wifi, ArrowUpRight, Github, Linkedin, Twitter } from "lucide-react";
 
 interface RoomCardProps {
     title: string;
@@ -14,148 +15,175 @@ interface RoomCardProps {
     themeColor: string;
     imageSrc: string;
     delay?: number;
+    isSocial?: boolean;
 }
 
-const RoomCard = ({ title, description, href, className = "", icon, themeColor, imageSrc, delay = 0 }: RoomCardProps) => {
+const RoomCard = ({ title, description, href, className = "", icon, themeColor, imageSrc, delay = 0, isSocial }: RoomCardProps) => {
+    const ContentWrapper = isSocial ? "div" : Link;
+
+    const cardStyle: React.CSSProperties = {
+        height: "100%",
+        position: "relative",
+        overflow: "hidden",
+        background: "rgba(30, 30, 35, 0.7)",
+        backdropFilter: "blur(20px)",
+        WebkitBackdropFilter: "blur(20px)",
+        border: "1px solid rgba(255, 255, 255, 0.12)",
+        boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.5)",
+        borderRadius: "2rem",
+        cursor: isSocial ? "default" : "pointer",
+        userSelect: "none",
+    };
+
+    const iconContainerStyle: React.CSSProperties = {
+        width: "3rem",
+        height: "3rem",
+        borderRadius: "1rem",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        color: "white",
+        background: "rgba(255, 255, 255, 0.15)",
+        backdropFilter: "blur(12px)",
+        WebkitBackdropFilter: "blur(12px)",
+        border: "1px solid rgba(255, 255, 255, 0.2)",
+        boxShadow: `0 8px 16px -4px ${themeColor}40`,
+        marginBottom: "1rem",
+    };
+
     return (
-        <Link href={href} className={`group relative block h-full ${className}`} style={{ textDecoration: 'none' }}>
+        // @ts-ignore
+        <ContentWrapper href={!isSocial ? href : undefined} className={`block h-full ${className}`} style={{ textDecoration: 'none' }}>
             <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.6, delay }}
-                whileHover={{ scale: 1.02, y: -5 }}
-                whileTap={{ scale: 0.98 }}
-                style={{
-                    height: "100%",
-                    position: "relative",
-                    overflow: "hidden",
-                    border: "1px solid var(--border)",
-                    background: "var(--card-bg)",
-                    boxShadow: "0 20px 40px -15px rgba(0,0,0,0.2)",
-                    display: "flex",
-                    flexDirection: "column",
-                    justifyContent: "space-between",
-                    transition: "all 0.5s cubic-bezier(0.16, 1, 0.3, 1)",
+                initial={{ opacity: 0, scale: 0.95, y: 10 }}
+                whileInView={{ opacity: 1, scale: 1, y: 0 }}
+                viewport={{ once: true, margin: "-50px" }}
+                transition={{
+                    duration: 0.5,
+                    delay,
+                    ease: [0.2, 0.8, 0.2, 1]
                 }}
-                className="transform-gpu card-hover rounded-2xl md:rounded-[2.5rem]"
+                whileHover={!isSocial ? { scale: 1.02, y: -2 } : {}}
+                whileTap={{ scale: 0.96 }}
+                style={cardStyle}
+                className="transform-gpu group"
             >
-                {/* Background Image Container */}
-                <div className="absolute inset-0 z-0">
-                    <Image
-                        src={imageSrc}
-                        alt={title}
-                        fill
-                        className="object-cover transition-transform duration-1000 ease-out group-hover:scale-110"
-                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                        quality={90}
-                        priority={delay === 0}
-                    />
+                {/* Background Image Container with Cinematic Fade */}
+                <div style={{ position: "absolute", inset: 0, zIndex: 0 }}>
+                    {imageSrc && !imageSrc.endsWith('.png') && !imageSrc.endsWith('.jpg') ? (
+                        <div style={{ width: "100%", height: "100%", background: "linear-gradient(to bottom right, #1a1a1a, black)" }} />
+                    ) : (
+                        <Image
+                            src={imageSrc}
+                            alt={title}
+                            fill
+                            className="object-cover transition-transform duration-700 ease-out group-hover:scale-105 opacity-80"
+                            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                            quality={90}
+                        />
+                    )}
 
-                    {/* Dynamic Overlays: Adjust based on theme for maximum legibility */}
-                    {/* Dark scrim for dark mode / general readability */}
+                    {/* Gradient Overlay */}
+                    <div style={{
+                        position: "absolute",
+                        inset: 0,
+                        background: "linear-gradient(to top, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.2) 50%, transparent 100%)",
+                        zIndex: 10
+                    }} />
+
+                    {/* Theme Glow */}
                     <div
+                        className="opacity-20 group-hover:opacity-30 transition-opacity duration-500"
                         style={{
                             position: "absolute",
                             inset: 0,
-                            background: "linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.4) 40%, rgba(0,0,0,0.85) 100%)",
-                            zIndex: 1,
-                            transition: "opacity 0.4s ease",
+                            zIndex: 10,
+                            background: `radial-gradient(circle at top right, ${themeColor}, transparent 70%)`
                         }}
-                        className="opacity-70 group-hover:opacity-90 dark:opacity-80 dark:group-hover:opacity-100"
-                    />
-
-                    {/* Theme Tint */}
-                    <div
-                        style={{
-                            position: "absolute",
-                            inset: 0,
-                            background: themeColor,
-                            mixBlendMode: "overlay",
-                            opacity: 0.25,
-                            zIndex: 2,
-                            transition: "opacity 0.4s ease",
-                        }}
-                        className="group-hover:opacity-40"
                     />
                 </div>
 
                 {/* Content Container */}
-                <div style={{ position: "relative", zIndex: 10, height: "100%", display: "flex", flexDirection: "column", justifyContent: "space-between" }} className="p-5 md:p-10">
-                    <div>
-                        <div
-                            style={{
-                                marginBottom: "1rem",
-                                display: "flex",
-                                alignItems: "center",
-                                justifyContent: "center",
-                                fontSize: "1.5rem",
-                                background: "rgba(255, 255, 255, 0.15)",
-                                border: "1px solid rgba(255, 255, 255, 0.3)",
-                                backdropFilter: "blur(12px)",
-                                WebkitBackdropFilter: "blur(12px)",
-                                boxShadow: `0 10px 20px -5px ${themeColor}40`,
-                                transition: "all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275)",
-                                color: "white",
-                            }}
-                            className="w-10 h-10 rounded-xl md:w-16 md:h-16 md:rounded-[1.25rem] md:mb-8 md:text-2xl group-hover:scale-110 group-hover:rotate-6 group-hover:background-white/20"
-                        >
+                <div style={{
+                    position: "relative",
+                    zIndex: 20,
+                    height: "100%",
+                    display: "flex",
+                    flexDirection: "column",
+                    justifyContent: "space-between",
+                    padding: "1.5rem 2rem",
+                }}>
+                    {/* Header Section */}
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+                        <div style={iconContainerStyle}>
                             {icon}
                         </div>
 
-                        <h3
-                            style={{
-                                fontWeight: 700,
-                                color: "white", // Keep white for impact on images
-                                letterSpacing: "-0.04em",
-                                textShadow: "0 2px 15px rgba(0,0,0,0.5)",
-                                lineHeight: 1.1,
-                                fontFamily: "var(--font-serif)",
-                            }}
-                            className="text-lg md:text-[1.75rem] mb-2 md:mb-4"
-                        >
+                        {!isSocial && (
+                            <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300" style={{ transform: "translateX(0)" }}>
+                                <ArrowUpRight style={{ width: "1.25rem", height: "1.25rem", color: "rgba(255,255,255,0.7)" }} />
+                            </div>
+                        )}
+                    </div>
+
+                    {/* Bottom Text Section */}
+                    <div style={{ fontFamily: "var(--font-sans, sans-serif)" }}>
+                        <h3 style={{
+                            margin: "0 0 0.25rem 0",
+                            fontWeight: 600,
+                            color: "rgba(255, 255, 255, 0.95)",
+                            fontSize: "clamp(1.1rem, 2vw, 1.5rem)",
+                            letterSpacing: "-0.025em",
+                            textShadow: "0 2px 4px rgba(0,0,0,0.3)"
+                        }}>
                             {title}
                         </h3>
 
-                        <p
-                            style={{
-                                lineHeight: 1.4,
-                                color: "rgba(255, 255, 255, 0.9)", // High contrast white
-                                margin: 0,
-                                textShadow: "0 1px 10px rgba(0,0,0,0.8)",
-                                fontFamily: "var(--font-sans)",
-                                maxWidth: "28ch",
-                            }}
-                            className="text-xs md:text-base hidden sm:block"
-                        >
+                        <p style={{
+                            margin: 0,
+                            fontSize: "clamp(0.8rem, 1.5vw, 0.95rem)",
+                            color: "rgba(255, 255, 255, 0.7)",
+                            fontWeight: 500,
+                            lineHeight: 1.4,
+                            maxWidth: "100%",
+                            textShadow: "0 1px 2px rgba(0,0,0,0.2)"
+                        }}>
                             {description}
                         </p>
-                    </div>
 
-                    <div
-                        style={{
-                            marginTop: "auto",
-                            display: "flex",
-                            alignItems: "center",
-                            fontSize: "0.75rem",
-                            fontWeight: 800,
-                            textTransform: "uppercase",
-                            letterSpacing: "0.2em",
-                            color: "rgba(255, 255, 255, 0.7)",
-                            transition: "all 0.3s ease",
-                        }}
-                        className="group-hover:text-white hidden md:flex"
-                    >
-                        <span style={{ borderBottom: "1px solid rgba(255,255,255,0.3)", paddingBottom: "2px" }}>Explore Room</span>
-                        <svg
-                            style={{ marginLeft: "1rem", width: "1.25rem", height: "1.25rem" }}
-                            className="transition-transform duration-500 group-hover:translate-x-3"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                        >
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                        </svg>
+                        {isSocial && (
+                            <div style={{ display: "flex", gap: "0.75rem", marginTop: "1.5rem" }}>
+                                {[
+                                    { name: "Twitter", href: "https://x.com/scienfilix", icon: <Twitter size={18} /> },
+                                    { name: "GitHub", href: "https://github.com/mfazans23", icon: <Github size={18} /> },
+                                    { name: "LinkedIn", href: "https://linkedin.com", icon: <Linkedin size={18} /> }
+                                ].map((social) => (
+                                    <a
+                                        key={social.name}
+                                        href={social.href}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        style={{
+                                            padding: "0.75rem",
+                                            background: "rgba(255, 255, 255, 0.1)",
+                                            backdropFilter: "blur(10px)",
+                                            WebkitBackdropFilter: "blur(10px)",
+                                            border: "1px solid rgba(255, 255, 255, 0.1)",
+                                            borderRadius: "0.75rem",
+                                            color: "rgba(255, 255, 255, 0.8)",
+                                            display: "flex",
+                                            alignItems: "center",
+                                            justifyContent: "center",
+                                            transition: "all 0.3s ease"
+                                        }}
+                                        className="hover:bg-white/20 hover:text-white hover:scale-110"
+                                        onClick={(e) => e.stopPropagation()}
+                                    >
+                                        {social.icon}
+                                    </a>
+                                ))}
+                            </div>
+                        )}
                     </div>
                 </div>
 
@@ -173,7 +201,7 @@ const RoomCard = ({ title, description, href, className = "", icon, themeColor, 
                     }}
                 />
             </motion.div>
-        </Link>
+        </ContentWrapper>
     );
 };
 
@@ -181,39 +209,49 @@ export function RoomBentoGrid() {
     const rooms = [
         {
             title: "Starlight",
-            description: "Atmospheric haven for deep reflection and cosmic tranquility.",
+            description: "Deep reflection & cosmic tranquility.",
             href: "/starlight",
-            className: "col-span-1 md:col-span-2 md:row-span-2",
-            icon: "✨",
+            className: "col-span-2 md:col-span-2 md:row-span-2",
+            icon: <Sparkles size={24} />,
             themeColor: "#8B5CF6", // Violet
             imageSrc: "/images/starlight.png",
         },
         {
             title: "Workspace",
-            description: "Digital forge for high-performance productivity and craftsmanship.",
+            description: "High-performance craftsmanship.",
             href: "/workspace",
             className: "col-span-1 md:col-span-1 md:row-span-1",
-            icon: "🛠️",
+            icon: <Hammer size={24} />,
             themeColor: "#3B82F6", // Blue
             imageSrc: "/images/workspace.png",
         },
         {
             title: "Guest Room",
-            description: "Where conversations find a home. A space for connection.",
+            description: "Human connection.",
             href: "/guest",
             className: "col-span-1 md:col-span-1 md:row-span-1",
-            icon: "🤝",
+            icon: <Users size={24} />,
             themeColor: "#EC4899", // Pink
             imageSrc: "/images/guest.png",
         },
         {
             title: "Gudang",
-            description: "Archive of curiosities and artifacts of personal history.",
+            description: "Archive of artifacts.",
             href: "/gudang",
-            className: "col-span-1 md:col-span-3 md:row-span-1",
-            icon: "📦",
+            className: "col-span-2 md:col-span-2 md:row-span-1",
+            icon: <Archive size={24} />,
             themeColor: "#10B981", // Emerald
             imageSrc: "/images/gudang.png",
+        },
+        {
+            title: "Connect",
+            description: "Network signals.",
+            href: "#connect",
+            className: "col-span-1 md:col-span-1 md:row-span-1",
+            icon: <Wifi size={24} />,
+            themeColor: "#F59E0B", // Amber
+            imageSrc: "/images/connect_bg.png",
+            isSocial: true,
         },
     ];
 
@@ -225,43 +263,50 @@ export function RoomBentoGrid() {
                 width: "100%",
                 maxWidth: "1400px",
                 margin: "0 auto",
+                padding: "2.5rem 1.25rem",
             }}
+            className="md:py-32 md:px-8"
         >
             <style>{`
                 .bento-grid {
                     display: grid;
                     grid-template-columns: repeat(2, 1fr);
-                    gap: 15px;
-                    padding: 20px;
+                    gap: 10px;
                 }
                 @media (min-width: 768px) {
                     .bento-grid {
                         grid-template-columns: repeat(3, 1fr);
-                        gap: 32px;
-                        padding: 128px 32px;
+                        grid-auto-rows: minmax(280px, auto);
+                        gap: 24px;
                     }
                 }
             `}</style>
-            {/* Dynamic Header */}
-            <div style={{ marginBottom: '1.5rem', padding: '0 20px' }} className="md:mb-16 md:px-8">
+
+            {/* Header */}
+            <div style={{ marginBottom: "2rem", paddingLeft: "0.5rem" }} className="md:mb-12">
                 <motion.div
-                    initial={{ opacity: 0, x: -20 }}
+                    initial={{ opacity: 0, x: -10 }}
                     whileInView={{ opacity: 1, x: 0 }}
                     viewport={{ once: true }}
-                    transition={{ duration: 0.8 }}
+                    transition={{ duration: 0.6 }}
                 >
                     <h2 style={{
-                        color: 'var(--foreground)', // Theme aware title
+                        fontSize: "clamp(1.875rem, 5vw, 3rem)",
                         fontWeight: 700,
-                        letterSpacing: '-0.04em',
-                        fontFamily: 'var(--font-serif)',
-                    }} className="text-3xl md:text-5xl mb-2 md:mb-4">
-                        The Sanctuary Rooms
+                        fontFamily: "var(--font-sans, sans-serif)",
+                        letterSpacing: "-0.04em",
+                        color: "var(--foreground)",
+                        marginBottom: "0.75rem"
+                    }}>
+                        Sanctuary Rooms
                     </h2>
                     <div style={{
-                        background: 'var(--accent)',
-                        borderRadius: '3px'
-                    }} className="w-12 h-1 md:w-16 md:h-1.5" />
+                        width: "4rem",
+                        height: "0.375rem",
+                        background: "var(--accent)",
+                        borderRadius: "9999px",
+                        opacity: 0.8
+                    }} className="md:w-16" />
                 </motion.div>
             </div>
 
@@ -270,10 +315,8 @@ export function RoomBentoGrid() {
                     <RoomCard
                         key={idx}
                         {...room}
-                        delay={idx * 0.1}
-                        // Mobile: 2 columns.
-                        // Desktop: Original spans.
-                        className={`${room.className.replace('col-span-1', '').replace('md:', '')} ${idx === 3 ? 'col-span-2 md:col-span-3' : 'col-span-1'} md:${room.className} ${idx % 2 === 0 ? 'min-h-[160px] md:min-h-[300px]' : 'min-h-[160px] md:min-h-[250px]'} md:min-h-0`}
+                        delay={idx * 0.05}
+                        className={room.className}
                     />
                 ))}
             </div>

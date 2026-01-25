@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import { Header } from "@/components/Header";
-import { Footer } from "@/components/Footer";
+import { LayoutShell } from "@/components/layout/LayoutShell";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { SkipLink } from "@/components/SkipLink";
 import { KonamiCode } from "@/components/KonamiCode";
@@ -66,11 +65,9 @@ export default function RootLayout({
                 <KonamiCode />
                 <FloatingZenToggle />
                 <NativeBrowserGuard />
-                <Header />
-                <main id="main-content" className="main-content-padding" style={{ flex: 1 }}>
+                <LayoutShell>
                   {children}
-                </main>
-                <Footer />
+                </LayoutShell>
               </ZenProvider>
             </AudioProvider>
           </NarrativeProvider>
