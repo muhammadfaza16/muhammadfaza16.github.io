@@ -142,6 +142,7 @@ export function StarlightBentoGrid() {
     const gridApps = [
         { title: "Bookshelf", href: "/bookshelf", icon: <Book />, gradient: "linear-gradient(135deg, #FF9500, #FF5E3A)" }, // Orange
         { title: "Movies", href: "/movies", icon: <Film />, gradient: "linear-gradient(135deg, #FF2D55, #FF375F)" }, // Pink Red
+        { title: "Playlist", href: "/playlist", icon: <Music />, gradient: "linear-gradient(135deg, #ec4899, #db2777)" }, // Apple Music style pink (FROM REMOTE)
         { title: "Links", href: "/links", icon: <LinkIcon />, gradient: "linear-gradient(135deg, #5AC8FA, #007AFF)" }, // Blue
         { title: "Wishlist", href: "/wishlist", icon: <Gift />, gradient: "linear-gradient(135deg, #AF52DE, #5856D6)" }, // Purple
         { title: "TIL", href: "/til", icon: <Lightbulb />, gradient: "linear-gradient(135deg, #34C759, #30B0C7)" }, // Green
