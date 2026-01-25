@@ -1,6 +1,5 @@
 ﻿"use client";
 
-import { ScrollReveal } from "@/components/ScrollReveal";
 import { GradientOrb } from "@/components/GradientOrb";
 import { CosmicStars } from "@/components/CosmicStars";
 import { MilkyWay } from "@/components/MilkyWay";
@@ -14,7 +13,7 @@ export default function StarlightPage() {
     <>
       {/* Ambient Background */}
       <div style={{
-        position: "absolute",
+        position: "fixed", // Fixed background for that wallpaper feel
         top: 0,
         left: 0,
         width: "100%",
@@ -29,33 +28,27 @@ export default function StarlightPage() {
       </div>
 
       <ZenHideable hideInZen>
-        {/* Dynamic Jarvis Hero */}
-        <ScrollReveal>
-          <StarlightJarvisHero />
-        </ScrollReveal>
-
-        {/* Dynamic Divider */}
-        <div style={{
+        <main style={{
+          position: "relative",
+          zIndex: 1,
+          paddingTop: "2rem", // Standard padding
+          minHeight: "100vh",
           display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          gap: "1.5rem",
-          padding: "2rem 0",
-          opacity: 0.2
+          flexDirection: "column",
+          justifyContent: "flex-start", // align to top like a phone
+          gap: "1rem"
         }}>
-          <div style={{ flex: 1, maxWidth: "150px", height: "1px", background: "linear-gradient(to right, transparent, var(--border))" }} />
-          <div style={{ width: "6px", height: "6px", borderRadius: "50%", background: "var(--accent)" }} />
-          <div style={{ flex: 1, maxWidth: "150px", height: "1px", background: "linear-gradient(to left, transparent, var(--border))" }} />
-        </div>
+          {/* iOS Widgets Area */}
+          <div style={{ padding: "1rem 0 0" }}>
+            <StarlightJarvisHero />
+          </div>
 
-        {/* Archive Bento Hub */}
-        <ScrollReveal delay={0.2}>
-          <StarlightBentoGrid />
-        </ScrollReveal>
+          {/* Springboard App Grid & Dock */}
+          <div style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "flex-end" }}>
+            <StarlightBentoGrid />
+          </div>
+        </main>
       </ZenHideable>
-
-      {/* Spacer for bottom */}
-      <div style={{ height: "10vh" }} />
     </>
   );
 }

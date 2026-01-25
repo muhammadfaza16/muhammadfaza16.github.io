@@ -2,17 +2,15 @@
 
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Container } from "@/components/Container";
 import { CurrentlyStrip } from "@/components/CurrentlyStrip";
 
 const JARVIS_REMINDERS = [
-    "Jangan lupa minum air, Wanderer. Tubuhmu butuh hidrasi untuk berpikir jernih.",
-    "Sudahkah kamu mencatat ide gilamu hari ini? Jangan biarkan dia menguap.",
-    "Bernapaslah. Satu tarikan napas panjang bisa mengubah perspektifmu.",
-    "Dunia di luar sana luas, tapi dunia di dalam kepalamu juga tak kalah menarik.",
-    "Pelan-pelan saja. Konsistensi lebih berharga daripada kecepatan yang meledak-ledak.",
-    "Istirahat bukan tanda kelemahan, itu adalah strategi untuk bertahan lebih lama.",
-    "Setiap baris kode adalah langkah kecil menuju mahakarya. Teruskan.",
+    "Minum air, Wanderer.",
+    "Catat ide gilamu.",
+    "Bernapaslah sejenak.",
+    "Fokus pada proses.",
+    "Istirahat itu strategi.",
+    "Konsistensi > Kecepatan.",
 ];
 
 export function StarlightJarvisHero() {
@@ -20,7 +18,6 @@ export function StarlightJarvisHero() {
     const [index, setIndex] = useState(0);
 
     useEffect(() => {
-        // Pick a reminder based on the day or just rotate
         const dayOfYear = Math.floor((new Date().getTime() - new Date(new Date().getFullYear(), 0, 0).getTime()) / 86400000);
         setIndex(dayOfYear % JARVIS_REMINDERS.length);
         setReminder(JARVIS_REMINDERS[dayOfYear % JARVIS_REMINDERS.length]);
@@ -28,94 +25,112 @@ export function StarlightJarvisHero() {
 
     return (
         <section style={{
-            paddingTop: "calc(5rem + 5vh)",
-            paddingBottom: "4rem",
-            position: "relative",
-            minHeight: "70vh",
+            padding: "0 1.5rem",
+            marginBottom: "2rem",
+            width: "100%",
             display: "flex",
-            alignItems: "center",
+            justifyContent: "center"
         }}>
-            <Container>
-                <div style={{ display: "flex", flexDirection: "column", gap: "3rem" }}>
-
-                    {/* Jarvis Message Card */}
-                    <div style={{ maxWidth: "42rem" }}>
-                        <motion.div
-                            initial={{ opacity: 0, x: -20 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            transition={{ duration: 0.8 }}
-                        >
-                            <div style={{
-                                display: "flex",
-                                alignItems: "center",
-                                gap: "0.75rem",
-                                marginBottom: "1.5rem",
-                                fontFamily: "var(--font-mono)",
-                                fontSize: "0.75rem",
-                                textTransform: "uppercase",
-                                letterSpacing: "0.2em",
-                                color: "var(--accent)",
-                            }}>
-                                <span style={{
-                                    width: "8px",
-                                    height: "8px",
-                                    borderRadius: "50%",
-                                    background: "var(--accent)",
-                                    boxShadow: "0 0 10px var(--accent)",
-                                    animation: "pulse 2s infinite"
-                                }} />
-                                Jarvis Reporting
-                            </div>
-
-                            <h1 style={{
-                                fontFamily: "var(--font-serif)",
-                                fontSize: "clamp(2.5rem, 6vw, 4.5rem)",
-                                fontWeight: 500,
-                                lineHeight: 1.1,
-                                letterSpacing: "-0.03em",
-                                marginBottom: "2rem",
-                                color: "var(--foreground)",
-                            }}>
-                                <AnimatePresence mode="wait">
-                                    <motion.span
-                                        key={index}
-                                        initial={{ opacity: 0, y: 10 }}
-                                        animate={{ opacity: 1, y: 0 }}
-                                        exit={{ opacity: 0, y: -10 }}
-                                        transition={{ duration: 0.5 }}
-                                    >
-                                        "{reminder}"
-                                    </motion.span>
-                                </AnimatePresence>
-                            </h1>
-
-                            <p style={{
-                                fontSize: "1.15rem",
-                                fontFamily: "var(--font-sans)",
-                                color: "var(--text-secondary)",
-                                maxWidth: "35rem",
-                                lineHeight: 1.7,
-                            }}>
-                                Selamat datang kembali di Starlight, Wanderer. Semua arsip dan memorimu sudah siap untuk dijelajahi. Apa yang ingin kamu ingat hari ini?
-                            </p>
-                        </motion.div>
+            <div style={{
+                width: "100%",
+                maxWidth: "480px", // Match iPhone width
+                display: "flex",
+                flexDirection: "column",
+                gap: "1rem"
+            }}>
+                {/* JARVIS WIDGET - iOS Style */}
+                <motion.div
+                    initial={{ opacity: 0, scale: 0.95, y: 10 }}
+                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                    transition={{ duration: 0.6, type: "spring" }}
+                    style={{
+                        background: "rgba(255, 255, 255, 0.1)", // Light glass
+                        backdropFilter: "blur(20px) saturate(180%)",
+                        WebkitBackdropFilter: "blur(20px) saturate(180%)",
+                        borderRadius: "26px", // Super elliptical
+                        padding: "1.5rem",
+                        boxShadow: "0 10px 30px rgba(0,0,0,0.1), inset 0 0 0 1px rgba(255,255,255,0.15)",
+                        border: "1px solid rgba(255,255,255,0.05)",
+                        minHeight: "160px",
+                        display: "flex",
+                        flexDirection: "column",
+                        justifyContent: "space-between",
+                        position: "relative",
+                        overflow: "hidden"
+                    }}
+                >
+                    {/* Header */}
+                    <div style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "0.5rem",
+                        fontFamily: "-apple-system, sans-serif",
+                        fontSize: "0.75rem",
+                        fontWeight: 600,
+                        color: "rgba(255,255,255,0.6)",
+                        textTransform: "uppercase",
+                        letterSpacing: "0.05em"
+                    }}>
+                        <div style={{
+                            width: "6px",
+                            height: "6px",
+                            borderRadius: "50%",
+                            background: "#34C759", // iOS Green
+                            boxShadow: "0 0 8px #34C759"
+                        }} />
+                        JARVIS
                     </div>
 
-                    {/* Integrated Music Player Row */}
-                    <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.8, delay: 0.3 }}
-                        style={{
-                            width: "100%",
-                            maxWidth: "800px", // Give more space for CurrentlyStrip
-                        }}
-                    >
-                        <CurrentlyStrip />
-                    </motion.div>
+                    {/* Content */}
+                    <div style={{ position: "relative", zIndex: 2 }}>
+                        <h3 style={{
+                            fontFamily: "-apple-system, sans-serif",
+                            fontSize: "1.25rem",
+                            fontWeight: 500, // Thinner, Apple-like
+                            lineHeight: 1.3,
+                            color: "white",
+                            marginBottom: "0.5rem"
+                        }}>
+                            <AnimatePresence mode="wait">
+                                <motion.span
+                                    key={index}
+                                    initial={{ opacity: 0, y: 5 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    exit={{ opacity: 0, y: -5 }}
+                                    transition={{ duration: 0.4 }}
+                                >
+                                    "{reminder}"
+                                </motion.span>
+                            </AnimatePresence>
+                        </h3>
+                        <p style={{
+                            fontSize: "0.85rem",
+                            color: "rgba(255,255,255,0.6)",
+                            lineHeight: 1.4,
+                        }}>
+                            Selamat datang kembali, Wanderer.
+                        </p>
+                    </div>
 
+                    {/* Glossy Reflection */}
+                    <div style={{
+                        position: "absolute",
+                        top: 0,
+                        right: 0,
+                        width: "150px",
+                        height: "150px",
+                        background: "radial-gradient(circle at top right, rgba(255,255,255,0.15), transparent 70%)",
+                        pointerEvents: "none",
+                        borderTopRightRadius: "26px"
+                    }} />
+                </motion.div>
+
+                {/* MINI MUSIC PLAYER WIDGET */}
+                {/* We wrap CurrentlyStrip slightly to fit the theme */}
+                <div style={{ transform: "scale(0.98)", opacity: 0.9 }}>
+                    <CurrentlyStrip />
                 </div>
-            </Container>
+            </div>
         </section>
     );
 }
