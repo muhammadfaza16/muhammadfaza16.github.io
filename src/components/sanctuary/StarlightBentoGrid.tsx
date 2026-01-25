@@ -2,17 +2,28 @@
 
 import React from "react";
 import Link from "next/link";
-import Image from "next/image";
 import { motion } from "framer-motion";
+import {
+    PenTool,
+    FileText,
+    Lightbulb,
+    Map,
+    Zap,
+    Book,
+    Link as LinkIcon,
+    Film,
+    Gift
+} from "lucide-react";
 
 interface AppIconProps {
     title: string;
     href: string;
-    iconPath: string;
+    icon: React.ReactNode;
+    gradient: string;
     delay?: number;
 }
 
-const AppIcon = ({ title, href, iconPath, delay = 0 }: AppIconProps) => {
+const AppIcon = ({ title, href, icon, gradient, delay = 0 }: AppIconProps) => {
     return (
         <Link href={href} style={{ textDecoration: 'none' }} className="group">
             <motion.div
@@ -24,39 +35,52 @@ const AppIcon = ({ title, href, iconPath, delay = 0 }: AppIconProps) => {
                     display: "flex",
                     flexDirection: "column",
                     alignItems: "center",
-                    gap: "0.5rem",
+                    gap: "0.65rem",
                 }}
             >
-                {/* The App Icon */}
+                {/* The App Icon (Pure CSS iPhone Style) */}
                 <div style={{
                     position: "relative",
-                    width: "clamp(60px, 18vw, 84px)", // Typical iPhone icon size scaling
-                    height: "clamp(60px, 18vw, 84px)",
-                    borderRadius: "22%", // The "Squircle" radius
+                    width: "clamp(64px, 18vw, 80px)",
+                    height: "clamp(64px, 18vw, 80px)",
+                    borderRadius: "22.5%", // Exact Apple Squircle approximation
+                    background: gradient,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    boxShadow: "0 8px 20px -5px rgba(0,0,0,0.5), inset 0 0 0 1px rgba(255,255,255,0.1)",
+                    transition: "transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)",
                     overflow: "hidden",
-                    boxShadow: "0 10px 20px -5px rgba(0,0,0,0.4)",
-                    transition: "transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)",
-                    background: "rgba(255,255,255,0.1)",
-                    backdropFilter: "blur(10px)",
-                    border: "1px solid rgba(255,255,255,0.1)",
                 }} className="group-hover:scale-110 group-active:scale-95">
-                    <Image
-                        src={iconPath}
-                        alt={title}
-                        fill
-                        sizes="120px"
-                        style={{
-                            objectFit: "cover",
-                            transform: "scale(1.05)", // Slight zoom to fill the squircle nicely
-                        }}
-                    />
-                    {/* Glossy Overlay */}
+
+                    {/* Symbol */}
+                    <div style={{ color: "white", zIndex: 2, position: "relative" }}>
+                        {React.cloneElement(icon as React.ReactElement, { size: "40%", strokeWidth: 2 })}
+                    </div>
+
+                    {/* Glossy Top Reflection (iPhone 6 Style) */}
+                    <div style={{
+                        position: "absolute",
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        height: "50%",
+                        background: "linear-gradient(180deg, rgba(255,255,255,0.25) 0%, rgba(255,255,255,0.05) 100%)",
+                        borderTopLeftRadius: "22.5% 45%",
+                        borderTopRightRadius: "22.5% 45%",
+                        zIndex: 3,
+                        pointerEvents: "none",
+                    }} />
+
+                    {/* Modern Glassmorphic Grain/Texture */}
                     <div style={{
                         position: "absolute",
                         inset: 0,
-                        background: "linear-gradient(135deg, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0) 50%, rgba(255,255,255,0) 100%)",
-                        pointerEvents: "none",
+                        opacity: 0.05,
+                        backgroundImage: "url('https://grainy-gradients.vercel.app/noise.svg')",
+                        filter: "contrast(150%) brightness(100%)",
                         zIndex: 1,
+                        pointerEvents: "none",
                     }} />
                 </div>
 
@@ -65,7 +89,7 @@ const AppIcon = ({ title, href, iconPath, delay = 0 }: AppIconProps) => {
                     fontFamily: "var(--font-sans)",
                     fontSize: "0.75rem",
                     fontWeight: 500,
-                    color: "rgba(255, 255, 255, 0.9)",
+                    color: "rgba(255, 255, 255, 0.8)",
                     textAlign: "center",
                     textShadow: "0 1px 2px rgba(0,0,0,0.5)",
                     whiteSpace: "nowrap",
@@ -80,53 +104,38 @@ const AppIcon = ({ title, href, iconPath, delay = 0 }: AppIconProps) => {
 
 export function StarlightBentoGrid() {
     const apps = [
-        { title: "Writing", href: "/blog", iconPath: "/images/icons/writing.png" },
-        { title: "Notes", href: "/notes", iconPath: "/images/icons/notes.png" },
-        { title: "TIL", href: "/til", iconPath: "/images/icons/til.png" },
-        { title: "Journey", href: "/journey", iconPath: "/images/icons/journey.png" },
-        { title: "Ideas", href: "/ideas", iconPath: "/images/icons/ideas.png" },
-        { title: "Bookshelf", href: "/bookshelf", iconPath: "/images/icons/bookshelf.png" },
-        { title: "Links", href: "/links", iconPath: "/images/icons/links.png" },
-        { title: "Movie", href: "/movies", iconPath: "/images/icons/movie.png" },
-        { title: "Wishlist", href: "/wishlist", iconPath: "/images/icons/wishlist.png" },
+        { title: "Writing", href: "/blog", icon: <PenTool />, gradient: "linear-gradient(135deg, #a855f7, #6366f1)" },
+        { title: "Notes", href: "/notes", icon: <FileText />, gradient: "linear-gradient(135deg, #3b82f6, #06b6d4)" },
+        { title: "TIL", href: "/til", icon: <Lightbulb />, gradient: "linear-gradient(135deg, #10b981, #34d399)" },
+        { title: "Journey", href: "/journey", icon: <Map />, gradient: "linear-gradient(135deg, #f59e0b, #d97706)" },
+        { title: "Ideas", href: "/ideas", icon: <Zap />, gradient: "linear-gradient(135deg, #ec4899, #be185d)" },
+        { title: "Bookshelf", href: "/bookshelf", icon: <Book />, gradient: "linear-gradient(135deg, #6366f1, #4f46e5)" },
+        { title: "Links", href: "/links", icon: <LinkIcon />, gradient: "linear-gradient(135deg, #0ea5e9, #0284c7)" },
+        { title: "Movie", href: "/movies", icon: <Film />, gradient: "linear-gradient(135deg, #ef4444, #b91c1c)" },
+        { title: "Wishlist", href: "/wishlist", icon: <Gift />, gradient: "linear-gradient(135deg, #9333ea, #7e22ce)" },
     ];
 
     return (
         <section style={{
-            padding: "2rem 1.5rem 10rem",
-            maxWidth: "500px", // iPhone-width centered section
+            padding: "2rem 1rem 10rem",
+            maxWidth: "480px", // iPhone-width centered section
             margin: "0 auto",
             position: "relative",
             zIndex: 10,
         }}>
-            {/* Home Screen Header Container */}
-            <div style={{ marginBottom: "3rem", textAlign: "center" }}>
-                <h2 style={{
-                    fontFamily: "var(--font-serif)",
-                    fontSize: "1.25rem",
-                    color: "rgba(255,255,255,0.6)",
-                    fontWeight: 400,
-                    letterSpacing: "0.05em",
-                    textTransform: "uppercase",
-                }}>
-                    Memory Deck
-                </h2>
-            </div>
-
             {/* App Grid */}
             <div
                 style={{
                     display: "grid",
-                    gridTemplateColumns: "repeat(4, 1fr)", // 4-column iPhone layout
+                    gridTemplateColumns: "repeat(4, 1fr)", // 4-column layout
                     gap: "1.5rem 1rem",
                     padding: "0 0.5rem",
                 }}
             >
                 {apps.map((app, idx) => (
-                    <AppIcon key={idx} {...app} delay={idx * 0.05} />
+                    <AppIcon key={idx} {...app} delay={idx * 0.04} />
                 ))}
             </div>
-
         </section>
     );
 }
