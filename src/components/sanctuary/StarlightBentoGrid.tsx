@@ -12,7 +12,9 @@ import {
     Book,
     Link as LinkIcon,
     Film,
-    Gift
+    Gift,
+    Music,
+    Clock
 } from "lucide-react";
 
 interface AppIconProps {
@@ -122,6 +124,8 @@ export function StarlightBentoGrid() {
         { title: "Links", href: "/links", icon: <LinkIcon />, gradient: "linear-gradient(135deg, #0ea5e9, #0284c7)" },
         { title: "Movie", href: "/movies", icon: <Film />, gradient: "linear-gradient(135deg, #ef4444, #b91c1c)" },
         { title: "Wishlist", href: "/wishlist", icon: <Gift />, gradient: "linear-gradient(135deg, #9333ea, #7e22ce)" },
+        { title: "Playlist", href: "/playlist", icon: <Music />, gradient: "linear-gradient(135deg, #ec4899, #db2777)" }, // Apple Music style pink
+        { title: "Clock", href: "/chronosphere", icon: <Clock />, gradient: "linear-gradient(135deg, #334155, #0f172a)" }, // Sleek dark clock
     ];
 
     return (
