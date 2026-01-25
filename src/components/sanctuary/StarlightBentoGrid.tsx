@@ -97,10 +97,10 @@ const AppIcon = ({ title, href, icon, gradient, delay = 0 }: AppIconProps) => {
 
                 {/* App Label */}
                 <span style={{
-                    fontFamily: "var(--font-sans)",
+                    fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif",
                     fontSize: "0.75rem",
                     fontWeight: 500,
-                    color: "rgba(255, 255, 255, 0.8)",
+                    color: "#ffffff", // Pure white for max contrast like iOS Home Screen
                     textAlign: "center",
                     textShadow: "0 1px 2px rgba(0,0,0,0.5)",
                     whiteSpace: "nowrap",
