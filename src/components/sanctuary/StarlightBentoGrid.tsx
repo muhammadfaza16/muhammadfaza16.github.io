@@ -41,8 +41,8 @@ const AppIcon = ({ title, href, icon, gradient, delay = 0 }: AppIconProps) => {
                 {/* The App Icon (Pure CSS iPhone Style) */}
                 <div style={{
                     position: "relative",
-                    width: "clamp(64px, 18vw, 80px)",
-                    height: "clamp(64px, 18vw, 80px)",
+                    width: "clamp(58px, 15vw, 64px)", // Closer to actual iPhone icon feel
+                    height: "clamp(58px, 15vw, 64px)",
                     borderRadius: "22.5%", // Exact Apple Squircle approximation
                     background: gradient,
                     display: "flex",
@@ -53,9 +53,18 @@ const AppIcon = ({ title, href, icon, gradient, delay = 0 }: AppIconProps) => {
                     overflow: "hidden",
                 }} className="group-hover:scale-110 group-active:scale-95">
 
-                    {/* Symbol */}
-                    <div style={{ color: "white", zIndex: 2, position: "relative" }}>
-                        {React.cloneElement(icon as React.ReactElement, { size: "40%", strokeWidth: 2 })}
+                    {/* Symbol Wrapper - Centered */}
+                    <div style={{
+                        color: "white",
+                        zIndex: 2,
+                        position: "relative",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        width: "100%",
+                        height: "100%",
+                    }}>
+                        {React.cloneElement(icon as any, { size: "40%", strokeWidth: 2.5 })}
                     </div>
 
                     {/* Glossy Top Reflection (iPhone 6 Style) */}
@@ -117,19 +126,25 @@ export function StarlightBentoGrid() {
 
     return (
         <section style={{
-            padding: "2rem 1rem 10rem",
-            maxWidth: "480px", // iPhone-width centered section
+            padding: "2rem 1.5rem 10rem",
+            maxWidth: "390px", // iPhone standard width range for authentic feel
             margin: "0 auto",
             position: "relative",
             zIndex: 10,
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
         }}>
             {/* App Grid */}
             <div
                 style={{
                     display: "grid",
-                    gridTemplateColumns: "repeat(4, 1fr)", // 4-column layout
-                    gap: "1.5rem 1rem",
-                    padding: "0 0.5rem",
+                    gridTemplateColumns: "repeat(4, 1fr)",
+                    columnGap: "1.25rem", // Tighter iPhone-like gap
+                    rowGap: "2rem",
+                    padding: "0",
+                    width: "100%",
+                    justifyItems: "center",
                 }}
             >
                 {apps.map((app, idx) => (
