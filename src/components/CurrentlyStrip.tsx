@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef, useMemo, memo } from "react";
+import { usePathname } from "next/navigation";
 import { useAudio, PLAYLIST } from "./AudioContext";
 import { useNarrativeEngine } from "../hooks/useNarrativeEngine"; // Import Narrative Engine Hook
 import { useZen } from "./ZenContext";
@@ -881,7 +882,7 @@ const VibingAvatar = memo(function VibingAvatar({
                         transform: translate(-50%, -50%);
                         font-size: clamp(3rem, 15vw, 7rem);
                         font-weight: 800;
-                        font-family: var(--font-serif);
+                        font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif;
                         letter-spacing: -0.02em;
                         color: var(--foreground);
                         text-align: center;
@@ -1099,6 +1100,7 @@ const WELCOME_MESSAGES = [
 
 
 export function CurrentlyStrip() {
+    const pathname = usePathname();
     // Destructure audio context with audioRef for the engine
     const { isPlaying, isBuffering, togglePlay, currentSong, nextSong, prevSong, jumpToSong, hasInteracted, audioRef, warmup } = useAudio();
 
@@ -1112,6 +1114,7 @@ export function CurrentlyStrip() {
     const [isSettingsOpen, setIsSettingsOpen] = useState(false);
     const [showMarquee, setShowMarquee] = useState(true);
     const [showNarrative, setShowNarrative] = useState(true);
+    const [showLyrics, setShowLyrics] = useState(true); // Default ON
     const [isPlaylistOpen, setIsPlaylistOpen] = useState(false);
 
     useEffect(() => {
@@ -1191,8 +1194,7 @@ export function CurrentlyStrip() {
     // Avatar Tooltip State
     const [showAvatarTooltip, setShowAvatarTooltip] = useState(false);
 
-    // Lyrics Mode State
-    const [showLyrics, setShowLyrics] = useState(false);
+
 
     useEffect(() => {
         if (isHydrated) {
@@ -1472,31 +1474,29 @@ export function CurrentlyStrip() {
 
             {/* Top: Marquee Pill */}
             {showMarquee && (
-                <ZenHideable showOnlyInZen>
-                    <div
-                        style={{
-                            display: "inline-flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                            gap: "0.75rem",
-                            padding: "0.5rem 1.25rem",
-                            borderRadius: "99px",
-                            backgroundColor: "rgba(var(--background-rgb), 0.5)",
-                            backdropFilter: "blur(8px)",
-                            border: "1px solid var(--border)",
-                            boxShadow: "0 2px 10px rgba(0,0,0,0.02)",
-                            fontFamily: "var(--font-mono)",
-                            fontSize: "0.75rem",
-                            color: "var(--text-secondary)",
-                            letterSpacing: "0.02em",
-                            width: "clamp(300px, 90vw, 600px)",
-                            overflow: "hidden"
-                        }}
-                        className="pause-on-hover"
-                    >
-                        <ContinuousMarquee items={statusItems} onVisibilityChange={handleVisibilityChange} />
-                    </div>
-                </ZenHideable>
+                <div
+                    style={{
+                        display: "inline-flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        gap: "0.75rem",
+                        padding: "0.5rem 1.25rem",
+                        borderRadius: "99px",
+                        backgroundColor: "rgba(var(--background-rgb), 0.5)",
+                        backdropFilter: "blur(8px)",
+                        border: "1px solid var(--border)",
+                        boxShadow: "0 2px 10px rgba(0,0,0,0.02)",
+                        fontFamily: "var(--font-mono)",
+                        fontSize: "0.75rem",
+                        color: "var(--text-secondary)",
+                        letterSpacing: "0.02em",
+                        width: "clamp(300px, 90vw, 600px)",
+                        overflow: "hidden"
+                    }}
+                    className="pause-on-hover"
+                >
+                    <ContinuousMarquee items={statusItems} onVisibilityChange={handleVisibilityChange} />
+                </div>
             )}
 
 
@@ -1538,7 +1538,31 @@ export function CurrentlyStrip() {
 
                 {/* Player controls row */}
                 <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "0.5rem" }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
+                        {/* Playlist Toggle (Core Button) - Moved to Left */}
+                        {hasInteracted && (
+                            <div
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    setIsPlaylistOpen(true);
+                                }}
+                                style={{
+                                    cursor: "pointer",
+                                    fontSize: "0.8rem",
+                                    color: "var(--text-muted)",
+                                    opacity: 0.5,
+                                    display: "flex",
+                                    alignItems: "center",
+                                    transition: "all 0.2s ease",
+                                    padding: "4px"
+                                }}
+                                className="hover:opacity-100"
+                                title="Open Library"
+                            >
+                                <ListMusic size={14} />
+                            </div>
+                        )}
+
                         {/* Hide prev/next buttons in initial state */}
                         {hasInteracted && (
                             <div
@@ -1626,7 +1650,7 @@ export function CurrentlyStrip() {
                                     alignItems: "center",
                                     transition: "all 0.2s ease",
                                     padding: "4px",
-                                    marginLeft: "4px",
+                                    marginLeft: "0px", // Removed margin as gaps handle it
                                     transform: isSettingsOpen ? "rotate(90deg)" : "rotate(0deg)"
                                 }}
                                 className="hover:opacity-100"
@@ -1652,22 +1676,7 @@ export function CurrentlyStrip() {
                                     overflow: "hidden"
                                 }}
                             >
-                                {/* Playlist Toggle */}
-                                <div
-                                    onClick={() => setIsPlaylistOpen(true)}
-                                    style={{
-                                        cursor: "pointer",
-                                        opacity: 0.7,
-                                        color: "var(--foreground)",
-                                        transition: "all 0.2s",
-                                        display: "flex",
-                                        alignItems: "center",
-                                        justifyContent: "center"
-                                    }}
-                                    title="Open Library"
-                                >
-                                    <ListMusic size={14} />
-                                </div>
+                                {/* Playlist Toggle Removed from here */}
 
                                 {/* Running Text Toggle */}
                                 <div
@@ -1679,7 +1688,8 @@ export function CurrentlyStrip() {
                                         transition: "all 0.2s",
                                         display: "flex",
                                         alignItems: "center",
-                                        justifyContent: "center"
+                                        justifyContent: "center",
+                                        padding: "4px"
                                     }}
                                     title="Toggle Running Text"
                                 >
@@ -1696,7 +1706,8 @@ export function CurrentlyStrip() {
                                         transition: "all 0.2s",
                                         display: "flex",
                                         alignItems: "center",
-                                        justifyContent: "center"
+                                        justifyContent: "center",
+                                        padding: "4px"
                                     }}
                                     title="Toggle Narrative"
                                 >
@@ -1713,29 +1724,33 @@ export function CurrentlyStrip() {
                                         transition: "all 0.2s",
                                         display: "flex",
                                         alignItems: "center",
-                                        justifyContent: "center"
+                                        justifyContent: "center",
+                                        padding: "4px"
                                     }}
                                     title="Toggle Lyrics"
                                 >
                                     <AlignLeft size={14} />
                                 </div>
 
-                                {/* Zen Mode Toggle */}
-                                <div
-                                    onClick={toggleZen}
-                                    style={{
-                                        cursor: "pointer",
-                                        opacity: isZen ? 1 : 0.4,
-                                        color: isZen ? "var(--foreground)" : "var(--text-muted)",
-                                        transition: "all 0.2s",
-                                        display: "flex",
-                                        alignItems: "center",
-                                        justifyContent: "center"
-                                    }}
-                                    title="Toggle Zen Mode"
-                                >
-                                    {isZen ? <X size={14} /> : <Sparkles size={14} />}
-                                </div>
+                                {/* Zen Mode Toggle - Hidden on Immersive Page */}
+                                {pathname !== "/playlist" && (
+                                    <div
+                                        onClick={toggleZen}
+                                        style={{
+                                            cursor: "pointer",
+                                            opacity: isZen ? 1 : 0.4,
+                                            color: isZen ? "var(--foreground)" : "var(--text-muted)",
+                                            transition: "all 0.2s",
+                                            display: "flex",
+                                            alignItems: "center",
+                                            justifyContent: "center",
+                                            padding: "4px"
+                                        }}
+                                        title="Toggle Zen Mode"
+                                    >
+                                        {isZen ? <X size={14} /> : <Sparkles size={14} />}
+                                    </div>
+                                )}
                             </motion.div>
                         )}
                     </AnimatePresence>

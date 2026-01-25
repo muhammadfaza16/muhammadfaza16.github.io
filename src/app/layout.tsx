@@ -30,6 +30,27 @@ export const metadata: Metadata = {
 
 import { ZenProvider } from "@/components/ZenContext";
 
+import { Playfair_Display, Source_Serif_4, Space_Mono } from "next/font/google";
+
+const playfair = Playfair_Display({
+  subsets: ["latin"],
+  variable: "--font-serif",
+  display: "swap",
+});
+
+const sourceSerif = Source_Serif_4({
+  subsets: ["latin"],
+  variable: "--font-sans", // We use Serif as primary 'sans' role in this design system
+  display: "swap",
+});
+
+const spaceMono = Space_Mono({
+  weight: "400",
+  subsets: ["latin"],
+  variable: "--font-mono",
+  display: "swap",
+});
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -51,7 +72,10 @@ export default function RootLayout({
 
   return (
     <html lang="en" suppressHydrationWarning>
-      <body style={{ minHeight: "100svh", display: "flex", flexDirection: "column" }}>
+      <body
+        className={`${playfair.variable} ${sourceSerif.variable} ${spaceMono.variable}`}
+        style={{ minHeight: "100svh", display: "flex", flexDirection: "column" }}
+      >
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}

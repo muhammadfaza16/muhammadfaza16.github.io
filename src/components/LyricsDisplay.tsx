@@ -91,12 +91,14 @@ export function LyricsDisplay() {
                 {currentLine ? (
                     <p
                         key={activeIndex}
-                        className="font-serif text-2xl md:text-3xl lg:text-4xl leading-tight text-foreground font-medium tracking-wide animate-fade-in-up filter drop-shadow-lg"
+                        className="leading-snug text-white/90 font-serif italic tracking-normal animate-fade-in-up"
                         style={{
-                            textShadow: "0 0 30px rgba(var(--background-rgb), 0.5), 0 0 10px rgba(var(--background-rgb), 0.3)"
+                            fontFamily: "var(--font-serif)",
+                            fontSize: "clamp(1.25rem, 3vw, 2rem)", // Elegant, subtle size
+                            textShadow: "0 2px 10px rgba(0,0,0,0.2)" // Very soft shadow
                         }}
                     >
-                        {currentLine.text}
+                        &ldquo;{currentLine.text}&rdquo;
                     </p>
                 ) : (
                     <p className="opacity-0">...</p>
@@ -106,8 +108,8 @@ export function LyricsDisplay() {
             {/* Next Line (Ghost Preview) - Optional, kept very subtle */}
             {nextLine && (
                 <div className="absolute bottom-8 opacity-20 blur-[2px] transition-all duration-500 transform scale-95">
-                    <p className="font-serif text-sm text-foreground/50 tracking-widest uppercase">
-                        {nextLine.text.substring(0, 30)}...
+                    <p className="font-serif italic text-white/40 tracking-wide" style={{ fontFamily: "var(--font-serif)", fontSize: "1rem" }}>
+                        {nextLine.text.substring(0, 40)}{nextLine.text.length > 40 ? "..." : ""}
                     </p>
                 </div>
             )}

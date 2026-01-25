@@ -36,7 +36,7 @@ export function StarlightJarvisHero() {
                 maxWidth: "480px", // Match iPhone width
                 display: "flex",
                 flexDirection: "column",
-                gap: "1rem"
+                gap: "2.5rem"
             }}>
                 {/* JARVIS WIDGET - iOS Style */}
                 <motion.div

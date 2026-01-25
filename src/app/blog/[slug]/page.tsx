@@ -85,7 +85,7 @@ export default async function BlogPostPage({ params }: PageProps) {
             {/* Minimalist Top Nav */}
             <Container>
                 <div style={{
-                    paddingTop: "7rem", // Clear fixed header (5rem) + buffer
+                    paddingTop: "2rem", // Adjusted after removing fixed header
                     marginBottom: "2rem",
                     display: "flex",
                     justifyContent: "space-between",

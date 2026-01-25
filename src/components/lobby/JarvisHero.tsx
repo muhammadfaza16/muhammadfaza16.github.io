@@ -38,47 +38,94 @@ export function JarvisHero() {
     if (!mounted) return null;
 
     return (
-        <section className="relative min-h-[70vh] md:min-h-[85vh] flex flex-col items-center justify-center text-center overflow-hidden pb-10">
-
-            {/* THE ORB - Ethereal Core */}
-            <div className="relative w-48 h-48 md:w-64 md:h-64 mb-8 md:mb-12 transform-gpu">
-                {/* Core Pulse */}
-                <div className="absolute inset-0 bg-blue-500/20 rounded-full blur-3xl animate-pulse-slow"></div>
-                <div className="absolute inset-10 bg-indigo-500/30 rounded-full blur-2xl animate-pulse-slower delay-75"></div>
-                <div className="absolute inset-20 bg-white/40 rounded-full blur-xl animate-pulse-fast"></div>
-
-                {/* Rings */}
-                <div className="absolute inset-0 border border-white/10 rounded-full animate-spin-slow"></div>
-                <div className="absolute inset-4 border border-white/5 rounded-full animate-reverse-spin-slower"></div>
-            </div>
-
-            <Container>
-                <div className="space-y-4 md:space-y-6 relative z-10 px-4">
-
-                    {/* System Status Label */}
-                    <div className="flex items-center justify-center gap-2 text-[0.6rem] md:text-xs font-mono tracking-[0.3em] text-blue-300/70 uppercase">
-                        <span className="w-1.5 h-1.5 md:w-2 md:h-2 rounded-full bg-blue-400 animate-ping" />
-                        <span>Identity Core: Online</span>
+        <section style={{
+            padding: "0 1.5rem",
+            width: "100%",
+            display: "flex",
+            justifyContent: "center",
+            marginTop: "1rem" // Spacing from status bar
+        }}>
+            <div style={{
+                width: "100%",
+                maxWidth: "480px", // Match iPhone width
+                display: "flex",
+                flexDirection: "column",
+                gap: "1rem"
+            }}>
+                {/* JARVIS WIDGET - iOS Style */}
+                <div
+                    style={{
+                        background: "rgba(255, 255, 255, 0.1)", // Light glass
+                        backdropFilter: "blur(20px) saturate(180%)",
+                        WebkitBackdropFilter: "blur(20px) saturate(180%)",
+                        borderRadius: "26px", // Super elliptical
+                        padding: "1.5rem",
+                        boxShadow: "0 10px 30px rgba(0,0,0,0.1), inset 0 0 0 1px rgba(255,255,255,0.15)",
+                        border: "1px solid rgba(255,255,255,0.05)",
+                        minHeight: "160px",
+                        display: "flex",
+                        flexDirection: "column",
+                        justifyContent: "space-between",
+                        position: "relative",
+                        overflow: "hidden"
+                    }}
+                >
+                    {/* Header */}
+                    <div style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "0.5rem",
+                        fontFamily: "-apple-system, sans-serif",
+                        fontSize: "0.75rem",
+                        fontWeight: 600,
+                        color: "rgba(255,255,255,0.6)",
+                        textTransform: "uppercase",
+                        letterSpacing: "0.05em"
+                    }}>
+                        <div style={{
+                            width: "6px",
+                            height: "6px",
+                            borderRadius: "50%",
+                            background: "#007AFF", // iOS Blue for Main/Lobby
+                            boxShadow: "0 0 8px #007AFF"
+                        }} />
+                        SYSTEM
                     </div>
 
-                    {/* Main Greeting */}
-                    <h1 className="font-sans text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-light tracking-tight text-white/90 drop-shadow-[0_0_15px_rgba(255,255,255,0.3)] leading-tight">
-                        {greeting}
-                    </h1>
+                    {/* Content */}
+                    <div style={{ position: "relative", zIndex: 2 }}>
+                        <h3 style={{
+                            fontFamily: "-apple-system, sans-serif",
+                            fontSize: "1.5rem",
+                            fontWeight: 500,
+                            lineHeight: 1.2,
+                            color: "white",
+                            marginBottom: "0.5rem"
+                        }}>
+                            {greeting}
+                        </h3>
+                        <p style={{
+                            fontSize: "0.9rem",
+                            color: "rgba(255,255,255,0.7)",
+                            lineHeight: 1.4,
+                        }}>
+                            {subtext}
+                        </p>
+                    </div>
 
-                    {/* Dynamic Subtext */}
-                    <p className="font-serif text-base md:text-xl text-white/50 max-w-xl mx-auto leading-relaxed px-4">
-                        {subtext}
-                    </p>
-
+                    {/* Glossy Reflection */}
+                    <div style={{
+                        position: "absolute",
+                        top: 0,
+                        right: 0,
+                        width: "150px",
+                        height: "150px",
+                        background: "radial-gradient(circle at top right, rgba(255,255,255,0.15), transparent 70%)",
+                        pointerEvents: "none",
+                        borderTopRightRadius: "26px"
+                    }} />
                 </div>
-            </Container>
-
-            {/* Decorative HUD Elements */}
-            <div className="absolute bottom-10 left-0 right-0 flex justify-center opacity-30">
-                <div className="h-px w-20 md:w-32 bg-gradient-to-r from-transparent via-white to-transparent" />
             </div>
-
         </section>
     );
 }

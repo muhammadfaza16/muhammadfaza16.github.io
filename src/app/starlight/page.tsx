@@ -19,31 +19,7 @@ export default function StarlightPage() {
         #main-content { padding-top: 0 !important; }
       `}} />
 
-      {/* Exit Door (Back to Home) */}
-      <Link
-        href="/"
-        style={{
-          position: "fixed",
-          top: "1.5rem",
-          right: "1.5rem",
-          zIndex: 100, // Above everything
-          color: "rgba(255, 255, 255, 0.6)",
-          display: "flex",
-          alignItems: "center",
-          gap: "0.5rem",
-          textDecoration: "none",
-          padding: "8px 12px",
-          background: "rgba(0,0,0,0.2)",
-          backdropFilter: "blur(10px)",
-          borderRadius: "20px",
-          border: "1px solid rgba(255,255,255,0.1)",
-          transition: "all 0.2s ease"
-        }}
-        className="hover:scale-105 hover:bg-white/10"
-      >
-        <span style={{ fontSize: "0.75rem", fontWeight: 500, fontFamily: "-apple-system" }}>Exit</span>
-        <LogOut size={16} />
-      </Link>
+
 
       {/* Ambient Background */}
       <div style={{
