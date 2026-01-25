@@ -5,6 +5,7 @@ import { CosmicStars } from "@/components/CosmicStars";
 import { MilkyWay } from "@/components/MilkyWay";
 import { ZenHideable } from "@/components/ZenHideable";
 import { JarvisHero } from "@/components/lobby/JarvisHero";
+import { RoomBentoGrid } from "@/components/lobby/RoomBentoGrid";
 
 export default function HomePage() {
 
@@ -27,9 +28,14 @@ export default function HomePage() {
         <CosmicStars />
       </div>
 
-      {/* Hero Section - Jarvis Style */}
       <ZenHideable hideInZen>
-        <JarvisHero />
+        <ScrollReveal>
+          <JarvisHero />
+        </ScrollReveal>
+
+        <ScrollReveal delay={0.2}>
+          <RoomBentoGrid />
+        </ScrollReveal>
       </ZenHideable>
     </>
   );
