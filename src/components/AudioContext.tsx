@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useEffect, useRef, useState, useCallback } from "react";
 import { useTheme } from "./ThemeProvider";
+import { getDynamicLyrics, LyricItem } from "@/data/songLyrics";
 
 interface AudioContextType {
     isPlaying: boolean;
@@ -21,6 +22,7 @@ interface AudioContextType {
     setShowMarquee: (v: boolean) => void;
     showNarrative: boolean;
     setShowNarrative: (v: boolean) => void;
+    currentLyricText: string | null; // NEW: Global synced lyric
 }
 
 const AudioContext = createContext<AudioContextType | undefined>(undefined);
@@ -149,6 +151,10 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
     const [showMarquee, setShowMarquee] = useState(true);
     const [showNarrative, setShowNarrative] = useState(true);
 
+    // Lyric State
+    const [currentLyricText, setCurrentLyricText] = useState<string | null>(null);
+    const [activeLyrics, setActiveLyrics] = useState<LyricItem[]>([]);
+
     const audioRef = useRef<HTMLAudioElement | null>(null);
     const audioContextRef = useRef<AudioContext | null>(null);
     const sourceRef = useRef<MediaElementAudioSourceNode | null>(null);
@@ -249,9 +255,33 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
             }, 50); // 50ms ticks allowing browser event loop to catch up
             return () => clearTimeout(timer);
         }
+
+
     }, [currentIndex, isPlaying]);
 
     const currentSong = PLAYLIST[currentIndex];
+
+    // Detect Lyrics on Song Change
+    useEffect(() => {
+        const lyrics = getDynamicLyrics(currentSong.title);
+        setActiveLyrics(lyrics);
+        setCurrentLyricText(null); // Reset on song change
+    }, [currentSong.title]);
+
+    const handleTimeUpdate = () => {
+        if (!audioRef.current || activeLyrics.length === 0) return;
+
+        const t = audioRef.current.currentTime;
+        const active = activeLyrics.find(l => t >= l.start && t < l.end);
+
+        if (active) {
+            if (currentLyricText !== active.text) setCurrentLyricText(active.text);
+        } else {
+            // Optional: persistence vs clearing. 
+            // Clearing preferred for "Sabotage" effect (showing Title when no lyric)
+            if (currentLyricText !== null) setCurrentLyricText(null);
+        }
+    };
 
     // Media Session API (Lock Screen Controls)
     useEffect(() => {
@@ -322,13 +352,15 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
     return (
         <AudioContext.Provider value={{
             isPlaying, isBuffering, togglePlay, nextSong, prevSong, jumpToSong, currentSong, analyser, audioRef, hasInteracted, warmup,
-            showLyrics, setShowLyrics, showMarquee, setShowMarquee, showNarrative, setShowNarrative
+            showLyrics, setShowLyrics, showMarquee, setShowMarquee, showNarrative, setShowNarrative,
+            currentLyricText
         }}>
             <audio
                 ref={audioRef}
                 crossOrigin="anonymous"
                 src={currentSong.audioUrl}
                 preload="metadata" // Changed to metadata for mobile background stability
+                onTimeUpdate={handleTimeUpdate} // NEW: Link Sync Logic
                 onPlay={() => setIsPlaying(true)}
                 onPause={() => setIsPlaying(false)}
                 onWaiting={() => setIsBuffering(true)} // Buffer started

@@ -4,10 +4,10 @@ import { useAudio } from "@/components/AudioContext";
 import { useZen } from "@/components/ZenContext";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { Play, Pause, Disc } from "lucide-react";
+import { Play, Pause, Disc, SkipBack, SkipForward } from "lucide-react";
 
 export function MiniPlayerWidget() {
-    const { isPlaying, togglePlay, currentSong, hasInteracted } = useAudio();
+    const { isPlaying, togglePlay, currentSong, hasInteracted, nextSong, prevSong } = useAudio();
     const { isZen, setZen } = useZen();
     const router = useRouter();
 
@@ -100,25 +100,46 @@ export function MiniPlayerWidget() {
                         </div>
 
                         {/* Controls */}
-                        <div
-                            onClick={(e) => {
-                                e.stopPropagation(); // Don't trigger Zen toggle
-                                togglePlay();
-                            }}
-                            style={{
-                                width: "36px",
-                                height: "36px",
-                                borderRadius: "50%",
-                                background: "rgba(255,255,255,0.1)",
-                                display: "flex",
-                                alignItems: "center",
-                                justifyContent: "center",
-                                color: "white",
-                                transition: "background 0.2s"
-                            }}
-                            className="hover:bg-white/20 active:scale-90"
-                        >
-                            {isPlaying ? <Pause size={18} fill="white" /> : <Play size={18} fill="white" className="ml-1" />}
+                        <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                            {/* Prev */}
+                            <div
+                                onClick={(e) => { e.stopPropagation(); prevSong(); }}
+                                className="p-2 hover:bg-white/10 rounded-full transition-colors active:scale-90 cursor-pointer"
+                                style={{ display: "flex", alignItems: "center", justifyContent: "center" }}
+                            >
+                                <SkipBack size={20} fill="white" className="text-white/80" />
+                            </div>
+
+                            {/* Play/Pause */}
+                            <div
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    togglePlay();
+                                }}
+                                style={{
+                                    width: "36px",
+                                    height: "36px",
+                                    borderRadius: "50%",
+                                    background: "rgba(255,255,255,0.1)",
+                                    display: "flex",
+                                    alignItems: "center",
+                                    justifyContent: "center",
+                                    color: "white",
+                                    transition: "background 0.2s"
+                                }}
+                                className="hover:bg-white/20 active:scale-90"
+                            >
+                                {isPlaying ? <Pause size={18} fill="white" /> : <Play size={18} fill="white" className="ml-1" />}
+                            </div>
+
+                            {/* Next */}
+                            <div
+                                onClick={(e) => { e.stopPropagation(); nextSong(); }}
+                                className="p-2 hover:bg-white/10 rounded-full transition-colors active:scale-90 cursor-pointer"
+                                style={{ display: "flex", alignItems: "center", justifyContent: "center" }}
+                            >
+                                <SkipForward size={20} fill="white" className="text-white/80" />
+                            </div>
                         </div>
                     </div>
                 </motion.div>

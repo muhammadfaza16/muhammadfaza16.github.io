@@ -2,8 +2,11 @@
 
 import { useEffect, useState } from "react";
 import { Container } from "@/components/Container";
+import { useAudio } from "@/components/AudioContext";
+import { Disc } from "lucide-react";
 
 export function JarvisHero() {
+    const { isPlaying, currentSong, currentLyricText } = useAudio();
     const [greeting, setGreeting] = useState("");
     const [subtext, setSubtext] = useState("");
     const [mounted, setMounted] = useState(false);
@@ -16,24 +19,35 @@ export function JarvisHero() {
         let timeGreeting = "Greetings.";
         let timeSubtext = "System active.";
 
-        if (hour >= 5 && hour < 12) {
-            timeGreeting = "Selamat pagi, Faza.";
-            timeSubtext = "Solar systems charging. Ready for the day.";
-        } else if (hour >= 12 && hour < 17) {
-            timeGreeting = "Selamat siang, Faza.";
-            timeSubtext = "Optimal productivity levels detected.";
-        } else if (hour >= 17 && hour < 21) {
-            timeGreeting = "Selamat sore, Faza.";
-            timeSubtext = "The sun is setting. Time to reflect.";
+        if (isPlaying && currentSong) {
+            // "Sabotase" Mode: Override with Song Info
+            if (currentLyricText) {
+                setGreeting(currentLyricText);
+                // Show "Song - Artist" in subtext when lyric is active
+                setSubtext(`${currentSong.title.split("—")[1]?.trim() || currentSong.title}`);
+            } else {
+                setGreeting(currentSong.title.split("—")[1]?.trim() || currentSong.title);
+                setSubtext(currentSong.title.split("—")[0]?.trim() || "Unknown Artist");
+            }
         } else {
-            timeGreeting = "Selamat malam, Faza.";
-            timeSubtext = "Starlight mode engaged. Peace and quiet.";
+            // Standard Time Logic
+            if (hour >= 5 && hour < 12) {
+                timeGreeting = "Selamat pagi, Faza.";
+                timeSubtext = "Solar systems charging. Ready for the day.";
+            } else if (hour >= 12 && hour < 17) {
+                timeGreeting = "Selamat siang, Faza.";
+                timeSubtext = "Optimal productivity levels detected.";
+            } else if (hour >= 17 && hour < 21) {
+                timeGreeting = "Selamat sore, Faza.";
+                timeSubtext = "The sun is setting. Time to reflect.";
+            } else {
+                timeGreeting = "Selamat malam, Faza.";
+                timeSubtext = "Starlight mode engaged. Peace and quiet.";
+            }
+            setGreeting(timeGreeting);
+            setSubtext(timeSubtext);
         }
-
-        // Typewriter effect simulation (state updates only, simple fade in for now to keep it clean)
-        setGreeting(timeGreeting);
-        setSubtext(timeSubtext);
-    }, []);
+    }, [isPlaying, currentSong, currentLyricText]); // Re-run when music state changes
 
     if (!mounted) return null;
 
@@ -86,10 +100,10 @@ export function JarvisHero() {
                             width: "6px",
                             height: "6px",
                             borderRadius: "50%",
-                            background: "#007AFF", // iOS Blue for Main/Lobby
-                            boxShadow: "0 0 8px #007AFF"
+                            background: isPlaying ? "#32D74B" : "#007AFF", // Green for Music, Blue for System
+                            boxShadow: isPlaying ? "0 0 8px #32D74B" : "0 0 8px #007AFF"
                         }} />
-                        SYSTEM
+                        {isPlaying ? "NOW PLAYING" : "SYSTEM"}
                     </div>
 
                     {/* Content */}
