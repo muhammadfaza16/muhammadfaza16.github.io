@@ -1378,7 +1378,8 @@ export function CurrentlyStrip() {
                         initial={{ height: 0, opacity: 0, marginBottom: 0 }}
                         animate={{ height: "auto", opacity: 1, marginBottom: "1rem" }}
                         exit={{ height: 0, opacity: 0, marginBottom: 0 }}
-                        transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }} // Apple-like ease
+                        transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+
                         style={{ overflow: "hidden", width: "100%" }}
                     >
                         <LyricsDisplay />
@@ -1638,7 +1639,7 @@ export function CurrentlyStrip() {
                                 initial={{ height: 0, opacity: 0, marginTop: 0 }}
                                 animate={{ height: "auto", opacity: 1, marginTop: "0.5rem" }}
                                 exit={{ height: 0, opacity: 0, marginTop: 0 }}
-                                transition={{ duration: 0.3, ease: [0.19, 1, 0.22, 1] }}
+                                transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
                                 style={{
                                     display: "flex",
                                     alignItems: "center",

@@ -1,5 +1,7 @@
 "use client";
 
+import { useEffect } from "react";
+
 import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
@@ -10,6 +12,18 @@ export function LayoutShell({ children }: { children: React.ReactNode }) {
     const pathname = usePathname();
     const router = useRouter();
     const { isZen, setZen } = useZen();
+
+    // Scroll Reset Implementation
+    useEffect(() => {
+        // 1. Reset Global Window Scroll (Crucial for generic pages)
+        window.scrollTo(0, 0);
+
+        // 2. Reset Internal Main Container Scroll (Crucial for our locked layout pages)
+        const mainContent = document.getElementById("main-content");
+        if (mainContent) {
+            mainContent.scrollTop = 0;
+        }
+    }, [pathname]);
 
     // Lobby might still need its special header, or maybe not? 
     // User said "header dan footer lama". LobbyHeader sounds specific/new. 

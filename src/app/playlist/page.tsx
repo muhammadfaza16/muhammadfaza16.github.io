@@ -8,6 +8,7 @@ import { MilkyWay } from "@/components/MilkyWay";
 import { CurrentlyStrip } from "@/components/CurrentlyStrip";
 import { useAudio, PLAYLIST } from "@/components/AudioContext";
 import { useZen } from "@/components/ZenContext";
+import { motion, PanInfo } from "framer-motion";
 
 export default function ImmersiveMusicPage() {
     const { isPlaying, currentSong, jumpToSong } = useAudio();
@@ -61,19 +62,46 @@ export default function ImmersiveMusicPage() {
             {/* VIEW SWITCHER */}
             {isZen ? (
                 // --- ZEN MODE (IMMERSIVE PLAYER) ---
-                <main style={{
-                    position: "fixed",
-                    top: 0,
-                    left: 0,
-                    width: "100%",
-                    height: "100svh",
-                    zIndex: 10,
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    padding: "2rem"
-                }}>
+                <motion.main
+                    initial={{ opacity: 0, y: "100%" }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ type: "spring", damping: 25, stiffness: 200 }}
+                    drag="y"
+                    dragConstraints={{ top: 0, bottom: 0 }}
+                    dragElastic={{ top: 0, bottom: 0.5 }} // Allow pull down feel
+                    onDragEnd={(e: any, info: PanInfo) => {
+                        if (info.offset.y > 150) { // Threshold to dismiss
+                            setZen(false);
+                        }
+                    }}
+                    style={{
+                        position: "fixed",
+                        top: 0,
+                        left: 0,
+                        width: "100%",
+                        height: "100svh",
+                        zIndex: 10,
+                        display: "flex",
+                        flexDirection: "column",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        padding: "2rem",
+                        background: "rgba(0,0,0,0.4)", // Slight dim
+                        backdropFilter: "blur(20px)"
+                    }}
+                >
+                    {/* Handle Bar to indicate swipeability */}
+                    <div style={{
+                        width: "40px",
+                        height: "4px",
+                        backgroundColor: "rgba(255,255,255,0.3)",
+                        borderRadius: "2px",
+                        position: "absolute",
+                        top: "16px",
+                        left: "50%",
+                        transform: "translateX(-50%)"
+                    }} />
+
                     <div style={{
                         width: "100%",
                         maxWidth: "500px",
@@ -81,7 +109,7 @@ export default function ImmersiveMusicPage() {
                     }}>
                         <CurrentlyStrip />
                     </div>
-                </main>
+                </motion.main>
             ) : (
                 // --- LIBRARY MODE (PLAYLIST SELECTION) ---
                 <main style={{
