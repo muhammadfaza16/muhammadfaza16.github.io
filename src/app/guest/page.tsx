@@ -1,17 +1,12 @@
 "use client";
 
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
-
 import dynamic from "next/dynamic";
 import Image from "next/image";
 import { motion } from "framer-motion";
-import { User, Heart, Star } from "lucide-react";
-
-// Background components
-const GradientOrb = dynamic(() => import("@/components/GradientOrb").then(mod => mod.GradientOrb), { ssr: false });
-const CosmicStars = dynamic(() => import("@/components/CosmicStars").then(mod => mod.CosmicStars), { ssr: false });
-const MilkyWay = dynamic(() => import("@/components/MilkyWay").then(mod => mod.MilkyWay), { ssr: false });
+import { User, Heart, Star, Home } from "lucide-react";
+import { Container } from "@/components/Container";
 
 const Guest28Icon = (props: any) => (
     <div style={{ width: props.size || '100%', height: props.size || '100%', position: 'relative' }}>
@@ -19,17 +14,16 @@ const Guest28Icon = (props: any) => (
             src="/guest/no28.png"
             alt="Guest 28"
             fill
-            style={{ objectFit: 'contain', filter: 'grayscale(1) contrast(1.2) invert(1)', mixBlendMode: 'screen' }}
+            style={{ objectFit: 'cover' }}
         />
     </div>
 );
 
-// Helper for Icon styling (Ported from RoomBentoGrid for inline styling requirement)
-const GuestIcon = ({ title, icon, gradient, delay = 0 }: { title: string, icon: React.ReactNode, gradient: string, delay?: number }) => {
+const GuestIcon = ({ title, icon, gradient, href, delay = 0, fullSymbol = false, rotation = 0 }: { title: string, icon: React.ReactNode, gradient: string, href: string, delay?: number, fullSymbol?: boolean, rotation?: number }) => {
     return (
-        <div style={{ textDecoration: 'none', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem' }}>
+        <Link href={href} style={{ textDecoration: 'none', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.75rem' }}>
             <motion.div
-                initial={{ opacity: 0, scale: 0.5, y: 20 }}
+                initial={{ opacity: 0, scale: 0.5, y: 20, rotate: rotation }}
                 whileInView={{ opacity: 1, scale: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{
@@ -47,194 +41,192 @@ const GuestIcon = ({ title, icon, gradient, delay = 0 }: { title: string, icon: 
                     cursor: "pointer"
                 }}
             >
-                {/* The App Icon (Premium Skeuomorphic) */}
+                {/* The Sketchy Icon */}
                 <div style={{
                     position: "relative",
-                    width: "clamp(60px, 17vw, 72px)",
-                    height: "clamp(60px, 17vw, 72px)",
-                    borderRadius: "22.5%", // Superellipse
-                    background: gradient,
+                    width: "clamp(64px, 18vw, 80px)",
+                    height: "clamp(64px, 18vw, 80px)",
+                    borderRadius: "18%",
+                    background: "#fff",
+                    border: "2px solid #5a5a5a",
+                    boxShadow: "3px 3px 0px #5a5a5a",
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
-                    boxShadow: "0 12px 24px -6px rgba(0,0,0,0.6), inset 0 -3px 6px rgba(0,0,0,0.2), inset 0 1px 2px rgba(255,255,255,0.5)",
                     overflow: "hidden",
-                    zIndex: 1
-                }} className="hover:scale-105 active:scale-90 transition-transform duration-100">
+                    zIndex: 1,
+                    transform: `rotate(${rotation}deg)`
+                }} className="hover:scale-105 active:scale-95 transition-transform duration-100">
+
+                    {/* Background Color/Gradient (Subtle) */}
+                    <div style={{ position: "absolute", inset: 0, background: gradient, opacity: 0.1 }} />
 
                     {/* Symbol */}
                     <div style={{
-                        color: "white",
+                        color: "#5a5a5a",
                         zIndex: 10,
                         position: "absolute",
                         inset: 0,
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "center",
-                        filter: "drop-shadow(0 2px 4px rgba(0,0,0,0.2))"
                     }}>
-                        {React.cloneElement(icon as any, { size: "45%", strokeWidth: 2.5 })}
+                        {React.cloneElement(icon as any, { size: fullSymbol ? "100%" : "40%", strokeWidth: 1.5 })}
                     </div>
 
-                    {/* Glossy Top Shine */}
-                    <div style={{
-                        position: "absolute",
-                        top: 0,
-                        left: 0,
-                        right: 0,
-                        height: "55%",
-                        background: "linear-gradient(180deg, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0.05) 90%, rgba(255,255,255,0) 100%)",
-                        borderTopLeftRadius: "22.5%",
-                        borderTopRightRadius: "22.5%",
-                        borderBottomLeftRadius: "80% 20%",
-                        borderBottomRightRadius: "80% 20%",
-                        zIndex: 5,
-                        pointerEvents: "none",
-                    }} />
-
-                    {/* Bottom Glow */}
-                    <div style={{
-                        position: "absolute",
-                        bottom: 0,
-                        left: 0,
-                        right: 0,
-                        height: "40%",
-                        background: "radial-gradient(ellipse at bottom, rgba(255,255,255,0.2) 0%, transparent 70%)",
-                        zIndex: 4,
-                        pointerEvents: "none"
-                    }} />
-
-                    {/* Noise Texture */}
+                    {/* Paper Texture Overlay */}
                     <div style={{
                         position: "absolute",
                         inset: 0,
-                        opacity: 0.08,
-                        backgroundImage: "url('https://grainy-gradients.vercel.app/noise.svg')",
-                        filter: "contrast(150%) brightness(100%)",
-                        zIndex: 2,
-                        pointerEvents: "none",
+                        opacity: 0.2,
+                        backgroundImage: "url('https://www.transparenttextures.com/patterns/natural-paper.png')",
+                        pointerEvents: "none"
                     }} />
                 </div>
 
                 {/* App Label */}
                 <span style={{
-                    fontFamily: "-apple-system, BlinkMacSystemFont, sans-serif",
-                    fontSize: "0.75rem",
-                    fontWeight: 500,
-                    color: "white",
+                    fontFamily: "'Crimson Pro', serif",
+                    fontSize: "0.9rem",
+                    fontWeight: 600,
+                    color: "#444",
                     textAlign: "center",
-                    textShadow: "0 1px 3px rgba(0,0,0,0.8)",
-                    letterSpacing: "0.02em",
-                    marginTop: "2px"
+                    marginTop: "4px",
+                    fontStyle: "italic"
                 }}>
                     {title}
                 </span>
             </motion.div>
-        </div>
+        </Link>
     );
 };
 
 export default function GuestPage() {
-    // Scroll lock logic
+    const [mounted, setMounted] = useState(false);
+
     useEffect(() => {
-        const preventScroll = (e: TouchEvent) => {
-            e.preventDefault();
-        };
+        setMounted(true);
+        const preventScroll = (e: TouchEvent) => e.preventDefault();
         document.addEventListener('touchmove', preventScroll, { passive: false });
-        document.addEventListener('wheel', (e) => e.preventDefault(), { passive: false });
-        // Lock body scroll
         document.body.style.overflow = "hidden";
 
         return () => {
             document.removeEventListener('touchmove', preventScroll);
-            document.removeEventListener('wheel', (e) => e.preventDefault());
             document.body.style.overflow = "";
         };
     }, []);
 
+    if (!mounted) return null;
+
     const guestApps = [
-        { title: "Profile", icon: <User />, gradient: "linear-gradient(135deg, #FF2D55, #FF375F)" },
-        { title: "Like", icon: <Heart />, gradient: "linear-gradient(135deg, #FF9500, #FF5E3A)" },
-        { title: "Favs", icon: <Star />, gradient: "linear-gradient(135deg, #AF52DE, #5856D6)" },
-        { title: "Guest No 28", icon: <Guest28Icon />, gradient: "linear-gradient(135deg, #FFD60A, #FF9F0A)" },
+        { title: "Profile", icon: <User />, gradient: "#FF2D55", href: "/guest/profile", rotation: -2 },
+        { title: "Like", icon: <Heart />, gradient: "#FF9500", href: "/guest/like", rotation: 3 },
+        { title: "Favs", icon: <Star />, gradient: "#AF52DE", href: "/guest/favs", rotation: -1 },
+        { title: "Us", icon: <Guest28Icon />, gradient: "#FFD60A", href: "/guest/no28", fullSymbol: true, rotation: 2 },
     ];
 
     return (
-        <>
-            {/* Ambient Background - Spans whole screen */}
+        <div style={{
+            background: "#fdf8f1",
+            backgroundImage: "radial-gradient(#e5e0d8 1px, transparent 0)",
+            backgroundSize: "40px 40px",
+            minHeight: "100svh",
+            color: "#444",
+            fontFamily: "'Crimson Pro', serif",
+            position: "relative",
+            overflow: "hidden"
+        }}>
+            {/* Texture Overlay */}
             <div style={{
                 position: "fixed",
-                top: 0,
-                left: 0,
-                width: "100%",
-                height: "120vh", // Extended to ensure coverage
-                zIndex: 0,
+                inset: 0,
+                opacity: 0.4,
                 pointerEvents: "none",
-                overflow: "hidden"
-            }}>
-                <MilkyWay />
-                <GradientOrb />
-                <CosmicStars />
-            </div>
+                backgroundImage: "url('https://www.transparenttextures.com/patterns/natural-paper.png')",
+                zIndex: 1
+            }} />
 
             <main style={{
                 position: "relative",
-                zIndex: 1,
+                zIndex: 10,
                 width: "100%",
                 height: "100svh",
-                overflow: "hidden",
                 display: "flex",
                 flexDirection: "column",
                 alignItems: "center",
-                justifyContent: "flex-start",
-                paddingTop: "4rem"
+                paddingTop: "2rem"
             }}>
-                {/* Back Button */}
-                <Link href="/" style={{
-                    position: "absolute",
-                    top: "2rem",
-                    left: "1.5rem",
-                    color: "white",
-                    textDecoration: "none",
-                    fontSize: "1rem",
-                    opacity: 0.8,
-                    zIndex: 20
-                }}>
-                    ← Home
-                </Link>
-
-                <div style={{
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "center",
-                    width: "100%",
-                    marginTop: "4rem"
-                }}>
-                    <h2 style={{
-                        color: "white",
-                        marginBottom: "3rem",
-                        fontFamily: "-apple-system, sans-serif",
-                        fontWeight: 300,
-                        fontSize: "2rem",
-                        textShadow: "0 0 20px rgba(255,255,255,0.5)"
-                    }}>Guest Area</h2>
-
-                    {/* Grid */}
-                    <div style={{
-                        display: "grid",
-                        gridTemplateColumns: "repeat(3, 1fr)", // 3 columns, allows wrapping
-                        gap: "2rem",
-                        padding: "0 1.5rem",
-                        maxWidth: "420px",
-                        width: "100%",
-                        justifyItems: "center"
-                    }}>
-                        {guestApps.map((app, idx) => (
-                            <GuestIcon key={idx} {...app} delay={idx * 0.1} />
-                        ))}
+                <Container>
+                    {/* Home Navigation */}
+                    <div style={{ marginBottom: "2rem" }}>
+                        <Link href="/" style={{
+                            display: "inline-flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            width: "44px",
+                            height: "44px",
+                            background: "#fff",
+                            border: "2px solid #5a5a5a",
+                            boxShadow: "2px 2px 0px #5a5a5a",
+                            borderRadius: "12px",
+                            color: "#5a5a5a",
+                            transition: "all 0.2s ease"
+                        }}
+                            onMouseOver={(e) => {
+                                e.currentTarget.style.transform = "translate(-1px, -1px)";
+                                e.currentTarget.style.boxShadow = "4px 4px 0px #5a5a5a";
+                            }}
+                            onMouseOut={(e) => {
+                                e.currentTarget.style.transform = "translate(0, 0)";
+                                e.currentTarget.style.boxShadow = "2px 2px 0px #5a5a5a";
+                            }}
+                        >
+                            <Home size={22} strokeWidth={2} />
+                        </Link>
                     </div>
-                </div>
+
+                    <div style={{
+                        display: "flex",
+                        flexDirection: "column",
+                        alignItems: "center",
+                        marginTop: "2rem"
+                    }}>
+                        <h2 style={{
+                            color: "#2d2d2d",
+                            marginBottom: "4rem",
+                            fontWeight: 700,
+                            fontSize: "2.5rem",
+                            textAlign: "center"
+                        }}>Guest Selection</h2>
+
+                        {/* App Grid */}
+                        <div style={{
+                            display: "grid",
+                            gridTemplateColumns: "repeat(2, 1fr)",
+                            gap: "3rem",
+                            justifyItems: "center",
+                            maxWidth: "320px"
+                        }}>
+                            {guestApps.map((app, idx) => (
+                                <GuestIcon key={idx} {...app} delay={idx * 0.1} />
+                            ))}
+                        </div>
+                    </div>
+                </Container>
             </main>
-        </>
+
+            {/* Subtle Coffee Stain */}
+            <div style={{
+                position: "absolute",
+                top: "-100px",
+                right: "-100px",
+                width: "400px",
+                height: "400px",
+                background: "rgba(139, 69, 19, 0.02)",
+                borderRadius: "50%",
+                filter: "blur(60px)",
+                pointerEvents: "none"
+            }} />
+        </div>
     );
 }
