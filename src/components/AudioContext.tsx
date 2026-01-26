@@ -227,6 +227,7 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
 
     const jumpToSong = useCallback((index: number) => {
         setIsBuffering(false);
+        setHasInteracted(true);
         setIsPlaying(true);
         setCurrentIndex(index);
     }, []);

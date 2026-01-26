@@ -4,10 +4,12 @@ import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { LobbyHeader } from "@/components/lobby/LobbyHeader";
+import { useZen } from "@/components/ZenContext";
 
 export function LayoutShell({ children }: { children: React.ReactNode }) {
     const pathname = usePathname();
     const router = useRouter();
+    const { isZen, setZen } = useZen();
 
     // Lobby might still need its special header, or maybe not? 
     // User said "header dan footer lama". LobbyHeader sounds specific/new. 
@@ -36,7 +38,13 @@ export function LayoutShell({ children }: { children: React.ReactNode }) {
                 zIndex: 40
             }}>
                 <button
-                    onClick={() => router.back()}
+                    onClick={() => {
+                        if (isZen) {
+                            setZen(false);
+                        } else {
+                            router.back();
+                        }
+                    }}
                     aria-label="Go Back"
                     style={{
                         width: "44px",
