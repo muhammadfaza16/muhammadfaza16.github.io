@@ -2,12 +2,14 @@
 
 import { useAudio } from "@/components/AudioContext";
 import { useZen } from "@/components/ZenContext";
+import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { Play, Pause, Disc } from "lucide-react";
 
 export function MiniPlayerWidget() {
     const { isPlaying, togglePlay, currentSong, hasInteracted } = useAudio();
-    const { isZen, toggleZen } = useZen();
+    const { isZen, setZen } = useZen();
+    const router = useRouter();
 
     // Only show if user has started playing something or interacted
     if (!hasInteracted) return null;
@@ -48,7 +50,10 @@ export function MiniPlayerWidget() {
                         boxShadow: "0 8px 32px rgba(0, 0, 0, 0.2)",
                         cursor: "pointer"
                     }}
-                        onClick={() => toggleZen()} // Go to Zen Mode
+                        onClick={() => {
+                            setZen(true);
+                            router.push("/playlist");
+                        }} // Go to Zen Mode AND Playlist Page
                     >
                         {/* Rotating Disk / Icon */}
                         <div style={{
