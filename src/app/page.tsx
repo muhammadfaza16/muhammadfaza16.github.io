@@ -1,5 +1,7 @@
 "use client";
 
+import { useEffect } from "react";
+import Link from "next/link";
 import { GradientOrb } from "@/components/GradientOrb";
 import { CosmicStars } from "@/components/CosmicStars";
 import { MilkyWay } from "@/components/MilkyWay";
@@ -8,6 +10,21 @@ import { JarvisHero } from "@/components/lobby/JarvisHero";
 import { RoomBentoGrid } from "@/components/lobby/RoomBentoGrid";
 
 export default function HomePage() {
+  useEffect(() => {
+    const mainContent = document.getElementById("main-content");
+    if (mainContent) {
+      // Reset scroll to top on mount
+      mainContent.scrollTop = 0;
+
+      // Lock body scroll
+      document.body.style.overflow = "hidden";
+
+      // Unlock body scroll on unmount
+      return () => {
+        document.body.style.overflow = "";
+      };
+    }
+  }, []);
 
   return (
     <>
@@ -15,7 +32,8 @@ export default function HomePage() {
         __html: `
         header, footer, .zen-toggle-floating { display: none !important; }
         #main-content { padding-top: 0 !important; }
-        html, body { overflow: hidden !important; overscroll-behavior: none; touch-action: pan-y; height: 100svh !important; }
+        /* Height locked, but overflow managed by JS to allow scroll reset */
+        html, body { overscroll-behavior: none; }
         #main-content::-webkit-scrollbar { display: none; }
       `}} />
 

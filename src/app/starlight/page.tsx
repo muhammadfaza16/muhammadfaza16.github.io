@@ -8,8 +8,24 @@ import { StarlightJarvisHero } from "@/components/sanctuary/StarlightJarvisHero"
 import { StarlightBentoGrid } from "@/components/sanctuary/StarlightBentoGrid";
 import Link from "next/link";
 import { LogOut } from "lucide-react";
+import { useEffect } from "react";
 
 export default function StarlightPage() {
+  useEffect(() => {
+    const mainContent = document.getElementById("main-content");
+    if (mainContent) {
+      // Reset scroll to top on mount
+      mainContent.scrollTop = 0;
+
+      // Lock body scroll
+      document.body.style.overflow = "hidden";
+
+      // Unlock body scroll on unmount
+      return () => {
+        document.body.style.overflow = "";
+      };
+    }
+  }, []);
 
   return (
     <>
@@ -17,7 +33,8 @@ export default function StarlightPage() {
         __html: `
         header, footer, .zen-toggle-floating { display: none !important; }
         #main-content { padding-top: 0 !important; }
-        html, body { overflow: hidden !important; overscroll-behavior: none; touch-action: pan-y; height: 100svh !important; }
+        /* Height locked, but overflow managed by JS to allow scroll reset */
+        html, body { overscroll-behavior: none; }
         #main-content::-webkit-scrollbar { display: none; }
       `}} />
 
