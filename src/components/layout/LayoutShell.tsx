@@ -15,14 +15,23 @@ export function LayoutShell({ children }: { children: React.ReactNode }) {
 
     // Scroll Reset Implementation
     useEffect(() => {
-        // 1. Reset Global Window Scroll (Crucial for generic pages)
-        window.scrollTo(0, 0);
-
-        // 2. Reset Internal Main Container Scroll (Crucial for our locked layout pages)
-        const mainContent = document.getElementById("main-content");
-        if (mainContent) {
-            mainContent.scrollTop = 0;
+        // Disable native restoration to prevents "racing"
+        if (typeof window !== 'undefined' && window.history) {
+            window.history.scrollRestoration = 'manual';
         }
+    }, []);
+
+    useEffect(() => {
+        const resetScroll = () => {
+            window.scrollTo(0, 0);
+            const mainContent = document.getElementById("main-content");
+            if (mainContent) mainContent.scrollTop = 0;
+        };
+
+        resetScroll();
+        // Double tap for safety (Next.js async race)
+        const timer = setTimeout(resetScroll, 50);
+        return () => clearTimeout(timer);
     }, [pathname]);
 
     // Lobby might still need its special header, or maybe not? 
