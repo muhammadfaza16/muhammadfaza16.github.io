@@ -7,9 +7,7 @@ import {
     Sparkles,
     Hammer,
     Users,
-    Archive,
     Wifi,
-    Mail,
     Globe,
     Music,
     Clock,
@@ -43,13 +41,13 @@ const AppIcon = ({ title, href, icon, gradient, delay = 0, inDock = false }: App
                     display: "flex",
                     flexDirection: "column",
                     alignItems: "center",
-                    gap: "0.5rem",
+                    gap: inDock ? "0" : "0.5rem",
                 }}
             >
                 {/* The App Icon (Premium Skeuomorphic) */}
                 <div style={{
                     position: "relative",
-                    width: "clamp(60px, 17vw, 72px)", // Slightly smaller optimal size
+                    width: "clamp(60px, 17vw, 72px)",
                     height: "clamp(60px, 17vw, 72px)",
                     borderRadius: "22.5%", // Superellipse
                     background: gradient,
@@ -76,7 +74,7 @@ const AppIcon = ({ title, href, icon, gradient, delay = 0, inDock = false }: App
                         {React.cloneElement(icon as any, { size: "45%", strokeWidth: 2.5 })}
                     </div>
 
-                    {/* Glossy Top Shine (Hard Reflection) */}
+                    {/* Glossy Top Shine */}
                     <div style={{
                         position: "absolute",
                         top: 0,
@@ -135,22 +133,17 @@ const AppIcon = ({ title, href, icon, gradient, delay = 0, inDock = false }: App
 };
 
 export function RoomBentoGrid() {
-    // Room Apps (Main Grid)
-    // Room Apps (Main Grid)
-    // Room Apps (Main Grid)
-    const gridApps = [
+    // Merged Apps (All standard Grid)
+    const apps = [
         { title: "Guest", href: "/guest", icon: <Users />, gradient: "linear-gradient(135deg, #FF2D55, #FF375F)" }, // Pink Red
-        { title: "Insights", href: "/insights", icon: <Lightbulb />, gradient: "linear-gradient(135deg, #34C759, #30B0C7)" }, // Green (Ideas/Widgets)
-        { title: "Time", href: "/time", icon: <Clock />, gradient: "linear-gradient(135deg, #8E8E93, #636366)" }, // Gray (Clock)
-        { title: "Web", href: "https://muhammadfaza16.github.io", icon: <Globe />, gradient: "linear-gradient(135deg, #8E8E93, #636366)" }, // Safari-ish/Browser
-    ];
-
-    // Dock Apps (Primary - Tier 1)
-    const dockApps = [
+        { title: "Insights", href: "/insights", icon: <Lightbulb />, gradient: "linear-gradient(135deg, #34C759, #30B0C7)" }, // Green
+        { title: "Time", href: "/time", icon: <Clock />, gradient: "linear-gradient(135deg, #8E8E93, #636366)" }, // Gray
+        { title: "Web", href: "https://muhammadfaza16.github.io", icon: <Globe />, gradient: "linear-gradient(135deg, #8E8E93, #636366)" }, // Safari-ish
+        // Former Dock Apps
         { title: "My Space", href: "/starlight", icon: <Sparkles />, gradient: "linear-gradient(135deg, #AF52DE, #5856D6)" }, // Purple
-        { title: "Workspace", href: "/workspace", icon: <Hammer />, gradient: "linear-gradient(135deg, #007AFF, #00C7BE)" }, // Blue/Teal (Productivity)
-        { title: "Music", href: "/playlist", icon: <Music />, gradient: "linear-gradient(135deg, #FF9500, #FF5E3A)" }, // Orange (Music)
-        { title: "Connect", href: "#connect", icon: <Wifi />, gradient: "linear-gradient(135deg, #FF9500, #FF5E3A)" }, // Orange (Like Phone/Comms)
+        { title: "Workspace", href: "/workspace", icon: <Hammer />, gradient: "linear-gradient(135deg, #007AFF, #00C7BE)" }, // Blue/Teal
+        { title: "Music", href: "/playlist", icon: <Music />, gradient: "linear-gradient(135deg, #FF9500, #FF5E3A)" }, // Orange
+        { title: "Connect", href: "#connect", icon: <Wifi />, gradient: "linear-gradient(135deg, #FF9500, #FF5E3A)" }, // Orange
     ];
 
     return (
@@ -165,50 +158,18 @@ export function RoomBentoGrid() {
                 padding: "0 1.5rem",
                 width: "100%",
                 maxWidth: "420px",
-                marginBottom: "auto", // Pushes dock to bottom if flex container
+                paddingBottom: "4rem" // Bottom padding for scroll space
             }}>
                 <div style={{
                     display: "grid",
                     gridTemplateColumns: "repeat(4, 1fr)",
                     gap: "2rem 1rem",
-                    paddingBottom: "2rem"
                 }}>
-                    {gridApps.map((app, idx) => (
+                    {apps.map((app, idx) => (
                         <AppIcon key={idx} {...app} delay={idx * 0.05} />
                     ))}
                 </div>
             </section>
-
-            {/* The Dock */}
-            <div style={{
-                marginTop: "2rem",
-                marginBottom: "1rem",
-                width: "100%",
-                display: "flex",
-                justifyContent: "center",
-                padding: "0 1rem"
-            }}>
-                <motion.div
-                    initial={{ y: 100 }}
-                    animate={{ y: 0 }}
-                    transition={{ type: "spring", damping: 20, stiffness: 100, delay: 0.2 }}
-                    style={{
-                        background: "rgba(255, 255, 255, 0.15)", // Frosted glass
-                        backdropFilter: "blur(40px) saturate(150%)",
-                        WebkitBackdropFilter: "blur(40px) saturate(150%)",
-                        borderRadius: "35px",
-                        padding: "16px 20px",
-                        display: "flex",
-                        gap: "1.25rem",
-                        boxShadow: "0 20px 40px rgba(0,0,0,0.3), inset 0 0 0 1px rgba(255,255,255,0.15)",
-                        borderTop: "1px solid rgba(255,255,255,0.2)"
-                    }}
-                >
-                    {dockApps.map((app, idx) => (
-                        <AppIcon key={idx} {...app} inDock={true} delay={0.4 + (idx * 0.05)} />
-                    ))}
-                </motion.div>
-            </div>
         </div>
     );
 }

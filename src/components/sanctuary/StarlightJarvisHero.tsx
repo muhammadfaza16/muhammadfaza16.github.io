@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { CurrentlyStrip } from "@/components/CurrentlyStrip";
+
 
 const JARVIS_REMINDERS = [
     "Minum air, Wanderer.",
@@ -125,11 +125,7 @@ export function StarlightJarvisHero() {
                     }} />
                 </motion.div>
 
-                {/* MINI MUSIC PLAYER WIDGET */}
-                {/* We wrap CurrentlyStrip slightly to fit the theme */}
-                <div style={{ transform: "scale(0.98)", opacity: 0.9 }}>
-                    <CurrentlyStrip />
-                </div>
+
             </div>
         </section>
     );

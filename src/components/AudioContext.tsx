@@ -15,6 +15,12 @@ interface AudioContextType {
     hasInteracted: boolean;
     isBuffering: boolean;
     warmup: () => void;
+    showLyrics: boolean;
+    setShowLyrics: (v: boolean) => void;
+    showMarquee: boolean;
+    setShowMarquee: (v: boolean) => void;
+    showNarrative: boolean;
+    setShowNarrative: (v: boolean) => void;
 }
 
 const AudioContext = createContext<AudioContextType | undefined>(undefined);
@@ -137,6 +143,11 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
     const [currentIndex, setCurrentIndex] = useState(0);
     const [analyser, setAnalyser] = useState<AnalyserNode | null>(null);
     const [hasInteracted, setHasInteracted] = useState(false);
+
+    // UI Persisted State
+    const [showLyrics, setShowLyrics] = useState(true);
+    const [showMarquee, setShowMarquee] = useState(true);
+    const [showNarrative, setShowNarrative] = useState(true);
 
     const audioRef = useRef<HTMLAudioElement | null>(null);
     const audioContextRef = useRef<AudioContext | null>(null);
@@ -308,7 +319,10 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
     }, [currentIndex, isPlaying, isBuffering]);
 
     return (
-        <AudioContext.Provider value={{ isPlaying, isBuffering, togglePlay, nextSong, prevSong, jumpToSong, currentSong, analyser, audioRef, hasInteracted, warmup }}>
+        <AudioContext.Provider value={{
+            isPlaying, isBuffering, togglePlay, nextSong, prevSong, jumpToSong, currentSong, analyser, audioRef, hasInteracted, warmup,
+            showLyrics, setShowLyrics, showMarquee, setShowMarquee, showNarrative, setShowNarrative
+        }}>
             <audio
                 ref={audioRef}
                 crossOrigin="anonymous"

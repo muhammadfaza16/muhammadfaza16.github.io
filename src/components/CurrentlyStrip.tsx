@@ -1102,7 +1102,10 @@ const WELCOME_MESSAGES = [
 export function CurrentlyStrip() {
     const pathname = usePathname();
     // Destructure audio context with audioRef for the engine
-    const { isPlaying, isBuffering, togglePlay, currentSong, nextSong, prevSong, jumpToSong, hasInteracted, audioRef, warmup } = useAudio();
+    const {
+        isPlaying, isBuffering, togglePlay, currentSong, nextSong, prevSong, jumpToSong, hasInteracted, audioRef, warmup,
+        showLyrics, setShowLyrics, showMarquee, setShowMarquee, showNarrative, setShowNarrative
+    } = useAudio();
 
     // Debounced Buffering State (to avoid flickering "Buffering..." on fast loads)
     const [showBufferingUI, setShowBufferingUI] = useState(false);
@@ -1112,9 +1115,7 @@ export function CurrentlyStrip() {
 
     // Expanded Menu State
     const [isSettingsOpen, setIsSettingsOpen] = useState(false);
-    const [showMarquee, setShowMarquee] = useState(true);
-    const [showNarrative, setShowNarrative] = useState(true);
-    const [showLyrics, setShowLyrics] = useState(true); // Default ON
+
     const [isPlaylistOpen, setIsPlaylistOpen] = useState(false);
 
     useEffect(() => {
@@ -1368,38 +1369,7 @@ export function CurrentlyStrip() {
                 gap: "0rem"
             }}>
 
-            {/* Welcome Text */}
-            {showWelcomeText && (
-                <div
-                    style={{
-                        position: 'fixed',
-                        top: '50%',
-                        left: '50%',
-                        transform: 'translate(-50%, -50%)',
-                        fontSize: 'clamp(2rem, 10vw, 3.5rem)',
-                        fontWeight: 500,
-                        fontFamily: 'var(--font-serif)',
-                        fontStyle: 'italic',
-                        letterSpacing: '-0.01em',
-                        color: 'var(--foreground)',
-                        textAlign: 'center',
-                        zIndex: 9999,
-                        pointerEvents: 'none',
-                        opacity: 0,
-                        animation: 'welcome-fade 5s ease-in-out forwards'
-                    }}
-                >
-                    Good choice, baby!
-                    <style>{`
-                        @keyframes welcome-fade {
-                            0% { opacity: 0; transform: translate(-50%, -50%) scale(0.98); }
-                            15% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
-                            85% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
-                            100% { opacity: 0; transform: translate(-50%, -50%) scale(1.01); }
-                        }
-                    `}</style>
-                </div>
-            )}
+
 
             {/* Lyrics Layer (Sky) - Appears above avatar with smooth height animation */}
             <AnimatePresence>

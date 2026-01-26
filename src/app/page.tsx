@@ -15,7 +15,8 @@ export default function HomePage() {
         __html: `
         header, footer, .zen-toggle-floating { display: none !important; }
         #main-content { padding-top: 0 !important; }
-        html, body { overflow: hidden !important; overscroll-behavior: none; touch-action: none; height: 100svh !important; }
+        html, body { overflow: hidden !important; overscroll-behavior: none; touch-action: pan-y; height: 100svh !important; }
+        #main-content::-webkit-scrollbar { display: none; }
       `}} />
 
       {/* Ambient Background - Spans whole screen */}
@@ -40,6 +41,9 @@ export default function HomePage() {
           zIndex: 1,
           paddingTop: "1rem", // Removed Status bar height offset
           height: "100svh",
+          overflowY: "auto",
+          overflowX: "hidden",
+          scrollbarWidth: "none",
           display: "flex",
           flexDirection: "column",
           justifyContent: "flex-start",

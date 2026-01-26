@@ -138,27 +138,21 @@ const AppIcon = ({ title, href, icon, gradient, delay = 0, inDock = false }: App
 };
 
 export function StarlightBentoGrid() {
-    // Top Grid Apps (Utility/Content)
-    const gridApps = [
+    // Merged Apps (No separation)
+    const apps = [
         { title: "Bookshelf", href: "/bookshelf", icon: <Book />, gradient: "linear-gradient(135deg, #FF9500, #FF5E3A)" }, // Orange
         { title: "Movies", href: "/movies", icon: <Film />, gradient: "linear-gradient(135deg, #FF2D55, #FF375F)" }, // Pink Red
-        { title: "Playlist", href: "/playlist", icon: <Music />, gradient: "linear-gradient(135deg, #ec4899, #db2777)" }, // Apple Music style pink (Added from remote)
+        { title: "Playlist", href: "/playlist", icon: <Music />, gradient: "linear-gradient(135deg, #ec4899, #db2777)" }, // Apple Music style pink
         { title: "Links", href: "/links", icon: <LinkIcon />, gradient: "linear-gradient(135deg, #5AC8FA, #007AFF)" }, // Blue
         { title: "Wishlist", href: "/wishlist", icon: <Gift />, gradient: "linear-gradient(135deg, #AF52DE, #5856D6)" }, // Purple
         { title: "TIL", href: "/til", icon: <Lightbulb />, gradient: "linear-gradient(135deg, #34C759, #30B0C7)" }, // Green
         { title: "Time", href: "/time", icon: <Clock />, gradient: "linear-gradient(135deg, #8E8E93, #636366)" }, // Gray
-    ];
-
-    // Dock Apps (Primary - Tier 1)
-    const dockApps = [
+        // Former Dock Apps (Now standard icons)
         { title: "Writing", href: "/blog", icon: <PenTool />, gradient: "linear-gradient(135deg, #FFCC00, #FF9500)" }, // Yellow
         { title: "Journey", href: "/journey", icon: <Map />, gradient: "linear-gradient(135deg, #30B0C7, #5AC8FA)" }, // Cyan
         { title: "Ideas", href: "/ideas", icon: <Zap />, gradient: "linear-gradient(135deg, #FFD60A, #FF9F0A)" }, // Gold
-        { title: "Notes", href: "/notes", icon: <FileText />, gradient: "linear-gradient(135deg, #FFFFFF, #E5E5EA)" }, // White/Notes style (special case)
+        { title: "Notes", href: "/notes", icon: <FileText />, gradient: "linear-gradient(135deg, #FFFFFF, #E5E5EA)" }, // White
     ];
-
-    // Special handling for Notes icon color (if white gradient, icon should be dark? Apple Notes is yellow/white. Let's stick to simple white gradient but icon needs contrast)
-    // Actually, let's keep it consistent.
 
     return (
         <div style={{
@@ -172,50 +166,18 @@ export function StarlightBentoGrid() {
                 padding: "0 1.5rem",
                 width: "100%",
                 maxWidth: "420px",
-                marginBottom: "auto", // Pushes dock to bottom if flex container
+                paddingBottom: "4rem" // Bottom padding for scroll space
             }}>
                 <div style={{
                     display: "grid",
                     gridTemplateColumns: "repeat(4, 1fr)",
                     gap: "2rem 1rem",
-                    paddingBottom: "2rem"
                 }}>
-                    {gridApps.map((app, idx) => (
+                    {apps.map((app, idx) => (
                         <AppIcon key={idx} {...app} delay={idx * 0.05} />
                     ))}
                 </div>
             </section>
-
-            {/* The Dock */}
-            <div style={{
-                marginTop: "2rem",
-                marginBottom: "1rem",
-                width: "100%",
-                display: "flex",
-                justifyContent: "center",
-                padding: "0 1rem"
-            }}>
-                <motion.div
-                    initial={{ y: 100 }}
-                    animate={{ y: 0 }}
-                    transition={{ type: "spring", damping: 20, stiffness: 100, delay: 0.2 }}
-                    style={{
-                        background: "rgba(255, 255, 255, 0.15)", // Frosted glass
-                        backdropFilter: "blur(40px) saturate(150%)",
-                        WebkitBackdropFilter: "blur(40px) saturate(150%)",
-                        borderRadius: "35px",
-                        padding: "16px 20px",
-                        display: "flex",
-                        gap: "1.25rem",
-                        boxShadow: "0 20px 40px rgba(0,0,0,0.3), inset 0 0 0 1px rgba(255,255,255,0.15)",
-                        borderTop: "1px solid rgba(255,255,255,0.2)"
-                    }}
-                >
-                    {dockApps.map((app, idx) => (
-                        <AppIcon key={idx} {...app} inDock={true} delay={0.4 + (idx * 0.05)} />
-                    ))}
-                </motion.div>
-            </div>
         </div>
     );
 }

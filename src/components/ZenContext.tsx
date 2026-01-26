@@ -41,17 +41,13 @@ export function ZenProvider({ children }: { children: React.ReactNode }) {
         });
     };
 
-    // Auto-enter Zen mode when music starts playing (CONSENT AWARE)
-    useEffect(() => {
-        if (isPlaying && !hasManuallyExited.current) {
-            setIsZen(true);
-        }
-    }, [isPlaying]);
+
 
     // Reset Zen mode on route change - except for homepage and blog articles
     useEffect(() => {
         const isHomepage = pathname === "/";
-        const zenAllowedRoutes = isHomepage || isBlogArticle;
+        const isPlaylist = pathname === "/playlist";
+        const zenAllowedRoutes = isHomepage || isBlogArticle || isPlaylist;
 
         if (!zenAllowedRoutes && isZen) {
             setIsZen(false);
