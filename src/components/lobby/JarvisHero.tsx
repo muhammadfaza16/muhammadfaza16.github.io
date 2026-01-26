@@ -1,55 +1,68 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { Container } from "@/components/Container";
 import { useAudio } from "@/components/AudioContext";
-import { Disc } from "lucide-react";
+import { Disc, Zap, Moon, Sun, Coffee } from "lucide-react";
+import { JARVIS_THEMES, JarvisTheme } from "@/data/jarvisThemes";
 
 export function JarvisHero() {
     const { isPlaying, currentSong, currentLyricText } = useAudio();
-    const [greeting, setGreeting] = useState("");
-    const [subtext, setSubtext] = useState("");
     const [mounted, setMounted] = useState(false);
 
-    // Time-aware logic
+    // Theme State
+    const [activeTheme, setActiveTheme] = useState<JarvisTheme | null>(null);
+    const [activeBurst, setActiveBurst] = useState<string>("");
+
+    // Time-aware logic to pick theme
     useEffect(() => {
         setMounted(true);
         const hour = new Date().getHours();
 
-        let timeGreeting = "Greetings.";
-        let timeSubtext = "System active.";
+        let slot: 'MORNING' | 'DAY' | 'AFTERNOON' | 'NIGHT' = 'NIGHT';
+        if (hour >= 5 && hour < 11) slot = 'MORNING';
+        else if (hour >= 11 && hour < 15) slot = 'DAY';
+        else if (hour >= 15 && hour < 20) slot = 'AFTERNOON';
+        else slot = 'NIGHT';
 
-        if (isPlaying && currentSong) {
-            // "Sabotase" Mode: Override with Song Info
-            if (currentLyricText) {
-                setGreeting(currentLyricText);
-                // Show "Song - Artist" in subtext when lyric is active
-                setSubtext(`${currentSong.title.split("—")[1]?.trim() || currentSong.title}`);
-            } else {
-                setGreeting(currentSong.title.split("—")[1]?.trim() || currentSong.title);
-                setSubtext(currentSong.title.split("—")[0]?.trim() || "Unknown Artist");
+        // Filter themes by slot
+        const candidates = JARVIS_THEMES.filter(t => t.timeSlot === slot);
+
+        if (candidates.length > 0) {
+            // Pick random theme
+            const randomTheme = candidates[Math.floor(Math.random() * candidates.length)];
+            setActiveTheme(randomTheme);
+
+            // Pick random burst from that theme
+            if (randomTheme.bursts.length > 0) {
+                setActiveBurst(randomTheme.bursts[Math.floor(Math.random() * randomTheme.bursts.length)]);
             }
-        } else {
-            // Standard Time Logic
-            if (hour >= 5 && hour < 12) {
-                timeGreeting = "Selamat pagi, Faza.";
-                timeSubtext = "Solar systems charging. Ready for the day.";
-            } else if (hour >= 12 && hour < 17) {
-                timeGreeting = "Selamat siang, Faza.";
-                timeSubtext = "Optimal productivity levels detected.";
-            } else if (hour >= 17 && hour < 21) {
-                timeGreeting = "Selamat sore, Faza.";
-                timeSubtext = "The sun is setting. Time to reflect.";
-            } else {
-                timeGreeting = "Selamat malam, Faza.";
-                timeSubtext = "Starlight mode engaged. Peace and quiet.";
-            }
-            setGreeting(timeGreeting);
-            setSubtext(timeSubtext);
         }
-    }, [isPlaying, currentSong, currentLyricText]); // Re-run when music state changes
+    }, []); // Run once on mount (per session)
 
     if (!mounted) return null;
+
+    // Determine Content based on Playback State
+    const isSabotage = isPlaying && currentSong;
+
+    const displayHeader = isSabotage ? "NOW PLAYING" : (activeTheme?.mode || "SYSTEM ONLINE");
+
+    const displayMain = isSabotage
+        ? (currentLyricText || currentSong.title.split("—")[1]?.trim() || currentSong.title)
+        : (activeTheme?.greeting || "System initialization complete. Waiting for input.");
+
+    const displaySub = isSabotage
+        ? (currentSong.title.split("—")[0]?.trim() || "Unknown Artist")
+        : activeBurst;
+
+    // Icon logic
+    const renderIcon = () => {
+        if (isSabotage) return <Disc size={16} className="animate-spin-slow" />;
+        if (activeTheme?.timeSlot === 'MORNING') return <Coffee size={16} />;
+        if (activeTheme?.timeSlot === 'DAY') return <Sun size={16} />;
+        if (activeTheme?.timeSlot === 'AFTERNOON') return <Zap size={16} />;
+        return <Moon size={16} />;
+    };
 
     return (
         <section style={{
@@ -61,7 +74,7 @@ export function JarvisHero() {
         }}>
             <div style={{
                 width: "100%",
-                maxWidth: "480px", // Match iPhone width
+                maxWidth: "480px",
                 display: "flex",
                 flexDirection: "column",
                 gap: "1rem"
@@ -69,74 +82,125 @@ export function JarvisHero() {
                 {/* JARVIS WIDGET - iOS Style */}
                 <div
                     style={{
-                        background: "rgba(255, 255, 255, 0.1)", // Light glass
-                        backdropFilter: "blur(20px) saturate(180%)",
-                        WebkitBackdropFilter: "blur(20px) saturate(180%)",
-                        borderRadius: "26px", // Super elliptical
-                        padding: "1.5rem",
-                        boxShadow: "0 10px 30px rgba(0,0,0,0.1), inset 0 0 0 1px rgba(255,255,255,0.15)",
-                        border: "1px solid rgba(255,255,255,0.05)",
-                        minHeight: "160px",
+                        background: "rgba(30, 30, 35, 0.4)", // Deeper, more "Pro" glass
+                        backdropFilter: "blur(32px) saturate(180%)",
+                        WebkitBackdropFilter: "blur(32px) saturate(180%)",
+                        borderRadius: "24px", // Matches iOS widgets
+                        padding: "1.75rem",
+                        boxShadow: "0 24px 48px -12px rgba(0,0,0,0.3), inset 0 0 0 1px rgba(255,255,255,0.08)",
+                        border: "1px solid rgba(255,255,255,0.03)", // Subtle border
+                        minHeight: "200px",
                         display: "flex",
                         flexDirection: "column",
+                        gap: "0.5rem",
                         justifyContent: "space-between",
                         position: "relative",
-                        overflow: "hidden"
+                        overflow: "hidden",
+                        transition: "all 0.5s cubic-bezier(0.32, 0.72, 0, 1)" // iOS Easing
                     }}
                 >
-                    {/* Header */}
+                    {/* Header: Mode / Status */}
                     <div style={{
                         display: "flex",
                         alignItems: "center",
-                        gap: "0.5rem",
-                        fontFamily: "-apple-system, sans-serif",
+                        gap: "0.6rem",
+                        fontFamily: "-apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif",
                         fontSize: "0.75rem",
                         fontWeight: 600,
-                        color: "rgba(255,255,255,0.6)",
+                        color: isSabotage ? "#34C759" : "rgba(255,255,255,0.45)", // Apple System Green or Muted
                         textTransform: "uppercase",
-                        letterSpacing: "0.05em"
+                        letterSpacing: "0.08em",
+                        marginBottom: "0.75rem"
                     }}>
                         <div style={{
-                            width: "6px",
-                            height: "6px",
-                            borderRadius: "50%",
-                            background: isPlaying ? "#32D74B" : "#007AFF", // Green for Music, Blue for System
-                            boxShadow: isPlaying ? "0 0 8px #32D74B" : "0 0 8px #007AFF"
-                        }} />
-                        {isPlaying ? "NOW PLAYING" : "SYSTEM"}
+                            color: isSabotage ? "#34C759" : "rgba(255,255,255,0.7)",
+                            display: "flex", alignItems: "center"
+                        }}>
+                            {renderIcon()}
+                        </div>
+                        {displayHeader}
                     </div>
 
-                    {/* Content */}
-                    <div style={{ position: "relative", zIndex: 2 }}>
-                        <h3 style={{
-                            fontFamily: "-apple-system, sans-serif",
-                            fontSize: "1.5rem",
-                            fontWeight: 500,
-                            lineHeight: 1.2,
-                            color: "white",
-                            marginBottom: "0.5rem"
-                        }}>
-                            {greeting}
-                        </h3>
-                        <p style={{
-                            fontSize: "0.9rem",
-                            color: "rgba(255,255,255,0.7)",
-                            lineHeight: 1.4,
-                        }}>
-                            {subtext}
-                        </p>
+                    {/* Main Greeting / Lyric */}
+                    <div style={{
+                        fontFamily: "-apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif",
+                        fontSize: isSabotage ? "1.35rem" : "1.25rem",
+                        fontWeight: 600, // Semi-bold for headings
+                        lineHeight: "1.35",
+                        color: "rgba(255, 255, 255, 0.98)", // Primary Label Color
+                        letterSpacing: "-0.015em", // Tight tracking like SF Pro
+                        textShadow: "0 2px 10px rgba(0,0,0,0.15)",
+                        flexGrow: 1,
+                        display: "flex",
+                        alignItems: "center",
+                        minHeight: "3.5em",
+                        paddingRight: "1rem"
+                    }}>
+                        {displayMain}
                     </div>
 
-                    {/* Glossy Reflection */}
+                    {/* Footer: Burst / Artist */}
+                    <div style={{
+                        marginTop: "auto",
+                        paddingTop: "1.25rem",
+                        borderTop: "1px solid rgba(255,255,255,0.08)", // Separator
+                        fontFamily: isSabotage ? "var(--font-serif)" : "SFMono-Regular, Consolas, 'Liberation Mono', Menlo, monospace",
+                        fontStyle: isSabotage ? "italic" : "normal",
+                        fontSize: "0.85rem",
+                        color: "rgba(255,255,255,0.65)", // Secondary Label Color
+                        lineHeight: "1.5"
+                    }}>
+                        {isSabotage ? (
+                            <span style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                                🎵 {displaySub}
+                            </span>
+                        ) : (
+                            <div style={{ display: "flex", flexDirection: "column", gap: "0.6rem" }}>
+                                <div style={{
+                                    display: "flex",
+                                    alignItems: "center",
+                                    gap: "0.5rem",
+                                    width: "fit-content"
+                                }}>
+                                    <div style={{
+                                        width: "5px", // Slightly smaller, refined dot
+                                        height: "5px",
+                                        borderRadius: "50%",
+                                        backgroundColor: "#39ff14", // Keep user's neon green
+                                        boxShadow: "0 0 6px #39ff14"
+                                    }} />
+                                    <span style={{
+                                        fontFamily: "-apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif",
+                                        fontSize: "0.65rem",
+                                        fontWeight: 700,
+                                        letterSpacing: "0.05em",
+                                        color: "rgba(255,255,255,0.4)" // Muted label for "JARVIS"
+                                    }}>JARVIS</span>
+                                </div>
+                                <span style={{
+                                    color: "rgba(255,255,255,0.85)",
+                                    display: "block",
+                                    fontWeight: 400
+                                }}>
+                                    {displaySub}
+                                </span>
+                            </div>
+                        )}
+                    </div>
+
+                    {/* Background Decorative Gradient */}
                     <div style={{
                         position: "absolute",
-                        top: 0,
-                        right: 0,
-                        width: "150px",
-                        height: "150px",
-                        background: "radial-gradient(circle at top right, rgba(255,255,255,0.15), transparent 70%)",
+                        top: "-50%",
+                        right: "-20%",
+                        width: "300px",
+                        height: "300px",
+                        background: isSabotage
+                            ? "radial-gradient(circle, rgba(52, 199, 89, 0.12) 0%, rgba(0,0,0,0) 65%)" // Apple Green
+                            : "radial-gradient(circle, rgba(255,255,255,0.04) 0%, rgba(0,0,0,0) 65%)",
                         pointerEvents: "none",
-                        borderTopRightRadius: "26px"
+                        zIndex: -1,
+                        filter: "blur(50px)"
                     }} />
                 </div>
             </div>
