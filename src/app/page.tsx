@@ -59,7 +59,7 @@ export default function HomePage() {
         <main style={{
           position: "relative",
           zIndex: 1,
-          paddingTop: "1rem", // Removed Status bar height offset
+          paddingTop: "2rem", // Match Starlight
           height: "100svh",
           overflowY: "auto",
           overflowX: "hidden",

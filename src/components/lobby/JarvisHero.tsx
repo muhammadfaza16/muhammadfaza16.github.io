@@ -40,10 +40,10 @@ export function JarvisHero() {
     return (
         <section style={{
             padding: "0 1.5rem",
+            marginBottom: "2rem",
             width: "100%",
             display: "flex",
-            justifyContent: "center",
-            marginTop: "1rem" // Spacing from status bar
+            justifyContent: "center"
         }}>
             <div style={{
                 width: "100%",
