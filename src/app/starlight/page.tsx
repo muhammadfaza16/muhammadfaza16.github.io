@@ -1,9 +1,11 @@
 ﻿"use client";
 
-import { GradientOrb } from "@/components/GradientOrb";
-import { CosmicStars } from "@/components/CosmicStars";
-import { MilkyWay } from "@/components/MilkyWay";
+import dynamic from "next/dynamic";
 import { ZenHideable } from "@/components/ZenHideable";
+
+const GradientOrb = dynamic(() => import("@/components/GradientOrb").then(mod => mod.GradientOrb), { ssr: false });
+const CosmicStars = dynamic(() => import("@/components/CosmicStars").then(mod => mod.CosmicStars), { ssr: false });
+const MilkyWay = dynamic(() => import("@/components/MilkyWay").then(mod => mod.MilkyWay), { ssr: false });
 import { StarlightJarvisHero } from "@/components/sanctuary/StarlightJarvisHero";
 import { StarlightBentoGrid } from "@/components/sanctuary/StarlightBentoGrid";
 import Link from "next/link";
