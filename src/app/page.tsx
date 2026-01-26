@@ -10,6 +10,7 @@ const CosmicStars = dynamic(() => import("@/components/CosmicStars").then(mod =>
 const MilkyWay = dynamic(() => import("@/components/MilkyWay").then(mod => mod.MilkyWay), { ssr: false });
 import { JarvisHero } from "@/components/lobby/JarvisHero";
 import { RoomBentoGrid } from "@/components/lobby/RoomBentoGrid";
+import { MiniPlayerWidget } from "@/components/MiniPlayerWidget";
 
 export default function HomePage() {
   const mainRef = useRef<HTMLElement>(null);
@@ -99,6 +100,9 @@ export default function HomePage() {
           <div style={{ padding: "1rem 0 0" }}>
             <JarvisHero />
           </div>
+
+          {/* Mini Player */}
+          <MiniPlayerWidget />
 
           {/* Springboard App Grid & Dock */}
           <div style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "flex-end" }}>

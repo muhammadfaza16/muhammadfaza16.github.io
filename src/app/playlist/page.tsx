@@ -9,6 +9,7 @@ import { CurrentlyStrip } from "@/components/CurrentlyStrip";
 import { useAudio, PLAYLIST } from "@/components/AudioContext";
 import { useZen } from "@/components/ZenContext";
 import { motion, PanInfo } from "framer-motion";
+import { MiniPlayerWidget } from "@/components/MiniPlayerWidget";
 
 export default function ImmersiveMusicPage() {
     const { isPlaying, currentSong, jumpToSong } = useAudio();
@@ -116,7 +117,7 @@ export default function ImmersiveMusicPage() {
                     position: "relative",
                     zIndex: 10,
                     minHeight: "100svh",
-                    padding: "4rem 1.5rem 2rem 1.5rem",
+                    padding: "4rem 1.5rem 8rem 1.5rem", // Increased bottom padding for MiniPlayer
                     maxWidth: "600px",
                     margin: "0 auto",
                     display: "flex",
@@ -297,8 +298,26 @@ export default function ImmersiveMusicPage() {
                             );
                         })}
                     </div>
-                </main>
-            )}
+
+
+                    {/* Floating Mini Player */}
+                    <div style={{
+                        position: "fixed",
+                        bottom: "2rem",
+                        left: "50%",
+                        transform: "translateX(-50%)",
+                        width: "100%",
+                        maxWidth: "600px",
+                        zIndex: 50,
+                        pointerEvents: "none" // Widget children needs pointer-events: auto (It handles click)
+                    }}>
+                        <div style={{ pointerEvents: "auto" }}>
+                            <MiniPlayerWidget />
+                        </div>
+                    </div>
+                </main >
+            )
+            }
         </>
     );
 }
