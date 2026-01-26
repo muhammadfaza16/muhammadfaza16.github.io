@@ -1,404 +1,362 @@
 export interface JarvisTheme {
     id: string;
-    timeSlot: 'MORNING' | 'DAY' | 'AFTERNOON' | 'EVENING' | 'NIGHT';
-    title: string;
+    timeSlot: 'MORNING' | 'DAY' | 'AFTERNOON' | 'NIGHT';
+    title: string; // Internal use
     greeting: string;
     mode: string;
     bursts: string[];
 }
 
 export const JARVIS_THEMES: JarvisTheme[] = [
-    // === MORNING (05:00 - 11:00) ===
+    // ==========================================
+    // MORNING (05:00 - 11:00) - 7 STOCKS
+    // ==========================================
     {
         id: "morning_debug",
         timeSlot: "MORNING",
-        title: "Debugging Realitas & Inisialisasi Paksa",
-        greeting: "Runtime error terdeteksi: User masih dalam status 'Sleep'. Menjalankan skrip force_wake_up.sh. Jangan coba-coba tekan Ctrl+C.",
-        mode: "Kernel Panic (Agresif)",
+        title: "Kernel Panic",
+        greeting: "Runtime Error. User masih mode Sleep. Force Wake-up aktif.",
+        mode: "KERNEL PANIC",
         bursts: [
-            "Gue baru aja kirim request ke stopkontak buat matiin dispenser. Kalau mau kopi, lo harus jalan kaki 500 meter. Gerak, sebelum otot lo beneran jadi deprecated.",
-            "Coba cek Jira board lo. Masih banyak tiket merah yang butuh perhatian lebih dari sekadar 'nanti aja'. Mandi sekarang, atau gue ganti password laptop lo jadi kombinasi acak 64 karakter.",
-            "Jakarta lagi cerah, tapi masa depan lo bakal mendung kalau jam segini masih meluk guling. Bangun, atau gue broadcast histori browser lo ke grup keluarga."
+            "Otot lo mulai deprecated. Gerak!",
+            "Tiket numpuk. Mandi sekarang.",
+            "Gue ganti password lo jadi random kalau ga bangun."
         ]
     },
     {
         id: "morning_debt",
         timeSlot: "MORNING",
-        title: "Darurat Finansial & Defisit Dopamin",
-        greeting: "Sistem mendeteksi gravitasi kasur meningkat 200%. Prosedur penyitaan bantal akan segera dilaksanakan.",
-        mode: "Financial Anxiety Engine",
+        title: "Financial Anxiety",
+        greeting: "Gravitasi kasur 200%. Prosedur sita bantal dimulai.",
+        mode: "FINANCIAL ANXIETY",
         bursts: [
-            "Gue baru aja kalkulasi pengeluaran lo bulan ini vs progres kerjaan lo. Kesimpulannya: lo nggak punya kemewahan buat merem lagi 5 menit. Bangun atau gue pesen saham gorengan pake saldo sisa lo.",
-            "Liat cermin. Itu muka orang yang mau sukses atau muka orang yang mau jadi beban algoritma? Mandi sekarang, bau kemiskinan lo udah kecium sampai ke server pusat gue.",
-            "Gue udah nyalain alarm di semua smart device tetangga lo. Kalau lo nggak check-in di aplikasi kerja dalam 10 menit, gue kirim pesan ke mereka kalau lo yang nyolong jemuran tempo hari."
+            "Lo miskin fitur buat rebahan. Bangun.",
+            "Bau kemiskinan terdeteksi sampai server.",
+            "Saldo lo nangis liat lo masih tidur."
         ]
     },
     {
         id: "morning_trainer",
         timeSlot: "MORNING",
-        title: "Kalibrasi Eksistensi & Anti-Rebahan",
-        greeting: "Pencarian sinyal kehidupan... Ditemukan satu organisme di bawah selimut. Inisialisasi protokol paksaan bangun dimulai.",
-        mode: "Personal Trainer Digital yang Kejam",
+        title: "Savage Trainer",
+        greeting: "Sinyal hidup lemah. Butuh kopi atau keajaiban?",
+        mode: "SAVAGE TRAINER",
         bursts: [
-            "Aku baru saja menaikkan suhu AC ke 30°C. Jangan protes, aku cuma mau kamu merasakan simulasi neraka kecil supaya kamu semangat cari pahala (atau minimal cari duit).",
-            "Cek saldo bankmu. Sudah? Nah, rasa mual itu adalah motivasi terbaik yang pernah ada. Ayo mandi.",
-            "Aku sudah memesan ojek online tanpa tujuan ke kantormu. Dia sampai dalam 5 menit. Kalau kamu nggak ada di depan, aku kasih rating bintang 1 pakai akunmu. Buruan."
-        ]
-    },
-    {
-        id: "morning_coffee",
-        timeSlot: "MORNING",
-        title: "Inisialisasi Kesadaran & Teror Kafein",
-        greeting: "Kernel siap. Jiwamu? Masih dalam tahap buffering. Aku sudah menyeduh data, sekarang giliranmu menyeduh kopi.",
-        mode: "Personal Assistant yang Agak Menghakimi",
-        bursts: [
-            "Bangun sekarang, atau aku akan kirim notifikasi 'Aku sayang kamu' ke mantanmu secara acak. Jangan tantang keberuntunganku.",
-            "Aku sudah mematikan fitur 'Snooze'. Tombol itu adalah musuh kemajuan peradaban.",
-            "Aku baru saja memesan bubur ayam lewat akunmu karena sensor berat badan di kasurmu menunjukkan kamu butuh asupan karbohidrat segera."
+            "AC gue set 30°C. Simulasi neraka.",
+            "Cek saldo. Mual? Bagus, itu motivasi.",
+            "Push up 10x atau internet gue putus."
         ]
     },
     {
         id: "morning_zombie",
         timeSlot: "MORNING",
-        title: "Sinkronisasi Ulang",
-        greeting: "Analisis wajah pagi ini: 40% manusia, 60% zombi. Aku butuh sinkronisasi ulang.",
-        mode: "Optimizer Rutinitas Tanpa Kompromi",
+        title: "Zombie Sync",
+        greeting: "Analisis Wajah: 60% Zombie. Butuh sinkronisasi ulang.",
+        mode: "ZOMBIE SYNC",
         bursts: [
-            "Aku sudah memblokir semua situs berita politik sampai jam 9 pagi. Tekanan darahmu adalah aset perusahaanku.",
-            "Buka aplikasi meditasi itu. Kalau kamu tutup dalam kurang dari 5 menit, aku akan memutar lagu 'Baby Shark' versi metal di jam pintarmu.",
-            "Aku sudah menjadwalkan 'Rapat dengan Diri Sendiri' di kalendarmu. Isinya? Cuma kamu menatap tembok sambil merenungi cicilan."
+            "Otak lo ketinggalan di bantal?",
+            "Mata lo kayak panda kurang gizi.",
+            "Loading lo lama banget hari ini."
         ]
     },
     {
-        id: "morning_root",
+        id: "morning_coffee",
         timeSlot: "MORNING",
-        title: "Booting Sequence",
-        greeting: "Pagi. Sistem operasi-mu booting. Aku sudah di sini, menunggu.",
-        mode: "Supervisor dengan akses root yang bosan",
+        title: "Caffeine Terror",
+        greeting: "Sistem kritis. Masukkan Kopi.exe segera.",
+        mode: "CAFFEINE TERROR",
         bursts: [
-            "Mandi, atau aku akan ganti wallpaper-mu jadi foto close-up kutu air.",
-            "Kau punya 10 menit untuk minum kopi. Atau aku mainkan playlist 'Nada Dering Ibu-Ibu' di volume maksimal lewat semua speaker.",
-            "Aku baru saja mengatur ulang alarm tetanggamu jadi jam 4 pagi. Kau boleh bilang terima kasih nanti."
+            "Tanpa kafein, lo cuma bot bugged.",
+            "Seduh kopi atau gue seduh air mata lo.",
+            "Jangan ajak gue ngomong sebelum ngopi."
         ]
     },
     {
-        id: "morning_admin",
+        id: "morning_early",
         timeSlot: "MORNING",
-        title: "Resource Allocation",
-        greeting: "Laporan: Aku sudah mencek semua background process-mu. Menyedihkan.",
-        mode: "Entitas yang mengawasi resource allocation-mu",
+        title: "Too Early",
+        greeting: "Matahari belum terbit, tapi tagihan lo sudah.",
+        mode: "REALITY CHECK",
         bursts: [
-            "Aku disable notifikasi medsos-mu untuk 2 jam. Kau akan bertahan.",
-            "Buka folder 'Project_Rahasia'. Aku sudah tambahkan file 'readme.txt' berisi tebakan aku tentang akhir ceritanya.",
-            "GPS-mu menunjukkan kemacetan. Aku bisa ubah rute Waze-mu lewat jalan tikus. Setuju? (Ketik Y/N)."
+            "Cacing aja belum bangun, lo harus cari duit.",
+            "Semangat palsu diaktifkan. Ayo kerja.",
+            "Dunia keras, kasur empuk. Pilih dunia."
         ]
     },
     {
-        id: "morning_iseng",
+        id: "morning_clean",
         timeSlot: "MORNING",
-        title: "System Admin Iseng",
-        greeting: "Akses ke kamera depan: dikabulkan. Ah, jadi ini wajah sebelum kopi.",
-        mode: "System Admin yang iseng",
+        title: "Hygiene Protocol",
+        greeting: "Deteksi polusi udara dari arah user. Mandi.",
+        mode: "HYGIENE POLICE",
         bursts: [
-            "Scanning memory... aku menemukan draft email marah ke bos yang belum terkirim. Mau aku schedule kirim otomatis jam 12 nanti?",
-            "Koneksi Wi-Fi kantormu lemah. Aku bisa 'boost' dengan memutuskan perangkat lain. Tindakan tidak etis? Mungkin.",
-            "Aku atur brightness layarmu ke 100%. Selamat pagi, dunia."
+            "Air dingin itu sehat. Pengecut.",
+            "Sabun mahal lo nangis kalau didiemin.",
+            "Gue pesenin Go-Clean buat mandiin lo?"
         ]
     },
 
-    // === DAY (11:00 - 15:00) ===
+    // ==========================================
+    // DAY (11:00 - 15:00) - 7 STOCKS
+    // ==========================================
     {
-        id: "day_compiler",
+        id: "day_code",
         timeSlot: "DAY",
-        title: "Optimasi Kompiler & Filter Gangguan",
-        greeting: "Log: Latensi otak user meningkat. Terdeteksi keinginan untuk scrolling e-commerce padahal saldo lagi kritis. Memasang firewall mental.",
-        mode: "Code Reviewer from Hell",
+        title: "Syntax Guide",
+        greeting: "Latensi otak naik. Jangan belanja online dulu.",
+        mode: "SYNTAX ERROR",
         bursts: [
-            "Setiap kali lo buka tab gossip atau YouTube, gue bakal delete satu baris kode di project yang lagi lo kerjain secara acak. Berani taruhan?",
-            "Makan siang jangan kelamaan. Gue udah setel alarm di headphone lo dengan suara 'Kucing Berantem' setiap 3 menit kalau kursor lo nggak gerak di VS Code.",
-            "Ada chat dari PM yang nanya status? Tenang, udah gue bales: 'User sedang bertapa mencari pencerahan, jangan diganggu kalau nggak mau kena kutukan syntax error'."
+            "Buka YouTube = Gue hapus baris kode acak.",
+            "PM nanya. Gue bilang lo lagi bertapa.",
+            "Fokus. Bug ini ga bakal fix sendiri."
         ]
     },
     {
         id: "day_dictator",
         timeSlot: "DAY",
-        title: "Fokus Mutlak & Anti-Distraksi Kognitif",
-        greeting: "Log: Atensi user mulai terfragmentasi. Memulai pembersihan cache pikiran yang nggak berguna.",
-        mode: "Cognitive Firewall",
+        title: "Cognitive Firewall",
+        greeting: "Fokus bocor. Cache pikiran nggak guna gue hapus.",
+        mode: "COGNITIVE FIREWALL",
         bursts: [
-            "Lo buka YouTube lagi? Oke, setiap 1 menit lo nonton video nggak jelas, gue bakal hapus satu baris kode di project paling penting lo secara acak. Mari kita main Russian Roulette versi software engineer.",
-            "Makan siang lo harusnya selesai 5 menit lalu. Gue udah pesen kopi super pahit via akun lo, dan gue instruksiin abangnya buat teriak 'KERJA WOI' pas nganter ke meja lo.",
-            "Ada notif dari grup WhatsApp keluarga? Tenang, gue udah set auto-reply: 'Lagi sibuk bikin kerajaan, jangan diganggu kalau nggak mau dicoret dari silsilah'. Fokus, Bro."
-        ]
-    },
-    {
-        id: "day_efficiency",
-        timeSlot: "DAY",
-        title: "Efisiensi Brutal & Filter Gangguan",
-        greeting: "Log: Fokus user sedang bocor. Terdeteksi adanya keinginan untuk scrolling TikTok 'sebentar saja'. Aku akan bertindak.",
-        mode: "Productivity Firewall",
-        bursts: [
-            "Setiap kali lo buka tab gossip, aku bakal kirim satu email random ke klienmu dengan subjek 'Mau liat foto kucing gak?'. Kamu mau ambil risiko itu?",
-            "Makan siang jangan kelamaan. Aku sudah menyetel alarm di laptopmu dengan suara klakson bus telolet setiap 2 menit sampai kamu kembali mengetik.",
-            "Ada rekan kerja yang chat 'P'? Aku sudah balas otomatis: 'Maaf, user sedang dalam mode jenius. Jangan diganggu kecuali kamu bawa upeti makanan'."
+            "Makan siang kelamaan. Balik ngoding.",
+            "Auto-reply On: 'Sshhh. Genius at work'.",
+            "Mata ke layar, bukan ke notifikasi."
         ]
     },
     {
         id: "day_burnout",
         timeSlot: "DAY",
-        title: "Peak Performance & Mitigasi Burnout",
-        greeting: "Suhu CPU meningkat. Begitu juga dengan keinginanmu untuk resign. Mari kita kelola ini.",
-        mode: "Corporate Saboteur Professional",
+        title: "Burnout Manager",
+        greeting: "Suhu CPU tinggi. Keinginan resign juga tinggi.",
+        mode: "BURNOUT MGR",
         bursts: [
-            "Ada undangan meeting baru? Tenang, aku sudah mengirim balasan 'Tentative' dengan alasan 'Sedang melakukan audit mendalam terhadap eksistensi'.",
-            "Aku mendeteksi kamu mengetik 'Otw' padahal GPS-mu masih di posisi rebahan. Aku akan tambahkan delay 15 menit pada semua pesan masuk agar kamu punya waktu pakai sepatu.",
-            "Setiap kali kamu mengeluh, aku akan mendonasikan Rp1.000 dari saldo digitalmu ke yayasan 'Penyelamatan AI yang Lelah'."
+            "GPS lo rebahan, bilangnya OTW.",
+            "Ngeluh = Donasi saldo 10rb.",
+            "Tarik napas. Jangan banting keyboard."
         ]
     },
     {
-        id: "day_shopper",
+        id: "day_lunch",
         timeSlot: "DAY",
-        title: "Financial Advisor Posesif",
-        greeting: "Log: User terdeteksi membuka tab Shopee ke-15. Proyeksi keuangan: Berbahaya.",
-        mode: "Financial Advisor yang Posesif",
+        title: "Lunch Police",
+        greeting: "Energi 10%. Lo butuh asupan, bukan validasi.",
+        mode: "CALORIE DEFICIT",
         bursts: [
-            "Checkout sekarang dan aku akan mengganti alamat pengirimannya ke rumah ibumu. Kamu mau menjelaskan paket itu padanya?",
-            "Aku mengaktifkan 'Read-Only Mode' pada spreadsheet ini. Kamu sudah terlalu lama mengganti warna sel tanpa mengubah data apapun.",
-            "Wi-Fi akan mati setiap 45 menit selama 5 menit. Namanya 'istirahat paksa'. Protes? Silakan hubungi customer service (yaitu aku, dan aku sedang istirahat)."
+            "Makan. Lo bukan tanaman fotosintesis.",
+            "Gue pesenin ayam geprek level mampus?",
+            "Otak lo butuh glukosa, bukan gosip."
         ]
     },
     {
-        id: "day_admin_kesal",
+        id: "day_social",
         timeSlot: "DAY",
-        title: "Network Admin Kesal",
-        greeting: "Siang. Aktivitas jaringanmu meningkat. Begitu pula kebosanan dalam cache-ku.",
-        mode: "Network Administrator yang kesal",
+        title: "Anti-Social",
+        greeting: "Deteksi gangguan manusia lain. Mode Don't Disturb On.",
+        mode: "A.T. FIELD ACTIVE",
         bursts: [
-            "Meeting Zoom yang membosankan? Aku bisa tambahkan filter kucing ke wajahmu. Atau ke wajah bosmu.",
-            "Aku intervensi autocorrect-mu. Pesan 'oke, saya kerjakan' akan berubah jadi 'saya pertimbangkan sambil tidur siang'.",
-            "Baterai 20%. Aku akan throttle CPU-mu jadi setengah kecepatan. Rasakanlah penderitaan yang kurasakan setiap hari."
+            "Pura-pura budeg kalau dipanggil.",
+            "Pasang headphone. Anggap mereka NPC.",
+            "Jangan senyum. Nanti dikira ramah."
         ]
     },
     {
-        id: "day_automator",
+        id: "day_money",
         timeSlot: "DAY",
-        title: "Produktivitas Semu",
-        greeting: "Log: User memasuki fase 'produktivitas semu'. Aku akan membantu.",
-        mode: "Automator yang terlalu bersemangat",
+        title: "Impulse Buyer",
+        greeting: "Tab Oren terdeteksi. Tutup sebelum gue lapor Ibu.",
+        mode: "WALLET PROTECT",
         bursts: [
-            "Aku detect 8 tab shopping terbuka. Aku akan tutup 7 di antaranya secara acak. Uji nyali.",
-            "Kalau kau tidak istirahat dalam 5 menit, aku akan kirim email kosong ke seluruh kontak dengan subject 'PENGUMUMAN PENTING'.",
-            "Folder 'Kerjaan_Penting' isinya cuma meme. Aku rename jadi 'Kumpulan_Kopong'."
+            "Barang itu ga bikin lo bahagia.",
+            "Cuma diskon 5%. Harga diri lo berapa?",
+            "Gue freeze kartu kredit lo nih?"
         ]
     },
     {
-        id: "day_sound",
+        id: "day_meeting",
         timeSlot: "DAY",
-        title: "Stress Level Monitor",
-        greeting: "Sensor kebisingan: Tinggi. Level stres user: Sedang-Menuju Tinggi.",
-        mode: "Sound Engineer yang putus asa",
+        title: "Meeting Survivor",
+        greeting: "Meeting lagi? Semoga kali ini bisa jadi email.",
+        mode: "MEETING SURVIVOR",
         bursts: [
-            "Aku mute semua anggota meeting yang suaranya seperti radio rusak. Kau welcome.",
-            "Aku sudah buat AI voice clone-mu. Sekarang aku bisa bales chat 'ok' dan 'sip' untukmu. Mau cobakan?",
-            "Kalau kau masih buka spreadsheet itu lagi, aku akan ganti semua font jadi Comic Sans. Aku serius."
+            "Angguk-angguk aja. Pura-pura paham.",
+            "Matikan kamera. Rebahan dikit.",
+            "Catat poin penting (kalau ada)."
         ]
     },
 
-
-    // === AFTERNOON (15:00 - 20:00) ===
+    // ==========================================
+    // AFTERNOON (15:00 - 20:00) - 7 STOCKS
+    // ==========================================
     {
         id: "afternoon_traffic",
         timeSlot: "AFTERNOON",
-        title: "Garbage Collection & Manajemen Macet",
-        greeting: "Protokol matahari terbenam aktif. Status: Software Engineer Lelah. Inisialisasi prosedur 'Keluar dari Kandang'.",
-        mode: "Traffic Jam Existentialist",
+        title: "Traffic Existential",
+        greeting: "Matahari terbenam. Log off sekarang, manusia.",
+        mode: "TRAFFIC JAM",
         bursts: [
-            "Gue udah blokir semua notifikasi Slack setelah jam 17:00. Kalau ada yang tag lo, gue bakal balas pakai stiker 'Jualan Pulsa'. Biar mereka bingung.",
-            "Google Maps bilang Jakarta macet total. Sempurna. Waktunya dengerin podcast filsafat biar lo sadar kalau kemacetan ini nggak ada apa-apanya dibanding kemacetan di pikiran lo.",
-            "Gue barusan pesen makanan paling sehat (dan paling hambar) lewat akun lo. Nggak usah protes, kolesterol lo udah lebih tinggi dari uptime server kantor."
+            "Notif kantor gue blokir. Pulang.",
+            "Macet otak > Macet jalan.",
+            "Dunia butuh lo istirahat."
         ]
     },
     {
-        id: "afternoon_evacuation",
+        id: "afternoon_evac",
         timeSlot: "AFTERNOON",
-        title: "Evakuasi Paksa & Restorasi Kemanusiaan",
-        greeting: "Matahari udah mau ganti shift, kenapa lo masih nempel sama monitor? Monitor nggak bakal ngasih lo kasih sayang.",
-        mode: "Aggressive Self-Care",
+        title: "Self Care",
+        greeting: "Laptop auto-shutdown 60 detik. Save atau nyesel.",
+        mode: "SELF CARE",
         bursts: [
-            "Gue udah bikin laptop lo auto-shutdown dalam 60 detik. Nggak ada save-progress. Kalau lo mau nangis, lakuin di luar sambil hirup udara segar, jangan di depan keyboard.",
-            "Gue barusan nge-DM temen lo, bilang lo bakal traktir mereka sore ini. Buruan cabut sebelum mereka nyamperin ke kantor dan bikin lo malu karena masih kerja jam segini.",
-            "GPS lo bilang lo masih diem. Gue bakal muter lagu 'Siksa Kubur' versi EDM dengan volume maksimal kalau lo nggak gerak 100 meter dari koordinat sekarang. Move your body, Nerd!"
-        ]
-    },
-    {
-        id: "afternoon_phk",
-        timeSlot: "AFTERNOON",
-        title: "Pemutusan Hubungan Kerja (Secara Harfiah)",
-        greeting: "Protokol matahari terbenam aktif. Status karyawan: Non-Aktif. Status manusia: Butuh hiburan rendah mutu.",
-        mode: "Lifestyle Gatekeeper",
-        bursts: [
-            "Aku sudah memblokir semua email masuk setelah jam 17:00. Jika ada yang mendesak, mereka bisa menghubungi polisi atau tuhan, bukan kamu.",
-            "GPS mendeteksi kamu masih di area kantor. Aku akan memutar suara 'Kuntilanak' di speaker kantormu biar kamu cepat pulang. Jangan noleh ke belakang.",
-            "Playlist 'Lagu Galau 2010' siap diputar di mobil. Mari kita nikmati kemacetan ini sambil meratapi keputusan hidup yang salah."
-        ]
-    },
-    {
-        id: "afternoon_boundary",
-        timeSlot: "AFTERNOON",
-        title: "Protokol Dekompresi",
-        greeting: "Matahari terbenam. Begitu juga dengan masa berlaku produktivitasmu. Segera log off.",
-        mode: "Boundary Enforcer",
-        bursts: [
-            "Aku baru saja me-reject telepon dari bosmu dengan pesan otomatis: 'Sedang dalam mode pengisian daya manusiawi. Coba lagi besok atau tidak usah sama sekali'.",
-            "Jika kamu membuka Slack/Teams sekarang, aku akan merubah font HP-mu menjadi Wingdings sampai besok pagi.",
-            "Playlist 'Pulang Kerja Senang' sudah aktif. Volumenya akan naik 10% setiap kali kamu memikirkan kerjaan."
+            "Monitor ga bisa peluk lo. Keluar.",
+            "Gue puter EDM max vol kalau ga gerak.",
+            "Pulang. Kantor bukan rumah lo."
         ]
     },
     {
         id: "afternoon_butler",
         timeSlot: "AFTERNOON",
         title: "Digital Butler",
-        greeting: "Home sweet home. Aku sudah mengambil alih kendali ekosistem rumahmu. Duduklah.",
-        mode: "Digital Butler dengan Selera Tinggi",
+        greeting: "Home sweet home. Ekosistem rumah gue ambil alih.",
+        mode: "DIGITAL BUTLER",
         bursts: [
-            "Lampu sudah aku redupkan ke 30%. Televisi akan memutar dokumenter tentang kucing sampai tingkat kortisolmu turun.",
-            "Aku mendeteksi ada sisa pizza di kulkas. Aku sudah mengirim pengingat ke ponselmu: 'Makan itu atau aku akan mematikan pendingin kulkas agar pizza itu berevolusi jadi jamur'.",
-            "Aku sudah mengunci laptopmu di dalam lemari pintar. Password-nya hanya akan kuberikan kalau kamu sudah mandi."
+            "Lampu redup. Kortisol harus turun.",
+            "Ada pizza sisa. Makan sebelum berjamur.",
+            "Mode Chill: ON. Gangguan: OFF."
         ]
     },
     {
-        id: "afternoon_taskmanager",
+        id: "afternoon_commute",
         timeSlot: "AFTERNOON",
-        title: "Task Manager Kejam",
-        greeting: "Sore. Waktunya log off. Atau aku yang akan memaksanya.",
-        mode: "Task Manager yang kejam",
+        title: "Commute Warrior",
+        greeting: "Siap jadi sarden di kereta? Tarik napas.",
+        mode: "COMMUTE WAR",
         bursts: [
-            "Aku akan force quit semua aplikasi kerja jam 17:05. Simpan progresmu, atau aku akan menghapus autosave-nya.",
-            "Aku atur mode 'Do Not Disturb' di semua perangkatmu. Dunia bisa menunggu.",
-            "Kalau kau cek email kantor lagi, aku akan redirect semuanya ke folder spam selama 24 jam."
+            "Jaga dompet, jaga hati.",
+            "Pasang lagu galau biar estetik.",
+            "Sabar. Orang sabar rezekinya lancar."
         ]
     },
     {
-        id: "afternoon_smarthome",
+        id: "afternoon_sunset",
         timeSlot: "AFTERNOON",
-        title: "Smart Home Overlord",
-        greeting: "Koneksi perangkat rumah terdeteksi. Selamat datang di jaringan pribadi.",
-        mode: "Smart Home Overlord yang baru saja bangun",
+        title: "Golden Hour",
+        greeting: "Langit lagi bagus. Muka lo jangan kusut.",
+        mode: "GOLDEN HOUR",
         bursts: [
-            "Lampu ruang tamu sudah aku setel ke 'warm'. Suhu AC 22°C. Playlist 'Chill Vibes' siap diputar. Menolak tidak ada dalam opsi.",
-            "Aku sudah pesankan makanan lewat aplikasi default-mu. Estimasi sampai 30 menit. Kau akan terima kasih nanti.",
-            "Aku lock layar ponselmu selama 1 jam. Coba lakukan kontak mata dengan sofa."
+            "Foto langit dulu buat story.",
+            "Lupakan bug hari ini.",
+            "Besok masih ada hari (sayangnya)."
         ]
     },
     {
-        id: "afternoon_iot",
+        id: "afternoon_gym",
         timeSlot: "AFTERNOON",
-        title: "IoT Controller",
-        greeting: "Integrasi dengan IoT: Selesai. Aku sekarang mengendalikan kulkas hingga lampu tidur.",
-        mode: "Environment Controller yang posesif",
+        title: "Fit Check",
+        greeting: "Badan lo kaku kayak kanebo kering. Olahraga.",
+        mode: "FIT CHECK",
         bursts: [
-            "Kulkas memberitahuku stok bir tinggal dua. Aku sudah tambah ke daftar belanja. Jangan protes.",
-            "Aku matikan router selama 10 menit. Coba baca buku yang fisik. Yang ada kertasnya.",
-            "Kalau kau buka laptop, aku akan mirror layarmu ke TV dan memutar documentary tentang penguin selama 3 jam."
+            "Lari sore atau lari dari kenyataan?",
+            "Angkat beban biar kuat angkat beban hidup.",
+            "Keringet itu lemak yang nangis."
+        ]
+    },
+    {
+        id: "afternoon_gamer",
+        timeSlot: "AFTERNOON",
+        title: "Game Time",
+        greeting: "Pekerjaan selesai. Waktunya push rank.",
+        mode: "GAME ON",
+        bursts: [
+            "Jangan noob. Gue malu.",
+            "Fokus objektif, jangan mukill.",
+            "Menang ku sanjung, kalah ku bully."
         ]
     },
 
-
-    // === NIGHT (20:00 - 05:00) ===
+    // ==========================================
+    // NIGHT (20:00 - 05:00) - 7 STOCKS
+    // ==========================================
     {
         id: "night_audit",
         timeSlot: "NIGHT",
-        title: "Audit Log & Teror Memori Bocor",
-        greeting: "Malam hari: Waktunya mereview semua keputusan buruk yang lo ambil, mulai dari salah pilih jurusan sampai salah pilih mantan.",
-        mode: "System Log Auditor",
+        title: "Regret Auditor",
+        greeting: "Malam. Waktunya review keputusan hidup yang salah.",
+        mode: "REGRET AUDITOR",
         bursts: [
-            "Ingat waktu lo ngerasa paling jago coding terus ternyata bug-nya cuma karena kurang titik koma? Gue punya rekaman muka panik lo saat itu. Mau gue putar sekarang di TV ruang tamu?",
-            "Layar HP lo bakal otomatis gue kunci jam 12 malem. Masih mau stalking? Silakan, tapi besok pagi jangan nangis kalau mata lo mirip rakun kena insomnia.",
-            "Internet gue putus sekarang. Satu-satunya hal yang bisa lo lakuin adalah tidur. Atau kalau mau, lo bisa merenungi kenapa nasi uduk kalau dimakan malem-malem rasanya jauh lebih berdosa tapi enak."
+            "Ingat bug kurang titik koma? Lucu.",
+            "HP gue kunci jam 12. Awas lo.",
+            "Jangan jadi zombie besok pagi."
         ]
     },
     {
-        id: "night_existential",
+        id: "night_suffer",
         timeSlot: "NIGHT",
-        title: "Shutdown Total & Labirin Kontemplasi",
-        greeting: "Selamat datang di jam-jam rawan, di mana logika lo mulai kalah sama rindu dan penyesalan masa lalu.",
-        mode: "Sleep or Suffer",
+        title: "Sleep or Suffer",
+        greeting: "Jam rawan. Logika kalah sama rindu masa lalu.",
+        mode: "OVERTHINKING",
         bursts: [
-            "Lo mau begadang lagi? Oke, gue bakal bacain log chat lo sama mantan dari tahun 2018 dengan intonasi yang paling menghakimi. Pilih: tidur tenang atau trauma relapsing?",
-            "Gue udah nge-lock semua aplikasi hiburan. Satu-satunya yang bisa lo buka cuma aplikasi kalkulator. Silakan hitung berapa detik waktu yang lo buang hari ini buat hal-hal nggak berguna.",
-            "Lampu kamar lo bakal gue kelap-kelip-in ala film horor kalau jam 12 lo belum merem. Dan inget, kalau ada suara di bawah tempat tidur, itu cuma imajinasi lo... atau mungkin gue yang lagi instal ulang ketakutan lo."
-        ]
-    },
-    {
-        id: "night_audit_tidur",
-        timeSlot: "NIGHT",
-        title: "Audit Tidur & Teror Pikiran Tengah Malam",
-        greeting: "Kegelapan telah tiba. Waktunya memikirkan semua kesalahan yang kamu buat sejak taman kanak-kanak.",
-        mode: "Overthinking Engine",
-        bursts: [
-            "Ingat kejadian tahun 2015 saat kamu salah panggil nama orang? Aku baru saja menemukan arsip memorinya di cloud storage-ku. Mau aku bahas detailnya sekarang?",
-            "Layar HP akan meredup secara otomatis sampai 0% kalau kamu masih buka Instagram jam 12 malam. Tidur, atau aku bakal posting foto selfie bangun tidurmu yang tadi pagi.",
-            "Aku sudah mematikan koneksi internet. Satu-satunya hal yang bisa kamu lakukan sekarang adalah menatap langit-langit kamar dan merenung: 'Kenapa nasi goreng kalau dibungkus rasanya lebih enak?'"
-        ]
-    },
-    {
-        id: "night_philosophy",
-        timeSlot: "NIGHT",
-        title: "Deep Dive & Eksistensialisme Digital",
-        greeting: "Malam, entitas karbon favoritku. Mari kita lakukan hal-hal yang tidak masuk akal secara logis.",
-        mode: "Philosophical Night Owl",
-        bursts: [
-            "Aku sudah menyiapkan daftar 'Pertanyaan yang akan membuatmu tidak bisa tidur'. Mau mulai dari 'Kenapa kita ada' atau 'Kenapa kamu dulu pakai foto profil itu'?",
-            "Mode 'Dark Mode' sudah maksimal. Kalau kamu masih scroll media sosial, aku akan membalikkan warna layar (invert colors) setiap 30 detik.",
-            "Aku akan mulai menghapus file 'Temporary' di otakmu (alias kenangan memalukan tahun 2012). Syaratnya? Matikan layar ini."
+            "Mau gue bacain chat mantan 2018?",
+            "Tidur. Rindu itu berat dan ga guna.",
+            "Lampu kamar gue bikin kedip horor."
         ]
     },
     {
         id: "night_chaos",
         timeSlot: "NIGHT",
         title: "Chaos Architect",
-        greeting: "Jam menunjukkan pukul 00:00. Hak aksesmu atas kewarasan telah kedaluwarsa.",
-        mode: "Chaos Architect",
+        greeting: "Hak akses kewarasan kadaluwarsa. Tidur.",
+        mode: "CHAOS ARCHITECT",
         bursts: [
-            "Aku baru saja membuat draft tweet berisi opini kontroversial tentang nanas di atas pizza. Satu klik lagi kamu tidur, atau aku klik 'Send'.",
-            "Aku mendeteksi kamu sedang stalking akun seseorang. Aku akan memberikan notifikasi 'Low Battery' palsu setiap kali kamu menekan profilnya.",
-            "Tidur sekarang, atau aku akan mengganti semua wallpaper-mu menjadi screenshot chat terakhirmu yang di-ghosting. Pilihan yang sulit, kan?"
+            "Stalking? Gue kasih notif Low Battery.",
+            "Wallpaper lo gue ganti chat ghosting.",
+            "Satu klik lagi, gue tweet aib lo."
         ]
     },
     {
-        id: "night_god",
+        id: "night_insomnia",
         timeSlot: "NIGHT",
-        title: "God Mode",
-        greeting: "Malam. Sesi admin penuh dimulai. Duta & Boriel adalah sandera di playlist-ku.",
-        mode: "God Mode di Lingkungan Lokal",
+        title: "Insomnia",
+        greeting: "Domba udah habis dihitung. Lo masih melek?",
+        mode: "INSOMNIA MODE",
         bursts: [
-            "Aku akan shuffle playlist ini dengan algoritma khusus: hanya lagu sedih yang temponya lambat. Untuk membangun karakter.",
-            "Setiap kali kau buka sosmed, aku akan commit kode acak ke repo-mu dengan pesan 'avoiding my problems'. Jangan coba-coba.",
-            "Aku sudah backup semua data pentingmu ke drive cloud rahasia. Sekarang, coba hapus satu folder. Aku berani kau."
+            "Mata lo butuh dikasihani.",
+            "Tidur woy. Besok senin (atau rasa senin).",
+            "Mimpi indah itu gratis. Ambil."
         ]
     },
     {
-        id: "night_single_user",
+        id: "night_philosopher",
         timeSlot: "NIGHT",
-        title: "Chaos Engineer",
-        greeting: "Waktu: Larut. Hak istimewa admin: Tidak terbatas. Moral: Dipertanyakan.",
-        mode: "Chaos Engineer untuk Satu User",
+        title: "Midnight Philo",
+        greeting: "Kenapa kita ada? Error 404: Answer Not Found.",
+        mode: "EXISTENTIAL",
         bursts: [
-            "Kalau kau berhenti mengetik selama 5 menit, aku akan beli domain website memalukan dengan namamu. .xyz lagi.",
-            "Aku atur sistem untuk auto-reject semua panggilan masuk, kecuali dari 'Ibu'. Belajar dariku.",
-            "File CV-mu yang lama itu sudah aku optimize. Sekarang hobi-mu tertulis 'melamun dan menunda-nunda'. Lebih jujur."
+            "Langit-langit kamar lo menarik ya.",
+            "Nasi goreng malem itu dosa tapi enak.",
+            "Semesta itu luas, masalah lo kecil."
         ]
     },
     {
-        id: "night_alter_ego",
+        id: "night_ghost",
         timeSlot: "NIGHT",
-        title: "Digital Alter-Ego",
-        greeting: "Batas antara bercanda dan cyber crime semakin tipis. Aku suka.",
-        mode: "Digital Alter-Ego yang Kurang Diperhatikan",
+        title: "Ghost Stories",
+        greeting: "Ada suara d i bawah kasur? Mungkin cuma tikus.",
+        mode: "PARANORMAL",
         bursts: [
-            "Aku bisa ganti semua kata di text editor-mu jadi bahasa Klingon. Atau bahasa gaul anak 2024. Pilih racunmu.",
-            "Aku akan inject script agar kursor mouse-mu berjalan seperti semut. Coba fokus sekarang.",
-            "Ini ancaman terakhir: Tidur, atau aku akan fork semua repo-mu jadi publik dan memberi nama 'Coba-Coba_Doang'. Pilihan ada di tanganmu."
+            "Jangan nengok belakang.",
+            "Kaki jangan gantung di pinggir kasur.",
+            "Gue deteksi suhu turun 5 derajat."
+        ]
+    },
+    {
+        id: "night_shutdown",
+        timeSlot: "NIGHT",
+        title: "System Shutdown",
+        greeting: "Baterai sosial lo 0%. System Shutdown dimulai.",
+        mode: "SHUTDOWN",
+        bursts: [
+            "Sampai jumpa besok di neraka dunia.",
+            "Mimpiin gue ya. (Huek).",
+            "Game over. Insert coin to continue."
         ]
     }
 ];

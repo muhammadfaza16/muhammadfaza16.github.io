@@ -1,10 +1,41 @@
 "use client";
 
-import { useEffect, useState, useMemo } from "react";
-import { Container } from "@/components/Container";
+import { useEffect, useState } from "react";
 import { useAudio } from "@/components/AudioContext";
 import { Disc, Zap, Moon, Sun, Coffee } from "lucide-react";
 import { JARVIS_THEMES, JarvisTheme } from "@/data/jarvisThemes";
+
+interface SlotState {
+    todayThemeId: string | null;
+    todayBurst: string | null;
+    usedThemeIds: string[];
+}
+
+interface JarvisState {
+    lastActiveDate: string; // YYYY-MM-DD
+    slots: {
+        MORNING: SlotState;
+        DAY: SlotState;
+        AFTERNOON: SlotState;
+        NIGHT: SlotState;
+    };
+}
+
+const DEFAULT_SLOT_STATE: SlotState = {
+    todayThemeId: null,
+    todayBurst: null,
+    usedThemeIds: []
+};
+
+const DEFAULT_STATE: JarvisState = {
+    lastActiveDate: "",
+    slots: {
+        MORNING: { ...DEFAULT_SLOT_STATE },
+        DAY: { ...DEFAULT_SLOT_STATE },
+        AFTERNOON: { ...DEFAULT_SLOT_STATE },
+        NIGHT: { ...DEFAULT_SLOT_STATE }
+    }
+};
 
 export function JarvisHero() {
     const { isPlaying, currentSong, currentLyricText } = useAudio();
@@ -14,31 +45,94 @@ export function JarvisHero() {
     const [activeTheme, setActiveTheme] = useState<JarvisTheme | null>(null);
     const [activeBurst, setActiveBurst] = useState<string>("");
 
-    // Time-aware logic to pick theme
+    // Persistence Logic
     useEffect(() => {
         setMounted(true);
-        const hour = new Date().getHours();
+        const now = new Date();
+        const hour = now.getHours();
+        const todayDate = now.toISOString().split('T')[0];
 
-        let slot: 'MORNING' | 'DAY' | 'AFTERNOON' | 'NIGHT' = 'NIGHT';
-        if (hour >= 5 && hour < 11) slot = 'MORNING';
-        else if (hour >= 11 && hour < 15) slot = 'DAY';
-        else if (hour >= 15 && hour < 20) slot = 'AFTERNOON';
-        else slot = 'NIGHT';
+        // Determine Slot
+        let slotKey: 'MORNING' | 'DAY' | 'AFTERNOON' | 'NIGHT' = 'NIGHT';
+        if (hour >= 5 && hour < 11) slotKey = 'MORNING';
+        else if (hour >= 11 && hour < 15) slotKey = 'DAY';
+        else if (hour >= 15 && hour < 20) slotKey = 'AFTERNOON';
+        else slotKey = 'NIGHT'; // 20:00 - 05:00
 
-        // Filter themes by slot
-        const candidates = JARVIS_THEMES.filter(t => t.timeSlot === slot);
+        // Load State
+        let state: JarvisState = DEFAULT_STATE;
+        try {
+            const stored = localStorage.getItem("jarvis_state");
+            if (stored) {
+                state = JSON.parse(stored);
+            }
+        } catch (e) {
+            console.error("Jarvis state parse error", e);
+        }
 
-        if (candidates.length > 0) {
-            // Pick random theme
-            const randomTheme = candidates[Math.floor(Math.random() * candidates.length)];
-            setActiveTheme(randomTheme);
+        // Daily Reset Check
+        if (state.lastActiveDate !== todayDate) {
+            // New Day: Reset "today" locks, keep "used" history
+            state.lastActiveDate = todayDate;
+            (['MORNING', 'DAY', 'AFTERNOON', 'NIGHT'] as const).forEach(key => {
+                if (!state.slots[key]) state.slots[key] = { ...DEFAULT_SLOT_STATE }; // Safety init
+                state.slots[key].todayThemeId = null;
+                state.slots[key].todayBurst = null;
+            });
+        }
 
-            // Pick random burst from that theme
-            if (randomTheme.bursts.length > 0) {
-                setActiveBurst(randomTheme.bursts[Math.floor(Math.random() * randomTheme.bursts.length)]);
+        const currentSlotState = state.slots[slotKey] || { ...DEFAULT_SLOT_STATE };
+
+        let targetTheme: JarvisTheme | undefined;
+        let targetBurst: string = "";
+
+        // Check if locked for today
+        if (currentSlotState.todayThemeId) {
+            targetTheme = JARVIS_THEMES.find(t => t.id === currentSlotState.todayThemeId);
+            targetBurst = currentSlotState.todayBurst || "";
+        }
+
+        // If not locked or invalid, pick new
+        if (!targetTheme) {
+            const allThemesInSlot = JARVIS_THEMES.filter(t => t.timeSlot === slotKey);
+            const usedIds = currentSlotState.usedThemeIds || [];
+
+            // Filter unused
+            let available = allThemesInSlot.filter(t => !usedIds.includes(t.id));
+
+            // Reset history if exhausted
+            if (available.length === 0) {
+                currentSlotState.usedThemeIds = []; // Reset history
+                available = allThemesInSlot; // Use full pool
+            }
+
+            if (available.length > 0) {
+                // Random Pick
+                targetTheme = available[Math.floor(Math.random() * available.length)];
+
+                // Pick Burst
+                if (targetTheme.bursts.length > 0) {
+                    targetBurst = targetTheme.bursts[Math.floor(Math.random() * targetTheme.bursts.length)];
+                }
+
+                // Lock & Save History
+                currentSlotState.todayThemeId = targetTheme.id;
+                currentSlotState.todayBurst = targetBurst;
+                currentSlotState.usedThemeIds = [...(currentSlotState.usedThemeIds || []), targetTheme.id];
             }
         }
-    }, []); // Run once on mount (per session)
+
+        // Apply
+        if (targetTheme) {
+            setActiveTheme(targetTheme);
+            setActiveBurst(targetBurst);
+
+            // Save Persistence
+            state.slots[slotKey] = currentSlotState;
+            localStorage.setItem("jarvis_state", JSON.stringify(state));
+        }
+
+    }, []); // Run once on mount
 
     if (!mounted) return null;
 
@@ -49,7 +143,7 @@ export function JarvisHero() {
 
     const displayMain = isSabotage
         ? (currentLyricText || currentSong.title.split("—")[1]?.trim() || currentSong.title)
-        : (activeTheme?.greeting || "System initialization complete. Waiting for input.");
+        : (activeTheme?.greeting || "System initialization complete.");
 
     const displaySub = isSabotage
         ? (currentSong.title.split("—")[0]?.trim() || "Unknown Artist")
