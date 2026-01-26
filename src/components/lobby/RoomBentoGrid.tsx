@@ -158,7 +158,7 @@ export function RoomBentoGrid() {
                 padding: "0 1.5rem",
                 width: "100%",
                 maxWidth: "420px",
-                paddingBottom: "4rem" // Bottom padding for scroll space
+                paddingBottom: "max(1rem, env(safe-area-inset-bottom))" // Responsive Safe Area
             }}>
                 <div style={{
                     display: "grid",
