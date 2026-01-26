@@ -7,7 +7,7 @@ import { JARVIS_THEMES, JarvisTheme } from "@/data/jarvisThemes";
 
 interface SlotState {
     todayThemeId: string | null;
-    todayBurst: string | null;
+    // todayBurst removed to allow rotation
     usedThemeIds: string[];
 }
 
@@ -23,7 +23,6 @@ interface JarvisState {
 
 const DEFAULT_SLOT_STATE: SlotState = {
     todayThemeId: null,
-    todayBurst: null,
     usedThemeIds: []
 };
 
@@ -44,6 +43,8 @@ export function JarvisHero() {
     // Theme State
     const [activeTheme, setActiveTheme] = useState<JarvisTheme | null>(null);
     const [activeBurst, setActiveBurst] = useState<string>("");
+    const [burstIndex, setBurstIndex] = useState<number>(0);
+
 
     // Persistence Logic
     useEffect(() => {
@@ -60,11 +61,27 @@ export function JarvisHero() {
         else slotKey = 'NIGHT'; // 20:00 - 05:00
 
         // Load State
-        let state: JarvisState = DEFAULT_STATE;
+        let state: JarvisState = {
+            lastActiveDate: "",
+            slots: {
+                MORNING: { ...DEFAULT_SLOT_STATE },
+                DAY: { ...DEFAULT_SLOT_STATE },
+                AFTERNOON: { ...DEFAULT_SLOT_STATE },
+                NIGHT: { ...DEFAULT_SLOT_STATE }
+            }
+        };
+
         try {
             const stored = localStorage.getItem("jarvis_state");
             if (stored) {
-                state = JSON.parse(stored);
+                const parsed = JSON.parse(stored);
+                // Migrate/Safety: If stored state has old structure, merge carefully
+                state = { ...state, ...parsed };
+
+                // Ensure slots exist (in case of partial state)
+                (['MORNING', 'DAY', 'AFTERNOON', 'NIGHT'] as const).forEach(key => {
+                    if (!state.slots[key]) state.slots[key] = { ...DEFAULT_SLOT_STATE };
+                });
             }
         } catch (e) {
             console.error("Jarvis state parse error", e);
@@ -72,67 +89,77 @@ export function JarvisHero() {
 
         // Daily Reset Check
         if (state.lastActiveDate !== todayDate) {
-            // New Day: Reset "today" locks, keep "used" history
             state.lastActiveDate = todayDate;
             (['MORNING', 'DAY', 'AFTERNOON', 'NIGHT'] as const).forEach(key => {
-                if (!state.slots[key]) state.slots[key] = { ...DEFAULT_SLOT_STATE }; // Safety init
                 state.slots[key].todayThemeId = null;
-                state.slots[key].todayBurst = null;
+                // Burst reset not needed as it's not stored
             });
         }
 
-        const currentSlotState = state.slots[slotKey] || { ...DEFAULT_SLOT_STATE };
+        const currentSlotState = state.slots[slotKey];
 
         let targetTheme: JarvisTheme | undefined;
         let targetBurst: string = "";
 
-        // Check if locked for today
+        // 1. Try to load locked theme
         if (currentSlotState.todayThemeId) {
             targetTheme = JARVIS_THEMES.find(t => t.id === currentSlotState.todayThemeId);
-            targetBurst = currentSlotState.todayBurst || "";
         }
 
-        // If not locked or invalid, pick new
+        // 2. If no locked theme, pick new one
         if (!targetTheme) {
             const allThemesInSlot = JARVIS_THEMES.filter(t => t.timeSlot === slotKey);
             const usedIds = currentSlotState.usedThemeIds || [];
 
-            // Filter unused
             let available = allThemesInSlot.filter(t => !usedIds.includes(t.id));
 
-            // Reset history if exhausted
             if (available.length === 0) {
-                currentSlotState.usedThemeIds = []; // Reset history
-                available = allThemesInSlot; // Use full pool
+                currentSlotState.usedThemeIds = [];
+                available = allThemesInSlot;
             }
 
             if (available.length > 0) {
-                // Random Pick
                 targetTheme = available[Math.floor(Math.random() * available.length)];
 
-                // Pick Burst
-                if (targetTheme.bursts.length > 0) {
-                    targetBurst = targetTheme.bursts[Math.floor(Math.random() * targetTheme.bursts.length)];
-                }
-
-                // Lock & Save History
+                // Lock Theme
                 currentSlotState.todayThemeId = targetTheme.id;
-                currentSlotState.todayBurst = targetBurst;
                 currentSlotState.usedThemeIds = [...(currentSlotState.usedThemeIds || []), targetTheme.id];
+
+                state.slots[slotKey] = currentSlotState;
+                localStorage.setItem("jarvis_state", JSON.stringify(state));
             }
         }
 
-        // Apply
+        // 3. Apply Theme & Pick Random Burst (Every Mount)
         if (targetTheme) {
             setActiveTheme(targetTheme);
-            setActiveBurst(targetBurst);
 
-            // Save Persistence
-            state.slots[slotKey] = currentSlotState;
-            localStorage.setItem("jarvis_state", JSON.stringify(state));
+            // Initial Burst (Sequential Start)
+            if (targetTheme.bursts.length > 0) {
+                setBurstIndex(0);
+                setActiveBurst(targetTheme.bursts[0]);
+            }
         }
 
     }, []); // Run once on mount
+
+    // Auto-Rotate Bursts
+    useEffect(() => {
+        if (!activeTheme || !activeBurst || activeTheme.bursts.length <= 1) return;
+
+        // Reading Time Calculation
+        // Approx 60ms per char. Min 4s (to read comfortably), Max 12s.
+        const duration = Math.min(12000, Math.max(4000, activeBurst.length * 60));
+
+        const timer = setTimeout(() => {
+            // Sequential Rotation
+            const nextIndex = (burstIndex + 1) % activeTheme.bursts.length;
+            setBurstIndex(nextIndex);
+            setActiveBurst(activeTheme.bursts[nextIndex]);
+        }, duration);
+
+        return () => clearTimeout(timer);
+    }, [activeBurst, activeTheme]);
 
     if (!mounted) return null;
 
