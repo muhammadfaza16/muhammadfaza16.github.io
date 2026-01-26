@@ -349,7 +349,7 @@ const POKE_RESPONSES = [
     "Focus...", "Vibing~", "Ouch!", "Ticklish!"
 ];
 
-import { getDynamicLyrics, LyricItem } from "../data/songLyrics";
+import { LyricItem } from "../data/songLyrics";
 
 // Multi-Level Vibe Data (Song Title -> Timestamps with intensity levels)
 // level 1 = build up (pre-chorus)
@@ -547,56 +547,51 @@ const VibingAvatar = memo(function VibingAvatar({
                 }
             }
 
-            // [Timed Lyrics Sync] - Independent of analyser now!
-            if (lyrics) {
+            // [Timed Lyrics Sync] - JSON Engine
+            if (lyrics && lyrics.length > 0) {
                 let lyricFound = false;
-                for (const lyric of lyrics) {
-                    if (currentTime >= lyric.start && currentTime < lyric.end) {
+
+                for (let i = 0; i < lyrics.length; i++) {
+                    const lyric = lyrics[i];
+                    // Calculate dynamic end time
+                    const nextTime = (i + 1 < lyrics.length) ? lyrics[i + 1].time : (lyric.time + 5);
+                    const start = lyric.time;
+                    const end = nextTime;
+
+                    if (currentTime >= start && currentTime < end) {
                         lyricFound = true;
-                        const lyricKey = `${lyric.start}-${lyric.end}`;
+                        const lyricKey = `${start}-${end}`;
 
                         if (lastLyricRef.current !== lyricKey) {
                             lastLyricRef.current = lyricKey;
+
+                            // Check if "Faded" for easter eggs? (Optional)
                             const isFaded = currentSong.title.includes("Faded");
 
-                            if (lyric.expressive) {
-                                const words = lyric.text.split(' ');
-                                const lyricDuration = (lyric.end - lyric.start) * 1000;
-                                const staggerMs = isFaded
-                                    ? Math.min(350, Math.max(200, (lyricDuration * 0.8) / words.length))
-                                    : 350;
+                            // Standard Floating Words Logic
+                            const words = lyric.text.split(' ');
+                            const lyricDuration = (end - start) * 1000;
+                            // Clamp duration for safety (e.g. max 5s per line for animation speed)
+                            const effectiveDuration = Math.min(lyricDuration, 5000);
 
-                                words.forEach((word: string, index: number) => {
-                                    setTimeout(() => {
-                                        const id = expressiveIdRef.current++;
-                                        setExpressiveWords([{ id, text: word, index }]);
-                                    }, index * staggerMs);
-                                });
+                            const staggerMs = isFaded
+                                ? Math.min(350, Math.max(200, (effectiveDuration * 0.8) / words.length))
+                                : 350;
 
+                            words.forEach((word: string, index: number) => {
                                 setTimeout(() => {
-                                    setExpressiveWords([]);
-                                }, lyricDuration);
-                            } else {
-                                const words = lyric.text.split(' ');
-                                const lyricDuration = (lyric.end - lyric.start) * 1000;
-                                const staggerMs = isFaded
-                                    ? Math.min(350, Math.max(200, (lyricDuration * 0.8) / words.length))
-                                    : 350;
-
-                                words.forEach((word: string, index: number) => {
+                                    const id = wordIdRef.current++;
+                                    setFloatingWords(prev => [...prev, { id, text: word, wordIndex: index }]);
                                     setTimeout(() => {
-                                        const id = wordIdRef.current++;
-                                        setFloatingWords(prev => [...prev, { id, text: word, wordIndex: index }]);
-                                        setTimeout(() => {
-                                            setFloatingWords(prev => prev.filter(w => w.id !== id));
-                                        }, 7000);
-                                    }, index * staggerMs);
-                                });
-                            }
+                                        setFloatingWords(prev => prev.filter(w => w.id !== id));
+                                    }, 7000);
+                                }, index * staggerMs);
+                            });
                         }
                         break;
                     }
                 }
+
                 if (!lyricFound && lastLyricRef.current) {
                     lastLyricRef.current = null;
                 }
@@ -1104,7 +1099,7 @@ export function CurrentlyStrip() {
     // Destructure audio context with audioRef for the engine
     const {
         isPlaying, isBuffering, togglePlay, currentSong, nextSong, prevSong, jumpToSong, hasInteracted, audioRef, warmup,
-        showLyrics, setShowLyrics, showMarquee, setShowMarquee, showNarrative, setShowNarrative
+        showLyrics, setShowLyrics, showMarquee, setShowMarquee, showNarrative, setShowNarrative, activeLyrics
     } = useAudio();
 
     // Debounced Buffering State (to avoid flickering "Buffering..." on fast loads)
@@ -1218,14 +1213,8 @@ export function CurrentlyStrip() {
     // We can check if the song is in a "Special List" or just use the fact that non-special songs return generic arrays.
     // A cleaner way: Check if getDynamicLyrics returns the generic bank.
     // Or just check the song title.
-    const isSpecialLyricSong = ["Alan Walker — Faded"].includes(currentSong.title);
-
-    const manualLyrics = useMemo(() => {
-        if (isSpecialLyricSong) {
-            return getDynamicLyrics(currentSong.title);
-        }
-        return [];
-    }, [currentSong, isSpecialLyricSong]);
+    // Lyrics logic - Now handled fully by AudioContext (JSON based)
+    // We simply use the activeLyrics provided by the context.
 
     // narrativeLyricItem removed as it is no longer used.
 
@@ -1436,8 +1425,8 @@ export function CurrentlyStrip() {
                     // actually user prefers it to just "stay floating". keeping isPlaying=true achieves that.
                     isPlaying={isPlaying}
                     hour={currentHour}
-                    lyrics={manualLyrics}
-                    narrativeText={manualLyrics.length > 0 ? undefined : narrative.text}
+                    lyrics={activeLyrics}
+                    narrativeText={activeLyrics.length > 0 ? undefined : narrative.text}
                     mood={narrative.mood}
                     pose={narrative.pose}
                 />

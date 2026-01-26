@@ -2,7 +2,12 @@
 
 import { createContext, useContext, useEffect, useRef, useState, useCallback } from "react";
 import { useTheme } from "./ThemeProvider";
-import { getDynamicLyrics, LyricItem } from "@/data/songLyrics";
+// import { getDynamicLyrics, LyricItem } from "@/data/songLyrics"; // OLD ENGINE
+
+export interface LyricItem {
+    time: number;
+    text: string;
+}
 
 interface AudioContextType {
     isPlaying: boolean;
@@ -23,6 +28,7 @@ interface AudioContextType {
     showNarrative: boolean;
     setShowNarrative: (v: boolean) => void;
     currentLyricText: string | null; // NEW: Global synced lyric
+    activeLyrics: LyricItem[]; // NEW: Expose Logic
 }
 
 const AudioContext = createContext<AudioContextType | undefined>(undefined);
@@ -263,22 +269,41 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
 
     // Detect Lyrics on Song Change
     useEffect(() => {
-        const lyrics = getDynamicLyrics(currentSong.title);
-        setActiveLyrics(lyrics);
-        setCurrentLyricText(null); // Reset on song change
+        let isMounted = true;
+        setActiveLyrics([]);
+        setCurrentLyricText(null);
+        const fetchLyrics = async () => {
+            try {
+                const filename = `/lyrics/${encodeURIComponent(currentSong.title)}.json`;
+                const res = await fetch(filename);
+                if (res.ok) {
+                    const data: LyricItem[] = await res.json();
+                    if (isMounted) setActiveLyrics(data);
+                } else {
+                    if (isMounted) setActiveLyrics([]);
+                }
+            } catch (error) {
+                console.error("Failed to fetch lyrics:", error);
+            }
+        };
+        fetchLyrics();
+        return () => { isMounted = false; };
     }, [currentSong.title]);
 
     const handleTimeUpdate = () => {
         if (!audioRef.current || activeLyrics.length === 0) return;
-
         const t = audioRef.current.currentTime;
-        const active = activeLyrics.find(l => t >= l.start && t < l.end);
-
-        if (active) {
-            if (currentLyricText !== active.text) setCurrentLyricText(active.text);
+        let activeLine: LyricItem | null = null;
+        let nextLineTime = Infinity;
+        for (let i = 0; i < activeLyrics.length; i++) {
+            if (activeLyrics[i].time <= t) {
+                activeLine = activeLyrics[i];
+                if (i + 1 < activeLyrics.length) nextLineTime = activeLyrics[i + 1].time;
+            } else { break; }
+        }
+        if (activeLine && t < nextLineTime) {
+            if (currentLyricText !== activeLine.text) setCurrentLyricText(activeLine.text);
         } else {
-            // Optional: persistence vs clearing. 
-            // Clearing preferred for "Sabotage" effect (showing Title when no lyric)
             if (currentLyricText !== null) setCurrentLyricText(null);
         }
     };
@@ -353,7 +378,7 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
         <AudioContext.Provider value={{
             isPlaying, isBuffering, togglePlay, nextSong, prevSong, jumpToSong, currentSong, analyser, audioRef, hasInteracted, warmup,
             showLyrics, setShowLyrics, showMarquee, setShowMarquee, showNarrative, setShowNarrative,
-            currentLyricText
+            currentLyricText, activeLyrics
         }}>
             <audio
                 ref={audioRef}
