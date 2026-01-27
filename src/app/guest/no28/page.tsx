@@ -105,6 +105,56 @@ export default function GuestNo28Dashboard() {
         }}>
             <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;700&display=swap" rel="stylesheet" />
 
+            {/* Ambient Background Elements */}
+            <motion.div
+                animate={{ scale: [1, 1.05, 1], opacity: [0.3, 0.4, 0.3], rotate: [0, 5, 0] }}
+                transition={{ duration: 15, repeat: Infinity, ease: "easeInOut" }}
+                style={{ position: "fixed", top: "15%", right: "-10%", width: "600px", height: "600px", background: "radial-gradient(circle, rgba(216, 226, 220, 0.3) 0%, transparent 70%)", filter: "blur(60px)", pointerEvents: "none", zIndex: 0 }}
+            />
+
+            <motion.div
+                animate={{ scale: [1, 1.1, 1], opacity: [0.4, 0.5, 0.4], rotate: [0, -5, 0] }}
+                transition={{ duration: 18, repeat: Infinity, ease: "easeInOut", delay: 2 }}
+                style={{ position: "fixed", bottom: "5%", left: "-5%", width: "550px", height: "550px", background: "radial-gradient(circle, rgba(255, 229, 217, 0.4) 0%, transparent 70%)", filter: "blur(60px)", pointerEvents: "none", zIndex: 0 }}
+            />
+
+            {/* Individual Watercolor Sketches */}
+            <motion.div
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 0.4, y: [0, -15, 0], rotate: [-10, -5, -10] }}
+                transition={{ opacity: { duration: 1 }, y: { duration: 6, repeat: Infinity, ease: "easeInOut" }, rotate: { duration: 7, repeat: Infinity, ease: "easeInOut" } }}
+                style={{ position: "fixed", top: "5%", left: "8%", width: "150px", height: "150px", zIndex: 1, pointerEvents: "none" }}
+            >
+                <Image src="/detail_lavender.png" alt="" fill style={{ objectFit: 'contain' }} />
+            </motion.div>
+
+            <motion.div
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 0.3, y: [0, 10, 0], rotate: [15, 20, 15] }}
+                transition={{ opacity: { duration: 1, delay: 0.2 }, y: { duration: 8, repeat: Infinity, ease: "easeInOut" }, rotate: { duration: 9, repeat: Infinity, ease: "easeInOut" } }}
+                style={{ position: "fixed", top: "45%", right: "8%", width: "120px", height: "120px", zIndex: 1, pointerEvents: "none" }}
+            >
+                <Image src="/detail_rose.png" alt="" fill style={{ objectFit: 'contain' }} />
+            </motion.div>
+
+            <motion.div
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 0.35, y: [0, -8, 0], rotate: [-5, 0, -5] }}
+                transition={{ opacity: { duration: 1, delay: 0.4 }, y: { duration: 7, repeat: Infinity, ease: "easeInOut" }, rotate: { duration: 8, repeat: Infinity, ease: "easeInOut" } }}
+                style={{ position: "fixed", bottom: "15%", left: "5%", width: "140px", height: "140px", zIndex: 1, pointerEvents: "none" }}
+            >
+                <Image src="/detail_leaf.png" alt="" fill style={{ objectFit: 'contain' }} />
+            </motion.div>
+
+            {/* Detailed Artistic Hijabi Sketch (Backview) */}
+            <motion.div
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 0.25, x: 0 }}
+                style={{ position: "fixed", right: "-2%", bottom: "-2%", width: "55vh", height: "55vh", zIndex: 2, pointerEvents: "none", mixBlendMode: "multiply" }}
+            >
+                <Image src="/hijabi_details.png" alt="Detailed Personal Sketch" fill style={{ objectFit: 'contain' }} />
+            </motion.div>
+
             <div style={{ position: "fixed", inset: 0, opacity: 0.4, pointerEvents: "none", backgroundImage: "url('https://www.transparenttextures.com/patterns/natural-paper.png')", zIndex: 5 }} />
 
             <main style={{ position: "relative", zIndex: 10, padding: isMobile ? "2rem 0" : "3rem 0" }}>
