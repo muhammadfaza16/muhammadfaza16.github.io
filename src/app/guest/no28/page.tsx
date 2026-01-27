@@ -39,12 +39,11 @@ const WashiTape = ({ color, rotate = "0deg", width = "90px" }: { color: string, 
         height: "24px",
         backgroundColor: color,
         opacity: 1,
-        zIndex: 10,
-        boxShadow: "0 1px 3px rgba(0,0,0,0.15)",
-        // Removed aggressive masking to keep tape solid
+        zIndex: 100,
+        boxShadow: "0 2px 4px rgba(0,0,0,0.18)",
+        borderRadius: "2px",
     }}>
-        {/* Subtle texture instead of light overlay */}
-        <div style={{ width: "100%", height: "100%", opacity: 0.05, background: "url('https://www.transparenttextures.com/patterns/natural-paper.png')" }} />
+        <div style={{ width: "100%", height: "100%", opacity: 0.08, background: "url('https://www.transparenttextures.com/patterns/natural-paper.png')" }} />
     </div>
 );
 

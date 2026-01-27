@@ -9,21 +9,21 @@ import { Container } from "@/components/Container";
 
 // --- Components ---
 
-const WashiTape = ({ color, rotate = "0deg", width = "90px", height = "22px" }: { color: string, rotate?: string, width?: string, height?: string }) => (
+const WashiTape = ({ color, rotate = "0deg", width = "90px", height = "24px" }: { color: string, rotate?: string, width?: string, height?: string }) => (
     <div style={{
         position: "absolute",
-        top: "-11px",
+        top: "-12px",
         left: "50%",
         transform: `translateX(-50%) rotate(${rotate})`,
         width: width,
         height: height,
         backgroundColor: color,
-        opacity: 1, // Solidified
-        zIndex: 10,
-        boxShadow: "0 1px 3px rgba(0,0,0,0.15)",
-        // Consistent with dashboard style
+        opacity: 1,
+        zIndex: 100, // Higher z-index
+        boxShadow: "0 2px 4px rgba(0,0,0,0.18)",
+        borderRadius: "2px",
     }}>
-        <div style={{ width: "100%", height: "100%", opacity: 0.05, background: "url('https://www.transparenttextures.com/patterns/natural-paper.png')" }} />
+        <div style={{ width: "100%", height: "100%", opacity: 0.08, background: "url('https://www.transparenttextures.com/patterns/natural-paper.png')" }} />
     </div>
 );
 
@@ -235,19 +235,18 @@ export default function SpecialDayBentoPage() {
                         gap: isMobile ? "2rem" : "3.5rem",
                     }}>
 
-                        <BentoCard isMobile={isMobile} style={{ gridColumn: isMobile ? "span 1" : "span 12", minHeight: isMobile ? "auto" : "320px" }} rotate="0.2deg" tapeColor="#e2ece9">
+                        <BentoCard isMobile={isMobile} style={{ gridColumn: isMobile ? "span 1" : "span 12", minHeight: isMobile ? "auto" : "320px" }} rotate="0.2deg" tapeColor="#87b0a5">
                             <SectionTitle icon={BookOpen}>Musim-Musim Kehidupanmu</SectionTitle>
                             <div style={{
                                 position: "absolute",
-                                bottom: isMobile ? "-20px" : "-40px",
-                                right: isMobile ? "-20px" : "-10px",
-                                width: isMobile ? "240px" : "450px",
-                                height: isMobile ? "240px" : "450px",
-                                opacity: 0.4, // Increased opacity for clean sketch
-                                transform: isMobile ? "rotate(5deg)" : "rotate(-2deg)",
+                                bottom: isMobile ? "-30px" : "-50px",
+                                right: isMobile ? "-30px" : "-20px",
+                                width: isMobile ? "220px" : "400px",
+                                height: isMobile ? "220px" : "400px",
+                                opacity: 0.35,
+                                transform: isMobile ? "rotate(8deg)" : "rotate(-3deg)",
                                 pointerEvents: "none",
-                                zIndex: 0,
-                                mixBlendMode: "multiply"
+                                zIndex: 0
                             }}>
                                 <Image src="/special_hijabi_main.png" alt="" fill style={{ objectFit: "contain" }} />
                             </div>
@@ -273,7 +272,7 @@ export default function SpecialDayBentoPage() {
                         </BentoCard>
 
                         {/* 2. Personal Year Loop (Instead of Calendar) */}
-                        <BentoCard isMobile={isMobile} style={{ gridColumn: isMobile ? "span 1" : "span 7" }} rotate="-0.4deg" tapeColor="#fde2e4">
+                        <BentoCard isMobile={isMobile} style={{ gridColumn: isMobile ? "span 1" : "span 7" }} rotate="-0.4deg" tapeColor="#f6a4a9">
                             <SectionTitle icon={Map}>Lingkaran Usia Ke-{age + 1}</SectionTitle>
                             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: "1.5rem" }}>
                                 <div>
@@ -300,7 +299,7 @@ export default function SpecialDayBentoPage() {
                         </BentoCard>
 
                         {/* 3. Kamus Angka 28 (Dedicated Widget) */}
-                        <BentoCard isMobile={isMobile} style={{ gridColumn: isMobile ? "span 1" : "span 5", background: "linear-gradient(to bottom, #fff, #fdfbf7)" }} rotate="0.6deg" tapeColor="#dfccf1">
+                        <BentoCard isMobile={isMobile} style={{ gridColumn: isMobile ? "span 1" : "span 5", background: "linear-gradient(to bottom, #fff, #fdfbf7)" }} rotate="0.6deg" tapeColor="#b598d9">
                             <SectionTitle icon={Sparkles}>Kamus Angka 28</SectionTitle>
                             <div style={{ textAlign: "center", padding: "1.5rem 0" }}>
                                 <div style={{ fontSize: "6rem", fontWeight: 900, color: "#b07d62", lineHeight: 0.8, fontFamily: "'Crimson Pro', serif", position: "relative", display: "inline-block" }}>
@@ -321,8 +320,8 @@ export default function SpecialDayBentoPage() {
                         </BentoCard>
 
                         {/* 4. Bisikan Sanubari (Consolidated Wisdom) */}
-                        <BentoCard isMobile={isMobile} style={{ gridColumn: isMobile ? "span 1" : "span 12", padding: isMobile ? "3rem 1.8rem" : "6rem 4rem", background: "#fefbfc" }} rotate="0deg" tapeColor="#fad2e1">
-                            <div style={{ position: "absolute", bottom: "5px", right: "5px", width: "100px", height: "100px", opacity: 0.9, transform: "rotate(-5deg)", pointerEvents: "none", zIndex: 0, mixBlendMode: "multiply" }}>
+                        <BentoCard isMobile={isMobile} style={{ gridColumn: isMobile ? "span 1" : "span 12", padding: isMobile ? "3rem 1.8rem" : "6rem 4rem", background: "#fefbfc" }} rotate="0deg" tapeColor="#f08bb1">
+                            <div style={{ position: "absolute", bottom: "0", right: "0", width: "65px", height: "65px", opacity: 1, transform: "rotate(-5deg)", pointerEvents: "none", zIndex: 0 }}>
                                 <Image src="/special_bud.png" alt="" fill style={{ objectFit: "contain" }} />
                             </div>
                             <div style={{ maxWidth: "800px", margin: "0 auto", textAlign: "center" }}>
