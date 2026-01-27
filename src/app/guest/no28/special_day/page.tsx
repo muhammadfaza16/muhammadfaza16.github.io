@@ -185,7 +185,7 @@ export default function SpecialDayBentoPage() {
                 initial={{ opacity: 0, scale: 0.8 }}
                 animate={{ opacity: 0.4, y: [0, -15, 0], rotate: [-10, -5, -10] }}
                 transition={{ opacity: { duration: 1 }, y: { duration: 6, repeat: Infinity, ease: "easeInOut" }, rotate: { duration: 7, repeat: Infinity, ease: "easeInOut" } }}
-                style={{ position: "fixed", top: "5%", left: "8%", width: "200px", height: "200px", zIndex: 1, pointerEvents: "none" }}
+                style={{ position: "fixed", top: "2%", left: "8%", width: "200px", height: "200px", zIndex: 1, pointerEvents: "none" }}
             >
                 <Image src="/special_peony.png" alt="" fill style={{ objectFit: 'contain' }} />
             </motion.div>
@@ -237,13 +237,19 @@ export default function SpecialDayBentoPage() {
 
                         <BentoCard isMobile={isMobile} style={{ gridColumn: isMobile ? "span 1" : "span 12", minHeight: isMobile ? "auto" : "320px" }} rotate="0.2deg" tapeColor="#e2ece9">
                             <SectionTitle icon={BookOpen}>Musim-Musim Kehidupanmu</SectionTitle>
-                            {!isMobile && (
-                                <div style={{ position: "absolute", bottom: "-20px", right: "2rem", width: "280px", height: "280px", opacity: 0.9, transform: "rotate(-2deg)", pointerEvents: "none", zIndex: 5 }}>
-                                    <Image src="/special_hijabi_main.png" alt="" fill style={{ objectFit: "contain" }} />
-                                </div>
-                            )}
-                            <div style={{ position: "absolute", bottom: "-10px", right: "0", width: "90px", height: "90px", opacity: 0.8, transform: "rotate(10deg)", pointerEvents: "none" }}>
-                                <Image src="/special_peony.png" alt="" fill style={{ objectFit: "contain" }} />
+                            <div style={{
+                                position: "absolute",
+                                bottom: isMobile ? "-20px" : "-40px",
+                                right: isMobile ? "-20px" : "-10px",
+                                width: isMobile ? "240px" : "450px",
+                                height: isMobile ? "240px" : "450px",
+                                opacity: 0.4, // Increased opacity for clean sketch
+                                transform: isMobile ? "rotate(5deg)" : "rotate(-2deg)",
+                                pointerEvents: "none",
+                                zIndex: 0,
+                                mixBlendMode: "multiply"
+                            }}>
+                                <Image src="/special_hijabi_main.png" alt="" fill style={{ objectFit: "contain" }} />
                             </div>
                             <div style={{ display: "flex", flexDirection: isMobile ? "column" : "row", gap: isMobile ? "2rem" : "4rem", marginTop: "1rem" }}>
                                 {[
@@ -296,9 +302,6 @@ export default function SpecialDayBentoPage() {
                         {/* 3. Kamus Angka 28 (Dedicated Widget) */}
                         <BentoCard isMobile={isMobile} style={{ gridColumn: isMobile ? "span 1" : "span 5", background: "linear-gradient(to bottom, #fff, #fdfbf7)" }} rotate="0.6deg" tapeColor="#dfccf1">
                             <SectionTitle icon={Sparkles}>Kamus Angka 28</SectionTitle>
-                            <div style={{ position: "absolute", bottom: "10px", right: "-10px", width: "60px", height: "60px", opacity: 0.8, transform: "rotate(5deg)", pointerEvents: "none" }}>
-                                <Image src="/sage_sketch.png" alt="" fill style={{ objectFit: "contain" }} />
-                            </div>
                             <div style={{ textAlign: "center", padding: "1.5rem 0" }}>
                                 <div style={{ fontSize: "6rem", fontWeight: 900, color: "#b07d62", lineHeight: 0.8, fontFamily: "'Crimson Pro', serif", position: "relative", display: "inline-block" }}>
                                     28
@@ -319,6 +322,9 @@ export default function SpecialDayBentoPage() {
 
                         {/* 4. Bisikan Sanubari (Consolidated Wisdom) */}
                         <BentoCard isMobile={isMobile} style={{ gridColumn: isMobile ? "span 1" : "span 12", padding: isMobile ? "3rem 1.8rem" : "6rem 4rem", background: "#fefbfc" }} rotate="0deg" tapeColor="#fad2e1">
+                            <div style={{ position: "absolute", bottom: "5px", right: "5px", width: "100px", height: "100px", opacity: 0.9, transform: "rotate(-5deg)", pointerEvents: "none", zIndex: 0, mixBlendMode: "multiply" }}>
+                                <Image src="/special_bud.png" alt="" fill style={{ objectFit: "contain" }} />
+                            </div>
                             <div style={{ maxWidth: "800px", margin: "0 auto", textAlign: "center" }}>
                                 <Wind size={24} color="#b07d62" style={{ margin: "0 auto 1.5rem", opacity: 0.3 }} />
                                 <p
