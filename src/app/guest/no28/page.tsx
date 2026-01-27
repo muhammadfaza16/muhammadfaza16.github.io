@@ -16,15 +16,15 @@ export default function GuestNo28Dashboard() {
         const now = new Date();
         const hour = now.getHours();
 
-        if (hour >= 5 && hour < 12) setGreeting("Good Morning");
-        else if (hour >= 12 && hour < 17) setGreeting("Good Afternoon");
-        else if (hour >= 17 && hour < 21) setGreeting("Good Evening");
-        else setGreeting("Good Night");
+        if (hour >= 5 && hour < 11) setGreeting("Selamat Pagi");
+        else if (hour >= 11 && hour < 15) setGreeting("Selamat Siang");
+        else if (hour >= 15 && hour < 18) setGreeting("Selamat Sore");
+        else setGreeting("Selamat Malam");
 
-        setDateString(now.toLocaleDateString('en-US', {
+        setDateString(now.toLocaleDateString('id-ID', {
             weekday: 'long',
-            month: 'long',
-            day: 'numeric'
+            day: 'numeric',
+            month: 'long'
         }));
     }, []);
 
@@ -218,7 +218,7 @@ export default function GuestNo28Dashboard() {
                     <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 1 }} style={{ marginBottom: "4rem", textAlign: "center" }}>
                         <p style={{ fontSize: "1.1rem", color: "#a0907d", fontStyle: "italic", marginBottom: "0.5rem" }}>{dateString}</p>
                         <h1 style={{ fontSize: "clamp(2.5rem, 8vw, 3.5rem)", fontWeight: 700, color: "#2d2d2d", lineHeight: 1.1 }}>
-                            {greeting}, <span style={{ fontFamily: "cursive, 'Brush Script MT', 'Dancing Script'", color: "#d2691e", fontSize: "1.25em", transform: "rotate(-2deg) translateY(4px)", display: "inline-block" }}>Guest 28.</span>
+                            {greeting}, <span style={{ fontFamily: "cursive, 'Brush Script MT', 'Dancing Script'", color: "#d2691e", fontSize: "1.25em", transform: "rotate(-2deg) translateY(4px)", display: "inline-block" }}>Tamu Ke-28.</span>
                         </h1>
                     </motion.div>
 
@@ -265,8 +265,8 @@ export default function GuestNo28Dashboard() {
                                 </div>
 
                                 <div style={{ marginTop: "1rem" }}>
-                                    <h3 style={{ fontSize: "1.8rem", fontWeight: 700, color: "#333", fontFamily: "'Crimson Pro', serif" }}>Personal Note</h3>
-                                    <p style={{ color: "#666", fontStyle: "italic", fontSize: "0.95rem", marginTop: "4px" }}>"The ink is still fresh..."</p>
+                                    <h3 style={{ fontSize: "1.8rem", fontWeight: 700, color: "#333", fontFamily: "'Crimson Pro', serif" }}>Sepucuk Surat</h3>
+                                    <p style={{ color: "#666", fontStyle: "italic", fontSize: "0.95rem", marginTop: "4px" }}>"Tinta yang baru saja mengering..."</p>
                                 </div>
                                 <ChevronRight size={18} style={{ position: "absolute", bottom: "1.5rem", right: "1.5rem", color: "#aaa" }} />
                             </motion.div>
@@ -312,8 +312,8 @@ export default function GuestNo28Dashboard() {
                                 </div>
 
                                 <div style={{ padding: "0 0.5rem 0.5rem" }}>
-                                    <h3 style={{ fontSize: "1.4rem", fontWeight: 700, color: "#333", marginBottom: "2px" }}>Pieces of Us</h3>
-                                    <p style={{ color: "#888", fontSize: "0.85rem", letterSpacing: "0.5px" }}>MOMENTS ETCHED IN TIME</p>
+                                    <h3 style={{ fontSize: "1.4rem", fontWeight: 700, color: "#333", marginBottom: "2px" }}>Kepingan Kita</h3>
+                                    <p style={{ color: "#888", fontSize: "0.85rem", letterSpacing: "0.5px" }}>MOMEN YANG TERUKIR ABADI</p>
                                 </div>
                             </motion.div>
                         </Link>
@@ -348,10 +348,10 @@ export default function GuestNo28Dashboard() {
                         </div>
                         <div>
                             <p style={{ fontSize: "1.25rem", fontWeight: 300, lineHeight: "1.8", color: "#444", fontStyle: "italic", marginBottom: "1rem", maxWidth: "650px" }}>
-                                "The only way to do great work is to love what you do. Keep looking, don't settle."
+                                "Satu-satunya jalan menuju karya agung adalah mencintai apa yang kau kerjakan. Teruslah mencari, jangan lekas berpuas hati."
                             </p>
                             <div style={{ display: "flex", alignItems: "center", gap: "0.6rem", color: "#a0907d", fontSize: "0.9rem", opacity: 0.6 }}>
-                                <Sparkles size={14} /> whispers from the heart
+                                <Sparkles size={14} /> bisikan sanubari
                             </div>
                         </div>
                     </motion.div>
