@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { Home, Sparkles, Clock, Calendar, Heart, Gift, Activity, Wind, Star, BookOpen, Map, MapPin } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
@@ -40,18 +40,42 @@ const HandwrittenNote = ({ children, style = {} }: { children: React.ReactNode, 
     </span>
 );
 
-const BentoCard = ({ children, style = {}, rotate = "0deg", delay = 0, tapeColor, isMobile }: { children: React.ReactNode, style?: React.CSSProperties, rotate?: string, delay?: number, tapeColor?: string, isMobile?: boolean }) => (
+const containerVariants = {
+    hidden: { opacity: 0 },
+    show: {
+        opacity: 1,
+        transition: {
+            staggerChildren: 0.15,
+            delayChildren: 0.2
+        }
+    }
+};
+
+const itemVariants = {
+    hidden: { opacity: 0, y: 30, rotate: 0 },
+    show: (customRotate: number) => ({
+        opacity: 1,
+        y: 0,
+        rotate: customRotate,
+        transition: {
+            type: "spring",
+            stiffness: 50,
+            damping: 15
+        }
+    })
+};
+
+const BentoCard = ({ children, style = {}, rotate = "0deg", delay = 0, tapeColor, isMobile, className }: { children: React.ReactNode, style?: React.CSSProperties, rotate?: string, delay?: number, tapeColor?: string, isMobile?: boolean, className?: string }) => (
     <motion.div
-        initial={{ opacity: 0, scale: 0.98, rotate: parseFloat(rotate) - 0.5 }}
-        whileInView={{ opacity: 1, scale: 1, rotate: rotate }}
-        viewport={{ once: true }}
-        transition={{ duration: 0.8, delay, ease: "easeOut" }}
+        variants={itemVariants}
+        custom={parseFloat(rotate)}
+        className={className}
         style={{
             background: "#fff",
             borderRadius: "4px 8px 4px 10px / 12px 4px 15px 4px",
             border: "1px solid #e8e2d9",
             boxShadow: "2px 5px 15px rgba(160, 144, 125, 0.08)",
-            padding: isMobile ? "1.8rem" : "2.5rem", // Increased padding
+            padding: isMobile ? "1.8rem" : "2.5rem",
             position: "relative",
             ...style
         }}
@@ -208,11 +232,27 @@ export default function SpecialDayBentoPage() {
     const [now, setNow] = useState(new Date());
     const [isMobile, setIsMobile] = useState(false);
     const [wisdom, setWisdom] = useState("");
+    const [kamusIndex, setKamusIndex] = useState(0);
 
     // Birth Date: 28 November 2000
     const birthDate = new Date(2000, 10, 28);
     const lifeExpectancyYears = 80;
     const totalLifeMonths = lifeExpectancyYears * 12;
+
+    const kamusMeanings = [
+        {
+            title: "Ketenangan & Intuisi",
+            desc: "Dalam numerologi, 28 adalah simbol kepemimpinan yang lembut. Ia membawa harmoni, intuisi tajam, dan keinginan untuk membangun sesuatu yang abadi."
+        },
+        {
+            title: "Siklus Bulan",
+            desc: "Butuh sekitar 28 hari bagi bulan untuk menyempurnakan ceritanya—dari gelap gulita hingga purnama benderang. Seperti itulah cahayamu tumbuh."
+        },
+        {
+            title: "Sebuah Awal",
+            desc: "Bagi semesta, 28 hanyalah angka. Tapi bagi kami yang mengenalmu, ia adalah tanggal di mana dunia menjadi sedikit lebih indah."
+        }
+    ];
 
     useEffect(() => {
         setMounted(true);
@@ -221,6 +261,7 @@ export default function SpecialDayBentoPage() {
         window.addEventListener('resize', handleResize);
 
         const timer = setInterval(() => setNow(new Date()), 1000);
+        const kamusTimer = setInterval(() => setKamusIndex(prev => (prev + 1) % kamusMeanings.length), 8000);
 
         const dailyWisdoms = [
             "Kamu adalah alasan di balik senyuman yang merekah hari ini, meski terkadang kau tak menyadarinya. Keberadaanmu bukan sekadar angka di kalender, melainkan anugerah terindah bagi semesta yang seringkali lupa cara bersyukur.",
@@ -239,6 +280,7 @@ export default function SpecialDayBentoPage() {
         return () => {
             window.removeEventListener('resize', handleResize);
             clearInterval(timer);
+            clearInterval(kamusTimer);
         };
     }, []);
 
@@ -343,11 +385,16 @@ export default function SpecialDayBentoPage() {
                     </div>
 
                     {/* 100% PERSONALIZED GRID */}
-                    <div style={{
-                        display: "grid",
-                        gridTemplateColumns: isMobile ? "1fr" : "repeat(12, 1fr)",
-                        gap: isMobile ? "2rem" : "3.5rem",
-                    }}>
+                    <motion.div
+                        variants={containerVariants}
+                        initial="hidden"
+                        animate="show"
+                        style={{
+                            display: "grid",
+                            gridTemplateColumns: isMobile ? "1fr" : "repeat(12, 1fr)",
+                            gap: isMobile ? "2rem" : "3.5rem",
+                        }}
+                    >
 
                         <BentoCard isMobile={isMobile} style={{ gridColumn: isMobile ? "span 1" : "span 12", minHeight: isMobile ? "auto" : "320px" }} rotate="0.2deg" tapeColor="#87b0a5">
                             <SectionTitle icon={BookOpen}>Musim-Musim Kehidupanmu</SectionTitle>
@@ -451,13 +498,23 @@ export default function SpecialDayBentoPage() {
                                         <Star size={16} color="#e6a23c" fill="#e6a23c" opacity={0.6} />
                                     </motion.div>
                                 </div>
-                                <div style={{ marginTop: "2rem", textAlign: "left" }}>
-                                    <div style={{ marginBottom: "1rem", borderBottom: "1px dashed #e8e2d9", paddingBottom: "5px" }}>
-                                        <HandwrittenNote style={{ color: "#4e4439", fontSize: "1.1rem" }}>"Angka yang membawa tenang ke bumi."</HandwrittenNote>
-                                    </div>
-                                    <div style={{ fontSize: "0.8rem", color: "#a0907d", fontStyle: "italic", lineHeight: 1.5 }}>
-                                        Bukan sekadar tanggal, melainkan awal dari bait-bait puisi yang sedang semesta tuliskan bersamamu.
-                                    </div>
+                                <div style={{ marginTop: "2rem", textAlign: "left", minHeight: "100px" }}>
+                                    <AnimatePresence mode="wait">
+                                        <motion.div
+                                            key={kamusIndex}
+                                            initial={{ opacity: 0, y: 10 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            exit={{ opacity: 0, y: -10 }}
+                                            transition={{ duration: 0.5 }}
+                                        >
+                                            <div style={{ marginBottom: "0.5rem", borderBottom: "1px dashed #e8e2d9", paddingBottom: "5px" }}>
+                                                <HandwrittenNote style={{ color: "#4e4439", fontSize: "1.1rem" }}>"{kamusMeanings[kamusIndex].title}"</HandwrittenNote>
+                                            </div>
+                                            <div style={{ fontSize: "0.85rem", color: "#a0907d", fontStyle: "italic", lineHeight: 1.6 }}>
+                                                {kamusMeanings[kamusIndex].desc}
+                                            </div>
+                                        </motion.div>
+                                    </AnimatePresence>
                                 </div>
                             </div>
                         </BentoCard>
@@ -482,7 +539,7 @@ export default function SpecialDayBentoPage() {
                             </div>
                         </BentoCard>
 
-                    </div>
+                    </motion.div>
 
                     <div style={{ marginTop: "5rem", textAlign: "center", opacity: 0.4 }}>
                         <HandwrittenNote style={{ fontSize: "1rem" }}>Keajaibanmu abadi dalam setiap detik perjalanan ini.</HandwrittenNote>
