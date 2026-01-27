@@ -314,6 +314,17 @@ export default function GuestNo28Dashboard() {
 
 
                     </div>
+
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 0.4 }}
+                        transition={{ delay: 1.5, duration: 2 }}
+                        style={{ textAlign: "center", marginTop: "5rem", marginBottom: "2rem" }}
+                    >
+                        <HandwrittenNote style={{ fontSize: "1rem", color: "#a0907d" }}>
+                            Sekadar pengingat kecil, bahwa keberadaanmu adalah alasan ruang ini ada.
+                        </HandwrittenNote>
+                    </motion.div>
                 </Container>
             </main>
         </div>
