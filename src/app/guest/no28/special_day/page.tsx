@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { motion } from "framer-motion";
 import { Home, Sparkles, Clock, Calendar, Heart, Gift, Activity, Wind, Star, BookOpen, Map, MapPin } from "lucide-react";
 import Link from "next/link";
@@ -69,24 +69,135 @@ const SectionTitle = ({ children, icon: Icon }: { children: React.ReactNode, ico
     </div>
 );
 
-const DotGrid = ({ total, filled, columns = 20, color = "#b07d62", size = "6px" }: { total: number, filled: number, columns?: number, color?: string, size?: string }) => (
+const DotGrid = ({ total, filled, columns = 20, color = "#b07d62", size = "6px" }: { total: number, filled: number, columns?: number, color?: string, size?: string }) => {
+    // Memoize random values
+    const dots = useMemo(() => {
+        return Array.from({ length: total }).map(() => ({
+            rotation: Math.random() * 6 - 3,
+            scale: 0.8 + Math.random() * 0.4
+        }));
+    }, [total]);
+
+    return (
+        <div style={{
+            display: "grid",
+            gridTemplateColumns: `repeat(${columns}, 1fr)`,
+            gap: "5px",
+            marginTop: "10px"
+        }}>
+            {dots.map((dot, i) => {
+                const isToday = i === filled - 1;
+                const isLast = i === total - 1;
+
+                return (
+                    <motion.div
+                        key={i}
+                        animate={isToday ? { scale: [1, 1.8, 1], opacity: [1, 0.8, 1] } : {}}
+                        transition={isToday ? { duration: 2, repeat: Infinity, ease: "easeInOut" } : {}}
+                        style={{
+                            width: size,
+                            height: size,
+                            borderRadius: isLast ? "0" : "2px", // Star shape logic simplified or just circle
+                            background: isToday ? "#d2691e" : (i < filled ? color : "#e4dfd7"),
+                            opacity: 1,
+                            transform: `rotate(${dot.rotation}deg) scale(${isLast ? 1.5 : 1})`,
+                            boxShadow: isToday ? "0 0 4px #d2691e" : "none",
+                            position: "relative",
+                            clipPath: isLast ? "polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%)" : "none" // Star shape for the last day
+                        }}
+                    />
+                );
+            })}
+        </div>
+    );
+};
+
+// --- Ambient Components ---
+
+const NoiseOverlay = () => (
     <div style={{
-        display: "grid",
-        gridTemplateColumns: `repeat(${columns}, 1fr)`,
-        gap: "4px",
-        marginTop: "10px"
+        position: "fixed",
+        top: 0,
+        left: 0,
+        width: "100%",
+        height: "100%",
+        pointerEvents: "none",
+        zIndex: 50,
+        opacity: 0.07,
+        background: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
+        mixBlendMode: "overlay"
+    }} />
+);
+
+const FloatingParticles = () => {
+    // Generate static random positions for particles
+    const particles = useMemo(() => Array.from({ length: 15 }).map((_, i) => ({
+        id: i,
+        left: `${Math.random() * 100}%`,
+        top: `${Math.random() * 100}%`,
+        size: Math.random() * 4 + 2,
+        duration: Math.random() * 20 + 10,
+        delay: Math.random() * 5
+    })), []);
+
+    return (
+        <div style={{ position: "fixed", inset: 0, zIndex: 0, pointerEvents: "none" }}>
+            {particles.map((p) => (
+                <motion.div
+                    key={p.id}
+                    animate={{
+                        y: [0, -100, 0],
+                        opacity: [0, 0.4, 0],
+                        scale: [0.8, 1.2, 0.8]
+                    }}
+                    transition={{
+                        duration: p.duration,
+                        repeat: Infinity,
+                        ease: "linear",
+                        delay: p.delay
+                    }}
+                    style={{
+                        position: "absolute",
+                        left: p.left,
+                        top: p.top,
+                        width: p.size,
+                        height: p.size,
+                        borderRadius: "50%",
+                        background: "#d2691e",
+                        filter: "blur(1px)"
+                    }}
+                />
+            ))}
+        </div>
+    );
+};
+
+const WaxSeal = ({ color = "#8b0000" }) => (
+    <div style={{
+        width: "60px",
+        height: "60px",
+        background: `radial-gradient(circle at 30% 30%, ${color}, #5a0000)`,
+        borderRadius: "50%",
+        boxShadow: "2px 4px 6px rgba(0,0,0,0.3), inset -2px -2px 4px rgba(0,0,0,0.2)",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        position: "absolute",
+        bottom: "20px",
+        right: "20px",
+        transform: "rotate(-15deg)"
     }}>
-        {Array.from({ length: total }).map((_, i) => (
-            <div key={i} style={{
-                width: size,
-                height: size,
-                borderRadius: "2px",
-                background: i < filled ? color : "#f5f2ee",
-                opacity: i < filled ? 1 : 0.5,
-                transition: "all 0.4s ease",
-                transform: `rotate(${Math.random() * 6 - 3}deg)` // Hand-stamped effect
-            }} />
-        ))}
+        <div style={{
+            width: "45px",
+            height: "45px",
+            border: "2px dashed rgba(255,255,255,0.3)",
+            borderRadius: "50%",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center"
+        }}>
+            <Heart size={20} color="rgba(255,255,255,0.6)" fill="rgba(255,255,255,0.1)" />
+        </div>
     </div>
 );
 
@@ -168,6 +279,9 @@ export default function SpecialDayBentoPage() {
             <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;700&display=swap" rel="stylesheet" />
 
             {/* Ambient Background Elements */}
+            <NoiseOverlay />
+            <FloatingParticles />
+
             <motion.div
                 animate={{ scale: [1, 1.05, 1], opacity: [0.3, 0.4, 0.3], rotate: [0, 5, 0] }}
                 transition={{ duration: 15, repeat: Infinity, ease: "easeInOut" }}
@@ -214,9 +328,9 @@ export default function SpecialDayBentoPage() {
                                 <Home size={22} />
                             </Link>
                             <div style={{ transform: "rotate(-1deg)" }}>
-                                <div style={{ fontSize: "0.65rem", color: "#a0907d", textTransform: "uppercase", letterSpacing: "2.5px", fontWeight: 700, marginBottom: "-2px" }}>Narasi Hidup</div>
+                                <div style={{ fontSize: "0.65rem", color: "#a0907d", textTransform: "uppercase", letterSpacing: "2.5px", fontWeight: 700, marginBottom: "-2px" }}>Jejak Langkahmu</div>
                                 <HandwrittenNote style={{ fontSize: "1.3rem", fontWeight: 400, color: "#b07d62" }}>
-                                    Untukmu, Sang Pemilik Angka 28...
+                                    Untukmu, jiwa indah yang lahir di tanggal 28...
                                 </HandwrittenNote>
                             </div>
                         </div>
@@ -250,17 +364,25 @@ export default function SpecialDayBentoPage() {
                             }}>
                                 <Image src="/special_hijabi_main.png" alt="" fill style={{ objectFit: "contain" }} />
                             </div>
-                            <div style={{ display: "flex", flexDirection: isMobile ? "column" : "row", gap: isMobile ? "2rem" : "4rem", marginTop: "1rem" }}>
+                            <div style={{ display: "flex", flexDirection: isMobile ? "column" : "row", gap: isMobile ? "2rem" : "4rem", marginTop: "1rem", position: "relative" }}>
+                                {/* Golden Thread (Dashed Line) */}
+                                {!isMobile && (
+                                    <div style={{ position: "absolute", top: "24px", left: "1.5rem", right: "2rem", height: "2px", borderTop: "2px dashed #e8e2d9", zIndex: 0 }} />
+                                )}
                                 {[
-                                    { year: "2000 - 2007", title: "Awal Keajaiban", desc: "Dunia mulai mengenal benderang cahayamu.", icon: Sparkles },
-                                    { year: "2007 - 2018", title: "Mekar & Belajar", desc: "Masa di mana mimpi-mimpimu mulai berhamburan.", icon: Star },
-                                    { year: "2018 - Kini", title: "Menemukan Jati Diri", desc: "Menjadi melodi paling tenang di tengah riuh dunia.", icon: Heart }
+                                    { year: "2000 - 2007", title: "Pijar Cahaya Pertama", desc: "Saat dunia pertama kali menyapamu dengan hangat.", icon: Sparkles },
+                                    { year: "2007 - 2018", title: "Nyala yang Mulai Membara", desc: "Masa merangkai mimpi dan melukis warna-warni kisah.", icon: Star },
+                                    { year: "2018 - Kini", title: "Hangat yang Menenangkan", desc: "Menjadi melodi paling tenang di tengah riuh dunia.", icon: Heart }
                                 ].map((chapter, i) => (
-                                    <div key={i} style={{ flex: 1, position: "relative", paddingLeft: isMobile ? "1.5rem" : "0", borderLeft: isMobile ? "1px dashed #e5e0d8" : "none" }}>
-                                        {!isMobile && i > 0 && <div style={{ position: "absolute", left: "-1rem", top: "1.5rem", width: "1rem", borderTop: "1px dashed #e5e0d8" }} />}
+                                    <div key={i} style={{ flex: 1, position: "relative", paddingLeft: isMobile ? "1.5rem" : "0", borderLeft: isMobile ? "1px dashed #e5e0d8" : "none", zIndex: 1 }}>
+                                        {!isMobile && i > 0 && <div style={{ position: "absolute", left: "-1rem", top: "1.5rem", width: "1rem", borderTop: "1px dashed #e5e0d8" }} />} {/* Remove old mobile connectors if simplifying */}
                                         <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "8px" }}>
-                                            <div style={{ width: "32px", height: "32px", borderRadius: "50%", background: "#fdf8f4", border: "1px solid #e8e2d9", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                                                <chapter.icon size={14} color="#b07d62" />
+                                            <div style={{
+                                                width: "36px", height: "36px", borderRadius: "50%", background: "#fff",
+                                                border: "1px solid #e8e2d9", display: "flex", alignItems: "center", justifyContent: "center",
+                                                boxShadow: "0 0 15px rgba(176, 125, 98, 0.15)" // Halo effect
+                                            }}>
+                                                <chapter.icon size={16} color="#b07d62" />
                                             </div>
                                             <span style={{ fontSize: "0.7rem", fontWeight: 700, color: "#aaa" }}>{chapter.year}</span>
                                         </div>
@@ -273,10 +395,10 @@ export default function SpecialDayBentoPage() {
 
                         {/* 2. Personal Year Loop (Instead of Calendar) */}
                         <BentoCard isMobile={isMobile} style={{ gridColumn: isMobile ? "span 1" : "span 7" }} rotate="-0.4deg" tapeColor="#f6a4a9">
-                            <SectionTitle icon={Map}>Lingkaran Usia Ke-{age + 1}</SectionTitle>
+                            <SectionTitle icon={Map}>Lembaran Kisah Ke-{age + 1}</SectionTitle>
                             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: "1.5rem" }}>
                                 <div>
-                                    <div style={{ fontSize: "0.8rem", color: "#a0907d", letterSpacing: "1px", fontWeight: 700 }}>PROGRES TAHUN INI</div>
+                                    <div style={{ fontSize: "0.8rem", color: "#a0907d", letterSpacing: "1px", fontWeight: 700, textTransform: "uppercase" }}>Halaman Yang Telah Kau Isi</div>
                                     <div style={{ fontSize: "3.5rem", fontWeight: 900, color: "#b07d62", lineHeight: 1, fontFamily: "'Crimson Pro', serif" }}>
                                         {currentDayInPersonalYear} <span style={{ fontSize: "1.2rem", fontWeight: 300, color: "#4e4439", fontStyle: "italic" }}>Hari</span>
                                     </div>
@@ -287,7 +409,13 @@ export default function SpecialDayBentoPage() {
                                 </div>
                             </div>
                             <div style={{ position: "relative", padding: "10px 0" }}>
-                                <DotGrid total={isMobile ? 120 : 220} filled={Math.round((currentDayInPersonalYear / totalDaysInPersonalYear) * (isMobile ? 120 : 220))} columns={isMobile ? 12 : 22} size="8px" color="#b07d62" />
+                                <DotGrid
+                                    total={totalDaysInPersonalYear}
+                                    filled={currentDayInPersonalYear}
+                                    columns={isMobile ? 18 : 27}
+                                    size={isMobile ? "4px" : "6px"}
+                                    color="#b07d62"
+                                />
                                 <div style={{ display: "flex", justifyContent: "space-between", marginTop: "1rem", fontSize: "0.7rem", fontWeight: 700, color: "#aaa" }}>
                                     <span>28 NOV {startOfPersonalYear.getFullYear()}</span>
                                     <span>28 NOV {endOfPersonalYear.getFullYear()}</span>
@@ -302,10 +430,25 @@ export default function SpecialDayBentoPage() {
                         <BentoCard isMobile={isMobile} style={{ gridColumn: isMobile ? "span 1" : "span 5", background: "linear-gradient(to bottom, #fff, #fdfbf7)" }} rotate="0.6deg" tapeColor="#b598d9">
                             <SectionTitle icon={Sparkles}>Kamus Angka 28</SectionTitle>
                             <div style={{ textAlign: "center", padding: "1.5rem 0" }}>
-                                <div style={{ fontSize: "6rem", fontWeight: 900, color: "#b07d62", lineHeight: 0.8, fontFamily: "'Crimson Pro', serif", position: "relative", display: "inline-block" }}>
+                                <div style={{
+                                    fontSize: "6rem",
+                                    fontWeight: 900,
+                                    lineHeight: 0.8,
+                                    fontFamily: "'Crimson Pro', serif",
+                                    position: "relative",
+                                    display: "inline-block",
+                                    backgroundImage: "linear-gradient(45deg, #b07d62, #d2691e, #8b4513)",
+                                    backgroundClip: "text",
+                                    WebkitBackgroundClip: "text",
+                                    color: "transparent",
+                                    textShadow: "2px 2px 4px rgba(0,0,0,0.1)"
+                                }}>
                                     28
-                                    <motion.div animate={{ rotate: [0, 10, 0] }} transition={{ duration: 4, repeat: Infinity }} style={{ position: "absolute", top: "-10px", right: "-20px" }}>
-                                        <Sparkles size={24} color="#d2691e" opacity={0.4} />
+                                    <motion.div animate={{ rotate: [0, 10, 0], scale: [1, 1.1, 1] }} transition={{ duration: 4, repeat: Infinity }} style={{ position: "absolute", top: "-10px", right: "-20px" }}>
+                                        <Sparkles size={24} color="#d2691e" opacity={0.6} />
+                                    </motion.div>
+                                    <motion.div animate={{ y: [0, -5, 0] }} transition={{ duration: 3, repeat: Infinity, delay: 1 }} style={{ position: "absolute", bottom: "5px", left: "-15px" }}>
+                                        <Star size={16} color="#e6a23c" fill="#e6a23c" opacity={0.6} />
                                     </motion.div>
                                 </div>
                                 <div style={{ marginTop: "2rem", textAlign: "left" }}>
@@ -321,10 +464,10 @@ export default function SpecialDayBentoPage() {
 
                         {/* 4. Bisikan Sanubari (Consolidated Wisdom) */}
                         <BentoCard isMobile={isMobile} style={{ gridColumn: isMobile ? "span 1" : "span 12", padding: isMobile ? "3rem 1.8rem" : "6rem 4rem", background: "#fefbfc" }} rotate="0deg" tapeColor="#f08bb1">
-                            <div style={{ position: "absolute", bottom: "0", right: "0", width: "65px", height: "65px", opacity: 1, transform: "rotate(-5deg)", pointerEvents: "none", zIndex: 0 }}>
-                                <Image src="/special_bud.png" alt="" fill style={{ objectFit: "contain" }} />
+                            <div style={{ position: "absolute", bottom: "-10px", right: "-10px", width: "140px", height: "140px", opacity: 0.85, transform: "rotate(-15deg)", pointerEvents: "none", zIndex: 0, mixBlendMode: "multiply" }}>
+                                <Image src="/special_peony.png" alt="" fill style={{ objectFit: "contain" }} />
                             </div>
-                            <div style={{ maxWidth: "800px", margin: "0 auto", textAlign: "center" }}>
+                            <div style={{ maxWidth: "800px", margin: "0 auto", textAlign: "center", position: "relative", zIndex: 1 }}>
                                 <Wind size={24} color="#b07d62" style={{ margin: "0 auto 1.5rem", opacity: 0.3 }} />
                                 <p
                                     style={{ fontSize: isMobile ? "1.25rem" : "1.7rem", color: "#4e4439", fontStyle: "italic", lineHeight: 1.7, fontWeight: 300 }}

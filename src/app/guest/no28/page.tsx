@@ -268,8 +268,8 @@ export default function GuestNo28Dashboard() {
                                     </div>
                                 </div>
                                 <div style={{ position: "relative", zIndex: 1 }}>
-                                    <h3 style={{ fontSize: "1.6rem", fontWeight: 700, color: "#333", fontFamily: "'Crimson Pro', serif" }}>Narasi Hidup</h3>
-                                    <p style={{ color: "#888", fontStyle: "italic", fontSize: "0.9rem", marginTop: "2px" }}>"Tumbuh mekar dalam setiap cerita."</p>
+                                    <h3 style={{ fontSize: "1.6rem", fontWeight: 700, color: "#333", fontFamily: "'Crimson Pro', serif" }}>Lembaran Kisah</h3>
+                                    <p style={{ color: "#888", fontStyle: "italic", fontSize: "0.9rem", marginTop: "2px" }}>"Setiap detiknya adalah puisi yang kau tulis tanpa kata."</p>
                                 </div>
                             </motion.div>
                         </Link>
