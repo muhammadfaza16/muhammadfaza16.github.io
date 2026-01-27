@@ -121,6 +121,8 @@ export default function SpecialDayBentoPage() {
             "Terimalah dirimu apa adanya, dekaplah setiap detik yang kau miliki dengan rasa syukur yang mendalam. Sebab di antara riuh rendah bisingnya dunia, kaulah melodi paling tenang yang pernah semesta ciptakan.",
             "Jangan pernah biarkan cahayamu redup hanya karena dunia belum siap menerima benderangnya. Kamu adalah kepingan teka-teki paling indah yang membuat gambaran tentang hidup ini menjadi sempurna."
         ];
+
+        // Initial wisdom (Locked to the day of the month)
         const dayOfMonth = new Date().getDate();
         setWisdom(dailyWisdoms[dayOfMonth % dailyWisdoms.length]);
 
@@ -267,7 +269,7 @@ export default function SpecialDayBentoPage() {
                                     </motion.div>
                                 </div>
                                 <div style={{ marginTop: "2rem", textAlign: "left" }}>
-                                    <div style={{ marginBottom: "1rem", borderBottom: "1px dashed #e8e2d9", pb: "5px" }}>
+                                    <div style={{ marginBottom: "1rem", borderBottom: "1px dashed #e8e2d9", paddingBottom: "5px" }}>
                                         <HandwrittenNote style={{ color: "#4e4439", fontSize: "1.1rem" }}>"Angka yang membawa tenang ke bumi."</HandwrittenNote>
                                     </div>
                                     <div style={{ fontSize: "0.8rem", color: "#a0907d", fontStyle: "italic", lineHeight: 1.5 }}>
@@ -281,7 +283,9 @@ export default function SpecialDayBentoPage() {
                         <BentoCard style={{ gridColumn: isMobile ? "span 1" : "span 12", padding: isMobile ? "2.5rem 1.5rem" : "4.5rem", background: "#fefbfc" }} rotate="0deg" tapeColor="#fad2e1">
                             <div style={{ maxWidth: "800px", margin: "0 auto", textAlign: "center" }}>
                                 <Wind size={24} color="#b07d62" style={{ margin: "0 auto 1.5rem", opacity: 0.3 }} />
-                                <p style={{ fontSize: isMobile ? "1.25rem" : "1.7rem", color: "#4e4439", fontStyle: "italic", lineHeight: 1.7, fontWeight: 300 }}>
+                                <p
+                                    style={{ fontSize: isMobile ? "1.25rem" : "1.7rem", color: "#4e4439", fontStyle: "italic", lineHeight: 1.7, fontWeight: 300 }}
+                                >
                                     "{wisdom}"
                                 </p>
                                 <div style={{ marginTop: "3rem", display: "flex", alignItems: "center", justifyContent: "center", gap: "10px" }}>
