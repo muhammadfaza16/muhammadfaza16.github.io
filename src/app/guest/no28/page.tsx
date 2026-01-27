@@ -38,12 +38,13 @@ const WashiTape = ({ color, rotate = "0deg", width = "90px" }: { color: string, 
         width: width,
         height: "24px",
         backgroundColor: color,
-        opacity: 0.9,
+        opacity: 1,
         zIndex: 10,
-        boxShadow: "1px 1px 2px rgba(0,0,0,0.1)",
-        maskImage: "linear-gradient(90deg, transparent 2px, #000 2px, #000 calc(100% - 2px), transparent calc(100% - 2px))",
+        boxShadow: "0 1px 3px rgba(0,0,0,0.15)",
+        // Removed aggressive masking to keep tape solid
     }}>
-        <div style={{ width: "100%", height: "100%", opacity: 0.15, background: "#fff", mixBlendMode: "overlay" }} />
+        {/* Subtle texture instead of light overlay */}
+        <div style={{ width: "100%", height: "100%", opacity: 0.05, background: "url('https://www.transparenttextures.com/patterns/natural-paper.png')" }} />
     </div>
 );
 
@@ -275,7 +276,7 @@ export default function GuestNo28Dashboard() {
                                 opacity: 1
                             }}
                         >
-                            <WashiTape color="#e2ece9" rotate="1deg" width="60px" />
+                            <WashiTape color="#b2c6bf" rotate="1deg" width="60px" />
                             <SectionTitle icon={Sparkles}>Haiku Kecil</SectionTitle>
                             <div style={{ marginTop: "1rem" }}>
                                 <HandwrittenNote style={{ fontSize: "1.25rem", color: "#4e4439", display: "block", marginBottom: "0.3rem" }}>
@@ -306,7 +307,7 @@ export default function GuestNo28Dashboard() {
                                 opacity: 1
                             }}
                         >
-                            <WashiTape color="#fad2e1" rotate="-2deg" width="80px" />
+                            <WashiTape color="#f29bb7" rotate="-2deg" width="80px" />
                             <div style={{
                                 height: "190px",
                                 background: "#fdf8f4",
@@ -347,7 +348,7 @@ export default function GuestNo28Dashboard() {
                             opacity: 1
                         }}
                     >
-                        <WashiTape color="#a8d5ba" rotate="-1deg" width="130px" />
+                        <WashiTape color="#96ceb4" rotate="-1deg" width="130px" />
                         <div style={{ position: "absolute", top: "-15px", left: "-15px", width: "90px", height: "90px", opacity: 0.8, transform: "rotate(-15deg)", pointerEvents: "none" }}>
                             <Image src="/lavender_sketch.png" alt="" fill style={{ objectFit: "contain" }} />
                         </div>
