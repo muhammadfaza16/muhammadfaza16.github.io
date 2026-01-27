@@ -71,7 +71,24 @@ export default function RootLayout({
   };
 
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning className="dark">
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              try {
+                const theme = localStorage.getItem('theme');
+                const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
+                if (!theme || theme === 'dark') {
+                  document.documentElement.classList.add('dark');
+                } else if (theme === 'light') {
+                  document.documentElement.classList.remove('dark');
+                }
+              } catch (e) {}
+            `,
+          }}
+        />
+      </head>
       <body
         className={`${playfair.variable} ${sourceSerif.variable} ${spaceMono.variable}`}
         style={{ minHeight: "100svh", display: "flex", flexDirection: "column" }}
