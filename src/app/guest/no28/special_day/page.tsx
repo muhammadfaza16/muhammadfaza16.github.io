@@ -254,6 +254,16 @@ export default function SpecialDayBentoPage() {
         }
     ];
 
+    const [footerIndex, setFooterIndex] = useState(0);
+
+    const footerQuotes = [
+        "Ruang ini dibuat untuk merayakan setiap langkah kecilmu.",
+        "Percayalah, usahamu selama ini tidak pernah sia-sia.",
+        "Teruslah melangkah, mekar, dan bahagia.",
+        "Menjadi dirimu sendiri adalah hal terbaik yang bisa kamu lakukan.",
+        "Terima kasih telah tumbuh dan bertahan sejauh ini."
+    ];
+
     useEffect(() => {
         setMounted(true);
         const handleResize = () => setIsMobile(window.innerWidth < 768);
@@ -262,6 +272,7 @@ export default function SpecialDayBentoPage() {
 
         const timer = setInterval(() => setNow(new Date()), 1000);
         const kamusTimer = setInterval(() => setKamusIndex(prev => (prev + 1) % kamusMeanings.length), 20000);
+        const footerTimer = setInterval(() => setFooterIndex(prev => (prev + 1) % footerQuotes.length), 7000);
 
         const dailyWisdoms = [
             "Kamu adalah alasan di balik senyuman yang merekah hari ini, meski terkadang kau tak menyadarinya. Keberadaanmu bukan sekadar angka di kalender, melainkan anugerah terindah bagi semesta yang seringkali lupa cara bersyukur.",
@@ -382,6 +393,21 @@ export default function SpecialDayBentoPage() {
                                 {now.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}
                             </div>
                         </div>
+                    </div>
+
+                    <div style={{ textAlign: "center", opacity: 0.8, height: "30px", position: "relative", marginBottom: "3rem", maxWidth: "600px", marginInline: "auto" }}>
+                        <AnimatePresence mode="wait">
+                            <motion.div
+                                key={footerIndex}
+                                initial={{ opacity: 0, y: 5 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0, y: -5 }}
+                                transition={{ duration: 1 }}
+                                style={{ position: "absolute", width: "100%", top: 0, left: 0 }}
+                            >
+                                <HandwrittenNote style={{ fontSize: "1.1rem" }}>{footerQuotes[footerIndex]}</HandwrittenNote>
+                            </motion.div>
+                        </AnimatePresence>
                     </div>
 
                     {/* 100% PERSONALIZED GRID */}
@@ -542,9 +568,7 @@ export default function SpecialDayBentoPage() {
 
                     </motion.div>
 
-                    <div style={{ marginTop: "5rem", textAlign: "center", opacity: 0.4 }}>
-                        <HandwrittenNote style={{ fontSize: "1rem" }}>Keajaibanmu abadi dalam setiap detik perjalanan ini.</HandwrittenNote>
-                    </div>
+
                 </Container>
             </main>
         </div>
