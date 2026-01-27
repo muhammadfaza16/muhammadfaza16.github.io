@@ -4,6 +4,7 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Home, ChevronLeft, ChevronRight } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Container } from "@/components/Container";
 
 const sheets = [
@@ -50,6 +51,7 @@ const sheets = [
 ];
 
 export default function LetterPage() {
+    const router = useRouter();
     const [currentPage, setCurrentPage] = useState(0);
 
     const nextPage = () => {
@@ -266,32 +268,34 @@ export default function LetterPage() {
                         </div>
 
                         <button
-                            onClick={nextPage}
-                            disabled={currentPage === sheets.length - 1}
+                            onClick={() => {
+                                if (currentPage === sheets.length - 1) {
+                                    router.push('/guest/no28');
+                                } else {
+                                    nextPage();
+                                }
+                            }}
                             style={{
                                 width: "50px", height: "50px",
                                 borderRadius: "15px", border: "2px solid #5a5a5a",
-                                background: "#fff", color: "#5a5a5a",
-                                cursor: currentPage === sheets.length - 1 ? "not-allowed" : "pointer",
-                                opacity: currentPage === sheets.length - 1 ? 0.3 : 1,
+                                background: currentPage === sheets.length - 1 ? "#d2691e" : "#fff",
+                                color: currentPage === sheets.length - 1 ? "#fff" : "#5a5a5a",
+                                cursor: "pointer",
+                                opacity: 1,
                                 display: "flex", alignItems: "center", justifyContent: "center",
                                 boxShadow: "3px 3px 0px #5a5a5a",
                                 transition: "all 0.2s ease"
                             }}
                             onMouseOver={(e) => {
-                                if (currentPage !== sheets.length - 1) {
-                                    e.currentTarget.style.transform = "translate(-1px, -1px)";
-                                    e.currentTarget.style.boxShadow = "5px 5px 0px #5a5a5a";
-                                }
+                                e.currentTarget.style.transform = "translate(-1px, -1px)";
+                                e.currentTarget.style.boxShadow = "5px 5px 0px #5a5a5a";
                             }}
                             onMouseOut={(e) => {
-                                if (currentPage !== sheets.length - 1) {
-                                    e.currentTarget.style.transform = "translate(0, 0)";
-                                    e.currentTarget.style.boxShadow = "3px 3px 0px #5a5a5a";
-                                }
+                                e.currentTarget.style.transform = "translate(0, 0)";
+                                e.currentTarget.style.boxShadow = "3px 3px 0px #5a5a5a";
                             }}
                         >
-                            <ChevronRight size={24} />
+                            {currentPage === sheets.length - 1 ? <Home size={24} /> : <ChevronRight size={24} />}
                         </button>
                     </div>
 
