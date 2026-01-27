@@ -11,8 +11,6 @@ export default function GuestNo28Dashboard() {
     const [mounted, setMounted] = useState(false);
     const [greeting, setGreeting] = useState("");
     const [dateString, setDateString] = useState("");
-    const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
-
     useEffect(() => {
         setMounted(true);
         const now = new Date();
@@ -28,21 +26,31 @@ export default function GuestNo28Dashboard() {
             month: 'long',
             day: 'numeric'
         }));
-
-        const handleMouseMove = (e: MouseEvent) => {
-            setMousePos({ x: e.clientX, y: e.clientY });
-        };
-        window.addEventListener("mousemove", handleMouseMove);
-        return () => window.removeEventListener("mousemove", handleMouseMove);
     }, []);
 
     if (!mounted) return null;
 
-    const sketchyBoxStyle = {
-        background: "#fff",
-        border: "2px solid #5a5a5a",
-        boxShadow: "4px 4px 0px #5a5a5a",
-        transition: "all 0.3s ease",
+    const WashiTape = ({ color, rotate = "0deg", width = "90px" }: { color: string, rotate?: string, width?: string }) => (
+        <div style={{
+            position: "absolute",
+            top: "-12px",
+            left: "50%",
+            transform: `translateX(-50%) rotate(${rotate})`,
+            width: width,
+            height: "24px",
+            backgroundColor: color,
+            opacity: 0.9,
+            zIndex: 10,
+            boxShadow: "1px 1px 2px rgba(0,0,0,0.1)",
+            maskImage: "linear-gradient(90deg, transparent 2px, #000 2px, #000 calc(100% - 2px), transparent calc(100% - 2px))", // Simple edge masking
+        }}>
+            <div style={{ width: "100%", height: "100%", opacity: 0.15, background: "#fff", mixBlendMode: "overlay" }} />
+        </div>
+    );
+
+    const baseCardStyle = {
+        transition: "transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1)",
+        position: "relative" as "relative",
     };
 
     return (
@@ -58,53 +66,109 @@ export default function GuestNo28Dashboard() {
             color: "#444",
             fontFamily: "'Crimson Pro', serif, -apple-system",
             position: "relative",
-            overflowX: "hidden"
+            overflowX: "hidden",
+            // Full Width Breakout to prevent side gaps
+            width: "100vw",
+            marginLeft: "calc(50% - 50vw)",
+            marginRight: "calc(50% - 50vw)"
         }}>
-            {/* Soft Watercolor Washes */}
-            <div style={{
-                position: "fixed",
-                top: "15%",
-                right: "-10%",
-                width: "600px",
-                height: "600px",
-                background: "radial-gradient(circle, rgba(216, 226, 220, 0.3) 0%, transparent 70%)",
-                filter: "blur(60px)",
-                pointerEvents: "none",
-                zIndex: 0
-            }} />
-            <div style={{
-                position: "fixed",
-                bottom: "5%",
-                left: "-5%",
-                width: "550px",
-                height: "550px",
-                background: "radial-gradient(circle, rgba(255, 229, 217, 0.4) 0%, transparent 70%)",
-                filter: "blur(60px)",
-                pointerEvents: "none",
-                zIndex: 0
-            }} />
+            {/* Soft Watercolor Washes - Breathing Ambient Animation */}
+            <motion.div
+                animate={{
+                    scale: [1, 1.05, 1],
+                    opacity: [0.3, 0.4, 0.3],
+                    rotate: [0, 5, 0]
+                }}
+                transition={{
+                    duration: 15,
+                    repeat: Infinity,
+                    ease: "easeInOut"
+                }}
+                style={{
+                    position: "fixed",
+                    top: "15%",
+                    right: "-10%",
+                    width: "600px",
+                    height: "600px",
+                    background: "radial-gradient(circle, rgba(216, 226, 220, 0.3) 0%, transparent 70%)",
+                    filter: "blur(60px)",
+                    pointerEvents: "none",
+                    zIndex: 0
+                }}
+            />
+            <motion.div
+                animate={{
+                    scale: [1, 1.1, 1],
+                    opacity: [0.4, 0.5, 0.4],
+                    rotate: [0, -5, 0]
+                }}
+                transition={{
+                    duration: 18,
+                    repeat: Infinity,
+                    ease: "easeInOut",
+                    delay: 2
+                }}
+                style={{
+                    position: "fixed",
+                    bottom: "5%",
+                    left: "-5%",
+                    width: "550px",
+                    height: "550px",
+                    background: "radial-gradient(circle, rgba(255, 229, 217, 0.4) 0%, transparent 70%)",
+                    filter: "blur(60px)",
+                    pointerEvents: "none",
+                    zIndex: 0
+                }}
+            />
 
-            {/* Individual Watercolor Sketches - Scattered */}
+            {/* Individual Watercolor Sketches - Gentle Float */}
             <motion.div
                 initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 0.4 }}
-                style={{ position: "fixed", top: "5%", left: "8%", width: "150px", height: "150px", zIndex: 1, pointerEvents: "none", transform: "rotate(-10deg)" }}
+                animate={{
+                    opacity: 0.4,
+                    y: [0, -15, 0],
+                    rotate: [-10, -5, -10]
+                }}
+                transition={{
+                    opacity: { duration: 1 },
+                    y: { duration: 6, repeat: Infinity, ease: "easeInOut" },
+                    rotate: { duration: 7, repeat: Infinity, ease: "easeInOut" }
+                }}
+                style={{ position: "fixed", top: "5%", left: "8%", width: "150px", height: "150px", zIndex: 1, pointerEvents: "none" }}
             >
                 <Image src="/detail_lavender.png" alt="" fill style={{ objectFit: 'contain' }} />
             </motion.div>
 
             <motion.div
                 initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 0.3 }}
-                style={{ position: "fixed", top: "45%", right: "8%", width: "120px", height: "120px", zIndex: 1, pointerEvents: "none", transform: "rotate(15deg)" }}
+                animate={{
+                    opacity: 0.3,
+                    y: [0, 10, 0],
+                    rotate: [15, 20, 15]
+                }}
+                transition={{
+                    opacity: { duration: 1, delay: 0.2 },
+                    y: { duration: 8, repeat: Infinity, ease: "easeInOut" },
+                    rotate: { duration: 9, repeat: Infinity, ease: "easeInOut" }
+                }}
+                style={{ position: "fixed", top: "45%", right: "8%", width: "120px", height: "120px", zIndex: 1, pointerEvents: "none" }}
             >
                 <Image src="/detail_rose.png" alt="" fill style={{ objectFit: 'contain' }} />
             </motion.div>
 
             <motion.div
                 initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 0.35 }}
-                style={{ position: "fixed", bottom: "15%", left: "5%", width: "140px", height: "140px", zIndex: 1, pointerEvents: "none", transform: "rotate(-5deg)" }}
+                animate={{
+                    opacity: 0.35,
+                    y: [0, -8, 0],
+                    rotate: [-5, 0, -5]
+                }}
+                transition={{
+                    opacity: { duration: 1, delay: 0.4 },
+                    y: { duration: 7, repeat: Infinity, ease: "easeInOut" },
+                    rotate: { duration: 8, repeat: Infinity, ease: "easeInOut" }
+                }}
+                style={{ position: "fixed", bottom: "15%", left: "5%", width: "140px", height: "140px", zIndex: 1, pointerEvents: "none" }}
             >
                 <Image src="/detail_leaf.png" alt="" fill style={{ objectFit: 'contain' }} />
             </motion.div>
@@ -132,19 +196,7 @@ export default function GuestNo28Dashboard() {
                 />
             </motion.div>
 
-            {/* Ambient Cursor Light */}
-            <div style={{
-                position: "fixed",
-                left: mousePos.x,
-                top: mousePos.y,
-                transform: "translate(-50%, -50%)",
-                width: "450px",
-                height: "450px",
-                background: "radial-gradient(circle, rgba(255, 214, 10, 0.1) 0%, transparent 70%)",
-                pointerEvents: "none",
-                zIndex: 6,
-                transition: "left 0.1s ease-out, top 0.1s ease-out"
-            }} />
+
 
             <div style={{ position: "fixed", inset: 0, opacity: 0.4, pointerEvents: "none", backgroundImage: "url('https://www.transparenttextures.com/patterns/natural-paper.png')", zIndex: 5 }} />
 
@@ -172,33 +224,109 @@ export default function GuestNo28Dashboard() {
 
                     <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "2.5rem", marginBottom: "2.5rem", position: "relative", zIndex: 20 }}>
                         <Link href="/guest/no28/letter" style={{ textDecoration: "none" }}>
-                            <motion.div initial={{ rotate: -4, x: -8 }} animate={{ y: [0, -6, 0], rotate: -4, x: -8 }} transition={{ y: { duration: 4, repeat: Infinity, ease: "easeInOut" } }} whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} style={{ ...sketchyBoxStyle, height: "260px", padding: "2.5rem 2rem", display: "flex", flexDirection: "column", justifyContent: "space-between", background: "#fdfdee", position: "relative" }}>
-                                <div style={{ width: "50px", height: "50px", border: "2px solid #5a5a5a", borderRadius: "15% 30% 20% 40%", display: "flex", alignItems: "center", justifyContent: "center", background: "#fff" }}>
+                            <motion.div
+                                initial={{ rotate: -2 }}
+                                whileHover={{ scale: 1.02, rotate: -1 }}
+                                whileTap={{ scale: 0.97 }}
+                                style={{
+                                    ...baseCardStyle,
+                                    height: "280px",
+                                    padding: "2.5rem 2rem",
+                                    display: "flex",
+                                    flexDirection: "column",
+                                    justifyContent: "space-between",
+                                    background: "#fdfbf7",
+                                    backgroundImage: "repeating-linear-gradient(transparent, transparent 27px, #e1e4e8 28px)", // Notebook lines
+                                    borderRadius: "2px 5px 2px 255px / 255px 225px 15px 255px", // Subtle organic
+                                    border: "1px solid #d1d5db",
+                                    boxShadow: "3px 3px 8px rgba(0,0,0,0.06)",
+                                }}
+                            >
+                                <WashiTape color="#e6af2e" rotate="-3deg" width="110px" />
+
+                                <div style={{
+                                    width: "48px",
+                                    height: "48px",
+                                    border: "2px solid #5a5a5a",
+                                    borderRadius: "12px",
+                                    display: "flex",
+                                    alignItems: "center",
+                                    justifyContent: "center",
+                                    background: "#fff",
+                                    transform: "rotate(-5deg)",
+                                    boxShadow: "2px 2px 0 #5a5a5a"
+                                }}>
                                     <Mail size={24} color="#5a5a5a" strokeWidth={1.5} />
                                 </div>
-                                <div style={{ borderTop: "2px solid rgba(0,0,0,0.05)", paddingTop: "1rem" }}>
-                                    <h3 style={{ fontSize: "1.6rem", fontWeight: 700, color: "#333" }}>A Personal Note</h3>
-                                    <p style={{ color: "#777", fontStyle: "italic" }}>The ink is still fresh</p>
+
+                                <div style={{ marginTop: "1rem" }}>
+                                    <h3 style={{ fontSize: "1.8rem", fontWeight: 700, color: "#333", fontFamily: "'Crimson Pro', serif" }}>Personal Note</h3>
+                                    <p style={{ color: "#666", fontStyle: "italic", fontSize: "0.95rem", marginTop: "4px" }}>"The ink is still fresh..."</p>
                                 </div>
-                                <ChevronRight size={18} style={{ position: "absolute", bottom: "1.5rem", right: "1.5rem", color: "#ccc" }} />
+                                <ChevronRight size={18} style={{ position: "absolute", bottom: "1.5rem", right: "1.5rem", color: "#aaa" }} />
                             </motion.div>
                         </Link>
 
                         <Link href="/guest/no28/special_day" style={{ textDecoration: "none" }}>
-                            <motion.div initial={{ rotate: 5, x: 8 }} animate={{ y: [6, 0, 6], rotate: 5, x: 8 }} transition={{ y: { duration: 5, repeat: Infinity, ease: "easeInOut" } }} whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} style={{ ...sketchyBoxStyle, height: "260px", padding: "2.5rem 2rem", display: "flex", flexDirection: "column", justifyContent: "space-between", background: "#fffbf2", position: "relative" }}>
-                                <div style={{ width: "50px", height: "50px", border: "2px solid #5a5a5a", borderRadius: "40% 20% 30% 15%", display: "flex", alignItems: "center", justifyContent: "center", background: "#fff" }}>
-                                    <Calendar size={24} color="#5a5a5a" strokeWidth={1.5} />
+                            <motion.div
+                                initial={{ rotate: 1 }}
+                                whileHover={{ scale: 1.02, rotate: 2 }}
+                                whileTap={{ scale: 0.97 }}
+                                style={{
+                                    ...baseCardStyle,
+                                    height: "280px",
+                                    padding: "1rem",
+                                    display: "flex",
+                                    flexDirection: "column",
+                                    background: "#fff",
+                                    borderRadius: "2px",
+                                    boxShadow: "0 4px 12px rgba(0,0,0,0.08), 0 0 0 1px rgba(0,0,0,0.02)", // Polaroid clean shadow
+                                    border: "1px solid #eee"
+                                }}
+                            >
+                                <WashiTape color="#ff9f1c" rotate="2deg" width="100px" />
+
+                                {/* Polaroid Image Placeholder */}
+                                <div style={{
+                                    flex: 1,
+                                    background: "#f0f0f0",
+                                    marginBottom: "1rem",
+                                    display: "flex",
+                                    alignItems: "center",
+                                    justifyContent: "center",
+                                    overflow: "hidden",
+                                    position: "relative"
+                                }}>
+                                    <div style={{ position: "absolute", inset: 0, opacity: 0.1, backgroundImage: "url('https://www.transparenttextures.com/patterns/noise.png')" }} />
+                                    <Calendar size={32} color="#aaa" strokeWidth={1} />
                                 </div>
-                                <div style={{ borderTop: "2px solid rgba(0,0,0,0.05)", paddingTop: "1rem" }}>
-                                    <h3 style={{ fontSize: "1.6rem", fontWeight: 700, color: "#333" }}>Pieces of Us</h3>
-                                    <p style={{ color: "#777", fontStyle: "italic" }}>Moments etched in time</p>
+
+                                <div style={{ padding: "0 0.5rem 0.5rem" }}>
+                                    <h3 style={{ fontSize: "1.4rem", fontWeight: 700, color: "#333", marginBottom: "2px" }}>Pieces of Us</h3>
+                                    <p style={{ color: "#888", fontSize: "0.85rem", letterSpacing: "0.5px" }}>MOMENTS ETCHED IN TIME</p>
                                 </div>
-                                <ChevronRight size={18} style={{ position: "absolute", bottom: "1.5rem", right: "1.5rem", color: "#ccc" }} />
                             </motion.div>
                         </Link>
                     </div>
 
-                    <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} animate={{ opacity: [0.75, 1, 0.75] }} transition={{ duration: 7, repeat: Infinity }} style={{ ...sketchyBoxStyle, padding: "3rem 2.5rem", display: "flex", alignItems: "center", gap: "2.5rem", background: "rgba(255,255,255,0.75)", marginTop: "3rem", borderStyle: "dashed", borderWidth: "1px", boxShadow: "none", position: "relative", zIndex: 20 }}>
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        whileInView={{ opacity: 1 }}
+                        style={{
+                            padding: "3rem 2.5rem",
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "2.5rem",
+                            background: "#fff",
+                            marginTop: "3rem",
+                            position: "relative",
+                            zIndex: 20,
+                            borderRadius: "2px",
+                            boxShadow: "2px 4px 10px rgba(0,0,0,0.05)",
+                            transform: "rotate(1deg)"
+                        }}
+                    >
+                        <WashiTape color="#a8d5ba" rotate="-1.5deg" width="140px" />
                         <div style={{ color: "#a0907d", transform: "scale(1.2) rotate(-5deg)" }}>
                             <Quote size={40} strokeWidth={1.2} />
                         </div>
