@@ -26,7 +26,10 @@ export default function GuestNo28Dashboard() {
             day: 'numeric',
             month: 'long'
         }));
+
     }, []);
+
+
 
     if (!mounted) return null;
 
@@ -296,7 +299,7 @@ export default function GuestNo28Dashboard() {
                                     <Image src="/peach_sketch.png" alt="" fill style={{ objectFit: "contain" }} />
                                 </div>
 
-                                {/* Polaroid Image Placeholder */}
+                                {/* Polaroid Image Placeholder (Simplified) */}
                                 <div style={{
                                     flex: 1,
                                     background: "#f0f0f0",
