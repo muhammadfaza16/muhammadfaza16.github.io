@@ -20,7 +20,7 @@ const sheets = [
         content: [
             "Aku menulis ini untuk mengembalikan sebuah kejernihan yang seharusnya sudah aku sampaikan sejak lama. Aku minta maaf.",
             "Bertahun-tahun lalu, aku menyadari ada perhatian yang kamu berikan. Namun, pada saat itu, aku gagal memberikan respons yang layak. Aku memilih untuk menutup diri dan mengabaikanmu begitu saja. Aku menyadari sekarang bahwa diamku mungkin telah membuatmu merasa tidak dianggap atau merasa kecil, seolah-olah keberadaanmu tidak terlihat. Itu adalah kesalahan besar dalam caraku bersikap, dan aku menyadari sepenuhnya sekarang bahwa keputusan itu keliru.",
-            "Satu hal yang perlu kamu simpan dengan yakin: kamu tidak melakukan kesalahan apa pun. Akulah yang tidak cukup dewasa untuk mengelola situasi tersebut. Diamnya aku sepenuhnya adalah kegagalanku, and bukan cerminan dari siapa kamu."
+            "Satu hal yang perlu kamu simpan dengan yakin: kamu tidak melakukan kesalahan apa pun. Akulah yang tidak cukup dewasa untuk mengelola situasi tersebut. Diamnya aku sepenuhnya adalah kegagalanku, dan bukan cerminan dari siapa kamu."
         ]
     },
     {
