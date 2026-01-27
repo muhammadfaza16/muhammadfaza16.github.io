@@ -259,9 +259,9 @@ export default function SpecialDayBentoPage() {
     const footerQuotes = [
         "Ruang ini dibuat untuk merayakan setiap langkah kecilmu.",
         "Percayalah, usahamu selama ini tidak pernah sia-sia.",
-        "Teruslah melangkah, mekar, dan bahagia.",
-        "Menjadi dirimu sendiri adalah hal terbaik yang bisa kamu lakukan.",
-        "Terima kasih telah tumbuh dan bertahan sejauh ini."
+        "Teruslah tumbuh, mekar, dan bahagia.",
+        "Jangan pernah takut untuk bersinar dengan warnamu sendiri.",
+        "Raihlah segala yang kamu impikan. Meski tak terlihat, doaku akan selalu menyertaimu."
     ];
 
     useEffect(() => {
@@ -272,7 +272,6 @@ export default function SpecialDayBentoPage() {
 
         const timer = setInterval(() => setNow(new Date()), 1000);
         const kamusTimer = setInterval(() => setKamusIndex(prev => (prev + 1) % kamusMeanings.length), 20000);
-        const footerTimer = setInterval(() => setFooterIndex(prev => (prev + 1) % footerQuotes.length), 7000);
 
         const dailyWisdoms = [
             "Kamu adalah alasan di balik senyuman yang merekah hari ini, meski terkadang kau tak menyadarinya. Keberadaanmu bukan sekadar angka di kalender, melainkan anugerah terindah bagi semesta yang seringkali lupa cara bersyukur.",
@@ -294,6 +293,17 @@ export default function SpecialDayBentoPage() {
             clearInterval(kamusTimer);
         };
     }, []);
+
+    useEffect(() => {
+        const isLastItem = footerIndex === footerQuotes.length - 1;
+        const delay = isLastItem ? 15000 : 7000;
+
+        const timer = setTimeout(() => {
+            setFooterIndex((prev) => (prev + 1) % footerQuotes.length);
+        }, delay);
+
+        return () => clearTimeout(timer);
+    }, [footerIndex]);
 
     if (!mounted) return null;
 
@@ -368,7 +378,7 @@ export default function SpecialDayBentoPage() {
 
             <div style={{ position: "fixed", inset: 0, opacity: 0.4, pointerEvents: "none", backgroundImage: "url('https://www.transparenttextures.com/patterns/natural-paper.png')", zIndex: 5 }} />
 
-            <main style={{ position: "relative", zIndex: 10, padding: isMobile ? "1.5rem 0" : "3rem 0" }}>
+            <main style={{ position: "relative", zIndex: 10, padding: isMobile ? "4rem 0" : "6rem 0" }}>
                 <Container>
                     {/* Header: Dedicated to 28 */}
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: isMobile ? "4rem" : "20vh" }}>
@@ -395,20 +405,7 @@ export default function SpecialDayBentoPage() {
                         </div>
                     </div>
 
-                    <div style={{ textAlign: "center", opacity: 0.8, height: "30px", position: "relative", marginBottom: "3rem", maxWidth: "600px", marginInline: "auto" }}>
-                        <AnimatePresence mode="wait">
-                            <motion.div
-                                key={footerIndex}
-                                initial={{ opacity: 0, y: 5 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                exit={{ opacity: 0, y: -5 }}
-                                transition={{ duration: 1 }}
-                                style={{ position: "absolute", width: "100%", top: 0, left: 0 }}
-                            >
-                                <HandwrittenNote style={{ fontSize: "1.1rem" }}>{footerQuotes[footerIndex]}</HandwrittenNote>
-                            </motion.div>
-                        </AnimatePresence>
-                    </div>
+
 
                     {/* 100% PERSONALIZED GRID */}
                     <motion.div
@@ -567,6 +564,25 @@ export default function SpecialDayBentoPage() {
                         </BentoCard>
 
                     </motion.div>
+
+                    {/* Footer Narrative */}
+                    <div style={{ marginTop: "6rem", textAlign: "center", position: "relative", paddingBottom: "4rem" }}>
+                        <div style={{ width: "40px", height: "1px", background: "#b07d62", margin: "0 auto 2rem", opacity: 0.3 }} />
+                        <div style={{ height: "40px", position: "relative", maxWidth: "700px", margin: "0 auto" }}>
+                            <AnimatePresence mode="wait">
+                                <motion.div
+                                    key={footerIndex}
+                                    initial={{ opacity: 0, y: 10 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    exit={{ opacity: 0, y: -10 }}
+                                    transition={{ duration: 1 }}
+                                    style={{ position: "absolute", width: "100%", top: 0, left: 0 }}
+                                >
+                                    <HandwrittenNote style={{ fontSize: "1.3rem", color: "#b07d62", textShadow: "0 1px 1px rgba(0,0,0,0.05)" }}>{footerQuotes[footerIndex]}</HandwrittenNote>
+                                </motion.div>
+                            </AnimatePresence>
+                        </div>
+                    </div>
 
 
                 </Container>
