@@ -244,6 +244,11 @@ export default function GuestNo28Dashboard() {
                             >
                                 <WashiTape color="#e6af2e" rotate="-3deg" width="110px" />
 
+                                {/* Sticker: Sage Sketch */}
+                                <div style={{ position: "absolute", top: "10px", right: "10px", width: "80px", height: "80px", opacity: 0.8, transform: "rotate(10deg)", pointerEvents: "none" }}>
+                                    <Image src="/sage_sketch.png" alt="" fill style={{ objectFit: "contain" }} />
+                                </div>
+
                                 <div style={{
                                     width: "48px",
                                     height: "48px",
@@ -286,6 +291,11 @@ export default function GuestNo28Dashboard() {
                             >
                                 <WashiTape color="#ff9f1c" rotate="2deg" width="100px" />
 
+                                {/* Sticker: Peach Sketch */}
+                                <div style={{ position: "absolute", bottom: "70px", right: "10px", width: "90px", height: "90px", opacity: 0.85, transform: "rotate(-15deg)", zIndex: 5, pointerEvents: "none" }}>
+                                    <Image src="/peach_sketch.png" alt="" fill style={{ objectFit: "contain" }} />
+                                </div>
+
                                 {/* Polaroid Image Placeholder */}
                                 <div style={{
                                     flex: 1,
@@ -327,6 +337,12 @@ export default function GuestNo28Dashboard() {
                         }}
                     >
                         <WashiTape color="#a8d5ba" rotate="-1.5deg" width="140px" />
+
+                        {/* Sticker: Lavender Sketch */}
+                        <div style={{ position: "absolute", top: "-20px", left: "-20px", width: "100px", height: "100px", opacity: 0.8, transform: "rotate(-20deg)", pointerEvents: "none" }}>
+                            <Image src="/lavender_sketch.png" alt="" fill style={{ objectFit: "contain" }} />
+                        </div>
+
                         <div style={{ color: "#a0907d", transform: "scale(1.2) rotate(-5deg)" }}>
                             <Quote size={40} strokeWidth={1.2} />
                         </div>
