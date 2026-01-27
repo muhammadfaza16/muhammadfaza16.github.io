@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { motion } from "framer-motion";
+import { useState, useEffect, useMemo } from "react";
+import { motion, Variants } from "framer-motion";
 import { Home, Mail, Calendar, Quote, Sparkles, ChevronRight, BookOpen, Wind } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
@@ -47,6 +47,39 @@ const WashiTape = ({ color, rotate = "0deg", width = "90px" }: { color: string, 
     </div>
 );
 
+const NoiseOverlay = () => (
+    <div style={{
+        position: "fixed", top: 0, left: 0, width: "100%", height: "100%", pointerEvents: "none", zIndex: 50, opacity: 0.07,
+        background: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
+        mixBlendMode: "overlay"
+    }} />
+);
+
+const FloatingParticles = () => {
+    const particles = useMemo(() => Array.from({ length: 15 }).map((_, i) => ({
+        id: i, left: `${Math.random() * 100}%`, top: `${Math.random() * 100}%`, size: Math.random() * 4 + 2, duration: Math.random() * 20 + 10, delay: Math.random() * 5
+    })), []);
+
+    return (
+        <div style={{ position: "fixed", inset: 0, zIndex: 0, pointerEvents: "none" }}>
+            {particles.map((p: any) => (
+                <motion.div key={p.id} animate={{ y: [0, -100, 0], opacity: [0, 0.4, 0], scale: [0.8, 1.2, 0.8] }} transition={{ duration: p.duration, repeat: Infinity, ease: "linear", delay: p.delay }}
+                    style={{ position: "absolute", left: p.left, top: p.top, width: p.size, height: p.size, borderRadius: "50%", background: "#d2691e", filter: "blur(1px)" }} />
+            ))}
+        </div>
+    );
+};
+
+const containerVariants: Variants = {
+    hidden: { opacity: 0 },
+    show: { opacity: 1, transition: { staggerChildren: 0.15, delayChildren: 0.2 } }
+};
+
+const itemVariants: Variants = {
+    hidden: { opacity: 0, y: 30 },
+    show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 50, damping: 15 } }
+};
+
 // --- Page ---
 
 import { haikuCollection } from "@/data/guestNo28Haikus";
@@ -58,27 +91,16 @@ export default function GuestNo28Dashboard() {
     const [isMobile, setIsMobile] = useState(false);
     const [dailyHaiku, setDailyHaiku] = useState(haikuCollection[0]);
 
+
+
     useEffect(() => {
         setMounted(true);
 
-        // Greeting Logic
-        const hour = new Date().getHours();
-        if (hour < 12) setGreeting("Selamat Pagi,");
-        else if (hour < 15) setGreeting("Selamat Siang,");
-        else if (hour < 18) setGreeting("Selamat Sore,");
-        else setGreeting("Selamat Malam,");
-
-        // Date String
-        const date = new Date();
-        const options: Intl.DateTimeFormatOptions = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-        setDateString(date.toLocaleDateString('id-ID', options));
-
-        // Mobile Check
         const checkMobile = () => setIsMobile(window.innerWidth < 768);
         checkMobile();
         window.addEventListener('resize', checkMobile);
 
-        // Daily Haiku Logic (Based on days since epoch to ensure persistence per day)
+        // Daily Haiku Logic
         const startEpoch = new Date("2025-01-01").getTime();
         const today = new Date().getTime();
         const daysSince = Math.floor((today - startEpoch) / (1000 * 60 * 60 * 24));
@@ -116,6 +138,9 @@ export default function GuestNo28Dashboard() {
             <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;700&display=swap" rel="stylesheet" />
 
             {/* Ambient Background Elements */}
+            <NoiseOverlay />
+            <FloatingParticles />
+
             <motion.div
                 animate={{ scale: [1, 1.05, 1], opacity: [0.3, 0.4, 0.3], rotate: [0, 5, 0] }}
                 transition={{ duration: 15, repeat: Infinity, ease: "easeInOut" }}
@@ -187,39 +212,77 @@ export default function GuestNo28Dashboard() {
                         </Link>
                     </div>
 
-                    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 1 }} style={{ marginBottom: isMobile ? "6rem" : "20vh", textAlign: "center" }}>
-                        <p style={{ fontSize: "1.1rem", color: "#a0907d", fontStyle: "italic", marginBottom: "0.5rem" }}>{dateString}</p>
-                        <h1 style={{ fontSize: "clamp(2.5rem, 8vw, 3.5rem)", fontWeight: 700, color: "#2d2d2d", lineHeight: 1.1 }}>
-                            {greeting}, <span style={{ fontFamily: "cursive, 'Brush Script MT', 'Dancing Script'", color: "#d2691e", fontSize: "1.25em", transform: "rotate(-2deg) translateY(4px)", display: "inline-block" }}>Tamu Ke-28.</span>
+                    <motion.div
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 1 }}
+                        style={{ marginBottom: isMobile ? "4rem" : "15vh", textAlign: "center", position: "relative" }}
+                    >
+                        {/* Decorative 'Stamp' Date */}
+                        <div style={{
+                            display: "inline-block",
+                            border: "1px solid #a0907d",
+                            padding: "4px 12px",
+                            borderRadius: "20px",
+                            fontSize: "0.8rem",
+                            color: "#a0907d",
+                            textTransform: "uppercase",
+                            letterSpacing: "1.5px",
+                            marginBottom: "1.5rem",
+                            background: "rgba(255,255,255,0.5)"
+                        }}>
+                            {new Date().toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+                        </div>
+
+                        <h1 style={{ fontSize: "clamp(2.5rem, 8vw, 4rem)", fontWeight: 700, color: "#2d2d2d", lineHeight: 1.1, fontFamily: "'Crimson Pro', serif" }}>
+                            Selamat Datang, <br />
+                            <span style={{
+                                fontFamily: "cursive, 'Brush Script MT', 'Dancing Script'",
+                                color: "#d2691e",
+                                fontSize: "1.1em",
+                                transform: "rotate(-2deg) translateY(4px)",
+                                display: "inline-block",
+                                marginTop: "0.5rem"
+                            }}>
+                                Tamu Ke-28.
+                            </span>
                         </h1>
+
+                        <p style={{ marginTop: "1.5rem", fontSize: "1.1rem", color: "#666", fontStyle: "italic", maxWidth: "500px", marginInline: "auto" }}>
+                            "Ruang ini dirawat oleh waktu, khusus untuk menyambutmu."
+                        </p>
                     </motion.div>
 
-                    <div style={{
-                        display: "grid",
-                        gridTemplateColumns: isMobile ? "1fr" : "repeat(auto-fit, minmax(260px, 1fr))",
-                        gap: isMobile ? "2rem" : "3.5rem",
-                        marginBottom: "2.5rem",
-                        position: "relative",
-                        zIndex: 20
-                    }}>
+                    <motion.div
+                        variants={containerVariants}
+                        initial="hidden"
+                        animate="show"
+                        style={{
+                            display: "grid",
+                            gridTemplateColumns: isMobile ? "1fr" : "repeat(auto-fit, minmax(260px, 1fr))",
+                            gap: isMobile ? "2rem" : "3.5rem",
+                            marginBottom: "2.5rem",
+                            position: "relative",
+                            zIndex: 20
+                        }}>
 
                         <Link href="/guest/no28/letter" style={{ textDecoration: "none" }}>
                             <motion.div
-                                initial={{ rotate: -2 }}
-                                whileHover={{ scale: 1.02, rotate: -1 }}
+                                variants={itemVariants}
+                                whileHover={{ scale: 1.02, y: -5, rotate: -1, boxShadow: "0 15px 30px rgba(0,0,0,0.12)" }}
                                 whileTap={{ scale: 0.97 }}
                                 style={{
                                     ...baseCardStyle,
-                                    height: "280px",
+                                    height: "320px",
                                     padding: "2.2rem 1.8rem",
                                     display: "flex",
                                     flexDirection: "column",
                                     justifyContent: "space-between",
                                     background: "#ffffff",
                                     backgroundImage: "repeating-linear-gradient(transparent, transparent 27px, #fdfbf8 28px)",
-                                    borderRadius: "4px",
+                                    borderRadius: "4px 8px 4px 12px",
                                     border: "1px solid #dcdde1",
-                                    boxShadow: "0 8px 24px rgba(0,0,0,0.12)",
+                                    boxShadow: "0 8px 24px rgba(0,0,0,0.08)",
                                     opacity: 1
                                 }}
                             >
@@ -241,19 +304,19 @@ export default function GuestNo28Dashboard() {
 
                         <Link href="/guest/no28/special_day" style={{ textDecoration: "none" }}>
                             <motion.div
-                                initial={{ rotate: 1, opacity: 1 }}
-                                whileHover={{ scale: 1.02, rotate: 2 }}
+                                variants={itemVariants}
+                                whileHover={{ scale: 1.02, y: -5, rotate: 2, boxShadow: "0 15px 30px rgba(0,0,0,0.12)" }}
                                 whileTap={{ scale: 0.97 }}
                                 style={{
                                     ...baseCardStyle,
-                                    height: "280px",
+                                    height: "320px",
                                     padding: "2.2rem 1.8rem",
                                     display: "flex",
                                     flexDirection: "column",
                                     justifyContent: "space-between",
                                     background: "#ffffff",
-                                    borderRadius: "4px",
-                                    boxShadow: "0 8px 24px rgba(0,0,0,0.12)",
+                                    borderRadius: "4px 12px 4px 8px",
+                                    boxShadow: "0 8px 24px rgba(0,0,0,0.08)",
                                     border: "1px solid #dcdde1",
                                     opacity: 1
                                 }}
@@ -275,16 +338,17 @@ export default function GuestNo28Dashboard() {
                         </Link>
 
                         <motion.div
-                            initial={{ rotate: -1, y: 10, opacity: 1 }}
-                            whileHover={{ y: 5, rotate: -0.5 }}
+                            variants={itemVariants}
+                            whileHover={{ y: -5, rotate: -0.5, boxShadow: "0 15px 30px rgba(0,0,0,0.12)" }}
                             style={{
                                 ...baseCardStyle,
-                                height: isMobile ? "auto" : "280px",
+                                height: isMobile ? "auto" : "320px",
                                 padding: "1.8rem",
                                 background: "#ffffff",
                                 border: "1px solid #dcdde1",
                                 borderLeft: "6px solid #d2691e",
-                                boxShadow: "0 8px 24px rgba(0,0,0,0.12)",
+                                boxShadow: "0 8px 24px rgba(0,0,0,0.08)",
+                                borderRadius: "4px 8px 12px 4px",
                                 opacity: 1
                             }}
                         >
@@ -306,14 +370,15 @@ export default function GuestNo28Dashboard() {
                                     </HandwrittenNote>
                                 </div>
                             </div>
-                            <div style={{ position: "absolute", bottom: "1rem", right: "1rem", opacity: 0.15 }}>
-                                <Wind size={18} color="#a0907d" />
+                            <div style={{ position: "absolute", bottom: "1rem", right: "1rem", opacity: 0.2 }}>
+                                <Wind size={20} color="#a0907d" />
                             </div>
+                            {/* Torn paper edge effect via CSS mask or image would go here, simplified for now */}
                         </motion.div>
 
 
 
-                    </div>
+                    </motion.div>
 
                     <motion.div
                         initial={{ opacity: 0 }}
