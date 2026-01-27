@@ -146,11 +146,20 @@ export default function GuestNo28Dashboard() {
                 <Image src="/detail_leaf.png" alt="" fill style={{ objectFit: 'contain' }} />
             </motion.div>
 
-            {/* Detailed Artistic Hijabi Sketch (Backview) */}
+            {/* Detailed Artistic Hijabi Sketch (Backview) - Relocated to Top */}
             <motion.div
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 0.25, x: 0 }}
-                style={{ position: "fixed", right: "-2%", bottom: "-2%", width: "55vh", height: "55vh", zIndex: 2, pointerEvents: "none", mixBlendMode: "multiply" }}
+                initial={{ opacity: 0, y: -20 }}
+                animate={{
+                    opacity: 0.2,
+                    y: [0, -10, 0],
+                    rotate: [-2, 2, -2]
+                }}
+                transition={{
+                    opacity: { duration: 1.5 },
+                    y: { duration: 8, repeat: Infinity, ease: "easeInOut" },
+                    rotate: { duration: 10, repeat: Infinity, ease: "easeInOut" }
+                }}
+                style={{ position: "fixed", top: "2%", right: "5%", width: "45vh", height: "45vh", zIndex: 1, pointerEvents: "none", mixBlendMode: "multiply" }}
             >
                 <Image src="/hijabi_details.png" alt="Detailed Personal Sketch" fill style={{ objectFit: 'contain' }} />
             </motion.div>
