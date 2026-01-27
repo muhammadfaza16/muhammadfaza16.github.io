@@ -246,7 +246,7 @@ export default function SpecialDayBentoPage() {
         },
         {
             title: "Siklus Bulan",
-            desc: "Butuh sekitar 28 hari bagi bulan untuk menyempurnakan ceritanya—dari gelap gulita hingga purnama benderang. Seperti itulah cahayamu tumbuh."
+            desc: "Butuh sekitar 28 hari bagi bulan untuk menyempurnakan ceritanya dari gelap gulita hingga purnama benderang. Seperti itulah cahayamu tumbuh."
         },
         {
             title: "Sebuah Awal",
@@ -498,7 +498,7 @@ export default function SpecialDayBentoPage() {
                                         <Star size={16} color="#e6a23c" fill="#e6a23c" opacity={0.6} />
                                     </motion.div>
                                 </div>
-                                <div style={{ marginTop: "2rem", textAlign: "left", minHeight: "100px" }}>
+                                <div style={{ marginTop: "2rem", textAlign: "left", height: "140px", position: "relative" }}>
                                     <AnimatePresence mode="wait">
                                         <motion.div
                                             key={kamusIndex}
@@ -506,6 +506,7 @@ export default function SpecialDayBentoPage() {
                                             animate={{ opacity: 1, y: 0 }}
                                             exit={{ opacity: 0, y: -10 }}
                                             transition={{ duration: 0.5 }}
+                                            style={{ position: "absolute", top: 0, left: 0, width: "100%" }}
                                         >
                                             <div style={{ marginBottom: "0.5rem", borderBottom: "1px dashed #e8e2d9", paddingBottom: "5px" }}>
                                                 <HandwrittenNote style={{ color: "#4e4439", fontSize: "1.1rem" }}>"{kamusMeanings[kamusIndex].title}"</HandwrittenNote>
