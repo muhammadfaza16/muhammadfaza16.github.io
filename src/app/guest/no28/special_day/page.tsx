@@ -199,24 +199,6 @@ export default function SpecialDayBentoPage() {
                 <Image src="/special_wildflowers.png" alt="" fill style={{ objectFit: 'contain' }} />
             </motion.div>
 
-            {/* Personalized Artistic Hijabi Sketch (Reading) */}
-            <motion.div
-                initial={{ opacity: 0, y: -20 }}
-                animate={{
-                    opacity: 0.5,
-                    y: [0, -10, 0],
-                    rotate: [1, -1, 1]
-                }}
-                transition={{
-                    opacity: { duration: 1.5 },
-                    y: { duration: 8, repeat: Infinity, ease: "easeInOut" },
-                    rotate: { duration: 12, repeat: Infinity, ease: "easeInOut" }
-                }}
-                style={{ position: "fixed", top: "8%", right: "2%", width: "55vh", height: "55vh", zIndex: 1, pointerEvents: "none" }}
-            >
-                <Image src="/special_hijabi_main.png" alt="Personalized Sketch" fill style={{ objectFit: 'contain' }} />
-            </motion.div>
-
             <div style={{ position: "fixed", inset: 0, opacity: 0.4, pointerEvents: "none", backgroundImage: "url('https://www.transparenttextures.com/patterns/natural-paper.png')", zIndex: 5 }} />
 
             <main style={{ position: "relative", zIndex: 10, padding: isMobile ? "1.5rem 0" : "3rem 0" }}>
@@ -253,9 +235,13 @@ export default function SpecialDayBentoPage() {
                         gap: isMobile ? "2rem" : "3.5rem",
                     }}>
 
-                        {/* 1. Seasons of Her Life (The Timeline Widget) */}
-                        <BentoCard isMobile={isMobile} style={{ gridColumn: isMobile ? "span 1" : "span 12" }} rotate="0.2deg" tapeColor="#e2ece9">
+                        <BentoCard isMobile={isMobile} style={{ gridColumn: isMobile ? "span 1" : "span 12", minHeight: isMobile ? "auto" : "320px" }} rotate="0.2deg" tapeColor="#e2ece9">
                             <SectionTitle icon={BookOpen}>Musim-Musim Kehidupanmu</SectionTitle>
+                            {!isMobile && (
+                                <div style={{ position: "absolute", bottom: "-20px", right: "2rem", width: "280px", height: "280px", opacity: 0.9, transform: "rotate(-2deg)", pointerEvents: "none", zIndex: 5 }}>
+                                    <Image src="/special_hijabi_main.png" alt="" fill style={{ objectFit: "contain" }} />
+                                </div>
+                            )}
                             <div style={{ position: "absolute", bottom: "-10px", right: "0", width: "90px", height: "90px", opacity: 0.8, transform: "rotate(10deg)", pointerEvents: "none" }}>
                                 <Image src="/special_peony.png" alt="" fill style={{ objectFit: "contain" }} />
                             </div>
@@ -283,9 +269,6 @@ export default function SpecialDayBentoPage() {
                         {/* 2. Personal Year Loop (Instead of Calendar) */}
                         <BentoCard isMobile={isMobile} style={{ gridColumn: isMobile ? "span 1" : "span 7" }} rotate="-0.4deg" tapeColor="#fde2e4">
                             <SectionTitle icon={Map}>Lingkaran Usia Ke-{age + 1}</SectionTitle>
-                            <div style={{ position: "absolute", top: "10px", right: "10px", width: "80px", height: "80px", opacity: 0.7, transform: "rotate(-15deg)", pointerEvents: "none" }}>
-                                <Image src="/special_wildflowers.png" alt="" fill style={{ objectFit: "contain" }} />
-                            </div>
                             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: "1.5rem" }}>
                                 <div>
                                     <div style={{ fontSize: "0.8rem", color: "#a0907d", letterSpacing: "1px", fontWeight: 700 }}>PROGRES TAHUN INI</div>
