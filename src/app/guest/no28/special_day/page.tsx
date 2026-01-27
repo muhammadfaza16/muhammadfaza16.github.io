@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Home, Sparkles, Clock, Calendar, Heart, Gift, Activity, Wind, Star } from "lucide-react";
+import { Home, Sparkles, Clock, Calendar, Heart, Gift, Activity, Wind, Star, BookOpen, Map, MapPin } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import { Container } from "@/components/Container";
@@ -12,7 +12,7 @@ import { Container } from "@/components/Container";
 const WashiTape = ({ color, rotate = "0deg", width = "70px", height = "18px" }: { color: string, rotate?: string, width?: string, height?: string }) => (
     <div style={{
         position: "absolute",
-        top: "-8px",
+        top: "-10px",
         left: "50%",
         transform: `translateX(-50%) rotate(${rotate})`,
         width: width,
@@ -20,8 +20,7 @@ const WashiTape = ({ color, rotate = "0deg", width = "70px", height = "18px" }: 
         backgroundColor: color,
         opacity: 0.7,
         zIndex: 10,
-        boxShadow: "1px 1px 2px rgba(0,0,0,0.05)",
-        // Jagged edges mask
+        boxShadow: "1px 1px 3px rgba(0,0,0,0.05)",
         maskImage: "linear-gradient(90deg, transparent 2px, #000 2px, #000 calc(100% - 2px), transparent calc(100% - 2px))",
         mixBlendMode: "multiply"
     }}>
@@ -35,7 +34,7 @@ const HandwrittenNote = ({ children, style = {} }: { children: React.ReactNode, 
         color: "#a0907d",
         fontSize: "1.2rem",
         display: "inline-block",
-        lineHeight: 1,
+        lineHeight: 1.1,
         ...style
     }}>
         {children}
@@ -45,20 +44,20 @@ const HandwrittenNote = ({ children, style = {} }: { children: React.ReactNode, 
 const BentoCard = ({ children, style = {}, rotate = "0deg", delay = 0, tapeColor }: { children: React.ReactNode, style?: React.CSSProperties, rotate?: string, delay?: number, tapeColor?: string }) => (
     <motion.div
         initial={{ opacity: 0, scale: 0.98, rotate: parseFloat(rotate) - 0.5 }}
-        animate={{ opacity: 1, scale: 1, rotate: rotate }}
+        whileInView={{ opacity: 1, scale: 1, rotate: rotate }}
+        viewport={{ once: true }}
         transition={{ duration: 0.8, delay, ease: "easeOut" }}
         style={{
             background: "#fff",
-            borderRadius: "4px 8px 4px 10px / 12px 4px 15px 4px", // Organic, slightly irregular
+            borderRadius: "4px 8px 4px 10px / 12px 4px 15px 4px",
             border: "1px solid #e8e2d9",
-            boxShadow: "2px 5px 15px rgba(160, 144, 125, 0.1)",
+            boxShadow: "2px 5px 15px rgba(160, 144, 125, 0.08)",
             padding: "1.5rem",
             position: "relative",
             ...style
         }}
     >
         {tapeColor && <WashiTape color={tapeColor} rotate={parseFloat(rotate) > 0 ? "-2deg" : "2deg"} />}
-        {/* Subtle Paper Texture */}
         <div style={{ position: "absolute", inset: 0, opacity: 0.04, pointerEvents: "none", backgroundImage: "url('https://www.transparenttextures.com/patterns/natural-paper.png')", zIndex: 0 }} />
         <div style={{ position: "relative", zIndex: 1 }}>{children}</div>
     </motion.div>
@@ -71,7 +70,7 @@ const SectionTitle = ({ children, icon: Icon }: { children: React.ReactNode, ico
     </div>
 );
 
-const DotGrid = ({ total, filled, columns = 20, color = "#d2691e", size = "6px" }: { total: number, filled: number, columns?: number, color?: string, size?: string }) => (
+const DotGrid = ({ total, filled, columns = 20, color = "#b07d62", size = "6px" }: { total: number, filled: number, columns?: number, color?: string, size?: string }) => (
     <div style={{
         display: "grid",
         gridTemplateColumns: `repeat(${columns}, 1fr)`,
@@ -82,11 +81,11 @@ const DotGrid = ({ total, filled, columns = 20, color = "#d2691e", size = "6px" 
             <div key={i} style={{
                 width: size,
                 height: size,
-                borderRadius: "20%", // Slightly rounded square for 'stamped' look
-                background: i < filled ? color : "#f2efeb",
-                opacity: i < filled ? 0.9 : 0.4,
+                borderRadius: "2px",
+                background: i < filled ? color : "#f5f2ee",
+                opacity: i < filled ? 1 : 0.5,
                 transition: "all 0.4s ease",
-                transform: `rotate(${Math.random() * 5 - 2.5}deg)` // Random jitter for hand-stamped feel
+                transform: `rotate(${Math.random() * 6 - 3}deg)` // Hand-stamped effect
             }} />
         ))}
     </div>
@@ -136,7 +135,6 @@ export default function SpecialDayBentoPage() {
     // --- Calculations ---
     const totalMsLived = now.getTime() - birthDate.getTime();
     const monthsLived = (now.getFullYear() - birthDate.getFullYear()) * 12 + (now.getMonth() - birthDate.getMonth());
-    const daysLived = Math.floor(totalMsLived / (1000 * 60 * 60 * 24));
 
     // Exact Age
     let age = now.getFullYear() - birthDate.getFullYear();
@@ -145,159 +143,159 @@ export default function SpecialDayBentoPage() {
         age--;
     }
 
-    // Year Progress (Days)
-    const yearStart = new Date(now.getFullYear(), 0, 1);
-    const totalDaysInYear = (new Date(now.getFullYear(), 11, 31).getTime() - yearStart.getTime()) / (1000 * 60 * 60 * 24) + 1;
-    const daysGoneInYear = Math.floor((now.getTime() - yearStart.getTime()) / (1000 * 60 * 60 * 24));
-    const daysLeftInYear = Math.ceil(totalDaysInYear - daysGoneInYear);
+    // --- Personal Year Loop (Birthday-to-Birthday Progress) ---
+    let startOfPersonalYear = new Date(now.getFullYear(), 10, 28);
+    if (now < startOfPersonalYear) startOfPersonalYear = new Date(now.getFullYear() - 1, 10, 28);
 
-    // Birthday Cycle
-    let lastBirthday = new Date(now.getFullYear(), 10, 28);
-    if (now < lastBirthday) lastBirthday = new Date(now.getFullYear() - 1, 10, 28);
-
-    let nextBirthday = new Date(lastBirthday.getFullYear() + 1, 10, 28);
-    const totalDaysInBirthCycle = Math.round((nextBirthday.getTime() - lastBirthday.getTime()) / (1000 * 60 * 60 * 24));
-    const daysPassedInCycle = Math.floor((now.getTime() - lastBirthday.getTime()) / (1000 * 60 * 60 * 24));
-    const daysToBirthday = Math.ceil(totalDaysInBirthCycle - daysPassedInCycle);
+    let endOfPersonalYear = new Date(startOfPersonalYear.getFullYear() + 1, 10, 28);
+    const totalDaysInPersonalYear = Math.round((endOfPersonalYear.getTime() - startOfPersonalYear.getTime()) / (1000 * 60 * 60 * 24));
+    const currentDayInPersonalYear = Math.floor((now.getTime() - startOfPersonalYear.getTime()) / (1000 * 60 * 60 * 24));
+    const daysLeftInPersonalYear = totalDaysInPersonalYear - currentDayInPersonalYear;
 
     return (
         <div style={{
-            background: "#fdf8f4", // Warmer cream
-            backgroundImage: "radial-gradient(#e5e0d8 0.6px, transparent 0)",
-            backgroundSize: "28px 28px",
+            background: "#fdf8f4",
+            backgroundImage: "radial-gradient(#e5e0d8 0.7px, transparent 0)",
+            backgroundSize: "32px 32px",
             minHeight: "100svh",
-            color: "#4e4439", // Muted brown ink
+            color: "#4e4439",
             fontFamily: "'Crimson Pro', serif, -apple-system",
             position: "relative",
             overflowX: "hidden",
             paddingBottom: "5rem"
         }}>
-            {/* Handwriting Link */}
             <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;700&display=swap" rel="stylesheet" />
 
-            {/* Watercolor stains / Overlays */}
-            <div style={{ position: "fixed", top: "-5%", left: "-5%", width: "400px", height: "400px", background: "radial-gradient(circle, rgba(210, 105, 30, 0.03) 0%, transparent 70%)", pointerEvents: "none", zIndex: 0 }} />
-            <div style={{ position: "fixed", bottom: "10%", right: "2%", width: "150px", height: "150px", opacity: 0.1, pointerEvents: "none", zIndex: 1, transform: "rotate(15deg)" }}>
-                <Image src="/detail_rose.png" alt="" fill style={{ objectFit: 'contain' }} />
+            {/* Watercolor & Artistic Overlays */}
+            <div style={{ position: "fixed", top: "5%", right: "-3%", width: "250px", height: "250px", opacity: 0.1, pointerEvents: "none", zIndex: 0 }}>
+                <Image src="/detail_lavender.png" alt="" fill style={{ objectFit: 'contain' }} />
             </div>
 
             <main style={{ position: "relative", zIndex: 10, padding: isMobile ? "1.5rem 0" : "3rem 0" }}>
                 <Container>
-                    {/* Header */}
+                    {/* Header: Dedicated to 28 */}
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: isMobile ? "2.5rem" : "4.5rem" }}>
-                        <Link href="/guest/no28" style={{
-                            display: "inline-flex", alignItems: "center", justifyContent: "center",
-                            width: "42px", height: "42px", background: "#fff", border: "1.2px solid #a0907d",
-                            borderRadius: "12px", color: "#a0907d", boxShadow: "0 2px 8px rgba(160,144,125,0.15)"
-                        }}>
-                            <Home size={20} />
-                        </Link>
+                        <div style={{ display: "flex", gap: "14px", alignItems: "center" }}>
+                            <Link href="/guest/no28" style={{
+                                display: "inline-flex", alignItems: "center", justifyContent: "center",
+                                width: "44px", height: "44px", background: "#fff", border: "1.2px solid #a0907d",
+                                borderRadius: "12px", color: "#a0907d", boxShadow: "0 2px 10px rgba(160,144,125,0.12)"
+                            }}>
+                                <Home size={22} />
+                            </Link>
+                            <div style={{ transform: "rotate(-1deg)" }}>
+                                <div style={{ fontSize: "0.65rem", color: "#a0907d", textTransform: "uppercase", letterSpacing: "2.5px", fontWeight: 700, marginBottom: "-2px" }}>Narasi Hidup</div>
+                                <HandwrittenNote style={{ fontSize: "1.3rem", fontWeight: 400, color: "#b07d62" }}>
+                                    Untukmu, Sang Pemilik Angka 28...
+                                </HandwrittenNote>
+                            </div>
+                        </div>
                         <div style={{ textAlign: "right" }}>
-                            <HandwrittenNote style={{ fontSize: "1rem", opacity: 0.7 }}>{now.toLocaleDateString('id-ID', { weekday: 'long' })}</HandwrittenNote>
+                            <HandwrittenNote style={{ fontSize: "1rem", opacity: 0.7 }}>Bait Hari Ini</HandwrittenNote>
                             <div style={{ fontSize: "0.85rem", fontWeight: 700, color: "#a0907d", letterSpacing: "1px" }}>
                                 {now.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}
                             </div>
                         </div>
                     </div>
 
-                    {/* WARM SCRAPBOOK GRID */}
+                    {/* 100% PERSONALIZED GRID */}
                     <div style={{
                         display: "grid",
                         gridTemplateColumns: isMobile ? "1fr" : "repeat(12, 1fr)",
-                        gap: isMobile ? "1.5rem" : "2rem",
+                        gap: isMobile ? "1.5rem" : "2.2rem",
                     }}>
 
-                        {/* 1. Rangkuman Perjalanan */}
-                        <BentoCard style={{ gridColumn: isMobile ? "span 1" : "span 6" }} rotate="-0.5deg" tapeColor="#fde2e4">
-                            <SectionTitle icon={Heart}>Rangkuman Perjalanan</SectionTitle>
-                            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
-                                <div>
-                                    <div style={{ fontSize: "4.8rem", fontWeight: 800, color: "#b07d62", lineHeight: 0.85, fontFamily: "'Crimson Pro', serif" }}>
-                                        {monthsLived}
+                        {/* 1. Seasons of Her Life (The Timeline Widget) */}
+                        <BentoCard style={{ gridColumn: isMobile ? "span 1" : "span 12" }} rotate="0.2deg" tapeColor="#e2ece9">
+                            <SectionTitle icon={BookOpen}>Musim-Musim Kehidupanmu</SectionTitle>
+                            <div style={{ display: "flex", flexDirection: isMobile ? "column" : "row", gap: "2rem", marginTop: "1rem" }}>
+                                {[
+                                    { year: "2000 - 2007", title: "Awal Keajaiban", desc: "Dunia mulai mengenal benderang cahayamu.", icon: Sparkles },
+                                    { year: "2007 - 2018", title: "Mekar & Belajar", desc: "Masa di mana mimpi-mimpimu mulai berhamburan.", icon: Star },
+                                    { year: "2018 - Kini", title: "Menemukan Jati Diri", desc: "Menjadi melodi paling tenang di tengah riuh dunia.", icon: Heart }
+                                ].map((chapter, i) => (
+                                    <div key={i} style={{ flex: 1, position: "relative", paddingLeft: isMobile ? "1.5rem" : "0", borderLeft: isMobile ? "1px dashed #e5e0d8" : "none" }}>
+                                        {!isMobile && i > 0 && <div style={{ position: "absolute", left: "-1rem", top: "1.5rem", width: "1rem", borderTop: "1px dashed #e5e0d8" }} />}
+                                        <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "8px" }}>
+                                            <div style={{ width: "32px", height: "32px", borderRadius: "50%", background: "#fdf8f4", border: "1px solid #e8e2d9", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                                                <chapter.icon size={14} color="#b07d62" />
+                                            </div>
+                                            <span style={{ fontSize: "0.7rem", fontWeight: 700, color: "#aaa" }}>{chapter.year}</span>
+                                        </div>
+                                        <h4 style={{ fontSize: "1.1rem", fontWeight: 700, color: "#4e4439" }}>{chapter.title}</h4>
+                                        <HandwrittenNote style={{ fontSize: "1rem", marginTop: "4px" }}>{chapter.desc}</HandwrittenNote>
                                     </div>
-                                    <HandwrittenNote style={{ marginTop: "10px", fontSize: "1.1rem" }}>Bulan yang penuh warna...</HandwrittenNote>
+                                ))}
+                            </div>
+                        </BentoCard>
+
+                        {/* 2. Personal Year Loop (Instead of Calendar) */}
+                        <BentoCard style={{ gridColumn: isMobile ? "span 1" : "span 7" }} rotate="-0.4deg" tapeColor="#fde2e4">
+                            <SectionTitle icon={Map}>Lingkaran Usia Ke-{age + 1}</SectionTitle>
+                            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: "1.5rem" }}>
+                                <div>
+                                    <div style={{ fontSize: "0.8rem", color: "#a0907d", letterSpacing: "1px", fontWeight: 700 }}>PROGRES TAHUN INI</div>
+                                    <div style={{ fontSize: "3.5rem", fontWeight: 900, color: "#b07d62", lineHeight: 1, fontFamily: "'Crimson Pro', serif" }}>
+                                        {currentDayInPersonalYear} <span style={{ fontSize: "1.2rem", fontWeight: 300, color: "#4e4439", fontStyle: "italic" }}>Hari</span>
+                                    </div>
                                 </div>
-                                <div style={{ textAlign: "right", color: "#a0907d" }}>
-                                    <div style={{ fontSize: "0.8rem", fontWeight: 700 }}>{totalLifeMonths - monthsLived} BULAN MENUJU 80</div>
+                                <div style={{ textAlign: "right" }}>
+                                    <HandwrittenNote style={{ fontSize: "1.2rem" }}>{daysLeftInPersonalYear} hari lagi...</HandwrittenNote>
+                                    <div style={{ fontSize: "0.7rem", color: "#aaa", textTransform: "uppercase" }}>MENUJU 28 NOV</div>
                                 </div>
                             </div>
-                            <div style={{ marginTop: "2rem", position: "relative" }}>
-                                <DotGrid total={isMobile ? 120 : 220} filled={Math.round((monthsLived / totalLifeMonths) * (isMobile ? 120 : 220))} columns={isMobile ? 12 : 22} size="8px" color="#b07d62" />
-                                <HandwrittenNote style={{ position: "absolute", bottom: "-25px", right: "0", fontSize: "0.9rem", transform: "rotate(-2deg)" }}>
-                                    "Kamu di sini ✨"
+                            <div style={{ position: "relative", padding: "10px 0" }}>
+                                <DotGrid total={isMobile ? 120 : 220} filled={Math.round((currentDayInPersonalYear / totalDaysInPersonalYear) * (isMobile ? 120 : 220))} columns={isMobile ? 12 : 22} size="8px" color="#b07d62" />
+                                <div style={{ display: "flex", justifyContent: "space-between", marginTop: "1rem", fontSize: "0.7rem", fontWeight: 700, color: "#aaa" }}>
+                                    <span>28 NOV {startOfPersonalYear.getFullYear()}</span>
+                                    <span>28 NOV {endOfPersonalYear.getFullYear()}</span>
+                                </div>
+                                <HandwrittenNote style={{ position: "absolute", top: "0", right: "20%", transform: "rotate(5deg)", fontSize: "0.9rem" }}>
+                                    "Terus bersemi ya..."
                                 </HandwrittenNote>
                             </div>
                         </BentoCard>
 
-                        {/* 2. Tapestri Tahun */}
-                        <BentoCard style={{ gridColumn: isMobile ? "span 1" : "span 6" }} rotate="1deg" tapeColor="#e2ece9">
-                            <SectionTitle icon={Calendar}>Tapestri Tahun {now.getFullYear()}</SectionTitle>
-                            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.2rem" }}>
-                                <div style={{ fontSize: "2.8rem", fontWeight: 800, color: "#4e4439", fontFamily: "'Crimson Pro', serif" }}>{daysGoneInYear} Hari</div>
-                                <HandwrittenNote style={{ fontSize: "1.3rem", transform: "rotate(5deg)" }}>{daysLeftInYear} hari lagi menanti!</HandwrittenNote>
-                            </div>
-                            <DotGrid total={isMobile ? 140 : 280} filled={Math.round((daysGoneInYear / totalDaysInYear) * (isMobile ? 140 : 280))} columns={isMobile ? 14 : 28} size="4px" color="#a0907d" />
-                            <p style={{ marginTop: "1rem", fontSize: "0.75rem", color: "#a0907d", fontStyle: "italic", textAlign: "right" }}>
-                                * {Math.round((daysGoneInYear / totalDaysInYear) * 100)}% dari tahun ini telah jadi kenangan.
-                            </p>
-                        </BentoCard>
-
-                        {/* 3. Menuju Perayaan Dirimu */}
-                        <BentoCard style={{ gridColumn: isMobile ? "span 1" : "span 12" }} rotate="-0.2deg" tapeColor="#dfccf1">
-                            <WashiTape color="#fff1e6" rotate="5deg" width="40px" height="15px" />
-                            <SectionTitle icon={Gift}>Menuju Perayaan Dirimu ke-{age + 1}</SectionTitle>
-                            <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "auto 1fr", gap: isMobile ? "1.5rem" : "3rem", alignItems: "center" }}>
-                                <div style={{ textAlign: "center", borderRight: isMobile ? "none" : "1px dashed #e5e0d8", paddingRight: isMobile ? "0" : "2rem" }}>
-                                    <div style={{ fontSize: "5.5rem", fontWeight: 900, color: "#b07d62", lineHeight: 1, fontFamily: "'Crimson Pro', serif" }}>{daysToBirthday}</div>
-                                    <HandwrittenNote style={{ fontSize: "1.2rem" }}>Matahari Terbit Lagi</HandwrittenNote>
+                        {/* 3. Kamus Angka 28 (Dedicated Widget) */}
+                        <BentoCard style={{ gridColumn: isMobile ? "span 1" : "span 5", background: "linear-gradient(to bottom, #fff, #fdfbf7)" }} rotate="0.6deg" tapeColor="#dfccf1">
+                            <SectionTitle icon={Sparkles}>Kamus Angka 28</SectionTitle>
+                            <div style={{ textAlign: "center", padding: "1.5rem 0" }}>
+                                <div style={{ fontSize: "6rem", fontWeight: 900, color: "#b07d62", lineHeight: 0.8, fontFamily: "'Crimson Pro', serif", position: "relative", display: "inline-block" }}>
+                                    28
+                                    <motion.div animate={{ rotate: [0, 10, 0] }} transition={{ duration: 4, repeat: Infinity }} style={{ position: "absolute", top: "-10px", right: "-20px" }}>
+                                        <Sparkles size={24} color="#d2691e" opacity={0.4} />
+                                    </motion.div>
                                 </div>
-
-                                <div style={{ position: "relative" }}>
-                                    {/* Circle annotation around current progress */}
-                                    <div style={{ display: "grid", gridTemplateColumns: "repeat(15, 1fr)", gap: "6px" }}>
-                                        {Array.from({ length: isMobile ? 60 : 120 }).map((_, i) => {
-                                            const progress = daysPassedInCycle / totalDaysInBirthCycle;
-                                            const isFilled = i < (progress * (isMobile ? 60 : 120));
-                                            const isTarget = i === (isMobile ? 59 : 119);
-                                            return (
-                                                <div key={i} style={{
-                                                    aspectRatio: "1",
-                                                    borderRadius: "2px",
-                                                    background: isFilled ? "#b07d62" : "#f5f2ee",
-                                                    opacity: isFilled ? 1 : 0.5,
-                                                    border: isTarget ? "1px solid #b07d62" : "none",
-                                                    position: "relative"
-                                                }}>
-                                                    {isTarget && <Sparkles size={10} color="#b07d62" style={{ position: "absolute", top: "-10px", right: "-10px" }} />}
-                                                </div>
-                                            );
-                                        })}
+                                <div style={{ marginTop: "2rem", textAlign: "left" }}>
+                                    <div style={{ marginBottom: "1rem", borderBottom: "1px dashed #e8e2d9", pb: "5px" }}>
+                                        <HandwrittenNote style={{ color: "#4e4439", fontSize: "1.1rem" }}>"Angka yang membawa tenang ke bumi."</HandwrittenNote>
                                     </div>
-                                    <HandwrittenNote style={{ marginTop: "1rem", fontSize: "1rem", display: "block", textAlign: isMobile ? "center" : "left" }}>
-                                        "Setiap kotak adalah nafas yang membawa kita pulang."
-                                    </HandwrittenNote>
+                                    <div style={{ fontSize: "0.8rem", color: "#a0907d", fontStyle: "italic", lineHeight: 1.5 }}>
+                                        Bukan sekadar tanggal, melainkan awal dari bait-bait puisi yang sedang semesta tuliskan bersamamu.
+                                    </div>
                                 </div>
                             </div>
                         </BentoCard>
 
-                        {/* 4. Bisikan Sanubari */}
-                        <BentoCard style={{ gridColumn: isMobile ? "span 1" : "span 12", padding: isMobile ? "2.5rem 1.5rem" : "4rem", background: "#fffaf5" }} rotate="0deg" tapeColor="#fad2e1">
+                        {/* 4. Bisikan Sanubari (Consolidated Wisdom) */}
+                        <BentoCard style={{ gridColumn: isMobile ? "span 1" : "span 12", padding: isMobile ? "2.5rem 1.5rem" : "4.5rem", background: "#fefbfc" }} rotate="0deg" tapeColor="#fad2e1">
                             <div style={{ maxWidth: "800px", margin: "0 auto", textAlign: "center" }}>
-                                <Wind size={22} color="#b07d62" style={{ margin: "0 auto 1.5rem", opacity: 0.4 }} />
-                                <p style={{ fontSize: isMobile ? "1.2rem" : "1.6rem", color: "#4e4439", fontStyle: "italic", lineHeight: 1.7, fontWeight: 300 }}>
+                                <Wind size={24} color="#b07d62" style={{ margin: "0 auto 1.5rem", opacity: 0.3 }} />
+                                <p style={{ fontSize: isMobile ? "1.25rem" : "1.7rem", color: "#4e4439", fontStyle: "italic", lineHeight: 1.7, fontWeight: 300 }}>
                                     "{wisdom}"
                                 </p>
-                                <div style={{ marginTop: "2.5rem", textAlign: "center" }}>
-                                    <HandwrittenNote style={{ fontSize: "1.3rem" }}>— Catatan Sanubari</HandwrittenNote>
+                                <div style={{ marginTop: "3rem", display: "flex", alignItems: "center", justifyContent: "center", gap: "10px" }}>
+                                    <div style={{ width: "20px", height: "1px", background: "#b07d62", opacity: 0.2 }} />
+                                    <HandwrittenNote style={{ fontSize: "1.4rem" }}>Bait Untukmu</HandwrittenNote>
+                                    <div style={{ width: "20px", height: "1px", background: "#b07d62", opacity: 0.2 }} />
                                 </div>
                             </div>
                         </BentoCard>
 
                     </div>
 
-                    {/* Footer Scribble */}
-                    <div style={{ marginTop: "4rem", textAlign: "center", opacity: 0.5 }}>
-                        <HandwrittenNote style={{ fontSize: "0.9rem" }}>Dibuat dengan segenap doa untuk Kamu.</HandwrittenNote>
+                    <div style={{ marginTop: "5rem", textAlign: "center", opacity: 0.4 }}>
+                        <HandwrittenNote style={{ fontSize: "1rem" }}>Keajaibanmu abadi dalam setiap detik perjalanan ini.</HandwrittenNote>
                     </div>
                 </Container>
             </main>
