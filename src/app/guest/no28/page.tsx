@@ -173,7 +173,6 @@ export default function GuestNo28Dashboard() {
             >
                 <Image src="/hijabi_details.png" alt="Detailed Personal Sketch" fill style={{ objectFit: 'contain' }} />
             </motion.div>
-
             <div style={{ position: "fixed", inset: 0, opacity: 0.4, pointerEvents: "none", backgroundImage: "url('https://www.transparenttextures.com/patterns/natural-paper.png')", zIndex: 5 }} />
 
             <main style={{ position: "relative", zIndex: 10, padding: isMobile ? "2rem 0" : "3rem 0" }}>
@@ -217,7 +216,7 @@ export default function GuestNo28Dashboard() {
                                     flexDirection: "column",
                                     justifyContent: "space-between",
                                     background: "#ffffff",
-                                    backgroundImage: "repeating-linear-gradient(transparent, transparent 27px, #f5f5f5 28px)",
+                                    backgroundImage: "repeating-linear-gradient(transparent, transparent 27px, #fdfbf8 28px)",
                                     borderRadius: "4px",
                                     border: "1px solid #dcdde1",
                                     boxShadow: "0 8px 24px rgba(0,0,0,0.12)",
@@ -225,13 +224,15 @@ export default function GuestNo28Dashboard() {
                                 }}
                             >
                                 <WashiTape color="#e6af2e" rotate="-3deg" width="110px" />
-                                <div style={{ position: "absolute", top: "10px", right: "10px", width: "80px", height: "80px", opacity: 0.8, transform: "rotate(10deg)", pointerEvents: "none" }}>
+                                <div style={{ position: "absolute", bottom: "10px", right: "10px", width: "120px", height: "120px", opacity: 0.6, transform: "rotate(10deg)", pointerEvents: "none", zIndex: 0, mixBlendMode: "multiply" }}>
                                     <Image src="/sage_sketch.png" alt="" fill style={{ objectFit: "contain" }} />
                                 </div>
-                                <div style={{ width: "45px", height: "45px", border: "1.5px solid #5a5a5a", borderRadius: "10px", display: "flex", alignItems: "center", justifyContent: "center", background: "#fff", transform: "rotate(-5deg)", boxShadow: "2px 2px 0 #5a5a5a" }}>
-                                    <Mail size={22} color="#5a5a5a" strokeWidth={1.5} />
+                                <div style={{ position: "relative", zIndex: 1 }}>
+                                    <div style={{ width: "45px", height: "45px", border: "1.5px solid #5a5a5a", borderRadius: "10px", display: "flex", alignItems: "center", justifyContent: "center", background: "#fff", transform: "rotate(-5deg)", boxShadow: "2px 2px 0 #5a5a5a" }}>
+                                        <Mail size={22} color="#5a5a5a" strokeWidth={1.5} />
+                                    </div>
                                 </div>
-                                <div>
+                                <div style={{ position: "relative", zIndex: 1 }}>
                                     <h3 style={{ fontSize: "1.6rem", fontWeight: 700, color: "#333", fontFamily: "'Crimson Pro', serif" }}>Sepucuk Surat</h3>
                                     <p style={{ color: "#666", fontStyle: "italic", fontSize: "0.9rem", marginTop: "2px" }}>"Tinta yang baru saja mengering..."</p>
                                 </div>
@@ -246,9 +247,10 @@ export default function GuestNo28Dashboard() {
                                 style={{
                                     ...baseCardStyle,
                                     height: "280px",
-                                    padding: "0.8rem",
+                                    padding: "2.2rem 1.8rem",
                                     display: "flex",
                                     flexDirection: "column",
+                                    justifyContent: "space-between",
                                     background: "#ffffff",
                                     borderRadius: "4px",
                                     boxShadow: "0 8px 24px rgba(0,0,0,0.12)",
@@ -256,23 +258,18 @@ export default function GuestNo28Dashboard() {
                                     opacity: 1
                                 }}
                             >
-                                <WashiTape color="#f29bb7" rotate="-2deg" width="90px" />
-                                <div style={{
-                                    height: "190px",
-                                    background: "#fdf8f4",
-                                    marginBottom: "0.8rem",
-                                    display: "flex",
-                                    alignItems: "center",
-                                    justifyContent: "center",
-                                    overflow: "hidden",
-                                    position: "relative"
-                                }}>
-                                    <Image src="/detail_rose.png" alt="" fill style={{ objectFit: "contain", padding: "30px", opacity: 0.8 }} />
-                                    <div style={{ position: "absolute", inset: 0, border: "6px solid #fff", pointerEvents: "none" }} />
+                                <WashiTape color="#ff9f1c" rotate="2deg" width="100px" />
+                                <div style={{ position: "absolute", top: "15%", right: "10px", width: "130px", height: "130px", opacity: 0.5, transform: "rotate(-10deg)", pointerEvents: "none", zIndex: 0, mixBlendMode: "multiply" }}>
+                                    <Image src="/detail_rose.png" alt="" fill style={{ objectFit: "contain" }} />
                                 </div>
-                                <div style={{ padding: "0 0.4rem" }}>
-                                    <h3 style={{ fontSize: "1.1rem", fontWeight: 700, color: "#333", marginBottom: "2px" }}>Narasi Hidup</h3>
-                                    <HandwrittenNote style={{ fontSize: "0.85rem", color: "#a0907d" }}>"Setiap nafas yang berharga."</HandwrittenNote>
+                                <div style={{ position: "relative", zIndex: 1 }}>
+                                    <div style={{ width: "45px", height: "45px", border: "1.5px solid #5a5a5a", borderRadius: "10px", display: "flex", alignItems: "center", justifyContent: "center", background: "#fff", transform: "rotate(4deg)", boxShadow: "2px 2px 0 #5a5a5a" }}>
+                                        <BookOpen size={22} color="#5a5a5a" strokeWidth={1.5} />
+                                    </div>
+                                </div>
+                                <div style={{ position: "relative", zIndex: 1 }}>
+                                    <h3 style={{ fontSize: "1.6rem", fontWeight: 700, color: "#333", fontFamily: "'Crimson Pro', serif" }}>Narasi Hidup</h3>
+                                    <p style={{ color: "#888", fontStyle: "italic", fontSize: "0.9rem", marginTop: "2px" }}>"Tumbuh mekar dalam setiap cerita."</p>
                                 </div>
                             </motion.div>
                         </Link>
@@ -292,17 +289,22 @@ export default function GuestNo28Dashboard() {
                             }}
                         >
                             <WashiTape color="#b2c6bf" rotate="1deg" width="60px" />
-                            <SectionTitle icon={Sparkles}>Haiku Kecil</SectionTitle>
-                            <div style={{ marginTop: "1rem" }}>
-                                <HandwrittenNote style={{ fontSize: "1.25rem", color: "#4e4439", display: "block", marginBottom: "0.3rem" }}>
-                                    {dailyHaiku.line1}
-                                </HandwrittenNote>
-                                <HandwrittenNote style={{ fontSize: "1.25rem", color: "#4e4439", display: "block", marginBottom: "0.3rem" }}>
-                                    {dailyHaiku.line2}
-                                </HandwrittenNote>
-                                <HandwrittenNote style={{ fontSize: "1.25rem", color: "#4e4439", display: "block" }}>
-                                    {dailyHaiku.line3}
-                                </HandwrittenNote>
+                            <div style={{ position: "absolute", top: "5px", right: "5px", width: "100px", height: "100px", opacity: 0.6, transform: "rotate(-15deg)", pointerEvents: "none", zIndex: 0, mixBlendMode: "multiply" }}>
+                                <Image src="/lavender_sketch.png" alt="" fill style={{ objectFit: "contain" }} />
+                            </div>
+                            <div style={{ position: "relative", zIndex: 1 }}>
+                                <SectionTitle icon={Sparkles}>Haiku Kecil</SectionTitle>
+                                <div style={{ marginTop: "1rem" }}>
+                                    <HandwrittenNote style={{ fontSize: "1.25rem", color: "#4e4439", display: "block", marginBottom: "0.3rem" }}>
+                                        {dailyHaiku.line1}
+                                    </HandwrittenNote>
+                                    <HandwrittenNote style={{ fontSize: "1.25rem", color: "#4e4439", display: "block", marginBottom: "0.3rem" }}>
+                                        {dailyHaiku.line2}
+                                    </HandwrittenNote>
+                                    <HandwrittenNote style={{ fontSize: "1.25rem", color: "#4e4439", display: "block" }}>
+                                        {dailyHaiku.line3}
+                                    </HandwrittenNote>
+                                </div>
                             </div>
                             <div style={{ position: "absolute", bottom: "1rem", right: "1rem", opacity: 0.15 }}>
                                 <Wind size={18} color="#a0907d" />
@@ -312,8 +314,6 @@ export default function GuestNo28Dashboard() {
 
 
                     </div>
-
-
                 </Container>
             </main>
         </div>
