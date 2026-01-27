@@ -49,33 +49,43 @@ const WashiTape = ({ color, rotate = "0deg", width = "90px" }: { color: string, 
 
 // --- Page ---
 
+import { haikuCollection } from "@/data/guestNo28Haikus";
+
 export default function GuestNo28Dashboard() {
     const [mounted, setMounted] = useState(false);
     const [greeting, setGreeting] = useState("");
     const [dateString, setDateString] = useState("");
     const [isMobile, setIsMobile] = useState(false);
+    const [dailyHaiku, setDailyHaiku] = useState(haikuCollection[0]);
 
     useEffect(() => {
         setMounted(true);
-        const handleResize = () => setIsMobile(window.innerWidth < 768);
-        handleResize();
-        window.addEventListener('resize', handleResize);
 
-        const now = new Date();
-        const hour = now.getHours();
+        // Greeting Logic
+        const hour = new Date().getHours();
+        if (hour < 12) setGreeting("Selamat Pagi,");
+        else if (hour < 15) setGreeting("Selamat Siang,");
+        else if (hour < 18) setGreeting("Selamat Sore,");
+        else setGreeting("Selamat Malam,");
 
-        if (hour >= 5 && hour < 11) setGreeting("Selamat Pagi");
-        else if (hour >= 11 && hour < 15) setGreeting("Selamat Siang");
-        else if (hour >= 15 && hour < 18) setGreeting("Selamat Sore");
-        else setGreeting("Selamat Malam");
+        // Date String
+        const date = new Date();
+        const options: Intl.DateTimeFormatOptions = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+        setDateString(date.toLocaleDateString('id-ID', options));
 
-        setDateString(now.toLocaleDateString('id-ID', {
-            weekday: 'long',
-            day: 'numeric',
-            month: 'long'
-        }));
+        // Mobile Check
+        const checkMobile = () => setIsMobile(window.innerWidth < 768);
+        checkMobile();
+        window.addEventListener('resize', checkMobile);
 
-        return () => window.removeEventListener('resize', handleResize);
+        // Daily Haiku Logic (Based on days since epoch to ensure persistence per day)
+        const startEpoch = new Date("2025-01-01").getTime();
+        const today = new Date().getTime();
+        const daysSince = Math.floor((today - startEpoch) / (1000 * 60 * 60 * 24));
+        const haikuIndex = Math.abs(daysSince) % haikuCollection.length;
+        setDailyHaiku(haikuCollection[haikuIndex]);
+
+        return () => window.removeEventListener('resize', checkMobile);
     }, []);
 
     if (!mounted) return null;
@@ -236,7 +246,7 @@ export default function GuestNo28Dashboard() {
                                 style={{
                                     ...baseCardStyle,
                                     height: "280px",
-                                    padding: "1rem",
+                                    padding: "0.8rem",
                                     display: "flex",
                                     flexDirection: "column",
                                     background: "#ffffff",
@@ -246,17 +256,23 @@ export default function GuestNo28Dashboard() {
                                     opacity: 1
                                 }}
                             >
-                                <WashiTape color="#ff9f1c" rotate="2deg" width="100px" />
-                                <div style={{ position: "absolute", bottom: "70px", right: "10px", width: "90px", height: "90px", opacity: 0.85, transform: "rotate(-15deg)", zIndex: 5, pointerEvents: "none" }}>
-                                    <Image src="/peach_sketch.png" alt="" fill style={{ objectFit: "contain" }} />
+                                <WashiTape color="#f29bb7" rotate="-2deg" width="90px" />
+                                <div style={{
+                                    height: "190px",
+                                    background: "#fdf8f4",
+                                    marginBottom: "0.8rem",
+                                    display: "flex",
+                                    alignItems: "center",
+                                    justifyContent: "center",
+                                    overflow: "hidden",
+                                    position: "relative"
+                                }}>
+                                    <Image src="/detail_rose.png" alt="" fill style={{ objectFit: "contain", padding: "30px", opacity: 0.8 }} />
+                                    <div style={{ position: "absolute", inset: 0, border: "6px solid #fff", pointerEvents: "none" }} />
                                 </div>
-                                <div style={{ flex: 1, background: "#f8f8f8", marginBottom: "0.8rem", display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden", position: "relative" }}>
-                                    <div style={{ position: "absolute", inset: 0, opacity: 0.1, backgroundImage: "url('https://www.transparenttextures.com/patterns/noise.png')" }} />
-                                    <BookOpen size={32} color="#aaa" strokeWidth={1} />
-                                </div>
-                                <div style={{ padding: "0 0.5rem 0.5rem" }}>
-                                    <h3 style={{ fontSize: "1.3rem", fontWeight: 700, color: "#333", marginBottom: "2px" }}>Narasi Hidup</h3>
-                                    <p style={{ color: "#888", fontSize: "0.8rem", letterSpacing: "0.5px" }}>SETIAP NAFAS YANG BERHARGA</p>
+                                <div style={{ padding: "0 0.4rem" }}>
+                                    <h3 style={{ fontSize: "1.1rem", fontWeight: 700, color: "#333", marginBottom: "2px" }}>Narasi Hidup</h3>
+                                    <HandwrittenNote style={{ fontSize: "0.85rem", color: "#a0907d" }}>"Setiap nafas yang berharga."</HandwrittenNote>
                                 </div>
                             </motion.div>
                         </Link>
@@ -279,13 +295,13 @@ export default function GuestNo28Dashboard() {
                             <SectionTitle icon={Sparkles}>Haiku Kecil</SectionTitle>
                             <div style={{ marginTop: "1rem" }}>
                                 <HandwrittenNote style={{ fontSize: "1.25rem", color: "#4e4439", display: "block", marginBottom: "0.3rem" }}>
-                                    Sinar yang redup,
+                                    {dailyHaiku.line1}
                                 </HandwrittenNote>
                                 <HandwrittenNote style={{ fontSize: "1.25rem", color: "#4e4439", display: "block", marginBottom: "0.3rem" }}>
-                                    Mekar di angka dua,
+                                    {dailyHaiku.line2}
                                 </HandwrittenNote>
                                 <HandwrittenNote style={{ fontSize: "1.25rem", color: "#4e4439", display: "block" }}>
-                                    Delapan tiba.
+                                    {dailyHaiku.line3}
                                 </HandwrittenNote>
                             </div>
                             <div style={{ position: "absolute", bottom: "1rem", right: "1rem", opacity: 0.15 }}>
@@ -293,76 +309,11 @@ export default function GuestNo28Dashboard() {
                             </div>
                         </motion.div>
 
-                        <motion.div
-                            initial={{ rotate: 2, opacity: 1 }}
-                            whileHover={{ rotate: 1, scale: 1.01 }}
-                            style={{
-                                ...baseCardStyle,
-                                height: "280px",
-                                padding: "0.8rem",
-                                background: "#ffffff",
-                                border: "1px solid #dcdde1",
-                                boxShadow: "0 8px 24px rgba(0,0,0,0.12)",
-                                opacity: 1
-                            }}
-                        >
-                            <WashiTape color="#f29bb7" rotate="-2deg" width="80px" />
-                            <div style={{
-                                height: "190px",
-                                background: "#fdf8f4",
-                                marginBottom: "0.8rem",
-                                display: "flex",
-                                alignItems: "center",
-                                justifyContent: "center",
-                                overflow: "hidden",
-                                position: "relative"
-                            }}>
-                                <Image src="/detail_rose.png" alt="" fill style={{ objectFit: "contain", padding: "30px", opacity: 0.35 }} />
-                                <div style={{ position: "absolute", inset: 0, border: "6px solid #fff", pointerEvents: "none" }} />
-                            </div>
-                            <div style={{ padding: "0 0.4rem" }}>
-                                <h3 style={{ fontSize: "1.1rem", fontWeight: 700, color: "#333", marginBottom: "2px" }}>Momen Terukir</h3>
-                                <HandwrittenNote style={{ fontSize: "0.85rem", color: "#a0907d" }}>"Bahagiamu, puitisku."</HandwrittenNote>
-                            </div>
-                        </motion.div>
+
 
                     </div>
 
-                    <motion.div
-                        initial={{ opacity: 0 }}
-                        whileInView={{ opacity: 1 }}
-                        style={{
-                            padding: isMobile ? "2rem 1.5rem" : "3rem 2.5rem",
-                            display: "flex",
-                            flexDirection: isMobile ? "column" : "row",
-                            alignItems: "center",
-                            gap: isMobile ? "1.5rem" : "2.5rem",
-                            background: "#fff",
-                            marginTop: "2rem",
-                            position: "relative",
-                            zIndex: 20,
-                            borderRadius: "4px",
-                            boxShadow: "0 10px 30px rgba(0,0,0,0.08)",
-                            transform: isMobile ? "none" : "rotate(0.5deg)",
-                            opacity: 1
-                        }}
-                    >
-                        <WashiTape color="#96ceb4" rotate="-1deg" width="130px" />
-                        <div style={{ position: "absolute", top: "-15px", left: "-15px", width: "90px", height: "90px", opacity: 0.8, transform: "rotate(-15deg)", pointerEvents: "none" }}>
-                            <Image src="/lavender_sketch.png" alt="" fill style={{ objectFit: "contain" }} />
-                        </div>
-                        <div style={{ color: "#a0907d", transform: "scale(1.1) rotate(-5deg)" }}>
-                            <Quote size={36} strokeWidth={1.2} />
-                        </div>
-                        <div style={{ textAlign: isMobile ? "center" : "left" }}>
-                            <p style={{ fontSize: "1.15rem", fontWeight: 300, lineHeight: "1.8", color: "#444", fontStyle: "italic", marginBottom: "0.8rem", maxWidth: "650px" }}>
-                                "Satu-satunya jalan menuju karya agung adalah mencintai apa yang kau kerjakan. Teruslah mencari, jangan lekas berpuas hati."
-                            </p>
-                            <div style={{ display: "flex", alignItems: "center", justifyContent: isMobile ? "center" : "flex-start", gap: "0.5rem", color: "#a0907d", fontSize: "0.85rem", opacity: 0.6 }}>
-                                <Sparkles size={14} /> bisikan sanubari
-                            </div>
-                        </div>
-                    </motion.div>
+
                 </Container>
             </main>
         </div>
