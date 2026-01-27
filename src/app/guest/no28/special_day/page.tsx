@@ -261,7 +261,7 @@ export default function SpecialDayBentoPage() {
         window.addEventListener('resize', handleResize);
 
         const timer = setInterval(() => setNow(new Date()), 1000);
-        const kamusTimer = setInterval(() => setKamusIndex(prev => (prev + 1) % kamusMeanings.length), 8000);
+        const kamusTimer = setInterval(() => setKamusIndex(prev => (prev + 1) % kamusMeanings.length), 20000);
 
         const dailyWisdoms = [
             "Kamu adalah alasan di balik senyuman yang merekah hari ini, meski terkadang kau tak menyadarinya. Keberadaanmu bukan sekadar angka di kalender, melainkan anugerah terindah bagi semesta yang seringkali lupa cara bersyukur.",
