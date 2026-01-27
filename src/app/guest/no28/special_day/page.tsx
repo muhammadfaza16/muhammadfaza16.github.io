@@ -9,22 +9,21 @@ import { Container } from "@/components/Container";
 
 // --- Components ---
 
-const WashiTape = ({ color, rotate = "0deg", width = "70px", height = "18px" }: { color: string, rotate?: string, width?: string, height?: string }) => (
+const WashiTape = ({ color, rotate = "0deg", width = "90px", height = "22px" }: { color: string, rotate?: string, width?: string, height?: string }) => (
     <div style={{
         position: "absolute",
-        top: "-10px",
+        top: "-11px",
         left: "50%",
         transform: `translateX(-50%) rotate(${rotate})`,
         width: width,
         height: height,
         backgroundColor: color,
-        opacity: 0.7,
+        opacity: 1, // Solidified
         zIndex: 10,
-        boxShadow: "1px 1px 3px rgba(0,0,0,0.05)",
-        maskImage: "linear-gradient(90deg, transparent 2px, #000 2px, #000 calc(100% - 2px), transparent calc(100% - 2px))",
-        mixBlendMode: "multiply"
+        boxShadow: "0 1px 3px rgba(0,0,0,0.15)",
+        // Consistent with dashboard style
     }}>
-        <div style={{ width: "100%", height: "100%", opacity: 0.1, background: "url('https://www.transparenttextures.com/patterns/natural-paper.png')" }} />
+        <div style={{ width: "100%", height: "100%", opacity: 0.05, background: "url('https://www.transparenttextures.com/patterns/natural-paper.png')" }} />
     </div>
 );
 
@@ -41,7 +40,7 @@ const HandwrittenNote = ({ children, style = {} }: { children: React.ReactNode, 
     </span>
 );
 
-const BentoCard = ({ children, style = {}, rotate = "0deg", delay = 0, tapeColor }: { children: React.ReactNode, style?: React.CSSProperties, rotate?: string, delay?: number, tapeColor?: string }) => (
+const BentoCard = ({ children, style = {}, rotate = "0deg", delay = 0, tapeColor, isMobile }: { children: React.ReactNode, style?: React.CSSProperties, rotate?: string, delay?: number, tapeColor?: string, isMobile?: boolean }) => (
     <motion.div
         initial={{ opacity: 0, scale: 0.98, rotate: parseFloat(rotate) - 0.5 }}
         whileInView={{ opacity: 1, scale: 1, rotate: rotate }}
@@ -52,7 +51,7 @@ const BentoCard = ({ children, style = {}, rotate = "0deg", delay = 0, tapeColor
             borderRadius: "4px 8px 4px 10px / 12px 4px 15px 4px",
             border: "1px solid #e8e2d9",
             boxShadow: "2px 5px 15px rgba(160, 144, 125, 0.08)",
-            padding: "1.5rem",
+            padding: isMobile ? "1.8rem" : "2.5rem", // Increased padding
             position: "relative",
             ...style
         }}
@@ -64,7 +63,7 @@ const BentoCard = ({ children, style = {}, rotate = "0deg", delay = 0, tapeColor
 );
 
 const SectionTitle = ({ children, icon: Icon }: { children: React.ReactNode, icon?: any }) => (
-    <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "1.2rem" }}>
+    <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "1.8rem" }}>
         {Icon && <Icon size={14} color="#a0907d" style={{ opacity: 0.8 }} />}
         <h3 style={{ fontSize: "0.7rem", fontWeight: 700, color: "#a0907d", textTransform: "uppercase", letterSpacing: "2.5px" }}>{children}</h3>
     </div>
@@ -168,15 +167,62 @@ export default function SpecialDayBentoPage() {
         }}>
             <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;700&display=swap" rel="stylesheet" />
 
-            {/* Watercolor & Artistic Overlays */}
-            <div style={{ position: "fixed", top: "5%", right: "-3%", width: "250px", height: "250px", opacity: 0.1, pointerEvents: "none", zIndex: 0 }}>
-                <Image src="/detail_lavender.png" alt="" fill style={{ objectFit: 'contain' }} />
-            </div>
+            {/* Ambient Background Elements */}
+            <motion.div
+                animate={{ scale: [1, 1.05, 1], opacity: [0.3, 0.4, 0.3], rotate: [0, 5, 0] }}
+                transition={{ duration: 15, repeat: Infinity, ease: "easeInOut" }}
+                style={{ position: "fixed", top: "15%", right: "-10%", width: "600px", height: "600px", background: "radial-gradient(circle, rgba(216, 226, 220, 0.3) 0%, transparent 70%)", filter: "blur(60px)", pointerEvents: "none", zIndex: 0 }}
+            />
+
+            <motion.div
+                animate={{ scale: [1, 1.1, 1], opacity: [0.4, 0.5, 0.4], rotate: [0, -5, 0] }}
+                transition={{ duration: 18, repeat: Infinity, ease: "easeInOut", delay: 2 }}
+                style={{ position: "fixed", bottom: "5%", left: "-5%", width: "550px", height: "550px", background: "radial-gradient(circle, rgba(255, 229, 217, 0.4) 0%, transparent 70%)", filter: "blur(60px)", pointerEvents: "none", zIndex: 0 }}
+            />
+
+            {/* Individual Watercolor Sketches */}
+            <motion.div
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 0.4, y: [0, -15, 0], rotate: [-10, -5, -10] }}
+                transition={{ opacity: { duration: 1 }, y: { duration: 6, repeat: Infinity, ease: "easeInOut" }, rotate: { duration: 7, repeat: Infinity, ease: "easeInOut" } }}
+                style={{ position: "fixed", top: "5%", left: "8%", width: "200px", height: "200px", zIndex: 1, pointerEvents: "none" }}
+            >
+                <Image src="/special_peony.png" alt="" fill style={{ objectFit: 'contain' }} />
+            </motion.div>
+
+            <motion.div
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 0.35, y: [0, -8, 0], rotate: [-5, 0, -5] }}
+                transition={{ opacity: { duration: 1, delay: 0.4 }, y: { duration: 7, repeat: Infinity, ease: "easeInOut" }, rotate: { duration: 8, repeat: Infinity, ease: "easeInOut" } }}
+                style={{ position: "fixed", bottom: "15%", left: "5%", width: "180px", height: "180px", zIndex: 1, pointerEvents: "none" }}
+            >
+                <Image src="/special_wildflowers.png" alt="" fill style={{ objectFit: 'contain' }} />
+            </motion.div>
+
+            {/* Personalized Artistic Hijabi Sketch (Reading) */}
+            <motion.div
+                initial={{ opacity: 0, y: -20 }}
+                animate={{
+                    opacity: 0.5,
+                    y: [0, -10, 0],
+                    rotate: [1, -1, 1]
+                }}
+                transition={{
+                    opacity: { duration: 1.5 },
+                    y: { duration: 8, repeat: Infinity, ease: "easeInOut" },
+                    rotate: { duration: 12, repeat: Infinity, ease: "easeInOut" }
+                }}
+                style={{ position: "fixed", top: "8%", right: "2%", width: "55vh", height: "55vh", zIndex: 1, pointerEvents: "none" }}
+            >
+                <Image src="/special_hijabi_main.png" alt="Personalized Sketch" fill style={{ objectFit: 'contain' }} />
+            </motion.div>
+
+            <div style={{ position: "fixed", inset: 0, opacity: 0.4, pointerEvents: "none", backgroundImage: "url('https://www.transparenttextures.com/patterns/natural-paper.png')", zIndex: 5 }} />
 
             <main style={{ position: "relative", zIndex: 10, padding: isMobile ? "1.5rem 0" : "3rem 0" }}>
                 <Container>
                     {/* Header: Dedicated to 28 */}
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: isMobile ? "2.5rem" : "4.5rem" }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: isMobile ? "4rem" : "20vh" }}>
                         <div style={{ display: "flex", gap: "14px", alignItems: "center" }}>
                             <Link href="/guest/no28" style={{
                                 display: "inline-flex", alignItems: "center", justifyContent: "center",
@@ -204,13 +250,16 @@ export default function SpecialDayBentoPage() {
                     <div style={{
                         display: "grid",
                         gridTemplateColumns: isMobile ? "1fr" : "repeat(12, 1fr)",
-                        gap: isMobile ? "1.5rem" : "2.2rem",
+                        gap: isMobile ? "2rem" : "3.5rem",
                     }}>
 
                         {/* 1. Seasons of Her Life (The Timeline Widget) */}
-                        <BentoCard style={{ gridColumn: isMobile ? "span 1" : "span 12" }} rotate="0.2deg" tapeColor="#e2ece9">
+                        <BentoCard isMobile={isMobile} style={{ gridColumn: isMobile ? "span 1" : "span 12" }} rotate="0.2deg" tapeColor="#e2ece9">
                             <SectionTitle icon={BookOpen}>Musim-Musim Kehidupanmu</SectionTitle>
-                            <div style={{ display: "flex", flexDirection: isMobile ? "column" : "row", gap: "2rem", marginTop: "1rem" }}>
+                            <div style={{ position: "absolute", bottom: "-10px", right: "0", width: "90px", height: "90px", opacity: 0.8, transform: "rotate(10deg)", pointerEvents: "none" }}>
+                                <Image src="/special_peony.png" alt="" fill style={{ objectFit: "contain" }} />
+                            </div>
+                            <div style={{ display: "flex", flexDirection: isMobile ? "column" : "row", gap: isMobile ? "2rem" : "4rem", marginTop: "1rem" }}>
                                 {[
                                     { year: "2000 - 2007", title: "Awal Keajaiban", desc: "Dunia mulai mengenal benderang cahayamu.", icon: Sparkles },
                                     { year: "2007 - 2018", title: "Mekar & Belajar", desc: "Masa di mana mimpi-mimpimu mulai berhamburan.", icon: Star },
@@ -232,8 +281,11 @@ export default function SpecialDayBentoPage() {
                         </BentoCard>
 
                         {/* 2. Personal Year Loop (Instead of Calendar) */}
-                        <BentoCard style={{ gridColumn: isMobile ? "span 1" : "span 7" }} rotate="-0.4deg" tapeColor="#fde2e4">
+                        <BentoCard isMobile={isMobile} style={{ gridColumn: isMobile ? "span 1" : "span 7" }} rotate="-0.4deg" tapeColor="#fde2e4">
                             <SectionTitle icon={Map}>Lingkaran Usia Ke-{age + 1}</SectionTitle>
+                            <div style={{ position: "absolute", top: "10px", right: "10px", width: "80px", height: "80px", opacity: 0.7, transform: "rotate(-15deg)", pointerEvents: "none" }}>
+                                <Image src="/special_wildflowers.png" alt="" fill style={{ objectFit: "contain" }} />
+                            </div>
                             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: "1.5rem" }}>
                                 <div>
                                     <div style={{ fontSize: "0.8rem", color: "#a0907d", letterSpacing: "1px", fontWeight: 700 }}>PROGRES TAHUN INI</div>
@@ -259,8 +311,11 @@ export default function SpecialDayBentoPage() {
                         </BentoCard>
 
                         {/* 3. Kamus Angka 28 (Dedicated Widget) */}
-                        <BentoCard style={{ gridColumn: isMobile ? "span 1" : "span 5", background: "linear-gradient(to bottom, #fff, #fdfbf7)" }} rotate="0.6deg" tapeColor="#dfccf1">
+                        <BentoCard isMobile={isMobile} style={{ gridColumn: isMobile ? "span 1" : "span 5", background: "linear-gradient(to bottom, #fff, #fdfbf7)" }} rotate="0.6deg" tapeColor="#dfccf1">
                             <SectionTitle icon={Sparkles}>Kamus Angka 28</SectionTitle>
+                            <div style={{ position: "absolute", bottom: "10px", right: "-10px", width: "60px", height: "60px", opacity: 0.8, transform: "rotate(5deg)", pointerEvents: "none" }}>
+                                <Image src="/sage_sketch.png" alt="" fill style={{ objectFit: "contain" }} />
+                            </div>
                             <div style={{ textAlign: "center", padding: "1.5rem 0" }}>
                                 <div style={{ fontSize: "6rem", fontWeight: 900, color: "#b07d62", lineHeight: 0.8, fontFamily: "'Crimson Pro', serif", position: "relative", display: "inline-block" }}>
                                     28
@@ -280,7 +335,7 @@ export default function SpecialDayBentoPage() {
                         </BentoCard>
 
                         {/* 4. Bisikan Sanubari (Consolidated Wisdom) */}
-                        <BentoCard style={{ gridColumn: isMobile ? "span 1" : "span 12", padding: isMobile ? "2.5rem 1.5rem" : "4.5rem", background: "#fefbfc" }} rotate="0deg" tapeColor="#fad2e1">
+                        <BentoCard isMobile={isMobile} style={{ gridColumn: isMobile ? "span 1" : "span 12", padding: isMobile ? "3rem 1.8rem" : "6rem 4rem", background: "#fefbfc" }} rotate="0deg" tapeColor="#fad2e1">
                             <div style={{ maxWidth: "800px", margin: "0 auto", textAlign: "center" }}>
                                 <Wind size={24} color="#b07d62" style={{ margin: "0 auto 1.5rem", opacity: 0.3 }} />
                                 <p
