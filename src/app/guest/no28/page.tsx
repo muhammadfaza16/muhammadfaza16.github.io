@@ -179,7 +179,7 @@ export default function GuestNo28Dashboard() {
                         </Link>
                     </div>
 
-                    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 1 }} style={{ marginBottom: isMobile ? "2.5rem" : "4rem", textAlign: "center" }}>
+                    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 1 }} style={{ marginBottom: isMobile ? "6rem" : "20vh", textAlign: "center" }}>
                         <p style={{ fontSize: "1.1rem", color: "#a0907d", fontStyle: "italic", marginBottom: "0.5rem" }}>{dateString}</p>
                         <h1 style={{ fontSize: "clamp(2.5rem, 8vw, 3.5rem)", fontWeight: 700, color: "#2d2d2d", lineHeight: 1.1 }}>
                             {greeting}, <span style={{ fontFamily: "cursive, 'Brush Script MT', 'Dancing Script'", color: "#d2691e", fontSize: "1.25em", transform: "rotate(-2deg) translateY(4px)", display: "inline-block" }}>Tamu Ke-28.</span>
@@ -189,7 +189,7 @@ export default function GuestNo28Dashboard() {
                     <div style={{
                         display: "grid",
                         gridTemplateColumns: isMobile ? "1fr" : "repeat(auto-fit, minmax(260px, 1fr))",
-                        gap: isMobile ? "1.5rem" : "2.5rem",
+                        gap: isMobile ? "2rem" : "3.5rem",
                         marginBottom: "2.5rem",
                         position: "relative",
                         zIndex: 20
