@@ -58,7 +58,7 @@ const itemVariants = {
         y: 0,
         rotate: customRotate,
         transition: {
-            type: "spring",
+            type: "spring" as const,
             stiffness: 50,
             damping: 15
         }

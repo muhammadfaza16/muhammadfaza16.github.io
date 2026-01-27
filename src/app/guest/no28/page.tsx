@@ -91,8 +91,6 @@ export default function GuestNo28Dashboard() {
     const [isMobile, setIsMobile] = useState(false);
     const [dailyHaiku, setDailyHaiku] = useState(haikuCollection[0]);
 
-
-
     useEffect(() => {
         setMounted(true);
 
