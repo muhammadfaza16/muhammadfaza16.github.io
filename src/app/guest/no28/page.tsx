@@ -87,6 +87,7 @@ import { haikuCollection } from "@/data/guestNo28Haikus";
 export default function GuestNo28Dashboard() {
     const [mounted, setMounted] = useState(false);
     const [greeting, setGreeting] = useState("");
+    const [subtext, setSubtext] = useState("");
     const [dateString, setDateString] = useState("");
     const [isMobile, setIsMobile] = useState(false);
     const [dailyHaiku, setDailyHaiku] = useState(haikuCollection[0]);
@@ -97,6 +98,27 @@ export default function GuestNo28Dashboard() {
         const checkMobile = () => setIsMobile(window.innerWidth < 768);
         checkMobile();
         window.addEventListener('resize', checkMobile);
+
+        // Time-aware greeting and subtext
+        const h = new Date().getHours();
+        let greet = "Selamat malam";
+        let sub = "Malam adalah waktu untuk pulang ke dirimu sendiri. Istirahatlah.";
+
+        if (h >= 4 && h < 11) {
+            greet = "Selamat pagi";
+            sub = "Semoga hari ini membawamu pada hal-hal baik yang tak terduga.";
+        }
+        else if (h >= 11 && h < 15) {
+            greet = "Selamat siang";
+            sub = "Di tengah kesibukanmu, jangan lupa mengambil napas sejenak.";
+        }
+        else if (h >= 15 && h < 18) {
+            greet = "Selamat sore";
+            sub = "Terima kasih sudah berjuang sejauh ini. Kamu hebat.";
+        }
+
+        setGreeting(greet);
+        setSubtext(sub);
 
         // Daily Haiku Logic
         const startEpoch = new Date("2025-01-01").getTime();
@@ -192,7 +214,7 @@ export default function GuestNo28Dashboard() {
                     y: { duration: 8, repeat: Infinity, ease: "easeInOut" },
                     rotate: { duration: 10, repeat: Infinity, ease: "easeInOut" }
                 }}
-                style={{ position: "fixed", top: "2%", right: "5%", width: "45vh", height: "45vh", zIndex: 1, pointerEvents: "none", mixBlendMode: "multiply" }}
+                style={{ position: "fixed", top: "15%", right: "5%", width: "45vh", height: "45vh", zIndex: 1, pointerEvents: "none", mixBlendMode: "multiply" }}
             >
                 <Image src="/hijabi_details.png" alt="Detailed Personal Sketch" fill style={{ objectFit: 'contain' }} />
             </motion.div>
@@ -216,24 +238,44 @@ export default function GuestNo28Dashboard() {
                         transition={{ duration: 1 }}
                         style={{ marginBottom: isMobile ? "4rem" : "15vh", textAlign: "center", position: "relative" }}
                     >
-                        {/* Decorative 'Stamp' Date */}
+                        {/* Watercolor Splash Behind Text */}
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.8 }}
+                            animate={{ opacity: 0.8, scale: 1 }}
+                            transition={{ duration: 1.5, delay: 0.5 }}
+                            style={{
+                                position: "absolute",
+                                top: "50%",
+                                left: "50%",
+                                transform: "translate(-50%, -50%)",
+                                width: "350px",
+                                height: "350px",
+                                zIndex: -1,
+                                pointerEvents: "none",
+                                mixBlendMode: "multiply",
+                                maskImage: "radial-gradient(circle, black 40%, transparent 70%)",
+                                WebkitMaskImage: "radial-gradient(circle, black 40%, transparent 70%)"
+                            }}
+                        >
+                            <Image src="/watercolor_splash.png" alt="" fill style={{ objectFit: "contain" }} priority />
+                        </motion.div>
+
+                        {/* Minimalist Date Display */}
                         <div style={{
-                            display: "inline-block",
-                            border: "1px solid #a0907d",
-                            padding: "4px 12px",
-                            borderRadius: "20px",
-                            fontSize: "0.8rem",
-                            color: "#a0907d",
+                            fontFamily: "'Crimson Pro', serif",
+                            fontSize: "0.9rem",
+                            color: "#8a7058",
                             textTransform: "uppercase",
-                            letterSpacing: "1.5px",
-                            marginBottom: "1.5rem",
-                            background: "rgba(255,255,255,0.5)"
+                            letterSpacing: "3px",
+                            marginBottom: "1rem",
+                            opacity: 0.9,
+                            fontWeight: 600
                         }}>
-                            {new Date().toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+                            {new Date().toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
                         </div>
 
                         <h1 style={{ fontSize: "clamp(2.5rem, 8vw, 4rem)", fontWeight: 700, color: "#2d2d2d", lineHeight: 1.1, fontFamily: "'Crimson Pro', serif" }}>
-                            Selamat Datang, <br />
+                            {greeting}, <br />
                             <span style={{
                                 fontFamily: "cursive, 'Brush Script MT', 'Dancing Script'",
                                 color: "#d2691e",
@@ -247,7 +289,7 @@ export default function GuestNo28Dashboard() {
                         </h1>
 
                         <p style={{ marginTop: "1.5rem", fontSize: "1.1rem", color: "#666", fontStyle: "italic", maxWidth: "500px", marginInline: "auto" }}>
-                            "Ruang ini dirawat oleh waktu, khusus untuk menyambutmu."
+                            "{subtext}"
                         </p>
                     </motion.div>
 
@@ -256,15 +298,16 @@ export default function GuestNo28Dashboard() {
                         initial="hidden"
                         animate="show"
                         style={{
-                            display: "grid",
-                            gridTemplateColumns: isMobile ? "1fr" : "repeat(auto-fit, minmax(260px, 1fr))",
+                            display: isMobile ? "flex" : "grid",
+                            flexDirection: isMobile ? "column" : undefined,
+                            gridTemplateColumns: isMobile ? "none" : "repeat(auto-fit, minmax(260px, 1fr))",
                             gap: isMobile ? "2rem" : "3.5rem",
                             marginBottom: "2.5rem",
                             position: "relative",
                             zIndex: 20
                         }}>
 
-                        <Link href="/guest/no28/letter" style={{ textDecoration: "none" }}>
+                        <Link href="/guest/no28/letter" style={{ textDecoration: "none", width: isMobile ? "92%" : "auto", alignSelf: isMobile ? "flex-start" : "auto", display: "block" }}>
                             <motion.div
                                 variants={itemVariants}
                                 whileHover={{ scale: 1.02, y: -5, rotate: -1, boxShadow: "0 15px 30px rgba(0,0,0,0.12)" }}
@@ -300,7 +343,7 @@ export default function GuestNo28Dashboard() {
                             </motion.div>
                         </Link>
 
-                        <Link href="/guest/no28/special_day" style={{ textDecoration: "none" }}>
+                        <Link href="/guest/no28/special_day" style={{ textDecoration: "none", width: isMobile ? "92%" : "auto", alignSelf: isMobile ? "flex-end" : "auto", display: "block" }}>
                             <motion.div
                                 variants={itemVariants}
                                 whileHover={{ scale: 1.02, y: -5, rotate: 2, boxShadow: "0 15px 30px rgba(0,0,0,0.12)" }}
@@ -347,7 +390,9 @@ export default function GuestNo28Dashboard() {
                                 borderLeft: "6px solid #d2691e",
                                 boxShadow: "0 8px 24px rgba(0,0,0,0.08)",
                                 borderRadius: "4px 8px 12px 4px",
-                                opacity: 1
+                                opacity: 1,
+                                width: isMobile ? "96%" : "auto",
+                                alignSelf: isMobile ? "center" : "auto"
                             }}
                         >
                             <WashiTape color="#b2c6bf" rotate="1deg" width="60px" />
