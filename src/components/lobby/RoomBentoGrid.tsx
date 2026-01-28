@@ -137,15 +137,17 @@ export function RoomBentoGrid() {
     // Merged Apps (All standard Grid)
     const apps = [
         { title: "Guest", href: "/guest", icon: <Users />, gradient: "linear-gradient(135deg, #FF2D55, #FF375F)" }, // Pink Red
-        { title: "Insights", href: "/insights", icon: <Lightbulb />, gradient: "linear-gradient(135deg, #34C759, #30B0C7)" }, // Green
         { title: "Time", href: "/time", icon: <Clock />, gradient: "linear-gradient(135deg, #8E8E93, #636366)" }, // Gray
         { title: "Life", href: "/clock", icon: <Activity />, gradient: "linear-gradient(135deg, #00c6ff, #0072ff)" }, // Blue
-        { title: "Web", href: "https://muhammadfaza16.github.io", icon: <Globe />, gradient: "linear-gradient(135deg, #8E8E93, #636366)" }, // Safari-ish
-        // Former Dock Apps
         { title: "My Space", href: "/starlight", icon: <Sparkles />, gradient: "linear-gradient(135deg, #AF52DE, #5856D6)" }, // Purple
-        { title: "Workspace", href: "/workspace", icon: <Hammer />, gradient: "linear-gradient(135deg, #007AFF, #00C7BE)" }, // Blue/Teal
         { title: "Music", href: "/playlist", icon: <Music />, gradient: "linear-gradient(135deg, #FF9500, #FF5E3A)" }, // Orange
-        { title: "Connect", href: "#connect", icon: <Wifi />, gradient: "linear-gradient(135deg, #FF9500, #FF5E3A)" }, // Orange
+        /* 
+        Hiding for a leaner home experience:
+        { title: "Insights", href: "/insights", icon: <Lightbulb />, gradient: "linear-gradient(135deg, #34C759, #30B0C7)" },
+        { title: "Web", href: "https://muhammadfaza16.github.io", icon: <Globe />, gradient: "linear-gradient(135deg, #8E8E93, #636366)" },
+        { title: "Workspace", href: "/workspace", icon: <Hammer />, gradient: "linear-gradient(135deg, #007AFF, #00C7BE)" },
+        { title: "Connect", href: "#connect", icon: <Wifi />, gradient: "linear-gradient(135deg, #FF9500, #FF5E3A)" },
+        */
     ];
 
     return (
@@ -154,13 +156,13 @@ export function RoomBentoGrid() {
             flexDirection: "column",
             alignItems: "center",
             width: "100%",
+            paddingBottom: "4rem"
         }}>
             {/* Main Springboard Grid */}
             <section style={{
                 padding: "0 1.5rem",
                 width: "100%",
                 maxWidth: "420px",
-                paddingBottom: "4rem" // Bottom padding for scroll space
             }}>
                 <div style={{
                     display: "grid",

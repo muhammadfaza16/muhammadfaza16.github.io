@@ -210,14 +210,14 @@ export function JarvisHero() {
                         padding: "1.75rem",
                         boxShadow: "0 24px 48px -12px rgba(0,0,0,0.3), inset 0 0 0 1px rgba(255,255,255,0.08)",
                         border: "1px solid rgba(255,255,255,0.03)", // Subtle border
-                        minHeight: "200px",
+                        minHeight: "220px",
                         display: "flex",
                         flexDirection: "column",
                         gap: "0.5rem",
                         justifyContent: "space-between",
                         position: "relative",
                         overflow: "hidden",
-                        transition: "all 0.5s cubic-bezier(0.32, 0.72, 0, 1)" // iOS Easing
+                        transition: "all 0.4s cubic-bezier(0.32, 0.72, 0, 1)"
                     }}
                 >
                     {/* Header: Mode / Status */}

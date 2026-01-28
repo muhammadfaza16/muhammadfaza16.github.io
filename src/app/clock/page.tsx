@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import { motion } from "framer-motion";
+import React, { useState, useEffect, useRef } from "react";
+import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
 import { ArrowLeft, Clock, Calendar, Activity, Zap, Grid3X3, Disc } from "lucide-react";
 import Link from "next/link";
 import dynamic from "next/dynamic";
@@ -55,75 +55,97 @@ const BentoCard = ({
     colSpanDesktop?: number;
     delay?: number;
 }) => {
+    const cardRef = useRef<HTMLDivElement>(null);
+    const mouseX = useMotionValue(0);
+    const mouseY = useMotionValue(0);
+
+    const rotateX = useSpring(useTransform(mouseY, [-0.5, 0.5], [10, -10]), { stiffness: 60, damping: 30 });
+    const rotateY = useSpring(useTransform(mouseX, [-0.5, 0.5], [-10, 10]), { stiffness: 60, damping: 30 });
+
+    // Spotlight/Shine follow effect
+    const spotX = useSpring(useTransform(mouseX, [-0.5, 0.5], [0, 100]), { stiffness: 150, damping: 40 });
+    const spotY = useSpring(useTransform(mouseY, [-0.5, 0.5], [0, 100]), { stiffness: 150, damping: 40 });
+
+    const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+        if (!cardRef.current) return;
+        const rect = cardRef.current.getBoundingClientRect();
+        const width = rect.width;
+        const height = rect.height;
+        const x = (e.clientX - rect.left) / width - 0.5;
+        const y = (e.clientY - rect.top) / height - 0.5;
+        mouseX.set(x);
+        mouseY.set(y);
+    };
+
+    const handleMouseLeave = () => {
+        mouseX.set(0);
+        mouseY.set(0);
+    };
+
     return (
-        <motion.div
-            initial={{ opacity: 0, y: 15, scale: 0.96 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            // Fix: Removed visual translation 'y' on hover to prevent cursor hit-test flickering
-            whileHover={{
-                scale: 1.01, // Subtle scale instead
-                transition: { duration: 0.3, ease: "easeOut" }
-            }}
-            transition={{ delay: delay, duration: 0.5, ease: [0.2, 0.8, 0.2, 1] }}
-            style={{
-                gridColumn: `span ${colSpanMobile}`,
-                background: theme.colors.cardBg,
-                // Advanced Blur + Saturation for vibrance
-                backdropFilter: "blur(40px) saturate(200%) brightness(1.1)",
-                WebkitBackdropFilter: "blur(40px) saturate(200%) brightness(1.1)",
-
-                // Border handling (top light, bottom dark)
-                borderTop: `1px solid ${theme.colors.cardBorderTop}`,
-                borderBottom: `1px solid rgba(0,0,0,0.4)`,
-                borderLeft: `1px solid ${theme.colors.cardBorder}`,
-                borderRight: `1px solid ${theme.colors.cardBorder}`,
-
-                borderRadius: theme.radii.card,
-                padding: "1.75rem",
-                position: "relative",
-                overflow: "hidden",
-                boxShadow: theme.shadows.card,
-                display: "flex",
-                flexDirection: "column",
-                justifyContent: "space-between",
-                transformStyle: "preserve-3d" // GPU hint
-            }}
-            // Responsive logic is handled via CSS Grid classes inserted in main component
-            className={`bento-card mobile-span-${colSpanMobile} desktop-span-${colSpanDesktop} ${className}`}
-        >
-            {/* Hover Outer Glow (safe) */}
+        <div style={{ perspective: "1500px", gridColumn: `span ${colSpanMobile}` }}>
             <motion.div
-                className="card-glow"
-                initial={{ opacity: 0 }}
-                whileHover={{ opacity: 1 }}
-                transition={{ duration: 0.4 }}
-                style={{
-                    position: "absolute",
-                    inset: 0,
-                    borderRadius: theme.radii.card,
-                    boxShadow: `inset 0 0 20px rgba(255,255,255,0.05)`,
-                    pointerEvents: "none",
-                    zIndex: 2
+                ref={cardRef}
+                onMouseMove={handleMouseMove}
+                onMouseLeave={handleMouseLeave}
+                initial={{ opacity: 0, y: 15, scale: 0.96 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                whileHover={{
+                    scale: 1.02,
+                    boxShadow: "0 40px 100px -20px rgba(0,0,0,0.7), 0 0 0 1px rgba(255,255,255,0.05)"
                 }}
-            />
+                style={{
+                    rotateX,
+                    rotateY,
+                    background: theme.colors.cardBg,
+                    backdropFilter: "blur(40px) saturate(210%) brightness(1.2)",
+                    WebkitBackdropFilter: "blur(40px) saturate(210%) brightness(1.2)",
+                    borderTop: `1px solid ${theme.colors.cardBorderTop}`,
+                    borderBottom: `1px solid rgba(0,0,0,0.5)`,
+                    borderLeft: `1px solid ${theme.colors.cardBorder}`,
+                    borderRight: `1px solid ${theme.colors.cardBorder}`,
+                    borderRadius: theme.radii.card,
+                    padding: "1.75rem",
+                    position: "relative",
+                    overflow: "hidden",
+                    boxShadow: theme.shadows.card,
+                    display: "flex",
+                    flexDirection: "column",
+                    justifyContent: "space-between",
+                    transformStyle: "preserve-3d",
+                    cursor: "pointer"
+                }}
+                className={`bento-card mobile-span-${colSpanMobile} desktop-span-${colSpanDesktop} ${className}`}
+                transition={{ delay: delay, duration: 0.8, ease: [0.23, 1, 0.32, 1] }}
+            >
+                {/* Dynamic Spotlight Shine */}
+                <motion.div
+                    style={{
+                        position: "absolute",
+                        inset: "-20%",
+                        background: useTransform(
+                            [spotX, spotY],
+                            ([x, y]: any[]) => `radial-gradient(circle at ${(x as number) + 20}% ${(y as number) + 20}%, rgba(255,255,255,0.08), transparent 60%)`
+                        ),
+                        pointerEvents: "none",
+                        zIndex: 0
+                    }}
+                />
 
-            {/* Specular Highlight / Sheen effect */}
-            <div style={{
-                position: "absolute",
-                top: 0,
-                left: 0,
-                width: "100%",
-                height: "100%",
-                background: "radial-gradient(80% 80% at 50% -20%, rgba(255,255,255,0.12), transparent)",
-                pointerEvents: "none",
-                zIndex: 0
-            }} />
-
-            {/* Content Container to ensure Z-Index over the sheen */}
-            <div style={{ position: "relative", zIndex: 1, height: "100%", display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
-                {children}
-            </div>
-        </motion.div>
+                <motion.div style={{
+                    position: "relative",
+                    zIndex: 1,
+                    height: "100%",
+                    display: "flex",
+                    flexDirection: "column",
+                    justifyContent: "space-between",
+                    transform: "translateZ(60px)", // Deeper depth
+                    transformStyle: "preserve-3d"
+                }}>
+                    {children}
+                </motion.div>
+            </motion.div>
+        </div>
     );
 };
 
@@ -145,8 +167,8 @@ const LifeStats = ({ birthDate }: { birthDate: Date }) => {
         <BentoCard colSpanMobile={1} colSpanDesktop={1} delay={0.1}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "1rem" }}>
                 <motion.div
-                    animate={{ scale: [1, 1.15, 1], filter: ["brightness(1)", "brightness(1.3)", "brightness(1)"] }}
-                    transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
+                    animate={{ scale: [1, 1.08, 1], filter: ["brightness(1)", "brightness(1.2)", "brightness(1)"] }}
+                    transition={{ repeat: Infinity, duration: 2.5, ease: [0.4, 0, 0.2, 1] }}
                     style={{
                         width: "32px", height: "32px", borderRadius: "10px",
                         background: "rgba(48, 209, 88, 0.15)", color: theme.colors.secondary,
@@ -159,40 +181,54 @@ const LifeStats = ({ birthDate }: { birthDate: Date }) => {
                 <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
                     <motion.div
                         animate={{ opacity: [0.3, 1, 0.3] }}
-                        transition={{ repeat: Infinity, duration: 2 }}
+                        transition={{ repeat: Infinity, duration: 3, ease: [0.4, 0, 0.2, 1] }}
                         style={{ width: "6px", height: "6px", borderRadius: "50%", background: theme.colors.secondary }}
                     />
-                    <span style={{ fontSize: "0.7rem", fontWeight: 700, color: theme.colors.textMuted, letterSpacing: "0.08em", textTransform: "uppercase" }}>
-                        Active
+                    <span style={{ fontSize: "0.65rem", fontWeight: 600, color: theme.colors.textMuted, letterSpacing: "0.15em", textTransform: "uppercase" }}>
+                        Live
                     </span>
                 </div>
             </div>
 
             <div style={{ display: "flex", flexDirection: "column", gap: "0.2rem" }}>
                 <h2 style={{
-                    fontSize: "3.2rem",
-                    fontWeight: 800,
+                    fontSize: "3.8rem",
+                    fontWeight: 900,
                     color: theme.colors.textMain,
-                    letterSpacing: "-0.04em",
-                    lineHeight: 0.9,
-                    fontVariantNumeric: "tabular-nums"
+                    letterSpacing: "-0.06em",
+                    lineHeight: 0.85,
+                    fontVariantNumeric: "tabular-nums",
+                    background: `linear-gradient(to bottom, ${theme.colors.textMain}, rgba(255,255,255,0.6))`,
+                    WebkitBackgroundClip: "text",
+                    WebkitTextFillColor: "transparent"
                 }}>
-                    {stats.yearsLived}<span style={{ color: theme.colors.secondary, fontSize: "3.2rem" }}>.</span><span style={{ fontSize: "1.8rem", color: theme.colors.textMuted, fontWeight: 500 }}>{(stats.monthsLived % 12)}</span>
+                    {stats.yearsLived}<span style={{ WebkitTextFillColor: theme.colors.secondary, fontSize: "3.8rem" }}>.</span><span style={{ fontSize: "2.2rem", fontWeight: 500, opacity: 0.6 }}>{(stats.monthsLived % 12)}</span>
                 </h2>
-                <span style={{ fontSize: "0.9rem", fontWeight: 500, color: theme.colors.secondary }}>Years Active</span>
+                <span style={{ fontSize: "0.85rem", fontWeight: 600, color: theme.colors.secondary, letterSpacing: "-0.01em" }}>Years Active</span>
             </div>
 
             <div style={{ marginTop: "1rem" }}>
-                <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.75rem", marginBottom: "6px", color: theme.colors.textMuted }}>
+                <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.65rem", fontWeight: 600, marginBottom: "8px", color: theme.colors.textMuted, letterSpacing: "0.05em", textTransform: "uppercase" }}>
                     <span>System Status</span>
-                    <span>{Math.round((stats.yearsLived / 80) * 100)}%</span>
+                    <span style={{ color: theme.colors.secondary }}>{Math.round((stats.yearsLived / 80) * 100)}%</span>
                 </div>
                 <div style={{ width: "100%", background: "rgba(255,255,255,0.06)", height: "6px", borderRadius: theme.radii.pill, overflow: "hidden" }}>
                     <motion.div
                         initial={{ width: 0 }}
-                        animate={{ width: `${(stats.yearsLived / 80) * 100}%` }}
-                        transition={{ duration: 1.5, ease: "easeOut" }}
-                        style={{ background: theme.colors.secondary, height: "100%", borderRadius: theme.radii.pill }}
+                        animate={{
+                            width: `${(stats.yearsLived / 80) * 100}%`,
+                            opacity: [0.8, 1, 0.8]
+                        }}
+                        transition={{
+                            width: { duration: 2, ease: [0.23, 1, 0.32, 1] },
+                            opacity: { repeat: Infinity, duration: 4, ease: [0.4, 0, 0.2, 1] }
+                        }}
+                        style={{
+                            background: theme.colors.secondary,
+                            height: "100%",
+                            borderRadius: theme.radii.pill,
+                            boxShadow: `0 0 12px ${theme.colors.secondary}40`
+                        }}
                     />
                 </div>
             </div>
@@ -218,7 +254,7 @@ const LifeGrid = ({ birthDate }: { birthDate: Date }) => {
                 }}>
                     <Grid3X3 size={18} />
                 </div>
-                <span style={{ fontSize: "0.7rem", fontWeight: 700, color: theme.colors.textMuted, letterSpacing: "0.08em", textTransform: "uppercase" }}>
+                <span style={{ fontSize: "0.65rem", fontWeight: 600, color: theme.colors.textMuted, letterSpacing: "0.15em", textTransform: "uppercase" }}>
                     Perspective
                 </span>
             </div>
@@ -235,8 +271,8 @@ const LifeGrid = ({ birthDate }: { birthDate: Date }) => {
                 {/* Scanner Line - Optimized with TranslateY to prevent Layout Thrashing */}
                 <motion.div
                     initial={{ top: 0, translateY: "-100%", opacity: 0 }}
-                    animate={{ translateY: "600%", opacity: [0, 1, 0] }} // Approx height of grid
-                    transition={{ repeat: Infinity, duration: 4, delay: 2, ease: "linear" }}
+                    animate={{ translateY: "600%", opacity: [0, 0.6, 0] }}
+                    transition={{ repeat: Infinity, duration: 6, delay: 2, ease: "linear" }}
                     style={{
                         position: "absolute",
                         left: 0,
@@ -272,8 +308,8 @@ const LifeGrid = ({ birthDate }: { birthDate: Date }) => {
                     </motion.div>
                 ))}
             </div>
-            <p style={{ fontSize: "0.8rem", color: theme.colors.textMuted, marginTop: "1rem", fontWeight: 500, textAlign: "right" }}>
-                <span style={{ color: theme.colors.textMain, fontWeight: 700 }}>{yearsLeft}</span> years remaining
+            <p style={{ fontSize: "0.75rem", color: theme.colors.textMuted, marginTop: "1rem", fontWeight: 500, textAlign: "right", letterSpacing: "0.02em" }}>
+                <span style={{ color: theme.colors.textMain, fontWeight: 800, fontSize: "0.9rem" }}>{yearsLeft}</span> years remaining
             </p>
         </BentoCard>
     );
@@ -293,9 +329,9 @@ const YearProgress = () => {
 
     return (
         <BentoCard colSpanMobile={1} colSpanDesktop={2} delay={0.3}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.5rem" }}>
-                <h3 style={{ fontSize: "1.1rem", fontWeight: 600, color: theme.colors.textMain }}>Year Progress</h3>
-                <span style={{ fontFamily: "monospace", color: theme.colors.accent, fontWeight: 700 }}>{year}</span>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.8rem" }}>
+                <h3 style={{ fontSize: "1.2rem", fontWeight: 700, color: theme.colors.textMain, letterSpacing: "-0.02em" }}>Year Progress</h3>
+                <span style={{ fontFamily: "monospace", color: theme.colors.accent, fontWeight: 800, letterSpacing: "0.05em" }}>{year}</span>
             </div>
 
             {/* Matrix / DNA Strip Visual */}
@@ -312,8 +348,8 @@ const YearProgress = () => {
                     return (
                         <motion.div
                             key={i}
-                            animate={isActive ? { opacity: [1, 0.5, 1] } : {}}
-                            transition={isActive ? { repeat: Infinity, duration: Math.random() * 2 + 1, delay: Math.random() } : {}}
+                            animate={isActive ? { opacity: [0.8, 0.3, 0.8] } : {}}
+                            transition={isActive ? { repeat: Infinity, duration: 5, delay: Math.random() * 4, ease: [0.4, 0, 0.2, 1] } : {}}
                             style={{
                                 width: "4px",
                                 height: "12px",
@@ -328,17 +364,17 @@ const YearProgress = () => {
 
             <div style={{ marginTop: "auto", position: "relative" }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: "6px" }}>
-                    <span style={{ fontSize: "2.5rem", fontWeight: 700, color: theme.colors.textMain, letterSpacing: "-0.03em" }}>
+                    <span style={{ fontSize: "3.2rem", fontWeight: 900, color: theme.colors.textMain, letterSpacing: "-0.05em", lineHeight: 1 }}>
                         {progress.toFixed(1)}%
                     </span>
-                    <span style={{ fontSize: "0.9rem", color: theme.colors.textMuted, marginBottom: "8px" }}>{daysLeft} days left</span>
+                    <span style={{ fontSize: "0.85rem", fontWeight: 600, color: theme.colors.textMuted, marginBottom: "8px", letterSpacing: "-0.01em" }}>{daysLeft} days left</span>
                 </div>
 
                 <div style={{ height: "4px", width: "100%", background: "rgba(255,255,255,0.06)", borderRadius: "2px" }}>
                     <motion.div
                         initial={{ width: 0 }}
                         animate={{ width: `${progress}%` }}
-                        transition={{ duration: 1.2, delay: 0.5 }}
+                        transition={{ duration: 1.5, delay: 0.5, ease: [0.23, 1, 0.32, 1] }}
                         style={{
                             height: "100%",
                             background: `linear-gradient(90deg, ${theme.colors.accent}, #5AC8FA)`,
@@ -380,8 +416,10 @@ const DayProgress = () => {
             const current = now.getTime() - start.getTime();
             const perc = (current / (end.getTime() - start.getTime())) * 100;
             setProgress(perc);
+
             setCurrentTime(now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false }));
         };
+
         update();
         const interval = setInterval(update, 1000);
         return () => clearInterval(interval);
@@ -396,28 +434,38 @@ const DayProgress = () => {
                 <div>
                     <span style={{
                         display: "inline-block",
-                        padding: "4px 8px",
+                        padding: "4px 10px",
                         borderRadius: "6px",
                         background: "rgba(255, 214, 10, 0.15)",
                         color: theme.colors.primary,
-                        fontSize: "0.75rem",
+                        fontSize: "0.65rem",
                         fontWeight: 700,
-                        marginBottom: "0.5rem"
+                        letterSpacing: "0.15em",
+                        marginBottom: "0.5rem",
+                        textTransform: "uppercase"
                     }}>
-                        TODAY
+                        Today
                     </span>
-                    <h2 style={{ fontSize: "1.5rem", fontWeight: 700, color: theme.colors.textMain }}>{currentTime}</h2>
+                    <h2 style={{
+                        fontSize: "3.2rem",
+                        fontWeight: 900,
+                        color: theme.colors.textMain,
+                        letterSpacing: "-0.05em",
+                        lineHeight: 1
+                    }}>
+                        {currentTime}
+                    </h2>
                 </div>
                 <div style={{ textAlign: "right", display: "flex", flexDirection: "column", alignItems: "flex-end" }}>
                     <div style={{ width: "24px", height: "24px", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: "4px" }}>
                         <motion.div
-                            animate={{ rotate: [0, 10, -10, 0] }}
-                            transition={{ repeat: Infinity, duration: 4, ease: "easeInOut" }}
+                            animate={{ rotate: [0, 5, -5, 0] }}
+                            transition={{ repeat: Infinity, duration: 5, ease: [0.4, 0, 0.2, 1] }}
                         >
                             <Zap size={20} color={theme.colors.primary} style={{ display: "block" }} />
                         </motion.div>
                     </div>
-                    <div style={{ fontSize: "0.8rem", color: theme.colors.textMuted }}>Energy Cycle</div>
+                    <div style={{ fontSize: "0.65rem", fontWeight: 600, color: theme.colors.textMuted, letterSpacing: "0.15em", textTransform: "uppercase" }}>Energy</div>
                 </div>
             </div>
 
@@ -458,17 +506,16 @@ const DayProgress = () => {
                                 onMouseLeave={() => setHoverHour(null)}
                                 initial={{ height: "20%" }}
                                 animate={{
-                                    height: baseHeight,
+                                    scaleY: isCurrent ? 0.75 : isPast ? 0.35 : 0.2, // Use pure scale for height logic
                                     opacity: isPast ? 0.4 : isCurrent ? 1 : 0.2,
                                     backgroundColor: isCurrent ? theme.colors.primary : theme.colors.textMain,
-                                    scaleY: isCurrent ? [1, 1.1, 1] : 1
                                 }}
                                 transition={{
-                                    scaleY: { repeat: Infinity, duration: 2, ease: "easeInOut" },
-                                    default: { duration: 0.5 }
+                                    default: { duration: 1, ease: [0.23, 1, 0.32, 1] }
                                 }}
                                 style={{
                                     width: "100%",
+                                    height: "100%", // Fill container, let scaleY handle visual height
                                     borderRadius: "4px",
                                     position: "relative",
                                     transformOrigin: "bottom"
@@ -521,9 +568,9 @@ const CalendarBlock = () => {
             <div style={{ display: "flex", gap: "2rem", height: "100%" }}>
                 {/* Month Progress Circle */}
                 <div style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", color: theme.colors.textMuted }}>
-                        <Calendar size={16} />
-                        <span style={{ fontSize: "0.8rem", fontWeight: 600 }}>{currentMonthStr}</span>
+                    <div style={{ display: "flex", alignItems: "center", gap: "0.6rem", color: theme.colors.textMuted }}>
+                        <Calendar size={14} />
+                        <span style={{ fontSize: "0.65rem", fontWeight: 600, letterSpacing: "0.15em", textTransform: "uppercase" }}>{currentMonthStr}</span>
                     </div>
 
                     <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: "6px", marginTop: "1rem" }}>
@@ -534,8 +581,8 @@ const CalendarBlock = () => {
                             return (
                                 <motion.div
                                     key={i}
-                                    animate={isToday ? { scale: [1, 1.1, 1], boxShadow: [`0 0 0px ${theme.colors.textMain}`, `0 0 10px ${theme.colors.textMain}`, `0 0 0px ${theme.colors.textMain}`] } : {}}
-                                    transition={isToday ? { repeat: Infinity, duration: 3 } : {}}
+                                    animate={isToday ? { scale: [1, 1.15, 1], opacity: [0.6, 1, 0.6] } : {}}
+                                    transition={isToday ? { repeat: Infinity, duration: 3, ease: [0.4, 0, 0.2, 1] } : {}}
                                     style={{
                                         aspectRatio: "1/1",
                                         borderRadius: "50%",
@@ -583,15 +630,19 @@ const CalendarBlock = () => {
     );
 };
 
-export default function ClockPage() {
-    const birthDate = new Date("2000-01-01"); // Configurable
+const BIRTH_DATE = new Date("2000-01-01"); // Configurable shared constant
 
+export default function ClockPage() {
     return (
         <div style={{
             minHeight: "100vh",
             background: "#000",
             color: "#fff",
             fontFamily: "'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Inter', sans-serif",
+            WebkitFontSmoothing: "antialiased",
+            MozOsxFontSmoothing: "grayscale",
+            fontFeatureSettings: '"cv11", "ss01", "tnum"',
+            textRendering: "optimizeLegibility",
             overflowX: "hidden",
             overflowY: "scroll", // Force scrollbar to prevent layout shift
             position: "relative"
@@ -666,17 +717,28 @@ export default function ClockPage() {
                     transition={{ duration: 0.6 }}
                     style={{ marginBottom: "2rem" }}
                 >
-                    <h1 style={{ fontSize: "2.5rem", fontWeight: 800, letterSpacing: "-0.03em" }}>
-                        Time<span style={{ color: theme.colors.textDim }}>piece</span>
+                    <h1 style={{
+                        fontSize: "3.8rem",
+                        fontWeight: 900,
+                        letterSpacing: "-0.08em",
+                        lineHeight: 1,
+                        background: "linear-gradient(to bottom, #fff 40%, rgba(255,255,255,0.7))",
+                        WebkitBackgroundClip: "text",
+                        WebkitTextFillColor: "transparent",
+                    }}>
+                        Time<motion.span
+                            animate={{ opacity: [0.2, 0.4, 0.2] }}
+                            transition={{ repeat: Infinity, duration: 5, ease: [0.4, 0, 0.2, 1] }}
+                        >piece</motion.span>
                     </h1>
-                    <p style={{ color: theme.colors.textMuted, fontSize: "1rem" }}>
+                    <p style={{ color: theme.colors.textMuted, fontSize: "0.9rem", fontWeight: 500, letterSpacing: "-0.01em", opacity: 0.8 }}>
                         Your temporal coordinates in the universe.
                     </p>
                 </motion.div>
 
                 <div className="bento-grid">
-                    <LifeStats birthDate={birthDate} />
-                    <LifeGrid birthDate={birthDate} />
+                    <LifeStats birthDate={BIRTH_DATE} />
+                    <LifeGrid birthDate={BIRTH_DATE} />
                     <YearProgress />
                     <DayProgress />
                     <CalendarBlock />
@@ -684,11 +746,36 @@ export default function ClockPage() {
 
                 <motion.div
                     initial={{ opacity: 0 }}
-                    animate={{ opacity: 0.4 }}
-                    transition={{ delay: 1 }}
-                    style={{ textAlign: "center", marginTop: "4rem", fontSize: "0.8rem", color: theme.colors.textDim }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 1.5, duration: 2 }}
+                    style={{
+                        textAlign: "center",
+                        marginTop: "6rem",
+                        paddingBottom: "4rem",
+                        display: "flex",
+                        flexDirection: "column",
+                        gap: "0.5rem"
+                    }}
                 >
-                    Designed for Presence
+                    <span style={{
+                        fontSize: "0.75rem",
+                        fontWeight: 600,
+                        color: theme.colors.textMuted,
+                        letterSpacing: "0.2em",
+                        textTransform: "uppercase"
+                    }}>
+                        Memento Mori
+                    </span>
+                    <p style={{
+                        fontSize: "0.9rem",
+                        color: theme.colors.textDim,
+                        fontStyle: "italic",
+                        maxWidth: "300px",
+                        margin: "0 auto",
+                        lineHeight: 1.6
+                    }}>
+                        "Time is a created thing. To say 'I don't have time,' is like saying, 'I don't want to.'"
+                    </p>
                 </motion.div>
             </div>
         </div>
