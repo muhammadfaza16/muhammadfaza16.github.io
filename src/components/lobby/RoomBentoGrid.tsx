@@ -11,6 +11,7 @@ import {
     Globe,
     Music,
     Clock,
+    Activity,
     Lightbulb
 } from "lucide-react";
 
@@ -138,6 +139,7 @@ export function RoomBentoGrid() {
         { title: "Guest", href: "/guest", icon: <Users />, gradient: "linear-gradient(135deg, #FF2D55, #FF375F)" }, // Pink Red
         { title: "Insights", href: "/insights", icon: <Lightbulb />, gradient: "linear-gradient(135deg, #34C759, #30B0C7)" }, // Green
         { title: "Time", href: "/time", icon: <Clock />, gradient: "linear-gradient(135deg, #8E8E93, #636366)" }, // Gray
+        { title: "Life", href: "/clock", icon: <Activity />, gradient: "linear-gradient(135deg, #00c6ff, #0072ff)" }, // Blue
         { title: "Web", href: "https://muhammadfaza16.github.io", icon: <Globe />, gradient: "linear-gradient(135deg, #8E8E93, #636366)" }, // Safari-ish
         // Former Dock Apps
         { title: "My Space", href: "/starlight", icon: <Sparkles />, gradient: "linear-gradient(135deg, #AF52DE, #5856D6)" }, // Purple
