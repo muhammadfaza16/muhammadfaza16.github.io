@@ -202,7 +202,7 @@ export default function ImmersiveMusicPage() {
                     gap: "1.5rem" // Tighter gap (was 2.5rem)
                 }}>
                     {/* Header & Grid */}
-                    <div style={{ marginBottom: "2rem" }}> {/* Explicit margin below entire header section */}
+                    <div style={{ marginBottom: "1rem" }}>
                         <motion.div
                             style={{
                                 display: "flex",
@@ -210,8 +210,8 @@ export default function ImmersiveMusicPage() {
                                 alignItems: "center",
                                 paddingLeft: "0.5rem",
                                 paddingRight: "0.5rem",
-                                paddingBottom: "2.5rem", /* Explicit large gap between Library and cards */
-                                height: "40px"
+                                minHeight: "40px",
+                                marginBottom: "32px" /* 32px explicit gap between Library title and playlist cards */
                             }}
                         >
                             {selectedPlaylistId ? (
