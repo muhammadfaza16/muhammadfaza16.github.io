@@ -8,7 +8,7 @@ import { MilkyWay } from "@/components/MilkyWay";
 import { CurrentlyStrip } from "@/components/CurrentlyStrip";
 import { useAudio, PLAYLIST } from "@/components/AudioContext";
 import { useZen } from "@/components/ZenContext";
-import { motion, PanInfo, useScroll, useTransform, AnimatePresence } from "framer-motion";
+import { motion, PanInfo, AnimatePresence } from "framer-motion";
 import { MiniPlayerWidget } from "@/components/MiniPlayerWidget";
 import { PLAYLIST_CATEGORIES } from "@/data/playlists"; // NEW
 import { useRouter } from "next/navigation";
@@ -20,11 +20,7 @@ export default function ImmersiveMusicPage() {
     const [selectedPlaylistId, setSelectedPlaylistId] = useState<string | null>(null);
     const [searchQuery, setSearchQuery] = useState("");
 
-    // Scroll & Motion Hooks
-    const { scrollY } = useScroll();
-    const headerScale = useTransform(scrollY, [0, 100], [1, 0.9]);
-    const headerOpacity = useTransform(scrollY, [0, 50], [1, 0]);
-    const searchBarTop = useTransform(scrollY, [0, 100], ["1rem", "0.5rem"]); // Revised top sticking
+    // Static header (removed useScroll for performance)
 
     // Haptic Helper
     const triggerHaptic = () => {
@@ -182,13 +178,10 @@ export default function ImmersiveMusicPage() {
                             style={{
                                 display: "flex",
                                 justifyContent: "space-between",
-                                alignItems: "center", // Center align for cleaner look
+                                alignItems: "center",
                                 marginBottom: "1.25rem",
                                 padding: "0 0.5rem",
-                                opacity: headerOpacity,
-                                scale: headerScale,
-                                transformOrigin: "left bottom",
-                                height: "40px" // Fixed height for alignment
+                                height: "40px"
                             }}
                         >
                             {selectedPlaylistId ? (
