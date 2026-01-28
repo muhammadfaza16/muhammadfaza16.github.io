@@ -1,28 +1,74 @@
 "use client";
 
 import React, { useState } from "react";
-import { BarChart2, Play, Search, Heart, Disc, Music2 } from "lucide-react";
+import { BarChart2, Play, Search, Heart, Disc, Music2, ChevronLeft, Home } from "lucide-react";
 import { GradientOrb } from "@/components/GradientOrb";
 import { CosmicStars } from "@/components/CosmicStars";
 import { MilkyWay } from "@/components/MilkyWay";
 import { CurrentlyStrip } from "@/components/CurrentlyStrip";
 import { useAudio, PLAYLIST } from "@/components/AudioContext";
 import { useZen } from "@/components/ZenContext";
-import { motion, PanInfo } from "framer-motion";
+import { motion, PanInfo, useScroll, useTransform, AnimatePresence } from "framer-motion";
 import { MiniPlayerWidget } from "@/components/MiniPlayerWidget";
+import { PLAYLIST_CATEGORIES } from "@/data/playlists"; // NEW
+import { useRouter } from "next/navigation";
 
 export default function ImmersiveMusicPage() {
     const { isPlaying, currentSong, jumpToSong } = useAudio();
     const { isZen, setZen } = useZen();
+    const router = useRouter();
+    const [selectedPlaylistId, setSelectedPlaylistId] = useState<string | null>(null);
     const [searchQuery, setSearchQuery] = useState("");
 
+    // Scroll & Motion Hooks
+    const { scrollY } = useScroll();
+    const headerScale = useTransform(scrollY, [0, 100], [1, 0.9]);
+    const headerOpacity = useTransform(scrollY, [0, 50], [1, 0]);
+    const searchBarTop = useTransform(scrollY, [0, 100], ["1rem", "0.5rem"]); // Revised top sticking
+
+    // Haptic Helper
+    const triggerHaptic = () => {
+        if (typeof navigator !== 'undefined' && navigator.vibrate) {
+            navigator.vibrate(10); // Subtle tick
+        }
+    };
+
     const handleSongClick = (index: number) => {
+        triggerHaptic();
         jumpToSong(index);
         setZen(true); // Enter Zen Mode immediately
     };
 
-    const filteredPlaylist = PLAYLIST
-        .map((song, index) => ({ ...song, originalIndex: index }))
+    const handlePlaylistSelect = (id: string | null) => {
+        triggerHaptic();
+        setSelectedPlaylistId(id);
+    }
+
+    // 1. Determine which songs to show based on selection
+    //    If selectedPlaylistId is null => Show ALL songs (default)
+    //    Else => Show only songs in that playlist
+    const activePlaylist = selectedPlaylistId
+        ? PLAYLIST_CATEGORIES.find(p => p.id === selectedPlaylistId)
+        : null;
+
+    const songsToFilter = activePlaylist
+        ? PLAYLIST.filter(song =>
+            activePlaylist.songTitles.some((title: string) =>
+                // Fuzzy match or exact match depending on data quality
+                song.title.toLowerCase().includes(title.toLowerCase()) ||
+                title.toLowerCase().includes(song.title.toLowerCase())
+            )
+        )
+        : PLAYLIST;
+
+
+    const filteredPlaylist = songsToFilter
+        .map((song) => {
+            // We need to find the ORIGINAL index in the master PLAYLIST 
+            // so that AudioContext jumps to the right track.
+            const originalIndex = PLAYLIST.findIndex(p => p.audioUrl === song.audioUrl);
+            return { ...song, originalIndex };
+        })
         .filter(song =>
             song.title.toLowerCase().includes(searchQuery.toLowerCase())
         );
@@ -117,113 +163,271 @@ export default function ImmersiveMusicPage() {
                     position: "relative",
                     zIndex: 10,
                     minHeight: "100svh",
-                    padding: "4rem 1.5rem 8rem 1.5rem", // Increased bottom padding for MiniPlayer
-                    maxWidth: "600px",
+                    padding: "5rem 1.25rem 8rem 1.25rem", // Balanced padding
+                    maxWidth: "540px", // Tighter max-width for phone-like focus
                     margin: "0 auto",
                     display: "flex",
                     flexDirection: "column",
                     gap: "2rem"
                 }}>
-                    {/* Header Bento */}
+                    {/* Header & Grid */}
                     <div>
-                        <h1 style={{
-                            fontFamily: "var(--font-serif)",
-                            fontSize: "2.5rem",
-                            fontWeight: 700,
-                            color: "white",
-                            marginBottom: "1.5rem",
-                            letterSpacing: "-0.02em"
-                        }}>
-                            Library
-                        </h1>
+                        <motion.div
+                            style={{
+                                display: "flex",
+                                justifyContent: "space-between",
+                                alignItems: "center", // Center align for cleaner look
+                                marginBottom: "1.25rem",
+                                padding: "0 0.5rem",
+                                opacity: headerOpacity,
+                                scale: headerScale,
+                                transformOrigin: "left bottom",
+                                height: "40px" // Fixed height for alignment
+                            }}
+                        >
+                            {selectedPlaylistId ? (
+                                <motion.button
+                                    initial={{ opacity: 0, x: -20 }}
+                                    animate={{ opacity: 1, x: 0 }}
+                                    onClick={() => handlePlaylistSelect(null)}
+                                    style={{
+                                        background: "transparent",
+                                        border: "none",
+                                        color: "white",
+                                        display: "flex",
+                                        alignItems: "center",
+                                        gap: "4px",
+                                        fontSize: "1.1rem",
+                                        fontWeight: 600,
+                                        padding: 0,
+                                        cursor: "pointer",
+                                        fontFamily: "var(--font-sans)",
+                                    }}
+                                >
+                                    <ChevronLeft size={24} className="text-[#3b82f6]" />
+                                    <span style={{ color: "#3b82f6" }}>Library</span>
+                                </motion.button>
+                            ) : (
+                                <motion.button
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                    onClick={() => router.push("/")}
+                                    style={{
+                                        background: "transparent",
+                                        border: "none",
+                                        padding: 0,
+                                        cursor: "pointer",
+                                        display: "flex",
+                                        alignItems: "center",
+                                        gap: "8px" // Space between icon and title
+                                    }}
+                                >
+                                    <div style={{
+                                        width: "32px",
+                                        height: "32px",
+                                        borderRadius: "50%",
+                                        backgroundColor: "rgba(255,255,255,0.1)",
+                                        display: "flex",
+                                        alignItems: "center",
+                                        justifyContent: "center"
+                                    }}>
+                                        <ChevronLeft size={20} color="white" />
+                                    </div>
+                                    <h1 style={{
+                                        fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif",
+                                        fontSize: "2.5rem",
+                                        fontWeight: 800,
+                                        color: "white",
+                                        letterSpacing: "-0.04em",
+                                        margin: 0,
+                                    }}>
+                                        Library
+                                    </h1>
+                                </motion.button>
+                            )}
+                        </motion.div>
 
+                        {/* PLAYLISTS GRID */}
                         <div style={{
                             display: "grid",
-                            gridTemplateColumns: "1fr 1fr",
-                            gap: "1rem",
+                            gridTemplateColumns: "repeat(2, 1fr)", // 2 Columns for bigger art (iOS standard)
+                            gap: "16px",
                             marginBottom: "1rem"
                         }}>
-                            {/* Card 1 */}
-                            <div style={{
-                                background: "linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05))",
-                                backdropFilter: "blur(10px)",
-                                padding: "1.25rem",
-                                borderRadius: "20px",
-                                border: "1px solid rgba(255,255,255,0.1)",
-                                display: "flex",
-                                flexDirection: "column",
-                                justifyContent: "space-between",
-                                height: "120px"
-                            }}>
-                                <Heart className="text-pink-500" size={24} />
-                                <span style={{ fontSize: "1rem", fontWeight: 600, color: "white" }}>Favorites</span>
-                            </div>
-                            {/* Card 2 */}
-                            <div style={{
-                                background: "linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05))",
-                                backdropFilter: "blur(10px)",
-                                padding: "1.25rem",
-                                borderRadius: "20px",
-                                border: "1px solid rgba(255,255,255,0.1)",
-                                display: "flex",
-                                flexDirection: "column",
-                                justifyContent: "space-between",
-                                height: "120px"
-                            }}>
-                                <Disc className="text-blue-500" size={24} />
-                                <span style={{ fontSize: "1rem", fontWeight: 600, color: "white" }}>Albums</span>
-                            </div>
+                            {PLAYLIST_CATEGORIES.map((playlist) => {
+                                const isSelected = selectedPlaylistId === playlist.id;
+                                const isDimmed = selectedPlaylistId && !isSelected;
+
+                                return (
+                                    <div
+                                        key={playlist.id}
+                                        onClick={() => setSelectedPlaylistId(isSelected ? null : playlist.id)}
+                                        style={{
+                                            position: "relative",
+                                            aspectRatio: "1/1",
+                                            borderRadius: "20px", // Smooth continuous corners
+                                            overflow: "hidden",
+                                            cursor: "pointer",
+                                            opacity: isDimmed ? 0.3 : 1,
+                                            transform: isDimmed ? "scale(0.92)" : (isSelected ? "scale(1.03)" : "scale(1)"),
+                                            transition: "all 0.5s cubic-bezier(0.19, 1, 0.22, 1)",
+                                            boxShadow: isSelected
+                                                ? `0 20px 50px -12px ${playlist.coverColor}80` // Glow when selected
+                                                : "0 4px 20px rgba(0,0,0,0.4)"
+                                        }}
+                                        className="group"
+                                    >
+                                        {/* Image */}
+                                        <img
+                                            src={playlist.coverImage}
+                                            alt={playlist.title}
+                                            style={{
+                                                width: "100%",
+                                                height: "100%",
+                                                objectFit: "cover",
+                                                transition: "transform 0.7s cubic-bezier(0.19, 1, 0.22, 1)"
+                                            }}
+                                            className="group-hover:scale-110"
+                                        />
+
+                                        {/* Gradient Overlay */}
+                                        <div style={{
+                                            position: "absolute",
+                                            inset: 0,
+                                            background: "linear-gradient(to top, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0) 40%)",
+                                            display: "flex", // Keep flex to push title down
+                                            flexDirection: "column",
+                                            justifyContent: "flex-end",
+                                            padding: "12px",
+                                            opacity: isSelected ? 0 : 1, // Hide title when selected to focus on art
+                                            transition: "opacity 0.3s"
+                                        }}>
+                                            <span style={{
+                                                color: "white",
+                                                fontWeight: 600,
+                                                fontSize: "0.9rem", // Readable size
+                                                textShadow: "0 2px 10px rgba(0,0,0,0.5)",
+                                                letterSpacing: "-0.01em",
+                                                lineHeight: 1.1
+                                            }}>
+                                                {playlist.title}
+                                            </span>
+                                        </div>
+
+                                        {/* Active Border Ring (Inner) */}
+                                        {isSelected && (
+                                            <div style={{
+                                                position: "absolute",
+                                                inset: "0px",
+                                                border: `3px solid ${playlist.coverColor}`,
+                                                borderRadius: "20px",
+                                                pointerEvents: "none"
+                                            }} />
+                                        )}
+                                    </div>
+                                );
+                            })}
                         </div>
                     </div>
 
-                    {/* Search Bar */}
+                    {/* Search Bar - Sticky & Glass */}
                     <div style={{
-                        position: "relative",
-                        width: "100%",
-                        height: "50px",
-                        backgroundColor: "rgba(255,255,255,0.08)",
-                        borderRadius: "16px",
-                        display: "flex",
-                        alignItems: "center",
-                        padding: "0 16px",
-                        border: "1px solid rgba(255,255,255,0.05)",
-                        backdropFilter: "blur(10px)"
+                        position: "sticky",
+                        top: "1.5rem",
+                        zIndex: 40,
                     }}>
-                        <Search size={20} color="rgba(255,255,255,0.4)" />
-                        <input
-                            type="text"
-                            placeholder="Search songs..."
-                            value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
-                            style={{
-                                flex: 1,
-                                background: "transparent",
-                                border: "none",
-                                outline: "none",
-                                color: "white",
-                                fontSize: "1rem",
-                                marginLeft: "12px",
-                                fontFamily: "var(--font-sans)",
-                            }}
-                        />
+                        <div style={{
+                            width: "100%",
+                            height: "50px",
+                            backgroundColor: "rgba(20, 20, 20, 0.65)", // Deep aesthetic dark
+                            borderRadius: "16px",
+                            display: "flex",
+                            alignItems: "center",
+                            padding: "0 16px",
+                            border: "1px solid rgba(255,255,255,0.08)",
+                            backdropFilter: "blur(25px) saturate(180%)",
+                            boxShadow: "0 8px 32px rgba(0,0,0,0.3)",
+                            transition: "all 0.3s ease"
+                        }}>
+                            <Search size={18} color="rgba(255,255,255,0.5)" />
+                            <input
+                                type="text"
+                                placeholder={activePlaylist ? `Search ${activePlaylist.title}` : "Songs, Artists, Lyrics"}
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                                style={{
+                                    flex: 1,
+                                    background: "transparent",
+                                    border: "none",
+                                    outline: "none",
+                                    color: "white",
+                                    fontSize: "1rem",
+                                    marginLeft: "12px",
+                                    fontFamily: "-apple-system, BlinkMacSystemFont, sans-serif",
+                                    fontWeight: 400,
+                                    letterSpacing: "-0.01em"
+                                }}
+                            />
+                        </div>
                     </div>
 
-                    {/* Song List */}
-                    <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-                        <h3 style={{
-                            fontSize: "0.9rem",
-                            textTransform: "uppercase",
-                            letterSpacing: "0.1em",
-                            color: "rgba(255,255,255,0.5)",
-                            marginBottom: "0.5rem",
-                            marginLeft: "4px"
+                    {/* Song List - iOS Inset Grouped Style */}
+                    <div style={{
+                        display: "flex",
+                        flexDirection: "column",
+                        gap: "0px",
+                        background: "rgba(28, 28, 30, 0.5)", // System gray 6-ish
+                        backdropFilter: "blur(10px)",
+                        borderRadius: "22px",
+                        overflow: "hidden",
+                        border: "1px solid rgba(255,255,255,0.06)",
+                        boxShadow: "0 4px 20px rgba(0,0,0,0.1)"
+                    }}>
+                        <div style={{
+                            padding: "16px 20px",
+                            borderBottom: "1px solid rgba(255,255,255,0.08)",
+                            display: "flex",
+                            justifyContent: "space-between",
+                            alignItems: "center",
+                            background: "rgba(255,255,255,0.02)"
                         }}>
-                            All Songs ({PLAYLIST.length})
-                        </h3>
+                            <div style={{ display: 'flex', flexDirection: 'column' }}>
+                                <h3 style={{
+                                    fontSize: "0.95rem",
+                                    fontWeight: 700,
+                                    color: "white",
+                                    letterSpacing: "-0.02em",
+                                    margin: 0,
+                                }}>
+                                    {activePlaylist ? activePlaylist.title : "All Tracks"}
+                                </h3>
+                                <span style={{
+                                    fontSize: "0.75rem",
+                                    color: "rgba(255,255,255,0.5)",
+                                    marginTop: "2px"
+                                }}>
+                                    {filteredPlaylist.length} Songs
+                                </span>
+                            </div>
 
-                        {filteredPlaylist.map((song) => {
-                            const isActive = currentSong?.title === song.title; // Simple check
+                            {/* Play Button Indicator (Decorative) */}
+                            <div style={{
+                                width: "32px",
+                                height: "32px",
+                                borderRadius: "50%",
+                                background: "rgba(255,255,255,0.1)",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center"
+                            }}>
+                                <Play size={14} fill="white" color="white" style={{ marginLeft: "2px" }} />
+                            </div>
+                        </div>
+
+                        {filteredPlaylist.map((song, i) => {
+                            const isActive = currentSong?.title === song.title;
                             const originalIndex = song.originalIndex;
+                            const isLast = i === filteredPlaylist.length - 1;
 
                             return (
                                 <div
@@ -232,48 +436,74 @@ export default function ImmersiveMusicPage() {
                                     style={{
                                         display: "flex",
                                         alignItems: "center",
-                                        gap: "1rem",
-                                        padding: "12px 16px",
-                                        borderRadius: "16px",
+                                        gap: "16px",
+                                        padding: "16px 20px",
                                         backgroundColor: isActive
-                                            ? "rgba(255,255,255,0.15)"
-                                            : "rgba(255,255,255,0.03)",
+                                            ? "rgba(255,255,255,0.12)"
+                                            : "transparent",
                                         cursor: "pointer",
-                                        border: "1px solid rgba(255,255,255,0.02)",
-                                        transition: "all 0.2s cubic-bezier(0.2, 0.8, 0.2, 1)"
+                                        position: "relative",
+                                        transition: "background 0.2s"
                                     }}
-                                    className="hover:bg-white/10 active:scale-[0.98]"
+                                    className="hover:bg-white/5 active:bg-white/10"
                                 >
-                                    {/* Index / Icon */}
+                                    {/* Separator Line (Inset) */}
+                                    {!isLast && !isActive && (
+                                        <div style={{
+                                            position: "absolute",
+                                            bottom: 0,
+                                            left: "56px", // Inset past the index/icon
+                                            right: 0,
+                                            height: "1px",
+                                            background: "rgba(255,255,255,0.06)"
+                                        }} />
+                                    )}
+
+                                    {/* Leading Index / Active Graph */}
                                     <div style={{
-                                        width: "24px",
-                                        height: "24px",
+                                        width: "20px",
                                         display: "flex",
                                         alignItems: "center",
                                         justifyContent: "center",
-                                        color: isActive ? "var(--accent)" : "rgba(255,255,255,0.4)",
-                                        fontWeight: 600,
+                                        color: isActive ? "var(--accent)" : "rgba(255,255,255,0.3)",
                                         fontSize: "0.85rem",
                                         fontFamily: "var(--font-mono)"
                                     }}>
                                         {isActive && isPlaying ? (
-                                            <BarChart2 size={16} className="animate-pulse" />
+                                            <div className="flex gap-[2px] items-end h-[12px]">
+                                                <motion.div
+                                                    animate={{ height: [4, 12, 6, 12] }}
+                                                    transition={{ repeat: Infinity, duration: 0.5 }}
+                                                    className="w-[3px] bg-[#3b82f6] rounded-full"
+                                                />
+                                                <motion.div
+                                                    animate={{ height: [8, 4, 12, 6] }}
+                                                    transition={{ repeat: Infinity, duration: 0.5, delay: 0.1 }}
+                                                    className="w-[3px] bg-[#3b82f6] rounded-full"
+                                                />
+                                                <motion.div
+                                                    animate={{ height: [6, 10, 4, 10] }}
+                                                    transition={{ repeat: Infinity, duration: 0.5, delay: 0.2 }}
+                                                    className="w-[3px] bg-[#3b82f6] rounded-full"
+                                                />
+                                            </div>
                                         ) : (
-                                            originalIndex + 1
+                                            <span style={{ fontVariantNumeric: "tabular-nums" }}>{i + 1}</span>
                                         )}
                                     </div>
 
-                                    {/* Info */}
+                                    {/* Song Info */}
                                     <div style={{ flex: 1, minWidth: 0 }}>
                                         <div style={{
-                                            color: "white",
-                                            fontSize: "1rem",
-                                            fontWeight: 500,
-                                            fontFamily: "var(--font-sans)",
+                                            color: isActive ? "white" : "rgba(255,255,255,0.95)",
+                                            fontSize: "0.95rem",
+                                            fontWeight: isActive ? 600 : 500,
+                                            fontFamily: "-apple-system, BlinkMacSystemFont, sans-serif",
                                             marginBottom: "2px",
                                             whiteSpace: "nowrap",
                                             overflow: "hidden",
-                                            textOverflow: "ellipsis"
+                                            textOverflow: "ellipsis",
+                                            letterSpacing: "-0.01em"
                                         }}>
                                             {song.title.split("—")[1]?.trim() || song.title}
                                         </div>
@@ -282,17 +512,17 @@ export default function ImmersiveMusicPage() {
                                             fontSize: "0.8rem",
                                             whiteSpace: "nowrap",
                                             overflow: "hidden",
-                                            textOverflow: "ellipsis"
+                                            textOverflow: "ellipsis",
+                                            fontFamily: "-apple-system, BlinkMacSystemFont, sans-serif",
+                                            letterSpacing: "0.005em"
                                         }}>
                                             {song.title.split("—")[0]?.trim() || "Unknown Artist"}
                                         </div>
                                     </div>
 
-                                    {/* Play Btn Hint */}
-                                    <div style={{
-                                        opacity: 0.3,
-                                    }} className="group-hover:opacity-100 transition-opacity">
-                                        <Play size={16} fill="white" stroke="none" />
+                                    {/* Trailing Action (Heart/Menu - passive for now) */}
+                                    <div style={{ opacity: 0 }} className="group-hover:opacity-50 transition-opacity">
+                                        <Heart size={16} color="white" />
                                     </div>
                                 </div>
                             );
@@ -309,7 +539,7 @@ export default function ImmersiveMusicPage() {
                         width: "100%",
                         maxWidth: "600px",
                         zIndex: 50,
-                        pointerEvents: "none" // Widget children needs pointer-events: auto (It handles click)
+                        pointerEvents: "none"
                     }}>
                         <div style={{ pointerEvents: "auto" }}>
                             <MiniPlayerWidget />

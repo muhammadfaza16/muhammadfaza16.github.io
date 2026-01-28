@@ -53,8 +53,8 @@ export function LayoutShell({ children }: { children: React.ReactNode }) {
 
     return (
         <>
-            {/* Global Back Button - Hidden on Lobby and Guest Area to avoid redundancy */}
-            {!isLobby && !pathname.toLowerCase().startsWith('/guest') && (
+            {/* Global Back Button - Hidden on Lobby, Guest, and Playlist (handled internally) */}
+            {!isLobby && !pathname.toLowerCase().startsWith('/guest') && !pathname.startsWith('/playlist') && (
                 <div style={{
                     position: "fixed",
                     top: "24px",
