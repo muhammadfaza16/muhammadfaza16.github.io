@@ -1,15 +1,20 @@
 "use client";
 
-import { Container } from "@/components/Container";
 import { useEffect, useState } from "react";
-import { Clock, Calendar, Hourglass, TrendingUp, Sun } from "lucide-react";
+import { Clock, Calendar, Hourglass, TrendingUp, Sun, Grid3X3, BarChart2 } from "lucide-react";
+import { BentoCard, theme } from "@/components/BentoCard";
+import { motion, AnimatePresence } from "framer-motion";
+import dynamic from "next/dynamic";
 
-// Check if year is a leap year
+const GradientOrb = dynamic(() => import("@/components/GradientOrb").then(mod => mod.GradientOrb), { ssr: false });
+const CosmicStars = dynamic(() => import("@/components/CosmicStars").then(mod => mod.CosmicStars), { ssr: false });
+const MilkyWay = dynamic(() => import("@/components/MilkyWay").then(mod => mod.MilkyWay), { ssr: false });
+
+// Helper Functions
 function isLeapYear(year: number): boolean {
     return (year % 4 === 0 && year % 100 !== 0) || (year % 400 === 0);
 }
 
-// Get day of year (1-indexed)
 function getDayOfYear(date: Date): number {
     const start = new Date(date.getFullYear(), 0, 0);
     const diff = date.getTime() - start.getTime();
@@ -17,7 +22,6 @@ function getDayOfYear(date: Date): number {
     return Math.floor(diff / oneDay);
 }
 
-// Get week number of the year
 function getWeekNumber(date: Date): number {
     const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
     const dayNum = d.getUTCDay() || 7;
@@ -26,88 +30,23 @@ function getWeekNumber(date: Date): number {
     return Math.ceil((((d.getTime() - yearStart.getTime()) / 86400000) + 1) / 7);
 }
 
-// Get month name in Indonesian
 function getMonthName(month: number): string {
     const months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
         'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
     return months[month];
 }
 
-// Get day name in Indonesian
 function getDayName(day: number): string {
     const days = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
     return days[day];
 }
 
-// Get days in each month
 function getDaysInMonth(year: number, month: number): number {
     return new Date(year, month + 1, 0).getDate();
 }
 
-// Format time with leading zeros
 function formatTime(num: number): string {
     return num.toString().padStart(2, '0');
-}
-
-// Stat Card Component
-function StatCard({
-    icon: Icon,
-    value,
-    label,
-    sublabel
-}: {
-    icon: React.ComponentType<{ className?: string }>;
-    value: string | number;
-    label: string;
-    sublabel: string;
-}) {
-    return (
-        <div style={{
-            padding: "clamp(1.25rem, 3vw, 1.75rem)",
-            backgroundColor: "var(--card-bg)",
-            borderRadius: "16px",
-            border: "1px solid var(--border)",
-            transition: "all 0.3s ease"
-        }} className="hover:border-[var(--border-strong)]">
-            <div style={{
-                display: "flex",
-                alignItems: "center",
-                gap: "0.5rem",
-                marginBottom: "clamp(0.75rem, 2vw, 1rem)",
-                color: "var(--accent)"
-            }}>
-                <Icon className="w-4 h-4" />
-                <span style={{
-                    fontFamily: "var(--font-mono)",
-                    fontSize: "clamp(0.7rem, 1.8vw, 0.75rem)",
-                    textTransform: "uppercase",
-                    letterSpacing: "0.05em",
-                    color: "var(--text-muted)"
-                }}>
-                    {label}
-                </span>
-            </div>
-            <div style={{
-                fontFamily: "var(--font-mono)",
-                fontSize: "clamp(2rem, 6vw, 2.75rem)",
-                fontWeight: 200,
-                color: "var(--foreground)",
-                marginBottom: "0.35rem",
-                letterSpacing: "-0.03em",
-                lineHeight: 1
-            }}>
-                {value}
-            </div>
-            <div style={{
-                fontFamily: "'Source Serif 4', serif",
-                fontSize: "clamp(0.8rem, 2vw, 0.9rem)",
-                color: "var(--text-secondary)",
-                fontStyle: "italic"
-            }}>
-                {sublabel}
-            </div>
-        </div>
-    );
 }
 
 export default function TimePage() {
@@ -118,11 +57,7 @@ export default function TimePage() {
     useEffect(() => {
         setMounted(true);
         setNow(new Date());
-
-        const interval = setInterval(() => {
-            setNow(new Date());
-        }, 1000);
-
+        const interval = setInterval(() => setNow(new Date()), 1000);
         return () => clearInterval(interval);
     }, []);
 
@@ -136,373 +71,367 @@ export default function TimePage() {
     const percentComplete = ((dayOfYear / totalDays) * 100).toFixed(1);
     const weekNumber = getWeekNumber(now);
 
-    // Time components
-    const hours = now.getHours();
-    const hoursStr = formatTime(hours);
-    const minutes = formatTime(now.getMinutes());
+    const hoursStr = formatTime(now.getHours());
+    const minutesStr = formatTime(now.getMinutes());
+    const secondsStr = formatTime(now.getSeconds());
 
-    // Full date string
-    const fullDate = `${getDayName(dayOfWeek)}, ${dayOfMonth} ${getMonthName(month)} ${year}`;
-
-    // Calculate month progress data
     const monthData = Array.from({ length: 12 }, (_, i) => {
         const daysInThisMonth = getDaysInMonth(year, i);
-
         let daysPassedInMonth = 0;
         if (month > i) {
             daysPassedInMonth = daysInThisMonth;
         } else if (month === i) {
             daysPassedInMonth = dayOfMonth;
         }
-
         return {
             name: getMonthName(i).slice(0, 3),
-            fullName: getMonthName(i),
             days: daysInThisMonth,
-            passed: daysPassedInMonth,
             percentage: (daysPassedInMonth / daysInThisMonth) * 100,
             isCurrent: month === i,
             isPast: month > i
         };
     });
 
-    if (!mounted) {
-        return (
-            <Container>
-                <div style={{
-                    minHeight: "80vh",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center"
-                }}>
-                    <div style={{
-                        width: "6px",
-                        height: "6px",
-                        borderRadius: "50%",
-                        backgroundColor: "var(--foreground)",
-                        animation: "pulse 1s ease-in-out infinite"
-                    }} />
-                </div>
-            </Container>
-        );
-    }
+    if (!mounted) return null;
 
     return (
-        <div style={{ paddingBottom: "clamp(4rem, 8vh, 8rem)" }}>
-            {/* Hero Section */}
-            <section style={{
-                minHeight: "auto",
+        <div style={{
+            minHeight: "100vh",
+            backgroundColor: theme.colors.bg,
+            color: theme.colors.textMain,
+            fontFamily: "var(--font-sans)",
+            overflowX: "hidden",
+            position: "relative"
+        }}>
+            {/* Ambient Background */}
+            <div style={{ position: "fixed", inset: 0, zIndex: 0, pointerEvents: "none" }}>
+                <MilkyWay />
+                <GradientOrb />
+                <CosmicStars />
+            </div>
+
+            <main style={{
+                position: "relative",
+                zIndex: 1,
+                maxWidth: "1200px",
+                margin: "0 auto",
+                padding: "2rem 1.5rem 6rem",
                 display: "flex",
                 flexDirection: "column",
-                justifyContent: "center",
-                paddingTop: "clamp(5rem, 12vh, 8rem)",
-                paddingBottom: "clamp(2rem, 4vh, 3rem)"
+                gap: "2rem"
             }}>
-                <Container>
-                    <div className="animate-fade-in-up" style={{ textAlign: "center" }}>
-                        {/* Status Pill */}
-                        <div style={{
-                            display: "inline-flex",
-                            alignItems: "center",
-                            gap: "0.5rem",
-                            padding: "0.35rem 0.75rem",
-                            backgroundColor: "var(--hover-bg)",
-                            borderRadius: "99px",
-                            fontSize: "clamp(0.7rem, 2vw, 0.8rem)",
-                            fontFamily: "var(--font-mono)",
-                            marginBottom: "clamp(1.5rem, 3vh, 2rem)"
-                        }}>
-                            <Clock className="w-3.5 h-3.5" style={{ color: "var(--accent)" }} />
-                            <span style={{ color: "var(--text-secondary)" }}>The Clock</span>
-                        </div>
-
+                {/* Header Section */}
+                <header style={{ textAlign: "center", marginBottom: "2rem", paddingTop: "4rem" }}>
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.8, ease: [0.2, 0.8, 0.2, 1] }}
+                    >
                         <h1 style={{
                             fontFamily: "'Playfair Display', serif",
-                            fontSize: "clamp(2.5rem, 8vw, 4.5rem)",
+                            fontSize: "clamp(2.5rem, 5vw, 3.5rem)",
                             fontWeight: 400,
-                            letterSpacing: "-0.03em",
-                            lineHeight: 1.1,
-                            marginBottom: "clamp(1.5rem, 3vh, 2rem)",
-                            color: "var(--foreground)",
-                            maxWidth: "16ch",
-                            margin: "0 auto"
+                            letterSpacing: "-0.02em",
+                            color: "rgba(255,255,255,0.9)",
+                            marginBottom: "0.5rem"
                         }}>
-                            Every second is a choice.
+                            Time Perspective
                         </h1>
-
-                        {/* The Big Clock */}
-                        <div style={{
-                            fontFamily: "var(--font-mono)",
-                            fontSize: "clamp(5rem, 18vw, 12rem)",
-                            fontWeight: 100,
-                            color: "var(--foreground)",
-                            letterSpacing: "-0.05em",
-                            lineHeight: 0.85,
-                            display: "flex",
-                            justifyContent: "center",
-                            alignItems: "baseline",
-                            gap: "clamp(0.5rem, 2vw, 1rem)",
-                            margin: "clamp(1.5rem, 3vh, 2rem) 0"
-                        }}>
-                            <span>{hoursStr}</span>
-                            <span style={{ opacity: 0.3, fontSize: "clamp(2.5rem, 10vw, 6rem)", animation: "pulse 2s infinite" }}>:</span>
-                            <span>{minutes}</span>
-                        </div>
-
-                        {/* Date */}
                         <p style={{
                             fontFamily: "var(--font-mono)",
-                            fontSize: "clamp(0.8rem, 2vw, 0.9rem)",
-                            color: "var(--text-muted)",
-                            marginBottom: "clamp(1.5rem, 3vh, 2rem)"
+                            fontSize: "0.9rem",
+                            color: "rgba(255,255,255,0.5)",
+                            letterSpacing: "0.05em",
+                            textTransform: "uppercase"
                         }}>
-                            {fullDate}
+                            Every second is a choice
                         </p>
+                    </motion.div>
+                </header>
 
-                        <p style={{
-                            fontFamily: "'Source Serif 4', serif",
-                            fontSize: "clamp(1rem, 2.5vw, 1.2rem)",
-                            color: "var(--text-secondary)",
-                            fontStyle: "italic",
-                            maxWidth: "45ch",
-                            margin: "0 auto",
-                            lineHeight: 1.6
-                        }}>
-                            Waktu adalah komoditas paling berharga.
-                            Sekali habis, takkan kembali lagi.
-                        </p>
-                    </div>
-                </Container>
-            </section>
+                {/* Main Bento Grid */}
+                <div style={{
+                    display: "grid",
+                    gridTemplateColumns: "repeat(4, 1fr)",
+                    gap: "1.5rem",
+                    autoRows: "minmax(180px, auto)"
+                }}>
 
-            {/* Main Content */}
-            <Container>
-                <div className="animate-fade-in animation-delay-200" style={{ maxWidth: "42rem", margin: "0 auto" }}>
-
-                    {/* Stats Grid */}
-                    <section style={{ marginBottom: "clamp(3rem, 6vh, 4rem)" }}>
-                        <div style={{
-                            display: "grid",
-                            gridTemplateColumns: "repeat(2, 1fr)",
-                            gap: "clamp(1rem, 3vw, 1.5rem)"
-                        }}>
-                            <StatCard
-                                icon={Calendar}
-                                value={dayOfYear}
-                                label="Day of Year"
-                                sublabel={`Hari ke-${dayOfYear} dari ${totalDays}`}
-                            />
-                            <StatCard
-                                icon={Hourglass}
-                                value={daysRemaining}
-                                label="Days Remaining"
-                                sublabel="Masih ada waktu"
-                            />
-                            <StatCard
-                                icon={Sun}
-                                value={weekNumber}
-                                label="Week"
-                                sublabel={`Minggu ke-${weekNumber} tahun ini`}
-                            />
-                            <StatCard
-                                icon={TrendingUp}
-                                value={`${percentComplete}%`}
-                                label="Year Progress"
-                                sublabel={parseFloat(percentComplete) < 25 ? "Baru mulai" : parseFloat(percentComplete) < 50 ? "Hampir setengah" : parseFloat(percentComplete) < 75 ? "Lewat pertengahan" : "Mendekati akhir"}
-                            />
-                        </div>
-                    </section>
-
-                    {/* Visualization Section */}
-                    <section style={{ marginBottom: "clamp(3rem, 6vh, 4rem)" }}>
-                        <div style={{
-                            display: "flex",
-                            alignItems: "center",
-                            gap: "0.75rem",
-                            marginBottom: "clamp(1.25rem, 3vh, 1.75rem)"
-                        }}>
-                            <Hourglass className="w-4 h-4" style={{ color: "var(--accent)" }} />
-                            <h2 style={{
-                                fontFamily: "'Playfair Display', serif",
-                                fontSize: "clamp(1.25rem, 3vw, 1.5rem)",
-                                fontWeight: 500,
-                                margin: 0,
-                                flex: 1
+                    {/* 1. Big Clock (2x1) */}
+                    <BentoCard colSpanDesktop={2} colSpanMobile={4} delay={0.1}>
+                        <div style={{ height: "100%", display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center" }}>
+                            <div style={{
+                                fontFamily: "var(--font-mono)",
+                                fontSize: "clamp(3.5rem, 6vw, 5rem)",
+                                fontWeight: 200,
+                                lineHeight: 1,
+                                letterSpacing: "-0.05em",
+                                display: "flex",
+                                alignItems: "baseline",
+                                gap: "0.5rem"
                             }}>
-                                Perspective
-                            </h2>
-                            <button
-                                onClick={() => setViewMode(viewMode === 'dots' ? 'classic' : 'dots')}
-                                style={{
-                                    background: "transparent",
-                                    border: "none",
-                                    fontFamily: "var(--font-mono)",
-                                    fontSize: "clamp(0.75rem, 2vw, 0.85rem)",
-                                    color: "var(--text-secondary)",
-                                    cursor: "pointer",
-                                    textDecoration: "underline",
-                                    padding: 0
-                                }}
-                            >
-                                {viewMode === 'dots' ? 'Bar View' : 'Dot View'}
-                            </button>
+                                <span>{hoursStr}</span>
+                                <span className="animate-pulse" style={{ opacity: 0.5 }}>:</span>
+                                <span>{minutesStr}</span>
+                                <span style={{ fontSize: "0.4em", opacity: 0.4, fontWeight: 400 }}>{secondsStr}</span>
+                            </div>
+                            <div style={{
+                                marginTop: "1rem",
+                                fontSize: "1.1rem",
+                                color: "rgba(255,255,255,0.6)",
+                                fontFamily: "'Playfair Display', serif",
+                                fontStyle: "italic"
+                            }}>
+                                {getDayName(dayOfWeek)}, {dayOfMonth} {getMonthName(month)} {year}
+                            </div>
                         </div>
+                    </BentoCard>
 
-                        {/* DOTS VIEW */}
-                        {viewMode === 'dots' && (
+                    {/* 2. Day of Year (1x1) */}
+                    <BentoCard colSpanDesktop={1} colSpanMobile={2} delay={0.2}>
+                        <div style={{ display: "flex", flexDirection: "column", height: "100%", justifyContent: "space-between" }}>
+                            <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", color: theme.colors.accent }}>
+                                <Calendar size={20} />
+                                <span style={{ fontSize: "0.75rem", fontFamily: "var(--font-mono)", opacity: 0.8, textTransform: "uppercase" }}>Day of Year</span>
+                            </div>
+                            <div>
+                                <div style={{ fontSize: "3rem", fontWeight: 700, lineHeight: 1, letterSpacing: "-0.03em" }}>
+                                    {dayOfYear}
+                                </div>
+                                <div style={{ fontSize: "0.85rem", opacity: 0.5, marginTop: "0.25rem" }}>
+                                    of {totalDays} days
+                                </div>
+                            </div>
+                            {/* Mini Progress Bar */}
+                            <div style={{ width: "100%", height: "4px", background: "rgba(255,255,255,0.1)", borderRadius: "2px", overflow: "hidden" }}>
+                                <motion.div
+                                    initial={{ width: 0 }}
+                                    animate={{ width: `${(dayOfYear / totalDays) * 100}%` }}
+                                    transition={{ duration: 1.5, ease: "circOut", delay: 0.5 }}
+                                    style={{ height: "100%", background: theme.colors.accent }}
+                                />
+                            </div>
+                        </div>
+                    </BentoCard>
+
+                    {/* 3. Remaining (1x1) */}
+                    <BentoCard colSpanDesktop={1} colSpanMobile={2} delay={0.3}>
+                        <div style={{ display: "flex", flexDirection: "column", height: "100%", justifyContent: "space-between" }}>
+                            <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", color: theme.colors.primary }}>
+                                <Hourglass size={20} />
+                                <span style={{ fontSize: "0.75rem", fontFamily: "var(--font-mono)", opacity: 0.8, textTransform: "uppercase" }}>Remaining</span>
+                            </div>
+                            <div>
+                                <div style={{ fontSize: "3rem", fontWeight: 700, lineHeight: 1, letterSpacing: "-0.03em" }}>
+                                    {daysRemaining}
+                                </div>
+                                <div style={{ fontSize: "0.85rem", opacity: 0.5, marginTop: "0.25rem" }}>
+                                    days left
+                                </div>
+                            </div>
+                            <div style={{ display: "flex", gap: "2px" }}>
+                                {[...Array(10)].map((_, i) => (
+                                    <div key={i} style={{
+                                        flex: 1,
+                                        height: "4px",
+                                        background: i < (daysRemaining / totalDays) * 10 ? theme.colors.primary : "rgba(255,255,255,0.1)",
+                                        borderRadius: "1px"
+                                    }} />
+                                ))}
+                            </div>
+                        </div>
+                    </BentoCard>
+
+                    {/* 4. Large Visualization (4x2 or 2x2 based on preference, let's go with full width 4xAuto) */}
+                    <BentoCard colSpanDesktop={4} colSpanMobile={4} delay={0.4} className="min-h-[400px]">
+                        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "1.5rem" }}>
+                            <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", color: theme.colors.secondary }}>
+                                <Grid3X3 size={20} />
+                                <span style={{ fontFamily: "var(--font-mono)", textTransform: "uppercase", fontSize: "0.8rem", letterSpacing: "0.05em" }}>
+                                    Year Mapping
+                                </span>
+                            </div>
+
+                            {/* View Toggle */}
                             <div style={{
                                 display: "flex",
-                                flexWrap: "wrap",
-                                gap: "4px",
-                                justifyContent: "center",
-                                padding: "clamp(1.25rem, 3vw, 1.75rem)",
-                                backgroundColor: "var(--card-bg)",
-                                borderRadius: "16px",
-                                border: "1px solid var(--border)"
+                                background: "rgba(255,255,255,0.05)",
+                                borderRadius: "8px",
+                                padding: "4px"
                             }}>
-                                {Array.from({ length: totalDays }, (_, i) => {
-                                    const dayNum = i + 1;
-                                    const isPast = dayNum < dayOfYear;
-                                    const isToday = dayNum === dayOfYear;
-
-                                    return (
-                                        <div
-                                            key={i}
-                                            title={`Day ${dayNum}`}
-                                            style={{
-                                                width: "6px",
-                                                height: "6px",
-                                                borderRadius: "50%",
-                                                backgroundColor: isToday ? "var(--accent)" : "var(--foreground)",
-                                                opacity: isPast ? 0.2 : isToday ? 1 : 0.06,
-                                                transform: isToday ? "scale(1.8)" : "none",
-                                                transition: "all 0.3s ease"
-                                            }}
-                                        />
-                                    );
-                                })}
-                            </div>
-                        )}
-
-                        {/* CLASSIC VIEW (BARS) */}
-                        {viewMode === 'classic' && (
-                            <div style={{
-                                padding: "clamp(1.25rem, 3vw, 1.75rem)",
-                                backgroundColor: "var(--card-bg)",
-                                borderRadius: "16px",
-                                border: "1px solid var(--border)"
-                            }}>
-                                {/* Year Bar */}
-                                <div style={{ marginBottom: "clamp(2rem, 4vh, 2.5rem)" }}>
-                                    <div style={{
+                                <button
+                                    onClick={() => setViewMode('dots')}
+                                    style={{
+                                        padding: "6px 12px",
+                                        borderRadius: "6px",
+                                        background: viewMode === 'dots' ? "rgba(255,255,255,0.1)" : "transparent",
+                                        color: viewMode === 'dots' ? "white" : "rgba(255,255,255,0.4)",
+                                        border: "none",
+                                        cursor: "pointer",
+                                        fontSize: "0.85rem",
                                         display: "flex",
-                                        justifyContent: "space-between",
-                                        marginBottom: "0.75rem",
-                                        fontSize: "clamp(0.85rem, 2vw, 0.95rem)",
-                                        fontFamily: "var(--font-mono)",
-                                        color: "var(--text-secondary)"
-                                    }}>
-                                        <span>{year} Progress</span>
-                                        <span style={{ color: "var(--accent)" }}>{percentComplete}%</span>
-                                    </div>
-                                    <div style={{
-                                        width: "100%",
-                                        height: "8px",
-                                        background: "var(--hover-bg)",
-                                        borderRadius: "4px",
-                                        position: "relative",
-                                        overflow: "hidden"
-                                    }}>
-                                        <div style={{
-                                            position: "absolute",
-                                            left: 0,
-                                            top: 0,
-                                            height: "100%",
-                                            width: `${percentComplete}%`,
-                                            background: "var(--accent)",
-                                            borderRadius: "4px",
-                                            transition: "width 0.5s ease"
-                                        }} />
-                                    </div>
-                                </div>
+                                        alignItems: "center",
+                                        gap: "6px",
+                                        transition: "all 0.2s"
+                                    }}
+                                >
+                                    <Grid3X3 size={14} /> Dots
+                                </button>
+                                <button
+                                    onClick={() => setViewMode('classic')}
+                                    style={{
+                                        padding: "6px 12px",
+                                        borderRadius: "6px",
+                                        background: viewMode === 'classic' ? "rgba(255,255,255,0.1)" : "transparent",
+                                        color: viewMode === 'classic' ? "white" : "rgba(255,255,255,0.4)",
+                                        border: "none",
+                                        cursor: "pointer",
+                                        fontSize: "0.85rem",
+                                        display: "flex",
+                                        alignItems: "center",
+                                        gap: "6px",
+                                        transition: "all 0.2s"
+                                    }}
+                                >
+                                    <BarChart2 size={14} /> Bars
+                                </button>
+                            </div>
+                        </div>
 
-                                {/* Month Bars */}
-                                <div style={{
-                                    display: "grid",
-                                    gridTemplateColumns: "repeat(3, 1fr)",
-                                    gap: "clamp(1rem, 2vw, 1.5rem)"
-                                }}>
-                                    {monthData.map((m, i) => (
-                                        <div key={i} style={{ opacity: m.isPast || m.isCurrent ? 1 : 0.4 }}>
-                                            <div style={{
-                                                display: "flex",
-                                                justifyContent: "space-between",
-                                                alignItems: "center",
-                                                marginBottom: "0.5rem",
-                                                fontSize: "clamp(0.75rem, 1.8vw, 0.85rem)",
-                                                fontFamily: "var(--font-mono)",
-                                                color: m.isCurrent ? "var(--accent)" : "var(--text-secondary)"
-                                            }}>
-                                                <span style={{ fontWeight: m.isCurrent ? 600 : 400 }}>{m.name}</span>
-                                                {m.isCurrent && <span>{m.percentage.toFixed(0)}%</span>}
-                                                {m.isPast && <span style={{ color: "var(--text-muted)" }}>✓</span>}
+                        {/* Content */}
+                        <div style={{ flex: 1, width: "100%", overflowY: "auto", maxHeight: "500px", paddingRight: "0.5rem" }}>
+                            {viewMode === 'dots' ? (
+                                <motion.div
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                    transition={{ duration: 0.5 }}
+                                    style={{
+                                        display: "flex",
+                                        flexWrap: "wrap",
+                                        gap: "6px",
+                                        justifyContent: "center"
+                                    }}
+                                >
+                                    {Array.from({ length: totalDays }, (_, i) => {
+                                        const dayNum = i + 1;
+                                        const isPast = dayNum < dayOfYear;
+                                        const isToday = dayNum === dayOfYear;
+
+                                        return (
+                                            <div
+                                                key={i}
+                                                style={{
+                                                    width: "8px",
+                                                    height: "8px",
+                                                    borderRadius: "50%",
+                                                    backgroundColor: isToday ? theme.colors.accent : (isPast ? "white" : "rgba(255,255,255,0.1)"),
+                                                    opacity: isPast ? 0.3 : (isToday ? 1 : 0.2),
+                                                    boxShadow: isToday ? `0 0 10px ${theme.colors.accent}` : "none",
+                                                    transition: "all 0.3s ease"
+                                                }}
+                                                title={`Day ${dayNum}`}
+                                            />
+                                        );
+                                    })}
+                                </motion.div>
+                            ) : (
+                                <motion.div
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                    transition={{ duration: 0.5 }}
+                                    style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}
+                                >
+                                    {/* Month Bars Grid */}
+                                    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "1.5rem" }}>
+                                        {monthData.map((m, i) => (
+                                            <div key={i} style={{ opacity: m.isPast ? 0.5 : 1 }}>
+                                                <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.85rem", marginBottom: "0.5rem", fontFamily: "var(--font-mono)" }}>
+                                                    <span style={{ color: m.isCurrent ? theme.colors.accent : "inherit" }}>{m.name}</span>
+                                                    <span>{m.percentage.toFixed(0)}%</span>
+                                                </div>
+                                                <div style={{ width: "100%", height: "6px", background: "rgba(255,255,255,0.1)", borderRadius: "3px", overflow: "hidden" }}>
+                                                    <motion.div
+                                                        initial={{ width: 0 }}
+                                                        animate={{ width: `${m.percentage}%` }}
+                                                        transition={{ duration: 1, delay: i * 0.05 }}
+                                                        style={{
+                                                            height: "100%",
+                                                            background: m.isCurrent ? theme.colors.accent : (m.isPast ? "rgba(255,255,255,0.5)" : "transparent"),
+                                                            borderRadius: "3px"
+                                                        }}
+                                                    />
+                                                </div>
                                             </div>
-                                            <div style={{
-                                                width: "100%",
-                                                height: "3px",
-                                                background: "var(--hover-bg)",
-                                                borderRadius: "2px",
-                                                position: "relative",
-                                                overflow: "hidden"
-                                            }}>
-                                                <div style={{
-                                                    position: "absolute",
-                                                    left: 0,
-                                                    top: 0,
-                                                    height: "100%",
-                                                    width: `${m.percentage}%`,
-                                                    background: m.isCurrent ? "var(--accent)" : "var(--foreground)",
-                                                    borderRadius: "2px"
-                                                }} />
-                                            </div>
-                                        </div>
-                                    ))}
+                                        ))}
+                                    </div>
+                                </motion.div>
+                            )}
+                        </div>
+                    </BentoCard>
+
+                    {/* 5. Week Stats (1x1) */}
+                    <BentoCard colSpanDesktop={1} colSpanMobile={2} delay={0.5}>
+                        <div style={{ display: "flex", flexDirection: "column", height: "100%", justifyContent: "space-between" }}>
+                            <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", color: "#FF9F0A" }}>
+                                <Sun size={20} />
+                                <span style={{ fontSize: "0.75rem", fontFamily: "var(--font-mono)", opacity: 0.8, textTransform: "uppercase" }}>Current Week</span>
+                            </div>
+                            <div>
+                                <div style={{ fontSize: "3rem", fontWeight: 700, lineHeight: 1, letterSpacing: "-0.03em" }}>
+                                    {weekNumber}
+                                </div>
+                                <div style={{ fontSize: "0.85rem", opacity: 0.5, marginTop: "0.25rem" }}>
+                                    of 52 weeks
                                 </div>
                             </div>
-                        )}
-                    </section>
+                        </div>
+                    </BentoCard>
 
-                    {/* Inspirational Footer */}
-                    <div style={{
-                        marginTop: "clamp(2rem, 4vh, 3rem)",
-                        paddingTop: "clamp(2rem, 4vh, 3rem)",
-                        borderTop: "1px solid var(--border)",
-                        textAlign: "center"
-                    }}>
-                        <p style={{
-                            fontFamily: "'Playfair Display', serif",
-                            fontSize: "clamp(1.1rem, 3vw, 1.35rem)",
-                            fontStyle: "italic",
-                            color: "var(--text-secondary)",
-                            maxWidth: "30ch",
-                            margin: "0 auto",
-                            lineHeight: 1.5
-                        }}>
-                            "Your time is limited. Don't waste it living someone else's life."
-                        </p>
-                        <p style={{
-                            fontFamily: "var(--font-mono)",
-                            fontSize: "clamp(0.7rem, 1.5vw, 0.8rem)",
-                            color: "var(--text-muted)",
-                            marginTop: "0.75rem",
-                            textTransform: "uppercase",
-                            letterSpacing: "0.1em"
-                        }}>
-                            — Steve Jobs
-                        </p>
-                    </div>
+                    {/* 6. Year Progress (1x1) */}
+                    <BentoCard colSpanDesktop={1} colSpanMobile={2} delay={0.6}>
+                        <div style={{ display: "flex", flexDirection: "column", height: "100%", justifyContent: "space-between" }}>
+                            <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", color: theme.colors.secondary }}>
+                                <TrendingUp size={20} />
+                                <span style={{ fontSize: "0.75rem", fontFamily: "var(--font-mono)", opacity: 0.8, textTransform: "uppercase" }}>Progress</span>
+                            </div>
+                            <div>
+                                <div style={{ fontSize: "3rem", fontWeight: 700, lineHeight: 1, letterSpacing: "-0.03em" }}>
+                                    {percentComplete}%
+                                </div>
+                                <div style={{ fontSize: "0.85rem", opacity: 0.5, marginTop: "0.25rem" }}>
+                                    almost there
+                                </div>
+                            </div>
+                        </div>
+                    </BentoCard>
+
+                    {/* 7. Quote Footer (2x1) */}
+                    <BentoCard colSpanDesktop={2} colSpanMobile={4} delay={0.7} className="flex items-center justify-center text-center">
+                        <div style={{ maxWidth: "80%" }}>
+                            <p style={{
+                                fontFamily: "'Playfair Display', serif",
+                                fontSize: "1.25rem",
+                                fontStyle: "italic",
+                                color: "rgba(255,255,255,0.8)",
+                                lineHeight: 1.5
+                            }}>
+                                "Your time is limited. Don't waste it living someone else's life."
+                            </p>
+                            <p style={{
+                                fontFamily: "var(--font-mono)",
+                                fontSize: "0.75rem",
+                                color: "rgba(255,255,255,0.4)",
+                                marginTop: "1rem",
+                                textTransform: "uppercase",
+                                letterSpacing: "0.1em"
+                            }}>
+                                — Steve Jobs
+                            </p>
+                        </div>
+                    </BentoCard>
+
                 </div>
-            </Container>
+            </main>
         </div>
     );
 }
