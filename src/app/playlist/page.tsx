@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { BarChart2, Play, Search, Heart, Disc, Music2, ChevronLeft, Home } from "lucide-react";
 import { GradientOrb } from "@/components/GradientOrb";
 import { CosmicStars } from "@/components/CosmicStars";
@@ -47,31 +47,37 @@ export default function ImmersiveMusicPage() {
     // 1. Determine which songs to show based on selection
     //    If selectedPlaylistId is null => Show ALL songs (default)
     //    Else => Show only songs in that playlist
-    const activePlaylist = selectedPlaylistId
-        ? PLAYLIST_CATEGORIES.find(p => p.id === selectedPlaylistId)
-        : null;
+    // 1. Determine which songs to show based on selection
+    const activePlaylist = useMemo(() => {
+        return selectedPlaylistId
+            ? PLAYLIST_CATEGORIES.find(p => p.id === selectedPlaylistId)
+            : null;
+    }, [selectedPlaylistId]);
 
-    const songsToFilter = activePlaylist
-        ? PLAYLIST.filter(song =>
-            activePlaylist.songTitles.some((title: string) =>
-                // Fuzzy match or exact match depending on data quality
-                song.title.toLowerCase().includes(title.toLowerCase()) ||
-                title.toLowerCase().includes(song.title.toLowerCase())
-            )
-        )
-        : PLAYLIST;
+    const filteredPlaylist = useMemo(() => {
+        // Step A: Filter by Category/Playlist
+        let baseSongs = PLAYLIST;
+        if (activePlaylist) {
+            baseSongs = PLAYLIST.filter(song =>
+                activePlaylist.songTitles.some((title: string) =>
+                    // Optimization: Check includes both ways for safety, but consider caching activePlaylist.songTitles set if needed
+                    song.title.toLowerCase().includes(title.toLowerCase()) ||
+                    title.toLowerCase().includes(song.title.toLowerCase())
+                )
+            );
+        }
 
-
-    const filteredPlaylist = songsToFilter
-        .map((song) => {
-            // We need to find the ORIGINAL index in the master PLAYLIST 
-            // so that AudioContext jumps to the right track.
-            const originalIndex = PLAYLIST.findIndex(p => p.audioUrl === song.audioUrl);
-            return { ...song, originalIndex };
-        })
-        .filter(song =>
-            song.title.toLowerCase().includes(searchQuery.toLowerCase())
-        );
+        // Step B: Map & Filter by Search
+        // We map FIRST to get original index, then filter by search query
+        return baseSongs
+            .map((song) => {
+                const originalIndex = PLAYLIST.findIndex(p => p.audioUrl === song.audioUrl);
+                return { ...song, originalIndex };
+            })
+            .filter(song =>
+                song.title.toLowerCase().includes(searchQuery.toLowerCase())
+            );
+    }, [activePlaylist, searchQuery]);
 
     return (
         <>
