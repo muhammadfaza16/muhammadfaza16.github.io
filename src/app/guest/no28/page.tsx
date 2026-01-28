@@ -80,15 +80,14 @@ const itemVariants: Variants = {
     show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 50, damping: 15 } }
 };
 
-// Falling Petals Component
+// Falling Petals Component - Optimized
 const FallingPetals = () => {
-    const petals = useMemo(() => Array.from({ length: 12 }).map((_, i) => ({
+    const petals = useMemo(() => Array.from({ length: 8 }).map((_, i) => ({
         id: i,
         left: `${Math.random() * 100}%`,
-        delay: Math.random() * 10,
-        duration: 8 + Math.random() * 6,
-        size: 12 + Math.random() * 8,
-        rotation: Math.random() * 360
+        delay: Math.random() * 8,
+        duration: 10 + Math.random() * 5,
+        size: 10 + Math.random() * 6,
     })), []);
 
     return (
@@ -96,12 +95,11 @@ const FallingPetals = () => {
             {petals.map(petal => (
                 <motion.div
                     key={petal.id}
-                    initial={{ y: "-10%", x: 0, rotate: 0, opacity: 0 }}
+                    initial={{ y: "-5%", opacity: 0 }}
                     animate={{
-                        y: "110vh",
-                        x: [0, 30, -20, 40, 0],
-                        rotate: [0, 180, 360],
-                        opacity: [0, 0.7, 0.7, 0.5, 0]
+                        y: "105vh",
+                        x: [0, 20, -15, 25, 0],
+                        opacity: [0, 0.6, 0.6, 0.4, 0]
                     }}
                     transition={{
                         duration: petal.duration,
@@ -115,8 +113,8 @@ const FallingPetals = () => {
                         width: petal.size,
                         height: petal.size,
                         borderRadius: "50% 0 50% 50%",
-                        background: "linear-gradient(135deg, #ffb7c5 0%, #ffc0cb 50%, #fff0f5 100%)",
-                        boxShadow: "0 2px 4px rgba(255,183,197,0.3)"
+                        background: "linear-gradient(135deg, #ffb7c5 0%, #ffc0cb 100%)",
+                        willChange: "transform, opacity"
                     }}
                 />
             ))}
@@ -124,12 +122,11 @@ const FallingPetals = () => {
     );
 };
 
-// Butterflies Component
+// Butterflies Component - Optimized
 const Butterflies = () => {
     const butterflies = useMemo(() => [
-        { id: 1, startX: "10%", startY: "30%", color: "#e6a8d7" },
-        { id: 2, startX: "80%", startY: "60%", color: "#a8d7e6" },
-        { id: 3, startX: "50%", startY: "20%", color: "#d7e6a8" }
+        { id: 1, startX: "15%", startY: "35%", color: "#e6a8d7" },
+        { id: 2, startX: "75%", startY: "55%", color: "#a8d7e6" },
     ], []);
 
     return (
@@ -138,12 +135,11 @@ const Butterflies = () => {
                 <motion.div
                     key={butterfly.id}
                     animate={{
-                        x: [0, 100, -50, 150, 0],
-                        y: [0, -80, 30, -100, 0],
-                        rotate: [0, 10, -10, 5, 0]
+                        x: [0, 60, -30, 80, 0],
+                        y: [0, -50, 20, -60, 0],
                     }}
                     transition={{
-                        duration: 20 + butterfly.id * 5,
+                        duration: 25 + butterfly.id * 8,
                         repeat: Infinity,
                         ease: "easeInOut"
                     }}
@@ -151,8 +147,8 @@ const Butterflies = () => {
                         position: "absolute",
                         left: butterfly.startX,
                         top: butterfly.startY,
-                        fontSize: "1.5rem",
-                        filter: `drop-shadow(0 2px 4px ${butterfly.color})`
+                        fontSize: "1.3rem",
+                        willChange: "transform"
                     }}
                 >
                     🦋
