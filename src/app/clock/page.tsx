@@ -13,89 +13,120 @@ const MilkyWay = dynamic(() => import("@/components/MilkyWay").then(mod => mod.M
 // --- Enhanced Design System ---
 import { BentoCard, theme } from "@/components/BentoCard";
 
-// 1. Life Stats (Redesigned with Heartbeat)
+// 1. Life Stats (Redesigned with Living Tickers)
 const LifeStats = ({ birthDate }: { birthDate: Date }) => {
-    const [stats, setStats] = useState({ monthsLived: 0, yearsLived: 0, daysLived: 0 });
+    const [stats, setStats] = useState({
+        yearsLived: 0,
+        daysLived: 0,
+        hoursLived: 0,
+        heartbeats: 0,
+        breaths: 0,
+        distanceTraveled: 0
+    });
 
     useEffect(() => {
-        const now = new Date();
-        const diffTime = Math.abs(now.getTime() - birthDate.getTime());
-        const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-        const diffMonths = Math.floor(diffTime / (1000 * 60 * 60 * 24 * 30.44));
-        const diffYears = Math.floor(diffTime / (1000 * 60 * 60 * 24 * 365.25));
+        const calculateStats = () => {
+            const now = new Date();
+            const diffTime = Math.abs(now.getTime() - birthDate.getTime());
 
-        setStats({ monthsLived: diffMonths, yearsLived: diffYears, daysLived: diffDays });
+            // Basic Time Stats
+            const years = Math.floor(diffTime / (1000 * 60 * 60 * 24 * 365.25));
+            const days = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+
+            // Biological Tickers (Approximations)
+            // Heart: Avg 80 bpm -> 1.333 beats per sec
+            // Breath: Avg 16 bpm -> 0.266 breaths per sec
+            // Earth Speed: 29.78 km/s
+            const secondsAlive = diffTime / 1000;
+
+            setStats({
+                yearsLived: years,
+                daysLived: days,
+                hoursLived: Math.floor(diffTime / (1000 * 60 * 60)),
+                heartbeats: Math.floor(secondsAlive * 1.3333),
+                breaths: Math.floor(secondsAlive * 0.2666),
+                distanceTraveled: Math.floor(secondsAlive * 29.78)
+            });
+        };
+
+        // High frequency update for "Living" feel
+        const interval = setInterval(calculateStats, 100);
+        calculateStats(); // Initial call
+
+        return () => clearInterval(interval);
     }, [birthDate]);
 
+    // Format number with commas
+    const fmt = (n: number) => new Intl.NumberFormat().format(n);
+
     return (
-        <BentoCard colSpanMobile={1} colSpanDesktop={1} delay={0.1}>
+        <BentoCard colSpanMobile={1} colSpanDesktop={1} delay={0.2}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "1rem" }}>
-                <motion.div
-                    animate={{ scale: [1, 1.08, 1], filter: ["brightness(1)", "brightness(1.2)", "brightness(1)"] }}
-                    transition={{ repeat: Infinity, duration: 2.5, ease: [0.4, 0, 0.2, 1] }}
-                    style={{
-                        width: "32px", height: "32px", borderRadius: "10px",
-                        background: "rgba(48, 209, 88, 0.15)", color: theme.colors.secondary,
-                        display: "flex", alignItems: "center", justifyContent: "center",
-                        boxShadow: `0 0 10px ${theme.colors.secondary}40`
-                    }}
-                >
-                    <Activity size={18} />
-                </motion.div>
-                <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                    <motion.div
-                        animate={{ opacity: [0.3, 1, 0.3] }}
-                        transition={{ repeat: Infinity, duration: 3, ease: [0.4, 0, 0.2, 1] }}
-                        style={{ width: "6px", height: "6px", borderRadius: "50%", background: theme.colors.secondary }}
-                    />
-                    <span style={{ fontSize: "0.65rem", fontWeight: 600, color: theme.colors.textMuted, letterSpacing: "0.15em", textTransform: "uppercase" }}>
-                        Live
+                <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                    <Activity size={20} color={theme.colors.danger} />
+                    <span style={{ fontSize: "0.85rem", fontWeight: 700, color: theme.colors.textMuted, letterSpacing: "0.05em", textTransform: "uppercase" }}>
+                        Biological Engine
                     </span>
                 </div>
+
+                {/* Pulse Indicator */}
+                <motion.div
+                    animate={{ scale: [1, 1.2, 1], opacity: [0.5, 1, 0.5] }}
+                    transition={{ duration: 0.8, repeat: Infinity, ease: "easeInOut" }}
+                    style={{ width: "8px", height: "8px", borderRadius: "50%", background: theme.colors.danger }}
+                />
             </div>
 
-            <div style={{ display: "flex", flexDirection: "column", gap: "0.2rem" }}>
-                <h2 style={{
-                    fontSize: "3.8rem",
-                    fontWeight: 900,
-                    color: theme.colors.textMain,
-                    letterSpacing: "-0.06em",
-                    lineHeight: 0.85,
-                    fontVariantNumeric: "tabular-nums",
-                    background: `linear-gradient(to bottom, ${theme.colors.textMain}, rgba(255,255,255,0.6))`,
-                    WebkitBackgroundClip: "text",
-                    WebkitTextFillColor: "transparent"
-                }}>
-                    {stats.yearsLived}<span style={{ WebkitTextFillColor: theme.colors.secondary, fontSize: "3.8rem" }}>.</span><span style={{ fontSize: "2.2rem", fontWeight: 500, opacity: 0.6 }}>{(stats.monthsLived % 12)}</span>
-                </h2>
-                <span style={{ fontSize: "0.85rem", fontWeight: 600, color: theme.colors.secondary, letterSpacing: "-0.01em" }}>Years Active</span>
+            <div style={{ display: "flex", flexDirection: "column", gap: "1.25rem" }}>
+                {/* Heartbeats */}
+                <div>
+                    <div style={{ display: "flex", alignItems: "baseline", gap: "0.5rem" }}>
+                        <span style={{ fontFamily: "monospace", fontSize: "1.8rem", fontWeight: 700, color: theme.colors.textMain }}>
+                            {fmt(stats.heartbeats)}
+                        </span>
+                        <span style={{ fontSize: "0.8rem", color: theme.colors.danger }}>bpm</span>
+                    </div>
+                    <span style={{ fontSize: "0.75rem", color: theme.colors.textDim }}>Total Heartbeats</span>
+                </div>
+
+                {/* Breaths */}
+                <div>
+                    <div style={{ display: "flex", alignItems: "baseline", gap: "0.5rem" }}>
+                        <span style={{ fontFamily: "monospace", fontSize: "1.8rem", fontWeight: 700, color: theme.colors.textMain }}>
+                            {fmt(stats.breaths)}
+                        </span>
+                        <span style={{ fontSize: "0.8rem", color: theme.colors.secondary }}>rpm</span>
+                    </div>
+                    <span style={{ fontSize: "0.75rem", color: theme.colors.textDim }}>Total Breaths</span>
+                </div>
+
+                {/* Cosmic Distance */}
+                <div>
+                    <div style={{ display: "flex", alignItems: "baseline", gap: "0.5rem" }}>
+                        <span style={{ fontFamily: "monospace", fontSize: "1.2rem", fontWeight: 700, color: theme.colors.textMain }}>
+                            {fmt(stats.distanceTraveled)}
+                        </span>
+                        <span style={{ fontSize: "0.8rem", color: theme.colors.accent }}>km</span>
+                    </div>
+                    <span style={{ fontSize: "0.75rem", color: theme.colors.textDim }}>Orbit Traveled (Earth)</span>
+                </div>
             </div>
 
-            <div style={{ marginTop: "1rem" }}>
-                <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.65rem", fontWeight: 600, marginBottom: "8px", color: theme.colors.textMuted, letterSpacing: "0.05em", textTransform: "uppercase" }}>
-                    <span>System Status</span>
-                    <span style={{ color: theme.colors.secondary }}>{Math.round((stats.yearsLived / 80) * 100)}%</span>
-                </div>
-                <div style={{ width: "100%", background: "rgba(255,255,255,0.06)", height: "6px", borderRadius: theme.radii.pill, overflow: "hidden" }}>
-                    <motion.div
-                        initial={{ width: 0 }}
-                        animate={{
-                            width: `${(stats.yearsLived / 80) * 100}%`,
-                            opacity: [0.8, 1, 0.8]
-                        }}
-                        transition={{
-                            width: { duration: 2, ease: [0.23, 1, 0.32, 1] },
-                            opacity: { repeat: Infinity, duration: 4, ease: [0.4, 0, 0.2, 1] }
-                        }}
-                        style={{
-                            background: theme.colors.secondary,
-                            height: "100%",
-                            borderRadius: theme.radii.pill,
-                            boxShadow: `0 0 12px ${theme.colors.secondary}40`
-                        }}
-                    />
-                </div>
-            </div>
+            {/* Background EKG Visualization */}
+            <svg
+                style={{ position: "absolute", bottom: 0, left: 0, width: "100%", height: "60px", opacity: 0.1, pointerEvents: "none" }}
+                viewBox="0 0 300 60"
+            >
+                <motion.path
+                    d="M0,30 L20,30 L25,10 L35,50 L40,30 L300,30"
+                    fill="none"
+                    stroke={theme.colors.danger}
+                    strokeWidth="2"
+                    initial={{ pathLength: 0, x: -300 }}
+                    animate={{ x: 0 }}
+                    transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+                />
+            </svg>
         </BentoCard>
     );
 };
