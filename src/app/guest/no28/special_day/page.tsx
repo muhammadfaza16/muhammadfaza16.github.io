@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Home, Sparkles, Clock, Calendar, Heart, Gift, Activity, Wind, Star, BookOpen, Map, MapPin } from "lucide-react";
 import Link from "next/link";
@@ -225,6 +225,87 @@ const WaxSeal = ({ color = "#8b0000" }) => (
     </div>
 );
 
+// Falling Petals Component
+const FallingPetals = () => {
+    const petals = useMemo(() => Array.from({ length: 12 }).map((_, i) => ({
+        id: i,
+        left: `${Math.random() * 100}%`,
+        delay: Math.random() * 10,
+        duration: 8 + Math.random() * 6,
+        size: 12 + Math.random() * 8,
+    })), []);
+
+    return (
+        <div style={{ position: "fixed", inset: 0, zIndex: 2, pointerEvents: "none", overflow: "hidden" }}>
+            {petals.map(petal => (
+                <motion.div
+                    key={petal.id}
+                    initial={{ y: "-10%", x: 0, rotate: 0, opacity: 0 }}
+                    animate={{
+                        y: "110vh",
+                        x: [0, 30, -20, 40, 0],
+                        rotate: [0, 180, 360],
+                        opacity: [0, 0.7, 0.7, 0.5, 0]
+                    }}
+                    transition={{
+                        duration: petal.duration,
+                        delay: petal.delay,
+                        repeat: Infinity,
+                        ease: "linear"
+                    }}
+                    style={{
+                        position: "absolute",
+                        left: petal.left,
+                        width: petal.size,
+                        height: petal.size,
+                        borderRadius: "50% 0 50% 50%",
+                        background: "linear-gradient(135deg, #ffb7c5 0%, #ffc0cb 50%, #fff0f5 100%)",
+                        boxShadow: "0 2px 4px rgba(255,183,197,0.3)"
+                    }}
+                />
+            ))}
+        </div>
+    );
+};
+
+// Butterflies Component
+const Butterflies = () => {
+    const butterflies = useMemo(() => [
+        { id: 1, startX: "10%", startY: "30%", color: "#e6a8d7" },
+        { id: 2, startX: "80%", startY: "60%", color: "#a8d7e6" },
+        { id: 3, startX: "50%", startY: "20%", color: "#d7e6a8" }
+    ], []);
+
+    return (
+        <div style={{ position: "fixed", inset: 0, zIndex: 3, pointerEvents: "none" }}>
+            {butterflies.map(butterfly => (
+                <motion.div
+                    key={butterfly.id}
+                    animate={{
+                        x: [0, 100, -50, 150, 0],
+                        y: [0, -80, 30, -100, 0],
+                        rotate: [0, 10, -10, 5, 0]
+                    }}
+                    transition={{
+                        duration: 20 + butterfly.id * 5,
+                        repeat: Infinity,
+                        ease: "easeInOut"
+                    }}
+                    style={{
+                        position: "absolute",
+                        left: butterfly.startX,
+                        top: butterfly.startY,
+                        fontSize: "1.5rem",
+                        filter: `drop-shadow(0 2px 4px ${butterfly.color})`
+                    }}
+                >
+                    🦋
+                </motion.div>
+            ))}
+        </div>
+    );
+};
+
 // --- Page ---
 
 export default function SpecialDayBentoPage() {
@@ -233,6 +314,14 @@ export default function SpecialDayBentoPage() {
     const [isMobile, setIsMobile] = useState(false);
     const [wisdom, setWisdom] = useState("");
     const [kamusIndex, setKamusIndex] = useState(0);
+
+    // New interactive states
+    const [heartbeats, setHeartbeats] = useState(0);
+    const [showShakeOverlay, setShowShakeOverlay] = useState(false);
+    const [kamusHearts, setKamusHearts] = useState<{ id: number; x: number; y: number }[]>([]);
+    const [expandedChapter, setExpandedChapter] = useState<number | null>(null);
+    const [showTodayMessage, setShowTodayMessage] = useState(false);
+    const wisdomIndexRef = useRef(0);
 
     // Birth Date: 28 November 2000
     const birthDate = new Date(2000, 10, 28);
@@ -305,6 +394,90 @@ export default function SpecialDayBentoPage() {
         return () => clearTimeout(timer);
     }, [footerIndex]);
 
+    // Heartbeat counter - ~70 BPM average
+    useEffect(() => {
+        const msPerHeartbeat = 60000 / 70; // ~857ms per beat
+        const interval = setInterval(() => {
+            const msLived = Date.now() - birthDate.getTime();
+            const beats = Math.floor(msLived / msPerHeartbeat);
+            setHeartbeats(beats);
+        }, 857);
+
+        // Initial calculation
+        const msLived = Date.now() - birthDate.getTime();
+        setHeartbeats(Math.floor(msLived / msPerHeartbeat));
+
+        return () => clearInterval(interval);
+    }, []);
+
+    // Shake detection for new wisdom
+    useEffect(() => {
+        let lastX = 0, lastY = 0, lastZ = 0;
+        let lastShakeTime = 0;
+        const SHAKE_THRESHOLD = 25;
+
+        const dailyWisdoms = [
+            "Kamu adalah alasan di balik senyuman yang merekah hari ini, meski terkadang kau tak menyadarinya.",
+            "Setiap langkah yang kau tapaki adalah guratan berharga dalam kanvas waktu yang abadi.",
+            "Hari ini adalah selembar kertas kosong yang menanti sentuhan terbaikmu.",
+            "Tetaplah bersinar dengan caramu yang paling tenang.",
+            "Kebahagiaanmu adalah prioritas utama yang harus kau jaga di sini, saat ini.",
+            "Terimalah dirimu apa adanya, dekaplah setiap detik yang kau miliki dengan rasa syukur.",
+            "Jangan pernah biarkan cahayamu redup hanya karena dunia belum siap menerima benderangnya."
+        ];
+
+        const handleMotion = (e: DeviceMotionEvent) => {
+            const acc = e.accelerationIncludingGravity;
+            if (!acc || acc.x === null || acc.y === null || acc.z === null) return;
+
+            const deltaX = Math.abs(acc.x - lastX);
+            const deltaY = Math.abs(acc.y - lastY);
+            const deltaZ = Math.abs(acc.z - lastZ);
+
+            const now = Date.now();
+            if ((deltaX > SHAKE_THRESHOLD || deltaY > SHAKE_THRESHOLD || deltaZ > SHAKE_THRESHOLD)
+                && (now - lastShakeTime > 1500)) {
+                lastShakeTime = now;
+                if (navigator.vibrate) navigator.vibrate([50, 50, 100]);
+
+                // Get next wisdom
+                wisdomIndexRef.current = (wisdomIndexRef.current + 1) % dailyWisdoms.length;
+                setWisdom(dailyWisdoms[wisdomIndexRef.current]);
+                setShowShakeOverlay(true);
+                setTimeout(() => setShowShakeOverlay(false), 3000);
+            }
+
+            lastX = acc.x;
+            lastY = acc.y;
+            lastZ = acc.z;
+        };
+
+        window.addEventListener('devicemotion', handleMotion);
+        return () => window.removeEventListener('devicemotion', handleMotion);
+    }, []);
+
+    // Long-press handler for Kamus 28
+    let longPressTimer: NodeJS.Timeout | null = null;
+    const handleKamusLongPressStart = (e: React.TouchEvent) => {
+        const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+        const centerX = rect.width / 2;
+        const centerY = rect.height / 2;
+
+        longPressTimer = setTimeout(() => {
+            if (navigator.vibrate) navigator.vibrate([50, 50, 100]);
+            const newHearts = Array.from({ length: 8 }).map((_, i) => ({
+                id: Date.now() + i,
+                x: centerX + (Math.random() - 0.5) * 100,
+                y: centerY + (Math.random() - 0.5) * 100
+            }));
+            setKamusHearts(newHearts);
+            setTimeout(() => setKamusHearts([]), 1500);
+        }, 800);
+    };
+    const handleKamusLongPressEnd = () => {
+        if (longPressTimer) clearTimeout(longPressTimer);
+    };
+
     if (!mounted) return null;
 
     // --- Calculations ---
@@ -344,6 +517,57 @@ export default function SpecialDayBentoPage() {
             {/* Ambient Background Elements */}
             <NoiseOverlay />
             <FloatingParticles />
+            <FallingPetals />
+            <Butterflies />
+
+            {/* Shake Overlay for New Wisdom */}
+            <AnimatePresence>
+                {showShakeOverlay && (
+                    <motion.div
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0, scale: 0.9 }}
+                        style={{
+                            position: "fixed",
+                            top: "50%",
+                            left: "50%",
+                            transform: "translate(-50%, -50%)",
+                            background: "rgba(255,255,255,0.95)",
+                            padding: "2rem",
+                            borderRadius: "20px",
+                            boxShadow: "0 20px 60px rgba(0,0,0,0.15)",
+                            zIndex: 9999,
+                            maxWidth: "90%",
+                            textAlign: "center",
+                            border: "1px dashed #d2b48c"
+                        }}
+                    >
+                        <motion.div
+                            animate={{ rotate: [0, 10, -10, 0] }}
+                            transition={{ duration: 0.5 }}
+                            style={{ fontSize: "2rem", marginBottom: "1rem" }}
+                        >
+                            ✨
+                        </motion.div>
+                        <p style={{
+                            fontFamily: "'Caveat', cursive",
+                            fontSize: "1.3rem",
+                            color: "#4e4439",
+                            lineHeight: 1.5
+                        }}>
+                            "{wisdom}"
+                        </p>
+                        <p style={{
+                            fontSize: "0.8rem",
+                            color: "#a0907d",
+                            marginTop: "1rem",
+                            opacity: 0.7
+                        }}>
+                            ✧ kata baru untukmu ✧
+                        </p>
+                    </motion.div>
+                )}
+            </AnimatePresence>
 
             <motion.div
                 animate={{ scale: [1, 1.05, 1], opacity: [0.3, 0.4, 0.3], rotate: [0, 5, 0] }}
@@ -357,24 +581,28 @@ export default function SpecialDayBentoPage() {
                 style={{ position: "fixed", bottom: "5%", left: "-5%", width: "550px", height: "550px", background: "radial-gradient(circle, rgba(255, 229, 217, 0.4) 0%, transparent 70%)", filter: "blur(60px)", pointerEvents: "none", zIndex: 0 }}
             />
 
-            {/* Individual Watercolor Sketches */}
-            <motion.div
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 0.4, y: [0, -15, 0], rotate: [-10, -5, -10] }}
-                transition={{ opacity: { duration: 1 }, y: { duration: 6, repeat: Infinity, ease: "easeInOut" }, rotate: { duration: 7, repeat: Infinity, ease: "easeInOut" } }}
-                style={{ position: "fixed", top: "2%", left: "8%", width: "200px", height: "200px", zIndex: 1, pointerEvents: "none" }}
-            >
-                <Image src="/special_peony.png" alt="" fill style={{ objectFit: 'contain' }} />
-            </motion.div>
+            {/* Individual Watercolor Sketches - Hide on mobile */}
+            {!isMobile && (
+                <>
+                    <motion.div
+                        initial={{ opacity: 0, scale: 0.8 }}
+                        animate={{ opacity: 0.4, y: [0, -15, 0], rotate: [-10, -5, -10] }}
+                        transition={{ opacity: { duration: 1 }, y: { duration: 6, repeat: Infinity, ease: "easeInOut" }, rotate: { duration: 7, repeat: Infinity, ease: "easeInOut" } }}
+                        style={{ position: "fixed", top: "2%", left: "8%", width: "200px", height: "200px", zIndex: 1, pointerEvents: "none" }}
+                    >
+                        <Image src="/special_peony.png" alt="" fill style={{ objectFit: 'contain' }} />
+                    </motion.div>
 
-            <motion.div
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 0.35, y: [0, -8, 0], rotate: [-5, 0, -5] }}
-                transition={{ opacity: { duration: 1, delay: 0.4 }, y: { duration: 7, repeat: Infinity, ease: "easeInOut" }, rotate: { duration: 8, repeat: Infinity, ease: "easeInOut" } }}
-                style={{ position: "fixed", bottom: "15%", left: "5%", width: "180px", height: "180px", zIndex: 1, pointerEvents: "none" }}
-            >
-                <Image src="/special_wildflowers.png" alt="" fill style={{ objectFit: 'contain' }} />
-            </motion.div>
+                    <motion.div
+                        initial={{ opacity: 0, scale: 0.8 }}
+                        animate={{ opacity: 0.35, y: [0, -8, 0], rotate: [-5, 0, -5] }}
+                        transition={{ opacity: { duration: 1, delay: 0.4 }, y: { duration: 7, repeat: Infinity, ease: "easeInOut" }, rotate: { duration: 8, repeat: Infinity, ease: "easeInOut" } }}
+                        style={{ position: "fixed", bottom: "15%", left: "5%", width: "180px", height: "180px", zIndex: 1, pointerEvents: "none" }}
+                    >
+                        <Image src="/special_wildflowers.png" alt="" fill style={{ objectFit: 'contain' }} />
+                    </motion.div>
+                </>
+            )}
 
             <div style={{ position: "fixed", inset: 0, opacity: 0.4, pointerEvents: "none", backgroundImage: "url('https://www.transparenttextures.com/patterns/natural-paper.png')", zIndex: 5 }} />
 
@@ -499,7 +727,30 @@ export default function SpecialDayBentoPage() {
                         {/* 3. Kamus Angka 28 (Dedicated Widget) */}
                         <BentoCard isMobile={isMobile} style={{ gridColumn: isMobile ? "span 1" : "span 5", background: "linear-gradient(to bottom, #fff, #fdfbf7)" }} rotate="0.6deg" tapeColor="#b598d9">
                             <SectionTitle icon={Sparkles}>Kamus Angka 28</SectionTitle>
-                            <div style={{ textAlign: "center", padding: "1.5rem 0" }}>
+                            <div
+                                onTouchStart={handleKamusLongPressStart}
+                                onTouchEnd={handleKamusLongPressEnd}
+                                style={{ textAlign: "center", padding: "1.5rem 0", position: "relative", cursor: "pointer" }}
+                            >
+                                {/* Long-press hearts explosion */}
+                                {kamusHearts.map(heart => (
+                                    <motion.div
+                                        key={heart.id}
+                                        initial={{ scale: 0, opacity: 1 }}
+                                        animate={{ scale: 2, opacity: 0, y: -50 }}
+                                        transition={{ duration: 1 }}
+                                        style={{
+                                            position: "absolute",
+                                            left: heart.x,
+                                            top: heart.y,
+                                            fontSize: "1.5rem",
+                                            pointerEvents: "none",
+                                            zIndex: 100
+                                        }}
+                                    >
+                                        ✨
+                                    </motion.div>
+                                ))}
                                 <div style={{
                                     fontSize: "6rem",
                                     fontWeight: 900,
@@ -561,6 +812,42 @@ export default function SpecialDayBentoPage() {
                                     <div style={{ width: "20px", height: "1px", background: "#b07d62", opacity: 0.2 }} />
                                 </div>
                             </div>
+                        </BentoCard>
+
+                        {/* 5. Heartbeat Counter Widget */}
+                        <BentoCard isMobile={isMobile} style={{ gridColumn: isMobile ? "span 1" : "span 12", textAlign: "center" }} rotate="0.3deg" tapeColor="#87b0a5">
+                            <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "1rem", flexWrap: "wrap" }}>
+                                <motion.div
+                                    animate={{ scale: [1, 1.2, 1] }}
+                                    transition={{ duration: 0.857, repeat: Infinity }}
+                                    style={{ fontSize: "2rem" }}
+                                >
+                                    💓
+                                </motion.div>
+                                <div>
+                                    <div style={{ fontSize: "0.7rem", color: "#a0907d", textTransform: "uppercase", letterSpacing: "1.5px", marginBottom: "0.3rem" }}>
+                                        Detak jantungmu sejak lahir
+                                    </div>
+                                    <div style={{
+                                        fontSize: isMobile ? "1.8rem" : "2.5rem",
+                                        fontWeight: 900,
+                                        color: "#b07d62",
+                                        fontFamily: "'Crimson Pro', serif"
+                                    }}>
+                                        {heartbeats.toLocaleString('id-ID')}
+                                    </div>
+                                </div>
+                                <motion.div
+                                    animate={{ scale: [1, 1.2, 1] }}
+                                    transition={{ duration: 0.857, repeat: Infinity, delay: 0.4 }}
+                                    style={{ fontSize: "2rem" }}
+                                >
+                                    💓
+                                </motion.div>
+                            </div>
+                            <HandwrittenNote style={{ marginTop: "1rem", fontSize: "1rem", opacity: 0.7 }}>
+                                "...dan setiap detaknya adalah bukti bahwa kamu berharga."
+                            </HandwrittenNote>
                         </BentoCard>
 
                     </motion.div>
