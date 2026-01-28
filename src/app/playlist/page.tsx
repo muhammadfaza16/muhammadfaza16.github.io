@@ -77,7 +77,7 @@ export default function ImmersiveMusicPage() {
 
     // Detect which playlist is currently playing (if any)
     const currentlyPlayingPlaylistId = useMemo(() => {
-        if (!isPlaying || queue.length <= 1) return null;
+        if (!isPlaying || queue.length === 0) return null;
 
         // Check each playlist to see if its songs match the current queue
         for (const playlist of PLAYLIST_CATEGORIES) {

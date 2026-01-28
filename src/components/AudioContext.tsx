@@ -257,6 +257,8 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
     }, []);
 
     // Auto-play when index changes if it was already playing or triggered by next
+    // Also triggers when queue changes (e.g., switching playlists)
+    const queueId = queue[0]?.audioUrl || ""; // Unique identifier for current queue
     useEffect(() => {
         // If we are playing (or forcePlay was set to true which updated isPlaying),
         // we need to ensure the new track plays.
@@ -275,7 +277,7 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
         }
 
 
-    }, [currentIndex, isPlaying]); // Removed 'queue' - audio src handles queue changes
+    }, [currentIndex, isPlaying, queueId]); // Added queueId to detect playlist switches
 
     const currentSong = queue[currentIndex] || queue[0];
 
