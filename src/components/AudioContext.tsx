@@ -273,7 +273,7 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
         }
 
 
-    }, [currentIndex, isPlaying, queue]);
+    }, [currentIndex, isPlaying]); // Removed 'queue' - audio src handles queue changes
 
     const currentSong = queue[currentIndex] || queue[0];
 
