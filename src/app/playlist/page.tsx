@@ -578,15 +578,10 @@ export default function ImmersiveMusicPage() {
                             const isLast = i === filteredPlaylist.length - 1;
 
                             return (
-                                <motion.div
+                                <div
                                     key={originalIndex}
-                                    variants={{
-                                        hidden: { opacity: 0, y: 10 },
-                                        visible: { opacity: 1, y: 0 }
-                                    }}
                                     onClick={() => playQueue(filteredPlaylist, i)}
-                                    whileHover={{ backgroundColor: "rgba(255,255,255,0.08)" }}
-                                    whileTap={{ scale: 0.98, backgroundColor: "rgba(255,255,255,0.12)" }}
+                                    className="group/item"
                                     style={{
                                         display: "flex",
                                         alignItems: "center",
@@ -597,7 +592,7 @@ export default function ImmersiveMusicPage() {
                                             : "transparent",
                                         cursor: "pointer",
                                         position: "relative",
-                                        transition: "background 0.1s"
+                                        transition: "background 0.2s ease" // CSS Transition instead of Motion
                                     }}
                                 >
                                     {/* Separator Line (Inset) */}
