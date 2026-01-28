@@ -737,8 +737,8 @@ export default function GuestNo28Dashboard() {
                                 <WashiTape color="#4ecdc4" rotate="2deg" width="100px" />
 
                                 {/* Central Sketch Illustration */}
-                                <div style={{ position: "relative", width: "210px", height: "160px", marginBottom: "1rem", marginTop: "1rem", mixBlendMode: "multiply", transform: "rotate(-5deg)" }}>
-                                    <Image src="/sketch_maryjane_shoes.png" alt="Mary Jane Shoes Sketch" fill style={{ objectFit: "contain" }} />
+                                <div style={{ position: "relative", width: "210px", height: "180px", marginBottom: "1rem", marginTop: "1rem", mixBlendMode: "multiply", transform: "rotate(-2deg)" }}>
+                                    <Image src="/sketch_gift_box.png" alt="Vintage Gift Box Sketch" fill style={{ objectFit: "contain" }} />
                                 </div>
 
                                 <div style={{ position: "relative", zIndex: 1 }}>
