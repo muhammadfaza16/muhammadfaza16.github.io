@@ -112,7 +112,6 @@ export function MiniPlayerWidget({ style: customStyle }: MiniPlayerProps) {
                             justifyContent: "center",
                             position: "relative"
                         }}>
-                            {/* ... same internal content ... */}
                             <motion.div
                                 animate={{ rotate: isPlaying ? 360 : 0 }}
                                 transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
