@@ -170,17 +170,17 @@ export default function ImmersiveMusicPage() {
                     margin: "0 auto",
                     display: "flex",
                     flexDirection: "column",
-                    gap: "2.5rem" // Increased from 2rem for breathing room between sections
+                    gap: "1.5rem" // Tighter gap (was 2.5rem)
                 }}>
                     {/* Header & Grid */}
-                    <div style={{ marginBottom: "0.5rem" }}> {/* Added margin below header section */}
+                    <div style={{ marginBottom: "1rem" }}> {/* More margin below header to playlist grid */}
                         <motion.div
                             style={{
                                 display: "flex",
                                 justifyContent: "space-between",
                                 alignItems: "center",
-                                marginBottom: "1.25rem",
-                                padding: "0 0.5rem",
+                                paddingBottom: "1.5rem", // Padding, not margin
+                                padding: "0 0.5rem 1.5rem 0.5rem", // Added bottom padding
                                 height: "40px"
                             }}
                         >
@@ -455,6 +455,7 @@ export default function ImmersiveMusicPage() {
                         position: "sticky",
                         top: "1.5rem",
                         zIndex: 40,
+                        marginBottom: "-0.5rem" // Reduce gap to song list below
                     }}>
                         <div style={{
                             width: "100%",
