@@ -202,13 +202,15 @@ export default function ImmersiveMusicPage() {
                     gap: "1.5rem" // Tighter gap (was 2.5rem)
                 }}>
                     {/* Header & Grid */}
-                    <div style={{ marginBottom: "1.5rem" }}> {/* Increased margin below header */}
+                    <div style={{ marginBottom: "2rem" }}> {/* Explicit margin below entire header section */}
                         <motion.div
                             style={{
                                 display: "flex",
                                 justifyContent: "space-between",
                                 alignItems: "center",
-                                padding: "0 0.5rem 2rem 0.5rem", // Increased bottom padding
+                                paddingLeft: "0.5rem",
+                                paddingRight: "0.5rem",
+                                paddingBottom: "2.5rem", /* Explicit large gap between Library and cards */
                                 height: "40px"
                             }}
                         >
