@@ -154,7 +154,7 @@ export default function TimePage() {
                     display: "grid",
                     gridTemplateColumns: "repeat(4, 1fr)",
                     gap: "1.5rem",
-                    autoRows: "minmax(180px, auto)"
+                    gridAutoRows: "minmax(180px, auto)"
                 }}>
 
                     {/* 1. Big Clock (2x1) */}
