@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
-import { motion, Variants } from "framer-motion";
+import { motion, Variants, AnimatePresence } from "framer-motion";
 import { Home, Mail, Calendar, Quote, Sparkles, ChevronRight, BookOpen, Wind } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
@@ -92,6 +92,14 @@ export default function GuestNo28Dashboard() {
     const [isMobile, setIsMobile] = useState(false);
     const [dailyHaiku, setDailyHaiku] = useState(haikuCollection[0]);
 
+    // New interactive states
+    const [showSecretMessage, setShowSecretMessage] = useState(false);
+    const [haikuRevealed, setHaikuRevealed] = useState(false);
+    const [hearts, setHearts] = useState<{ id: number; x: number; y: number }[]>([]);
+    const [longPressHearts, setLongPressHearts] = useState<{ id: number; x: number; y: number }[]>([]);
+    const [pullRefreshMessage, setPullRefreshMessage] = useState("");
+    const [currentCardIndex, setCurrentCardIndex] = useState(0);
+
     useEffect(() => {
         setMounted(true);
 
@@ -130,12 +138,125 @@ export default function GuestNo28Dashboard() {
         return () => window.removeEventListener('resize', checkMobile);
     }, []);
 
+    // Shake detection for secret message
+    useEffect(() => {
+        let lastX = 0, lastY = 0, lastZ = 0;
+        let lastShakeTime = 0;
+        const SHAKE_THRESHOLD = 25;
+
+        const handleMotion = (e: DeviceMotionEvent) => {
+            const acc = e.accelerationIncludingGravity;
+            if (!acc || acc.x === null || acc.y === null || acc.z === null) return;
+
+            const deltaX = Math.abs(acc.x - lastX);
+            const deltaY = Math.abs(acc.y - lastY);
+            const deltaZ = Math.abs(acc.z - lastZ);
+
+            if ((deltaX > SHAKE_THRESHOLD || deltaY > SHAKE_THRESHOLD || deltaZ > SHAKE_THRESHOLD)) {
+                const now = Date.now();
+                if (now - lastShakeTime > 1500) { // Debounce 1.5s
+                    lastShakeTime = now;
+                    setShowSecretMessage(true);
+                    // Vibrate if available
+                    if (navigator.vibrate) navigator.vibrate(100);
+                    setTimeout(() => setShowSecretMessage(false), 4000);
+                }
+            }
+            lastX = acc.x; lastY = acc.y; lastZ = acc.z;
+        };
+
+        // Request permission on iOS 13+
+        const requestPermission = async () => {
+            if (typeof (DeviceMotionEvent as any).requestPermission === 'function') {
+                try {
+                    const permission = await (DeviceMotionEvent as any).requestPermission();
+                    if (permission === 'granted') {
+                        window.addEventListener('devicemotion', handleMotion);
+                    }
+                } catch (e) {
+                    console.log('DeviceMotion permission denied');
+                }
+            } else {
+                window.addEventListener('devicemotion', handleMotion);
+            }
+        };
+
+        requestPermission();
+        return () => window.removeEventListener('devicemotion', handleMotion);
+    }, []);
+
+    // Double-tap heart handler
+    const handleDoubleTap = (e: React.TouchEvent | React.MouseEvent) => {
+        const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+        const x = 'touches' in e ? e.touches[0].clientX - rect.left : (e as React.MouseEvent).clientX - rect.left;
+        const y = 'touches' in e ? e.touches[0].clientY - rect.top : (e as React.MouseEvent).clientY - rect.top;
+        const newHeart = { id: Date.now(), x, y };
+        setHearts(prev => [...prev, newHeart]);
+        if (navigator.vibrate) navigator.vibrate(50);
+        setTimeout(() => {
+            setHearts(prev => prev.filter(h => h.id !== newHeart.id));
+        }, 1000);
+    };
+
+    // Long-press easter egg handler
+    let longPressTimer: NodeJS.Timeout | null = null;
+    const handleLongPressStart = (e: React.TouchEvent) => {
+        const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+        const centerX = rect.width / 2;
+        const centerY = rect.height / 2;
+
+        longPressTimer = setTimeout(() => {
+            if (navigator.vibrate) navigator.vibrate([50, 50, 100]);
+            // Create explosion of hearts
+            const newHearts = Array.from({ length: 8 }).map((_, i) => ({
+                id: Date.now() + i,
+                x: centerX + (Math.random() - 0.5) * 100,
+                y: centerY + (Math.random() - 0.5) * 100
+            }));
+            setLongPressHearts(newHearts);
+            setTimeout(() => setLongPressHearts([]), 1500);
+        }, 800);
+    };
+    const handleLongPressEnd = () => {
+        if (longPressTimer) clearTimeout(longPressTimer);
+    };
+
+    // Secret messages for shake
+    const secretMessages = [
+        "Kamu adalah alasan halaman ini ada 💕",
+        "Setiap detik bersamamu adalah puisi",
+        "Aku selalu di sini, menunggumu",
+        "Kamu lebih indah dari yang kamu kira",
+        "Terima kasih sudah menjadi kamu"
+    ];
+    const randomSecretMessage = useMemo(() =>
+        secretMessages[Math.floor(Math.random() * secretMessages.length)]
+        , [showSecretMessage]);
+
     if (!mounted) return null;
 
     const baseCardStyle = {
         transition: "transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1)",
         position: "relative" as "relative",
     };
+
+    // Cards data for swipeable carousel
+    const cards = [
+        {
+            title: "Sepucuk Surat",
+            subtitle: '"Tinta yang baru saja mengering..."',
+            href: "/guest/no28/letter",
+            image: "/sketch_envelope_flower.png",
+            tapeColor: "#ff6b6b"
+        },
+        {
+            title: "Lembaran Kisah",
+            subtitle: '"Setiap detiknya adalah puisi..."',
+            href: "/guest/no28/special_day",
+            image: "/sketch_maryjane_shoes.png",
+            tapeColor: "#4ecdc4"
+        }
+    ];
 
     return (
         <div style={{
@@ -161,6 +282,62 @@ export default function GuestNo28Dashboard() {
             <NoiseOverlay />
             <FloatingParticles />
 
+            {/* Secret Message Overlay (Shake to Reveal) */}
+            <AnimatePresence>
+                {showSecretMessage && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        style={{
+                            position: "fixed",
+                            inset: 0,
+                            background: "rgba(253, 248, 241, 0.95)",
+                            zIndex: 9999,
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            padding: "2rem"
+                        }}
+                        onClick={() => setShowSecretMessage(false)}
+                    >
+                        <motion.div
+                            initial={{ scale: 0.8, y: 20 }}
+                            animate={{ scale: 1, y: 0 }}
+                            exit={{ scale: 0.8, y: 20 }}
+                            style={{
+                                textAlign: "center",
+                                maxWidth: "300px"
+                            }}
+                        >
+                            <motion.div
+                                animate={{ rotate: [0, -10, 10, -10, 0] }}
+                                transition={{ duration: 0.5 }}
+                                style={{ fontSize: "3rem", marginBottom: "1rem" }}
+                            >
+                                💕
+                            </motion.div>
+                            <p style={{
+                                fontFamily: "'Caveat', cursive",
+                                fontSize: "1.8rem",
+                                color: "#b07d62",
+                                lineHeight: 1.4
+                            }}>
+                                {randomSecretMessage}
+                            </p>
+                            <p style={{
+                                fontSize: "0.8rem",
+                                color: "#a0907d",
+                                marginTop: "1rem",
+                                opacity: 0.7
+                            }}>
+                                (tap to close)
+                            </p>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
             <motion.div
                 animate={{ scale: [1, 1.05, 1], opacity: [0.3, 0.4, 0.3], rotate: [0, 5, 0] }}
                 transition={{ duration: 15, repeat: Infinity, ease: "easeInOut" }}
@@ -173,33 +350,37 @@ export default function GuestNo28Dashboard() {
                 style={{ position: "fixed", bottom: "5%", left: "-5%", width: "550px", height: "550px", background: "radial-gradient(circle, rgba(255, 229, 217, 0.4) 0%, transparent 70%)", filter: "blur(60px)", pointerEvents: "none", zIndex: 0 }}
             />
 
-            {/* Individual Watercolor Sketches */}
-            <motion.div
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 0.4, y: [0, -15, 0], rotate: [-10, -5, -10] }}
-                transition={{ opacity: { duration: 1 }, y: { duration: 6, repeat: Infinity, ease: "easeInOut" }, rotate: { duration: 7, repeat: Infinity, ease: "easeInOut" } }}
-                style={{ position: "fixed", top: "5%", left: "8%", width: "150px", height: "150px", zIndex: 1, pointerEvents: "none" }}
-            >
-                <Image src="/detail_lavender.png" alt="" fill style={{ objectFit: 'contain' }} />
-            </motion.div>
+            {/* Individual Watercolor Sketches - Hide on mobile to reduce clutter */}
+            {!isMobile && (
+                <>
+                    <motion.div
+                        initial={{ opacity: 0, scale: 0.8 }}
+                        animate={{ opacity: 0.4, y: [0, -15, 0], rotate: [-10, -5, -10] }}
+                        transition={{ opacity: { duration: 1 }, y: { duration: 6, repeat: Infinity, ease: "easeInOut" }, rotate: { duration: 7, repeat: Infinity, ease: "easeInOut" } }}
+                        style={{ position: "fixed", top: "5%", left: "8%", width: "150px", height: "150px", zIndex: 1, pointerEvents: "none" }}
+                    >
+                        <Image src="/detail_lavender.png" alt="" fill style={{ objectFit: 'contain' }} />
+                    </motion.div>
 
-            <motion.div
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 0.3, y: [0, 10, 0], rotate: [15, 20, 15] }}
-                transition={{ opacity: { duration: 1, delay: 0.2 }, y: { duration: 8, repeat: Infinity, ease: "easeInOut" }, rotate: { duration: 9, repeat: Infinity, ease: "easeInOut" } }}
-                style={{ position: "fixed", top: "45%", right: "8%", width: "120px", height: "120px", zIndex: 1, pointerEvents: "none" }}
-            >
-                <Image src="/detail_rose.png" alt="" fill style={{ objectFit: 'contain' }} />
-            </motion.div>
+                    <motion.div
+                        initial={{ opacity: 0, scale: 0.8 }}
+                        animate={{ opacity: 0.3, y: [0, 10, 0], rotate: [15, 20, 15] }}
+                        transition={{ opacity: { duration: 1, delay: 0.2 }, y: { duration: 8, repeat: Infinity, ease: "easeInOut" }, rotate: { duration: 9, repeat: Infinity, ease: "easeInOut" } }}
+                        style={{ position: "fixed", top: "45%", right: "8%", width: "120px", height: "120px", zIndex: 1, pointerEvents: "none" }}
+                    >
+                        <Image src="/detail_rose.png" alt="" fill style={{ objectFit: 'contain' }} />
+                    </motion.div>
 
-            <motion.div
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 0.35, y: [0, -8, 0], rotate: [-5, 0, -5] }}
-                transition={{ opacity: { duration: 1, delay: 0.4 }, y: { duration: 7, repeat: Infinity, ease: "easeInOut" }, rotate: { duration: 8, repeat: Infinity, ease: "easeInOut" } }}
-                style={{ position: "fixed", bottom: "15%", left: "5%", width: "140px", height: "140px", zIndex: 1, pointerEvents: "none" }}
-            >
-                <Image src="/detail_leaf.png" alt="" fill style={{ objectFit: 'contain' }} />
-            </motion.div>
+                    <motion.div
+                        initial={{ opacity: 0, scale: 0.8 }}
+                        animate={{ opacity: 0.35, y: [0, -8, 0], rotate: [-5, 0, -5] }}
+                        transition={{ opacity: { duration: 1, delay: 0.4 }, y: { duration: 7, repeat: Infinity, ease: "easeInOut" }, rotate: { duration: 8, repeat: Infinity, ease: "easeInOut" } }}
+                        style={{ position: "fixed", bottom: "15%", left: "5%", width: "140px", height: "140px", zIndex: 1, pointerEvents: "none" }}
+                    >
+                        <Image src="/detail_leaf.png" alt="" fill style={{ objectFit: 'contain' }} />
+                    </motion.div>
+                </>
+            )}
 
             {/* Detailed Artistic Hijabi Sketch (Backview) - Relocated to Top */}
             <motion.div
@@ -375,9 +556,14 @@ export default function GuestNo28Dashboard() {
                         <motion.div
                             variants={itemVariants}
                             whileHover={{ y: -5, rotate: -0.5, boxShadow: "0 15px 30px rgba(0,0,0,0.12)" }}
+                            onTouchStart={handleLongPressStart}
+                            onTouchEnd={handleLongPressEnd}
+                            onDoubleClick={handleDoubleTap}
+                            onClick={() => !haikuRevealed && setHaikuRevealed(true)}
                             style={{
                                 ...baseCardStyle,
                                 height: isMobile ? "auto" : "320px",
+                                minHeight: "200px",
                                 padding: "1.8rem",
                                 background: "#ffffff",
                                 border: "1px solid #dcdde1",
@@ -386,31 +572,88 @@ export default function GuestNo28Dashboard() {
                                 borderRadius: "4px 8px 12px 4px",
                                 opacity: 1,
                                 width: isMobile ? "96%" : "auto",
-                                alignSelf: isMobile ? "center" : "auto"
+                                alignSelf: isMobile ? "center" : "auto",
+                                cursor: "pointer",
+                                overflow: "hidden"
                             }}
                         >
                             <WashiTape color="#a06cd5" rotate="1deg" width="60px" />
+
+                            {/* Long-press heart explosion overlay */}
+                            {longPressHearts.map(heart => (
+                                <motion.div
+                                    key={heart.id}
+                                    initial={{ scale: 0, opacity: 1 }}
+                                    animate={{ scale: 2, opacity: 0, y: -50 }}
+                                    transition={{ duration: 1 }}
+                                    style={{
+                                        position: "absolute",
+                                        left: heart.x,
+                                        top: heart.y,
+                                        fontSize: "2rem",
+                                        pointerEvents: "none",
+                                        zIndex: 100
+                                    }}
+                                >
+                                    💕
+                                </motion.div>
+                            ))}
+
                             <div style={{ position: "absolute", top: "5px", right: "5px", width: "100px", height: "100px", opacity: 0.6, transform: "rotate(-15deg)", pointerEvents: "none", zIndex: 0, mixBlendMode: "multiply" }}>
                                 <Image src="/lavender_sketch.png" alt="" fill style={{ objectFit: "contain" }} />
                             </div>
                             <div style={{ position: "relative", zIndex: 1 }}>
                                 <SectionTitle icon={Sparkles}>Haiku Kecil</SectionTitle>
-                                <div style={{ marginTop: "1rem" }}>
-                                    <HandwrittenNote style={{ fontSize: "1.25rem", color: "#4e4439", display: "block", marginBottom: "0.3rem" }}>
-                                        {dailyHaiku.line1}
-                                    </HandwrittenNote>
-                                    <HandwrittenNote style={{ fontSize: "1.25rem", color: "#4e4439", display: "block", marginBottom: "0.3rem" }}>
-                                        {dailyHaiku.line2}
-                                    </HandwrittenNote>
-                                    <HandwrittenNote style={{ fontSize: "1.25rem", color: "#4e4439", display: "block" }}>
-                                        {dailyHaiku.line3}
-                                    </HandwrittenNote>
-                                </div>
+
+                                {/* Tap to reveal prompt */}
+                                {!haikuRevealed && (
+                                    <motion.p
+                                        animate={{ opacity: [0.5, 1, 0.5] }}
+                                        transition={{ duration: 2, repeat: Infinity }}
+                                        style={{
+                                            fontFamily: "'Caveat', cursive",
+                                            fontSize: "1rem",
+                                            color: "#a0907d",
+                                            marginTop: "1rem",
+                                            textAlign: "center"
+                                        }}
+                                    >
+                                        ✨ tap untuk membaca...
+                                    </motion.p>
+                                )}
+
+                                {/* Animated Haiku Lines (letter by letter) */}
+                                {haikuRevealed && (
+                                    <div style={{ marginTop: "1rem" }}>
+                                        {[dailyHaiku.line1, dailyHaiku.line2, dailyHaiku.line3].map((line, lineIndex) => (
+                                            <div key={lineIndex} style={{ marginBottom: "0.3rem" }}>
+                                                {line.split("").map((char, charIndex) => (
+                                                    <motion.span
+                                                        key={charIndex}
+                                                        initial={{ opacity: 0, y: 10 }}
+                                                        animate={{ opacity: 1, y: 0 }}
+                                                        transition={{
+                                                            delay: (lineIndex * line.length + charIndex) * 0.03,
+                                                            duration: 0.3
+                                                        }}
+                                                        style={{
+                                                            fontFamily: "'Caveat', cursive",
+                                                            fontSize: "1.25rem",
+                                                            color: "#4e4439",
+                                                            display: "inline-block"
+                                                        }}
+                                                    >
+                                                        {char === " " ? "\u00A0" : char}
+                                                    </motion.span>
+                                                ))}
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
                             </div>
                             <div style={{ position: "absolute", bottom: "1rem", right: "1rem", opacity: 0.2 }}>
                                 <Wind size={20} color="#a0907d" />
                             </div>
-                            {/* Torn paper edge effect via CSS mask or image would go here, simplified for now */}
                         </motion.div>
 
 
@@ -421,12 +664,33 @@ export default function GuestNo28Dashboard() {
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 0.4 }}
                         transition={{ delay: 1.5, duration: 2 }}
-                        style={{ textAlign: "center", marginTop: "5rem", marginBottom: "2rem" }}
+                        style={{ textAlign: "center", marginTop: "5rem", marginBottom: "1rem" }}
                     >
                         <HandwrittenNote style={{ fontSize: "1rem", color: "#a0907d" }}>
                             Sekadar pengingat kecil, bahwa keberadaanmu adalah alasan ruang ini ada.
                         </HandwrittenNote>
                     </motion.div>
+
+                    {/* Shake hint for mobile */}
+                    {isMobile && (
+                        <motion.div
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 0.5, y: 0 }}
+                            transition={{ delay: 3, duration: 1 }}
+                            style={{
+                                textAlign: "center",
+                                marginBottom: "2rem",
+                                padding: "0.8rem",
+                                background: "rgba(255,255,255,0.5)",
+                                borderRadius: "12px",
+                                border: "1px dashed #d2b48c"
+                            }}
+                        >
+                            <span style={{ fontSize: "0.85rem", color: "#8a7058" }}>
+                                📱 Psst... coba goyangkan HP-mu~
+                            </span>
+                        </motion.div>
+                    )}
                 </Container>
             </main >
         </div >
