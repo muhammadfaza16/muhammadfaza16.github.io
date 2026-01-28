@@ -102,7 +102,7 @@ export default function HomePage() {
           </div>
 
           {/* Mini Player */}
-          <MiniPlayerWidget />
+          <MiniPlayerWidget style={{ marginBottom: "1.5rem" }} />
 
           {/* Springboard App Grid & Dock */}
           <div style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "flex-end" }}>

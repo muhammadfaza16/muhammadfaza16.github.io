@@ -6,7 +6,11 @@ import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { Play, Pause, Disc, SkipBack, SkipForward } from "lucide-react";
 
-export function MiniPlayerWidget() {
+interface MiniPlayerProps {
+    style?: React.CSSProperties;
+}
+
+export function MiniPlayerWidget({ style: customStyle }: MiniPlayerProps) {
     const { isPlaying, togglePlay, currentSong, hasInteracted, nextSong, prevSong } = useAudio();
     const { isZen, setZen } = useZen();
     const router = useRouter();
@@ -33,7 +37,7 @@ export function MiniPlayerWidget() {
                         display: "flex",
                         justifyContent: "center",
                         zIndex: 20, // Above standard content
-                        marginBottom: "1.5rem" // Added space to separate from icons
+                        ...customStyle
                     }}
                 >
                     <div style={{
