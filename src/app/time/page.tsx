@@ -406,27 +406,36 @@ export default function TimePage() {
                     </BentoCard>
 
                     {/* 7. Quote Footer (2x1) */}
-                    <BentoCard colSpanDesktop={2} colSpanMobile={4} delay={0.7} className="flex items-center justify-center text-center">
-                        <div style={{ maxWidth: "80%" }}>
-                            <p style={{
-                                fontFamily: "'Playfair Display', serif",
-                                fontSize: "1.25rem",
-                                fontStyle: "italic",
-                                color: "rgba(255,255,255,0.8)",
-                                lineHeight: 1.5
-                            }}>
-                                "Your time is limited. Don't waste it living someone else's life."
-                            </p>
-                            <p style={{
-                                fontFamily: "var(--font-mono)",
-                                fontSize: "0.75rem",
-                                color: "rgba(255,255,255,0.4)",
-                                marginTop: "1rem",
-                                textTransform: "uppercase",
-                                letterSpacing: "0.1em"
-                            }}>
-                                — Steve Jobs
-                            </p>
+                    <BentoCard colSpanDesktop={2} colSpanMobile={4} delay={0.7}>
+                        <div style={{
+                            height: "100%",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            textAlign: "center",
+                            width: "100%"
+                        }}>
+                            <div style={{ maxWidth: "80%", margin: "0 auto" }}>
+                                <p style={{
+                                    fontFamily: "'Playfair Display', serif",
+                                    fontSize: "1.25rem",
+                                    fontStyle: "italic",
+                                    color: "rgba(255,255,255,0.8)",
+                                    lineHeight: 1.5
+                                }}>
+                                    "Your time is limited. Don't waste it living someone else's life."
+                                </p>
+                                <p style={{
+                                    fontFamily: "var(--font-mono)",
+                                    fontSize: "0.75rem",
+                                    color: "rgba(255,255,255,0.4)",
+                                    marginTop: "1rem",
+                                    textTransform: "uppercase",
+                                    letterSpacing: "0.1em"
+                                }}>
+                                    — Steve Jobs
+                                </p>
+                            </div>
                         </div>
                     </BentoCard>
 
