@@ -29,6 +29,7 @@ interface AudioContextType {
     setShowNarrative: (v: boolean) => void;
     currentLyricText: string | null; // NEW: Global synced lyric
     activeLyrics: LyricItem[]; // NEW: Expose Logic
+    playQueue: (songs: any[], startIndex?: number) => void; // NEW: Batch Play
 }
 
 const AudioContext = createContext<AudioContextType | undefined>(undefined);
@@ -148,6 +149,7 @@ export const PLAYLIST = [
 export function AudioProvider({ children }: { children: React.ReactNode }) {
     const [isPlaying, setIsPlaying] = useState(false);
     const [isBuffering, setIsBuffering] = useState(false); // NEW: Track buffering state
+    const [queue, setQueue] = useState(PLAYLIST); // NEW: Dynamic Queue
     const [currentIndex, setCurrentIndex] = useState(0);
     const [analyser, setAnalyser] = useState<AnalyserNode | null>(null);
     const [hasInteracted, setHasInteracted] = useState(false);
@@ -219,23 +221,31 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
         }
     }, [isPlaying, initializeAudio]);
 
+    const playQueue = useCallback((newQueue: typeof PLAYLIST, startIndex = 0) => {
+        setQueue(newQueue);
+        setCurrentIndex(startIndex);
+        setIsBuffering(false);
+        setHasInteracted(true);
+        setIsPlaying(true);
+    }, []);
+
     const nextSong = useCallback((forcePlay = false) => {
         // OPTIMISTIC: Reset buffering immediately so UI shows title
         setIsBuffering(false);
         if (forcePlay) {
             setIsPlaying(true);
         }
-        setCurrentIndex((prev) => (prev + 1) % PLAYLIST.length);
+        setCurrentIndex((prev) => (prev + 1) % queue.length);
         // Buffering will naturally trigger on source change
-    }, []);
+    }, [queue.length]);
 
     const prevSong = useCallback((forcePlay = false) => {
         setIsBuffering(false);
         if (forcePlay) {
             setIsPlaying(true);
         }
-        setCurrentIndex((prev) => (prev - 1 + PLAYLIST.length) % PLAYLIST.length);
-    }, []);
+        setCurrentIndex((prev) => (prev - 1 + queue.length) % queue.length);
+    }, [queue.length]);
 
     const jumpToSong = useCallback((index: number) => {
         setIsBuffering(false);
@@ -378,12 +388,14 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
         <AudioContext.Provider value={{
             isPlaying, isBuffering, togglePlay, nextSong, prevSong, jumpToSong, currentSong, analyser, audioRef, hasInteracted, warmup,
             showLyrics, setShowLyrics, showMarquee, setShowMarquee, showNarrative, setShowNarrative,
-            currentLyricText, activeLyrics
+            currentLyricText,
+            activeLyrics,
+            playQueue // NEW: Expose Batch Play
         }}>
             <audio
                 ref={audioRef}
                 crossOrigin="anonymous"
-                src={currentSong.audioUrl}
+                src={queue[currentIndex]?.audioUrl} // Use Queue
                 preload="metadata" // Changed to metadata for mobile background stability
                 onTimeUpdate={handleTimeUpdate} // NEW: Link Sync Logic
                 onPlay={() => setIsPlaying(true)}

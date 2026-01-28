@@ -14,7 +14,7 @@ import { PLAYLIST_CATEGORIES } from "@/data/playlists"; // NEW
 import { useRouter } from "next/navigation";
 
 export default function ImmersiveMusicPage() {
-    const { isPlaying, currentSong, jumpToSong } = useAudio();
+    const { isPlaying, currentSong, jumpToSong, playQueue } = useAudio();
     const { isZen, setZen } = useZen();
     const router = useRouter();
     const [selectedPlaylistId, setSelectedPlaylistId] = useState<string | null>(null);
@@ -331,12 +331,14 @@ export default function ImmersiveMusicPage() {
                     </div>
 
                     {/* Rich Header Info (Visible when Playlist Selected) */}
-                    <AnimatePresence>
+                    <AnimatePresence mode="wait">
                         {activePlaylist && (
                             <motion.div
+                                layout
                                 initial={{ opacity: 0, height: 0, scale: 0.95 }}
                                 animate={{ opacity: 1, height: "auto", scale: 1 }}
-                                exit={{ opacity: 0, height: 0 }}
+                                exit={{ opacity: 0, height: 0, scale: 0.95 }}
+                                transition={{ duration: 0.3, ease: "easeInOut" }}
                                 style={{ marginBottom: "2rem", overflow: "hidden" }}
                             >
                                 <div style={{
@@ -393,6 +395,58 @@ export default function ImmersiveMusicPage() {
                                         ))}
                                     </div>
                                 </div>
+
+                                {/* Action Buttons (Play Batch) */}
+                                <div style={{ display: "flex", gap: "12px", marginTop: "8px" }}>
+                                    <motion.button
+                                        whileTap={{ scale: 0.95 }}
+                                        onClick={() => {
+                                            triggerHaptic();
+                                            playQueue(filteredPlaylist, 0);
+                                        }}
+                                        style={{
+                                            flex: 1,
+                                            background: "white",
+                                            color: "black",
+                                            border: "none",
+                                            borderRadius: "12px",
+                                            padding: "14px",
+                                            fontSize: "1rem",
+                                            fontWeight: 700,
+                                            display: "flex",
+                                            alignItems: "center",
+                                            justifyContent: "center",
+                                            gap: "8px",
+                                            cursor: "pointer",
+                                            boxShadow: "0 4px 12px rgba(255,255,255,0.2)"
+                                        }}
+                                    >
+                                        <Play size={20} fill="black" />
+                                        Play
+                                    </motion.button>
+                                    <motion.button
+                                        whileTap={{ scale: 0.95 }}
+                                        onClick={() => {
+                                            triggerHaptic();
+                                            // Simple Shuffle: Sort random then play
+                                            const shuffled = [...filteredPlaylist].sort(() => Math.random() - 0.5);
+                                            playQueue(shuffled, 0);
+                                        }}
+                                        style={{
+                                            background: "rgba(255,255,255,0.1)",
+                                            color: "white",
+                                            border: "1px solid rgba(255,255,255,0.1)",
+                                            borderRadius: "12px",
+                                            padding: "14px",
+                                            display: "flex",
+                                            alignItems: "center",
+                                            justifyContent: "center",
+                                            cursor: "pointer"
+                                        }}
+                                    >
+                                        <Music2 size={20} />
+                                    </motion.button>
+                                </div>
                             </motion.div>
                         )}
                     </AnimatePresence>
@@ -438,57 +492,78 @@ export default function ImmersiveMusicPage() {
                         </div>
                     </div>
 
-                    {/* Song List - iOS Inset Grouped Style */}
-                    <div style={{
-                        display: "flex",
-                        flexDirection: "column",
-                        gap: "0px",
-                        background: "rgba(28, 28, 30, 0.5)", // System gray 6-ish
-                        backdropFilter: "blur(10px)",
-                        borderRadius: "22px",
-                        overflow: "hidden",
-                        border: "1px solid rgba(255,255,255,0.06)",
-                        boxShadow: "0 4px 20px rgba(0,0,0,0.1)"
-                    }}>
+                    {/* Song List - Premium Obsidian Glass Style */}
+                    <motion.div
+                        initial="hidden"
+                        animate="visible"
+                        variants={{
+                            hidden: { opacity: 0 },
+                            visible: {
+                                opacity: 1,
+                                transition: {
+                                    staggerChildren: 0.05 // Cascade effect
+                                }
+                            }
+                        }}
+                        style={{
+                            display: "flex",
+                            flexDirection: "column",
+                            gap: "0px",
+                            background: "rgba(10, 10, 12, 0.6)", // Deeper, more expansive dark
+                            backdropFilter: "blur(20px) saturate(180%)", // High-end blur
+                            borderRadius: "24px",
+                            overflow: "hidden",
+                            border: "1px solid rgba(255,255,255,0.08)",
+                            boxShadow: "0 20px 40px -10px rgba(0,0,0,0.5)" // Floating depth
+                        }}
+                    >
                         <div style={{
-                            padding: "16px 20px",
-                            borderBottom: "1px solid rgba(255,255,255,0.08)",
+                            padding: "20px 24px",
+                            borderBottom: "1px solid rgba(255,255,255,0.06)",
                             display: "flex",
                             justifyContent: "space-between",
                             alignItems: "center",
-                            background: "rgba(255,255,255,0.02)"
+                            background: "linear-gradient(to right, rgba(255,255,255,0.03), transparent)"
                         }}>
                             <div style={{ display: 'flex', flexDirection: 'column' }}>
                                 <h3 style={{
-                                    fontSize: "0.95rem",
+                                    fontSize: "1.1rem",
                                     fontWeight: 700,
                                     color: "white",
                                     letterSpacing: "-0.02em",
                                     margin: 0,
+                                    textShadow: "0 2px 10px rgba(0,0,0,0.3)"
                                 }}>
                                     {activePlaylist ? activePlaylist.title : "All Tracks"}
                                 </h3>
                                 <span style={{
-                                    fontSize: "0.75rem",
-                                    color: "rgba(255,255,255,0.5)",
-                                    marginTop: "2px"
+                                    fontSize: "0.8rem",
+                                    color: "rgba(255,255,255,0.4)",
+                                    marginTop: "4px",
+                                    fontWeight: 500
                                 }}>
-                                    {filteredPlaylist.length} Songs
+                                    {filteredPlaylist.length} Songs • Premium Audio
                                 </span>
                             </div>
 
                             {/* Play Button Indicator (Decorative) */}
-                            <div style={{
-                                width: "32px",
-                                height: "32px",
-                                borderRadius: "50%",
-                                background: "rgba(255,255,255,0.1)",
-                                display: "flex",
-                                alignItems: "center",
-                                justifyContent: "center"
-                            }}>
-                                <Play size={14} fill="white" color="white" style={{ marginLeft: "2px" }} />
-                            </div>
+                            <motion.div
+                                whileTap={{ scale: 0.9 }}
+                                style={{
+                                    width: "36px",
+                                    height: "36px",
+                                    borderRadius: "50%",
+                                    background: "rgba(255,255,255,0.15)",
+                                    display: "flex",
+                                    alignItems: "center",
+                                    justifyContent: "center",
+                                    cursor: "pointer",
+                                    border: "1px solid rgba(255,255,255,0.1)"
+                                }}
+                                onClick={triggerHaptic}
+                            >
+                                <Play size={16} fill="white" color="white" style={{ marginLeft: "2px" }} />
+                            </motion.div>
                         </div>
 
                         {filteredPlaylist.map((song, i) => {
@@ -497,59 +572,65 @@ export default function ImmersiveMusicPage() {
                             const isLast = i === filteredPlaylist.length - 1;
 
                             return (
-                                <div
+                                <motion.div
                                     key={originalIndex}
-                                    onClick={() => handleSongClick(originalIndex)}
+                                    variants={{
+                                        hidden: { opacity: 0, y: 10 },
+                                        visible: { opacity: 1, y: 0 }
+                                    }}
+                                    onClick={() => playQueue(filteredPlaylist, i)}
+                                    whileHover={{ backgroundColor: "rgba(255,255,255,0.08)" }}
+                                    whileTap={{ scale: 0.98, backgroundColor: "rgba(255,255,255,0.12)" }}
                                     style={{
                                         display: "flex",
                                         alignItems: "center",
-                                        gap: "16px",
-                                        padding: "16px 20px",
+                                        gap: "18px",
+                                        padding: "18px 24px",
                                         backgroundColor: isActive
-                                            ? "rgba(255,255,255,0.12)"
+                                            ? "rgba(255,255,255,0.15)"
                                             : "transparent",
                                         cursor: "pointer",
                                         position: "relative",
-                                        transition: "background 0.2s"
+                                        transition: "background 0.1s"
                                     }}
-                                    className="hover:bg-white/5 active:bg-white/10"
                                 >
                                     {/* Separator Line (Inset) */}
                                     {!isLast && !isActive && (
                                         <div style={{
                                             position: "absolute",
                                             bottom: 0,
-                                            left: "56px", // Inset past the index/icon
+                                            left: "60px", // Inset past the index/icon
                                             right: 0,
                                             height: "1px",
-                                            background: "rgba(255,255,255,0.06)"
+                                            background: "rgba(255,255,255,0.04)"
                                         }} />
                                     )}
 
                                     {/* Leading Index / Active Graph */}
                                     <div style={{
-                                        width: "20px",
+                                        width: "24px",
                                         display: "flex",
                                         alignItems: "center",
                                         justifyContent: "center",
-                                        color: isActive ? "var(--accent)" : "rgba(255,255,255,0.3)",
-                                        fontSize: "0.85rem",
+                                        color: isActive ? "#3b82f6" : "rgba(255,255,255,0.25)",
+                                        fontSize: "0.9rem",
+                                        fontWeight: isActive ? 700 : 500,
                                         fontFamily: "var(--font-mono)"
                                     }}>
                                         {isActive && isPlaying ? (
-                                            <div className="flex gap-[2px] items-end h-[12px]">
+                                            <div className="flex gap-[3px] items-end h-[14px]">
                                                 <motion.div
-                                                    animate={{ height: [4, 12, 6, 12] }}
+                                                    animate={{ height: [4, 14, 6, 14] }}
                                                     transition={{ repeat: Infinity, duration: 0.5 }}
                                                     className="w-[3px] bg-[#3b82f6] rounded-full"
                                                 />
                                                 <motion.div
-                                                    animate={{ height: [8, 4, 12, 6] }}
+                                                    animate={{ height: [8, 4, 14, 6] }}
                                                     transition={{ repeat: Infinity, duration: 0.5, delay: 0.1 }}
                                                     className="w-[3px] bg-[#3b82f6] rounded-full"
                                                 />
                                                 <motion.div
-                                                    animate={{ height: [6, 10, 4, 10] }}
+                                                    animate={{ height: [6, 12, 4, 12] }}
                                                     transition={{ repeat: Infinity, duration: 0.5, delay: 0.2 }}
                                                     className="w-[3px] bg-[#3b82f6] rounded-full"
                                                 />
@@ -563,10 +644,10 @@ export default function ImmersiveMusicPage() {
                                     <div style={{ flex: 1, minWidth: 0 }}>
                                         <div style={{
                                             color: isActive ? "white" : "rgba(255,255,255,0.95)",
-                                            fontSize: "0.95rem",
-                                            fontWeight: isActive ? 600 : 500,
+                                            fontSize: "1rem", // Slightly larger premium feel
+                                            fontWeight: isActive ? 700 : 500,
                                             fontFamily: "-apple-system, BlinkMacSystemFont, sans-serif",
-                                            marginBottom: "2px",
+                                            marginBottom: "3px",
                                             whiteSpace: "nowrap",
                                             overflow: "hidden",
                                             textOverflow: "ellipsis",
@@ -576,25 +657,32 @@ export default function ImmersiveMusicPage() {
                                         </div>
                                         <div style={{
                                             color: "rgba(255,255,255,0.5)",
-                                            fontSize: "0.8rem",
+                                            fontSize: "0.85rem",
+                                            fontWeight: 400,
                                             whiteSpace: "nowrap",
                                             overflow: "hidden",
                                             textOverflow: "ellipsis",
                                             fontFamily: "-apple-system, BlinkMacSystemFont, sans-serif",
-                                            letterSpacing: "0.005em"
+                                            letterSpacing: "0.01em"
                                         }}>
                                             {song.title.split("—")[0]?.trim() || "Unknown Artist"}
                                         </div>
                                     </div>
 
-                                    {/* Trailing Action (Heart/Menu - passive for now) */}
-                                    <div style={{ opacity: 0 }} className="group-hover:opacity-50 transition-opacity">
-                                        <Heart size={16} color="white" />
-                                    </div>
-                                </div>
+                                    {/* Trailing Action */}
+                                    {isActive ? (
+                                        <div style={{ opacity: 1 }}>
+                                            <Disc className="animate-spin-slow" size={18} color="#3b82f6" />
+                                        </div>
+                                    ) : (
+                                        <div style={{ opacity: 0 }} className="group-hover:opacity-100 transition-opacity">
+                                            <Play size={16} fill="white" color="white" />
+                                        </div>
+                                    )}
+                                </motion.div>
                             );
                         })}
-                    </div>
+                    </motion.div>
 
 
                     {/* Floating Mini Player */}
@@ -612,9 +700,8 @@ export default function ImmersiveMusicPage() {
                             <MiniPlayerWidget />
                         </div>
                     </div>
-                </main >
-            )
-            }
+                </main>
+            )}
         </>
     );
 }
