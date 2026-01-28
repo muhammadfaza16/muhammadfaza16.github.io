@@ -350,11 +350,14 @@ export default function ImmersiveMusicPage() {
                                 }}>
                                     {/* Philosophy */}
                                     <div style={{
-                                        fontFamily: "'Playfair Display', serif", // Or sans-serif if you prefer modern
+                                        fontFamily: "-apple-system, BlinkMacSystemFont, sans-serif",
+                                        fontWeight: 300,
                                         fontStyle: "italic",
-                                        fontSize: "1.1rem",
-                                        color: "rgba(255,255,255,0.9)",
-                                        lineHeight: "1.5"
+                                        fontSize: "1.15rem",
+                                        color: "rgba(255,255,255,0.95)",
+                                        lineHeight: "1.6",
+                                        letterSpacing: "0.01em",
+                                        textShadow: "0 2px 10px rgba(0,0,0,0.5)"
                                     }}>
                                         "{activePlaylist.philosophy}"
                                     </div>
