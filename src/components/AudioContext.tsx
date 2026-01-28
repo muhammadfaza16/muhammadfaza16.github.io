@@ -30,6 +30,8 @@ interface AudioContextType {
     currentLyricText: string | null; // NEW: Global synced lyric
     activeLyrics: LyricItem[]; // NEW: Expose Logic
     playQueue: (songs: any[], startIndex?: number) => void; // NEW: Batch Play
+    queue: { title: string; audioUrl: string }[]; // Expose queue for playlist info
+    currentIndex: number; // Expose current index
 }
 
 const AudioContext = createContext<AudioContextType | undefined>(undefined);
@@ -390,7 +392,9 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
             showLyrics, setShowLyrics, showMarquee, setShowMarquee, showNarrative, setShowNarrative,
             currentLyricText,
             activeLyrics,
-            playQueue // NEW: Expose Batch Play
+            playQueue, // NEW: Expose Batch Play
+            queue, // Expose queue for playlist info
+            currentIndex // Expose current index
         }}>
             <audio
                 ref={audioRef}

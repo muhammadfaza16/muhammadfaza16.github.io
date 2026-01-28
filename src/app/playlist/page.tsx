@@ -679,21 +679,8 @@ export default function ImmersiveMusicPage() {
                     </motion.div>
 
 
-                    {/* Floating Mini Player */}
-                    <div style={{
-                        position: "fixed",
-                        bottom: "2rem",
-                        left: "50%",
-                        transform: "translateX(-50%)",
-                        width: "100%",
-                        maxWidth: "600px",
-                        zIndex: 50,
-                        pointerEvents: "none"
-                    }}>
-                        <div style={{ pointerEvents: "auto" }}>
-                            <MiniPlayerWidget />
-                        </div>
-                    </div>
+                    {/* Floating Mini Player (self-positioned) */}
+                    <MiniPlayerWidget />
                 </main>
             )}
         </>
