@@ -329,8 +329,8 @@ export default function GuestNo28Dashboard() {
     // Secret messages for shake
     const secretMessages = [
         "Kamu adalah alasan halaman ini ada 💕",
-        "Setiap detik bersamamu adalah puisi",
-        "Aku selalu di sini, menunggumu",
+        "Setiap langkahmu adalah puisi tersendiri",
+        "Aku akan selalu mendoakan yang terbaik untukmu",
         "Kamu lebih indah dari yang kamu kira",
         "Terima kasih sudah menjadi kamu"
     ];
@@ -742,8 +742,8 @@ export default function GuestNo28Dashboard() {
                                 </div>
 
                                 <div style={{ position: "relative", zIndex: 1 }}>
-                                    <h3 style={{ fontSize: "1.6rem", fontWeight: 700, color: "#333", fontFamily: "'Crimson Pro', serif" }}>Lembaran Kisah</h3>
-                                    <p style={{ fontFamily: "'Caveat', cursive", color: "#8a7058", fontSize: "1.2rem", marginTop: "4px" }}>"Setiap detiknya adalah puisi..."</p>
+                                    <h3 style={{ fontSize: "1.6rem", fontWeight: 700, color: "#333", fontFamily: "'Crimson Pro', serif" }}>Bingkisan Kecil Untukmu</h3>
+                                    <p style={{ fontFamily: "'Caveat', cursive", color: "#8a7058", fontSize: "1.1rem", marginTop: "4px" }}>"...sebagai bukti bahwa kamu selalu terlihat."</p>
                                 </div>
                             </motion.div>
                         </Link>
@@ -852,84 +852,6 @@ export default function GuestNo28Dashboard() {
 
 
 
-                    </motion.div>
-
-                    {/* Countdown Widget */}
-                    <motion.div
-                        initial={{ opacity: 0, y: 30 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: true }}
-                        transition={{ delay: 0.3 }}
-                        style={{
-                            background: "linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(255,245,238,0.9) 100%)",
-                            borderRadius: "16px",
-                            padding: "1.5rem",
-                            textAlign: "center",
-                            border: "1px dashed #d2b48c",
-                            boxShadow: "0 8px 24px rgba(0,0,0,0.06)",
-                            marginTop: "2rem"
-                        }}
-                    >
-                        <p style={{
-                            fontFamily: "'Caveat', cursive",
-                            fontSize: "1.2rem",
-                            color: "#8a7058",
-                            marginBottom: "1rem"
-                        }}>
-                            ✨ Menuju hari spesial...
-                        </p>
-                        <div style={{
-                            display: "flex",
-                            justifyContent: "center",
-                            gap: "1.5rem",
-                            flexWrap: "wrap"
-                        }}>
-                            <div style={{ textAlign: "center" }}>
-                                <span style={{
-                                    fontSize: "2.5rem",
-                                    fontWeight: 700,
-                                    color: "#b07d62",
-                                    display: "block",
-                                    fontFamily: "'Crimson Pro', serif"
-                                }}>
-                                    {countdown.days}
-                                </span>
-                                <span style={{ fontSize: "0.8rem", color: "#a0907d", textTransform: "uppercase", letterSpacing: "1px" }}>hari</span>
-                            </div>
-                            <div style={{ textAlign: "center" }}>
-                                <span style={{
-                                    fontSize: "2.5rem",
-                                    fontWeight: 700,
-                                    color: "#b07d62",
-                                    display: "block",
-                                    fontFamily: "'Crimson Pro', serif"
-                                }}>
-                                    {countdown.hours}
-                                </span>
-                                <span style={{ fontSize: "0.8rem", color: "#a0907d", textTransform: "uppercase", letterSpacing: "1px" }}>jam</span>
-                            </div>
-                            <div style={{ textAlign: "center" }}>
-                                <span style={{
-                                    fontSize: "2.5rem",
-                                    fontWeight: 700,
-                                    color: "#b07d62",
-                                    display: "block",
-                                    fontFamily: "'Crimson Pro', serif"
-                                }}>
-                                    {countdown.minutes}
-                                </span>
-                                <span style={{ fontSize: "0.8rem", color: "#a0907d", textTransform: "uppercase", letterSpacing: "1px" }}>menit</span>
-                            </div>
-                        </div>
-                        <p style={{
-                            fontFamily: "'Caveat', cursive",
-                            fontSize: "1rem",
-                            color: "#a0907d",
-                            marginTop: "1rem",
-                            opacity: 0.8
-                        }}>
-                            9 Februari 2026
-                        </p>
                     </motion.div>
 
                     <motion.div

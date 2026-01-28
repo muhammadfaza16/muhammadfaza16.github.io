@@ -358,12 +358,12 @@ export default function SpecialDayBentoPage() {
         const kamusTimer = setInterval(() => setKamusIndex(prev => (prev + 1) % kamusMeanings.length), 20000);
 
         const dailyWisdoms = [
-            "Kamu adalah alasan di balik senyuman yang merekah hari ini, meski terkadang kau tak menyadarinya. Keberadaanmu bukan sekadar angka di kalender, melainkan anugerah terindah bagi semesta yang seringkali lupa cara bersyukur.",
-            "Setiap langkah yang kau tapaki adalah guratan berharga dalam kanvas waktu yang abadi. Jangan pernah ragu pada dirimu sendiri, karena setiap hela nafasmu adalah bukti nyata bahwa dunia masih membutuhkan cahayamu.",
-            "Hari ini adalah selembar kertas kosong yang menanti sentuhan cintamu yang paling jujur. Lukislah setiap detiknya dengan kebaikan dan keberanian, sebab kau jauh lebih kuat dari rintangan mana pun.",
-            "Tetaplah bersinar dengan caramu yang paling tenang. Dunia ini mungkin riuh dengan suara-suara yang asing, tapi ingatlah selalu bahwa di antara milyaran melodi, kaulah simfoni paling damai.",
-            "Kebahagiaanmu bukanlah sebuah tujuan jauh di ufuk sana, melainkan prioritas utama yang harus kau jaga di sini, saat ini. Cintailah dirimu sendiri seakan-akan kau adalah permata paling langka.",
-            "Terimalah dirimu apa adanya, dekaplah setiap detik yang kau miliki dengan rasa syukur yang mendalam. Sebab di antara riuh rendah bisingnya dunia, kaulah melodi paling tenang yang pernah semesta ciptakan.",
+            "Kamu adalah alasan di balik senyuman yang merekah hari ini, meski terkadang kamu tak menyadarinya. Keberadaanmu bukan sekadar angka di kalender, melainkan anugerah terindah bagi semesta yang seringkali lupa cara bersyukur.",
+            "Setiap langkah yang kamu tapaki adalah guratan berharga dalam kanvas waktu yang abadi. Jangan pernah ragu pada dirimu sendiri, karena setiap hela nafasmu adalah bukti nyata bahwa dunia masih membutuhkan cahayamu.",
+            "Hari ini adalah selembar kertas kosong yang menanti sentuhan cintamu yang paling jujur. Lukislah setiap detiknya dengan kebaikan dan keberanian, sebab kamu jauh lebih kuat dari rintangan mana pun.",
+            "Tetaplah bersinar dengan caramu yang paling tenang. Dunia ini mungkin riuh dengan suara-suara yang asing, tapi ingatlah selalu bahwa di antara milyaran melodi, kamulah simfoni paling damai.",
+            "Kebahagiaanmu bukanlah sebuah tujuan jauh di ufuk sana, melainkan prioritas utama yang harus kamu jaga di sini, saat ini. Cintailah dirimu sendiri seakan-akan kamu adalah permata paling langka.",
+            "Terimalah dirimu apa adanya, dekaplah setiap detik yang kamu miliki dengan rasa syukur yang mendalam. Sebab di antara riuh rendah bisingnya dunia, kamulah melodi paling tenang yang pernah semesta ciptakan.",
             "Jangan pernah biarkan cahayamu redup hanya karena dunia belum siap menerima benderangnya. Kamu adalah kepingan teka-teki paling indah yang membuat gambaran tentang hidup ini menjadi sempurna."
         ];
 
@@ -414,12 +414,12 @@ export default function SpecialDayBentoPage() {
         const SHAKE_THRESHOLD = 25;
 
         const dailyWisdoms = [
-            "Kamu adalah alasan di balik senyuman yang merekah hari ini, meski terkadang kau tak menyadarinya.",
-            "Setiap langkah yang kau tapaki adalah guratan berharga dalam kanvas waktu yang abadi.",
+            "Kamu adalah alasan di balik senyuman yang merekah hari ini, meski terkadang kamu tak menyadarinya.",
+            "Setiap langkah yang kamu tapaki adalah guratan berharga dalam kanvas waktu yang abadi.",
             "Hari ini adalah selembar kertas kosong yang menanti sentuhan terbaikmu.",
             "Tetaplah bersinar dengan caramu yang paling tenang.",
-            "Kebahagiaanmu adalah prioritas utama yang harus kau jaga di sini, saat ini.",
-            "Terimalah dirimu apa adanya, dekaplah setiap detik yang kau miliki dengan rasa syukur.",
+            "Kebahagiaanmu adalah prioritas utama yang harus kamu jaga di sini, saat ini.",
+            "Terimalah dirimu apa adanya, dekaplah setiap detik yang kamu miliki dengan rasa syukur.",
             "Jangan pernah biarkan cahayamu redup hanya karena dunia belum siap menerima benderangnya."
         ];
 
@@ -616,9 +616,9 @@ export default function SpecialDayBentoPage() {
                                 <Home size={22} />
                             </Link>
                             <div style={{ transform: "rotate(-1deg)" }}>
-                                <div style={{ fontSize: "0.65rem", color: "#a0907d", textTransform: "uppercase", letterSpacing: "2.5px", fontWeight: 700, marginBottom: "-2px" }}>Jejak Langkahmu</div>
-                                <HandwrittenNote style={{ fontSize: "1.3rem", fontWeight: 400, color: "#b07d62" }}>
-                                    Untukmu, jiwa indah yang lahir di tanggal 28...
+                                <div style={{ fontSize: "0.65rem", color: "#a0907d", textTransform: "uppercase", letterSpacing: "2.5px", fontWeight: 700, marginBottom: "-2px" }}>Bingkisan Kecil Untukmu</div>
+                                <HandwrittenNote style={{ fontSize: "1.2rem", fontWeight: 400, color: "#b07d62" }}>
+                                    ...sebagai bukti bahwa kamu selalu terlihat.
                                 </HandwrittenNote>
                             </div>
                         </div>
@@ -693,7 +693,7 @@ export default function SpecialDayBentoPage() {
                             <SectionTitle icon={Map}>Lembaran Kisah Ke-{age + 1}</SectionTitle>
                             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: "1.5rem" }}>
                                 <div>
-                                    <div style={{ fontSize: "0.8rem", color: "#a0907d", letterSpacing: "1px", fontWeight: 700, textTransform: "uppercase" }}>Halaman Yang Telah Kau Isi</div>
+                                    <div style={{ fontSize: "0.8rem", color: "#a0907d", letterSpacing: "1px", fontWeight: 700, textTransform: "uppercase" }}>Halaman Yang Telah Kamu Isi</div>
                                     <div style={{ fontSize: "3.5rem", fontWeight: 900, color: "#b07d62", lineHeight: 1, fontFamily: "'Crimson Pro', serif" }}>
                                         {currentDayInPersonalYear} <span style={{ fontSize: "1.2rem", fontWeight: 300, color: "#4e4439", fontStyle: "italic" }}>Hari</span>
                                     </div>
@@ -716,7 +716,7 @@ export default function SpecialDayBentoPage() {
                                     <span>28 NOV {endOfPersonalYear.getFullYear()}</span>
                                 </div>
                                 <HandwrittenNote style={{ position: "absolute", top: "0", right: "20%", transform: "rotate(5deg)", fontSize: "0.9rem" }}>
-                                    "Terus bersemi ya..."
+                                    "Terus bersinar ya..."
                                 </HandwrittenNote>
                             </div>
                         </BentoCard>
