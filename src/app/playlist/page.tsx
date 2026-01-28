@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useMemo } from "react";
-import { BarChart2, Play, Search, Heart, Disc, Music2, ChevronLeft, Home } from "lucide-react";
+import { BarChart2, Play, Pause, Search, Heart, Disc, Music2, ChevronLeft, Home } from "lucide-react";
 import { GradientOrb } from "@/components/GradientOrb";
 import { CosmicStars } from "@/components/CosmicStars";
 import { MilkyWay } from "@/components/MilkyWay";
@@ -14,7 +14,7 @@ import { PLAYLIST_CATEGORIES } from "@/data/playlists"; // NEW
 import { useRouter } from "next/navigation";
 
 export default function ImmersiveMusicPage() {
-    const { isPlaying, currentSong, jumpToSong, playQueue } = useAudio();
+    const { isPlaying, currentSong, jumpToSong, playQueue, queue, currentIndex, togglePlay } = useAudio();
     const { isZen, setZen } = useZen();
     const router = useRouter();
     const [selectedPlaylistId, setSelectedPlaylistId] = useState<string | null>(null);
@@ -75,6 +75,30 @@ export default function ImmersiveMusicPage() {
             );
     }, [activePlaylist, searchQuery]);
 
+    // Detect which playlist is currently playing (if any)
+    const currentlyPlayingPlaylistId = useMemo(() => {
+        if (!isPlaying || queue.length <= 1) return null;
+
+        // Check each playlist to see if its songs match the current queue
+        for (const playlist of PLAYLIST_CATEGORIES) {
+            const playlistSongs = PLAYLIST.filter(song =>
+                playlist.songTitles.some((title: string) =>
+                    song.title.toLowerCase().includes(title.toLowerCase()) ||
+                    title.toLowerCase().includes(song.title.toLowerCase())
+                )
+            );
+
+            // If queue length matches and first song matches, it's likely this playlist
+            if (queue.length === playlistSongs.length && queue[0]?.audioUrl === playlistSongs[0]?.audioUrl) {
+                return playlist.id;
+            }
+        }
+        return null;
+    }, [isPlaying, queue]);
+
+    // Check if the currently selected playlist is playing
+    const isSelectedPlaylistPlaying = isPlaying && selectedPlaylistId && currentlyPlayingPlaylistId === selectedPlaylistId;
+
     return (
         <>
             {/* Global Styles for this page */}
@@ -89,6 +113,11 @@ export default function ImmersiveMusicPage() {
             touch-action: pan-y; 
             height: 100svh !important; 
             background: #000;
+        }
+        /* Pulse glow animation for currently playing playlist */
+        @keyframes pulse-glow {
+            0%, 100% { box-shadow: 0 0 30px 5px currentColor, 0 20px 50px -12px currentColor; }
+            50% { box-shadow: 0 0 40px 10px currentColor, 0 25px 60px -10px currentColor; }
         }
       `}} />
 
@@ -173,14 +202,13 @@ export default function ImmersiveMusicPage() {
                     gap: "1.5rem" // Tighter gap (was 2.5rem)
                 }}>
                     {/* Header & Grid */}
-                    <div style={{ marginBottom: "1rem" }}> {/* More margin below header to playlist grid */}
+                    <div style={{ marginBottom: "1.5rem" }}> {/* Increased margin below header */}
                         <motion.div
                             style={{
                                 display: "flex",
                                 justifyContent: "space-between",
                                 alignItems: "center",
-                                paddingBottom: "1.5rem", // Padding, not margin
-                                padding: "0 0.5rem 1.5rem 0.5rem", // Added bottom padding
+                                padding: "0 0.5rem 2rem 0.5rem", // Increased bottom padding
                                 height: "40px"
                             }}
                         >
@@ -256,6 +284,7 @@ export default function ImmersiveMusicPage() {
                             {PLAYLIST_CATEGORIES.map((playlist) => {
                                 const isSelected = selectedPlaylistId === playlist.id;
                                 const isDimmed = selectedPlaylistId && !isSelected;
+                                const isNowPlaying = currentlyPlayingPlaylistId === playlist.id;
 
                                 return (
                                     <div
@@ -264,15 +293,18 @@ export default function ImmersiveMusicPage() {
                                         style={{
                                             position: "relative",
                                             aspectRatio: "1/1",
-                                            borderRadius: "20px", // Smooth continuous corners
+                                            borderRadius: "20px",
                                             overflow: "hidden",
                                             cursor: "pointer",
                                             opacity: isDimmed ? 0.3 : 1,
                                             transform: isDimmed ? "scale(0.92)" : (isSelected ? "scale(1.03)" : "scale(1)"),
                                             transition: "all 0.5s cubic-bezier(0.19, 1, 0.22, 1)",
-                                            boxShadow: isSelected
-                                                ? `0 20px 50px -12px ${playlist.coverColor}80` // Glow when selected
-                                                : "0 4px 20px rgba(0,0,0,0.4)"
+                                            boxShadow: isNowPlaying
+                                                ? `0 0 30px 5px ${playlist.coverColor}90, 0 20px 50px -12px ${playlist.coverColor}80` // Shining glow when playing
+                                                : isSelected
+                                                    ? `0 20px 50px -12px ${playlist.coverColor}80`
+                                                    : "0 4px 20px rgba(0,0,0,0.4)",
+                                            animation: isNowPlaying ? "pulse-glow 2s ease-in-out infinite" : "none"
                                         }}
                                         className="group"
                                     >
@@ -327,6 +359,85 @@ export default function ImmersiveMusicPage() {
                                 );
                             })}
                         </div>
+
+                        {/* Now Playing Playlist Widget (Shows when any playlist is playing) */}
+                        <AnimatePresence>
+                            {currentlyPlayingPlaylistId && !selectedPlaylistId && (
+                                <motion.div
+                                    initial={{ opacity: 0, y: 10 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    exit={{ opacity: 0, y: -10 }}
+                                    transition={{ duration: 0.3 }}
+                                    onClick={() => setSelectedPlaylistId(currentlyPlayingPlaylistId)}
+                                    style={{
+                                        marginTop: "1rem",
+                                        padding: "12px 16px",
+                                        background: "linear-gradient(135deg, rgba(255,255,255,0.08), rgba(255,255,255,0.03))",
+                                        borderRadius: "16px",
+                                        border: "1px solid rgba(255,255,255,0.1)",
+                                        display: "flex",
+                                        alignItems: "center",
+                                        gap: "12px",
+                                        cursor: "pointer",
+                                        boxShadow: "0 4px 20px rgba(0,0,0,0.3)"
+                                    }}
+                                >
+                                    {/* Animated Playing Indicator */}
+                                    <div style={{
+                                        width: "36px",
+                                        height: "36px",
+                                        borderRadius: "10px",
+                                        background: PLAYLIST_CATEGORIES.find(p => p.id === currentlyPlayingPlaylistId)?.coverColor || "#FFD60A",
+                                        display: "flex",
+                                        alignItems: "center",
+                                        justifyContent: "center",
+                                        flexShrink: 0
+                                    }}>
+                                        <motion.div
+                                            animate={{ scale: [1, 1.1, 1] }}
+                                            transition={{ duration: 1, repeat: Infinity }}
+                                        >
+                                            <Music2 size={18} color="rgba(0,0,0,0.7)" />
+                                        </motion.div>
+                                    </div>
+
+                                    {/* Info */}
+                                    <div style={{ flex: 1, minWidth: 0 }}>
+                                        <div style={{
+                                            fontSize: "0.7rem",
+                                            color: "rgba(255,255,255,0.5)",
+                                            textTransform: "uppercase",
+                                            letterSpacing: "0.05em",
+                                            marginBottom: "2px"
+                                        }}>
+                                            Now Playing
+                                        </div>
+                                        <div style={{
+                                            fontSize: "0.95rem",
+                                            fontWeight: 600,
+                                            color: "white",
+                                            whiteSpace: "nowrap",
+                                            overflow: "hidden",
+                                            textOverflow: "ellipsis"
+                                        }}>
+                                            {PLAYLIST_CATEGORIES.find(p => p.id === currentlyPlayingPlaylistId)?.title}
+                                        </div>
+                                    </div>
+
+                                    {/* Track Progress */}
+                                    <div style={{
+                                        padding: "6px 12px",
+                                        background: "rgba(255,255,255,0.1)",
+                                        borderRadius: "20px",
+                                        fontSize: "0.75rem",
+                                        fontWeight: 600,
+                                        color: "white"
+                                    }}>
+                                        {currentIndex + 1}/{queue.length}
+                                    </div>
+                                </motion.div>
+                            )}
+                        </AnimatePresence>
                     </div>
 
                     {/* Rich Header Info (Visible when Playlist Selected) */}
@@ -401,7 +512,11 @@ export default function ImmersiveMusicPage() {
                                         whileTap={{ scale: 0.95 }}
                                         onClick={() => {
                                             triggerHaptic();
-                                            playQueue(filteredPlaylist, 0);
+                                            if (isSelectedPlaylistPlaying) {
+                                                togglePlay(); // Pause if already playing this playlist
+                                            } else {
+                                                playQueue(filteredPlaylist, 0); // Play from start
+                                            }
                                         }}
                                         style={{
                                             flex: 1,
@@ -420,8 +535,11 @@ export default function ImmersiveMusicPage() {
                                             boxShadow: "0 4px 12px rgba(255,255,255,0.2)"
                                         }}
                                     >
-                                        <Play size={20} fill="black" />
-                                        Play
+                                        {isSelectedPlaylistPlaying ? (
+                                            <><Pause size={20} fill="black" /> Pause</>
+                                        ) : (
+                                            <><Play size={20} fill="black" /> Play</>
+                                        )}
                                     </motion.button>
                                     <motion.button
                                         whileTap={{ scale: 0.95 }}
