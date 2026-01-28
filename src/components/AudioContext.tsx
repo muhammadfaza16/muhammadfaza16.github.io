@@ -275,7 +275,7 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
 
     }, [currentIndex, isPlaying]);
 
-    const currentSong = PLAYLIST[currentIndex];
+    const currentSong = queue[currentIndex] || queue[0];
 
     // Detect Lyrics on Song Change
     useEffect(() => {

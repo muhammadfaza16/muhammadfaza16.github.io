@@ -680,7 +680,7 @@ export default function ImmersiveMusicPage() {
                                             <Play size={16} fill="white" color="white" />
                                         </div>
                                     )}
-                                </motion.div>
+                                </div>
                             );
                         })}
                     </motion.div>
