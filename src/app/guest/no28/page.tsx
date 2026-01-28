@@ -772,8 +772,7 @@ export default function GuestNo28Dashboard() {
                                 opacity: 1,
                                 width: isMobile ? "96%" : "auto",
                                 alignSelf: isMobile ? "center" : "auto",
-                                cursor: "pointer",
-                                overflow: "hidden"
+                                cursor: "pointer"
                             }}
                         >
                             <WashiTape color="#a06cd5" rotate="1deg" width="60px" />
