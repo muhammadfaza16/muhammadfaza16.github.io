@@ -274,19 +274,12 @@ export default function GuestNo28Dashboard() {
                             {new Date().toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
                         </div>
 
-                        <h1 style={{ fontSize: "clamp(2.5rem, 8vw, 4rem)", fontWeight: 700, color: "#2d2d2d", lineHeight: 1.1, fontFamily: "'Crimson Pro', serif" }}>
-                            {greeting}, <br />
-                            <span style={{
-                                fontFamily: "cursive, 'Brush Script MT', 'Dancing Script'",
-                                color: "#d2691e",
-                                fontSize: "1.1em",
-                                transform: "rotate(-2deg) translateY(4px)",
-                                display: "inline-block",
-                                marginTop: "0.5rem"
-                            }}>
-                                Tamu Ke-28.
-                            </span>
+                        <h1 style={{ fontSize: "clamp(3rem, 10vw, 4.5rem)", fontWeight: 500, color: "#2d2d2d", lineHeight: 1.1, fontFamily: "'Playfair Display', serif", fontStyle: "italic", marginBottom: "0.5rem" }}>
+                            {greeting},
                         </h1>
+                        <h2 style={{ fontSize: "2.2rem", fontWeight: 400, color: "#b07d62", fontFamily: "'Caveat', cursive", marginTop: "0" }}>
+                            untuk Tamu ke-28
+                        </h2>
 
                         <p style={{ marginTop: "1.5rem", fontSize: "1.1rem", color: "#666", fontStyle: "italic", maxWidth: "500px", marginInline: "auto" }}>
                             "{subtext}"
@@ -315,30 +308,30 @@ export default function GuestNo28Dashboard() {
                                 style={{
                                     ...baseCardStyle,
                                     height: "320px",
-                                    padding: "2.2rem 1.8rem",
+                                    padding: "2rem",
                                     display: "flex",
                                     flexDirection: "column",
-                                    justifyContent: "space-between",
+                                    justifyContent: "center", // Center content vertically
+                                    alignItems: "center",     // Center content horizontally
                                     background: "#ffffff",
-                                    backgroundImage: "repeating-linear-gradient(transparent, transparent 27px, #fdfbf8 28px)",
+                                    backgroundImage: "url('https://www.transparenttextures.com/patterns/natural-paper.png'), repeating-linear-gradient(transparent, transparent 27px, #fdfbf8 28px)",
                                     borderRadius: "4px 8px 4px 12px",
                                     border: "1px solid #dcdde1",
                                     boxShadow: "0 8px 24px rgba(0,0,0,0.08)",
-                                    opacity: 1
+                                    opacity: 1,
+                                    textAlign: "center"
                                 }}
                             >
-                                <WashiTape color="#e6af2e" rotate="-3deg" width="110px" />
-                                <div style={{ position: "absolute", bottom: "10px", right: "10px", width: "120px", height: "120px", opacity: 0.6, transform: "rotate(10deg)", pointerEvents: "none", zIndex: 0, mixBlendMode: "multiply" }}>
-                                    <Image src="/sage_sketch.png" alt="" fill style={{ objectFit: "contain" }} />
+                                <WashiTape color="#ff6b6b" rotate="-3deg" width="110px" />
+
+                                {/* Central Sketch Illustration */}
+                                <div style={{ position: "relative", width: "200px", height: "150px", marginBottom: "1rem", marginTop: "1rem", mixBlendMode: "multiply" }}>
+                                    <Image src="/sketch_envelope_flower.png" alt="Vintage Envelope Sketch" fill style={{ objectFit: "contain" }} />
                                 </div>
-                                <div style={{ position: "relative", zIndex: 1 }}>
-                                    <div style={{ width: "45px", height: "45px", border: "1.5px solid #5a5a5a", borderRadius: "10px", display: "flex", alignItems: "center", justifyContent: "center", background: "#fff", transform: "rotate(-5deg)", boxShadow: "2px 2px 0 #5a5a5a" }}>
-                                        <Mail size={22} color="#5a5a5a" strokeWidth={1.5} />
-                                    </div>
-                                </div>
+
                                 <div style={{ position: "relative", zIndex: 1 }}>
                                     <h3 style={{ fontSize: "1.6rem", fontWeight: 700, color: "#333", fontFamily: "'Crimson Pro', serif" }}>Sepucuk Surat</h3>
-                                    <p style={{ color: "#666", fontStyle: "italic", fontSize: "0.9rem", marginTop: "2px" }}>"Tinta yang baru saja mengering..."</p>
+                                    <p style={{ fontFamily: "'Caveat', cursive", color: "#8a7058", fontSize: "1.2rem", marginTop: "4px" }}>"Tinta yang baru saja mengering..."</p>
                                 </div>
                             </motion.div>
                         </Link>
@@ -351,29 +344,30 @@ export default function GuestNo28Dashboard() {
                                 style={{
                                     ...baseCardStyle,
                                     height: "320px",
-                                    padding: "2.2rem 1.8rem",
+                                    padding: "2rem",
                                     display: "flex",
                                     flexDirection: "column",
-                                    justifyContent: "space-between",
+                                    justifyContent: "center",
+                                    alignItems: "center",
                                     background: "#ffffff",
+                                    backgroundImage: "url('https://www.transparenttextures.com/patterns/natural-paper.png')",
                                     borderRadius: "4px 12px 4px 8px",
                                     boxShadow: "0 8px 24px rgba(0,0,0,0.08)",
                                     border: "1px solid #dcdde1",
-                                    opacity: 1
+                                    opacity: 1,
+                                    textAlign: "center"
                                 }}
                             >
-                                <WashiTape color="#ff9f1c" rotate="2deg" width="100px" />
-                                <div style={{ position: "absolute", top: "15%", right: "10px", width: "130px", height: "130px", opacity: 0.5, transform: "rotate(-10deg)", pointerEvents: "none", zIndex: 0, mixBlendMode: "multiply" }}>
-                                    <Image src="/detail_rose.png" alt="" fill style={{ objectFit: "contain" }} />
+                                <WashiTape color="#4ecdc4" rotate="2deg" width="100px" />
+
+                                {/* Central Sketch Illustration */}
+                                <div style={{ position: "relative", width: "210px", height: "160px", marginBottom: "1rem", marginTop: "1rem", mixBlendMode: "multiply", transform: "rotate(-5deg)" }}>
+                                    <Image src="/sketch_maryjane_shoes.png" alt="Mary Jane Shoes Sketch" fill style={{ objectFit: "contain" }} />
                                 </div>
-                                <div style={{ position: "relative", zIndex: 1 }}>
-                                    <div style={{ width: "45px", height: "45px", border: "1.5px solid #5a5a5a", borderRadius: "10px", display: "flex", alignItems: "center", justifyContent: "center", background: "#fff", transform: "rotate(4deg)", boxShadow: "2px 2px 0 #5a5a5a" }}>
-                                        <BookOpen size={22} color="#5a5a5a" strokeWidth={1.5} />
-                                    </div>
-                                </div>
+
                                 <div style={{ position: "relative", zIndex: 1 }}>
                                     <h3 style={{ fontSize: "1.6rem", fontWeight: 700, color: "#333", fontFamily: "'Crimson Pro', serif" }}>Lembaran Kisah</h3>
-                                    <p style={{ color: "#888", fontStyle: "italic", fontSize: "0.9rem", marginTop: "2px" }}>"Setiap detiknya adalah puisi yang kau tulis tanpa kata."</p>
+                                    <p style={{ fontFamily: "'Caveat', cursive", color: "#8a7058", fontSize: "1.2rem", marginTop: "4px" }}>"Setiap detiknya adalah puisi..."</p>
                                 </div>
                             </motion.div>
                         </Link>
@@ -395,7 +389,7 @@ export default function GuestNo28Dashboard() {
                                 alignSelf: isMobile ? "center" : "auto"
                             }}
                         >
-                            <WashiTape color="#b2c6bf" rotate="1deg" width="60px" />
+                            <WashiTape color="#a06cd5" rotate="1deg" width="60px" />
                             <div style={{ position: "absolute", top: "5px", right: "5px", width: "100px", height: "100px", opacity: 0.6, transform: "rotate(-15deg)", pointerEvents: "none", zIndex: 0, mixBlendMode: "multiply" }}>
                                 <Image src="/lavender_sketch.png" alt="" fill style={{ objectFit: "contain" }} />
                             </div>
@@ -434,7 +428,7 @@ export default function GuestNo28Dashboard() {
                         </HandwrittenNote>
                     </motion.div>
                 </Container>
-            </main>
-        </div>
+            </main >
+        </div >
     );
 }
