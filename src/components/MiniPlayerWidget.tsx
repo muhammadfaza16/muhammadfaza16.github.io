@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useRef, useEffect } from "react";
 import { useAudio } from "@/components/AudioContext";
 import { useZen } from "@/components/ZenContext";
 import { useRouter } from "next/navigation";
