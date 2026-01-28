@@ -170,10 +170,10 @@ export default function ImmersiveMusicPage() {
                     margin: "0 auto",
                     display: "flex",
                     flexDirection: "column",
-                    gap: "2rem"
+                    gap: "2.5rem" // Increased from 2rem for breathing room between sections
                 }}>
                     {/* Header & Grid */}
-                    <div>
+                    <div style={{ marginBottom: "0.5rem" }}> {/* Added margin below header section */}
                         <motion.div
                             style={{
                                 display: "flex",
@@ -251,7 +251,7 @@ export default function ImmersiveMusicPage() {
                             display: "grid",
                             gridTemplateColumns: "repeat(2, 1fr)", // 2 Columns for bigger art (iOS standard)
                             gap: "16px",
-                            marginBottom: "1rem"
+                            marginBottom: "0rem" // Removed - let parent gap handle it
                         }}>
                             {PLAYLIST_CATEGORIES.map((playlist) => {
                                 const isSelected = selectedPlaylistId === playlist.id;
@@ -338,7 +338,7 @@ export default function ImmersiveMusicPage() {
                                 animate={{ opacity: 1, height: "auto", scale: 1 }}
                                 exit={{ opacity: 0, height: 0, scale: 0.95 }}
                                 transition={{ duration: 0.3, ease: "easeInOut" }}
-                                style={{ marginBottom: "2rem", overflow: "hidden" }}
+                                style={{ marginTop: "0.5rem", marginBottom: "0.5rem", overflow: "hidden" }} // Adjusted spacing
                             >
                                 <div style={{
                                     padding: "20px",
