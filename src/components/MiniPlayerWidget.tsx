@@ -15,8 +15,19 @@ export function MiniPlayerWidget({ style: customStyle }: MiniPlayerProps) {
     const { isZen, setZen } = useZen();
     const router = useRouter();
 
+    const [isDismissed, setIsDismissed] = useState(false);
+    const prevSongTitle = useRef(currentSong.title);
+
+    // Reset dismissal if song changes
+    useEffect(() => {
+        if (prevSongTitle.current !== currentSong.title) {
+            setIsDismissed(false);
+            prevSongTitle.current = currentSong.title;
+        }
+    }, [currentSong.title]);
+
     // Only show if user has started playing something or interacted
-    if (!hasInteracted) return null;
+    if (!hasInteracted || isDismissed) return null;
 
     // Split title for artist/song
     const parts = currentSong.title.split("—");
@@ -37,24 +48,53 @@ export function MiniPlayerWidget({ style: customStyle }: MiniPlayerProps) {
                         display: "flex",
                         justifyContent: "center",
                         zIndex: 20, // Above standard content
+                        position: "relative",
                         ...customStyle
                     }}
                 >
+                    {/* Background Dismiss Icon */}
                     <div style={{
-                        width: "100%",
-                        maxWidth: "420px", // Match Grid width
-                        background: "rgba(25, 25, 25, 0.6)", // Darker glass
-                        backdropFilter: "blur(16px) saturate(180%)",
-                        WebkitBackdropFilter: "blur(16px) saturate(180%)",
-                        border: "1px solid rgba(255, 255, 255, 0.08)",
-                        borderRadius: "20px",
-                        padding: "0.75rem 1rem",
+                        position: "absolute",
+                        inset: "0 1.5rem",
                         display: "flex",
                         alignItems: "center",
-                        gap: "1rem",
-                        boxShadow: "0 8px 32px rgba(0, 0, 0, 0.2)",
-                        cursor: "pointer"
-                    }}
+                        justifyContent: "space-between",
+                        padding: "0 2rem",
+                        zIndex: 0,
+                        opacity: 0.5,
+                        color: "white"
+                    }}>
+                        <SkipBack size={24} opacity={0.3} />
+                        <SkipForward size={24} opacity={0.3} />
+                    </div>
+
+                    <motion.div
+                        drag="x"
+                        dragConstraints={{ left: 0, right: 0 }}
+                        dragElastic={0.7}
+                        onDragEnd={(e, info) => {
+                            if (Math.abs(info.offset.x) > 120) {
+                                setIsDismissed(true);
+                            }
+                        }}
+                        style={{
+                            width: "100%",
+                            maxWidth: "420px", // Match Grid width
+                            background: "rgba(25, 25, 25, 0.6)", // Darker glass
+                            backdropFilter: "blur(16px) saturate(180%)",
+                            WebkitBackdropFilter: "blur(16px) saturate(180%)",
+                            border: "1px solid rgba(255, 255, 255, 0.08)",
+                            borderRadius: "20px",
+                            padding: "0.75rem 1rem",
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "1rem",
+                            boxShadow: "0 8px 32px rgba(0, 0, 0, 0.2)",
+                            cursor: "grab",
+                            zIndex: 1,
+                            touchAction: "none"
+                        }}
+                        whileTap={{ cursor: "grabbing" }}
                         onClick={() => {
                             setZen(true);
                             router.push("/playlist");
@@ -71,6 +111,7 @@ export function MiniPlayerWidget({ style: customStyle }: MiniPlayerProps) {
                             justifyContent: "center",
                             position: "relative"
                         }}>
+                            {/* ... same internal content ... */}
                             <motion.div
                                 animate={{ rotate: isPlaying ? 360 : 0 }}
                                 transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
@@ -105,7 +146,7 @@ export function MiniPlayerWidget({ style: customStyle }: MiniPlayerProps) {
                         </div>
 
                         {/* Controls */}
-                        <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }} onClick={(e) => e.stopPropagation()}>
                             {/* Prev */}
                             <div
                                 onClick={(e) => { e.stopPropagation(); prevSong(); }}
@@ -146,7 +187,7 @@ export function MiniPlayerWidget({ style: customStyle }: MiniPlayerProps) {
                                 <SkipForward size={20} fill="white" className="text-white/80" />
                             </div>
                         </div>
-                    </div>
+                    </motion.div>
                 </motion.div>
             )}
         </AnimatePresence>
