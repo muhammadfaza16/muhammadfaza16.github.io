@@ -2,6 +2,9 @@ export interface Playlist {
     id: string;
     title: string;
     description: string;
+    philosophy: string; // Deep quote or meaning
+    schedule: string; // e.g. "Late Night", "Early Morning"
+    vibes: string[]; // Tags
     coverColor: string; // Hex for accent
     coverImage: string;
     songTitles: string[]; // Map by title to avoid index issues if master list changes
@@ -12,6 +15,9 @@ export const PLAYLIST_CATEGORIES: Playlist[] = [
         id: "teman-sunyi",
         title: "Teman Sunyi",
         description: "Melodies for the sleepless nights under the stars.",
+        philosophy: "In the silence of the night, we find the answers we were too loud to hear during the day.",
+        schedule: "11 PM - 3 AM",
+        vibes: ["Melancholic", "Space", "Introspective"],
         coverColor: "#1e3a8a", // Deep Blue
         coverImage: "/images/playlists/playlist_teman_sunyi_final.png",
         songTitles: [
@@ -32,6 +38,9 @@ export const PLAYLIST_CATEGORIES: Playlist[] = [
         id: "line-up-inti",
         title: "Line Up Inti",
         description: "A cosmic mix of everything that moves the soul.",
+        philosophy: "The soundtracks of our main character moments; the energy that drives the stars.",
+        schedule: "Anytime",
+        vibes: ["Epic", "Main Character", "Energy"],
         coverColor: "#7c3aed", // Violet
         coverImage: "/images/playlists/playlist_line_up_inti_final.png",
         songTitles: [
@@ -52,6 +61,9 @@ export const PLAYLIST_CATEGORIES: Playlist[] = [
         id: "menunggu-pagi",
         title: "Menunggu Pagi",
         description: "Start your day with a sunrise of sound.",
+        philosophy: "Every sunrise is an invitation to brighten someone's day.",
+        schedule: "5 AM - 9 AM",
+        vibes: ["Hopeful", "Morning", "Pop"],
         coverColor: "#f59e0b", // Amber/Gold
         coverImage: "/images/playlists/playlist_menunggu_pagi_final.png",
         songTitles: [
@@ -71,6 +83,9 @@ export const PLAYLIST_CATEGORIES: Playlist[] = [
         id: "tentang-dia",
         title: "Tentang Dia",
         description: "Echoes of memory and the feeling of home.",
+        philosophy: "Memory is a way of holding on to the things you love, the things you are, the things you never want to lose.",
+        schedule: "Late Night / Rainy",
+        vibes: ["Nostalgic", "Love", "Acoustic"],
         coverColor: "#be185d", // Pink/Rose
         coverImage: "/images/playlists/playlist_tentang_dia_final.png",
         songTitles: [

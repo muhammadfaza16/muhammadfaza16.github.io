@@ -330,6 +330,70 @@ export default function ImmersiveMusicPage() {
                         </div>
                     </div>
 
+                    {/* Rich Header Info (Visible when Playlist Selected) */}
+                    <AnimatePresence>
+                        {activePlaylist && (
+                            <motion.div
+                                initial={{ opacity: 0, height: 0, scale: 0.95 }}
+                                animate={{ opacity: 1, height: "auto", scale: 1 }}
+                                exit={{ opacity: 0, height: 0 }}
+                                style={{ marginBottom: "2rem", overflow: "hidden" }}
+                            >
+                                <div style={{
+                                    padding: "20px",
+                                    background: "rgba(255,255,255,0.03)",
+                                    borderRadius: "20px",
+                                    border: "1px solid rgba(255,255,255,0.05)",
+                                    display: "flex",
+                                    flexDirection: "column",
+                                    gap: "12px"
+                                }}>
+                                    {/* Philosophy */}
+                                    <div style={{
+                                        fontFamily: "'Playfair Display', serif", // Or sans-serif if you prefer modern
+                                        fontStyle: "italic",
+                                        fontSize: "1.1rem",
+                                        color: "rgba(255,255,255,0.9)",
+                                        lineHeight: "1.5"
+                                    }}>
+                                        "{activePlaylist.philosophy}"
+                                    </div>
+
+                                    {/* Meta Tags */}
+                                    <div style={{ display: "flex", flexWrap: "wrap", gap: "8px", alignItems: "center" }}>
+                                        {/* Time Badge */}
+                                        <div style={{
+                                            display: "flex",
+                                            alignItems: "center",
+                                            gap: "6px",
+                                            padding: "6px 12px",
+                                            background: "rgba(59, 130, 246, 0.2)",
+                                            borderRadius: "100px",
+                                            fontSize: "0.8rem",
+                                            color: "#93c5fd",
+                                            fontWeight: 600
+                                        }}>
+                                            <span style={{ fontSize: "1.2em" }}>🕒</span> {activePlaylist.schedule}
+                                        </div>
+
+                                        {/* Vibes */}
+                                        {activePlaylist.vibes.map(vibe => (
+                                            <span key={vibe} style={{
+                                                padding: "6px 12px",
+                                                borderRadius: "100px",
+                                                border: "1px solid rgba(255,255,255,0.1)",
+                                                fontSize: "0.8rem",
+                                                color: "rgba(255,255,255,0.6)"
+                                            }}>
+                                                {vibe}
+                                            </span>
+                                        ))}
+                                    </div>
+                                </div>
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
+
                     {/* Search Bar - Sticky & Glass */}
                     <div style={{
                         position: "sticky",
