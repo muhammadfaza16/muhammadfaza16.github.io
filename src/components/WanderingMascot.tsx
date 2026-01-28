@@ -18,6 +18,13 @@ export function WanderingMascot() {
     const [isHovered, setIsHovered] = useState(false);
     const [quote, setQuote] = useState(gojoQuotes[0]);
     const containerRef = useRef<HTMLDivElement>(null);
+    const lastUpdateRef = useRef(0);
+    const directionRef = useRef(direction);
+
+    // Keep ref in sync
+    useEffect(() => {
+        directionRef.current = direction;
+    }, [direction]);
 
     useEffect(() => {
         // Randomize quote on hover
@@ -29,9 +36,31 @@ export function WanderingMascot() {
     useEffect(() => {
         if (!isWalking) return;
 
-        const moveInterval = setInterval(() => {
+        let animationId: number;
+        let isVisible = !document.hidden;
+
+        // Visibility change handler - pause when tab is hidden
+        const handleVisibilityChange = () => {
+            isVisible = !document.hidden;
+        };
+        document.addEventListener("visibilitychange", handleVisibilityChange);
+
+        const animate = (timestamp: number) => {
+            // Skip if tab is hidden
+            if (!isVisible) {
+                animationId = requestAnimationFrame(animate);
+                return;
+            }
+
+            // Throttle to ~10fps (100ms) - still smooth for walking
+            if (timestamp - lastUpdateRef.current < 100) {
+                animationId = requestAnimationFrame(animate);
+                return;
+            }
+            lastUpdateRef.current = timestamp;
+
             setPosition(prev => {
-                let newX = prev.x + (direction * 0.4);
+                let newX = prev.x + (directionRef.current * 0.8); // Doubled speed to compensate for lower fps
                 let newY = prev.y + (Math.sin(Date.now() / 1000) * 0.15);
 
                 // Bounce at edges
@@ -48,7 +77,11 @@ export function WanderingMascot() {
 
                 return { x: newX, y: newY };
             });
-        }, 50);
+
+            animationId = requestAnimationFrame(animate);
+        };
+
+        animationId = requestAnimationFrame(animate);
 
         // Random pause and direction change
         const pauseInterval = setInterval(() => {
@@ -64,10 +97,11 @@ export function WanderingMascot() {
         }, 3000);
 
         return () => {
-            clearInterval(moveInterval);
+            cancelAnimationFrame(animationId);
             clearInterval(pauseInterval);
+            document.removeEventListener("visibilitychange", handleVisibilityChange);
         };
-    }, [isWalking, direction]);
+    }, [isWalking]);
 
     return (
         <div
@@ -175,10 +209,10 @@ export function WanderingMascot() {
                         {/* More hair detail */}
                         <ellipse cx="20" cy="14" rx="11" ry="8" fill="#f5f5f5" />
                         <path d="M12 10C12 10 14 6 20 6C26 6 28 10 28 10" fill="#fafafa" />
-                        
+
                         {/* Face/Head */}
                         <ellipse cx="20" cy="20" rx="10" ry="9" fill="#fce4d6" />
-                        
+
                         {/* Blindfold */}
                         <rect
                             x="8"
@@ -190,7 +224,7 @@ export function WanderingMascot() {
                         />
                         {/* Blindfold shine */}
                         <rect x="10" y="17" width="8" height="1.5" rx="0.75" fill="#2d2d44" opacity="0.6" />
-                        
+
                         {/* Confident smirk */}
                         <path
                             d="M16 26Q20 28 24 26"
@@ -199,7 +233,7 @@ export function WanderingMascot() {
                             fill="none"
                             strokeLinecap="round"
                         />
-                        
+
                         {/* Body - Black Uniform */}
                         <path
                             d="M12 28C12 28 10 30 10 34V44C10 46 12 48 14 48H26C28 48 30 46 30 44V34C30 30 28 28 28 28H12Z"
@@ -215,19 +249,19 @@ export function WanderingMascot() {
                         {/* High collar detail */}
                         <rect x="17" y="28" width="6" height="4" fill="#1a1a2e" />
                         <line x1="20" y1="28" x2="20" y2="32" stroke="#2d2d44" strokeWidth="0.5" />
-                        
+
                         {/* Arms */}
                         <ellipse cx="8" cy="36" rx="3" ry="4" fill="#1a1a2e" />
                         <ellipse cx="32" cy="36" rx="3" ry="4" fill="#1a1a2e" />
-                        
+
                         {/* Hands */}
                         <circle cx="8" cy="40" r="2.5" fill="#fce4d6" />
                         <circle cx="32" cy="40" r="2.5" fill="#fce4d6" />
-                        
+
                         {/* Legs */}
                         <rect x="13" y="46" width="5" height="6" rx="2" fill="#1a1a2e" />
                         <rect x="22" y="46" width="5" height="6" rx="2" fill="#1a1a2e" />
-                        
+
                         {/* Glow effect when hovered - Infinity aura */}
                         {isHovered && (
                             <>

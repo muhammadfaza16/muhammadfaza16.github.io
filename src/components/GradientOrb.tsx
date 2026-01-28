@@ -35,6 +35,13 @@ export function GradientOrb() {
         let animationId: number;
         let time = 0;
         let frameCount = 0;
+        let isVisible = !document.hidden;
+
+        // Visibility change handler - pause when tab is hidden
+        const handleVisibilityChange = () => {
+            isVisible = !document.hidden;
+        };
+        document.addEventListener("visibilitychange", handleVisibilityChange);
 
         // Data buffer for audio analysis
         // We assume fftSize=64 (set in AudioContext), so frequencyBinCount is 32.
@@ -42,6 +49,12 @@ export function GradientOrb() {
         let bassSmoothed = 0; // Smoothed value for scale interpolation
 
         const animate = () => {
+            // Skip if tab is hidden (saves CPU/battery)
+            if (!isVisible) {
+                animationId = requestAnimationFrame(animate);
+                return;
+            }
+
             // Dynamic speed control
             const zenActive = isZenRef.current;
             const playing = isPlayingRef.current;
@@ -144,7 +157,10 @@ export function GradientOrb() {
         };
 
         animate();
-        return () => cancelAnimationFrame(animationId);
+        return () => {
+            cancelAnimationFrame(animationId);
+            document.removeEventListener("visibilitychange", handleVisibilityChange);
+        };
     }, []); // Empty deps because we use refs for latest values
 
     return (

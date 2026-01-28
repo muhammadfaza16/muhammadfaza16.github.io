@@ -97,7 +97,20 @@ export function CosmicStars() {
 
         window.addEventListener("resize", resize);
 
+        // Visibility detection for battery saving
+        let isVisible = !document.hidden;
+        const handleVisibilityChange = () => {
+            isVisible = !document.hidden;
+        };
+        document.addEventListener("visibilitychange", handleVisibilityChange);
+
         const animate = () => {
+            // Skip if tab is hidden (saves CPU/battery)
+            if (!isVisible) {
+                animationId = requestAnimationFrame(animate);
+                return;
+            }
+
             ctx.clearRect(0, 0, width, height);
 
             // Re-check playing status inside the loop
@@ -143,6 +156,7 @@ export function CosmicStars() {
 
         return () => {
             window.removeEventListener("resize", resize);
+            document.removeEventListener("visibilitychange", handleVisibilityChange);
             cancelAnimationFrame(animationId);
         };
     }, []);
