@@ -262,7 +262,7 @@ const ContinuousMarquee = memo(function ContinuousMarquee({ items, onVisibilityC
             maskImage: "linear-gradient(90deg, transparent 0%, black 5%, black 95%, transparent 100%)",
             WebkitMaskImage: "linear-gradient(90deg, transparent 0%, black 5%, black 95%, transparent 100%)"
         }}>
-            {[0, 1, 2, 3].map((key) => (
+            {[0, 1].map((key) => ( // Reduced from 4 to 2 for performance (minimum for seamless loop)
                 <div
                     key={key}
                     style={{
