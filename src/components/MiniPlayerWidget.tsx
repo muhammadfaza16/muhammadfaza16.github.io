@@ -32,7 +32,8 @@ export function MiniPlayerWidget() {
                         width: "100%",
                         display: "flex",
                         justifyContent: "center",
-                        zIndex: 20 // Above standard content
+                        zIndex: 20, // Above standard content
+                        marginBottom: "1.5rem" // Added space to separate from icons
                     }}
                 >
                     <div style={{
