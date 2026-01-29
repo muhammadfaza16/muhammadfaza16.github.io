@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useMemo } from "react";
-import { BarChart2, Play, Pause, Search, Heart, Disc, Music2, ChevronLeft, Home } from "lucide-react";
+import { BarChart2, Play, Pause, Search, Heart, Disc, Shuffle, ChevronLeft, Home } from "lucide-react";
 import { GradientOrb } from "@/components/GradientOrb";
 import { CosmicStars } from "@/components/CosmicStars";
 import { MilkyWay } from "@/components/MilkyWay";
@@ -88,9 +88,11 @@ export default function ImmersiveMusicPage() {
                 )
             );
 
-            // If queue length matches and first song matches, it's likely this playlist
-            if (queue.length === playlistSongs.length && queue[0]?.audioUrl === playlistSongs[0]?.audioUrl) {
-                return playlist.id;
+            // Check if ALL queue songs are from this playlist (handles shuffled order)
+            if (queue.length === playlistSongs.length) {
+                const playlistUrls = new Set(playlistSongs.map(s => s.audioUrl));
+                const allMatch = queue.every(qSong => playlistUrls.has(qSong.audioUrl));
+                if (allMatch) return playlist.id;
             }
         }
         return null;
@@ -399,7 +401,7 @@ export default function ImmersiveMusicPage() {
                                             animate={{ scale: [1, 1.1, 1] }}
                                             transition={{ duration: 1, repeat: Infinity }}
                                         >
-                                            <Music2 size={18} color="rgba(0,0,0,0.7)" />
+                                            <Disc size={18} color="rgba(0,0,0,0.7)" />
                                         </motion.div>
                                     </div>
 
@@ -563,7 +565,7 @@ export default function ImmersiveMusicPage() {
                                             cursor: "pointer"
                                         }}
                                     >
-                                        <Music2 size={20} />
+                                        <Shuffle size={20} />
                                     </motion.button>
                                 </div>
                             </motion.div>
