@@ -64,7 +64,7 @@ const LifeStats = ({ birthDate }: { birthDate: Date }) => {
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "1rem" }}>
                 <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
                     <Activity size={20} color={theme.colors.danger} />
-                    <span style={{ fontSize: "0.85rem", fontWeight: 700, color: theme.colors.textMuted, letterSpacing: "0.05em", textTransform: "uppercase" }}>
+                    <span style={{ fontSize: "0.85rem", fontWeight: 700, color: theme.colors.textMuted, letterSpacing: "0.05em", textTransform: "uppercase", fontFamily: "var(--font-mono)" }}>
                         Biological Engine
                     </span>
                 </div>
@@ -81,7 +81,7 @@ const LifeStats = ({ birthDate }: { birthDate: Date }) => {
                 {/* Heartbeats */}
                 <div>
                     <div style={{ display: "flex", alignItems: "baseline", gap: "0.5rem" }}>
-                        <span style={{ fontFamily: "monospace", fontSize: "1.8rem", fontWeight: 700, color: theme.colors.textMain }}>
+                        <span style={{ fontFamily: "var(--font-mono)", fontSize: "1.8rem", fontWeight: 700, color: theme.colors.textMain }}>
                             {fmt(stats.heartbeats)}
                         </span>
                         <span style={{ fontSize: "0.8rem", color: theme.colors.danger }}>bpm</span>
@@ -92,7 +92,7 @@ const LifeStats = ({ birthDate }: { birthDate: Date }) => {
                 {/* Breaths */}
                 <div>
                     <div style={{ display: "flex", alignItems: "baseline", gap: "0.5rem" }}>
-                        <span style={{ fontFamily: "monospace", fontSize: "1.8rem", fontWeight: 700, color: theme.colors.textMain }}>
+                        <span style={{ fontFamily: "var(--font-mono)", fontSize: "1.8rem", fontWeight: 700, color: theme.colors.textMain }}>
                             {fmt(stats.breaths)}
                         </span>
                         <span style={{ fontSize: "0.8rem", color: theme.colors.secondary }}>rpm</span>
@@ -103,7 +103,7 @@ const LifeStats = ({ birthDate }: { birthDate: Date }) => {
                 {/* Cosmic Distance */}
                 <div>
                     <div style={{ display: "flex", alignItems: "baseline", gap: "0.5rem" }}>
-                        <span style={{ fontFamily: "monospace", fontSize: "1.2rem", fontWeight: 700, color: theme.colors.textMain }}>
+                        <span style={{ fontFamily: "var(--font-mono)", fontSize: "1.2rem", fontWeight: 700, color: theme.colors.textMain }}>
                             {fmt(stats.distanceTraveled)}
                         </span>
                         <span style={{ fontSize: "0.8rem", color: theme.colors.accent }}>km</span>
@@ -149,7 +149,7 @@ const LifeGrid = ({ birthDate }: { birthDate: Date }) => {
                 }}>
                     <Grid3X3 size={18} />
                 </div>
-                <span style={{ fontSize: "0.65rem", fontWeight: 600, color: theme.colors.textMuted, letterSpacing: "0.15em", textTransform: "uppercase" }}>
+                <span style={{ fontSize: "0.65rem", fontWeight: 600, color: theme.colors.textMuted, letterSpacing: "0.15em", textTransform: "uppercase", fontFamily: "var(--font-mono)" }}>
                     Perspective
                 </span>
             </div>
@@ -225,8 +225,8 @@ const YearProgress = () => {
     return (
         <BentoCard colSpanMobile={1} colSpanDesktop={2} delay={0.3}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.8rem" }}>
-                <h3 style={{ fontSize: "1.2rem", fontWeight: 700, color: theme.colors.textMain, letterSpacing: "-0.02em" }}>Year Progress</h3>
-                <span style={{ fontFamily: "monospace", color: theme.colors.accent, fontWeight: 800, letterSpacing: "0.05em" }}>{year}</span>
+                <h3 style={{ fontSize: "1.2rem", fontWeight: 700, color: theme.colors.textMain, letterSpacing: "-0.02em", fontFamily: "'Playfair Display', serif" }}>Year Progress</h3>
+                <span style={{ fontFamily: "var(--font-mono)", color: theme.colors.accent, fontWeight: 800, letterSpacing: "0.05em" }}>{year}</span>
             </div>
 
             {/* Matrix / DNA Strip Visual */}
@@ -337,7 +337,8 @@ const DayProgress = () => {
                         fontWeight: 700,
                         letterSpacing: "0.15em",
                         marginBottom: "0.5rem",
-                        textTransform: "uppercase"
+                        textTransform: "uppercase",
+                        fontFamily: "var(--font-mono)"
                     }}>
                         Today
                     </span>
@@ -360,7 +361,7 @@ const DayProgress = () => {
                             <Zap size={20} color={theme.colors.primary} style={{ display: "block" }} />
                         </motion.div>
                     </div>
-                    <div style={{ fontSize: "0.65rem", fontWeight: 600, color: theme.colors.textMuted, letterSpacing: "0.15em", textTransform: "uppercase" }}>Energy</div>
+                    <div style={{ fontSize: "0.65rem", fontWeight: 600, color: theme.colors.textMuted, letterSpacing: "0.15em", textTransform: "uppercase", fontFamily: "var(--font-mono)" }}>Energy</div>
                 </div>
             </div>
 
@@ -533,10 +534,9 @@ export default function ClockPage() {
             minHeight: "100vh",
             background: "#000",
             color: "#fff",
-            fontFamily: "'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Inter', sans-serif",
+            fontFamily: "var(--font-sans)",
             WebkitFontSmoothing: "antialiased",
             MozOsxFontSmoothing: "grayscale",
-            fontFeatureSettings: '"cv11", "ss01", "tnum"',
             textRendering: "optimizeLegibility",
             overflowX: "hidden",
             overflowY: "scroll", // Force scrollbar to prevent layout shift
@@ -546,8 +546,8 @@ export default function ClockPage() {
             <style dangerouslySetInnerHTML={{
                 __html: `
                 .clock-container {
-                    padding: 80px 20px 40px 20px;
-                    max-width: 1000px;
+                    padding: 2rem 1.5rem 6rem;
+                    max-width: 1200px;
                     margin: 0 auto;
                     position: relative;
                     z-index: 10;
@@ -555,7 +555,7 @@ export default function ClockPage() {
                 .bento-grid {
                     display: grid;
                     grid-template-columns: 1fr;
-                    gap: 16px;
+                    gap: 24px;
                 }
                 
                 @media (min-width: 768px) {
@@ -607,26 +607,32 @@ export default function ClockPage() {
 
             <div className="clock-container">
                 <motion.div
-                    initial={{ opacity: 0, y: -20 }}
+                    initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.6 }}
-                    style={{ marginBottom: "2rem" }}
+                    transition={{ duration: 0.8, ease: [0.2, 0.8, 0.2, 1] }}
+                    style={{ marginBottom: "2rem", textAlign: "center", paddingTop: "2rem" }}
                 >
                     <h1 style={{
-                        fontSize: "3.8rem",
-                        fontWeight: 900,
-                        letterSpacing: "-0.08em",
-                        lineHeight: 1,
-                        background: "linear-gradient(to bottom, #fff 40%, rgba(255,255,255,0.7))",
-                        WebkitBackgroundClip: "text",
-                        WebkitTextFillColor: "transparent",
+                        fontFamily: "'Playfair Display', serif",
+                        fontSize: "clamp(2.5rem, 5vw, 3.5rem)",
+                        fontWeight: 400,
+                        letterSpacing: "-0.02em",
+                        color: "rgba(255,255,255,0.9)",
+                        lineHeight: 1.2,
+                        marginBottom: "0.5rem"
                     }}>
                         Time<motion.span
-                            animate={{ opacity: [0.2, 0.4, 0.2] }}
+                            animate={{ opacity: [0.4, 0.8, 0.4] }}
                             transition={{ repeat: Infinity, duration: 5, ease: [0.4, 0, 0.2, 1] }}
                         >piece</motion.span>
                     </h1>
-                    <p style={{ color: theme.colors.textMuted, fontSize: "0.9rem", fontWeight: 500, letterSpacing: "-0.01em", opacity: 0.8 }}>
+                    <p style={{
+                        fontFamily: "var(--font-mono)",
+                        fontSize: "0.9rem",
+                        color: "rgba(255,255,255,0.5)",
+                        letterSpacing: "0.05em",
+                        textTransform: "uppercase"
+                    }}>
                         Your temporal coordinates in the universe.
                     </p>
                 </motion.div>
@@ -657,7 +663,8 @@ export default function ClockPage() {
                         fontWeight: 600,
                         color: theme.colors.textMuted,
                         letterSpacing: "0.2em",
-                        textTransform: "uppercase"
+                        textTransform: "uppercase",
+                        fontFamily: "var(--font-mono)"
                     }}>
                         Memento Mori
                     </span>
