@@ -188,7 +188,7 @@ export default function GuestNo28Dashboard() {
     // Extended features
     // Extended features
     const [countdown, setCountdown] = useState({ days: 0, hours: 0, minutes: 0 });
-    const SPECIAL_DATE = new Date("2026-02-09"); // Birthday or special date
+    const SPECIAL_DATE = new Date("2026-11-28"); // Birthday or special date
     const [currentCardIndex, setCurrentCardIndex] = useState(0);
 
     // PIN Guard

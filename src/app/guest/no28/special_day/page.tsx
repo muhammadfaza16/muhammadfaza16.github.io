@@ -347,6 +347,24 @@ export default function SpecialDayBentoPage() {
     const [showTodayMessage, setShowTodayMessage] = useState(false);
     const [showTimeCapsuleMessage, setShowTimeCapsuleMessage] = useState(false);
     const wisdomIndexRef = useRef(0);
+    const SPECIAL_DATE = useMemo(() => new Date("2026-11-28"), []);
+    const [dots, setDots] = useState("");
+
+    const daysUntil = useMemo(() => {
+        const diff = SPECIAL_DATE.getTime() - now.getTime();
+        return Math.max(0, Math.ceil(diff / (1000 * 60 * 60 * 24)));
+    }, [now, SPECIAL_DATE]);
+
+    // Typewriter effect for dots
+    useEffect(() => {
+        const interval = setInterval(() => {
+            setDots(prev => {
+                if (prev === "...") return "";
+                return prev + ".";
+            });
+        }, 500);
+        return () => clearInterval(interval);
+    }, []);
 
     // Portrait Gallery State
     const [portraitIndex, setPortraitIndex] = useState(0);
@@ -620,8 +638,14 @@ export default function SpecialDayBentoPage() {
                             >
                                 <div style={{ fontSize: "2rem", marginBottom: "0.5rem" }}>🕰️</div>
                                 <HandwrittenNote style={{ fontSize: "1.2rem", color: "#4e4439", lineHeight: 1.6 }}>
-                                    "Maaf, pesan ini masih terlelap. <br />Ia akan terbangun untuk menyapamu tepat di hari bahagiamu nanti."
+                                    "Maaf, pesan ini masih terlelap. <br />Ia akan terbangun untuk menyapamu tepat di hari istimewamu nanti."
                                 </HandwrittenNote>
+
+                                <div style={{ marginTop: "1rem" }}>
+                                    <HandwrittenNote style={{ fontSize: "1.4rem", color: "#b07d62", fontWeight: 600 }}>
+                                        {daysUntil} hari lagi{dots}
+                                    </HandwrittenNote>
+                                </div>
                                 <div style={{ fontSize: "0.8rem", color: "#aaa", marginTop: "1.5rem", fontStyle: "italic" }}>
                                     (ketuk di luar untuk menutup)
                                 </div>
