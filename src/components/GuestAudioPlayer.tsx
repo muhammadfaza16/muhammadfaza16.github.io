@@ -10,9 +10,10 @@ export function GuestAudioPlayer() {
     const audioRef = useRef<HTMLAudioElement>(null);
     const intentionallyPausedRef = useRef(false);
 
-    // Check if we are in the guest/no28 section
+    // Check if we are in the guest/no28 section (for audio persistence)
     const isGuestSection = pathname?.includes("/guest/no28") ?? false;
-    const isSpecialDayPage = pathname?.includes("/special_day") ?? false;
+    // Visibility Logic: Button only on Home (/guest/no28)
+    const isHome = pathname === "/guest/no28" || pathname === "/guest/no28/";
 
     // Manage Playback
     useEffect(() => {
@@ -63,8 +64,8 @@ export function GuestAudioPlayer() {
                 onPause={() => setIsPlaying(false)}
             />
 
-            {/* Floating Music Button - visible unless on Special Day (or other logic) */}
-            {!isSpecialDayPage && (
+            {/* Floating Music Button - visible ONLY on Guest Home */}
+            {isHome && (
                 <motion.button
                     initial={{ scale: 0, opacity: 0 }}
                     animate={{ scale: 1, opacity: 1 }}
@@ -99,7 +100,7 @@ export function GuestAudioPlayer() {
 
             {/* Floating Notes Animation - Polished & Smoother */}
             <AnimatePresence>
-                {isPlaying && !isSpecialDayPage && (
+                {isPlaying && isHome && (
                     <div style={{ position: "fixed", bottom: "160px", right: "25px", zIndex: 9998, pointerEvents: "none" }}>
                         {[0, 1, 2, 3].map(i => (
                             <motion.div
