@@ -776,7 +776,7 @@ export default function SpecialDayBentoPage() {
                                     <div style={{ position: "absolute", top: "24px", left: "1.5rem", right: "2rem", height: "2px", borderTop: "2px dashed #e8e2d9", zIndex: 0 }} />
                                 )}
                                 {[
-                                    { year: "2000 - 2006", title: "Fajar yang Lembut", desc: "Awal dari segalanya — waktu yang membentuk siapa kamu.", icon: Sparkles },
+                                    { year: "2000 - 2006", title: "Fajar yang Lembut", desc: "Awal dari segalanya. Waktu yang membentuk siapa kamu.", icon: Sparkles },
                                     { year: "2006 - 2018", title: "Musim Bertumbuh", desc: "Tahun-tahun penuh warna, belajar, dan menemukan diri.", icon: Star },
                                     { year: "2018 - Kini", title: "Langkah Mendewasa", desc: "Perjalanan menjadi versi terbaik dari diri sendiri.", icon: Heart }
                                 ].map((chapter, i) => (
@@ -833,7 +833,7 @@ export default function SpecialDayBentoPage() {
                         </BentoCard>
 
                         {/* --- NEW CARD: Tantang 25 Tahun (Quarter Life) --- */}
-                        <BentoCard isMobile={isMobile} style={{ gridColumn: isMobile ? "span 1" : "span 12", overflow: "hidden" }} rotate="-0.2deg" tapeColor="#aebdca">
+                        <BentoCard isMobile={isMobile} style={{ gridColumn: isMobile ? "span 1" : "span 12" }} rotate="-0.2deg" tapeColor="#aebdca">
                             <div style={{ display: "flex", flexDirection: isMobile ? "column" : "row", gap: isMobile ? "2rem" : "4rem", alignItems: "center" }}>
                                 {/* Left Side: Visual Metaphor (Dynamic Compass/Growth) */}
                                 <div style={{ flex: isMobile ? "none" : "0 0 35%", position: "relative", display: "flex", justifyContent: "center" }}>
@@ -888,7 +888,7 @@ export default function SpecialDayBentoPage() {
                                     <p style={{
                                         fontFamily: "'Crimson Pro', serif", fontSize: "1.1rem", lineHeight: 1.8, color: "#4e4439", marginBottom: "1.5rem"
                                     }}>
-                                        Banyak yang bilang 25 adalah fase yang membingungkan—seolah kamu harus memilih satu jalan pasti saat hatimu masih ingin menjelajah segalanya.
+                                        Banyak yang bilang 25 adalah fase yang membingungkan. Seolah kamu harus memilih satu jalan pasti saat hatimu masih ingin menjelajah segalanya.
                                         <br /><br />
                                         Tapi percayalah, ini adalah <strong>usia terindah</strong>. Kakimu sudah cukup kuat untuk berdiri sendiri, tapi hatimu masih cukup lembut untuk bermimpi liar.
                                         Kamu tidak terlambat. Kamu tidak tertinggal. Kamu sedang mekar tepat pada waktunya.
