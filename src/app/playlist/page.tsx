@@ -380,6 +380,70 @@ export default function ImmersiveMusicPage() {
                                     </div>
                                 );
                             })}
+
+                            {/* ALL SONGS Card */}
+                            <div
+                                onClick={() => {
+                                    triggerHaptic();
+                                    handlePlaylistSelect("all-songs");
+                                }}
+                                className="group"
+                                style={{
+                                    position: "relative",
+                                    aspectRatio: "1/1",
+                                    borderRadius: "20px",
+                                    overflow: "hidden",
+                                    cursor: "pointer",
+                                    transition: "all 0.5s cubic-bezier(0.19, 1, 0.22, 1)",
+                                    transform: selectedPlaylistId && selectedPlaylistId !== "all-songs" ? "scale(0.92)" : selectedPlaylistId === "all-songs" ? "scale(1.05)" : "scale(1)",
+                                    opacity: selectedPlaylistId && selectedPlaylistId !== "all-songs" ? 0.4 : 1,
+                                    filter: selectedPlaylistId && selectedPlaylistId !== "all-songs" ? "blur(1px)" : "none",
+                                    background: "linear-gradient(135deg, #FFD60A, #FF9F0A)",
+                                    boxShadow: selectedPlaylistId === "all-songs"
+                                        ? "0 0 40px 8px rgba(255, 214, 10, 0.4), 0 25px 50px -12px rgba(255, 214, 10, 0.5)"
+                                        : "0 10px 30px -8px rgba(0,0,0,0.3)"
+                                }}
+                            >
+                                {/* Content */}
+                                <div style={{
+                                    position: "absolute",
+                                    inset: 0,
+                                    display: "flex",
+                                    flexDirection: "column",
+                                    alignItems: "center",
+                                    justifyContent: "center",
+                                    padding: "16px",
+                                    textAlign: "center"
+                                }}>
+                                    <Shuffle size={32} color="rgba(0,0,0,0.7)" style={{ marginBottom: "8px" }} />
+                                    <span style={{
+                                        color: "rgba(0,0,0,0.8)",
+                                        fontWeight: 700,
+                                        fontSize: "1rem",
+                                        letterSpacing: "-0.02em"
+                                    }}>
+                                        All Songs
+                                    </span>
+                                    <span style={{
+                                        color: "rgba(0,0,0,0.5)",
+                                        fontSize: "0.75rem",
+                                        marginTop: "4px"
+                                    }}>
+                                        {PLAYLIST.length} tracks
+                                    </span>
+                                </div>
+
+                                {/* Active Border Ring */}
+                                {selectedPlaylistId === "all-songs" && (
+                                    <div style={{
+                                        position: "absolute",
+                                        inset: "0px",
+                                        border: "3px solid #FFD60A",
+                                        borderRadius: "20px",
+                                        pointerEvents: "none"
+                                    }} />
+                                )}
+                            </div>
                         </div>
 
                         {/* Now Playing Playlist Widget (Shows when any playlist is playing) */}
@@ -457,6 +521,103 @@ export default function ImmersiveMusicPage() {
                                     }}>
                                         {currentIndex + 1}/{queue.length}
                                     </div>
+                                </motion.div>
+                            )}
+                        </AnimatePresence>
+
+                        {/* Now Playing INDIVIDUAL Song Widget (when NOT playing from a curated playlist) */}
+                        <AnimatePresence>
+                            {hasInteracted && !currentQueuePlaylistId && !selectedPlaylistId && (
+                                <motion.div
+                                    initial={{ opacity: 0, y: 10 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    exit={{ opacity: 0, y: -10 }}
+                                    transition={{ duration: 0.3 }}
+                                    style={{
+                                        marginTop: "1rem",
+                                        padding: "12px 16px",
+                                        background: "linear-gradient(135deg, rgba(255, 214, 10, 0.15), rgba(255, 159, 10, 0.1))",
+                                        borderRadius: "16px",
+                                        border: "1px solid rgba(255, 214, 10, 0.2)",
+                                        display: "flex",
+                                        alignItems: "center",
+                                        gap: "12px",
+                                        boxShadow: "0 4px 20px rgba(0,0,0,0.3)"
+                                    }}
+                                >
+                                    {/* Animated Playing Indicator */}
+                                    <div style={{
+                                        width: "36px",
+                                        height: "36px",
+                                        borderRadius: "10px",
+                                        background: "linear-gradient(135deg, #FFD60A, #FF9F0A)",
+                                        display: "flex",
+                                        alignItems: "center",
+                                        justifyContent: "center",
+                                        flexShrink: 0
+                                    }}>
+                                        {isPlaying ? (
+                                            <motion.div
+                                                animate={{ scale: [1, 1.1, 1] }}
+                                                transition={{ duration: 1, repeat: Infinity }}
+                                            >
+                                                <Disc size={18} color="rgba(0,0,0,0.7)" />
+                                            </motion.div>
+                                        ) : (
+                                            <Pause size={18} color="rgba(0,0,0,0.7)" />
+                                        )}
+                                    </div>
+
+                                    {/* Song Info */}
+                                    <div style={{ flex: 1, minWidth: 0 }}>
+                                        <div style={{
+                                            fontSize: "0.7rem",
+                                            color: "#FFD60A",
+                                            textTransform: "uppercase",
+                                            letterSpacing: "0.05em",
+                                            marginBottom: "2px"
+                                        }}>
+                                            {isPlaying ? "Now Playing" : "Paused"}
+                                        </div>
+                                        <div style={{
+                                            fontSize: "0.95rem",
+                                            fontWeight: 600,
+                                            color: "white",
+                                            whiteSpace: "nowrap",
+                                            overflow: "hidden",
+                                            textOverflow: "ellipsis"
+                                        }}>
+                                            {currentSong.title}
+                                        </div>
+                                    </div>
+
+                                    {/* Play/Pause Button */}
+                                    <motion.button
+                                        whileTap={{ scale: 0.9 }}
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            triggerHaptic();
+                                            togglePlay();
+                                        }}
+                                        style={{
+                                            width: "36px",
+                                            height: "36px",
+                                            borderRadius: "50%",
+                                            background: "#FFD60A",
+                                            border: "none",
+                                            display: "flex",
+                                            alignItems: "center",
+                                            justifyContent: "center",
+                                            cursor: "pointer",
+                                            flexShrink: 0
+                                        }}
+                                    >
+                                        {isPlaying ? (
+                                            <Pause size={16} fill="black" color="black" />
+                                        ) : (
+                                            <Play size={16} fill="black" color="black" />
+                                        )}
+                                    </motion.button>
                                 </motion.div>
                             )}
                         </AnimatePresence>
