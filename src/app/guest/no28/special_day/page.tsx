@@ -318,6 +318,10 @@ export default function SpecialDayBentoPage() {
     const [showTodayMessage, setShowTodayMessage] = useState(false);
     const wisdomIndexRef = useRef(0);
 
+    // Portrait Gallery State
+    const [portraitIndex, setPortraitIndex] = useState(0);
+    const portraits = ["/portrait_1.png", "/portrait_2.png", "/portrait_3.png", "/portrait_4.png"];
+
     // Birth Date: 28 November 2000
     const birthDate = new Date(2000, 10, 28);
     const lifeExpectancyYears = 80;
@@ -405,6 +409,14 @@ export default function SpecialDayBentoPage() {
         const interval = setInterval(updateHeartbeats, 5000);
 
         return () => clearInterval(interval);
+    }, []);
+
+    // Portrait gallery cycling
+    useEffect(() => {
+        const timer = setInterval(() => {
+            setPortraitIndex((prev) => (prev + 1) % portraits.length);
+        }, 5000); // Change every 5 seconds
+        return () => clearInterval(timer);
     }, []);
 
     // Shake detection for new wisdom
@@ -672,12 +684,23 @@ export default function SpecialDayBentoPage() {
                                         overflow: "hidden",
                                         background: "#faf8f5"
                                     }}>
-                                        <Image
-                                            src="/polaroid_portrait.png"
-                                            alt="Portrait Sketch"
-                                            fill
-                                            style={{ objectFit: "cover", objectPosition: "center top" }}
-                                        />
+                                        <AnimatePresence mode="wait">
+                                            <motion.div
+                                                key={portraitIndex}
+                                                initial={{ opacity: 0 }}
+                                                animate={{ opacity: 1 }}
+                                                exit={{ opacity: 0 }}
+                                                transition={{ duration: 0.8 }}
+                                                style={{ position: "absolute", inset: 0 }}
+                                            >
+                                                <Image
+                                                    src={portraits[portraitIndex]}
+                                                    alt="Portrait Sketch"
+                                                    fill
+                                                    style={{ objectFit: "cover", objectPosition: "center top" }}
+                                                />
+                                            </motion.div>
+                                        </AnimatePresence>
                                     </div>
                                     {/* Polaroid Caption */}
                                     <div style={{
@@ -887,11 +910,10 @@ export default function SpecialDayBentoPage() {
                         <BentoCard isMobile={isMobile} style={{ gridColumn: isMobile ? "span 1" : "span 12", textAlign: "center" }} rotate="0.3deg" tapeColor="#87b0a5">
                             <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "1rem", flexWrap: "wrap" }}>
                                 <motion.div
-                                    animate={{ scale: [1, 1.2, 1] }}
-                                    transition={{ duration: 0.857, repeat: Infinity }}
-                                    style={{ fontSize: "2rem" }}
+                                    animate={{ scale: [1, 1.15, 1] }}
+                                    transition={{ duration: 0.857, repeat: Infinity, ease: "easeInOut" }}
                                 >
-                                    💓
+                                    <Heart size={28} color="#b07d62" fill="#b07d62" style={{ opacity: 0.8 }} />
                                 </motion.div>
                                 <div>
                                     <div style={{ fontSize: "0.7rem", color: "#a0907d", textTransform: "uppercase", letterSpacing: "1.5px", marginBottom: "0.3rem" }}>
@@ -907,11 +929,10 @@ export default function SpecialDayBentoPage() {
                                     </div>
                                 </div>
                                 <motion.div
-                                    animate={{ scale: [1, 1.2, 1] }}
-                                    transition={{ duration: 0.857, repeat: Infinity, delay: 0.4 }}
-                                    style={{ fontSize: "2rem" }}
+                                    animate={{ scale: [1, 1.15, 1] }}
+                                    transition={{ duration: 0.857, repeat: Infinity, ease: "easeInOut", delay: 0.4 }}
                                 >
-                                    💓
+                                    <Heart size={28} color="#b07d62" fill="#b07d62" style={{ opacity: 0.8 }} />
                                 </motion.div>
                             </div>
                             <HandwrittenNote style={{ marginTop: "1rem", fontSize: "1rem", opacity: 0.7 }}>
