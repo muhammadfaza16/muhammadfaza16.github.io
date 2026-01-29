@@ -166,6 +166,7 @@ export default function GuestNo28Dashboard() {
     const [mounted, setMounted] = useState(false);
     const [greeting, setGreeting] = useState("");
     const [subtext, setSubtext] = useState("");
+    const [displayedSubtext, setDisplayedSubtext] = useState("");
     const [dateString, setDateString] = useState("");
     const [isMobile, setIsMobile] = useState(false);
     const [dailyHaiku, setDailyHaiku] = useState(haikuCollection[0]);
@@ -257,6 +258,19 @@ export default function GuestNo28Dashboard() {
 
         return () => window.removeEventListener('resize', checkMobile);
     }, []);
+
+    // Typewriter effect for subtext
+    useEffect(() => {
+        if (!subtext) return;
+        setDisplayedSubtext("");
+        let i = 0;
+        const interval = setInterval(() => {
+            setDisplayedSubtext(subtext.slice(0, i));
+            i++;
+            if (i > subtext.length) clearInterval(interval);
+        }, 35); // Slightly faster for better UX
+        return () => clearInterval(interval);
+    }, [subtext]);
 
     // Countdown timer to special date
     useEffect(() => {
@@ -715,11 +729,11 @@ export default function GuestNo28Dashboard() {
                                 {greeting},
                             </h1>
                             <h2 style={{ fontSize: "2.2rem", fontWeight: 400, color: "#b07d62", fontFamily: "'Caveat', cursive", marginTop: "0" }}>
-                                untuk Tamu ke-28
+                                untukmu pemilik angka 28
                             </h2>
 
-                            <p style={{ marginTop: "1.5rem", fontSize: "1.1rem", color: "#666", fontStyle: "italic", maxWidth: "500px", marginInline: "auto" }}>
-                                "{subtext}"
+                            <p style={{ marginTop: "1.5rem", fontSize: "1.1rem", color: "#666", fontStyle: "italic", maxWidth: "500px", marginInline: "auto", minHeight: "3em" }}>
+                                "{displayedSubtext}"
                             </p>
                         </motion.div>
                     </motion.div>

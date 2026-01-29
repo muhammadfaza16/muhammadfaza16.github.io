@@ -94,10 +94,10 @@ export default function HomePage() {
             display: "flex",
             flexDirection: "column",
             justifyContent: "flex-start",
-            gap: "1rem"
+            gap: "0"
           }}>
           {/* iOS Widgets Area (Hero) */}
-          <div style={{ padding: "1rem 0 0" }}>
+          <div style={{ padding: "2rem 0 0" }}>
             <JarvisHero />
           </div>
 

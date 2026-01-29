@@ -1,93 +1,32 @@
 "use client";
 
 import React, { useState, useMemo } from "react";
-import { BarChart2, Play, Pause, Search, Heart, Disc, Shuffle, ChevronLeft, Home, SkipBack, SkipForward, Sparkles } from "lucide-react";
+import { Search, Disc, Shuffle, ChevronLeft } from "lucide-react";
 import { GradientOrb } from "@/components/GradientOrb";
 import { CosmicStars } from "@/components/CosmicStars";
 import { MilkyWay } from "@/components/MilkyWay";
-import { CurrentlyStrip } from "@/components/CurrentlyStrip";
 import { useAudio, PLAYLIST } from "@/components/AudioContext";
-import { useZen } from "@/components/ZenContext";
-import { motion, PanInfo, AnimatePresence } from "framer-motion";
-// MiniPlayerWidget removed - merged into Rich Header
-import { PLAYLIST_CATEGORIES } from "@/data/playlists"; // NEW
+import { motion } from "framer-motion";
+import { PLAYLIST_CATEGORIES } from "@/data/playlists";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
-export default function ImmersiveMusicPage() {
-    const { isPlaying, currentSong, jumpToSong, playQueue, queue, currentIndex, togglePlay, nextSong, prevSong, hasInteracted, currentTime, duration, seekTo } = useAudio();
-    const { isZen, setZen } = useZen();
+export default function LibraryIndexPage() {
+    const { isPlaying, queue } = useAudio();
     const router = useRouter();
-    const [selectedPlaylistId, setSelectedPlaylistId] = useState<string | null>(null);
     const [searchQuery, setSearchQuery] = useState("");
-
-    // Static header (removed useScroll for performance)
 
     // Haptic Helper
     const triggerHaptic = () => {
         if (typeof navigator !== 'undefined' && navigator.vibrate) {
-            navigator.vibrate(10); // Subtle tick
+            navigator.vibrate(10);
         }
     };
 
-    const handleSongClick = (index: number) => {
-        triggerHaptic();
-        jumpToSong(index);
-        setZen(true); // Enter Zen Mode immediately
-    };
-
-    const handlePlaylistSelect = (id: string | null) => {
-        triggerHaptic();
-        setSelectedPlaylistId(id);
-    }
-
-    // Format time as M:SS
-    const formatTime = (seconds: number): string => {
-        if (!seconds || !isFinite(seconds)) return "0:00";
-        const mins = Math.floor(seconds / 60);
-        const secs = Math.floor(seconds % 60);
-        return `${mins}:${secs.toString().padStart(2, '0')}`;
-    };
-
-    // 1. Determine which songs to show based on selection
-    //    If selectedPlaylistId is null => Show ALL songs (default)
-    //    Else => Show only songs in that playlist
-    // 1. Determine which songs to show based on selection
-    const activePlaylist = useMemo(() => {
-        return selectedPlaylistId
-            ? PLAYLIST_CATEGORIES.find(p => p.id === selectedPlaylistId)
-            : null;
-    }, [selectedPlaylistId]);
-
-    const filteredPlaylist = useMemo(() => {
-        // Step A: Filter by Category/Playlist
-        let baseSongs = PLAYLIST;
-        if (activePlaylist) {
-            baseSongs = PLAYLIST.filter(song =>
-                activePlaylist.songTitles.some((title: string) =>
-                    // Optimization: Check includes both ways for safety, but consider caching activePlaylist.songTitles set if needed
-                    song.title.toLowerCase().includes(title.toLowerCase()) ||
-                    title.toLowerCase().includes(song.title.toLowerCase())
-                )
-            );
-        }
-
-        // Step B: Map & Filter by Search
-        // We map FIRST to get original index, then filter by search query
-        return baseSongs
-            .map((song) => {
-                const originalIndex = PLAYLIST.findIndex(p => p.audioUrl === song.audioUrl);
-                return { ...song, originalIndex };
-            })
-            .filter(song =>
-                song.title.toLowerCase().includes(searchQuery.toLowerCase())
-            );
-    }, [activePlaylist, searchQuery]);
-
-    // Detect which playlist is currently IN THE QUEUE (regardless of playing state)
+    // Detect which playlist is currently IN THE QUEUE
     const currentQueuePlaylistId = useMemo(() => {
         if (queue.length === 0) return null;
 
-        // Check each playlist to see if its songs match the current queue
         for (const playlist of PLAYLIST_CATEGORIES) {
             const playlistSongs = PLAYLIST.filter(song =>
                 playlist.songTitles.some((title: string) =>
@@ -96,7 +35,6 @@ export default function ImmersiveMusicPage() {
                 )
             );
 
-            // Check if ALL queue songs are from this playlist (handles shuffled order)
             if (queue.length === playlistSongs.length) {
                 const playlistUrls = new Set(playlistSongs.map(s => s.audioUrl));
                 const allMatch = queue.every(qSong => playlistUrls.has(qSong.audioUrl));
@@ -106,40 +44,31 @@ export default function ImmersiveMusicPage() {
         return null;
     }, [queue]);
 
-    // Check if the currently selected playlist is playing (for UI state)
-    const isSelectedPlaylistPlaying = isPlaying && selectedPlaylistId && currentQueuePlaylistId === selectedPlaylistId;
-
-    // Check if the selected playlist is in the queue (for toggling vs starting fresh)
-    const isSelectedPlaylistInQueue = selectedPlaylistId && currentQueuePlaylistId === selectedPlaylistId;
+    const filteredCategories = useMemo(() => {
+        return PLAYLIST_CATEGORIES.filter(p =>
+            p.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            p.vibes.some(v => v.toLowerCase().includes(searchQuery.toLowerCase()))
+        );
+    }, [searchQuery]);
 
     return (
         <>
-            {/* Global Styles for this page */}
             <style dangerouslySetInnerHTML={{
                 __html: `
-        header, footer, .zen-toggle-floating { display: none !important; }
+        header, footer { display: none !important; }
         #main-content { padding-top: 0 !important; }
-        /* Lock viewport but allow vertical scroll if in library mode */
         html, body { 
-            overflow: ${isZen ? 'hidden' : 'auto'} !important; 
+            overflow: auto !important; 
             overscroll-behavior: none; 
             touch-action: pan-y; 
-            height: 100svh !important; 
             background: #000;
         }
-        /* Pulse glow animation for currently playing playlist */
-        @keyframes pulse-glow {
-            0%, 100% { box-shadow: 0 0 30px 5px currentColor, 0 20px 50px -12px currentColor; }
-            50% { box-shadow: 0 0 40px 10px currentColor, 0 25px 60px -10px currentColor; }
-        }
-        /* CSS Equalizer animation (GPU-accelerated) */
         @keyframes eq-bar1 { 0%,100%{height:4px} 50%{height:14px} }
         @keyframes eq-bar2 { 0%,100%{height:8px} 50%{height:4px} }
         @keyframes eq-bar3 { 0%,100%{height:6px} 50%{height:12px} }
-        .eq-bar { width:3px; background:#FFD60A; border-radius:9999px; will-change:height; }
+        .eq-bar { width:2px; background:#FFD60A; border-radius:999px; }
       `}} />
 
-            {/* Ambient Background (Always present) */}
             <div style={{
                 position: "fixed",
                 top: 0,
@@ -148,980 +77,193 @@ export default function ImmersiveMusicPage() {
                 height: "120vh",
                 zIndex: 0,
                 pointerEvents: "none",
-                overflow: "hidden",
-                willChange: "transform",
-                transform: "translateZ(0)"  // Force GPU layer
+                overflow: "hidden"
             }}>
                 <MilkyWay />
                 <GradientOrb />
                 <CosmicStars />
             </div>
 
-            {/* VIEW SWITCHER */}
-            {isZen ? (
-                // --- ZEN MODE (IMMERSIVE PLAYER) ---
-                <motion.main
-                    initial={{ opacity: 0, y: "100%" }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ type: "spring", damping: 25, stiffness: 200 }}
-                    drag="y"
-                    dragConstraints={{ top: 0, bottom: 0 }}
-                    dragElastic={{ top: 0, bottom: 0.5 }} // Allow pull down feel
-                    onDragEnd={(e: any, info: PanInfo) => {
-                        if (info.offset.y > 150) { // Threshold to dismiss
-                            setZen(false);
-                        }
-                    }}
-                    style={{
-                        position: "fixed",
-                        top: 0,
-                        left: 0,
-                        width: "100%",
-                        height: "100svh",
-                        zIndex: 10,
-                        display: "flex",
-                        flexDirection: "column",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        padding: "2rem",
-                        background: "rgba(0,0,0,0.4)", // Slight dim
-                        backdropFilter: "blur(20px)"
-                    }}
-                >
-                    {/* Handle Bar to indicate swipeability */}
-                    <div style={{
-                        width: "40px",
-                        height: "4px",
-                        backgroundColor: "rgba(255,255,255,0.3)",
-                        borderRadius: "2px",
-                        position: "absolute",
-                        top: "16px",
-                        left: "50%",
-                        transform: "translateX(-50%)"
-                    }} />
-
-                    <div style={{
-                        width: "100%",
-                        maxWidth: "500px",
-                        transform: "scale(1.1)",
-                    }}>
-                        <CurrentlyStrip />
-                    </div>
-                </motion.main>
-            ) : (
-                // --- LIBRARY MODE (PLAYLIST SELECTION) ---
-                <main style={{
-                    position: "relative",
-                    zIndex: 10,
-                    minHeight: "100svh",
-                    padding: "5rem 1.25rem 8rem 1.25rem", // Balanced padding
-                    maxWidth: "540px", // Tighter max-width for phone-like focus
-                    margin: "0 auto",
-                    display: "flex",
-                    flexDirection: "column",
-                    gap: "1.5rem" // Tighter gap (was 2.5rem)
-                }}>
-                    {/* Header & Grid */}
-                    <div style={{ marginBottom: "1rem" }}>
-                        <motion.div
-                            style={{
-                                display: "flex",
-                                justifyContent: "space-between",
-                                alignItems: "center",
-                                paddingLeft: "0.5rem",
-                                paddingRight: "0.5rem",
-                                minHeight: "40px",
-                                marginBottom: "32px" /* 32px explicit gap between Library title and playlist cards */
-                            }}
-                        >
-                            {selectedPlaylistId ? (
-                                <motion.button
-                                    initial={{ opacity: 0, x: -20 }}
-                                    animate={{ opacity: 1, x: 0 }}
-                                    onClick={() => handlePlaylistSelect(null)}
-                                    style={{
-                                        background: "transparent",
-                                        border: "none",
-                                        color: "white",
-                                        display: "flex",
-                                        alignItems: "center",
-                                        gap: "4px",
-                                        fontSize: "1.1rem",
-                                        fontWeight: 600,
-                                        padding: 0,
-                                        cursor: "pointer",
-                                        fontFamily: "var(--font-sans)",
-                                    }}
-                                >
-                                    <ChevronLeft size={24} className="text-[#3b82f6]" />
-                                    <span style={{ color: "#3b82f6" }}>Library</span>
-                                </motion.button>
-                            ) : (
-                                <motion.button
-                                    initial={{ opacity: 0 }}
-                                    animate={{ opacity: 1 }}
-                                    onClick={() => router.push("/")}
-                                    style={{
-                                        background: "transparent",
-                                        border: "none",
-                                        padding: 0,
-                                        cursor: "pointer",
-                                        display: "flex",
-                                        alignItems: "center",
-                                        gap: "8px" // Space between icon and title
-                                    }}
-                                >
-                                    <div style={{
-                                        width: "32px",
-                                        height: "32px",
-                                        borderRadius: "50%",
-                                        backgroundColor: "rgba(255,255,255,0.1)",
-                                        display: "flex",
-                                        alignItems: "center",
-                                        justifyContent: "center"
-                                    }}>
-                                        <ChevronLeft size={20} color="white" />
-                                    </div>
-                                    <h1 style={{
-                                        fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif",
-                                        fontSize: "2.5rem",
-                                        fontWeight: 800,
-                                        color: "white",
-                                        letterSpacing: "-0.04em",
-                                        margin: 0,
-                                    }}>
-                                        Library
-                                    </h1>
-                                </motion.button>
-                            )}
-                        </motion.div>
-
-                        {/* PLAYLISTS GRID */}
-                        <div style={{
-                            display: "grid",
-                            gridTemplateColumns: "repeat(2, 1fr)", // 2 Columns for bigger art (iOS standard)
-                            gap: "16px",
-                            marginBottom: "0rem" // Removed - let parent gap handle it
-                        }}>
-                            {PLAYLIST_CATEGORIES.map((playlist) => {
-                                const isSelected = selectedPlaylistId === playlist.id;
-                                const isDimmed = selectedPlaylistId && !isSelected;
-                                const isNowPlaying = currentQueuePlaylistId === playlist.id;
-
-                                return (
-                                    <div
-                                        key={playlist.id}
-                                        onClick={() => setSelectedPlaylistId(isSelected ? null : playlist.id)}
-                                        style={{
-                                            position: "relative",
-                                            aspectRatio: "1/1",
-                                            borderRadius: "20px",
-                                            overflow: "hidden",
-                                            cursor: "pointer",
-                                            opacity: isDimmed ? 0.3 : 1,
-                                            transform: isDimmed ? "scale(0.92)" : (isSelected ? "scale(1.03)" : "scale(1)"),
-                                            transition: "all 0.5s cubic-bezier(0.19, 1, 0.22, 1)",
-                                            boxShadow: isNowPlaying
-                                                ? `0 0 30px 5px ${playlist.coverColor}90, 0 20px 50px -12px ${playlist.coverColor}80` // Shining glow when playing
-                                                : isSelected
-                                                    ? `0 20px 50px -12px ${playlist.coverColor}80`
-                                                    : "0 4px 20px rgba(0,0,0,0.4)",
-                                            animation: isNowPlaying ? "pulse-glow 2s ease-in-out infinite" : "none"
-                                        }}
-                                        className="group"
-                                    >
-                                        {/* Image */}
-                                        <img
-                                            src={playlist.coverImage}
-                                            alt={playlist.title}
-                                            style={{
-                                                width: "100%",
-                                                height: "100%",
-                                                objectFit: "cover",
-                                                transition: "transform 0.7s cubic-bezier(0.19, 1, 0.22, 1)"
-                                            }}
-                                            className="group-hover:scale-110"
-                                        />
-
-                                        {/* Gradient Overlay */}
-                                        <div style={{
-                                            position: "absolute",
-                                            inset: 0,
-                                            background: "linear-gradient(to top, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0) 40%)",
-                                            display: "flex", // Keep flex to push title down
-                                            flexDirection: "column",
-                                            justifyContent: "flex-end",
-                                            padding: "12px",
-                                            opacity: isSelected ? 0 : 1, // Hide title when selected to focus on art
-                                            transition: "opacity 0.3s"
-                                        }}>
-                                            <span style={{
-                                                color: "white",
-                                                fontWeight: 600,
-                                                fontSize: "0.9rem", // Readable size
-                                                textShadow: "0 2px 10px rgba(0,0,0,0.5)",
-                                                letterSpacing: "-0.01em",
-                                                lineHeight: 1.1
-                                            }}>
-                                                {playlist.title}
-                                            </span>
-                                        </div>
-
-                                        {/* Active Border Ring (Inner) */}
-                                        {isSelected && (
-                                            <div style={{
-                                                position: "absolute",
-                                                inset: "0px",
-                                                border: `3px solid ${playlist.coverColor}`,
-                                                borderRadius: "20px",
-                                                pointerEvents: "none"
-                                            }} />
-                                        )}
-                                    </div>
-                                );
-                            })}
-
-                            {/* ALL SONGS Card */}
-                            <div
-                                onClick={() => {
-                                    triggerHaptic();
-                                    handlePlaylistSelect("all-songs");
-                                }}
-                                className="group"
-                                style={{
-                                    position: "relative",
-                                    aspectRatio: "1/1",
-                                    borderRadius: "20px",
-                                    overflow: "hidden",
-                                    cursor: "pointer",
-                                    transition: "all 0.5s cubic-bezier(0.19, 1, 0.22, 1)",
-                                    transform: selectedPlaylistId && selectedPlaylistId !== "all-songs" ? "scale(0.92)" : selectedPlaylistId === "all-songs" ? "scale(1.05)" : "scale(1)",
-                                    opacity: selectedPlaylistId && selectedPlaylistId !== "all-songs" ? 0.4 : 1,
-                                    filter: selectedPlaylistId && selectedPlaylistId !== "all-songs" ? "blur(1px)" : "none",
-                                    background: "linear-gradient(135deg, #FFD60A, #FF9F0A)",
-                                    boxShadow: selectedPlaylistId === "all-songs"
-                                        ? "0 0 40px 8px rgba(255, 214, 10, 0.4), 0 25px 50px -12px rgba(255, 214, 10, 0.5)"
-                                        : "0 10px 30px -8px rgba(0,0,0,0.3)"
-                                }}
-                            >
-                                {/* Content */}
-                                <div style={{
-                                    position: "absolute",
-                                    inset: 0,
-                                    display: "flex",
-                                    flexDirection: "column",
-                                    alignItems: "center",
-                                    justifyContent: "center",
-                                    padding: "16px",
-                                    textAlign: "center"
-                                }}>
-                                    <Shuffle size={32} color="rgba(0,0,0,0.7)" style={{ marginBottom: "8px" }} />
-                                    <span style={{
-                                        color: "rgba(0,0,0,0.8)",
-                                        fontWeight: 700,
-                                        fontSize: "1rem",
-                                        letterSpacing: "-0.02em"
-                                    }}>
-                                        All Songs
-                                    </span>
-                                    <span style={{
-                                        color: "rgba(0,0,0,0.5)",
-                                        fontSize: "0.75rem",
-                                        marginTop: "4px"
-                                    }}>
-                                        {PLAYLIST.length} tracks
-                                    </span>
-                                </div>
-
-                                {/* Active Border Ring */}
-                                {selectedPlaylistId === "all-songs" && (
-                                    <div style={{
-                                        position: "absolute",
-                                        inset: "0px",
-                                        border: "3px solid #FFD60A",
-                                        borderRadius: "20px",
-                                        pointerEvents: "none"
-                                    }} />
-                                )}
-                            </div>
-                        </div>
-
-                        {/* Now Playing Playlist Widget (Shows when any playlist is playing) */}
-                        <AnimatePresence>
-                            {currentQueuePlaylistId && !selectedPlaylistId && (
-                                <motion.div
-                                    initial={{ opacity: 0, y: 10 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    exit={{ opacity: 0, y: -10 }}
-                                    transition={{ duration: 0.3 }}
-                                    onClick={() => setSelectedPlaylistId(currentQueuePlaylistId)}
-                                    style={{
-                                        marginTop: "1rem",
-                                        padding: "12px 16px",
-                                        background: "linear-gradient(135deg, rgba(255,255,255,0.08), rgba(255,255,255,0.03))",
-                                        borderRadius: "16px",
-                                        border: "1px solid rgba(255,255,255,0.1)",
-                                        display: "flex",
-                                        alignItems: "center",
-                                        gap: "12px",
-                                        cursor: "pointer",
-                                        boxShadow: "0 4px 20px rgba(0,0,0,0.3)"
-                                    }}
-                                >
-                                    {/* Animated Playing Indicator */}
-                                    <div style={{
-                                        width: "36px",
-                                        height: "36px",
-                                        borderRadius: "10px",
-                                        background: PLAYLIST_CATEGORIES.find(p => p.id === currentQueuePlaylistId)?.coverColor || "#FFD60A",
-                                        display: "flex",
-                                        alignItems: "center",
-                                        justifyContent: "center",
-                                        flexShrink: 0
-                                    }}>
-                                        <motion.div
-                                            animate={{ scale: [1, 1.1, 1] }}
-                                            transition={{ duration: 1, repeat: Infinity }}
-                                        >
-                                            <Disc size={18} color="rgba(0,0,0,0.7)" />
-                                        </motion.div>
-                                    </div>
-
-                                    {/* Info */}
-                                    <div style={{ flex: 1, minWidth: 0 }}>
-                                        <div style={{
-                                            fontSize: "0.7rem",
-                                            color: "rgba(255,255,255,0.5)",
-                                            textTransform: "uppercase",
-                                            letterSpacing: "0.05em",
-                                            marginBottom: "2px"
-                                        }}>
-                                            Now Playing
-                                        </div>
-                                        <div style={{
-                                            fontSize: "0.95rem",
-                                            fontWeight: 600,
-                                            color: "white",
-                                            whiteSpace: "nowrap",
-                                            overflow: "hidden",
-                                            textOverflow: "ellipsis"
-                                        }}>
-                                            {PLAYLIST_CATEGORIES.find(p => p.id === currentQueuePlaylistId)?.title}
-                                        </div>
-                                    </div>
-
-                                    {/* Track Progress */}
-                                    <div style={{
-                                        padding: "6px 12px",
-                                        background: "rgba(255,255,255,0.1)",
-                                        borderRadius: "20px",
-                                        fontSize: "0.75rem",
-                                        fontWeight: 600,
-                                        color: "white"
-                                    }}>
-                                        {currentIndex + 1}/{queue.length}
-                                    </div>
-                                </motion.div>
-                            )}
-                        </AnimatePresence>
-
-                        {/* Now Playing INDIVIDUAL Song Widget (when NOT playing from a curated playlist) */}
-                        <AnimatePresence>
-                            {hasInteracted && !currentQueuePlaylistId && !selectedPlaylistId && (
-                                <motion.div
-                                    initial={{ opacity: 0, y: 10 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    exit={{ opacity: 0, y: -10 }}
-                                    transition={{ duration: 0.3 }}
-                                    style={{
-                                        marginTop: "1rem",
-                                        padding: "12px 16px",
-                                        background: "linear-gradient(135deg, rgba(255, 214, 10, 0.15), rgba(255, 159, 10, 0.1))",
-                                        borderRadius: "16px",
-                                        border: "1px solid rgba(255, 214, 10, 0.2)",
-                                        display: "flex",
-                                        alignItems: "center",
-                                        gap: "12px",
-                                        boxShadow: "0 4px 20px rgba(0,0,0,0.3)"
-                                    }}
-                                >
-                                    {/* Animated Playing Indicator */}
-                                    <div style={{
-                                        width: "36px",
-                                        height: "36px",
-                                        borderRadius: "10px",
-                                        background: "linear-gradient(135deg, #FFD60A, #FF9F0A)",
-                                        display: "flex",
-                                        alignItems: "center",
-                                        justifyContent: "center",
-                                        flexShrink: 0
-                                    }}>
-                                        {isPlaying ? (
-                                            <motion.div
-                                                animate={{ scale: [1, 1.1, 1] }}
-                                                transition={{ duration: 1, repeat: Infinity }}
-                                            >
-                                                <Disc size={18} color="rgba(0,0,0,0.7)" />
-                                            </motion.div>
-                                        ) : (
-                                            <Pause size={18} color="rgba(0,0,0,0.7)" />
-                                        )}
-                                    </div>
-
-                                    {/* Song Info */}
-                                    <div style={{ flex: 1, minWidth: 0 }}>
-                                        <div style={{
-                                            fontSize: "0.7rem",
-                                            color: "#FFD60A",
-                                            textTransform: "uppercase",
-                                            letterSpacing: "0.05em",
-                                            marginBottom: "2px"
-                                        }}>
-                                            {isPlaying ? "Now Playing" : "Paused"}
-                                        </div>
-                                        <div style={{
-                                            fontSize: "0.95rem",
-                                            fontWeight: 600,
-                                            color: "white",
-                                            whiteSpace: "nowrap",
-                                            overflow: "hidden",
-                                            textOverflow: "ellipsis"
-                                        }}>
-                                            {currentSong.title}
-                                        </div>
-                                    </div>
-
-                                    {/* Play/Pause Button */}
-                                    <motion.button
-                                        whileTap={{ scale: 0.9 }}
-                                        onClick={(e) => {
-                                            e.stopPropagation();
-                                            triggerHaptic();
-                                            togglePlay();
-                                        }}
-                                        style={{
-                                            width: "36px",
-                                            height: "36px",
-                                            borderRadius: "50%",
-                                            background: "#FFD60A",
-                                            border: "none",
-                                            display: "flex",
-                                            alignItems: "center",
-                                            justifyContent: "center",
-                                            cursor: "pointer",
-                                            flexShrink: 0
-                                        }}
-                                    >
-                                        {isPlaying ? (
-                                            <Pause size={16} fill="black" color="black" />
-                                        ) : (
-                                            <Play size={16} fill="black" color="black" />
-                                        )}
-                                    </motion.button>
-                                </motion.div>
-                            )}
-                        </AnimatePresence>
-                    </div>
-
-                    {/* Rich Header Info (Visible when Playlist Selected) */}
-                    <AnimatePresence mode="wait">
-                        {activePlaylist && (
-                            <motion.div
-                                layout
-                                initial={{ opacity: 0, height: 0, scale: 0.95 }}
-                                animate={{ opacity: 1, height: "auto", scale: 1 }}
-                                exit={{ opacity: 0, height: 0, scale: 0.95 }}
-                                transition={{ duration: 0.3, ease: "easeInOut" }}
-                                style={{ marginTop: "0.5rem", marginBottom: "0.5rem", overflow: "hidden" }} // Adjusted spacing
-                            >
-                                <div style={{
-                                    padding: "20px",
-                                    background: "rgba(255,255,255,0.03)",
-                                    borderRadius: "20px",
-                                    border: "1px solid rgba(255,255,255,0.05)",
-                                    display: "flex",
-                                    flexDirection: "column",
-                                    gap: "12px"
-                                }}>
-                                    {/* Philosophy */}
-                                    <div style={{
-                                        fontFamily: "-apple-system, BlinkMacSystemFont, sans-serif",
-                                        fontWeight: 300,
-                                        fontStyle: "italic",
-                                        fontSize: "1.15rem",
-                                        color: "rgba(255,255,255,0.95)",
-                                        lineHeight: "1.6",
-                                        letterSpacing: "0.01em",
-                                        textShadow: "0 2px 10px rgba(0,0,0,0.5)"
-                                    }}>
-                                        "{activePlaylist.philosophy}"
-                                    </div>
-
-                                    {/* Meta Tags */}
-                                    <div style={{ display: "flex", flexWrap: "wrap", gap: "8px", alignItems: "center" }}>
-                                        {/* Time Badge */}
-                                        <div style={{
-                                            display: "flex",
-                                            alignItems: "center",
-                                            gap: "6px",
-                                            padding: "6px 12px",
-                                            background: "rgba(255, 214, 10, 0.2)",
-                                            borderRadius: "100px",
-                                            fontSize: "0.8rem",
-                                            color: "#FFD60A",
-                                            fontWeight: 600
-                                        }}>
-                                            <span style={{ fontSize: "1.2em" }}>🕒</span> {activePlaylist.schedule}
-                                        </div>
-
-                                        {/* Vibes */}
-                                        {activePlaylist.vibes.map(vibe => (
-                                            <span key={vibe} style={{
-                                                padding: "6px 12px",
-                                                borderRadius: "100px",
-                                                border: "1px solid rgba(255,255,255,0.1)",
-                                                fontSize: "0.8rem",
-                                                color: "rgba(255,255,255,0.6)"
-                                            }}>
-                                                {vibe}
-                                            </span>
-                                        ))}
-                                    </div>
-
-                                    {/* Current Song Display (when playing) */}
-                                    {hasInteracted && isPlaying && (
-                                        <>
-                                            <div style={{
-                                                marginTop: "12px",
-                                                padding: "12px 16px",
-                                                background: "rgba(255,255,255,0.05)",
-                                                borderRadius: "14px",
-                                                border: "1px solid rgba(255,255,255,0.08)",
-                                                display: "flex",
-                                                alignItems: "center",
-                                                gap: "12px"
-                                            }}>
-                                                <motion.div
-                                                    animate={{ rotate: 360 }}
-                                                    transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
-                                                    style={{
-                                                        width: "36px",
-                                                        height: "36px",
-                                                        borderRadius: "50%",
-                                                        background: "linear-gradient(135deg, #FFD60A, #FF9F0A)",
-                                                        display: "flex",
-                                                        alignItems: "center",
-                                                        justifyContent: "center",
-                                                        flexShrink: 0
-                                                    }}
-                                                >
-                                                    <Disc size={18} color="white" />
-                                                </motion.div>
-                                                <div style={{ flex: 1, minWidth: 0 }}>
-                                                    <div style={{ fontSize: "0.7rem", color: "rgba(255,255,255,0.5)", textTransform: "uppercase", letterSpacing: "0.05em" }}>
-                                                        Now Playing
-                                                    </div>
-                                                    <div style={{ fontSize: "0.9rem", fontWeight: 600, color: "white", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-                                                        {currentSong.title.split("—")[1]?.trim() || currentSong.title}
-                                                    </div>
-                                                    <div style={{ fontSize: "0.75rem", color: "rgba(255,255,255,0.5)" }}>
-                                                        {currentSong.title.split("—")[0]?.trim() || "Unknown Artist"}
-                                                    </div>
-                                                </div>
-                                                <div style={{ padding: "4px 10px", background: "rgba(255,255,255,0.1)", borderRadius: "20px", fontSize: "0.75rem", fontWeight: 600, color: "white" }}>
-                                                    {currentIndex + 1}/{queue.length}
-                                                </div>
-                                            </div>
-                                            {/* Subtle Progress Bar */}
-                                            <div style={{ marginTop: "10px" }}>
-                                                <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.7rem", color: "rgba(255,255,255,0.5)", marginBottom: "4px" }}>
-                                                    <span>{formatTime(currentTime)}</span>
-                                                    <span>{formatTime(duration)}</span>
-                                                </div>
-                                                <div
-                                                    onClick={(e) => {
-                                                        if (!duration) return;
-                                                        const rect = e.currentTarget.getBoundingClientRect();
-                                                        const x = e.clientX - rect.left;
-                                                        const pct = x / rect.width;
-                                                        seekTo(pct * duration);
-                                                        triggerHaptic();
-                                                    }}
-                                                    style={{
-                                                        height: "4px",
-                                                        background: "rgba(255,255,255,0.1)",
-                                                        borderRadius: "2px",
-                                                        cursor: "pointer",
-                                                        overflow: "hidden"
-                                                    }}
-                                                >
-                                                    <div style={{
-                                                        height: "100%",
-                                                        width: duration ? `${(currentTime / duration) * 100}%` : "0%",
-                                                        background: "linear-gradient(90deg, #FFD60A, #FF9F0A)",
-                                                        borderRadius: "2px",
-                                                        transition: "width 0.3s ease"
-                                                    }} />
-                                                </div>
-                                            </div>
-                                        </>
-                                    )}
-                                    {/* Action Buttons Row 1: Play Controls */}
-                                    <div style={{ display: "flex", gap: "10px", marginTop: "12px", alignItems: "center" }}>
-                                        {/* Skip Back */}
-                                        <motion.button
-                                            whileTap={{ scale: 0.9 }}
-                                            onClick={() => { triggerHaptic(); prevSong(); }}
-                                            disabled={!hasInteracted}
-                                            style={{
-                                                background: "rgba(255,255,255,0.08)",
-                                                color: hasInteracted ? "white" : "rgba(255,255,255,0.3)",
-                                                border: "none",
-                                                borderRadius: "12px",
-                                                padding: "12px",
-                                                display: "flex",
-                                                alignItems: "center",
-                                                justifyContent: "center",
-                                                cursor: hasInteracted ? "pointer" : "not-allowed"
-                                            }}
-                                        >
-                                            <SkipBack size={18} fill={hasInteracted ? "white" : "rgba(255,255,255,0.3)"} />
-                                        </motion.button>
-
-                                        {/* Main Play/Pause */}
-                                        <motion.button
-                                            whileTap={{ scale: 0.95 }}
-                                            onClick={() => {
-                                                triggerHaptic();
-                                                if (isSelectedPlaylistInQueue) {
-                                                    // Playlist is already in queue, just toggle play/pause
-                                                    togglePlay();
-                                                } else {
-                                                    // Different playlist or no queue, start fresh
-                                                    playQueue(filteredPlaylist, 0);
-                                                }
-                                            }}
-                                            style={{
-                                                flex: 1,
-                                                background: "white",
-                                                color: "black",
-                                                border: "none",
-                                                borderRadius: "12px",
-                                                padding: "14px",
-                                                fontSize: "1rem",
-                                                fontWeight: 700,
-                                                display: "flex",
-                                                alignItems: "center",
-                                                justifyContent: "center",
-                                                gap: "8px",
-                                                cursor: "pointer",
-                                                boxShadow: "0 4px 12px rgba(255,255,255,0.2)"
-                                            }}
-                                        >
-                                            {isSelectedPlaylistPlaying ? (
-                                                <><Pause size={20} fill="black" /> Pause</>
-                                            ) : (
-                                                <><Play size={20} fill="black" /> Play</>
-                                            )}
-                                        </motion.button>
-
-                                        {/* Skip Forward */}
-                                        <motion.button
-                                            whileTap={{ scale: 0.9 }}
-                                            onClick={() => { triggerHaptic(); nextSong(true); }}
-                                            disabled={!hasInteracted}
-                                            style={{
-                                                background: "rgba(255,255,255,0.08)",
-                                                color: hasInteracted ? "white" : "rgba(255,255,255,0.3)",
-                                                border: "none",
-                                                borderRadius: "12px",
-                                                padding: "12px",
-                                                display: "flex",
-                                                alignItems: "center",
-                                                justifyContent: "center",
-                                                cursor: hasInteracted ? "pointer" : "not-allowed"
-                                            }}
-                                        >
-                                            <SkipForward size={18} fill={hasInteracted ? "white" : "rgba(255,255,255,0.3)"} />
-                                        </motion.button>
-
-                                        {/* Shuffle */}
-                                        <motion.button
-                                            whileTap={{ scale: 0.95 }}
-                                            onClick={() => {
-                                                triggerHaptic();
-                                                const shuffled = [...filteredPlaylist].sort(() => Math.random() - 0.5);
-                                                playQueue(shuffled, 0);
-                                            }}
-                                            style={{
-                                                background: "rgba(255,255,255,0.08)",
-                                                color: "white",
-                                                border: "none",
-                                                borderRadius: "12px",
-                                                padding: "12px",
-                                                display: "flex",
-                                                alignItems: "center",
-                                                justifyContent: "center",
-                                                cursor: "pointer"
-                                            }}
-                                        >
-                                            <Shuffle size={18} />
-                                        </motion.button>
-                                    </div>
-
-                                    {/* Action Buttons Row 2: Immersive Mode */}
-                                    <motion.button
-                                        whileTap={{ scale: 0.98 }}
-                                        onClick={() => {
-                                            triggerHaptic();
-                                            setZen(true);
-                                        }}
-                                        style={{
-                                            marginTop: "10px",
-                                            width: "100%",
-                                            background: "linear-gradient(135deg, rgba(255, 159, 10, 0.3), rgba(255, 214, 10, 0.3))",
-                                            color: "white",
-                                            border: "1px solid rgba(255, 214, 10, 0.3)",
-                                            borderRadius: "12px",
-                                            padding: "14px",
-                                            fontSize: "0.95rem",
-                                            fontWeight: 600,
-                                            display: "flex",
-                                            alignItems: "center",
-                                            justifyContent: "center",
-                                            gap: "10px",
-                                            cursor: "pointer"
-                                        }}
-                                    >
-                                        <Sparkles size={18} />
-                                        Immersive Mode
-                                    </motion.button>
-                                </div>
-                            </motion.div>
-                        )}
-                    </AnimatePresence>
-
-                    {/* Search Bar - Sticky & Glass */}
-                    <div style={{
-                        position: "sticky",
-                        top: "1.5rem",
-                        zIndex: 40,
-                        marginBottom: "-0.5rem" // Reduce gap to song list below
-                    }}>
-                        <div style={{
-                            width: "100%",
-                            height: "50px",
-                            backgroundColor: "rgba(20, 20, 20, 0.65)", // Deep aesthetic dark
-                            borderRadius: "16px",
+            <main style={{
+                position: "relative",
+                zIndex: 10,
+                minHeight: "100svh",
+                padding: "4rem 1.5rem 8rem 1.5rem",
+                maxWidth: "540px",
+                margin: "0 auto",
+                display: "flex",
+                flexDirection: "column",
+                gap: "2rem"
+            }}>
+                {/* Header */}
+                <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+                    <button
+                        onClick={() => router.push("/")}
+                        style={{
+                            background: "rgba(255,255,255,0.08)",
+                            border: "none",
+                            borderRadius: "50%",
+                            width: "40px",
+                            height: "40px",
                             display: "flex",
                             alignItems: "center",
-                            padding: "0 16px",
-                            border: "1px solid rgba(255,255,255,0.08)",
-                            backdropFilter: "blur(25px) saturate(180%)",
-                            boxShadow: "0 8px 32px rgba(0,0,0,0.3)",
-                            transition: "all 0.3s ease"
-                        }}>
-                            <Search size={18} color="rgba(255,255,255,0.5)" />
-                            <input
-                                type="text"
-                                placeholder={activePlaylist ? `Search ${activePlaylist.title}` : "Songs, Artists, Lyrics"}
-                                value={searchQuery}
-                                onChange={(e) => setSearchQuery(e.target.value)}
-                                style={{
-                                    flex: 1,
-                                    background: "transparent",
-                                    border: "none",
-                                    outline: "none",
-                                    color: "white",
-                                    fontSize: "1rem",
-                                    marginLeft: "12px",
-                                    fontFamily: "-apple-system, BlinkMacSystemFont, sans-serif",
-                                    fontWeight: 400,
-                                    letterSpacing: "-0.01em"
-                                }}
-                            />
-                        </div>
-                    </div>
-
-                    {/* Song List - Premium Obsidian Glass Style */}
-                    <motion.div
-                        initial="hidden"
-                        animate="visible"
-                        variants={{
-                            hidden: { opacity: 0 },
-                            visible: {
-                                opacity: 1,
-                                transition: {
-                                    staggerChildren: 0.05 // Cascade effect
-                                }
-                            }
-                        }}
-                        style={{
-                            display: "flex",
-                            flexDirection: "column",
-                            gap: "0px",
-                            background: "rgba(10, 10, 12, 0.6)", // Deeper, more expansive dark
-                            backdropFilter: "blur(20px) saturate(180%)", // High-end blur
-                            borderRadius: "24px",
-                            overflow: "hidden",
-                            border: "1px solid rgba(255,255,255,0.08)",
-                            boxShadow: "0 20px 40px -10px rgba(0,0,0,0.5)" // Floating depth
+                            justifyContent: "center",
+                            cursor: "pointer",
+                            color: "white"
                         }}
                     >
-                        <div style={{
-                            padding: "20px 24px",
-                            borderBottom: "1px solid rgba(255,255,255,0.06)",
-                            display: "flex",
-                            justifyContent: "space-between",
-                            alignItems: "center",
-                            background: "linear-gradient(to right, rgba(255,255,255,0.03), transparent)"
-                        }}>
-                            <div style={{ display: 'flex', flexDirection: 'column' }}>
-                                <h3 style={{
-                                    fontSize: "1.1rem",
-                                    fontWeight: 700,
-                                    color: "white",
-                                    letterSpacing: "-0.02em",
-                                    margin: 0,
-                                    textShadow: "0 2px 10px rgba(0,0,0,0.3)"
-                                }}>
-                                    {activePlaylist ? activePlaylist.title : "All Tracks"}
-                                </h3>
-                                <span style={{
-                                    fontSize: "0.8rem",
-                                    color: "rgba(255,255,255,0.4)",
-                                    marginTop: "4px",
-                                    fontWeight: 500
-                                }}>
-                                    {filteredPlaylist.length} Songs • Premium Audio
-                                </span>
-                            </div>
+                        <ChevronLeft size={24} />
+                    </button>
+                    <h1 style={{
+                        fontFamily: "-apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif",
+                        fontSize: "2.8rem",
+                        fontWeight: 800,
+                        color: "white",
+                        letterSpacing: "-0.04em",
+                        margin: 0
+                    }}>
+                        Library
+                    </h1>
+                </div>
 
-                            {/* Play Button Indicator (Decorative) */}
-                            <motion.div
-                                whileTap={{ scale: 0.9 }}
-                                style={{
-                                    width: "36px",
-                                    height: "36px",
-                                    borderRadius: "50%",
-                                    background: "rgba(255,255,255,0.15)",
-                                    display: "flex",
-                                    alignItems: "center",
-                                    justifyContent: "center",
-                                    cursor: "pointer",
-                                    border: "1px solid rgba(255,255,255,0.1)"
-                                }}
+                {/* Search Bar */}
+                <div style={{
+                    width: "100%",
+                    height: "54px",
+                    backgroundColor: "rgba(255, 255, 255, 0.05)",
+                    borderRadius: "18px",
+                    display: "flex",
+                    alignItems: "center",
+                    padding: "0 20px",
+                    border: "1px solid rgba(255,255,255,0.08)",
+                    backdropFilter: "blur(20px)"
+                }}>
+                    <Search size={20} color="rgba(255,255,255,0.3)" />
+                    <input
+                        type="text"
+                        placeholder="Search playlists or vibes..."
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        style={{
+                            flex: 1,
+                            background: "transparent",
+                            border: "none",
+                            outline: "none",
+                            color: "white",
+                            fontSize: "1rem",
+                            marginLeft: "12px"
+                        }}
+                    />
+                </div>
+
+                {/* PLAYLISTS GRID */}
+                <div style={{
+                    display: "grid",
+                    gridTemplateColumns: "repeat(2, 1fr)",
+                    gap: "20px"
+                }}>
+                    {filteredCategories.map((playlist) => {
+                        const isNowPlaying = currentQueuePlaylistId === playlist.id;
+
+                        return (
+                            <Link
+                                key={playlist.id}
+                                href={`/playlist/${playlist.id}`}
                                 onClick={triggerHaptic}
+                                style={{ textDecoration: "none" }}
                             >
-                                <Play size={16} fill="white" color="white" style={{ marginLeft: "2px" }} />
-                            </motion.div>
-                        </div>
-
-                        {filteredPlaylist.map((song, i) => {
-                            const isActive = currentSong?.title === song.title;
-                            const originalIndex = song.originalIndex;
-                            const isLast = i === filteredPlaylist.length - 1;
-
-                            return (
-                                <div
-                                    key={originalIndex}
-                                    onClick={() => playQueue(filteredPlaylist, i)}
-                                    className="group/item"
+                                <motion.div
+                                    whileHover={{ scale: 1.02 }}
+                                    whileTap={{ scale: 0.96 }}
                                     style={{
-                                        display: "flex",
-                                        alignItems: "center",
-                                        gap: "18px",
-                                        padding: "18px 24px",
-                                        backgroundColor: isActive
-                                            ? "rgba(255,255,255,0.15)"
-                                            : "transparent",
-                                        cursor: "pointer",
                                         position: "relative",
-                                        transition: "background 0.2s ease" // CSS Transition instead of Motion
+                                        aspectRatio: "1/1",
+                                        borderRadius: "28px",
+                                        overflow: "hidden",
+                                        boxShadow: isNowPlaying
+                                            ? `0 0 40px -5px ${playlist.coverColor}60, 0 15px 30px rgba(0,0,0,0.5)`
+                                            : "0 10px 30px rgba(0,0,0,0.3)",
+                                        border: isNowPlaying ? `2px solid ${playlist.coverColor}` : "1px solid rgba(255,255,255,0.1)"
                                     }}
                                 >
-                                    {/* Separator Line (Inset) */}
-                                    {!isLast && !isActive && (
+                                    <img
+                                        src={playlist.coverImage}
+                                        alt={playlist.title}
+                                        style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                                    />
+                                    <div style={{
+                                        position: "absolute",
+                                        inset: 0,
+                                        background: "linear-gradient(to top, rgba(0,0,0,0.85) 0%, transparent 60%)",
+                                        display: "flex",
+                                        flexDirection: "column",
+                                        justifyContent: "flex-end",
+                                        padding: "16px"
+                                    }}>
+                                        <div style={{ color: "white", fontWeight: 700, fontSize: "1rem", letterSpacing: "-0.01em" }}>{playlist.title}</div>
+                                        <div style={{ color: "rgba(255,255,255,0.5)", fontSize: "0.75rem", marginTop: "2px", fontWeight: 500 }}>
+                                            {playlist.songTitles.length} tracks
+                                        </div>
+                                    </div>
+
+                                    {isNowPlaying && isPlaying && (
                                         <div style={{
                                             position: "absolute",
-                                            bottom: 0,
-                                            left: "60px", // Inset past the index/icon
-                                            right: 0,
-                                            height: "1px",
-                                            background: "rgba(255,255,255,0.04)"
-                                        }} />
-                                    )}
-
-                                    {/* Leading Index / Active Graph */}
-                                    <div style={{
-                                        width: "24px",
-                                        display: "flex",
-                                        alignItems: "center",
-                                        justifyContent: "center",
-                                        color: isActive ? "#3b82f6" : "rgba(255,255,255,0.25)",
-                                        fontSize: "0.9rem",
-                                        fontWeight: isActive ? 700 : 500,
-                                        fontFamily: "var(--font-mono)"
-                                    }}>
-                                        {isActive && isPlaying ? (
-                                            <div className="flex gap-[3px] items-end h-[14px]">
-                                                <div className="eq-bar" style={{ animation: 'eq-bar1 0.5s ease infinite' }} />
-                                                <div className="eq-bar" style={{ animation: 'eq-bar2 0.5s ease infinite 0.1s' }} />
-                                                <div className="eq-bar" style={{ animation: 'eq-bar3 0.5s ease infinite 0.2s' }} />
+                                            top: "14px",
+                                            right: "14px",
+                                            background: "rgba(0,0,0,0.5)",
+                                            backdropFilter: "blur(4px)",
+                                            borderRadius: "50%",
+                                            padding: "8px",
+                                            display: "flex",
+                                            alignItems: "center",
+                                            justifyContent: "center",
+                                            border: "1px solid rgba(255,255,255,0.1)"
+                                        }}>
+                                            <div className="flex gap-[2px] items-end h-[10px]">
+                                                <div className="eq-bar" style={{ animation: 'eq-bar1 0.5s ease infinite', background: playlist.coverColor }} />
+                                                <div className="eq-bar" style={{ animation: 'eq-bar2 0.5s ease infinite 0.1s', background: playlist.coverColor }} />
+                                                <div className="eq-bar" style={{ animation: 'eq-bar3 0.5s ease infinite 0.2s', background: playlist.coverColor }} />
                                             </div>
-                                        ) : (
-                                            <span style={{ fontVariantNumeric: "tabular-nums" }}>{i + 1}</span>
-                                        )}
-                                    </div>
-
-                                    {/* Song Info */}
-                                    <div style={{ flex: 1, minWidth: 0 }}>
-                                        <div style={{
-                                            color: isActive ? "white" : "rgba(255,255,255,0.95)",
-                                            fontSize: "1rem", // Slightly larger premium feel
-                                            fontWeight: isActive ? 700 : 500,
-                                            fontFamily: "-apple-system, BlinkMacSystemFont, sans-serif",
-                                            marginBottom: "3px",
-                                            whiteSpace: "nowrap",
-                                            overflow: "hidden",
-                                            textOverflow: "ellipsis",
-                                            letterSpacing: "-0.01em"
-                                        }}>
-                                            {song.title.split("—")[1]?.trim() || song.title}
-                                        </div>
-                                        <div style={{
-                                            color: "rgba(255,255,255,0.5)",
-                                            fontSize: "0.85rem",
-                                            fontWeight: 400,
-                                            whiteSpace: "nowrap",
-                                            overflow: "hidden",
-                                            textOverflow: "ellipsis",
-                                            fontFamily: "-apple-system, BlinkMacSystemFont, sans-serif",
-                                            letterSpacing: "0.01em"
-                                        }}>
-                                            {song.title.split("—")[0]?.trim() || "Unknown Artist"}
-                                        </div>
-                                    </div>
-
-                                    {/* Trailing Action */}
-                                    {isActive ? (
-                                        <div style={{ opacity: 1 }}>
-                                            <Disc className="animate-spin-slow" size={18} color="#3b82f6" />
-                                        </div>
-                                    ) : (
-                                        <div style={{ opacity: 0 }} className="group-hover:opacity-100 transition-opacity">
-                                            <Play size={16} fill="white" color="white" />
                                         </div>
                                     )}
-                                </div>
-                            );
-                        })}
-                    </motion.div>
+                                </motion.div>
+                            </Link>
+                        );
+                    })}
 
-
-                    {/* Floating Mini Player removed - merged into Rich Header */}
-                </main>
-            )}
+                    {/* ALL SONGS CARD */}
+                    <Link
+                        href="/playlist/all"
+                        onClick={triggerHaptic}
+                        style={{ textDecoration: "none" }}
+                    >
+                        <motion.div
+                            whileHover={{ scale: 1.02 }}
+                            whileTap={{ scale: 0.96 }}
+                            style={{
+                                position: "relative",
+                                aspectRatio: "1/1",
+                                borderRadius: "28px",
+                                overflow: "hidden",
+                                background: "linear-gradient(135deg, #1a1a1a, #000)",
+                                border: "1px solid rgba(255,255,255,0.1)",
+                                display: "flex",
+                                flexDirection: "column",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                textAlign: "center",
+                                padding: "20px",
+                                boxShadow: "0 10px 30px rgba(0,0,0,0.3)"
+                            }}
+                        >
+                            <Shuffle size={32} color="white" style={{ opacity: 0.4, marginBottom: "8px" }} />
+                            <div style={{ color: "white", fontWeight: 700, fontSize: "1.1rem" }}>All Songs</div>
+                            <div style={{ color: "rgba(255,255,255,0.4)", fontSize: "0.8rem", fontWeight: 500 }}>{PLAYLIST.length} Tracks</div>
+                        </motion.div>
+                    </Link>
+                </div>
+            </main>
         </>
     );
 }

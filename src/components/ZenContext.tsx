@@ -47,7 +47,8 @@ export function ZenProvider({ children }: { children: React.ReactNode }) {
     useEffect(() => {
         const isHomepage = pathname === "/";
         const isPlaylist = pathname === "/playlist";
-        const zenAllowedRoutes = isHomepage || isBlogArticle || isPlaylist;
+        const isPlaylistSubpage = pathname?.startsWith("/playlist/");
+        const zenAllowedRoutes = isHomepage || isBlogArticle || isPlaylist || isPlaylistSubpage;
 
         if (!zenAllowedRoutes && isZen) {
             setIsZen(false);
