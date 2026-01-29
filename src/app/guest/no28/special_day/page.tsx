@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useMemo, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Home, Sparkles, Clock, Calendar, Heart, Gift, Activity, Wind, Star, BookOpen, Map, MapPin } from "lucide-react";
+import { Home, Sparkles, Clock, Calendar, Heart, Gift, Activity, Wind, Star, BookOpen, Map, MapPin, Quote } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import { Container } from "@/components/Container";
@@ -829,6 +829,75 @@ export default function SpecialDayBentoPage() {
                                 <HandwrittenNote style={{ position: "absolute", top: "0", right: "20%", transform: "rotate(5deg)", fontSize: "0.9rem" }}>
                                     "Terus bersinar ya..."
                                 </HandwrittenNote>
+                            </div>
+                        </BentoCard>
+
+                        {/* --- NEW CARD: Tantang 25 Tahun (Quarter Life) --- */}
+                        <BentoCard isMobile={isMobile} style={{ gridColumn: isMobile ? "span 1" : "span 12", overflow: "hidden" }} rotate="-0.2deg" tapeColor="#aebdca">
+                            <div style={{ display: "flex", flexDirection: isMobile ? "column" : "row", gap: isMobile ? "2rem" : "4rem", alignItems: "center" }}>
+                                {/* Left Side: Visual Metaphor (Dynamic Compass/Growth) */}
+                                <div style={{ flex: isMobile ? "none" : "0 0 35%", position: "relative", display: "flex", justifyContent: "center" }}>
+                                    <div style={{ position: "relative", width: "180px", height: "180px" }}>
+                                        {/* Animated Rings */}
+                                        {[0, 1, 2].map((i) => (
+                                            <motion.div
+                                                key={i}
+                                                animate={{ scale: [1, 1.1, 1], opacity: [0.3, 0.6, 0.3], rotate: [0, 90, 180] }}
+                                                transition={{ duration: 10 + i * 5, repeat: Infinity, ease: "linear" }}
+                                                style={{
+                                                    position: "absolute", inset: i * 20,
+                                                    border: "1px dashed #aebdca", borderRadius: "50%",
+                                                }}
+                                            />
+                                        ))}
+                                        {/* Center Typography */}
+                                        <div style={{
+                                            position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center",
+                                            flexDirection: "column", zIndex: 10
+                                        }}>
+                                            <span style={{ fontSize: "5rem", fontFamily: "'Crimson Pro', serif", fontWeight: 400, color: "#4e4439", lineHeight: 0.8 }}>25</span>
+                                            <HandwrittenNote style={{ fontSize: "1.2rem", marginTop: "5px" }}>Tahun</HandwrittenNote>
+                                        </div>
+                                        {/* Orbiting Icons */}
+                                        <motion.div
+                                            animate={{ rotate: 360 }}
+                                            transition={{ duration: 30, repeat: Infinity, ease: "linear" }}
+                                            style={{ position: "absolute", inset: 0 }}
+                                        >
+                                            <div style={{ position: "absolute", top: -15, left: "50%", transform: "translateX(-50%)", background: "#fdf8f4", padding: "5px" }}>
+                                                <Star size={16} color="#aebdca" fill="#aebdca" fillOpacity={0.5} />
+                                            </div>
+                                            <div style={{ position: "absolute", bottom: -15, left: "50%", transform: "translateX(-50%) rotate(180deg)", background: "#fdf8f4", padding: "5px" }}>
+                                                <Wind size={16} color="#aebdca" />
+                                            </div>
+                                        </motion.div>
+                                    </div>
+                                </div>
+
+                                {/* Right Side: The Message */}
+                                <div style={{ flex: 1, position: "relative" }}>
+                                    <div style={{ position: "absolute", top: "-20px", left: "-20px", opacity: 0.1 }}>
+                                        <Quote size={60} color="#aebdca" />
+                                    </div>
+                                    <h3 style={{
+                                        fontSize: "1.6rem", fontWeight: 400, color: "#b07d62",
+                                        fontFamily: "'Crimson Pro', serif", marginBottom: "1rem", fontStyle: "italic"
+                                    }}>
+                                        "Titik Keseimbangan Emas"
+                                    </h3>
+                                    <p style={{
+                                        fontFamily: "'Crimson Pro', serif", fontSize: "1.1rem", lineHeight: 1.8, color: "#4e4439", marginBottom: "1.5rem"
+                                    }}>
+                                        Banyak yang bilang 25 adalah fase yang membingungkan—seolah kamu harus memilih satu jalan pasti saat hatimu masih ingin menjelajah segalanya.
+                                        <br /><br />
+                                        Tapi percayalah, ini adalah <strong>usia terindah</strong>. Kakimu sudah cukup kuat untuk berdiri sendiri, tapi hatimu masih cukup lembut untuk bermimpi liar.
+                                        Kamu tidak terlambat. Kamu tidak tertinggal. Kamu sedang mekar tepat pada waktunya.
+                                    </p>
+                                    <div style={{ display: "flex", alignItems: "center", gap: "10px", marginTop: "1rem" }}>
+                                        <div style={{ height: "1px", width: "40px", background: "#aebdca" }} />
+                                        <HandwrittenNote style={{ color: "#aebdca", fontSize: "1rem" }}>Quarter Century Bloom</HandwrittenNote>
+                                    </div>
+                                </div>
                             </div>
                         </BentoCard>
 
