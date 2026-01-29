@@ -303,6 +303,28 @@ const Butterflies = () => {
 
 // --- Page ---
 
+const TimeCapsule = ({ onClick }: { onClick: () => void }) => (
+    <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        whileHover={{ scale: 1.1, rotate: 5 }}
+        whileTap={{ scale: 0.95 }}
+        onClick={onClick}
+        style={{
+            position: "fixed",
+            bottom: "30px",
+            right: "30px",
+            width: "60px",
+            height: "60px",
+            zIndex: 50,
+            cursor: "pointer",
+            filter: "drop-shadow(0 4px 6px rgba(160, 144, 125, 0.3))"
+        }}
+    >
+        <Image src="/time_capsule_icon.webp" alt="Time Capsule" fill style={{ objectFit: "contain" }} />
+    </motion.div>
+);
+
 export default function SpecialDayBentoPage() {
     const [mounted, setMounted] = useState(false);
     const [now, setNow] = useState(new Date());
@@ -316,6 +338,7 @@ export default function SpecialDayBentoPage() {
     const [kamusHearts, setKamusHearts] = useState<{ id: number; x: number; y: number }[]>([]);
     const [expandedChapter, setExpandedChapter] = useState<number | null>(null);
     const [showTodayMessage, setShowTodayMessage] = useState(false);
+    const [showTimeCapsuleMessage, setShowTimeCapsuleMessage] = useState(false);
     const wisdomIndexRef = useRef(0);
 
     // Portrait Gallery State
@@ -545,6 +568,40 @@ export default function SpecialDayBentoPage() {
             <FloatingParticles />
             <FallingPetals />
             <Butterflies />
+            <TimeCapsule onClick={() => {
+                setShowTimeCapsuleMessage(true);
+                setTimeout(() => setShowTimeCapsuleMessage(false), 4000);
+            }} />
+
+            <AnimatePresence>
+                {showTimeCapsuleMessage && (
+                    <motion.div
+                        initial={{ opacity: 0, y: 20, x: "-50%" }}
+                        animate={{ opacity: 1, y: 0, x: "-50%" }}
+                        exit={{ opacity: 0, y: 20, x: "-50%" }}
+                        style={{
+                            position: "fixed",
+                            bottom: "100px",
+                            left: "50%", // Center horizontally on mobile
+                            transform: "translateX(-50%)",
+                            background: "rgba(255, 253, 240, 0.95)",
+                            border: "1px solid #d2b48c",
+                            padding: "1rem 1.5rem",
+                            borderRadius: "12px",
+                            boxShadow: "0 10px 30px rgba(0,0,0,0.1)",
+                            zIndex: 100,
+                            textAlign: "center",
+                            width: "max-content",
+                            maxWidth: "90%"
+                        }}
+                    >
+                        <div style={{ fontSize: "1.2rem", marginBottom: "0.5rem" }}>🕰️</div>
+                        <HandwrittenNote style={{ fontSize: "1.1rem", color: "#8a7058" }}>
+                            "Maaf, pesan ini masih terlelap. <br />Ia akan terbangun untuk menyapamu tepat di hari bahagiamu nanti."
+                        </HandwrittenNote>
+                    </motion.div>
+                )}
+            </AnimatePresence>
 
             {/* Shake Overlay for New Wisdom */}
             <AnimatePresence>
