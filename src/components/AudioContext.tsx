@@ -154,12 +154,11 @@ export const PLAYLIST = [
 
 export function AudioProvider({ children }: { children: React.ReactNode }) {
     const [isPlaying, setIsPlaying] = useState(false);
-    const [isBuffering, setIsBuffering] = useState(false);
-    const [queue, setQueue] = useState(PLAYLIST);
+    const [isBuffering, setIsBuffering] = useState(false); // NEW: Track buffering state
+    const [queue, setQueue] = useState(PLAYLIST); // NEW: Dynamic Queue
     const [currentIndex, setCurrentIndex] = useState(0);
     const [analyser, setAnalyser] = useState<AnalyserNode | null>(null);
     const [hasInteracted, setHasInteracted] = useState(false);
-    const [isHydrated, setIsHydrated] = useState(false);
 
     // UI Persisted State
     const [showLyrics, setShowLyrics] = useState(true);
@@ -177,77 +176,6 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
     const audioRef = useRef<HTMLAudioElement | null>(null);
     const audioContextRef = useRef<AudioContext | null>(null);
     const sourceRef = useRef<MediaElementAudioSourceNode | null>(null);
-
-    // ========== LOCALSTORAGE PERSISTENCE ==========
-    // Hydrate from localStorage on mount
-    useEffect(() => {
-        try {
-            const savedState = localStorage.getItem('audioState');
-            if (savedState) {
-                const { savedQueue, savedIndex, savedTime, savedHasInteracted } = JSON.parse(savedState);
-
-                // Restore queue if it exists and is valid
-                if (savedQueue && Array.isArray(savedQueue) && savedQueue.length > 0) {
-                    setQueue(savedQueue);
-                }
-
-                // Restore index
-                if (typeof savedIndex === 'number' && savedIndex >= 0) {
-                    setCurrentIndex(savedIndex);
-                }
-
-                // Restore time (will be applied after audio loads)
-                if (typeof savedTime === 'number' && savedTime > 0) {
-                    setCurrentTime(savedTime);
-                }
-
-                // Restore interaction state
-                if (savedHasInteracted) {
-                    setHasInteracted(true);
-                }
-            }
-        } catch (e) {
-            console.warn('[AudioPersist] Failed to hydrate:', e);
-        }
-        setIsHydrated(true);
-    }, []);
-
-    // Save to localStorage when state changes (debounced)
-    useEffect(() => {
-        if (!isHydrated) return; // Don't save during hydration
-
-        const saveTimeout = setTimeout(() => {
-            try {
-                const stateToSave = {
-                    savedQueue: queue,
-                    savedIndex: currentIndex,
-                    savedTime: currentTime,
-                    savedHasInteracted: hasInteracted
-                };
-                localStorage.setItem('audioState', JSON.stringify(stateToSave));
-            } catch (e) {
-                console.warn('[AudioPersist] Failed to save:', e);
-            }
-        }, 1000); // Debounce 1s to avoid excessive writes
-
-        return () => clearTimeout(saveTimeout);
-    }, [isHydrated, queue, currentIndex, currentTime, hasInteracted]);
-
-    // Restore playback position after audio loads
-    useEffect(() => {
-        if (!isHydrated || !audioRef.current) return;
-
-        const handleCanPlay = () => {
-            if (currentTime > 0 && audioRef.current && audioRef.current.currentTime < 1) {
-                audioRef.current.currentTime = currentTime;
-            }
-        };
-
-        const audio = audioRef.current;
-        audio?.addEventListener('canplay', handleCanPlay);
-        return () => audio?.removeEventListener('canplay', handleCanPlay);
-    }, [isHydrated, currentTime]);
-    // ========== END LOCALSTORAGE PERSISTENCE ==========
 
     // Theme integration
     const { theme, setTheme } = useTheme();
