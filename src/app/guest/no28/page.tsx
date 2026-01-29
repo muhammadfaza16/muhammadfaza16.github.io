@@ -910,7 +910,7 @@ export default function GuestNo28Dashboard() {
 
                     <motion.div
                         initial={{ opacity: 0 }}
-                        animate={{ opacity: 0.4 }}
+                        animate={{ opacity: 0.8 }}
                         transition={{ delay: 1.5, duration: 2 }}
                         style={{ textAlign: "center", marginTop: "5rem", marginBottom: "1rem" }}
                     >

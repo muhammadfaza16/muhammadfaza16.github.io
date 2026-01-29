@@ -322,12 +322,11 @@ const TimeCapsule = ({ onClick }: { onClick: () => void }) => (
         }}
     >
         <Image
-            src="/time_capsule_icon.webp"
+            src="/time_capsule_icon_clean.webp"
             alt="Time Capsule"
             fill
             style={{
-                objectFit: "contain",
-                mixBlendMode: "multiply"
+                objectFit: "contain"
             }}
         />
     </motion.div>
@@ -351,6 +350,7 @@ export default function SpecialDayBentoPage() {
 
     // Portrait Gallery State
     const [portraitIndex, setPortraitIndex] = useState(0);
+    const [selectedPortrait, setSelectedPortrait] = useState<{ src: string, label: string } | null>(null);
     const portraits = [
         { src: "/portrait_4.webp", label: "Hadirmu selalu membawa tenang" },
         { src: "/portrait_1.webp", label: "Bersinar tanpa perlu banyak bicara" },
@@ -752,11 +752,14 @@ export default function SpecialDayBentoPage() {
                                     initial={{ rotate: -3 }}
                                     animate={{ rotate: [-3, -1, -3] }}
                                     transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+                                    whileHover={{ scale: 1.05, rotate: 0 }}
+                                    onClick={() => setSelectedPortrait(portraits[portraitIndex])}
                                     style={{
                                         background: "#fff",
                                         padding: "12px 12px 40px 12px",
                                         boxShadow: "0 8px 30px rgba(0,0,0,0.12), 0 2px 8px rgba(0,0,0,0.08)",
-                                        position: "relative"
+                                        position: "relative",
+                                        cursor: "pointer"
                                     }}
                                 >
                                     <div style={{
@@ -1112,6 +1115,62 @@ export default function SpecialDayBentoPage() {
                         </div>
                     </div>
 
+
+                    {/* Polaroid Logic: Apology Popup */}
+                    <AnimatePresence>
+                        {selectedPortrait && (
+                            <motion.div
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                exit={{ opacity: 0 }}
+                                onClick={() => setSelectedPortrait(null)}
+                                style={{
+                                    position: "fixed",
+                                    inset: 0,
+                                    background: "rgba(0,0,0,0.6)",
+                                    backdropFilter: "blur(4px)",
+                                    zIndex: 99999,
+                                    display: "flex",
+                                    alignItems: "center",
+                                    justifyContent: "center",
+                                    padding: "2rem"
+                                }}
+                            >
+                                <motion.div
+                                    initial={{ scale: 0.9, opacity: 0, y: 20 }}
+                                    animate={{ scale: 1, opacity: 1, y: 0 }}
+                                    exit={{ scale: 0.9, opacity: 0, y: 20 }}
+                                    onClick={(e) => e.stopPropagation()}
+                                    style={{
+                                        background: "#fff",
+                                        padding: "1.5rem",
+                                        borderRadius: "2px",
+                                        maxWidth: "400px",
+                                        textAlign: "center",
+                                        boxShadow: "0 20px 60px rgba(0,0,0,0.3)",
+                                        position: "relative"
+                                    }}
+                                >
+                                    {/* The Image Itself (Mini) */}
+                                    <div style={{ width: "100%", height: "250px", position: "relative", marginBottom: "1.5rem", background: "#f0f0f0" }}>
+                                        <Image src={selectedPortrait.src} alt="" fill style={{ objectFit: "cover" }} />
+                                    </div>
+
+                                    <HandwrittenNote style={{ fontSize: "1.2rem", color: "#4e4439", marginBottom: "1rem", lineHeight: 1.6 }}>
+                                        "Maaf ya, sudah lancang mengabadikan ini tanpa izin.
+                                        <br /><br />
+                                        Tapi rasanya berdosa jika membiarkan cahaya seindah ini berlalu tanpa kenangan.
+                                        <br /><br />
+                                        Tetaplah bersinar, dengan caramu sendiri."
+                                    </HandwrittenNote>
+
+                                    <div style={{ fontSize: "0.8rem", color: "#aaa", marginTop: "1.5rem", cursor: "pointer" }} onClick={() => setSelectedPortrait(null)}>
+                                        (ketuk di luar untuk menutup)
+                                    </div>
+                                </motion.div>
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
 
                 </Container>
             </main>
