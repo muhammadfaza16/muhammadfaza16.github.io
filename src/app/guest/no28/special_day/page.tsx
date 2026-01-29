@@ -576,37 +576,88 @@ export default function SpecialDayBentoPage() {
             <FloatingParticles />
             <FallingPetals />
             <Butterflies />
-            <TimeCapsule onClick={() => {
-                setShowTimeCapsuleMessage(true);
-                setTimeout(() => setShowTimeCapsuleMessage(false), 4000);
-            }} />
+            <TimeCapsule onClick={() => setShowTimeCapsuleMessage(true)} />
 
             <AnimatePresence>
                 {showTimeCapsuleMessage && (
                     <motion.div
-                        initial={{ opacity: 0, y: 20, x: "-50%" }}
-                        animate={{ opacity: 1, y: 0, x: "-50%" }}
-                        exit={{ opacity: 0, y: 20, x: "-50%" }}
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        onClick={() => setShowTimeCapsuleMessage(false)}
                         style={{
                             position: "fixed",
-                            bottom: "100px",
-                            left: "50%", // Center horizontally on mobile
-                            transform: "translateX(-50%)",
-                            background: "rgba(255, 253, 240, 0.95)",
-                            border: "1px solid #d2b48c",
-                            padding: "1rem 1.5rem",
-                            borderRadius: "12px",
-                            boxShadow: "0 10px 30px rgba(0,0,0,0.1)",
-                            zIndex: 100,
-                            textAlign: "center",
-                            width: "max-content",
-                            maxWidth: "90%"
+                            inset: 0,
+                            zIndex: 9999, // High z-index
+                            background: "rgba(0,0,0,0.4)",
+                            backdropFilter: "blur(2px)",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            padding: "1rem"
                         }}
                     >
-                        <div style={{ fontSize: "1.2rem", marginBottom: "0.5rem" }}>🕰️</div>
-                        <HandwrittenNote style={{ fontSize: "1.1rem", color: "#8a7058" }}>
-                            "Maaf, pesan ini masih terlelap. <br />Ia akan terbangun untuk menyapamu tepat di hari bahagiamu nanti."
-                        </HandwrittenNote>
+                        <div style={{ position: "relative", width: "100%", maxWidth: "340px", height: "400px", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-end" }} onClick={(e) => e.stopPropagation()}>
+
+                            {/* The Message Paper */}
+                            <motion.div
+                                initial={{ y: 100, opacity: 0, scale: 0.8, rotate: -5 }}
+                                animate={{ y: -80, opacity: 1, scale: 1, rotate: 2 }}
+                                exit={{ y: 0, opacity: 0, scale: 0.8 }}
+                                transition={{ delay: 0.8, duration: 1, type: "spring", bounce: 0.3 }}
+                                style={{
+                                    width: "280px",
+                                    background: "#fdf8f0",
+                                    backgroundImage: "url('https://www.transparenttextures.com/patterns/natural-paper.png')",
+                                    padding: "2rem",
+                                    border: "1px solid #d2b48c",
+                                    borderRadius: "2px",
+                                    boxShadow: "0 10px 30px rgba(0,0,0,0.15)",
+                                    position: "relative",
+                                    zIndex: 1, // Paper appears "out of" the envelope
+                                    textAlign: "center"
+                                }}
+                            >
+                                <div style={{ fontSize: "2rem", marginBottom: "0.5rem" }}>🕰️</div>
+                                <HandwrittenNote style={{ fontSize: "1.2rem", color: "#4e4439", lineHeight: 1.6 }}>
+                                    "Maaf, pesan ini masih terlelap. <br />Ia akan terbangun untuk menyapamu tepat di hari bahagiamu nanti."
+                                </HandwrittenNote>
+                                <div style={{ fontSize: "0.8rem", color: "#aaa", marginTop: "1.5rem", fontStyle: "italic" }}>
+                                    (ketuk di luar untuk menutup)
+                                </div>
+                            </motion.div>
+
+                            {/* The Envelope */}
+                            <motion.div
+                                initial={{ scale: 0.5, opacity: 0 }}
+                                animate={{
+                                    scale: [0.5, 1.2, 1],
+                                    opacity: 1,
+                                    rotate: [0, -10, 10, -5, 5, 0], // Shake effect
+                                }}
+                                transition={{
+                                    scale: { duration: 0.5 },
+                                    opacity: { duration: 0.3 },
+                                    rotate: { delay: 0.5, duration: 0.6, ease: "easeInOut" }
+                                }}
+                                style={{
+                                    width: "120px",
+                                    height: "120px",
+                                    position: "relative",
+                                    zIndex: 2, // In front of paper start
+                                    marginTop: "-40px", // Overlap
+                                    filter: "drop-shadow(0 10px 20px rgba(0,0,0,0.2))"
+                                }}
+                            >
+                                <Image
+                                    src="/time_capsule_icon_clean.webp"
+                                    alt="Envelope"
+                                    fill
+                                    style={{ objectFit: "contain" }}
+                                />
+                            </motion.div>
+
+                        </div>
                     </motion.div>
                 )}
             </AnimatePresence>
