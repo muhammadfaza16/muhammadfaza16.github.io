@@ -321,10 +321,11 @@ export default function SpecialDayBentoPage() {
     // Portrait Gallery State
     const [portraitIndex, setPortraitIndex] = useState(0);
     const portraits = [
-        { src: "/portrait_2.webp", label: "Hangat seperti pelukan" },
-        { src: "/portrait_3.webp", label: "Damai dalam dirimu" },
+        { src: "/portrait_4.webp", label: "Sempurna apa adanya" },
         { src: "/portrait_1.webp", label: "Kamu yang selalu bersinar" },
-        { src: "/portrait_4.webp", label: "Sempurna apa adanya" }
+        { src: "/portrait_3.webp", label: "Damai dalam dirimu" },
+        { src: "/portrait_2.webp", label: "Hangat seperti pelukan" },
+        { src: "/portrait_5.webp", label: "Senyum yang tulus" }
     ];
 
     // Birth Date: 28 November 2000
