@@ -537,7 +537,7 @@ export default function ImmersiveMusicPage() {
                                                         width: "36px",
                                                         height: "36px",
                                                         borderRadius: "50%",
-                                                        background: "linear-gradient(135deg, #3b82f6, #8b5cf6)",
+                                                        background: "linear-gradient(135deg, #FFD60A, #FF9F0A)",
                                                         display: "flex",
                                                         alignItems: "center",
                                                         justifyContent: "center",
@@ -587,7 +587,7 @@ export default function ImmersiveMusicPage() {
                                                     <div style={{
                                                         height: "100%",
                                                         width: duration ? `${(currentTime / duration) * 100}%` : "0%",
-                                                        background: "linear-gradient(90deg, #3b82f6, #8b5cf6)",
+                                                        background: "linear-gradient(90deg, #FFD60A, #FF9F0A)",
                                                         borderRadius: "2px",
                                                         transition: "width 0.3s ease"
                                                     }} />
