@@ -185,6 +185,37 @@ export default function GuestNo28Dashboard() {
     const SPECIAL_DATE = new Date("2026-02-09"); // Birthday or special date
     const [currentCardIndex, setCurrentCardIndex] = useState(0);
 
+    // PIN Guard
+    const [isUnlocked, setIsUnlocked] = useState(false);
+    const [pinInput, setPinInput] = useState("");
+    const [pinError, setPinError] = useState(false);
+    const CORRECT_PIN = "2811";
+
+    // Check localStorage for unlock status
+    useEffect(() => {
+        const unlocked = localStorage.getItem("guest28_unlocked");
+        if (unlocked === "true") {
+            setIsUnlocked(true);
+        }
+    }, []);
+
+    const handlePinSubmit = () => {
+        if (pinInput === CORRECT_PIN) {
+            setIsUnlocked(true);
+            localStorage.setItem("guest28_unlocked", "true");
+            setPinError(false);
+        } else {
+            setPinError(true);
+            setPinInput("");
+        }
+    };
+
+    const handlePinKeyDown = (e: React.KeyboardEvent) => {
+        if (e.key === "Enter") {
+            handlePinSubmit();
+        }
+    };
+
     useEffect(() => {
         setMounted(true);
 
@@ -351,6 +382,125 @@ export default function GuestNo28Dashboard() {
     };
 
     if (!mounted) return null;
+
+    // PIN Gate UI
+    if (!isUnlocked) {
+        return (
+            <div style={{
+                minHeight: "100svh",
+                background: "#fdf8f1",
+                backgroundImage: `
+                    radial-gradient(#e5e0d8 1px, transparent 0),
+                    linear-gradient(to right, rgba(0,0,0,0.01) 1px, transparent 1px),
+                    linear-gradient(to bottom, rgba(0,0,0,0.01) 1px, transparent 1px)
+                `,
+                backgroundSize: "40px 40px, 20px 20px, 20px 20px",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                padding: "2rem",
+                fontFamily: "'Crimson Pro', serif"
+            }}>
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    style={{
+                        background: "#fff",
+                        padding: "3rem 2.5rem",
+                        borderRadius: "4px 8px 4px 10px",
+                        border: "1px solid #e8e2d9",
+                        boxShadow: "2px 5px 20px rgba(160, 144, 125, 0.12)",
+                        textAlign: "center",
+                        maxWidth: "320px",
+                        position: "relative"
+                    }}
+                >
+                    {/* Washi Tape */}
+                    <div style={{
+                        position: "absolute",
+                        top: "-12px",
+                        left: "50%",
+                        transform: "translateX(-50%) rotate(-2deg)",
+                        width: "80px",
+                        height: "24px",
+                        backgroundColor: "#b07d62",
+                        opacity: 0.9,
+                        boxShadow: "0 2px 4px rgba(0,0,0,0.18)",
+                        borderRadius: "2px",
+                    }} />
+
+                    <div style={{ marginBottom: "1.5rem" }}>
+                        <Sparkles size={28} color="#b07d62" style={{ marginBottom: "1rem", opacity: 0.6 }} />
+                        <h2 style={{ fontSize: "1.4rem", color: "#4e4439", fontWeight: 600, marginBottom: "0.5rem" }}>
+                            Ruang Pribadi
+                        </h2>
+                        <HandwrittenNote style={{ fontSize: "1rem", opacity: 0.7 }}>
+                            Masukkan 4 digit untuk melanjutkan...
+                        </HandwrittenNote>
+                    </div>
+
+                    <div style={{ marginBottom: "1.5rem" }}>
+                        <input
+                            type="password"
+                            inputMode="numeric"
+                            maxLength={4}
+                            value={pinInput}
+                            onChange={(e) => setPinInput(e.target.value.replace(/\D/g, ""))}
+                            onKeyDown={handlePinKeyDown}
+                            placeholder="• • • •"
+                            style={{
+                                width: "100%",
+                                padding: "1rem",
+                                fontSize: "1.8rem",
+                                textAlign: "center",
+                                letterSpacing: "0.8rem",
+                                border: pinError ? "2px solid #e57373" : "1px solid #e8e2d9",
+                                borderRadius: "8px",
+                                background: "#faf8f5",
+                                color: "#4e4439",
+                                fontFamily: "'Crimson Pro', serif",
+                                outline: "none",
+                                transition: "border-color 0.2s"
+                            }}
+                        />
+                        {pinError && (
+                            <motion.p
+                                initial={{ opacity: 0, y: -5 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                style={{ color: "#e57373", fontSize: "0.85rem", marginTop: "0.5rem" }}
+                            >
+                                Kode tidak tepat
+                            </motion.p>
+                        )}
+                    </div>
+
+                    <motion.button
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                        onClick={handlePinSubmit}
+                        style={{
+                            width: "100%",
+                            padding: "0.8rem 1.5rem",
+                            background: "#b07d62",
+                            color: "#fff",
+                            border: "none",
+                            borderRadius: "6px",
+                            fontSize: "1rem",
+                            fontWeight: 500,
+                            cursor: "pointer",
+                            fontFamily: "'Crimson Pro', serif"
+                        }}
+                    >
+                        Masuk
+                    </motion.button>
+
+                    <p style={{ marginTop: "1.5rem", fontSize: "0.75rem", color: "#aaa" }}>
+                        Petunjuk: Tanggal lahir spesial 💫
+                    </p>
+                </motion.div>
+            </div>
+        );
+    }
 
     const baseCardStyle = {
         transition: "transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1)",
