@@ -154,11 +154,14 @@ export const PLAYLIST = [
 
 export function AudioProvider({ children }: { children: React.ReactNode }) {
     const [isPlaying, setIsPlaying] = useState(false);
-    const [isBuffering, setIsBuffering] = useState(false); // NEW: Track buffering state
-    const [queue, setQueue] = useState(PLAYLIST); // NEW: Dynamic Queue
+    const [isBuffering, setIsBuffering] = useState(false);
+    const [queue, setQueue] = useState(PLAYLIST);
     const [currentIndex, setCurrentIndex] = useState(0);
     const [analyser, setAnalyser] = useState<AnalyserNode | null>(null);
     const [hasInteracted, setHasInteracted] = useState(false);
+
+    // Track intentional pauses to prevent browser-triggered pauses from stopping music
+    const intentionalPauseRef = useRef(false);
 
     // UI Persisted State
     const [showLyrics, setShowLyrics] = useState(true);
@@ -207,7 +210,7 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
     const togglePlay = useCallback(() => {
         if (!audioRef.current) return;
 
-        initializeAudio(); // Ensure context is ready on interaction
+        initializeAudio();
         setHasInteracted(true);
 
         if (audioContextRef.current?.state === 'suspended') {
@@ -215,8 +218,10 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
         }
 
         if (isPlaying) {
+            intentionalPauseRef.current = true; // Mark as intentional pause
             audioRef.current.pause();
         } else {
+            intentionalPauseRef.current = false; // User wants to play
             const playPromise = audioRef.current.play();
             if (playPromise !== undefined) {
                 playPromise
@@ -441,8 +446,24 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
                         setDuration(audioRef.current.duration || 0);
                     }
                 }}
-                onPlay={() => setIsPlaying(true)}
-                onPause={() => setIsPlaying(false)}
+                onPlay={() => {
+                    intentionalPauseRef.current = false;
+                    setIsPlaying(true);
+                }}
+                onPause={() => {
+                    // Only update state if user intentionally paused
+                    // Browser-triggered pauses (navigation, tab switch) should not affect state
+                    if (intentionalPauseRef.current) {
+                        setIsPlaying(false);
+                    } else {
+                        // Try to resume if it was an unintentional pause
+                        setTimeout(() => {
+                            if (audioRef.current && !audioRef.current.paused === false && !intentionalPauseRef.current) {
+                                audioRef.current.play().catch(() => { });
+                            }
+                        }, 100);
+                    }
+                }}
                 onWaiting={() => setIsBuffering(true)} // Buffer started
                 onPlaying={() => setIsBuffering(false)} // Buffer finished, playing
                 onCanPlay={() => setIsBuffering(false)} // Adequate data to start
