@@ -644,47 +644,74 @@ export default function SpecialDayBentoPage() {
                         }}
                     >
 
-                        <BentoCard isMobile={isMobile} style={{ gridColumn: isMobile ? "span 1" : "span 12", minHeight: isMobile ? "auto" : "320px" }} rotate="0.2deg" tapeColor="#87b0a5">
-                            <SectionTitle icon={BookOpen}>Musim-Musim Kehidupanmu</SectionTitle>
+                        {/* 1. Polaroid Portrait Card */}
+                        <BentoCard isMobile={isMobile} style={{ gridColumn: isMobile ? "span 1" : "span 12", minHeight: isMobile ? "auto" : "380px", display: "flex", alignItems: "center", justifyContent: "center" }} rotate="0deg" tapeColor="#87b0a5">
                             <div style={{
-                                position: "absolute",
-                                bottom: isMobile ? "-30px" : "-50px",
-                                right: isMobile ? "-30px" : "-20px",
-                                width: isMobile ? "220px" : "400px",
-                                height: isMobile ? "220px" : "400px",
-                                opacity: 0.35,
-                                transform: isMobile ? "rotate(8deg)" : "rotate(-3deg)",
-                                pointerEvents: "none",
-                                zIndex: 0
+                                display: "flex",
+                                flexDirection: isMobile ? "column" : "row",
+                                alignItems: "center",
+                                gap: isMobile ? "2rem" : "4rem",
+                                padding: isMobile ? "1rem" : "2rem"
                             }}>
-                                <Image src="/special_hijabi_main.png" alt="" fill style={{ objectFit: "contain" }} />
-                            </div>
-                            <div style={{ display: "flex", flexDirection: isMobile ? "column" : "row", gap: isMobile ? "2rem" : "4rem", marginTop: "1rem", position: "relative" }}>
-                                {/* Golden Thread (Dashed Line) */}
-                                {!isMobile && (
-                                    <div style={{ position: "absolute", top: "24px", left: "1.5rem", right: "2rem", height: "2px", borderTop: "2px dashed #e8e2d9", zIndex: 0 }} />
-                                )}
-                                {[
-                                    { year: "2000 - 2007", title: "Pijar Cahaya Pertama", desc: "Saat dunia pertama kali menyapamu dengan hangat.", icon: Sparkles },
-                                    { year: "2007 - 2018", title: "Nyala yang Mulai Membara", desc: "Masa merangkai mimpi dan melukis warna-warni kisah.", icon: Star },
-                                    { year: "2018 - Kini", title: "Hangat yang Menenangkan", desc: "Menjadi melodi paling tenang di tengah riuh dunia.", icon: Heart }
-                                ].map((chapter, i) => (
-                                    <div key={i} style={{ flex: 1, position: "relative", paddingLeft: isMobile ? "1.5rem" : "0", borderLeft: isMobile ? "1px dashed #e5e0d8" : "none", zIndex: 1 }}>
-                                        {!isMobile && i > 0 && <div style={{ position: "absolute", left: "-1rem", top: "1.5rem", width: "1rem", borderTop: "1px dashed #e5e0d8" }} />} {/* Remove old mobile connectors if simplifying */}
-                                        <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "8px" }}>
-                                            <div style={{
-                                                width: "36px", height: "36px", borderRadius: "50%", background: "#fff",
-                                                border: "1px solid #e8e2d9", display: "flex", alignItems: "center", justifyContent: "center",
-                                                boxShadow: "0 0 15px rgba(176, 125, 98, 0.15)" // Halo effect
-                                            }}>
-                                                <chapter.icon size={16} color="#b07d62" />
-                                            </div>
-                                            <span style={{ fontSize: "0.7rem", fontWeight: 700, color: "#aaa" }}>{chapter.year}</span>
-                                        </div>
-                                        <h4 style={{ fontSize: "1.1rem", fontWeight: 700, color: "#4e4439" }}>{chapter.title}</h4>
-                                        <HandwrittenNote style={{ fontSize: "1rem", marginTop: "4px" }}>{chapter.desc}</HandwrittenNote>
+                                {/* Polaroid Frame */}
+                                <motion.div
+                                    initial={{ rotate: -3 }}
+                                    animate={{ rotate: [-3, -1, -3] }}
+                                    transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+                                    style={{
+                                        background: "#fff",
+                                        padding: "12px 12px 40px 12px",
+                                        boxShadow: "0 8px 30px rgba(0,0,0,0.12), 0 2px 8px rgba(0,0,0,0.08)",
+                                        position: "relative"
+                                    }}
+                                >
+                                    <div style={{
+                                        width: isMobile ? "200px" : "260px",
+                                        height: isMobile ? "240px" : "300px",
+                                        position: "relative",
+                                        overflow: "hidden",
+                                        background: "#faf8f5"
+                                    }}>
+                                        <Image
+                                            src="/polaroid_portrait.png"
+                                            alt="Portrait Sketch"
+                                            fill
+                                            style={{ objectFit: "cover", objectPosition: "center top" }}
+                                        />
                                     </div>
-                                ))}
+                                    {/* Polaroid Caption */}
+                                    <div style={{
+                                        position: "absolute",
+                                        bottom: "8px",
+                                        left: "0",
+                                        right: "0",
+                                        textAlign: "center"
+                                    }}>
+                                        <HandwrittenNote style={{ fontSize: "1rem", color: "#8a7058" }}>
+                                            28 November
+                                        </HandwrittenNote>
+                                    </div>
+                                </motion.div>
+
+                                {/* Text Content */}
+                                <div style={{ textAlign: isMobile ? "center" : "left", maxWidth: "400px" }}>
+                                    <div style={{ fontSize: "0.7rem", color: "#a0907d", textTransform: "uppercase", letterSpacing: "2px", marginBottom: "0.5rem" }}>
+                                        Untukmu
+                                    </div>
+                                    <h3 style={{
+                                        fontSize: isMobile ? "1.8rem" : "2.2rem",
+                                        fontWeight: 300,
+                                        color: "#4e4439",
+                                        fontFamily: "'Crimson Pro', serif",
+                                        lineHeight: 1.3,
+                                        marginBottom: "1rem"
+                                    }}>
+                                        Jiwa yang lahir di hari yang istimewa
+                                    </h3>
+                                    <HandwrittenNote style={{ fontSize: "1.1rem", lineHeight: 1.6, opacity: 0.8 }}>
+                                        Setiap garis di sketsa ini adalah pengingat bahwa keberadaanmu layak untuk diabadikan.
+                                    </HandwrittenNote>
+                                </div>
                             </div>
                         </BentoCard>
 

@@ -29,6 +29,8 @@ const nextConfig: NextConfig = {
     qualities: [75, 90],
   },
   reactCompiler: true,
+  // Acknowledge Next.js 16 Turbopack default
+  turbopack: {},
 };
 
 export default withPWA(nextConfig);
