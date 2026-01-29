@@ -233,14 +233,25 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
     }, [isPlaying]);
 
     // Periodic sync: if isPlaying is true but audio is paused (desync from navigation), resume it
+    // Optimization: Only run interval for 3 seconds after isPlaying becomes true (covers navigation period)
     useEffect(() => {
         if (!isPlaying) return;
 
+        let attempts = 0;
+        const maxAttempts = 6; // 6 attempts * 500ms = 3 seconds coverage
+
         const syncInterval = setInterval(() => {
-            if (audioRef.current && isPlaying && audioRef.current.paused && !intentionalPauseRef.current) {
+            attempts++;
+
+            if (audioRef.current && audioRef.current.paused && !intentionalPauseRef.current) {
                 audioRef.current.play().catch(() => { });
             }
-        }, 500); // Check every 500ms
+
+            // Stop checking after 3 seconds - if still broken, user needs to interact
+            if (attempts >= maxAttempts) {
+                clearInterval(syncInterval);
+            }
+        }, 500);
 
         return () => clearInterval(syncInterval);
     }, [isPlaying]);
