@@ -703,7 +703,7 @@ export default function GuestNo28Dashboard() {
                     transition={{ opacity: { duration: 1 }, y: { duration: 8, repeat: Infinity, ease: "easeInOut" }, rotate: { duration: 10, repeat: Infinity, ease: "easeInOut" } }}
                     style={{ position: "fixed", top: "8%", left: isMobile ? "3%" : "8%", width: isMobile ? "100px" : "130px", height: isMobile ? "100px" : "130px", zIndex: 1, pointerEvents: "none" }}
                 >
-                    <Image src="/detail_lavender.png" alt="" fill style={{ objectFit: 'contain' }} />
+                    <Image src="/detail_lavender.webp" alt="" fill style={{ objectFit: 'contain' }} />
                 </motion.div>
 
                 <motion.div
@@ -712,7 +712,7 @@ export default function GuestNo28Dashboard() {
                     transition={{ opacity: { duration: 1, delay: 0.3 }, y: { duration: 9, repeat: Infinity, ease: "easeInOut" }, rotate: { duration: 11, repeat: Infinity, ease: "easeInOut" } }}
                     style={{ position: "fixed", bottom: "18%", right: isMobile ? "3%" : "6%", width: isMobile ? "90px" : "120px", height: isMobile ? "90px" : "120px", zIndex: 1, pointerEvents: "none" }}
                 >
-                    <Image src="/detail_leaf.png" alt="" fill style={{ objectFit: 'contain' }} />
+                    <Image src="/detail_leaf.webp" alt="" fill style={{ objectFit: 'contain' }} />
                 </motion.div>
             </>
 
@@ -731,7 +731,7 @@ export default function GuestNo28Dashboard() {
                 }}
                 style={{ position: "fixed", top: "15%", right: "5%", width: "45vh", height: "45vh", zIndex: 1, pointerEvents: "none", mixBlendMode: "multiply" }}
             >
-                <Image src="/hijabi_details.png" alt="Detailed Personal Sketch" fill style={{ objectFit: 'contain' }} />
+                <Image src="/hijabi_details.webp" alt="Detailed Personal Sketch" fill style={{ objectFit: 'contain' }} />
             </motion.div>
             <div style={{ position: "fixed", inset: 0, opacity: 0.4, pointerEvents: "none", backgroundImage: "url('https://www.transparenttextures.com/patterns/natural-paper.png')", zIndex: 5 }} />
 
@@ -772,7 +772,7 @@ export default function GuestNo28Dashboard() {
                                 WebkitMaskImage: "radial-gradient(circle, black 40%, transparent 70%)"
                             }}
                         >
-                            <Image src="/watercolor_splash.png" alt="" fill style={{ objectFit: "contain" }} priority />
+                            <Image src="/watercolor_splash.webp" alt="" fill style={{ objectFit: "contain" }} priority />
                         </motion.div>
 
                         {/* Minimalist Date Display */}
@@ -841,7 +841,7 @@ export default function GuestNo28Dashboard() {
 
                                 {/* Central Sketch Illustration */}
                                 <div style={{ position: "relative", width: "200px", height: "150px", marginBottom: "1rem", marginTop: "1rem", mixBlendMode: "multiply" }}>
-                                    <Image src="/sketch_envelope_flower_v2.png" alt="Vintage Envelope Sketch" fill style={{ objectFit: "contain" }} />
+                                    <Image src="/sketch_envelope_flower_v2.webp" alt="Vintage Envelope Sketch" fill style={{ objectFit: "contain" }} />
                                 </div>
 
                                 <div style={{ position: "relative", zIndex: 1 }}>
@@ -877,7 +877,7 @@ export default function GuestNo28Dashboard() {
 
                                 {/* Central Sketch Illustration */}
                                 <div style={{ position: "relative", width: "210px", height: "180px", marginBottom: "1rem", marginTop: "1rem", mixBlendMode: "multiply", transform: "rotate(-2deg)" }}>
-                                    <Image src="/sketch_gift_box.png" alt="Vintage Gift Box Sketch" fill style={{ objectFit: "contain" }} />
+                                    <Image src="/sketch_gift_box.webp" alt="Vintage Gift Box Sketch" fill style={{ objectFit: "contain" }} />
                                 </div>
 
                                 <div style={{ position: "relative", zIndex: 1 }}>
@@ -933,7 +933,7 @@ export default function GuestNo28Dashboard() {
                             ))}
 
                             <div style={{ position: "absolute", top: "5px", right: "5px", width: "100px", height: "100px", opacity: 0.6, transform: "rotate(-15deg)", pointerEvents: "none", zIndex: 0, mixBlendMode: "multiply" }}>
-                                <Image src="/lavender_sketch.png" alt="" fill style={{ objectFit: "contain" }} />
+                                <Image src="/lavender_sketch.webp" alt="" fill style={{ objectFit: "contain" }} />
                             </div>
                             <div style={{ position: "relative", zIndex: 1 }}>
                                 <SectionTitle icon={Sparkles}>Haiku Kecil</SectionTitle>

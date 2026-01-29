@@ -320,7 +320,7 @@ export default function SpecialDayBentoPage() {
 
     // Portrait Gallery State
     const [portraitIndex, setPortraitIndex] = useState(0);
-    const portraits = ["/portrait_1.png", "/portrait_2.png", "/portrait_3.png", "/portrait_4.png"];
+    const portraits = ["/portrait_1.webp", "/portrait_2.webp", "/portrait_3.webp", "/portrait_4.webp"];
 
     // Birth Date: 28 November 2000
     const birthDate = new Date(2000, 10, 28);
@@ -610,7 +610,7 @@ export default function SpecialDayBentoPage() {
                         transition={{ opacity: { duration: 1 }, y: { duration: 6, repeat: Infinity, ease: "easeInOut" }, rotate: { duration: 7, repeat: Infinity, ease: "easeInOut" } }}
                         style={{ position: "fixed", top: "2%", left: "8%", width: "200px", height: "200px", zIndex: 1, pointerEvents: "none" }}
                     >
-                        <Image src="/special_peony.png" alt="" fill style={{ objectFit: 'contain' }} />
+                        <Image src="/special_peony.webp" alt="" fill style={{ objectFit: 'contain' }} />
                     </motion.div>
 
                     <motion.div
@@ -619,7 +619,7 @@ export default function SpecialDayBentoPage() {
                         transition={{ opacity: { duration: 1, delay: 0.4 }, y: { duration: 7, repeat: Infinity, ease: "easeInOut" }, rotate: { duration: 8, repeat: Infinity, ease: "easeInOut" } }}
                         style={{ position: "fixed", bottom: "15%", left: "5%", width: "180px", height: "180px", zIndex: 1, pointerEvents: "none" }}
                     >
-                        <Image src="/special_wildflowers.png" alt="" fill style={{ objectFit: 'contain' }} />
+                        <Image src="/special_wildflowers.webp" alt="" fill style={{ objectFit: 'contain' }} />
                     </motion.div>
                 </>
             )}
@@ -763,7 +763,7 @@ export default function SpecialDayBentoPage() {
                                 pointerEvents: "none",
                                 zIndex: 0
                             }}>
-                                <Image src="/special_hijabi_main.png" alt="" fill style={{ objectFit: "contain" }} />
+                                <Image src="/special_hijabi_main.webp" alt="" fill style={{ objectFit: "contain" }} />
                             </div>
                             <div style={{ display: "flex", flexDirection: isMobile ? "column" : "row", gap: isMobile ? "1.5rem" : "3rem", marginTop: "1rem", position: "relative" }}>
                                 {/* Golden Thread (Dashed Line) */}
@@ -934,7 +934,7 @@ export default function SpecialDayBentoPage() {
                         {/* 5. Bisikan Sanubari (Consolidated Wisdom) */}
                         <BentoCard isMobile={isMobile} style={{ gridColumn: isMobile ? "span 1" : "span 12", padding: isMobile ? "3rem 1.8rem" : "6rem 4rem", background: "#fefbfc" }} rotate="0deg" tapeColor="#f08bb1">
                             <div style={{ position: "absolute", bottom: "-10px", right: "-10px", width: "140px", height: "140px", opacity: 0.85, transform: "rotate(-15deg)", pointerEvents: "none", zIndex: 0, mixBlendMode: "multiply" }}>
-                                <Image src="/special_peony.png" alt="" fill style={{ objectFit: "contain" }} />
+                                <Image src="/special_peony.webp" alt="" fill style={{ objectFit: "contain" }} />
                             </div>
                             <div style={{ maxWidth: "800px", margin: "0 auto", textAlign: "center", position: "relative", zIndex: 1 }}>
                                 <Wind size={24} color="#b07d62" style={{ margin: "0 auto 1.5rem", opacity: 0.3 }} />
