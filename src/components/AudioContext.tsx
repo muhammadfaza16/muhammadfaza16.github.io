@@ -201,6 +201,50 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [isPlaying, setTheme]);
 
+    // Auto-resume audio when page visibility/focus changes
+    // This handles browser pausing audio during navigation or tab switches
+    useEffect(() => {
+        const attemptResumeIfNeeded = () => {
+            if (audioRef.current && isPlaying && audioRef.current.paused && !intentionalPauseRef.current) {
+                audioRef.current.play().catch(() => {
+                    // Silently fail - user may need to interact again
+                });
+            }
+        };
+
+        const handleVisibilityChange = () => {
+            if (document.visibilityState === 'visible') {
+                // Small delay to let browser stabilize after tab switch
+                setTimeout(attemptResumeIfNeeded, 100);
+            }
+        };
+
+        const handleFocus = () => {
+            setTimeout(attemptResumeIfNeeded, 100);
+        };
+
+        document.addEventListener('visibilitychange', handleVisibilityChange);
+        window.addEventListener('focus', handleFocus);
+
+        return () => {
+            document.removeEventListener('visibilitychange', handleVisibilityChange);
+            window.removeEventListener('focus', handleFocus);
+        };
+    }, [isPlaying]);
+
+    // Periodic sync: if isPlaying is true but audio is paused (desync from navigation), resume it
+    useEffect(() => {
+        if (!isPlaying) return;
+
+        const syncInterval = setInterval(() => {
+            if (audioRef.current && isPlaying && audioRef.current.paused && !intentionalPauseRef.current) {
+                audioRef.current.play().catch(() => { });
+            }
+        }, 500); // Check every 500ms
+
+        return () => clearInterval(syncInterval);
+    }, [isPlaying]);
+
 
     const initializeAudio = useCallback(() => {
         // DISABLED for Mobile Reliability (Background Play) aka "The Native Way"
