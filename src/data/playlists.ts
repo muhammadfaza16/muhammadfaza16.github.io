@@ -19,7 +19,7 @@ export const PLAYLIST_CATEGORIES: Playlist[] = [
         schedule: "11 PM - 3 AM",
         vibes: ["Melancholic", "Space", "Introspective"],
         coverColor: "#1e3a8a", // Deep Blue
-        coverImage: "/images/playlists/playlist_teman_sunyi_final.png",
+        coverImage: "/images/playlists/playlist_teman_sunyi_final.webp",
         songTitles: [
             "Cigarettes After Sex — Apocalypse",
             "Cigarettes After Sex — Cry",
@@ -42,7 +42,7 @@ export const PLAYLIST_CATEGORIES: Playlist[] = [
         schedule: "Anytime",
         vibes: ["Epic", "Main Character", "Energy"],
         coverColor: "#7c3aed", // Violet
-        coverImage: "/images/playlists/playlist_line_up_inti_final.png",
+        coverImage: "/images/playlists/playlist_line_up_inti_final.webp",
         songTitles: [
             "Alan Walker — Faded",
             "Alan Walker — Darkside",
@@ -65,7 +65,7 @@ export const PLAYLIST_CATEGORIES: Playlist[] = [
         schedule: "5 AM - 9 AM",
         vibes: ["Hopeful", "Morning", "Pop"],
         coverColor: "#f59e0b", // Amber/Gold
-        coverImage: "/images/playlists/playlist_menunggu_pagi_final.png",
+        coverImage: "/images/playlists/playlist_menunggu_pagi_final.webp",
         songTitles: [
             "Surfaces — Sunday Best",
             "Harry Styles — As It Was",
@@ -87,7 +87,7 @@ export const PLAYLIST_CATEGORIES: Playlist[] = [
         schedule: "Late Night / Rainy",
         vibes: ["Nostalgic", "Love", "Acoustic"],
         coverColor: "#be185d", // Pink/Rose
-        coverImage: "/images/playlists/playlist_tentang_dia_final.png",
+        coverImage: "/images/playlists/playlist_tentang_dia_final.webp",
         songTitles: [
             "Lewis Capaldi — Someone You Loved",
             "Olivia Rodrigo — Happier",

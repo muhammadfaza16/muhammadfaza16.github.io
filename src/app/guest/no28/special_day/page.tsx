@@ -321,7 +321,15 @@ const TimeCapsule = ({ onClick }: { onClick: () => void }) => (
             filter: "drop-shadow(0 4px 6px rgba(160, 144, 125, 0.3))"
         }}
     >
-        <Image src="/time_capsule_icon.webp" alt="Time Capsule" fill style={{ objectFit: "contain" }} />
+        <Image
+            src="/time_capsule_icon.webp"
+            alt="Time Capsule"
+            fill
+            style={{
+                objectFit: "contain",
+                mixBlendMode: "multiply"
+            }}
+        />
     </motion.div>
 );
 
@@ -344,11 +352,11 @@ export default function SpecialDayBentoPage() {
     // Portrait Gallery State
     const [portraitIndex, setPortraitIndex] = useState(0);
     const portraits = [
-        { src: "/portrait_4.webp", label: "Sempurna apa adanya" },
-        { src: "/portrait_1.webp", label: "Kamu yang selalu bersinar" },
-        { src: "/portrait_3.webp", label: "Damai dalam dirimu" },
-        { src: "/portrait_2.webp", label: "Hangat seperti pelukan" },
-        { src: "/portrait_5.webp", label: "Senyum yang tulus" }
+        { src: "/portrait_4.webp", label: "Hadirmu selalu membawa tenang" },
+        { src: "/portrait_1.webp", label: "Bersinar tanpa perlu banyak bicara" },
+        { src: "/portrait_3.webp", label: "Damai yang meneduhkan jiwa" },
+        { src: "/portrait_2.webp", label: "Hangat yang tak tergantikan" },
+        { src: "/portrait_5.webp", label: "Terima kasih sudah menjadi kamu" }
     ];
 
     // Birth Date: 28 November 2000

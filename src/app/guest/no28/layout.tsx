@@ -41,41 +41,43 @@ export default function GuestLayout({ children }: { children: React.ReactNode })
                 onEnded={() => setIsPlaying(false)}
             />
 
-            {/* Floating Music Button */}
-            <motion.button
-                initial={{ scale: 0, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                transition={{ delay: 1, type: "spring" }}
-                whileTap={{ scale: 0.9 }}
-                onClick={toggleSong}
-                style={{
-                    position: "fixed",
-                    bottom: "100px",
-                    right: "20px",
-                    width: "56px",
-                    height: "56px",
-                    borderRadius: "50%",
-                    background: isPlaying
-                        ? "linear-gradient(135deg, #ff6b6b 0%, #ee5a5a 100%)"
-                        : "linear-gradient(135deg, #b07d62 0%, #d2a679 100%)",
-                    border: "none",
-                    boxShadow: isPlaying
-                        ? "0 4px 20px rgba(255,107,107,0.4)"
-                        : "0 4px 15px rgba(176,125,98,0.3)",
-                    cursor: "pointer",
-                    zIndex: 1000,
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    fontSize: "1.5rem"
-                }}
-            >
-                {isPlaying ? "🎵" : "🎶"}
-            </motion.button>
+            {/* Floating Music Button - Hidden on Special Day */}
+            {!pathname.includes("/special_day") && (
+                <motion.button
+                    initial={{ scale: 0, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    transition={{ delay: 1, type: "spring" }}
+                    whileTap={{ scale: 0.9 }}
+                    onClick={toggleSong}
+                    style={{
+                        position: "fixed",
+                        bottom: "100px",
+                        right: "20px",
+                        width: "56px",
+                        height: "56px",
+                        borderRadius: "50%",
+                        background: isPlaying
+                            ? "linear-gradient(135deg, #ff6b6b 0%, #ee5a5a 100%)"
+                            : "linear-gradient(135deg, #b07d62 0%, #d2a679 100%)",
+                        border: "none",
+                        boxShadow: isPlaying
+                            ? "0 4px 20px rgba(255,107,107,0.4)"
+                            : "0 4px 15px rgba(176,125,98,0.3)",
+                        cursor: "pointer",
+                        zIndex: 1000,
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        fontSize: "1.5rem"
+                    }}
+                >
+                    {isPlaying ? "🎵" : "🎶"}
+                </motion.button>
+            )}
 
             {/* Floating Notes Animation - Polished & Smoother */}
             <AnimatePresence>
-                {isPlaying && (
+                {isPlaying && !pathname.includes("/special_day") && (
                     <div style={{ position: "fixed", bottom: "160px", right: "25px", zIndex: 999, pointerEvents: "none" }}>
                         {[0, 1, 2, 3].map(i => (
                             <motion.div

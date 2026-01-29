@@ -730,7 +730,7 @@ export default function GuestNo28Dashboard() {
                             zIndex: 20
                         }}>
 
-                        <Link href="/guest/no28/letter" style={{ textDecoration: "none", width: isMobile ? "92%" : "auto", alignSelf: isMobile ? "flex-start" : "auto", display: "block" }}>
+                        <Link href="/guest/no28/letter" scroll={false} style={{ textDecoration: "none", width: isMobile ? "92%" : "auto", alignSelf: isMobile ? "flex-start" : "auto", display: "block" }}>
                             <motion.div
                                 variants={itemVariants}
                                 whileHover={{ scale: 1.02, y: -5, rotate: -1, boxShadow: "0 15px 30px rgba(0,0,0,0.12)" }}
@@ -766,7 +766,7 @@ export default function GuestNo28Dashboard() {
                             </motion.div>
                         </Link>
 
-                        <Link href="/guest/no28/special_day" style={{ textDecoration: "none", width: isMobile ? "92%" : "auto", alignSelf: isMobile ? "flex-end" : "auto", display: "block" }}>
+                        <Link href="/guest/no28/special_day" scroll={false} style={{ textDecoration: "none", width: isMobile ? "92%" : "auto", alignSelf: isMobile ? "flex-end" : "auto", display: "block" }}>
                             <motion.div
                                 variants={itemVariants}
                                 whileHover={{ scale: 1.02, y: -5, rotate: 2, boxShadow: "0 15px 30px rgba(0,0,0,0.12)" }}
