@@ -180,8 +180,9 @@ export default function GuestNo28Dashboard() {
 
     // Parallax Effects
     const { scrollY } = useScroll();
-    const headerParallax = useTransform(scrollY, [0, 500], [0, 200]); // Moves down 200px as we scroll 500px
-    const cardsParallax = useTransform(scrollY, [0, 500], [0, -50]);  // Moves up slightly
+    const headerParallax = useTransform(scrollY, [0, 500], [0, -150]); // Moves UP as we scroll down
+    const headerOpacity = useTransform(scrollY, [0, 300], [1, 0]);     // Fades OUT
+    const cardsParallax = useTransform(scrollY, [0, 500], [0, 0]);     // Keep cards stable
 
 
     // Extended features
@@ -296,7 +297,7 @@ export default function GuestNo28Dashboard() {
     useEffect(() => {
         let lastX = 0, lastY = 0, lastZ = 0;
         let lastShakeTime = 0;
-        const SHAKE_THRESHOLD = 25;
+        const SHAKE_THRESHOLD = 35; // Increased to prevent false positives/jitter
 
         const handleMotion = (e: DeviceMotionEvent) => {
             const acc = e.accelerationIncludingGravity;
@@ -682,7 +683,7 @@ export default function GuestNo28Dashboard() {
                         </Link>
                     </div>
 
-                    <motion.div style={{ y: headerParallax }}>
+                    <motion.div style={{ y: headerParallax, opacity: headerOpacity, willChange: "transform, opacity" }}>
                         <motion.div
                             initial={{ opacity: 0, y: 10 }}
                             animate={{ opacity: 1, y: 0 }}
@@ -749,7 +750,8 @@ export default function GuestNo28Dashboard() {
                             gap: isMobile ? "2rem" : "3.5rem",
                             marginBottom: "2.5rem",
                             position: "relative",
-                            zIndex: 20
+                            zIndex: 20,
+                            willChange: "transform"
                         }}>
 
                         <Link href="/guest/no28/letter" scroll={false} style={{ textDecoration: "none", width: isMobile ? "92%" : "auto", alignSelf: isMobile ? "flex-start" : "auto", display: "block" }}>
