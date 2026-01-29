@@ -888,9 +888,9 @@ export default function SpecialDayBentoPage() {
                                     <p style={{
                                         fontFamily: "'Crimson Pro', serif", fontSize: "1.1rem", lineHeight: 1.8, color: "#4e4439", marginBottom: "1.5rem"
                                     }}>
-                                        Banyak yang bilang 25 adalah fase yang membingungkan. Seolah kamu harus memilih satu jalan pasti saat hatimu masih ingin menjelajah segalanya.
+                                        Banyak yang bilang usia 25 adalah fase yang membingungkan. Seolah kamu harus memilih satu jalan pasti saat hatimu masih ingin menjelajah segalanya.
                                         <br /><br />
-                                        Tapi percayalah, ini adalah <strong>usia terindah</strong>. Kakimu sudah cukup kuat untuk berdiri sendiri, tapi hatimu masih cukup lembut untuk bermimpi liar.
+                                        Tapi percayalah, ini adalah <strong>usia terindah</strong>. Kakimu sudah cukup kuat untuk berdiri sendiri, tapi hatimu masih cukup lembut untuk memimpikan banyak hal.
                                         Kamu tidak terlambat. Kamu tidak tertinggal. Kamu sedang mekar tepat pada waktunya.
                                     </p>
                                     <div style={{ display: "flex", alignItems: "center", gap: "10px", marginTop: "1rem" }}>
