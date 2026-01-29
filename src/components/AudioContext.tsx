@@ -452,16 +452,26 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
                 }}
                 onPause={() => {
                     // Only update state if user intentionally paused
-                    // Browser-triggered pauses (navigation, tab switch) should not affect state
+                    // Browser-triggered pauses (navigation, tab switch, DOM changes) should not affect state
                     if (intentionalPauseRef.current) {
                         setIsPlaying(false);
                     } else {
-                        // Try to resume if it was an unintentional pause
-                        setTimeout(() => {
-                            if (audioRef.current && !audioRef.current.paused === false && !intentionalPauseRef.current) {
-                                audioRef.current.play().catch(() => { });
-                            }
-                        }, 100);
+                        // Unintentional pause detected - attempt to resume
+                        // Use multiple retries with increasing delays for robustness
+                        const attemptResume = (attempt: number) => {
+                            if (attempt > 3) return; // Max 3 attempts
+
+                            setTimeout(() => {
+                                if (audioRef.current && audioRef.current.paused && !intentionalPauseRef.current) {
+                                    audioRef.current.play().catch(() => {
+                                        // If failed, retry with longer delay
+                                        attemptResume(attempt + 1);
+                                    });
+                                }
+                            }, attempt * 100); // 100ms, 200ms, 300ms delays
+                        };
+
+                        attemptResume(1);
                     }
                 }}
                 onWaiting={() => setIsBuffering(true)} // Buffer started
