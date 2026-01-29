@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useMemo, useRef } from "react";
-import { motion, Variants, AnimatePresence } from "framer-motion";
+import { motion, Variants, AnimatePresence, useScroll, useTransform } from "framer-motion";
 import { Home, Mail, Calendar, Quote, Sparkles, ChevronRight, BookOpen, Wind, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
@@ -176,6 +176,12 @@ export default function GuestNo28Dashboard() {
     const [hearts, setHearts] = useState<{ id: number; x: number; y: number }[]>([]);
     const [longPressHearts, setLongPressHearts] = useState<{ id: number; x: number; y: number }[]>([]);
     const [pullRefreshMessage, setPullRefreshMessage] = useState("");
+
+    // Parallax Effects
+    const { scrollY } = useScroll();
+    const headerParallax = useTransform(scrollY, [0, 500], [0, 200]); // Moves down 200px as we scroll 500px
+    const cardsParallax = useTransform(scrollY, [0, 500], [0, -50]);  // Moves up slightly
+
 
     // Extended features
     // Extended features
@@ -662,58 +668,60 @@ export default function GuestNo28Dashboard() {
                         </Link>
                     </div>
 
-                    <motion.div
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 1 }}
-                        style={{ marginBottom: isMobile ? "4rem" : "15vh", textAlign: "center", position: "relative" }}
-                    >
-                        {/* Watercolor Splash Behind Text */}
+                    <motion.div style={{ y: headerParallax }}>
                         <motion.div
-                            initial={{ opacity: 0, scale: 0.8 }}
-                            animate={{ opacity: 0.8, scale: 1 }}
-                            transition={{ duration: 1.5, delay: 0.5 }}
-                            style={{
-                                position: "absolute",
-                                top: "50%",
-                                left: "50%",
-                                transform: "translate(-50%, -50%)",
-                                width: "350px",
-                                height: "350px",
-                                zIndex: -1,
-                                pointerEvents: "none",
-                                mixBlendMode: "multiply",
-                                maskImage: "radial-gradient(circle, black 40%, transparent 70%)",
-                                WebkitMaskImage: "radial-gradient(circle, black 40%, transparent 70%)"
-                            }}
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 1 }}
+                            style={{ marginBottom: isMobile ? "4rem" : "15vh", textAlign: "center", position: "relative" }}
                         >
-                            <Image src="/watercolor_splash.webp" alt="" fill style={{ objectFit: "contain" }} priority />
+                            {/* Watercolor Splash Behind Text */}
+                            <motion.div
+                                initial={{ opacity: 0, scale: 0.8 }}
+                                animate={{ opacity: 0.8, scale: 1 }}
+                                transition={{ duration: 1.5, delay: 0.5 }}
+                                style={{
+                                    position: "absolute",
+                                    top: "50%",
+                                    left: "50%",
+                                    transform: "translate(-50%, -50%)",
+                                    width: "350px",
+                                    height: "350px",
+                                    zIndex: -1,
+                                    pointerEvents: "none",
+                                    mixBlendMode: "multiply",
+                                    maskImage: "radial-gradient(circle, black 40%, transparent 70%)",
+                                    WebkitMaskImage: "radial-gradient(circle, black 40%, transparent 70%)"
+                                }}
+                            >
+                                <Image src="/watercolor_splash.webp" alt="" fill style={{ objectFit: "contain" }} priority />
+                            </motion.div>
+
+                            {/* Minimalist Date Display */}
+                            <div style={{
+                                fontFamily: "'Crimson Pro', serif",
+                                fontSize: "0.9rem",
+                                color: "#8a7058",
+                                textTransform: "uppercase",
+                                letterSpacing: "3px",
+                                marginBottom: "1rem",
+                                opacity: 0.9,
+                                fontWeight: 600
+                            }}>
+                                {new Date().toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
+                            </div>
+
+                            <h1 style={{ fontSize: "clamp(3rem, 10vw, 4.5rem)", fontWeight: 500, color: "#2d2d2d", lineHeight: 1.1, fontFamily: "'Playfair Display', serif", fontStyle: "italic", marginBottom: "0.5rem" }}>
+                                {greeting},
+                            </h1>
+                            <h2 style={{ fontSize: "2.2rem", fontWeight: 400, color: "#b07d62", fontFamily: "'Caveat', cursive", marginTop: "0" }}>
+                                untuk Tamu ke-28
+                            </h2>
+
+                            <p style={{ marginTop: "1.5rem", fontSize: "1.1rem", color: "#666", fontStyle: "italic", maxWidth: "500px", marginInline: "auto" }}>
+                                "{subtext}"
+                            </p>
                         </motion.div>
-
-                        {/* Minimalist Date Display */}
-                        <div style={{
-                            fontFamily: "'Crimson Pro', serif",
-                            fontSize: "0.9rem",
-                            color: "#8a7058",
-                            textTransform: "uppercase",
-                            letterSpacing: "3px",
-                            marginBottom: "1rem",
-                            opacity: 0.9,
-                            fontWeight: 600
-                        }}>
-                            {new Date().toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
-                        </div>
-
-                        <h1 style={{ fontSize: "clamp(3rem, 10vw, 4.5rem)", fontWeight: 500, color: "#2d2d2d", lineHeight: 1.1, fontFamily: "'Playfair Display', serif", fontStyle: "italic", marginBottom: "0.5rem" }}>
-                            {greeting},
-                        </h1>
-                        <h2 style={{ fontSize: "2.2rem", fontWeight: 400, color: "#b07d62", fontFamily: "'Caveat', cursive", marginTop: "0" }}>
-                            untuk Tamu ke-28
-                        </h2>
-
-                        <p style={{ marginTop: "1.5rem", fontSize: "1.1rem", color: "#666", fontStyle: "italic", maxWidth: "500px", marginInline: "auto" }}>
-                            "{subtext}"
-                        </p>
                     </motion.div>
 
                     <motion.div
