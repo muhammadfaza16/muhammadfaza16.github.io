@@ -8,6 +8,7 @@ import { FloatingZenToggle } from "@/components/FloatingZenToggle";
 import { NativeBrowserGuard } from "@/components/NativeBrowserGuard";
 import { AudioProvider } from "@/components/AudioContext";
 import { NarrativeProvider } from "@/components/NarrativeContext";
+import { GuestAudioPlayer } from "@/components/GuestAudioPlayer";
 
 export const metadata: Metadata = {
   title: "The Almanack of Broken Wanderer.",
@@ -107,6 +108,7 @@ export default function RootLayout({
                 <FloatingZenToggle />
                 <NativeBrowserGuard />
                 <LayoutShell>
+                  <GuestAudioPlayer />
                   {children}
                 </LayoutShell>
               </ZenProvider>
