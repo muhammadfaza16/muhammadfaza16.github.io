@@ -1004,26 +1004,7 @@ export default function GuestNo28Dashboard() {
                         </HandwrittenNote>
                     </motion.div>
 
-                    {/* Shake hint for mobile */}
-                    {isMobile && (
-                        <motion.div
-                            initial={{ opacity: 0, y: 10 }}
-                            animate={{ opacity: 0.5, y: 0 }}
-                            transition={{ delay: 3, duration: 1 }}
-                            style={{
-                                textAlign: "center",
-                                marginBottom: "2rem",
-                                padding: "0.8rem",
-                                background: "rgba(255,255,255,0.5)",
-                                borderRadius: "12px",
-                                border: "1px dashed #d2b48c"
-                            }}
-                        >
-                            <span style={{ fontSize: "0.85rem", color: "#8a7058" }}>
-                                📱 Psst... coba goyangkan HP-mu~
-                            </span>
-                        </motion.div>
-                    )}
+
                 </Container>
             </main >
         </div >

@@ -394,21 +394,32 @@ export default function SpecialDayBentoPage() {
     }, [footerIndex]);
 
     // Heartbeat counter - ~70 BPM average (update every 5s for performance)
+    // Heartbeat counter - ~70 BPM average
     useEffect(() => {
         const msPerHeartbeat = 60000 / 70; // ~857ms per beat
-        const updateHeartbeats = () => {
+
+        // Initial Calculation
+        const calculateBeats = () => {
             const msLived = Date.now() - birthDate.getTime();
-            const beats = Math.floor(msLived / msPerHeartbeat);
-            setHeartbeats(beats);
+            return Math.floor(msLived / msPerHeartbeat);
         };
 
-        // Initial calculation
-        updateHeartbeats();
+        setHeartbeats(calculateBeats());
 
-        // Update every 5 seconds instead of every beat for performance
-        const interval = setInterval(updateHeartbeats, 5000);
+        // Increment by 1 every beat for "alive" feeling
+        const beatInterval = setInterval(() => {
+            setHeartbeats(prev => prev + 1);
+        }, msPerHeartbeat);
 
-        return () => clearInterval(interval);
+        // Sync correction every minute to prevent drift
+        const syncInterval = setInterval(() => {
+            setHeartbeats(calculateBeats());
+        }, 60000);
+
+        return () => {
+            clearInterval(beatInterval);
+            clearInterval(syncInterval);
+        };
     }, []);
 
     // Portrait gallery cycling
@@ -886,27 +897,7 @@ export default function SpecialDayBentoPage() {
                             </div>
                         </BentoCard>
 
-                        {/* 4. Bisikan Sanubari (Consolidated Wisdom) */}
-                        <BentoCard isMobile={isMobile} style={{ gridColumn: isMobile ? "span 1" : "span 12", padding: isMobile ? "3rem 1.8rem" : "6rem 4rem", background: "#fefbfc" }} rotate="0deg" tapeColor="#f08bb1">
-                            <div style={{ position: "absolute", bottom: "-10px", right: "-10px", width: "140px", height: "140px", opacity: 0.85, transform: "rotate(-15deg)", pointerEvents: "none", zIndex: 0, mixBlendMode: "multiply" }}>
-                                <Image src="/special_peony.png" alt="" fill style={{ objectFit: "contain" }} />
-                            </div>
-                            <div style={{ maxWidth: "800px", margin: "0 auto", textAlign: "center", position: "relative", zIndex: 1 }}>
-                                <Wind size={24} color="#b07d62" style={{ margin: "0 auto 1.5rem", opacity: 0.3 }} />
-                                <p
-                                    style={{ fontSize: isMobile ? "1.25rem" : "1.7rem", color: "#4e4439", fontStyle: "italic", lineHeight: 1.7, fontWeight: 300 }}
-                                >
-                                    "{wisdom}"
-                                </p>
-                                <div style={{ marginTop: "3rem", display: "flex", alignItems: "center", justifyContent: "center", gap: "10px" }}>
-                                    <div style={{ width: "20px", height: "1px", background: "#b07d62", opacity: 0.2 }} />
-                                    <HandwrittenNote style={{ fontSize: "1.4rem" }}>Bait Untukmu</HandwrittenNote>
-                                    <div style={{ width: "20px", height: "1px", background: "#b07d62", opacity: 0.2 }} />
-                                </div>
-                            </div>
-                        </BentoCard>
-
-                        {/* 5. Heartbeat Counter Widget */}
+                        {/* 4. Heartbeat Counter Widget (Swapped) */}
                         <BentoCard isMobile={isMobile} style={{ gridColumn: isMobile ? "span 1" : "span 12", textAlign: "center" }} rotate="0.3deg" tapeColor="#87b0a5">
                             <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "1rem", flexWrap: "wrap" }}>
                                 <motion.div
@@ -938,6 +929,26 @@ export default function SpecialDayBentoPage() {
                             <HandwrittenNote style={{ marginTop: "1rem", fontSize: "1rem", opacity: 0.7 }}>
                                 "...dan setiap detaknya adalah bukti bahwa kamu berharga."
                             </HandwrittenNote>
+                        </BentoCard>
+
+                        {/* 5. Bisikan Sanubari (Consolidated Wisdom) */}
+                        <BentoCard isMobile={isMobile} style={{ gridColumn: isMobile ? "span 1" : "span 12", padding: isMobile ? "3rem 1.8rem" : "6rem 4rem", background: "#fefbfc" }} rotate="0deg" tapeColor="#f08bb1">
+                            <div style={{ position: "absolute", bottom: "-10px", right: "-10px", width: "140px", height: "140px", opacity: 0.85, transform: "rotate(-15deg)", pointerEvents: "none", zIndex: 0, mixBlendMode: "multiply" }}>
+                                <Image src="/special_peony.png" alt="" fill style={{ objectFit: "contain" }} />
+                            </div>
+                            <div style={{ maxWidth: "800px", margin: "0 auto", textAlign: "center", position: "relative", zIndex: 1 }}>
+                                <Wind size={24} color="#b07d62" style={{ margin: "0 auto 1.5rem", opacity: 0.3 }} />
+                                <p
+                                    style={{ fontSize: isMobile ? "1.25rem" : "1.7rem", color: "#4e4439", fontStyle: "italic", lineHeight: 1.7, fontWeight: 300 }}
+                                >
+                                    "{wisdom}"
+                                </p>
+                                <div style={{ marginTop: "3rem", display: "flex", alignItems: "center", justifyContent: "center", gap: "10px" }}>
+                                    <div style={{ width: "20px", height: "1px", background: "#b07d62", opacity: 0.2 }} />
+                                    <HandwrittenNote style={{ fontSize: "1.4rem" }}>Bait Untukmu</HandwrittenNote>
+                                    <div style={{ width: "20px", height: "1px", background: "#b07d62", opacity: 0.2 }} />
+                                </div>
+                            </div>
                         </BentoCard>
 
                     </motion.div>
