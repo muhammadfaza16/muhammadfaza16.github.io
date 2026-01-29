@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useMemo, useRef } from "react";
 import { motion, Variants, AnimatePresence } from "framer-motion";
-import { Home, Mail, Calendar, Quote, Sparkles, ChevronRight, BookOpen, Wind } from "lucide-react";
+import { Home, Mail, Calendar, Quote, Sparkles, ChevronRight, BookOpen, Wind, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import { Container } from "@/components/Container";
@@ -743,7 +743,7 @@ export default function GuestNo28Dashboard() {
                             width: "44px", height: "44px", background: "#fff", border: "2px solid #5a5a5a",
                             boxShadow: "2px 2px 0px #5a5a5a", borderRadius: "12px", color: "#5a5a5a", transition: "all 0.2s ease"
                         }}>
-                            <Home size={22} strokeWidth={2} />
+                            <ArrowLeft size={22} strokeWidth={2} />
                         </Link>
                     </div>
 

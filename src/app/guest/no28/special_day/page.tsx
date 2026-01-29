@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useMemo, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Home, Sparkles, Clock, Calendar, Heart, Gift, Activity, Wind, Star, BookOpen, Map, MapPin, Quote } from "lucide-react";
+import { Home, Sparkles, Clock, Calendar, Heart, Gift, Activity, Wind, Star, BookOpen, Map, MapPin, Quote, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import { Container } from "@/components/Container";
@@ -641,7 +641,7 @@ export default function SpecialDayBentoPage() {
                                 width: "44px", height: "44px", background: "#fff", border: "1.2px solid #a0907d",
                                 borderRadius: "12px", color: "#a0907d", boxShadow: "0 2px 10px rgba(160,144,125,0.12)"
                             }}>
-                                <Home size={22} />
+                                <ArrowLeft size={22} />
                             </Link>
                             <div style={{ transform: "rotate(-1deg)" }}>
                                 <div style={{ fontSize: "0.65rem", color: "#a0907d", textTransform: "uppercase", letterSpacing: "2.5px", fontWeight: 700, marginBottom: "-2px" }}>Bingkisan Kecil Untukmu</div>
