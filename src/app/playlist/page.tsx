@@ -83,9 +83,9 @@ export default function ImmersiveMusicPage() {
             );
     }, [activePlaylist, searchQuery]);
 
-    // Detect which playlist is currently playing (if any)
-    const currentlyPlayingPlaylistId = useMemo(() => {
-        if (!isPlaying || queue.length === 0) return null;
+    // Detect which playlist is currently IN THE QUEUE (regardless of playing state)
+    const currentQueuePlaylistId = useMemo(() => {
+        if (queue.length === 0) return null;
 
         // Check each playlist to see if its songs match the current queue
         for (const playlist of PLAYLIST_CATEGORIES) {
@@ -104,10 +104,13 @@ export default function ImmersiveMusicPage() {
             }
         }
         return null;
-    }, [isPlaying, queue]);
+    }, [queue]);
 
-    // Check if the currently selected playlist is playing
-    const isSelectedPlaylistPlaying = isPlaying && selectedPlaylistId && currentlyPlayingPlaylistId === selectedPlaylistId;
+    // Check if the currently selected playlist is playing (for UI state)
+    const isSelectedPlaylistPlaying = isPlaying && selectedPlaylistId && currentQueuePlaylistId === selectedPlaylistId;
+
+    // Check if the selected playlist is in the queue (for toggling vs starting fresh)
+    const isSelectedPlaylistInQueue = selectedPlaylistId && currentQueuePlaylistId === selectedPlaylistId;
 
     return (
         <>
@@ -296,7 +299,7 @@ export default function ImmersiveMusicPage() {
                             {PLAYLIST_CATEGORIES.map((playlist) => {
                                 const isSelected = selectedPlaylistId === playlist.id;
                                 const isDimmed = selectedPlaylistId && !isSelected;
-                                const isNowPlaying = currentlyPlayingPlaylistId === playlist.id;
+                                const isNowPlaying = currentQueuePlaylistId === playlist.id;
 
                                 return (
                                     <div
@@ -374,13 +377,13 @@ export default function ImmersiveMusicPage() {
 
                         {/* Now Playing Playlist Widget (Shows when any playlist is playing) */}
                         <AnimatePresence>
-                            {currentlyPlayingPlaylistId && !selectedPlaylistId && (
+                            {currentQueuePlaylistId && !selectedPlaylistId && (
                                 <motion.div
                                     initial={{ opacity: 0, y: 10 }}
                                     animate={{ opacity: 1, y: 0 }}
                                     exit={{ opacity: 0, y: -10 }}
                                     transition={{ duration: 0.3 }}
-                                    onClick={() => setSelectedPlaylistId(currentlyPlayingPlaylistId)}
+                                    onClick={() => setSelectedPlaylistId(currentQueuePlaylistId)}
                                     style={{
                                         marginTop: "1rem",
                                         padding: "12px 16px",
@@ -399,7 +402,7 @@ export default function ImmersiveMusicPage() {
                                         width: "36px",
                                         height: "36px",
                                         borderRadius: "10px",
-                                        background: PLAYLIST_CATEGORIES.find(p => p.id === currentlyPlayingPlaylistId)?.coverColor || "#FFD60A",
+                                        background: PLAYLIST_CATEGORIES.find(p => p.id === currentQueuePlaylistId)?.coverColor || "#FFD60A",
                                         display: "flex",
                                         alignItems: "center",
                                         justifyContent: "center",
@@ -432,7 +435,7 @@ export default function ImmersiveMusicPage() {
                                             overflow: "hidden",
                                             textOverflow: "ellipsis"
                                         }}>
-                                            {PLAYLIST_CATEGORIES.find(p => p.id === currentlyPlayingPlaylistId)?.title}
+                                            {PLAYLIST_CATEGORIES.find(p => p.id === currentQueuePlaylistId)?.title}
                                         </div>
                                     </div>
 
@@ -622,9 +625,11 @@ export default function ImmersiveMusicPage() {
                                             whileTap={{ scale: 0.95 }}
                                             onClick={() => {
                                                 triggerHaptic();
-                                                if (isSelectedPlaylistPlaying) {
+                                                if (isSelectedPlaylistInQueue) {
+                                                    // Playlist is already in queue, just toggle play/pause
                                                     togglePlay();
                                                 } else {
+                                                    // Different playlist or no queue, start fresh
                                                     playQueue(filteredPlaylist, 0);
                                                 }
                                             }}
