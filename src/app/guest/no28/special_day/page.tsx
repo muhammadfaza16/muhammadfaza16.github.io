@@ -715,6 +715,51 @@ export default function SpecialDayBentoPage() {
                             </div>
                         </BentoCard>
 
+                        {/* 1b. Musim-Musim Kehidupan (Timeline) */}
+                        <BentoCard isMobile={isMobile} style={{ gridColumn: isMobile ? "span 1" : "span 12", minHeight: isMobile ? "auto" : "280px" }} rotate="0.2deg" tapeColor="#e8c9a0">
+                            <SectionTitle icon={BookOpen}>Musim-Musim Kehidupanmu</SectionTitle>
+                            <div style={{
+                                position: "absolute",
+                                bottom: isMobile ? "-30px" : "-50px",
+                                right: isMobile ? "-30px" : "-20px",
+                                width: isMobile ? "180px" : "320px",
+                                height: isMobile ? "180px" : "320px",
+                                opacity: 0.25,
+                                transform: isMobile ? "rotate(8deg)" : "rotate(-3deg)",
+                                pointerEvents: "none",
+                                zIndex: 0
+                            }}>
+                                <Image src="/special_hijabi_main.png" alt="" fill style={{ objectFit: "contain" }} />
+                            </div>
+                            <div style={{ display: "flex", flexDirection: isMobile ? "column" : "row", gap: isMobile ? "1.5rem" : "3rem", marginTop: "1rem", position: "relative" }}>
+                                {/* Golden Thread (Dashed Line) */}
+                                {!isMobile && (
+                                    <div style={{ position: "absolute", top: "24px", left: "1.5rem", right: "2rem", height: "2px", borderTop: "2px dashed #e8e2d9", zIndex: 0 }} />
+                                )}
+                                {[
+                                    { year: "2000 - 2006", title: "Fajar yang Lembut", desc: "Awal dari segalanya — waktu yang membentuk siapa kamu.", icon: Sparkles },
+                                    { year: "2006 - 2018", title: "Musim Bertumbuh", desc: "Tahun-tahun penuh warna, belajar, dan menemukan diri.", icon: Star },
+                                    { year: "2018 - Kini", title: "Langkah Mendewasa", desc: "Perjalanan menjadi versi terbaik dari diri sendiri.", icon: Heart }
+                                ].map((chapter, i) => (
+                                    <div key={i} style={{ flex: 1, position: "relative", paddingLeft: isMobile ? "1.5rem" : "0", borderLeft: isMobile ? "1px dashed #e5e0d8" : "none", zIndex: 1 }}>
+                                        {!isMobile && i > 0 && <div style={{ position: "absolute", left: "-1rem", top: "1.5rem", width: "1rem", borderTop: "1px dashed #e5e0d8" }} />}
+                                        <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "8px" }}>
+                                            <div style={{
+                                                width: "32px", height: "32px", borderRadius: "50%", background: "#fff",
+                                                border: "1px solid #e8e2d9", display: "flex", alignItems: "center", justifyContent: "center",
+                                                boxShadow: "0 0 12px rgba(176, 125, 98, 0.12)"
+                                            }}>
+                                                <chapter.icon size={14} color="#b07d62" />
+                                            </div>
+                                            <span style={{ fontSize: "0.65rem", fontWeight: 700, color: "#aaa" }}>{chapter.year}</span>
+                                        </div>
+                                        <h4 style={{ fontSize: "1rem", fontWeight: 700, color: "#4e4439" }}>{chapter.title}</h4>
+                                        <HandwrittenNote style={{ fontSize: "0.9rem", marginTop: "4px" }}>{chapter.desc}</HandwrittenNote>
+                                    </div>
+                                ))}
+                            </div>
+                        </BentoCard>
+
                         {/* 2. Personal Year Loop (Instead of Calendar) */}
                         <BentoCard isMobile={isMobile} style={{ gridColumn: isMobile ? "span 1" : "span 7" }} rotate="-0.4deg" tapeColor="#f6a4a9">
                             <SectionTitle icon={Map}>Lembaran Kisah Ke-{age + 1}</SectionTitle>
