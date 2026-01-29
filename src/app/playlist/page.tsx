@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useMemo } from "react";
-import { BarChart2, Play, Pause, Search, Heart, Disc, Shuffle, ChevronLeft, Home } from "lucide-react";
+import { BarChart2, Play, Pause, Search, Heart, Disc, Shuffle, ChevronLeft, Home, SkipBack, SkipForward, Sparkles } from "lucide-react";
 import { GradientOrb } from "@/components/GradientOrb";
 import { CosmicStars } from "@/components/CosmicStars";
 import { MilkyWay } from "@/components/MilkyWay";
@@ -9,12 +9,12 @@ import { CurrentlyStrip } from "@/components/CurrentlyStrip";
 import { useAudio, PLAYLIST } from "@/components/AudioContext";
 import { useZen } from "@/components/ZenContext";
 import { motion, PanInfo, AnimatePresence } from "framer-motion";
-import { MiniPlayerWidget } from "@/components/MiniPlayerWidget";
+// MiniPlayerWidget removed - merged into Rich Header
 import { PLAYLIST_CATEGORIES } from "@/data/playlists"; // NEW
 import { useRouter } from "next/navigation";
 
 export default function ImmersiveMusicPage() {
-    const { isPlaying, currentSong, jumpToSong, playQueue, queue, currentIndex, togglePlay } = useAudio();
+    const { isPlaying, currentSong, jumpToSong, playQueue, queue, currentIndex, togglePlay, nextSong, prevSong, hasInteracted } = useAudio();
     const { isZen, setZen } = useZen();
     const router = useRouter();
     const [selectedPlaylistId, setSelectedPlaylistId] = useState<string | null>(null);
@@ -508,64 +508,179 @@ export default function ImmersiveMusicPage() {
                                             </span>
                                         ))}
                                     </div>
-                                </div>
 
-                                {/* Action Buttons (Play Batch) */}
-                                <div style={{ display: "flex", gap: "12px", marginTop: "8px" }}>
-                                    <motion.button
-                                        whileTap={{ scale: 0.95 }}
-                                        onClick={() => {
-                                            triggerHaptic();
-                                            if (isSelectedPlaylistPlaying) {
-                                                togglePlay(); // Pause if already playing this playlist
-                                            } else {
-                                                playQueue(filteredPlaylist, 0); // Play from start
-                                            }
-                                        }}
-                                        style={{
-                                            flex: 1,
-                                            background: "white",
-                                            color: "black",
-                                            border: "none",
-                                            borderRadius: "12px",
-                                            padding: "14px",
-                                            fontSize: "1rem",
-                                            fontWeight: 700,
+                                    {/* Current Song Display (when playing) */}
+                                    {hasInteracted && isPlaying && (
+                                        <div style={{
+                                            marginTop: "12px",
+                                            padding: "12px 16px",
+                                            background: "rgba(255,255,255,0.05)",
+                                            borderRadius: "14px",
+                                            border: "1px solid rgba(255,255,255,0.08)",
                                             display: "flex",
                                             alignItems: "center",
-                                            justifyContent: "center",
-                                            gap: "8px",
-                                            cursor: "pointer",
-                                            boxShadow: "0 4px 12px rgba(255,255,255,0.2)"
-                                        }}
-                                    >
-                                        {isSelectedPlaylistPlaying ? (
-                                            <><Pause size={20} fill="black" /> Pause</>
-                                        ) : (
-                                            <><Play size={20} fill="black" /> Play</>
-                                        )}
-                                    </motion.button>
+                                            gap: "12px"
+                                        }}>
+                                            <motion.div
+                                                animate={{ rotate: 360 }}
+                                                transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
+                                                style={{
+                                                    width: "36px",
+                                                    height: "36px",
+                                                    borderRadius: "50%",
+                                                    background: "linear-gradient(135deg, #3b82f6, #8b5cf6)",
+                                                    display: "flex",
+                                                    alignItems: "center",
+                                                    justifyContent: "center",
+                                                    flexShrink: 0
+                                                }}
+                                            >
+                                                <Disc size={18} color="white" />
+                                            </motion.div>
+                                            <div style={{ flex: 1, minWidth: 0 }}>
+                                                <div style={{ fontSize: "0.7rem", color: "rgba(255,255,255,0.5)", textTransform: "uppercase", letterSpacing: "0.05em" }}>
+                                                    Now Playing
+                                                </div>
+                                                <div style={{ fontSize: "0.9rem", fontWeight: 600, color: "white", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                                                    {currentSong.title.split("—")[1]?.trim() || currentSong.title}
+                                                </div>
+                                                <div style={{ fontSize: "0.75rem", color: "rgba(255,255,255,0.5)" }}>
+                                                    {currentSong.title.split("—")[0]?.trim() || "Unknown Artist"}
+                                                </div>
+                                            </div>
+                                            <div style={{ padding: "4px 10px", background: "rgba(255,255,255,0.1)", borderRadius: "20px", fontSize: "0.75rem", fontWeight: 600, color: "white" }}>
+                                                {currentIndex + 1}/{queue.length}
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {/* Action Buttons Row 1: Play Controls */}
+                                    <div style={{ display: "flex", gap: "10px", marginTop: "12px", alignItems: "center" }}>
+                                        {/* Skip Back */}
+                                        <motion.button
+                                            whileTap={{ scale: 0.9 }}
+                                            onClick={() => { triggerHaptic(); prevSong(); }}
+                                            disabled={!hasInteracted}
+                                            style={{
+                                                background: "rgba(255,255,255,0.08)",
+                                                color: hasInteracted ? "white" : "rgba(255,255,255,0.3)",
+                                                border: "none",
+                                                borderRadius: "12px",
+                                                padding: "12px",
+                                                display: "flex",
+                                                alignItems: "center",
+                                                justifyContent: "center",
+                                                cursor: hasInteracted ? "pointer" : "not-allowed"
+                                            }}
+                                        >
+                                            <SkipBack size={18} fill={hasInteracted ? "white" : "rgba(255,255,255,0.3)"} />
+                                        </motion.button>
+
+                                        {/* Main Play/Pause */}
+                                        <motion.button
+                                            whileTap={{ scale: 0.95 }}
+                                            onClick={() => {
+                                                triggerHaptic();
+                                                if (isSelectedPlaylistPlaying) {
+                                                    togglePlay();
+                                                } else {
+                                                    playQueue(filteredPlaylist, 0);
+                                                }
+                                            }}
+                                            style={{
+                                                flex: 1,
+                                                background: "white",
+                                                color: "black",
+                                                border: "none",
+                                                borderRadius: "12px",
+                                                padding: "14px",
+                                                fontSize: "1rem",
+                                                fontWeight: 700,
+                                                display: "flex",
+                                                alignItems: "center",
+                                                justifyContent: "center",
+                                                gap: "8px",
+                                                cursor: "pointer",
+                                                boxShadow: "0 4px 12px rgba(255,255,255,0.2)"
+                                            }}
+                                        >
+                                            {isSelectedPlaylistPlaying ? (
+                                                <><Pause size={20} fill="black" /> Pause</>
+                                            ) : (
+                                                <><Play size={20} fill="black" /> Play</>
+                                            )}
+                                        </motion.button>
+
+                                        {/* Skip Forward */}
+                                        <motion.button
+                                            whileTap={{ scale: 0.9 }}
+                                            onClick={() => { triggerHaptic(); nextSong(true); }}
+                                            disabled={!hasInteracted}
+                                            style={{
+                                                background: "rgba(255,255,255,0.08)",
+                                                color: hasInteracted ? "white" : "rgba(255,255,255,0.3)",
+                                                border: "none",
+                                                borderRadius: "12px",
+                                                padding: "12px",
+                                                display: "flex",
+                                                alignItems: "center",
+                                                justifyContent: "center",
+                                                cursor: hasInteracted ? "pointer" : "not-allowed"
+                                            }}
+                                        >
+                                            <SkipForward size={18} fill={hasInteracted ? "white" : "rgba(255,255,255,0.3)"} />
+                                        </motion.button>
+
+                                        {/* Shuffle */}
+                                        <motion.button
+                                            whileTap={{ scale: 0.95 }}
+                                            onClick={() => {
+                                                triggerHaptic();
+                                                const shuffled = [...filteredPlaylist].sort(() => Math.random() - 0.5);
+                                                playQueue(shuffled, 0);
+                                            }}
+                                            style={{
+                                                background: "rgba(255,255,255,0.08)",
+                                                color: "white",
+                                                border: "none",
+                                                borderRadius: "12px",
+                                                padding: "12px",
+                                                display: "flex",
+                                                alignItems: "center",
+                                                justifyContent: "center",
+                                                cursor: "pointer"
+                                            }}
+                                        >
+                                            <Shuffle size={18} />
+                                        </motion.button>
+                                    </div>
+
+                                    {/* Action Buttons Row 2: Immersive Mode */}
                                     <motion.button
-                                        whileTap={{ scale: 0.95 }}
+                                        whileTap={{ scale: 0.98 }}
                                         onClick={() => {
                                             triggerHaptic();
-                                            // Simple Shuffle: Sort random then play
-                                            const shuffled = [...filteredPlaylist].sort(() => Math.random() - 0.5);
-                                            playQueue(shuffled, 0);
+                                            setZen(true);
                                         }}
                                         style={{
-                                            background: "rgba(255,255,255,0.1)",
+                                            marginTop: "10px",
+                                            width: "100%",
+                                            background: "linear-gradient(135deg, rgba(139, 92, 246, 0.3), rgba(59, 130, 246, 0.3))",
                                             color: "white",
-                                            border: "1px solid rgba(255,255,255,0.1)",
+                                            border: "1px solid rgba(139, 92, 246, 0.3)",
                                             borderRadius: "12px",
                                             padding: "14px",
+                                            fontSize: "0.95rem",
+                                            fontWeight: 600,
                                             display: "flex",
                                             alignItems: "center",
                                             justifyContent: "center",
+                                            gap: "10px",
                                             cursor: "pointer"
                                         }}
                                     >
-                                        <Shuffle size={20} />
+                                        <Sparkles size={18} />
+                                        Immersive Mode
                                     </motion.button>
                                 </div>
                             </motion.div>
@@ -802,8 +917,7 @@ export default function ImmersiveMusicPage() {
                     </motion.div>
 
 
-                    {/* Floating Mini Player (self-positioned) */}
-                    <MiniPlayerWidget />
+                    {/* Floating Mini Player removed - merged into Rich Header */}
                 </main>
             )}
         </>
