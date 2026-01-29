@@ -5,50 +5,68 @@ import dynamic from "next/dynamic";
 import { Container } from "@/components/Container";
 import { IosBentoCard } from "@/components/sanctuary/IosBentoCard";
 import { ZenHideable } from "@/components/ZenHideable";
-import { Gift, ArrowLeft, ShoppingBag, Gamepad2, Laptop, Camera } from "lucide-react";
+import { Library, ArrowLeft, Twitter, FileText, Bookmark } from "lucide-react";
 import Link from "next/link";
-import { motion } from "framer-motion";
 
 const GradientOrb = dynamic(() => import("@/components/GradientOrb").then(mod => mod.GradientOrb), { ssr: false });
 const CosmicStars = dynamic(() => import("@/components/CosmicStars").then(mod => mod.CosmicStars), { ssr: false });
 const MilkyWay = dynamic(() => import("@/components/MilkyWay").then(mod => mod.MilkyWay), { ssr: false });
 
-const WISHLIST_ITEMS = [
+// Sample Curation Data - Designed to be high-quality placeholders
+const CURATION_DATA = [
     {
-        title: "MacBook Pro M4 Max",
-        subtitle: "The Ultimate Workstation",
-        imageUrl: "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?q=80&w=2052&auto=format&fit=crop",
-        href: "https://apple.com",
+        id: "1",
+        type: "tweet",
+        title: "How to Build for the Speed of Light",
+        subtitle: "Twitter / X",
+        imageUrl: "https://images.unsplash.com/photo-1614850523296-d8c1af93d400?q=80&w=2070&auto=format&fit=crop",
+        href: "https://twitter.com",
         colSpan: 2,
-        color: "#5ac8fa"
+        accentColor: "#1DA1F2"
     },
     {
-        title: "Sony A7R V",
-        subtitle: "Visual Distillation",
-        imageUrl: "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?q=80&w=1938&auto=format&fit=crop",
-        href: "https://sony.com",
+        id: "2",
+        type: "article",
+        title: "The Psychology of Minimalist UI",
+        subtitle: "Article / Medium",
+        imageUrl: "https://images.unsplash.com/photo-1550745165-9bc0b252726f?q=80&w=2070&auto=format&fit=crop",
+        href: "https://medium.com",
         colSpan: 1,
-        color: "#ff3b30"
+        accentColor: "#facc15"
     },
     {
-        title: "Keychron Q1 Max",
-        subtitle: "Tactile Precision",
-        imageUrl: "https://images.unsplash.com/photo-1618384881928-34887bc50efd?q=80&w=2030&auto=format&fit=crop",
-        href: "https://keychron.com",
+        id: "3",
+        type: "reference",
+        title: "Apple's Human Interface Guidelines",
+        subtitle: "Reference / Apple",
+        imageUrl: "https://images.unsplash.com/photo-1491933382434-500287f9b54b?q=80&w=1964&auto=format&fit=crop",
+        href: "https://developer.apple.com/design/human-interface-guidelines",
         colSpan: 1,
-        color: "#ffcc00"
+        accentColor: "#ffffff"
     },
     {
-        title: "Herman Miller Embody",
-        subtitle: "Ergonomic Sanctuary",
-        imageUrl: "https://images.unsplash.com/photo-1616464916356-3a777b2b59b1?q=80&w=2070&auto=format&fit=crop",
-        href: "https://hermanmiller.com",
+        id: "4",
+        type: "tweet",
+        title: "AI & The Future of Human Agency",
+        subtitle: "Twitter / X",
+        imageUrl: "https://images.unsplash.com/photo-1677442136019-21780ecad995?q=80&w=1932&auto=format&fit=crop",
+        href: "https://twitter.com",
         colSpan: 2,
-        color: "#34c759"
+        accentColor: "#1DA1F2"
     },
+    {
+        id: "5",
+        type: "article",
+        title: "Crafting Digital Sanctuaries",
+        subtitle: "Essay",
+        imageUrl: "https://images.unsplash.com/photo-1506126613408-eca07ce68773?q=80&w=1999&auto=format&fit=crop",
+        href: "#",
+        colSpan: 3,
+        accentColor: "#a855f7"
+    }
 ];
 
-export default function WishlistPage() {
+export default function CurationPage() {
     return (
         <div style={{
             minHeight: "100vh",
@@ -90,8 +108,8 @@ export default function WishlistPage() {
                                 Back
                             </Link>
                             <div style={{ textAlign: "center", position: "absolute", left: "50%", transform: "translateX(-50%)" }}>
-                                <span style={{ fontSize: "0.7rem", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "#ff2d55", display: "block", marginBottom: "2px" }}>The Starlight</span>
-                                <h1 style={{ fontSize: "1.1rem", fontWeight: 600, margin: 0 }}>Wishlist</h1>
+                                <span style={{ fontSize: "0.7rem", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--accent)", display: "block", marginBottom: "2px" }}>The Starlight</span>
+                                <h1 style={{ fontSize: "1.1rem", fontWeight: 600, margin: 0 }}>Curation</h1>
                             </div>
                             <div style={{ width: "40px" }} /> {/* Spacer */}
                         </div>
@@ -110,7 +128,7 @@ export default function WishlistPage() {
                                     lineHeight: 1.1,
                                     marginBottom: "1.5rem"
                                 }}>
-                                    Objects <span style={{ color: "rgba(255,255,255,0.4)" }}>of desire.</span>
+                                    Knowledge, <span style={{ color: "rgba(255,255,255,0.4)" }}>distilled.</span>
                                 </h2>
                                 <p style={{
                                     fontSize: "1.1rem",
@@ -118,8 +136,8 @@ export default function WishlistPage() {
                                     lineHeight: 1.6,
                                     margin: 0
                                 }}>
-                                    Kumpulan barang-barang yang gak cuma fungsinya yang dapet, tapi estetikanya juga bikin girang.
-                                    Investasi buat produktivitas dan kebahagiaan.
+                                    Potongan-potongan digital yang gue simpan buat dibaca ulang.
+                                    Dari filosofi teknologi sampai desain yang "nyawa"-nya dapet.
                                 </p>
                             </div>
                         </Container>
@@ -134,16 +152,16 @@ export default function WishlistPage() {
                                 gridAutoFlow: "dense",
                                 gap: "1.5rem"
                             }}>
-                                {WISHLIST_ITEMS.map((item, idx) => (
+                                {CURATION_DATA.map((item, idx) => (
                                     <IosBentoCard
-                                        key={item.title}
+                                        key={item.id}
                                         title={item.title}
                                         subtitle={item.subtitle}
                                         imageUrl={item.imageUrl}
                                         href={item.href}
                                         colSpan={item.colSpan}
                                         delay={idx * 0.1}
-                                        accentColor={item.color}
+                                        accentColor={item.accentColor}
                                     />
                                 ))}
                             </div>

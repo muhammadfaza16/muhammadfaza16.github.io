@@ -14,7 +14,10 @@ import {
     Film,
     Gift,
     Music,
-    Clock
+    Clock,
+    Compass,
+    Target,
+    Library
 } from "lucide-react";
 
 interface AppIconProps {
@@ -57,11 +60,11 @@ const AppIcon = ({ title, href, icon, gradient, delay = 0, inDock = false }: App
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
-                    boxShadow: "0 12px 24px -6px rgba(0,0,0,0.6), inset 0 -3px 6px rgba(0,0,0,0.2), inset 0 1px 2px rgba(255,255,255,0.5)",
-                    transition: "transform 0.1s ease",
+                    boxShadow: "0 10px 20px -5px rgba(0,0,0,0.4), inset 0 -3px 6px rgba(0,0,0,0.2), inset 0 1px 2px rgba(255,255,255,0.5)",
+                    transition: "transform 0.1s cubic-bezier(0.2, 0.8, 0.2, 1)",
                     overflow: "hidden",
                     zIndex: 1
-                }} className="hover:scale-105 active:scale-90">
+                }} className="hover:scale-102 active:scale-95">
 
                     {/* Symbol */}
                     <div style={{
@@ -141,17 +144,11 @@ export function StarlightBentoGrid() {
     // Merged Apps (No separation)
     const apps = [
         { title: "Bookshelf", href: "/bookshelf", icon: <Book />, gradient: "linear-gradient(135deg, #FF9500, #FF5E3A)" }, // Orange
-        { title: "Movies", href: "/movies", icon: <Film />, gradient: "linear-gradient(135deg, #FF2D55, #FF375F)" }, // Pink Red
-        { title: "Playlist", href: "/playlist", icon: <Music />, gradient: "linear-gradient(135deg, #ec4899, #db2777)" }, // Apple Music style pink
-        { title: "Links", href: "/links", icon: <LinkIcon />, gradient: "linear-gradient(135deg, #5AC8FA, #007AFF)" }, // Blue
-        { title: "Wishlist", href: "/wishlist", icon: <Gift />, gradient: "linear-gradient(135deg, #AF52DE, #5856D6)" }, // Purple
-        { title: "TIL", href: "/til", icon: <Lightbulb />, gradient: "linear-gradient(135deg, #34C759, #30B0C7)" }, // Green
-        { title: "Time", href: "/time", icon: <Clock />, gradient: "linear-gradient(135deg, #8E8E93, #636366)" }, // Gray
-        // Former Dock Apps (Now standard icons)
         { title: "Writing", href: "/blog", icon: <PenTool />, gradient: "linear-gradient(135deg, #FFCC00, #FF9500)" }, // Yellow
-        { title: "Journey", href: "/journey", icon: <Map />, gradient: "linear-gradient(135deg, #30B0C7, #5AC8FA)" }, // Cyan
-        { title: "Ideas", href: "/ideas", icon: <Zap />, gradient: "linear-gradient(135deg, #FFD60A, #FF9F0A)" }, // Gold
-        { title: "Notes", href: "/notes", icon: <FileText />, gradient: "linear-gradient(135deg, #FFFFFF, #E5E5EA)" }, // White
+        { title: "Curation", href: "/curation", icon: <Library />, gradient: "linear-gradient(135deg, #5AC8FA, #007AFF)" }, // Blue
+        { title: "Life Compass", href: "/life-compass", icon: <Compass />, gradient: "linear-gradient(135deg, #34C759, #30B0C7)" }, // Green
+        { title: "Journey", href: "/journey", icon: <Target />, gradient: "linear-gradient(135deg, #AF52DE, #5856D6)" }, // Purple
+        { title: "Wishlist", href: "/wishlist", icon: <Gift />, gradient: "linear-gradient(135deg, #FF2D55, #FF375F)" }, // Pink Red
     ];
 
     return (
@@ -170,8 +167,8 @@ export function StarlightBentoGrid() {
             }}>
                 <div style={{
                     display: "grid",
-                    gridTemplateColumns: "repeat(4, 1fr)",
-                    gap: "2rem 1rem",
+                    gridTemplateColumns: "repeat(3, 1fr)", // Changed to 3 columns for 2x3 look
+                    gap: "2.5rem 1rem",
                 }}>
                     {apps.map((app, idx) => (
                         <AppIcon key={idx} {...app} delay={idx * 0.05} />
