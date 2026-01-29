@@ -132,6 +132,11 @@ export default function ImmersiveMusicPage() {
             0%, 100% { box-shadow: 0 0 30px 5px currentColor, 0 20px 50px -12px currentColor; }
             50% { box-shadow: 0 0 40px 10px currentColor, 0 25px 60px -10px currentColor; }
         }
+        /* CSS Equalizer animation (GPU-accelerated) */
+        @keyframes eq-bar1 { 0%,100%{height:4px} 50%{height:14px} }
+        @keyframes eq-bar2 { 0%,100%{height:8px} 50%{height:4px} }
+        @keyframes eq-bar3 { 0%,100%{height:6px} 50%{height:12px} }
+        .eq-bar { width:3px; background:#FFD60A; border-radius:9999px; will-change:height; }
       `}} />
 
             {/* Ambient Background (Always present) */}
@@ -143,7 +148,9 @@ export default function ImmersiveMusicPage() {
                 height: "120vh",
                 zIndex: 0,
                 pointerEvents: "none",
-                overflow: "hidden"
+                overflow: "hidden",
+                willChange: "transform",
+                transform: "translateZ(0)"  // Force GPU layer
             }}>
                 <MilkyWay />
                 <GradientOrb />
@@ -897,21 +904,9 @@ export default function ImmersiveMusicPage() {
                                     }}>
                                         {isActive && isPlaying ? (
                                             <div className="flex gap-[3px] items-end h-[14px]">
-                                                <motion.div
-                                                    animate={{ height: [4, 14, 6, 14] }}
-                                                    transition={{ repeat: Infinity, duration: 0.5 }}
-                                                    className="w-[3px] bg-[#3b82f6] rounded-full"
-                                                />
-                                                <motion.div
-                                                    animate={{ height: [8, 4, 14, 6] }}
-                                                    transition={{ repeat: Infinity, duration: 0.5, delay: 0.1 }}
-                                                    className="w-[3px] bg-[#3b82f6] rounded-full"
-                                                />
-                                                <motion.div
-                                                    animate={{ height: [6, 12, 4, 12] }}
-                                                    transition={{ repeat: Infinity, duration: 0.5, delay: 0.2 }}
-                                                    className="w-[3px] bg-[#3b82f6] rounded-full"
-                                                />
+                                                <div className="eq-bar" style={{ animation: 'eq-bar1 0.5s ease infinite' }} />
+                                                <div className="eq-bar" style={{ animation: 'eq-bar2 0.5s ease infinite 0.1s' }} />
+                                                <div className="eq-bar" style={{ animation: 'eq-bar3 0.5s ease infinite 0.2s' }} />
                                             </div>
                                         ) : (
                                             <span style={{ fontVariantNumeric: "tabular-nums" }}>{i + 1}</span>
