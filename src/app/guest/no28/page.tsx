@@ -513,14 +513,14 @@ export default function GuestNo28Dashboard() {
             title: "Sepucuk Surat",
             subtitle: '"Tinta yang baru saja mengering..."',
             href: "/guest/no28/letter",
-            image: "/sketch_envelope_flower.png",
+            image: "/sketch_envelope_flower_v2.webp",
             tapeColor: "#ff6b6b"
         },
         {
             title: "Lembaran Kisah",
             subtitle: '"Setiap detiknya adalah puisi..."',
             href: "/guest/no28/special_day",
-            image: "/sketch_maryjane_shoes.png",
+            image: "/sketch_maryjane_shoes.webp",
             tapeColor: "#4ecdc4"
         }
     ];
@@ -738,7 +738,7 @@ export default function GuestNo28Dashboard() {
             <main style={{ position: "relative", zIndex: 10, padding: isMobile ? "2rem 0" : "3rem 0" }}>
                 <Container>
                     <div style={{ marginBottom: "2.5rem" }}>
-                        <Link href="/" style={{
+                        <Link href="/guest" style={{
                             display: "inline-flex", alignItems: "center", justifyContent: "center",
                             width: "44px", height: "44px", background: "#fff", border: "2px solid #5a5a5a",
                             boxShadow: "2px 2px 0px #5a5a5a", borderRadius: "12px", color: "#5a5a5a", transition: "all 0.2s ease"

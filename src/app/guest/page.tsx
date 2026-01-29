@@ -11,7 +11,7 @@ import { Container } from "@/components/Container";
 const Guest28Icon = (props: any) => (
     <div style={{ width: props.size || '100%', height: props.size || '100%', position: 'relative' }}>
         <Image
-            src="/guest/no28.png"
+            src="/guest/no28.webp"
             alt="Guest 28"
             fill
             style={{ objectFit: 'cover' }}

@@ -320,7 +320,12 @@ export default function SpecialDayBentoPage() {
 
     // Portrait Gallery State
     const [portraitIndex, setPortraitIndex] = useState(0);
-    const portraits = ["/portrait_1.webp", "/portrait_2.webp", "/portrait_3.webp", "/portrait_4.webp"];
+    const portraits = [
+        { src: "/portrait_1.webp", label: "Kamu yang selalu bersinar" },
+        { src: "/portrait_2.webp", label: "Hangat seperti pelukan" },
+        { src: "/portrait_3.webp", label: "Damai dalam dirimu" },
+        { src: "/portrait_4.webp", label: "Sempurna apa adanya" }
+    ];
 
     // Birth Date: 28 November 2000
     const birthDate = new Date(2000, 10, 28);
@@ -426,7 +431,7 @@ export default function SpecialDayBentoPage() {
     useEffect(() => {
         const timer = setInterval(() => {
             setPortraitIndex((prev) => (prev + 1) % portraits.length);
-        }, 5000); // Change every 5 seconds
+        }, 8000); // Change every 8 seconds
         return () => clearInterval(timer);
     }, []);
 
@@ -705,8 +710,8 @@ export default function SpecialDayBentoPage() {
                                                 style={{ position: "absolute", inset: 0 }}
                                             >
                                                 <Image
-                                                    src={portraits[portraitIndex]}
-                                                    alt="Portrait Sketch"
+                                                    src={portraits[portraitIndex].src}
+                                                    alt={portraits[portraitIndex].label}
                                                     fill
                                                     style={{ objectFit: "cover", objectPosition: "center top" }}
                                                 />
@@ -722,7 +727,7 @@ export default function SpecialDayBentoPage() {
                                         textAlign: "center"
                                     }}>
                                         <HandwrittenNote style={{ fontSize: "1rem", color: "#8a7058" }}>
-                                            28 November
+                                            {portraits[portraitIndex].label}
                                         </HandwrittenNote>
                                     </div>
                                 </motion.div>
