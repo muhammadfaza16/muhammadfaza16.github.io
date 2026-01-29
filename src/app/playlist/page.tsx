@@ -494,10 +494,10 @@ export default function ImmersiveMusicPage() {
                                             alignItems: "center",
                                             gap: "6px",
                                             padding: "6px 12px",
-                                            background: "rgba(59, 130, 246, 0.2)",
+                                            background: "rgba(255, 214, 10, 0.2)",
                                             borderRadius: "100px",
                                             fontSize: "0.8rem",
-                                            color: "#93c5fd",
+                                            color: "#FFD60A",
                                             fontWeight: 600
                                         }}>
                                             <span style={{ fontSize: "1.2em" }}>🕒</span> {activePlaylist.schedule}
@@ -706,9 +706,9 @@ export default function ImmersiveMusicPage() {
                                         style={{
                                             marginTop: "10px",
                                             width: "100%",
-                                            background: "linear-gradient(135deg, rgba(139, 92, 246, 0.3), rgba(59, 130, 246, 0.3))",
+                                            background: "linear-gradient(135deg, rgba(255, 159, 10, 0.3), rgba(255, 214, 10, 0.3))",
                                             color: "white",
-                                            border: "1px solid rgba(139, 92, 246, 0.3)",
+                                            border: "1px solid rgba(255, 214, 10, 0.3)",
                                             borderRadius: "12px",
                                             padding: "14px",
                                             fontSize: "0.95rem",
