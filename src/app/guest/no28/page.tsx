@@ -545,37 +545,26 @@ export default function GuestNo28Dashboard() {
                 style={{ position: "fixed", bottom: "5%", left: "-5%", width: "550px", height: "550px", background: "radial-gradient(circle, rgba(255, 229, 217, 0.4) 0%, transparent 70%)", filter: "blur(60px)", pointerEvents: "none", zIndex: 0 }}
             />
 
-            {/* Individual Watercolor Sketches - Hide on mobile to reduce clutter */}
-            {!isMobile && (
-                <>
-                    <motion.div
-                        initial={{ opacity: 0, scale: 0.8 }}
-                        animate={{ opacity: 0.4, y: [0, -15, 0], rotate: [-10, -5, -10] }}
-                        transition={{ opacity: { duration: 1 }, y: { duration: 6, repeat: Infinity, ease: "easeInOut" }, rotate: { duration: 7, repeat: Infinity, ease: "easeInOut" } }}
-                        style={{ position: "fixed", top: "5%", left: "8%", width: "150px", height: "150px", zIndex: 1, pointerEvents: "none" }}
-                    >
-                        <Image src="/detail_lavender.png" alt="" fill style={{ objectFit: 'contain' }} />
-                    </motion.div>
+            {/* Subtle Decorative Sketches - Enabled on all screens, reduced for subtlety */}
+            <>
+                <motion.div
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={{ opacity: isMobile ? 0.25 : 0.35, y: [0, -12, 0], rotate: [-8, -3, -8] }}
+                    transition={{ opacity: { duration: 1 }, y: { duration: 8, repeat: Infinity, ease: "easeInOut" }, rotate: { duration: 10, repeat: Infinity, ease: "easeInOut" } }}
+                    style={{ position: "fixed", top: "8%", left: isMobile ? "3%" : "8%", width: isMobile ? "100px" : "130px", height: isMobile ? "100px" : "130px", zIndex: 1, pointerEvents: "none" }}
+                >
+                    <Image src="/detail_lavender.png" alt="" fill style={{ objectFit: 'contain' }} />
+                </motion.div>
 
-                    <motion.div
-                        initial={{ opacity: 0, scale: 0.8 }}
-                        animate={{ opacity: 0.3, y: [0, 10, 0], rotate: [15, 20, 15] }}
-                        transition={{ opacity: { duration: 1, delay: 0.2 }, y: { duration: 8, repeat: Infinity, ease: "easeInOut" }, rotate: { duration: 9, repeat: Infinity, ease: "easeInOut" } }}
-                        style={{ position: "fixed", top: "45%", right: "8%", width: "120px", height: "120px", zIndex: 1, pointerEvents: "none" }}
-                    >
-                        <Image src="/detail_rose.png" alt="" fill style={{ objectFit: 'contain' }} />
-                    </motion.div>
-
-                    <motion.div
-                        initial={{ opacity: 0, scale: 0.8 }}
-                        animate={{ opacity: 0.35, y: [0, -8, 0], rotate: [-5, 0, -5] }}
-                        transition={{ opacity: { duration: 1, delay: 0.4 }, y: { duration: 7, repeat: Infinity, ease: "easeInOut" }, rotate: { duration: 8, repeat: Infinity, ease: "easeInOut" } }}
-                        style={{ position: "fixed", bottom: "15%", left: "5%", width: "140px", height: "140px", zIndex: 1, pointerEvents: "none" }}
-                    >
-                        <Image src="/detail_leaf.png" alt="" fill style={{ objectFit: 'contain' }} />
-                    </motion.div>
-                </>
-            )}
+                <motion.div
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={{ opacity: isMobile ? 0.2 : 0.3, y: [0, -8, 0], rotate: [-5, 0, -5] }}
+                    transition={{ opacity: { duration: 1, delay: 0.3 }, y: { duration: 9, repeat: Infinity, ease: "easeInOut" }, rotate: { duration: 11, repeat: Infinity, ease: "easeInOut" } }}
+                    style={{ position: "fixed", bottom: "18%", right: isMobile ? "3%" : "6%", width: isMobile ? "90px" : "120px", height: isMobile ? "90px" : "120px", zIndex: 1, pointerEvents: "none" }}
+                >
+                    <Image src="/detail_leaf.png" alt="" fill style={{ objectFit: 'contain' }} />
+                </motion.div>
+            </>
 
             {/* Detailed Artistic Hijabi Sketch (Backview) - Relocated to Top */}
             <motion.div
@@ -702,7 +691,7 @@ export default function GuestNo28Dashboard() {
 
                                 {/* Central Sketch Illustration */}
                                 <div style={{ position: "relative", width: "200px", height: "150px", marginBottom: "1rem", marginTop: "1rem", mixBlendMode: "multiply" }}>
-                                    <Image src="/sketch_envelope_flower.png" alt="Vintage Envelope Sketch" fill style={{ objectFit: "contain" }} />
+                                    <Image src="/sketch_envelope_flower_v2.png" alt="Vintage Envelope Sketch" fill style={{ objectFit: "contain" }} />
                                 </div>
 
                                 <div style={{ position: "relative", zIndex: 1 }}>
