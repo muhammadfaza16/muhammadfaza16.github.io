@@ -321,9 +321,9 @@ export default function SpecialDayBentoPage() {
     // Portrait Gallery State
     const [portraitIndex, setPortraitIndex] = useState(0);
     const portraits = [
-        { src: "/portrait_1.webp", label: "Kamu yang selalu bersinar" },
         { src: "/portrait_2.webp", label: "Hangat seperti pelukan" },
         { src: "/portrait_3.webp", label: "Damai dalam dirimu" },
+        { src: "/portrait_1.webp", label: "Kamu yang selalu bersinar" },
         { src: "/portrait_4.webp", label: "Sempurna apa adanya" }
     ];
 
@@ -431,7 +431,7 @@ export default function SpecialDayBentoPage() {
     useEffect(() => {
         const timer = setInterval(() => {
             setPortraitIndex((prev) => (prev + 1) % portraits.length);
-        }, 8000); // Change every 8 seconds
+        }, 12000); // Change every 12 seconds
         return () => clearInterval(timer);
     }, []);
 
