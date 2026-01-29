@@ -14,7 +14,7 @@ import { PLAYLIST_CATEGORIES } from "@/data/playlists"; // NEW
 import { useRouter } from "next/navigation";
 
 export default function ImmersiveMusicPage() {
-    const { isPlaying, currentSong, jumpToSong, playQueue, queue, currentIndex, togglePlay, nextSong, prevSong, hasInteracted } = useAudio();
+    const { isPlaying, currentSong, jumpToSong, playQueue, queue, currentIndex, togglePlay, nextSong, prevSong, hasInteracted, currentTime, duration, seekTo } = useAudio();
     const { isZen, setZen } = useZen();
     const router = useRouter();
     const [selectedPlaylistId, setSelectedPlaylistId] = useState<string | null>(null);
@@ -39,6 +39,14 @@ export default function ImmersiveMusicPage() {
         triggerHaptic();
         setSelectedPlaylistId(id);
     }
+
+    // Format time as M:SS
+    const formatTime = (seconds: number): string => {
+        if (!seconds || !isFinite(seconds)) return "0:00";
+        const mins = Math.floor(seconds / 60);
+        const secs = Math.floor(seconds % 60);
+        return `${mins}:${secs.toString().padStart(2, '0')}`;
+    };
 
     // 1. Determine which songs to show based on selection
     //    If selectedPlaylistId is null => Show ALL songs (default)
@@ -511,49 +519,82 @@ export default function ImmersiveMusicPage() {
 
                                     {/* Current Song Display (when playing) */}
                                     {hasInteracted && isPlaying && (
-                                        <div style={{
-                                            marginTop: "12px",
-                                            padding: "12px 16px",
-                                            background: "rgba(255,255,255,0.05)",
-                                            borderRadius: "14px",
-                                            border: "1px solid rgba(255,255,255,0.08)",
-                                            display: "flex",
-                                            alignItems: "center",
-                                            gap: "12px"
-                                        }}>
-                                            <motion.div
-                                                animate={{ rotate: 360 }}
-                                                transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
-                                                style={{
-                                                    width: "36px",
-                                                    height: "36px",
-                                                    borderRadius: "50%",
-                                                    background: "linear-gradient(135deg, #3b82f6, #8b5cf6)",
-                                                    display: "flex",
-                                                    alignItems: "center",
-                                                    justifyContent: "center",
-                                                    flexShrink: 0
-                                                }}
-                                            >
-                                                <Disc size={18} color="white" />
-                                            </motion.div>
-                                            <div style={{ flex: 1, minWidth: 0 }}>
-                                                <div style={{ fontSize: "0.7rem", color: "rgba(255,255,255,0.5)", textTransform: "uppercase", letterSpacing: "0.05em" }}>
-                                                    Now Playing
+                                        <>
+                                            <div style={{
+                                                marginTop: "12px",
+                                                padding: "12px 16px",
+                                                background: "rgba(255,255,255,0.05)",
+                                                borderRadius: "14px",
+                                                border: "1px solid rgba(255,255,255,0.08)",
+                                                display: "flex",
+                                                alignItems: "center",
+                                                gap: "12px"
+                                            }}>
+                                                <motion.div
+                                                    animate={{ rotate: 360 }}
+                                                    transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
+                                                    style={{
+                                                        width: "36px",
+                                                        height: "36px",
+                                                        borderRadius: "50%",
+                                                        background: "linear-gradient(135deg, #3b82f6, #8b5cf6)",
+                                                        display: "flex",
+                                                        alignItems: "center",
+                                                        justifyContent: "center",
+                                                        flexShrink: 0
+                                                    }}
+                                                >
+                                                    <Disc size={18} color="white" />
+                                                </motion.div>
+                                                <div style={{ flex: 1, minWidth: 0 }}>
+                                                    <div style={{ fontSize: "0.7rem", color: "rgba(255,255,255,0.5)", textTransform: "uppercase", letterSpacing: "0.05em" }}>
+                                                        Now Playing
+                                                    </div>
+                                                    <div style={{ fontSize: "0.9rem", fontWeight: 600, color: "white", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                                                        {currentSong.title.split("—")[1]?.trim() || currentSong.title}
+                                                    </div>
+                                                    <div style={{ fontSize: "0.75rem", color: "rgba(255,255,255,0.5)" }}>
+                                                        {currentSong.title.split("—")[0]?.trim() || "Unknown Artist"}
+                                                    </div>
                                                 </div>
-                                                <div style={{ fontSize: "0.9rem", fontWeight: 600, color: "white", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-                                                    {currentSong.title.split("—")[1]?.trim() || currentSong.title}
-                                                </div>
-                                                <div style={{ fontSize: "0.75rem", color: "rgba(255,255,255,0.5)" }}>
-                                                    {currentSong.title.split("—")[0]?.trim() || "Unknown Artist"}
+                                                <div style={{ padding: "4px 10px", background: "rgba(255,255,255,0.1)", borderRadius: "20px", fontSize: "0.75rem", fontWeight: 600, color: "white" }}>
+                                                    {currentIndex + 1}/{queue.length}
                                                 </div>
                                             </div>
-                                            <div style={{ padding: "4px 10px", background: "rgba(255,255,255,0.1)", borderRadius: "20px", fontSize: "0.75rem", fontWeight: 600, color: "white" }}>
-                                                {currentIndex + 1}/{queue.length}
+                                            {/* Subtle Progress Bar */}
+                                            <div style={{ marginTop: "10px" }}>
+                                                <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.7rem", color: "rgba(255,255,255,0.5)", marginBottom: "4px" }}>
+                                                    <span>{formatTime(currentTime)}</span>
+                                                    <span>{formatTime(duration)}</span>
+                                                </div>
+                                                <div
+                                                    onClick={(e) => {
+                                                        if (!duration) return;
+                                                        const rect = e.currentTarget.getBoundingClientRect();
+                                                        const x = e.clientX - rect.left;
+                                                        const pct = x / rect.width;
+                                                        seekTo(pct * duration);
+                                                        triggerHaptic();
+                                                    }}
+                                                    style={{
+                                                        height: "4px",
+                                                        background: "rgba(255,255,255,0.1)",
+                                                        borderRadius: "2px",
+                                                        cursor: "pointer",
+                                                        overflow: "hidden"
+                                                    }}
+                                                >
+                                                    <div style={{
+                                                        height: "100%",
+                                                        width: duration ? `${(currentTime / duration) * 100}%` : "0%",
+                                                        background: "linear-gradient(90deg, #3b82f6, #8b5cf6)",
+                                                        borderRadius: "2px",
+                                                        transition: "width 0.3s ease"
+                                                    }} />
+                                                </div>
                                             </div>
-                                        </div>
+                                        </>
                                     )}
-
                                     {/* Action Buttons Row 1: Play Controls */}
                                     <div style={{ display: "flex", gap: "10px", marginTop: "12px", alignItems: "center" }}>
                                         {/* Skip Back */}

@@ -27,11 +27,15 @@ interface AudioContextType {
     setShowMarquee: (v: boolean) => void;
     showNarrative: boolean;
     setShowNarrative: (v: boolean) => void;
-    currentLyricText: string | null; // NEW: Global synced lyric
-    activeLyrics: LyricItem[]; // NEW: Expose Logic
-    playQueue: (songs: any[], startIndex?: number) => void; // NEW: Batch Play
-    queue: { title: string; audioUrl: string }[]; // Expose queue for playlist info
-    currentIndex: number; // Expose current index
+    currentLyricText: string | null;
+    activeLyrics: LyricItem[];
+    playQueue: (songs: any[], startIndex?: number) => void;
+    queue: { title: string; audioUrl: string }[];
+    currentIndex: number;
+    // Time tracking
+    currentTime: number;
+    duration: number;
+    seekTo: (time: number) => void;
 }
 
 const AudioContext = createContext<AudioContextType | undefined>(undefined);
@@ -164,6 +168,10 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
     // Lyric State
     const [currentLyricText, setCurrentLyricText] = useState<string | null>(null);
     const [activeLyrics, setActiveLyrics] = useState<LyricItem[]>([]);
+
+    // Time tracking (lightweight, updates throttled)
+    const [currentTime, setCurrentTime] = useState(0);
+    const [duration, setDuration] = useState(0);
 
     const audioRef = useRef<HTMLAudioElement | null>(null);
     const audioContextRef = useRef<AudioContext | null>(null);
@@ -304,9 +312,22 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
         return () => { isMounted = false; };
     }, [currentSong.title]);
 
+    // Throttle ref for performance (mobile-first)
+    const lastTimeUpdateRef = useRef(0);
+
     const handleTimeUpdate = () => {
-        if (!audioRef.current || activeLyrics.length === 0) return;
+        if (!audioRef.current) return;
         const t = audioRef.current.currentTime;
+
+        // Throttled time update for progress bar (every 500ms for performance)
+        const now = Date.now();
+        if (now - lastTimeUpdateRef.current > 500) {
+            setCurrentTime(t);
+            lastTimeUpdateRef.current = now;
+        }
+
+        // Lyric sync (existing logic)
+        if (activeLyrics.length === 0) return;
         let activeLine: LyricItem | null = null;
         let nextLineTime = Infinity;
         for (let i = 0; i < activeLyrics.length; i++) {
@@ -321,6 +342,14 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
             if (currentLyricText !== null) setCurrentLyricText(null);
         }
     };
+
+    // Seek to time
+    const seekTo = useCallback((time: number) => {
+        if (audioRef.current) {
+            audioRef.current.currentTime = time;
+            setCurrentTime(time);
+        }
+    }, []);
 
     // Media Session API (Lock Screen Controls)
     useEffect(() => {
@@ -394,16 +423,24 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
             showLyrics, setShowLyrics, showMarquee, setShowMarquee, showNarrative, setShowNarrative,
             currentLyricText,
             activeLyrics,
-            playQueue, // NEW: Expose Batch Play
-            queue, // Expose queue for playlist info
-            currentIndex // Expose current index
+            playQueue,
+            queue,
+            currentIndex,
+            currentTime,
+            duration,
+            seekTo
         }}>
             <audio
                 ref={audioRef}
                 crossOrigin="anonymous"
-                src={queue[currentIndex]?.audioUrl} // Use Queue
-                preload="metadata" // Changed to metadata for mobile background stability
-                onTimeUpdate={handleTimeUpdate} // NEW: Link Sync Logic
+                src={queue[currentIndex]?.audioUrl}
+                preload="metadata"
+                onTimeUpdate={handleTimeUpdate}
+                onLoadedMetadata={() => {
+                    if (audioRef.current) {
+                        setDuration(audioRef.current.duration || 0);
+                    }
+                }}
                 onPlay={() => setIsPlaying(true)}
                 onPause={() => setIsPlaying(false)}
                 onWaiting={() => setIsBuffering(true)} // Buffer started
