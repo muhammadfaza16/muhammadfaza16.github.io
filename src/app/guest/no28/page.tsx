@@ -178,9 +178,7 @@ export default function GuestNo28Dashboard() {
     const [pullRefreshMessage, setPullRefreshMessage] = useState("");
 
     // Extended features
-    const [isPlaying, setIsPlaying] = useState(false);
-    const [showSongWidget, setShowSongWidget] = useState(false);
-    const audioRef = useRef<HTMLAudioElement>(null);
+    // Extended features
     const [countdown, setCountdown] = useState({ days: 0, hours: 0, minutes: 0 });
     const SPECIAL_DATE = new Date("2026-02-09"); // Birthday or special date
     const [currentCardIndex, setCurrentCardIndex] = useState(0);
@@ -369,17 +367,7 @@ export default function GuestNo28Dashboard() {
         secretMessages[Math.floor(Math.random() * secretMessages.length)]
         , [showSecretMessage]);
 
-    // Song toggle handler
-    const toggleSong = () => {
-        if (audioRef.current) {
-            if (isPlaying) {
-                audioRef.current.pause();
-            } else {
-                audioRef.current.play();
-            }
-            setIsPlaying(!isPlaying);
-        }
-    };
+
 
     if (!mounted) return null;
 
@@ -551,81 +539,8 @@ export default function GuestNo28Dashboard() {
             <FallingPetals />
             <Butterflies />
 
-            {/* Hidden Audio Element */}
-            <audio
-                ref={audioRef}
-                src="/audio/The 1975 - About You (Official).mp3"
-                loop
-                onEnded={() => setIsPlaying(false)}
-            />
+            {/* Hidden Audio Element - Moved to Layout */}
 
-            {/* Floating Music Button */}
-            <motion.button
-                initial={{ scale: 0, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                transition={{ delay: 2 }}
-                whileTap={{ scale: 0.9 }}
-                onClick={toggleSong}
-                style={{
-                    position: "fixed",
-                    bottom: "100px",
-                    right: "20px",
-                    width: "56px",
-                    height: "56px",
-                    borderRadius: "50%",
-                    background: isPlaying
-                        ? "linear-gradient(135deg, #ff6b6b 0%, #ee5a5a 100%)"
-                        : "linear-gradient(135deg, #b07d62 0%, #d2a679 100%)",
-                    border: "none",
-                    boxShadow: isPlaying
-                        ? "0 4px 20px rgba(255,107,107,0.4)"
-                        : "0 4px 15px rgba(176,125,98,0.3)",
-                    cursor: "pointer",
-                    zIndex: 1000,
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    fontSize: "1.5rem"
-                }}
-            >
-                {isPlaying ? "🎵" : "🎶"}
-            </motion.button>
-
-            {/* Floating Notes Animation when playing */}
-            <AnimatePresence>
-                {isPlaying && (
-                    <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        style={{ position: "fixed", bottom: "160px", right: "25px", zIndex: 999 }}
-                    >
-                        {[0, 1, 2].map(i => (
-                            <motion.span
-                                key={i}
-                                animate={{
-                                    y: [-20, -60],
-                                    x: [0, (i - 1) * 15],
-                                    opacity: [1, 0],
-                                    scale: [1, 0.5]
-                                }}
-                                transition={{
-                                    duration: 2,
-                                    repeat: Infinity,
-                                    delay: i * 0.5
-                                }}
-                                style={{
-                                    position: "absolute",
-                                    fontSize: "1rem",
-                                    display: "block"
-                                }}
-                            >
-                                ♪
-                            </motion.span>
-                        ))}
-                    </motion.div>
-                )}
-            </AnimatePresence>
 
             {/* Secret Message Overlay (Shake to Reveal) */}
             <AnimatePresence>
