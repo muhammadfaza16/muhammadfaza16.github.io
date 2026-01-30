@@ -246,7 +246,7 @@ const NoiseOverlay = () => (
     }} />
 );
 
-// Typewriter Effect Component
+// Typewriter Effect Component - Robust
 const TypewriterText = ({ text, style }: { text: string, style?: React.CSSProperties }) => {
     const [displayedText, setDisplayedText] = useState("");
     const [isTyping, setIsTyping] = useState(true);
@@ -254,12 +254,14 @@ const TypewriterText = ({ text, style }: { text: string, style?: React.CSSProper
     useEffect(() => {
         setDisplayedText("");
         setIsTyping(true);
+
+        const characters = Array.from(text);
         let i = 0;
-        const speed = 50; // ms per char
+        const speed = 50;
 
         const timer = setInterval(() => {
-            if (i < text.length) {
-                setDisplayedText((prev) => prev + text.charAt(i));
+            if (i < characters.length) {
+                setDisplayedText((prev) => prev + characters[i]);
                 i++;
             } else {
                 setIsTyping(false);
@@ -273,7 +275,7 @@ const TypewriterText = ({ text, style }: { text: string, style?: React.CSSProper
     return (
         <span style={style}>
             {displayedText}
-            {isTyping && <span style={{ opacity: 0.5 }}>|</span>}
+            {isTyping && <span style={{ opacity: 0.5, marginLeft: "2px" }}>|</span>}
         </span>
     );
 };
@@ -503,11 +505,11 @@ export default function SpecialDayBentoPage() {
     const [portraitIndex, setPortraitIndex] = useState(0);
     const [selectedPortrait, setSelectedPortrait] = useState<{ src: string, label: string } | null>(null);
     const portraits = [
-        { src: "/portrait_4.webp", label: "Hadirmu selalu membawa tenang" },
-        { src: "/portrait_1.webp", label: "Bersinar tanpa perlu banyak bicara" },
-        { src: "/portrait_3.webp", label: "Damai yang meneduhkan jiwa" },
-        { src: "/portrait_2.webp", label: "Hangat yang tak tergantikan" },
-        { src: "/portrait_5.webp", label: "Terima kasih sudah menjadi kamu" }
+        { src: "/portrait_4.webp", label: "Ada banyak hal baik yang tumbuh dari senyummu" },
+        { src: "/portrait_1.webp", label: "Binar itu, semoga tak pernah redup oleh ragu" },
+        { src: "/portrait_3.webp", label: "Sederhana, namun cukup untuk meneduhkan sekitar" },
+        { src: "/portrait_2.webp", label: "Terima kasih telah menjadi bagian baik dari semesta" },
+        { src: "/portrait_5.webp", label: "Hadirmu, pengingat bahwa hal indah itu nyata" }
     ];
 
     // Birth Date: 28 November 2000
