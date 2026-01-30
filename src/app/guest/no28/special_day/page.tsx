@@ -229,6 +229,8 @@ const DotGrid = ({ total, filled, columns = 20, color = "#b07d62", size = "6px" 
 
 // --- Ambient Components ---
 
+// --- Ambient Components ---
+
 const NoiseOverlay = () => (
     <div style={{
         position: "fixed",
@@ -243,32 +245,70 @@ const NoiseOverlay = () => (
         mixBlendMode: "overlay"
     }} />
 );
-// Floating particles - Optimized
+
+// Typewriter Effect Component
+const TypewriterText = ({ text, style }: { text: string, style?: React.CSSProperties }) => {
+    const [displayedText, setDisplayedText] = useState("");
+    const [isTyping, setIsTyping] = useState(true);
+
+    useEffect(() => {
+        setDisplayedText("");
+        setIsTyping(true);
+        let i = 0;
+        const speed = 50; // ms per char
+
+        const timer = setInterval(() => {
+            if (i < text.length) {
+                setDisplayedText((prev) => prev + text.charAt(i));
+                i++;
+            } else {
+                setIsTyping(false);
+                clearInterval(timer);
+            }
+        }, speed);
+
+        return () => clearInterval(timer);
+    }, [text]);
+
+    return (
+        <span style={style}>
+            {displayedText}
+            {isTyping && <span style={{ opacity: 0.5 }}>|</span>}
+        </span>
+    );
+};
+
+// Floating particles - Optimized with CSS Keyframes
 const FloatingParticles = () => {
-    const particles = useMemo(() => Array.from({ length: 8 }).map((_, i) => ({
+    // Inject styles once
+    const styleId = "floating-particles-style";
+    if (typeof document !== 'undefined' && !document.getElementById(styleId)) {
+        const style = document.createElement("style");
+        style.id = styleId;
+        style.innerHTML = `
+            @keyframes floatUp {
+                0% { transform: translateY(0); opacity: 0; }
+                50% { opacity: 0.4; }
+                100% { transform: translateY(-80px); opacity: 0; }
+            }
+        `;
+        document.head.appendChild(style);
+    }
+
+    const particles = useMemo(() => Array.from({ length: 12 }).map((_, i) => ({
         id: i,
         left: `${Math.random() * 100}%`,
         top: `${Math.random() * 100}%`,
         size: Math.random() * 3 + 2,
-        duration: Math.random() * 25 + 15,
-        delay: Math.random() * 5
+        duration: Math.random() * 15 + 10 + 's',
+        delay: Math.random() * 5 + 's'
     })), []);
 
     return (
         <div style={{ position: "fixed", inset: 0, zIndex: 0, pointerEvents: "none" }}>
             {particles.map((p) => (
-                <motion.div
+                <div
                     key={p.id}
-                    animate={{
-                        y: [0, -80, 0],
-                        opacity: [0, 0.3, 0],
-                    }}
-                    transition={{
-                        duration: p.duration,
-                        repeat: Infinity,
-                        ease: "linear",
-                        delay: p.delay
-                    }}
                     style={{
                         position: "absolute",
                         left: p.left,
@@ -277,7 +317,9 @@ const FloatingParticles = () => {
                         height: p.size,
                         borderRadius: "50%",
                         background: "#d2691e",
-                        willChange: "transform, opacity"
+                        opacity: 0,
+                        animation: `floatUp ${p.duration} linear infinite`,
+                        animationDelay: p.delay
                     }}
                 />
             ))}
@@ -952,7 +994,7 @@ export default function SpecialDayBentoPage() {
                                         </div>
                                     </div>
 
-                                    {/* Middle Layer (2nd card) */}
+                                    {/* Middle Layer (2nd card) - Shows SAME image as top for seamless transition */}
                                     <div style={{
                                         position: "absolute",
                                         top: "8px",
@@ -967,7 +1009,7 @@ export default function SpecialDayBentoPage() {
                                     }}>
                                         <div style={{ width: "100%", height: "calc(100% - 25px)", background: "#f5f3f0", position: "relative", overflow: "hidden" }}>
                                             <Image
-                                                src={portraits[(portraitIndex + 1) % portraits.length].src}
+                                                src={portraits[portraitIndex].src}
                                                 alt=""
                                                 fill
                                                 style={{ objectFit: "cover", objectPosition: "center top", opacity: 0.85 }}
@@ -975,79 +1017,84 @@ export default function SpecialDayBentoPage() {
                                         </div>
                                     </div>
 
-                                    {/* Top Layer (Current card with shuffle animation) */}
-                                    <AnimatePresence mode="wait">
-                                        <motion.div
-                                            key={portraitIndex}
-                                            initial={{ rotate: 2, x: 0, y: 0, opacity: 1 }}
-                                            animate={{ rotate: [-2, 0, -2], x: 0, y: 0, opacity: 1 }}
-                                            exit={{
-                                                rotate: 15,
-                                                x: isMobile ? 150 : 200,
-                                                y: isMobile ? 100 : 150,
-                                                opacity: 0,
-                                                transition: { duration: 0.5, ease: "easeIn" }
-                                            }}
-                                            transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
-                                            whileHover={{ scale: 1.02 }}
-                                            onClick={(e) => {
-                                                e.stopPropagation();
-                                                setSelectedPortrait(portraits[portraitIndex]);
-                                            }}
-                                            style={{
-                                                position: "absolute",
-                                                top: 0,
-                                                left: 0,
-                                                width: "100%",
-                                                height: "100%",
-                                                background: "#fff",
-                                                padding: "12px 12px 40px 12px",
-                                                boxShadow: "0 10px 40px rgba(0,0,0,0.15), 0 4px 12px rgba(0,0,0,0.1)",
-                                                zIndex: 3
-                                            }}
-                                        >
-                                            <div style={{
-                                                width: "100%",
-                                                height: "calc(100% - 28px)",
-                                                position: "relative",
-                                                overflow: "hidden",
-                                                background: "#faf8f5"
-                                            }}>
-                                                <Image
-                                                    src={portraits[portraitIndex].src}
-                                                    alt={portraits[portraitIndex].label}
-                                                    fill
-                                                    style={{ objectFit: "cover", objectPosition: "center top" }}
-                                                />
-                                            </div>
-                                            {/* Polaroid Caption */}
-                                            <div style={{
-                                                position: "absolute",
-                                                bottom: "10px",
-                                                left: "0",
-                                                right: "0",
-                                                textAlign: "center"
-                                            }}>
-                                                <HandwrittenNote style={{ fontSize: "0.95rem", color: "#8a7058" }}>
-                                                    {portraits[portraitIndex].label}
-                                                </HandwrittenNote>
-                                            </div>
-                                        </motion.div>
-                                    </AnimatePresence>
-
-                                    {/* Tap hint */}
-                                    <div style={{
-                                        position: "absolute",
-                                        bottom: "-30px",
-                                        left: "50%",
-                                        transform: "translateX(-50%)",
-                                        fontSize: "0.7rem",
-                                        color: "#a0907d",
-                                        opacity: 0.6,
-                                        whiteSpace: "nowrap"
-                                    }}>
-                                        ketuk untuk shuffle
-                                    </div>
+                                    {/* Top Layer (Current card - static frame, animated image inside) */}
+                                    <motion.div
+                                        initial={{ rotate: -2 }}
+                                        animate={{ rotate: [-2, 0, -2] }}
+                                        transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+                                        whileHover={{ scale: 1.02 }}
+                                        whileTap={{ scale: 0.98 }}
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            setSelectedPortrait(portraits[portraitIndex]);
+                                        }}
+                                        style={{
+                                            position: "absolute",
+                                            top: 0,
+                                            left: 0,
+                                            width: "100%",
+                                            height: "100%",
+                                            background: "#fff",
+                                            padding: "12px 12px 40px 12px",
+                                            boxShadow: "0 10px 40px rgba(0,0,0,0.15), 0 4px 12px rgba(0,0,0,0.1)",
+                                            zIndex: 3
+                                        }}
+                                    >
+                                        <div style={{
+                                            width: "100%",
+                                            height: "calc(100% - 28px)",
+                                            position: "relative",
+                                            overflow: "hidden",
+                                            background: "#faf8f5"
+                                        }}>
+                                            <AnimatePresence mode="wait">
+                                                <motion.div
+                                                    key={portraitIndex}
+                                                    initial={{ opacity: 0 }}
+                                                    animate={{ opacity: 1 }}
+                                                    exit={{ opacity: 0 }}
+                                                    transition={{ duration: 0.5 }}
+                                                    style={{ position: "absolute", inset: 0 }}
+                                                >
+                                                    <Image
+                                                        src={portraits[portraitIndex].src}
+                                                        alt={portraits[portraitIndex].label}
+                                                        fill
+                                                        style={{ objectFit: "cover", objectPosition: "center top" }}
+                                                    />
+                                                </motion.div>
+                                            </AnimatePresence>
+                                        </div>
+                                        {/* Polaroid Caption */}
+                                        <div style={{
+                                            position: "absolute",
+                                            bottom: "10px",
+                                            left: "0",
+                                            right: "0",
+                                            textAlign: "center"
+                                        }}>
+                                            <AnimatePresence mode="wait">
+                                                <motion.div
+                                                    key={portraitIndex}
+                                                    initial={{ opacity: 0, y: 5 }}
+                                                    animate={{ opacity: 1, y: 0 }}
+                                                    exit={{ opacity: 0, y: -5 }}
+                                                    transition={{ duration: 0.4 }}
+                                                >
+                                                    <TypewriterText
+                                                        text={portraits[portraitIndex].label}
+                                                        style={{
+                                                            fontFamily: "'Caveat', cursive, 'Brush Script MT'",
+                                                            color: "#8a7058",
+                                                            fontSize: "0.95rem",
+                                                            display: "inline-block",
+                                                            lineHeight: 1.1
+                                                        }}
+                                                    />
+                                                </motion.div>
+                                            </AnimatePresence>
+                                        </div>
+                                    </motion.div>
                                 </div>
 
                                 {/* Text Content */}
