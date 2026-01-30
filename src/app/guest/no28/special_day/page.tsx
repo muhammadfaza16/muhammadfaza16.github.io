@@ -992,16 +992,15 @@ export default function SpecialDayBentoPage() {
                                                     exit={{ opacity: 0, y: -5 }}
                                                     transition={{ duration: 0.4 }}
                                                 >
-                                                    <TypewriterText
-                                                        text={portraits[portraitIndex].label}
-                                                        style={{
-                                                            fontFamily: "'Caveat', cursive, 'Brush Script MT'",
-                                                            color: "#8a7058",
-                                                            fontSize: "0.95rem",
-                                                            display: "inline-block",
-                                                            lineHeight: 1.1
-                                                        }}
-                                                    />
+                                                    <HandwrittenNote style={{
+                                                        fontFamily: "'Caveat', cursive, 'Brush Script MT'",
+                                                        color: "#8a7058",
+                                                        fontSize: "0.95rem",
+                                                        display: "inline-block",
+                                                        lineHeight: 1.1
+                                                    }}>
+                                                        {portraits[portraitIndex].label}
+                                                    </HandwrittenNote>
                                                 </motion.div>
                                             </AnimatePresence>
                                         </div>

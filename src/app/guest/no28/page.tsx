@@ -166,7 +166,6 @@ export default function GuestNo28Dashboard() {
     const [mounted, setMounted] = useState(false);
     const [greeting, setGreeting] = useState("");
     const [subtext, setSubtext] = useState("");
-    const [displayedSubtext, setDisplayedSubtext] = useState("");
     const [dateString, setDateString] = useState("");
     const [isMobile, setIsMobile] = useState(false);
     const [dailyHaiku, setDailyHaiku] = useState(haikuCollection[0]);
@@ -260,18 +259,7 @@ export default function GuestNo28Dashboard() {
         return () => window.removeEventListener('resize', checkMobile);
     }, []);
 
-    // Typewriter effect for subtext
-    useEffect(() => {
-        if (!subtext) return;
-        setDisplayedSubtext("");
-        let i = 0;
-        const interval = setInterval(() => {
-            setDisplayedSubtext(subtext.slice(0, i));
-            i++;
-            if (i > subtext.length) clearInterval(interval);
-        }, 35); // Slightly faster for better UX
-        return () => clearInterval(interval);
-    }, [subtext]);
+
 
     // Countdown timer to special date
     useEffect(() => {
@@ -685,9 +673,6 @@ export default function GuestNo28Dashboard() {
 
                     <motion.div style={{ y: headerParallax, opacity: headerOpacity, willChange: "transform, opacity" }}>
                         <motion.div
-                            initial={{ opacity: 0, y: 10 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ duration: 1 }}
                             style={{ marginBottom: isMobile ? "4rem" : "15vh", textAlign: "center", position: "relative" }}
                         >
                             {/* Watercolor Splash Behind Text */}
@@ -734,7 +719,7 @@ export default function GuestNo28Dashboard() {
                             </h2>
 
                             <p style={{ marginTop: "1.5rem", fontSize: "1.1rem", color: "#666", fontStyle: "italic", maxWidth: "500px", marginInline: "auto", minHeight: "3em" }}>
-                                "{displayedSubtext}"
+                                "{subtext}"
                             </p>
                         </motion.div>
                     </motion.div>
