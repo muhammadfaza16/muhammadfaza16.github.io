@@ -6,6 +6,7 @@ import { Home, Sparkles, Clock, Calendar, Heart, Gift, Activity, Wind, Star, Boo
 import Link from "next/link";
 import Image from "next/image";
 import { Container } from "@/components/Container";
+import { MOOD_CONFIG, JournalEntry } from "@/types/journal";
 
 // --- Components ---
 
@@ -93,7 +94,7 @@ const SectionTitle = ({ children, icon: Icon }: { children: React.ReactNode, ico
     </div>
 );
 
-const DotGrid = ({ total, filled, columns = 20, color = "#b07d62", size = "6px" }: { total: number, filled: number, columns?: number, color?: string, size?: string }) => {
+const DotGrid = ({ total, filled, columns = 20, color = "#b07d62", size = "6px", customColors = {} }: { total: number, filled: number, columns?: number, color?: string, size?: string, customColors?: Record<number, string> }) => {
     // Memoize random values
     const dots = useMemo(() => {
         return Array.from({ length: total }).map(() => ({
@@ -112,6 +113,12 @@ const DotGrid = ({ total, filled, columns = 20, color = "#b07d62", size = "6px" 
             {dots.map((dot, i) => {
                 const isToday = i === filled - 1;
                 const isLast = i === total - 1;
+                const customColor = customColors[i];
+
+                // Determine base color logic
+                let dotColor = customColor || (i < filled ? color : "#e4dfd7");
+                if (!customColor && isToday) dotColor = "#d2691e";
+
 
                 return (
                     <motion.div
@@ -122,7 +129,7 @@ const DotGrid = ({ total, filled, columns = 20, color = "#b07d62", size = "6px" 
                             width: size,
                             height: size,
                             borderRadius: isLast ? "0" : "2px", // Star shape logic simplified or just circle
-                            background: isToday ? "#d2691e" : (i < filled ? color : "#e4dfd7"),
+                            background: dotColor,
                             opacity: 1,
                             transform: `rotate(${dot.rotation}deg) scale(${isLast ? 1.5 : 1})`,
                             boxShadow: isToday ? "0 0 4px #d2691e" : "none",
@@ -619,6 +626,35 @@ export default function SpecialDayBentoPage() {
     const currentDayInPersonalYear = Math.floor((now.getTime() - startOfPersonalYear.getTime()) / (1000 * 60 * 60 * 24));
     const daysLeftInPersonalYear = totalDaysInPersonalYear - currentDayInPersonalYear;
 
+    // --- Journal Data Integration ---
+    const [journalColors, setJournalColors] = useState<Record<number, string>>({});
+
+    useEffect(() => {
+        const saved = localStorage.getItem("journal_entries_25");
+        if (saved) {
+            try {
+                const entries: Record<string, JournalEntry> = JSON.parse(saved);
+                const colors: Record<number, string> = {};
+                Object.values(entries).forEach(entry => {
+                    // Normalize dates to midnight for accurate day diff
+                    const entryDate = new Date(entry.date);
+                    entryDate.setHours(0, 0, 0, 0);
+
+                    const startDate = new Date(startOfPersonalYear);
+                    startDate.setHours(0, 0, 0, 0);
+
+                    const diff = entryDate.getTime() - startDate.getTime();
+                    const idx = Math.floor(diff / (1000 * 60 * 60 * 24));
+
+                    if (idx >= 0 && MOOD_CONFIG[entry.category]) {
+                        colors[idx] = MOOD_CONFIG[entry.category].color;
+                    }
+                });
+                setJournalColors(colors);
+            } catch (e) { console.error("Error loading journal colors", e); }
+        }
+    }, [startOfPersonalYear]);
+
     return (
         <div style={{
             background: "#fdf8f4",
@@ -1075,37 +1111,46 @@ export default function SpecialDayBentoPage() {
                         </BentoCard>
 
                         {/* 2. Personal Year Loop (Instead of Calendar) */}
-                        <BentoCard isMobile={isMobile} style={{ gridColumn: isMobile ? "span 1" : "span 7" }} rotate="-0.4deg" tapeColor="#f6a4a9">
-                            <SectionTitle icon={Map}>Lembaran Kisah Ke-{age + 1}</SectionTitle>
-                            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: "1.5rem" }}>
-                                <div>
-                                    <div style={{ fontSize: "0.8rem", color: "#a0907d", letterSpacing: "1px", fontWeight: 700, textTransform: "uppercase" }}>Halaman Yang Telah Kamu Isi</div>
-                                    <div style={{ fontSize: "3.5rem", fontWeight: 900, color: "#b07d62", lineHeight: 1, fontFamily: "'Crimson Pro', serif" }}>
-                                        {currentDayInPersonalYear} <span style={{ fontSize: "1.2rem", fontWeight: 300, color: "#4e4439", fontStyle: "italic" }}>Hari</span>
+                        {/* 2. Personal Year Loop (Instead of Calendar) */}
+                        <Link href="/guest/no28/journal" style={{ gridColumn: isMobile ? "span 1" : "span 7", textDecoration: "none", color: "inherit", display: "block" }}>
+                            <BentoCard isMobile={isMobile} rotate="-0.4deg" tapeColor="#f6a4a9" style={{ height: "100%", transition: "transform 0.2s" }}>
+                                <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "1.8rem" }}>
+                                    <Map size={14} color="#a0907d" style={{ opacity: 0.8 }} />
+                                    <h3 style={{ fontSize: "0.7rem", fontWeight: 700, color: "#a0907d", textTransform: "uppercase", letterSpacing: "2.5px" }}>Lembaran Kisah Ke-{age + 1}</h3>
+                                    <div style={{ marginLeft: "auto", background: "#fdf1f0", padding: "2px 8px", borderRadius: "10px", fontSize: "0.65rem", color: "#d2691e", fontWeight: 600 }}>KETUK UNTUK MENGISI</div>
+                                </div>
+
+                                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: "1.5rem" }}>
+                                    <div>
+                                        <div style={{ fontSize: "0.8rem", color: "#a0907d", letterSpacing: "1px", fontWeight: 700, textTransform: "uppercase" }}>Halaman Yang Telah Kamu Isi</div>
+                                        <div style={{ fontSize: "3.5rem", fontWeight: 900, color: "#b07d62", lineHeight: 1, fontFamily: "'Crimson Pro', serif" }}>
+                                            {currentDayInPersonalYear} <span style={{ fontSize: "1.2rem", fontWeight: 300, color: "#4e4439", fontStyle: "italic" }}>Hari</span>
+                                        </div>
+                                    </div>
+                                    <div style={{ textAlign: "right" }}>
+                                        <HandwrittenNote style={{ fontSize: "1.2rem" }}>{daysLeftInPersonalYear} hari lagi...</HandwrittenNote>
+                                        <div style={{ fontSize: "0.7rem", color: "#aaa", textTransform: "uppercase" }}>MENUJU 28 NOV</div>
                                     </div>
                                 </div>
-                                <div style={{ textAlign: "right" }}>
-                                    <HandwrittenNote style={{ fontSize: "1.2rem" }}>{daysLeftInPersonalYear} hari lagi...</HandwrittenNote>
-                                    <div style={{ fontSize: "0.7rem", color: "#aaa", textTransform: "uppercase" }}>MENUJU 28 NOV</div>
+                                <div style={{ position: "relative", padding: "10px 0" }}>
+                                    <DotGrid
+                                        total={totalDaysInPersonalYear}
+                                        filled={currentDayInPersonalYear}
+                                        columns={isMobile ? 18 : 27}
+                                        size={isMobile ? "4px" : "6px"}
+                                        color="#b07d62"
+                                        customColors={journalColors}
+                                    />
+                                    <div style={{ display: "flex", justifyContent: "space-between", marginTop: "1rem", fontSize: "0.7rem", fontWeight: 700, color: "#aaa" }}>
+                                        <span>28 NOV {startOfPersonalYear.getFullYear()}</span>
+                                        <span>28 NOV {endOfPersonalYear.getFullYear()}</span>
+                                    </div>
+                                    <HandwrittenNote style={{ position: "absolute", top: "0", right: "20%", transform: "rotate(5deg)", fontSize: "0.9rem" }}>
+                                        "Terus bersinar ya..."
+                                    </HandwrittenNote>
                                 </div>
-                            </div>
-                            <div style={{ position: "relative", padding: "10px 0" }}>
-                                <DotGrid
-                                    total={totalDaysInPersonalYear}
-                                    filled={currentDayInPersonalYear}
-                                    columns={isMobile ? 18 : 27}
-                                    size={isMobile ? "4px" : "6px"}
-                                    color="#b07d62"
-                                />
-                                <div style={{ display: "flex", justifyContent: "space-between", marginTop: "1rem", fontSize: "0.7rem", fontWeight: 700, color: "#aaa" }}>
-                                    <span>28 NOV {startOfPersonalYear.getFullYear()}</span>
-                                    <span>28 NOV {endOfPersonalYear.getFullYear()}</span>
-                                </div>
-                                <HandwrittenNote style={{ position: "absolute", top: "0", right: "20%", transform: "rotate(5deg)", fontSize: "0.9rem" }}>
-                                    "Terus bersinar ya..."
-                                </HandwrittenNote>
-                            </div>
-                        </BentoCard>
+                            </BentoCard>
+                        </Link>
 
                         {/* --- NEW CARD: Tantang 25 Tahun (Quarter Life) --- */}
                         <BentoCard isMobile={isMobile} style={{ gridColumn: isMobile ? "span 1" : "span 12" }} rotate="-0.2deg" tapeColor="#aebdca">
