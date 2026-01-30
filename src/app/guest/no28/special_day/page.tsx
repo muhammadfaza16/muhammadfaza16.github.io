@@ -93,151 +93,45 @@ const SectionTitle = ({ children, icon: Icon }: { children: React.ReactNode, ico
     </div>
 );
 
-// --- Efficient Canvas DotGrid (No Crashes) ---
 const DotGrid = ({ total, filled, columns = 20, color = "#b07d62", size = "6px" }: { total: number, filled: number, columns?: number, color?: string, size?: string }) => {
-    const canvasRef = useRef<HTMLCanvasElement>(null);
-
-    useEffect(() => {
-        const canvas = canvasRef.current;
-        if (!canvas) return;
-        const ctx = canvas.getContext("2d");
-        if (!ctx) return;
-
-        // Parse size (e.g. "6px" -> 6)
-        const dotBaseSize = parseInt(size) || 6;
-        const gap = 5;
-        const totalRows = Math.ceil(total / columns);
-
-        // Handle High DPI displays for crisp rendering
-        const dpr = window.devicePixelRatio || 1;
-        const widthCSS = columns * (dotBaseSize + gap);
-        const heightCSS = totalRows * (dotBaseSize + gap);
-
-        canvas.width = widthCSS * dpr;
-        canvas.height = heightCSS * dpr;
-        canvas.style.width = widthCSS + "px";
-        canvas.style.height = heightCSS + "px";
-
-        ctx.scale(dpr, dpr);
-        ctx.clearRect(0, 0, widthCSS, heightCSS);
-
-        for (let i = 0; i < total; i++) {
-            const col = i % columns;
-            const row = Math.floor(i / columns);
-            const cx = col * (dotBaseSize + gap) + dotBaseSize / 2;
-            const cy = row * (dotBaseSize + gap) + dotBaseSize / 2;
-
-            ctx.beginPath();
-            ctx.arc(cx, cy, dotBaseSize / 2, 0, Math.PI * 2);
-
-            // Coloring logic
-            if (i === filled - 1) {
-                // Today: Highlight color
-                ctx.fillStyle = "#d2691e";
-            } else if (i < filled) {
-                // Past: Filled color
-                ctx.fillStyle = color;
-            } else {
-                // Future: Muted
-                ctx.fillStyle = "#e4dfd7";
-            }
-            ctx.fill();
-
-            // Special ring for today
-            if (i === filled - 1) {
-                ctx.beginPath();
-                ctx.lineWidth = 1;
-                ctx.strokeStyle = "rgba(210, 105, 30, 0.4)";
-                ctx.arc(cx, cy, dotBaseSize, 0, Math.PI * 2);
-                ctx.stroke();
-            }
-        }
-    }, [total, filled, columns, color, size]);
-
-    return (
-        <div style={{ marginTop: "1rem", display: "flex", justifyContent: "center" }}>
-            <canvas ref={canvasRef} />
-        </div>
-    );
-};
-
-// --- Premium Passive Polaroid Stack (Gravity Shuffle) ---
-const PolaroidStack = ({ images }: { images: { src: string, label: string }[] }) => {
-    const [index, setIndex] = useState(0);
-
-    useEffect(() => {
-        const timer = setInterval(() => {
-            setIndex((prev) => (prev + 1) % images.length);
-        }, 5000); // Slow, cinematic cycle every 5s
-        return () => clearInterval(timer);
-    }, [images.length]);
-
-    // We only render the top 2 cards for performance, plus a "dummy" bottom one
-    // Logic: Current (Top), Next (Middle), + Generic Bottom
-    const currentImg = images[index];
-    const nextImg = images[(index + 1) % images.length];
+    // Memoize random values
+    const dots = useMemo(() => {
+        return Array.from({ length: total }).map(() => ({
+            rotation: Math.random() * 6 - 3,
+            scale: 0.8 + Math.random() * 0.4
+        }));
+    }, [total]);
 
     return (
         <div style={{
-            position: "relative",
-            width: "220px",
-            height: "280px",
-            perspective: "1000px"
+            display: "grid",
+            gridTemplateColumns: `repeat(${columns}, 1fr)`,
+            gap: "5px",
+            marginTop: "10px"
         }}>
-            {/* 3. Bottom Layer (Static Depth) */}
-            <div style={{
-                position: "absolute", top: 10, left: 10, right: -10, bottom: -5,
-                background: "#fff",
-                border: "1px solid #e8e2d9",
-                transform: "rotate(4deg)",
-                zIndex: 0,
-                boxShadow: "0 2px 5px rgba(0,0,0,0.05)"
-            }} />
+            {dots.map((dot, i) => {
+                const isToday = i === filled - 1;
+                const isLast = i === total - 1;
 
-            {/* 2. Middle Layer (The "Next" Card) */}
-            <div style={{
-                position: "absolute", inset: 0,
-                background: "#faf8f5",
-                border: "1px solid #e8e2d9",
-                transform: "rotate(-2deg) scale(0.95) translateY(5px)",
-                zIndex: 1,
-                padding: "10px 10px 40px 10px",
-                display: "flex", alignItems: "center", justifyContent: "center",
-                opacity: 0.8
-            }}>
-                <div style={{ position: "relative", width: "100%", height: "100%", overflow: "hidden", filter: "grayscale(20%)" }}>
-                    <Image src={nextImg.src} alt="" fill style={{ objectFit: "cover" }} />
-                </div>
-            </div>
-
-            {/* 1. Top Layer (Active) using Framer Motion for Entry/Exit */}
-            <AnimatePresence mode="popLayout">
-                <motion.div
-                    key={index}
-                    initial={{ y: -20, opacity: 0, rotate: 2 }}
-                    animate={{ y: 0, opacity: 1, rotate: Math.random() * 2 - 1 }} // Slight random tilt
-                    exit={{ y: 50, opacity: 0, rotate: -5, transition: { duration: 0.8, ease: "backIn" } }} // Gravity drop effect
-                    transition={{ duration: 0.8, ease: "circOut" }}
-                    style={{
-                        position: "absolute", inset: 0,
-                        background: "#fff",
-                        padding: "10px 10px 40px 10px",
-                        boxShadow: "0 10px 25px rgba(0,0,0,0.15)",
-                        border: "1px solid #e8e2d9",
-                        zIndex: 2,
-                        display: "flex", flexDirection: "column"
-                    }}
-                >
-                    <div style={{ position: "relative", flex: 1, background: "#f0f0f0", overflow: "hidden" }}>
-                        <Image src={currentImg.src} alt={currentImg.label} fill style={{ objectFit: "cover" }} priority />
-                    </div>
-                    <div style={{ height: "30px", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                        <HandwrittenNote style={{ fontSize: "0.85rem", marginTop: "5px", color: "#5e4b35" }}>
-                            {currentImg.label}
-                        </HandwrittenNote>
-                    </div>
-                </motion.div>
-            </AnimatePresence>
+                return (
+                    <motion.div
+                        key={i}
+                        animate={isToday ? { scale: [1, 1.8, 1], opacity: [1, 0.8, 1] } : {}}
+                        transition={isToday ? { duration: 2, repeat: Infinity, ease: "easeInOut" } : {}}
+                        style={{
+                            width: size,
+                            height: size,
+                            borderRadius: isLast ? "0" : "2px", // Star shape logic simplified or just circle
+                            background: isToday ? "#d2691e" : (i < filled ? color : "#e4dfd7"),
+                            opacity: 1,
+                            transform: `rotate(${dot.rotation}deg) scale(${isLast ? 1.5 : 1})`,
+                            boxShadow: isToday ? "0 0 4px #d2691e" : "none",
+                            position: "relative",
+                            clipPath: isLast ? "polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%)" : "none" // Star shape for the last day
+                        }}
+                    />
+                );
+            })}
         </div>
     );
 };
@@ -452,7 +346,6 @@ export default function SpecialDayBentoPage() {
     const [expandedChapter, setExpandedChapter] = useState<number | null>(null);
     const [showTodayMessage, setShowTodayMessage] = useState(false);
     const [showTimeCapsuleMessage, setShowTimeCapsuleMessage] = useState(false);
-    const [isShuffling, setIsShuffling] = useState(false); // New State for Polaroid Stack
     const wisdomIndexRef = useRef(0);
     const SPECIAL_DATE = useMemo(() => new Date("2026-11-28"), []);
     const [dots, setDots] = useState("");
@@ -658,19 +551,6 @@ export default function SpecialDayBentoPage() {
     };
     const handleKamusLongPressEnd = () => {
         if (longPressTimer) clearTimeout(longPressTimer);
-    };
-
-    // Shuffle Handler for Mobile Polaroid Stack
-    const handleShuffle = () => {
-        if (isShuffling) return;
-        setIsShuffling(true);
-        // Vibrate for feedback
-        if (typeof window !== "undefined" && window.navigator.vibrate) window.navigator.vibrate(10);
-
-        setTimeout(() => {
-            setPortraitIndex((prev) => (prev + 1) % portraits.length);
-            setIsShuffling(false);
-        }, 500); // Wait for exit animation
     };
 
     if (!mounted) return null;
@@ -934,83 +814,67 @@ export default function SpecialDayBentoPage() {
                     >
 
                         {/* 1. Polaroid Portrait Card */}
-                        <BentoCard
-                            isMobile={isMobile}
-                            style={{
-                                gridColumn: isMobile ? "span 1" : "span 12",
-                                minHeight: isMobile ? "auto" : "380px",
-                                display: "flex",
-                                alignItems: "center",
-                                justifyContent: "center"
-                            }}
-                            rotate="0deg"
-                            tapeColor="#87b0a5"
-                        >
+                        <BentoCard isMobile={isMobile} style={{ gridColumn: isMobile ? "span 1" : "span 12", minHeight: isMobile ? "auto" : "380px", display: "flex", alignItems: "center", justifyContent: "center" }} rotate="0deg" tapeColor="#87b0a5">
                             <div style={{
                                 display: "flex",
                                 flexDirection: isMobile ? "column" : "row",
                                 alignItems: "center",
                                 gap: isMobile ? "2rem" : "4rem",
-                                padding: isMobile ? "1rem" : "2rem",
-                                width: "100%"
+                                padding: isMobile ? "1rem" : "2rem"
                             }}>
-                                {isMobile ? (
-                                    <PolaroidStack images={portraits} />
-                                ) : (
-                                    // --- DESKTOP ORIGINAL LAYOUT ---
-                                    <motion.div
-                                        initial={{ rotate: -3 }}
-                                        animate={{ rotate: [-3, -1, -3] }}
-                                        transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
-                                        whileHover={{ scale: 1.05, rotate: 0 }}
-                                        onClick={() => setSelectedPortrait(portraits[portraitIndex])}
-                                        style={{
-                                            background: "#fff",
-                                            padding: "12px 12px 40px 12px",
-                                            boxShadow: "0 8px 30px rgba(0,0,0,0.12), 0 2px 8px rgba(0,0,0,0.08)",
-                                            position: "relative",
-                                            cursor: "pointer",
-                                            border: "1px solid #e8e2d9"
-                                        }}
-                                    >
-                                        <div style={{
-                                            width: isMobile ? "200px" : "260px",
-                                            height: isMobile ? "240px" : "300px",
-                                            position: "relative",
-                                            overflow: "hidden",
-                                            background: "#faf8f5"
-                                        }}>
-                                            <AnimatePresence mode="wait">
-                                                <motion.div
-                                                    key={portraitIndex}
-                                                    initial={{ opacity: 0 }}
-                                                    animate={{ opacity: 1 }}
-                                                    exit={{ opacity: 0 }}
-                                                    transition={{ duration: 0.8 }}
-                                                    style={{ position: "absolute", inset: 0 }}
-                                                >
-                                                    <Image
-                                                        src={portraits[portraitIndex].src}
-                                                        alt={portraits[portraitIndex].label}
-                                                        fill
-                                                        style={{ objectFit: "cover", objectPosition: "center top" }}
-                                                    />
-                                                </motion.div>
-                                            </AnimatePresence>
-                                        </div>
-                                        <div style={{
-                                            position: "absolute",
-                                            bottom: "8px",
-                                            left: "0",
-                                            right: "0",
-                                            textAlign: "center"
-                                        }}>
-                                            <HandwrittenNote style={{ fontSize: "1rem", color: "#8a7058" }}>
-                                                {portraits[portraitIndex].label}
-                                            </HandwrittenNote>
-                                        </div>
-                                    </motion.div>
-                                )}
+                                {/* Polaroid Frame */}
+                                <motion.div
+                                    initial={{ rotate: -3 }}
+                                    animate={{ rotate: [-3, -1, -3] }}
+                                    transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+                                    whileHover={{ scale: 1.05, rotate: 0 }}
+                                    onClick={() => setSelectedPortrait(portraits[portraitIndex])}
+                                    style={{
+                                        background: "#fff",
+                                        padding: "12px 12px 40px 12px",
+                                        boxShadow: "0 8px 30px rgba(0,0,0,0.12), 0 2px 8px rgba(0,0,0,0.08)",
+                                        position: "relative",
+                                        cursor: "pointer"
+                                    }}
+                                >
+                                    <div style={{
+                                        width: isMobile ? "200px" : "260px",
+                                        height: isMobile ? "240px" : "300px",
+                                        position: "relative",
+                                        overflow: "hidden",
+                                        background: "#faf8f5"
+                                    }}>
+                                        <AnimatePresence mode="wait">
+                                            <motion.div
+                                                key={portraitIndex}
+                                                initial={{ opacity: 0 }}
+                                                animate={{ opacity: 1 }}
+                                                exit={{ opacity: 0 }}
+                                                transition={{ duration: 0.8 }}
+                                                style={{ position: "absolute", inset: 0 }}
+                                            >
+                                                <Image
+                                                    src={portraits[portraitIndex].src}
+                                                    alt={portraits[portraitIndex].label}
+                                                    fill
+                                                    style={{ objectFit: "cover", objectPosition: "center top" }}
+                                                />
+                                            </motion.div>
+                                        </AnimatePresence>
+                                    </div>
+                                    {/* Polaroid Caption */}
+                                    <div style={{
+                                        position: "absolute",
+                                        bottom: "8px",
+                                        left: "0",
+                                        right: "0",
+                                        textAlign: "center"
+                                    }}>
+                                        <HandwrittenNote style={{ fontSize: "1rem", color: "#8a7058" }}>
+                                            {portraits[portraitIndex].label}
+                                        </HandwrittenNote>
+                                    </div>
+                                </motion.div>
 
                                 {/* Text Content */}
                                 <div style={{ textAlign: isMobile ? "center" : "left", maxWidth: "400px" }}>

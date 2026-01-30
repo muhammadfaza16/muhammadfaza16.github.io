@@ -99,7 +99,7 @@ export default function JourneyPage() {
                         <Container>
                             <div style={{ maxWidth: "600px" }}>
                                 <h2 style={{
-                                    fontSize: "2.5rem",
+                                    fontSize: "clamp(2rem, 5vw, 2.5rem)",
                                     fontWeight: 700,
                                     letterSpacing: "-0.03em",
                                     lineHeight: 1.1,
@@ -108,7 +108,7 @@ export default function JourneyPage() {
                                     2026: <span style={{ color: "#af52de" }}>The Year of Building.</span>
                                 </h2>
                                 <p style={{
-                                    fontSize: "1.1rem",
+                                    fontSize: "clamp(1rem, 3vw, 1.1rem)",
                                     color: "rgba(255,255,255,0.6)",
                                     lineHeight: 1.6,
                                     margin: 0

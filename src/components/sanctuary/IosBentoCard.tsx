@@ -27,6 +27,10 @@ export function IosBentoCard({
     accentColor = "var(--accent)",
     children
 }: IosBentoCardProps) {
+    // Generate a unique class for this card's column span to handle media queries
+    // We use a simple hash or just the value to create the class name
+    const spanClass = `ios-bento-span-${colSpan}`;
+
     return (
         <motion.a
             href={href}
@@ -44,9 +48,9 @@ export function IosBentoCard({
                 stiffness: 260,
                 damping: 20
             }}
+            // REMOVED inline gridColumn, moved to style tag below
             style={{
                 position: "relative",
-                gridColumn: `span ${colSpan}`,
                 borderRadius: "24px",
                 overflow: "hidden",
                 background: "rgba(255, 255, 255, 0.03)",
@@ -58,8 +62,15 @@ export function IosBentoCard({
                 minHeight: "180px",
                 cursor: "pointer"
             }}
-            className={`group ${className}`}
+            className={`group ${className} ${spanClass}`}
         >
+            <style jsx global>{`
+                .${spanClass} { grid-column: span 1; }
+                @media (min-width: 768px) {
+                    .${spanClass} { grid-column: span ${colSpan}; }
+                }
+            `}</style>
+
             {/* Background Image */}
             {imageUrl && (
                 <div style={{
