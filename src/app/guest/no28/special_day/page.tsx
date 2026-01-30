@@ -385,27 +385,28 @@ const TimeCapsule = ({ onClick }: { onClick: () => void }) => (
 
 export default function SpecialDayBentoPage() {
     const [mounted, setMounted] = useState(false);
-    const [now, setNow] = useState<Date | null>(null);
+    const [stableNow, setStableNow] = useState<Date | null>(null); // For static widgets (Calendar, Age) - Updates infrequently
+    const [livePulse, setLivePulse] = useState<Date | null>(null); // For Heartbeat - Updates every second
     const [isMobile, setIsMobile] = useState(false);
     const [wisdom, setWisdom] = useState("");
     const [kamusIndex, setKamusIndex] = useState(0);
 
     // New interactive states
-    const [heartbeats, setHeartbeats] = useState(0);
     const [showShakeOverlay, setShowShakeOverlay] = useState(false);
     const [kamusHearts, setKamusHearts] = useState<{ id: number; x: number; y: number }[]>([]);
     const [expandedChapter, setExpandedChapter] = useState<number | null>(null);
     const [showTodayMessage, setShowTodayMessage] = useState(false);
     const [showTimeCapsuleMessage, setShowTimeCapsuleMessage] = useState(false);
+    const [journalColors, setJournalColors] = useState<Record<number, string>>({}); // moved here
     const wisdomIndexRef = useRef(0);
     const SPECIAL_DATE = useMemo(() => new Date("2026-11-28"), []);
     const [dots, setDots] = useState("");
 
     const daysUntil = useMemo(() => {
-        if (!now) return 0;
-        const diff = SPECIAL_DATE.getTime() - now.getTime();
+        if (!stableNow) return 0;
+        const diff = SPECIAL_DATE.getTime() - stableNow.getTime();
         return Math.max(0, Math.ceil(diff / (1000 * 60 * 60 * 24)));
-    }, [now, SPECIAL_DATE]);
+    }, [stableNow, SPECIAL_DATE]);
 
     // Typewriter effect for dots
     useEffect(() => {
@@ -434,6 +435,30 @@ export default function SpecialDayBentoPage() {
     const lifeExpectancyYears = 80;
     const totalLifeMonths = lifeExpectancyYears * 12;
 
+    // --- Calculations (Moved to Top) ---
+    const currentNow = stableNow || new Date(); // Use STABLE now for heavy calculations
+    const pulseNow = livePulse || new Date();   // Use LIVE pulses for heartbeat only
+
+    const heartbeats = Math.floor((pulseNow.getTime() - birthDate.getTime()) / 1000 * 1.2);
+    const totalMsLived = currentNow.getTime() - birthDate.getTime();
+    const monthsLived = (currentNow.getFullYear() - birthDate.getFullYear()) * 12 + (currentNow.getMonth() - birthDate.getMonth());
+
+    // Exact Age
+    let age = currentNow.getFullYear() - birthDate.getFullYear();
+    const m = currentNow.getMonth() - birthDate.getMonth();
+    if (m < 0 || (m === 0 && currentNow.getDate() < birthDate.getDate())) {
+        age--;
+    }
+
+    // --- Personal Year Loop ---
+    let startOfPersonalYear = new Date(currentNow.getFullYear(), 10, 28);
+    if (currentNow < startOfPersonalYear) startOfPersonalYear = new Date(currentNow.getFullYear() - 1, 10, 28);
+
+    let endOfPersonalYear = new Date(startOfPersonalYear.getFullYear() + 1, 10, 28);
+    const totalDaysInPersonalYear = Math.round((endOfPersonalYear.getTime() - startOfPersonalYear.getTime()) / (1000 * 60 * 60 * 24));
+    const currentDayInPersonalYear = Math.floor((currentNow.getTime() - startOfPersonalYear.getTime()) / (1000 * 60 * 60 * 24));
+    const daysLeftInPersonalYear = totalDaysInPersonalYear - currentDayInPersonalYear;
+
     const kamusMeanings = [
         {
             title: "Ketenangan & Intuisi",
@@ -461,12 +486,23 @@ export default function SpecialDayBentoPage() {
 
     useEffect(() => {
         setMounted(true);
-        setNow(new Date()); // Set initial date on client only
+        const nowInit = new Date();
+        setStableNow(nowInit);
+        setLivePulse(nowInit);
+
         const handleResize = () => setIsMobile(window.innerWidth < 768);
         handleResize();
         window.addEventListener('resize', handleResize);
 
-        const timer = setInterval(() => setNow(new Date()), 1000);
+        // Heartbeat timer (1s)
+        const pulseTimer = setInterval(() => setLivePulse(new Date()), 1000);
+
+        // Stable timer (check date change every minute)
+        const stableTimer = setInterval(() => {
+            const n = new Date();
+            if (n.getDate() !== nowInit.getDate()) setStableNow(n);
+        }, 60000);
+
         const kamusTimer = setInterval(() => setKamusIndex(prev => (prev + 1) % kamusMeanings.length), 20000);
 
         const dailyWisdoms = [
@@ -485,7 +521,8 @@ export default function SpecialDayBentoPage() {
 
         return () => {
             window.removeEventListener('resize', handleResize);
-            clearInterval(timer);
+            clearInterval(pulseTimer);
+            clearInterval(stableTimer);
             clearInterval(kamusTimer);
         };
     }, []);
@@ -500,35 +537,6 @@ export default function SpecialDayBentoPage() {
 
         return () => clearTimeout(timer);
     }, [footerIndex]);
-
-    // Heartbeat counter - ~70 BPM average (update every 5s for performance)
-    // Heartbeat counter - ~70 BPM average
-    useEffect(() => {
-        const msPerHeartbeat = 60000 / 70; // ~857ms per beat
-
-        // Initial Calculation
-        const calculateBeats = () => {
-            const msLived = Date.now() - birthDate.getTime();
-            return Math.floor(msLived / msPerHeartbeat);
-        };
-
-        setHeartbeats(calculateBeats());
-
-        // Increment by 1 every beat for "alive" feeling
-        const beatInterval = setInterval(() => {
-            setHeartbeats(prev => prev + 1);
-        }, msPerHeartbeat);
-
-        // Sync correction every minute to prevent drift
-        const syncInterval = setInterval(() => {
-            setHeartbeats(calculateBeats());
-        }, 60000);
-
-        return () => {
-            clearInterval(beatInterval);
-            clearInterval(syncInterval);
-        };
-    }, []);
 
     // Portrait gallery cycling
     useEffect(() => {
@@ -608,58 +616,10 @@ export default function SpecialDayBentoPage() {
 
     if (!mounted) return null;
 
-    // --- Calculations ---
-    const currentNow = now || new Date(); // Fallback for initial render safety if needed, though mounted check should cover it
-    const totalMsLived = currentNow.getTime() - birthDate.getTime();
-    const monthsLived = (currentNow.getFullYear() - birthDate.getFullYear()) * 12 + (currentNow.getMonth() - birthDate.getMonth());
+    if (!mounted) return null;
+    if (!stableNow) return null; // Prevent hydration mismatch by not rendering until client-side active
 
-    // Exact Age
-    let age = currentNow.getFullYear() - birthDate.getFullYear();
-    const m = currentNow.getMonth() - birthDate.getMonth();
-    if (m < 0 || (m === 0 && currentNow.getDate() < birthDate.getDate())) {
-        age--;
-    }
-
-    // --- Personal Year Loop (Birthday-to-Birthday Progress) ---
-    let startOfPersonalYear = new Date(currentNow.getFullYear(), 10, 28);
-    if (currentNow < startOfPersonalYear) startOfPersonalYear = new Date(currentNow.getFullYear() - 1, 10, 28);
-
-    let endOfPersonalYear = new Date(startOfPersonalYear.getFullYear() + 1, 10, 28);
-    const totalDaysInPersonalYear = Math.round((endOfPersonalYear.getTime() - startOfPersonalYear.getTime()) / (1000 * 60 * 60 * 24));
-    const currentDayInPersonalYear = Math.floor((currentNow.getTime() - startOfPersonalYear.getTime()) / (1000 * 60 * 60 * 24));
-    const daysLeftInPersonalYear = totalDaysInPersonalYear - currentDayInPersonalYear;
-
-    // --- Journal Data Integration ---
-    const [journalColors, setJournalColors] = useState<Record<number, string>>({});
-
-    useEffect(() => {
-        const saved = localStorage.getItem("journal_entries_25");
-        if (saved) {
-            try {
-                const entries: Record<string, JournalEntry> = JSON.parse(saved);
-                const colors: Record<number, string> = {};
-                Object.values(entries).forEach(entry => {
-                    // Normalize dates to midnight for accurate day diff
-                    const entryDate = new Date(entry.date);
-                    entryDate.setHours(0, 0, 0, 0);
-
-                    const startDate = new Date(startOfPersonalYear);
-                    startDate.setHours(0, 0, 0, 0);
-
-                    const diff = entryDate.getTime() - startDate.getTime();
-                    const idx = Math.floor(diff / (1000 * 60 * 60 * 24));
-
-                    // SAFE ACCESS: Check if category exists in config
-                    if (idx >= 0 && entry.category && MOOD_CONFIG[entry.category]) {
-                        colors[idx] = MOOD_CONFIG[entry.category].color;
-                    }
-                });
-                setJournalColors(colors);
-            } catch (e) { console.error("Error loading journal colors", e); }
-        }
-    }, [startOfPersonalYear.getTime()]);
-
-    if (!mounted || !now) return null; // Prevent hydration mismatch by not rendering until client-side active
+    if (!mounted || !stableNow) return null; // Prevent hydration mismatch by not rendering until client-side active
 
     return (
         <div style={{
@@ -880,7 +840,7 @@ export default function SpecialDayBentoPage() {
                         <div style={{ textAlign: "right" }}>
                             <HandwrittenNote style={{ fontSize: "1rem", opacity: 0.7 }}>Bait Hari Ini</HandwrittenNote>
                             <div style={{ fontSize: "0.85rem", fontWeight: 700, color: "#a0907d", letterSpacing: "1px" }}>
-                                {now.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}
+                                {currentNow.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}
                             </div>
                         </div>
                     </div>
@@ -1123,7 +1083,7 @@ export default function SpecialDayBentoPage() {
                                 <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "1.8rem" }}>
                                     <Map size={14} color="#a0907d" style={{ opacity: 0.8 }} />
                                     <h3 style={{ fontSize: "0.7rem", fontWeight: 700, color: "#a0907d", textTransform: "uppercase", letterSpacing: "2.5px" }}>Lembaran Kisah Ke-{age + 1}</h3>
-                                    <div style={{ marginLeft: "auto", background: "#fdf1f0", padding: "2px 8px", borderRadius: "10px", fontSize: "0.65rem", color: "#d2691e", fontWeight: 600 }}>KETUK UNTUK MENGISI</div>
+                                    <div style={{ marginLeft: "auto", fontFamily: "'Caveat', cursive", fontSize: "1.1rem", color: "#b07d62", transform: "rotate(-2deg)", opacity: 0.8 }}>ukir ceritamu...</div>
                                 </div>
 
                                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: "1.5rem" }}>
