@@ -22,20 +22,16 @@ const Guest28Icon = (props: any) => (
 );
 
 const PasswordPopup = ({ onClose }: { onClose: () => void }) => {
-    const [password, setPassword] = useState("");
-    const [error, setError] = useState(false);
+    const [pinInput, setPinInput] = useState("");
+    const [pinError, setPinError] = useState(false);
 
-    const handleSubmit = (e: React.FormEvent) => {
-        e.preventDefault();
-        // Dummy check - always fail or just close, user said "gausa lo implement" functionality.
-        // But to feel "real", let's shake or something if empty.
-        // For now, just close it to simulate "trying".
-        if (!password) {
-            setError(true);
-            return;
+    const handleSubmit = (e?: React.FormEvent) => {
+        if (e) e.preventDefault();
+        // Always fail logic for fake security
+        if (pinInput.length > 0) {
+            setPinError(true);
+            setPinInput("");
         }
-        // Dummy: just close with no action (access denied visually) or just close
-        onClose();
     };
 
     return (
@@ -63,60 +59,105 @@ const PasswordPopup = ({ onClose }: { onClose: () => void }) => {
                 onClick={(e) => e.stopPropagation()}
                 style={{
                     background: "#fff",
-                    padding: "2rem",
-                    borderRadius: "20px",
-                    width: "100%",
-                    maxWidth: "320px",
+                    padding: "3rem 2.5rem",
+                    borderRadius: "4px 8px 4px 10px",
+                    border: "1px solid #e8e2d9",
                     boxShadow: "0 20px 50px rgba(0,0,0,0.2)",
-                    textAlign: "center"
+                    textAlign: "center",
+                    maxWidth: "340px",
+                    width: "100%",
+                    position: "relative"
                 }}
             >
+                {/* Washi Tape Decoration */}
                 <div style={{
-                    width: "50px", height: "50px", background: "#f0f0f0",
-                    borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center",
-                    margin: "0 auto 1.5rem"
-                }}>
-                    <Key size={24} color="#555" />
-                </div>
-                <h3 style={{ margin: "0 0 0.5rem", color: "#333", fontFamily: "'Crimson Pro', serif", fontSize: "1.5rem" }}>Terkunci</h3>
-                <p style={{ margin: "0 0 1.5rem", color: "#666", fontSize: "0.9rem" }}>Masukkan sandi untuk membuka kenangan ini.</p>
+                    position: "absolute",
+                    top: "-12px",
+                    left: "50%",
+                    transform: "translateX(-50%) rotate(-2deg)",
+                    width: "80px",
+                    height: "24px",
+                    backgroundColor: "#b07d62",
+                    opacity: 0.9,
+                    boxShadow: "0 2px 4px rgba(0,0,0,0.18)",
+                    borderRadius: "2px",
+                }} />
 
-                <form onSubmit={handleSubmit}>
+                <div style={{ marginBottom: "1.5rem", display: "flex", flexDirection: "column", alignItems: "center" }}>
+                    {/* Using Key icon instead of Sparkles to match original 'locked' context but with new style */}
+                    <div style={{
+                        width: "48px", height: "48px", background: "#fdf8f4",
+                        borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center",
+                        marginBottom: "1rem", border: "1px dashed #d2b48c"
+                    }}>
+                        <Key size={20} color="#b07d62" />
+                    </div>
+
+                    <h2 style={{ fontSize: "1.4rem", color: "#4e4439", fontWeight: 600, marginBottom: "0.5rem", fontFamily: "'Crimson Pro', serif" }}>
+                        Ruang Terkunci
+                    </h2>
+                    <p style={{ fontFamily: "'Caveat', cursive", fontSize: "1.1rem", opacity: 0.7, color: "#8a7058", margin: 0 }}>
+                        Masukkan sandi untuk membuka...
+                    </p>
+                </div>
+
+                <form onSubmit={handleSubmit} style={{ marginBottom: "1.5rem" }}>
                     <input
-                        type="password" // password type
-                        value={password}
-                        onChange={(e) => { setPassword(e.target.value); setError(false); }}
-                        placeholder="Sandi..."
+                        type="password"
+                        inputMode="numeric"
+                        // maxLength={4} // Allow any length "format nomor aja"
+                        value={pinInput}
+                        onChange={(e) => {
+                            setPinInput(e.target.value.replace(/\D/g, ""));
+                            setPinError(false);
+                        }}
+                        placeholder="• • • •"
                         autoFocus
                         style={{
                             width: "100%",
-                            padding: "12px",
-                            borderRadius: "10px",
-                            border: error ? "1px solid red" : "1px solid #ddd",
-                            marginBottom: "1rem",
-                            fontSize: "1rem",
+                            padding: "1rem",
+                            fontSize: "1.8rem",
+                            textAlign: "center",
+                            letterSpacing: "0.5rem",
+                            border: pinError ? "2px solid #e57373" : "1px solid #e8e2d9",
+                            borderRadius: "8px",
+                            background: "#faf8f5",
+                            color: "#4e4439",
+                            fontFamily: "'Crimson Pro', serif",
                             outline: "none",
-                            textAlign: "center"
+                            transition: "border-color 0.2s"
                         }}
                     />
-                    <motion.button
-                        whileTap={{ scale: 0.95 }}
-                        type="submit"
-                        style={{
-                            width: "100%",
-                            padding: "12px",
-                            background: "#333",
-                            color: "#fff",
-                            border: "none",
-                            borderRadius: "10px",
-                            fontSize: "1rem",
-                            fontWeight: 600,
-                            cursor: "pointer"
-                        }}
-                    >
-                        Buka
-                    </motion.button>
+                    {pinError && (
+                        <motion.p
+                            initial={{ opacity: 0, y: -5 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            style={{ color: "#e57373", fontSize: "0.9rem", marginTop: "0.8rem", fontWeight: 500 }}
+                        >
+                            Sandi tidak sesuai
+                        </motion.p>
+                    )}
                 </form>
+
+                <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={handleSubmit}
+                    style={{
+                        width: "100%",
+                        padding: "0.8rem 1.5rem",
+                        background: "#b07d62",
+                        color: "#fff",
+                        border: "none",
+                        borderRadius: "6px",
+                        fontSize: "1rem",
+                        fontWeight: 500,
+                        cursor: "pointer",
+                        fontFamily: "'Crimson Pro', serif"
+                    }}
+                >
+                    Buka
+                </motion.button>
             </motion.div>
         </motion.div>
     );

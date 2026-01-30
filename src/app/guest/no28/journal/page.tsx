@@ -213,8 +213,10 @@ export default function JournalPage() {
             }
         }
 
-        // Force Simulation if low data (Demo Mode requested by user)
-        if (Object.keys(parsed).length < 3) {
+        const isInitialized = localStorage.getItem("journal_initialized_25"); // Check initialization flag
+
+        // Force Simulation ONLY if not initialized (First visit)
+        if (!isInitialized) {
             seedSimulationData(parsed);
         } else {
             setEntries(parsed);
@@ -248,13 +250,15 @@ export default function JournalPage() {
                     date: dateKey,
                     note: notes[i],
                     category: moods[i],
-                    timestamp: Date.now() - i * 86400000
+                    timestamp: Date.now() - i * 86400000,
+                    isTemplate: true // Mark as template
                 };
             }
         }
 
         setEntries(demoEntries);
         localStorage.setItem("journal_entries_25", JSON.stringify(demoEntries));
+        localStorage.setItem("journal_initialized_25", "true"); // Mark as initialized
     };
 
     // Save Entry
@@ -436,6 +440,16 @@ export default function JournalPage() {
 
                         {todayEntry ? (
                             <div style={{ width: "100%", position: "relative", zIndex: 1 }}>
+                                {todayEntry.isTemplate && (
+                                    <div style={{
+                                        position: "absolute", top: "0", right: "0",
+                                        fontSize: "0.65rem", fontWeight: 700, color: "#aaa",
+                                        border: "1px solid #ccc", padding: "2px 6px", borderRadius: "4px",
+                                        letterSpacing: "1px", textTransform: "uppercase"
+                                    }}>
+                                        CONTOH
+                                    </div>
+                                )}
                                 <div style={{
                                     display: "inline-flex", alignItems: "center", gap: "8px",
                                     background: MOOD_CONFIG[todayEntry.category].color,
@@ -525,6 +539,18 @@ export default function JournalPage() {
                                     }}>
                                         {/* Paper Texture Overlay */}
                                         <div style={{ position: "absolute", inset: 0, opacity: 0.6, backgroundImage: "url('https://www.transparenttextures.com/patterns/natural-paper.png')", pointerEvents: "none", mixBlendMode: "multiply" }} />
+
+                                        {/* Template Badge */}
+                                        {entry.isTemplate && (
+                                            <div style={{
+                                                position: "absolute", top: "8px", right: "8px",
+                                                fontSize: "0.6rem", fontWeight: 700, color: "#aaa",
+                                                border: "1px solid #ccc", padding: "1px 5px", borderRadius: "4px",
+                                                opacity: 0.8, letterSpacing: "1px", pointerEvents: "none"
+                                            }}>
+                                                CONTOH
+                                            </div>
+                                        )}
 
                                         {/* Date Tag - Hanging/Attached style */}
                                         <div style={{

@@ -5,6 +5,7 @@ export interface JournalEntry {
     note: string;       // User's reflection
     category: MoodCategory;
     timestamp: number;  // Last updated
+    isTemplate?: boolean; // Demo data flag
 }
 
 export const MOOD_CONFIG: Record<MoodCategory, { label: string, color: string, desc: string }> = {
