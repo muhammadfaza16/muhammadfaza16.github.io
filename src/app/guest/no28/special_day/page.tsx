@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo, useRef } from "react";
+import React, { useState, useEffect, useMemo, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Home, Sparkles, Clock, Calendar, Heart, Gift, Activity, Wind, Star, BookOpen, Map, MapPin, Quote, ArrowLeft } from "lucide-react";
 import Link from "next/link";
@@ -66,7 +66,7 @@ const itemVariants = {
     })
 };
 
-const BentoCard = ({ children, style = {}, rotate = "0deg", delay = 0, tapeColor, isMobile, className }: { children: React.ReactNode, style?: React.CSSProperties, rotate?: string, delay?: number, tapeColor?: string, isMobile?: boolean, className?: string }) => (
+const BentoCard = React.memo(({ children, style = {}, rotate = "0deg", delay = 0, tapeColor, isMobile, className }: { children: React.ReactNode, style?: React.CSSProperties, rotate?: string, delay?: number, tapeColor?: string, isMobile?: boolean, className?: string }) => (
     <motion.div
         variants={itemVariants}
         custom={parseFloat(rotate)}
@@ -85,7 +85,8 @@ const BentoCard = ({ children, style = {}, rotate = "0deg", delay = 0, tapeColor
         <div style={{ position: "absolute", inset: 0, opacity: 0.04, pointerEvents: "none", backgroundImage: "url('https://www.transparenttextures.com/patterns/natural-paper.png')", zIndex: 0 }} />
         <div style={{ position: "relative", zIndex: 1 }}>{children}</div>
     </motion.div>
-);
+));
+BentoCard.displayName = "BentoCard";
 
 const SectionTitle = ({ children, icon: Icon }: { children: React.ReactNode, icon?: any }) => (
     <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "1.8rem" }}>
@@ -94,7 +95,7 @@ const SectionTitle = ({ children, icon: Icon }: { children: React.ReactNode, ico
     </div>
 );
 
-const DotGrid = ({ total, filled, columns = 20, color = "#b07d62", size = "6px", customColors = {} }: { total: number, filled: number, columns?: number, color?: string, size?: string, customColors?: Record<number, string> }) => {
+const DotGrid = React.memo(({ total, filled, columns = 20, color = "#b07d62", size = "6px", customColors = {} }: { total: number, filled: number, columns?: number, color?: string, size?: string, customColors?: Record<number, string> }) => {
     // Memoize random values
     const dots = useMemo(() => {
         return Array.from({ length: total }).map(() => ({
@@ -141,7 +142,8 @@ const DotGrid = ({ total, filled, columns = 20, color = "#b07d62", size = "6px",
             })}
         </div>
     );
-};
+});
+DotGrid.displayName = "DotGrid";
 
 // --- Ambient Components ---
 
@@ -352,6 +354,65 @@ const Butterflies = () => {
     );
 };
 
+// --- Standalone Widgets (Optimized) ---
+
+const HeartbeatWidget = ({ isMobile }: { isMobile?: boolean }) => {
+    const [beats, setBeats] = useState<number>(0);
+    const birthDate = useMemo(() => new Date(2000, 10, 28), []);
+
+    useEffect(() => {
+        // Update immediately
+        const updateBeats = () => {
+            const now = new Date();
+            const val = Math.floor((now.getTime() - birthDate.getTime()) / 1000 * 1.2);
+            setBeats(val);
+        };
+        updateBeats();
+
+        const timer = setInterval(updateBeats, 1000);
+        return () => clearInterval(timer);
+    }, [birthDate]);
+
+    // Initial render hydration mismatch prevention
+    if (beats === 0) return null;
+
+    return (
+        <React.Fragment>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "1rem", flexWrap: "wrap" }}>
+                <motion.div
+                    animate={{ scale: [1, 1.15, 1] }}
+                    transition={{ duration: 0.857, repeat: Infinity, ease: "easeInOut" }}
+                >
+                    <Heart size={28} color="#b07d62" fill="#b07d62" style={{ opacity: 0.8 }} />
+                </motion.div>
+                <div>
+                    <div style={{ fontSize: "0.7rem", color: "#a0907d", textTransform: "uppercase", letterSpacing: "1.5px", marginBottom: "0.3rem" }}>
+                        Detak jantungmu sejak lahir
+                    </div>
+                    <div style={{
+                        fontSize: isMobile ? "1.8rem" : "2.5rem",
+                        fontWeight: 900,
+                        color: "#b07d62",
+                        fontFamily: "'Crimson Pro', serif",
+                        fontVariantNumeric: "tabular-nums" // Prevents jitter
+                    }}>
+                        {beats.toLocaleString('id-ID')}
+                    </div>
+                </div>
+                <motion.div
+                    animate={{ scale: [1, 1.15, 1] }}
+                    transition={{ duration: 0.857, repeat: Infinity, ease: "easeInOut", delay: 0.4 }}
+                >
+                    <Heart size={28} color="#b07d62" fill="#b07d62" style={{ opacity: 0.8 }} />
+                </motion.div>
+            </div>
+            <HandwrittenNote style={{ marginTop: "1rem", fontSize: "1rem", opacity: 0.7 }}>
+                "...dan setiap detaknya adalah bukti bahwa kamu berharga."
+            </HandwrittenNote>
+        </React.Fragment>
+    );
+};
+
 // --- Page ---
 
 const TimeCapsule = ({ onClick }: { onClick: () => void }) => (
@@ -386,7 +447,6 @@ const TimeCapsule = ({ onClick }: { onClick: () => void }) => (
 export default function SpecialDayBentoPage() {
     const [mounted, setMounted] = useState(false);
     const [stableNow, setStableNow] = useState<Date | null>(null); // For static widgets (Calendar, Age) - Updates infrequently
-    const [livePulse, setLivePulse] = useState<Date | null>(null); // For Heartbeat - Updates every second
     const [isMobile, setIsMobile] = useState(false);
     const [wisdom, setWisdom] = useState("");
     const [kamusIndex, setKamusIndex] = useState(0);
@@ -437,9 +497,7 @@ export default function SpecialDayBentoPage() {
 
     // --- Calculations (Moved to Top) ---
     const currentNow = stableNow || new Date(); // Use STABLE now for heavy calculations
-    const pulseNow = livePulse || new Date();   // Use LIVE pulses for heartbeat only
 
-    const heartbeats = Math.floor((pulseNow.getTime() - birthDate.getTime()) / 1000 * 1.2);
     const totalMsLived = currentNow.getTime() - birthDate.getTime();
     const monthsLived = (currentNow.getFullYear() - birthDate.getFullYear()) * 12 + (currentNow.getMonth() - birthDate.getMonth());
 
@@ -488,14 +546,10 @@ export default function SpecialDayBentoPage() {
         setMounted(true);
         const nowInit = new Date();
         setStableNow(nowInit);
-        setLivePulse(nowInit);
 
         const handleResize = () => setIsMobile(window.innerWidth < 768);
         handleResize();
         window.addEventListener('resize', handleResize);
-
-        // Heartbeat timer (1s)
-        const pulseTimer = setInterval(() => setLivePulse(new Date()), 1000);
 
         // Stable timer (check date change every minute)
         const stableTimer = setInterval(() => {
@@ -521,7 +575,6 @@ export default function SpecialDayBentoPage() {
 
         return () => {
             window.removeEventListener('resize', handleResize);
-            clearInterval(pulseTimer);
             clearInterval(stableTimer);
             clearInterval(kamusTimer);
         };
@@ -1267,38 +1320,9 @@ export default function SpecialDayBentoPage() {
                             </div>
                         </BentoCard>
 
-                        {/* 4. Heartbeat Counter Widget (Swapped) */}
+                        {/* 4. Heartbeat Counter Widget (Swapped & Isolated) */}
                         <BentoCard isMobile={isMobile} style={{ gridColumn: isMobile ? "span 1" : "span 12", textAlign: "center" }} rotate="0.3deg" tapeColor="#87b0a5">
-                            <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "1rem", flexWrap: "wrap" }}>
-                                <motion.div
-                                    animate={{ scale: [1, 1.15, 1] }}
-                                    transition={{ duration: 0.857, repeat: Infinity, ease: "easeInOut" }}
-                                >
-                                    <Heart size={28} color="#b07d62" fill="#b07d62" style={{ opacity: 0.8 }} />
-                                </motion.div>
-                                <div>
-                                    <div style={{ fontSize: "0.7rem", color: "#a0907d", textTransform: "uppercase", letterSpacing: "1.5px", marginBottom: "0.3rem" }}>
-                                        Detak jantungmu sejak lahir
-                                    </div>
-                                    <div style={{
-                                        fontSize: isMobile ? "1.8rem" : "2.5rem",
-                                        fontWeight: 900,
-                                        color: "#b07d62",
-                                        fontFamily: "'Crimson Pro', serif"
-                                    }}>
-                                        {heartbeats.toLocaleString('id-ID')}
-                                    </div>
-                                </div>
-                                <motion.div
-                                    animate={{ scale: [1, 1.15, 1] }}
-                                    transition={{ duration: 0.857, repeat: Infinity, ease: "easeInOut", delay: 0.4 }}
-                                >
-                                    <Heart size={28} color="#b07d62" fill="#b07d62" style={{ opacity: 0.8 }} />
-                                </motion.div>
-                            </div>
-                            <HandwrittenNote style={{ marginTop: "1rem", fontSize: "1rem", opacity: 0.7 }}>
-                                "...dan setiap detaknya adalah bukti bahwa kamu berharga."
-                            </HandwrittenNote>
+                            <HeartbeatWidget isMobile={isMobile} />
                         </BentoCard>
 
                         {/* 5. Bisikan Sanubari (Consolidated Wisdom) */}

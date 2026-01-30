@@ -158,34 +158,7 @@ const Butterflies = () => {
     );
 };
 
-// Doodles Component
-const StampsAndDoodles = () => (
-    <div style={{ position: "fixed", inset: 0, zIndex: 1, pointerEvents: "none", overflow: "hidden" }}>
-        {/* Top Left Doodle - Lines */}
-        <div style={{ position: "absolute", top: "12%", left: "5%", opacity: 0.1, transform: "rotate(-10deg)" }}>
-            <svg width="120" height="60" viewBox="0 0 120 60" fill="none" stroke="#b07d62" strokeWidth="2" strokeLinecap="round">
-                <path d="M10,20 Q35,5 60,20 T110,20" />
-                <path d="M10,35 Q35,20 60,35 T110,35" />
-                <path d="M10,50 Q35,35 60,50 T110,50" />
-            </svg>
-        </div>
-        {/* Bottom Right Doodle - Compass/Circle */}
-        <div style={{ position: "absolute", bottom: "10%", right: "5%", opacity: 0.1, transform: "rotate(15deg)" }}>
-            <svg width="100" height="100" viewBox="0 0 100 100" fill="none" stroke="#b07d62" strokeWidth="1.5">
-                <circle cx="50" cy="50" r="45" strokeDasharray="4,4" />
-                <circle cx="50" cy="50" r="35" opacity="0.5" />
-                <path d="M50,10 L50,90 M10,50 L90,50" opacity="0.5" />
-            </svg>
-        </div>
-        {/* Random Stars */}
-        <div style={{ position: "absolute", top: "25%", right: "12%", opacity: 0.15 }}>
-            <Sparkles size={32} color="#b07d62" />
-        </div>
-        <div style={{ position: "absolute", bottom: "25%", left: "8%", opacity: 0.15 }}>
-            <Sparkles size={24} color="#b07d62" />
-        </div>
-    </div>
-);
+
 
 // --- Page ---
 
@@ -576,7 +549,6 @@ export default function GuestNo28Dashboard() {
             <FloatingParticles />
             <FallingPetals />
             <Butterflies />
-            <StampsAndDoodles />
 
             {/* Hidden Audio Element - Moved to Layout */}
 
@@ -775,18 +747,6 @@ export default function GuestNo28Dashboard() {
                                     textAlign: "center"
                                 }}
                             >
-                                <WashiTape color="#ff6b6b" rotate="-3deg" width="110px" />
-
-                                {/* Postage Stamp Detail */}
-                                <div style={{
-                                    position: "absolute", top: "20px", right: "20px",
-                                    border: "2px dashed #e0d0c0", padding: "5px 10px",
-                                    borderRadius: "4px", transform: "rotate(15deg)",
-                                    opacity: 0.6, pointerEvents: "none"
-                                }}>
-                                    <div style={{ fontSize: "0.6rem", fontWeight: "bold", color: "#b07d62", textTransform: "uppercase" }}>AIR MAIL</div>
-                                </div>
-
                                 {/* Central Sketch Illustration */}
                                 <div style={{ position: "relative", width: "200px", height: "150px", marginBottom: "1rem", marginTop: "1rem", mixBlendMode: "multiply" }}>
                                     <Image src="/sketch_envelope_flower_v2.webp" alt="Vintage Envelope Sketch" fill style={{ objectFit: "contain" }} />
@@ -795,10 +755,6 @@ export default function GuestNo28Dashboard() {
                                 <div style={{ position: "relative", zIndex: 1 }}>
                                     <h3 style={{ fontSize: "1.6rem", fontWeight: 700, color: "#333", fontFamily: "'Crimson Pro', serif" }}>Sepucuk Surat</h3>
                                     <p style={{ fontFamily: "'Caveat', cursive", color: "#8a7058", fontSize: "1.2rem", marginTop: "4px" }}>"Tinta yang baru saja mengering..."</p>
-                                    {/* Postmark Date */}
-                                    <div style={{ marginTop: "0.5rem", fontSize: "0.7rem", color: "#ccc", textTransform: "uppercase", letterSpacing: "2px" }}>
-                                        — {new Date().toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' })} —
-                                    </div>
                                 </div>
                             </motion.div>
                         </Link>
@@ -825,16 +781,6 @@ export default function GuestNo28Dashboard() {
                                     textAlign: "center"
                                 }}
                             >
-                                <WashiTape color="#4ecdc4" rotate="2deg" width="100px" />
-
-                                {/* Sparkles Decoration */}
-                                <div style={{ position: "absolute", top: "15%", left: "15%", opacity: 0.6 }}>
-                                    <Sparkles size={16} color="#4ecdc4" />
-                                </div>
-                                <div style={{ position: "absolute", bottom: "20%", right: "15%", opacity: 0.6, transform: "rotate(45deg)" }}>
-                                    <Sparkles size={12} color="#a0907d" />
-                                </div>
-
                                 {/* Central Sketch Illustration */}
                                 <div style={{ position: "relative", width: "210px", height: "180px", marginBottom: "1rem", marginTop: "1rem", mixBlendMode: "multiply", transform: "rotate(-2deg)" }}>
                                     <Image src="/sketch_gift_box.webp" alt="Vintage Gift Box Sketch" fill style={{ objectFit: "contain" }} />
@@ -843,10 +789,6 @@ export default function GuestNo28Dashboard() {
                                 <div style={{ position: "relative", zIndex: 1 }}>
                                     <h3 style={{ fontSize: "1.6rem", fontWeight: 700, color: "#333", fontFamily: "'Crimson Pro', serif" }}>Bingkisan Kecil Untukmu</h3>
                                     <p style={{ fontFamily: "'Caveat', cursive", color: "#8a7058", fontSize: "1.1rem", marginTop: "4px" }}>"...sebagai bukti bahwa kamu selalu terlihat."</p>
-                                    {/* Tag Detail */}
-                                    <div style={{ marginTop: "0.5rem", display: "inline-block", border: "1px solid #e0d0c0", padding: "2px 8px", borderRadius: "10px", fontSize: "0.7rem", color: "#b07d62", background: "#faf8f5" }}>
-                                        UNTUKMU
-                                    </div>
                                 </div>
                             </motion.div>
                         </Link>
