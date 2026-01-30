@@ -177,11 +177,11 @@ export default function GuestNo28Dashboard() {
     const [longPressHearts, setLongPressHearts] = useState<{ id: number; x: number; y: number }[]>([]);
     const [pullRefreshMessage, setPullRefreshMessage] = useState("");
 
-    // Parallax Effects
-    const { scrollY } = useScroll();
-    const headerParallax = useTransform(scrollY, [0, 500], [0, -150]); // Moves UP as we scroll down
-    const headerOpacity = useTransform(scrollY, [0, 300], [1, 0]);     // Fades OUT
-    const cardsParallax = useTransform(scrollY, [0, 500], [0, 0]);     // Keep cards stable
+    // Parallax Effects Removed
+    // const { scrollY } = useScroll();
+    // const headerParallax = useTransform(scrollY, [0, 500], [0, -150]); 
+    // const headerOpacity = useTransform(scrollY, [0, 300], [1, 0]);     
+    // const cardsParallax = useTransform(scrollY, [0, 500], [0, 0]);
 
 
     // Extended features
@@ -653,7 +653,7 @@ export default function GuestNo28Dashboard() {
                     y: { duration: 8, repeat: Infinity, ease: "easeInOut" },
                     rotate: { duration: 10, repeat: Infinity, ease: "easeInOut" }
                 }}
-                style={{ position: "fixed", top: "15%", right: "5%", width: "45vh", height: "45vh", zIndex: 1, pointerEvents: "none", mixBlendMode: "multiply" }}
+                style={{ position: "fixed", top: "25%", right: "5%", width: "45vh", height: "45vh", zIndex: 1, pointerEvents: "none", mixBlendMode: "multiply" }}
             >
                 <Image src="/hijabi_details.webp" alt="Detailed Personal Sketch" fill style={{ objectFit: 'contain' }} />
             </motion.div>
@@ -671,7 +671,7 @@ export default function GuestNo28Dashboard() {
                         </Link>
                     </div>
 
-                    <motion.div style={{ y: headerParallax, opacity: headerOpacity, willChange: "transform, opacity" }}>
+                    <motion.div style={{ willChange: "transform, opacity" }}>
                         <motion.div
                             style={{ marginBottom: isMobile ? "4rem" : "15vh", textAlign: "center", position: "relative" }}
                         >

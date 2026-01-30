@@ -825,10 +825,20 @@ export default function SpecialDayBentoPage() {
                         <div style={{ display: "flex", gap: "14px", alignItems: "center" }}>
                             <Link href="/guest/no28" style={{
                                 display: "inline-flex", alignItems: "center", justifyContent: "center",
-                                width: "44px", height: "44px", background: "#fff", border: "1.2px solid #a0907d",
-                                borderRadius: "12px", color: "#a0907d", boxShadow: "0 2px 10px rgba(160,144,125,0.12)"
-                            }}>
-                                <ArrowLeft size={22} />
+                                width: "44px", height: "44px", background: "#fff", border: "2px solid #5a5a5a",
+                                borderRadius: "12px", color: "#5a5a5a", boxShadow: "2px 2px 0px #5a5a5a",
+                                transition: "all 0.2s ease"
+                            }}
+                                onMouseOver={(e) => {
+                                    e.currentTarget.style.transform = "translate(-1px, -1px)";
+                                    e.currentTarget.style.boxShadow = "4px 4px 0px #5a5a5a";
+                                }}
+                                onMouseOut={(e) => {
+                                    e.currentTarget.style.transform = "translate(0, 0)";
+                                    e.currentTarget.style.boxShadow = "2px 2px 0px #5a5a5a";
+                                }}
+                            >
+                                <ArrowLeft size={22} strokeWidth={2} />
                             </Link>
                             <div style={{ transform: "rotate(-1deg)" }}>
                                 <div style={{ fontSize: "0.65rem", color: "#a0907d", textTransform: "uppercase", letterSpacing: "2.5px", fontWeight: 700, marginBottom: "-2px" }}>Bingkisan Kecil Untukmu</div>

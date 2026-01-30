@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useMemo, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowLeft, Save, X, Calendar, PenLine, Sparkles, ChevronLeft, ChevronRight, Quote } from "lucide-react";
+import { ArrowLeft, Save, X, Calendar, PenLine, Sparkles, ChevronLeft, ChevronRight, Quote, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { Container } from "@/components/Container"; // Adjust path if needed
 import { MOOD_CONFIG, JournalEntry, MoodCategory } from "@/types/journal";
@@ -316,6 +316,19 @@ export default function JournalPage() {
         setSelectedMood(entry ? entry.category : null);
     };
 
+    const handleDelete = () => {
+        if (!selectedDate) return;
+        if (!confirm("Yakin ingin menghapus lembaran ini? Kenangan ini akan hilang selamanya.")) return;
+
+        const dateKey = selectedDate.toISOString().split('T')[0];
+        const newEntries = { ...entries };
+        delete newEntries[dateKey];
+
+        setEntries(newEntries);
+        localStorage.setItem("journal_entries_25", JSON.stringify(newEntries));
+        setSelectedDate(null);
+    };
+
     if (!mounted) return null;
 
     return (
@@ -343,14 +356,25 @@ export default function JournalPage() {
                 background: "rgba(251, 249, 246, 0.9)",
                 backdropFilter: "blur(12px)",
                 borderBottom: "1px solid rgba(176, 125, 98, 0.05)",
-                padding: "1rem"
+                padding: "2rem 1rem" // Increased top/bottom padding
             }}>
                 <Container>
                     <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                        <Link href="/guest/no28/special_day" style={{ color: "#8a7058", display: "flex", alignItems: "center", gap: "5px", textDecoration: "none" }}>
-                            <div style={{ background: "#fff", borderRadius: "50%", padding: "8px", border: "1px solid #e8e2d9" }}>
-                                <ArrowLeft size={16} />
-                            </div>
+                        <Link href="/guest/no28/special_day" style={{
+                            display: "inline-flex", alignItems: "center", justifyContent: "center",
+                            width: "44px", height: "44px", background: "#fff", border: "2px solid #5a5a5a",
+                            boxShadow: "2px 2px 0px #5a5a5a", borderRadius: "12px", color: "#5a5a5a", transition: "all 0.2s ease"
+                        }}
+                            onMouseOver={(e) => {
+                                e.currentTarget.style.transform = "translate(-1px, -1px)";
+                                e.currentTarget.style.boxShadow = "4px 4px 0px #5a5a5a";
+                            }}
+                            onMouseOut={(e) => {
+                                e.currentTarget.style.transform = "translate(0, 0)";
+                                e.currentTarget.style.boxShadow = "2px 2px 0px #5a5a5a";
+                            }}
+                        >
+                            <ArrowLeft size={22} strokeWidth={2} />
                         </Link>
                         <h1 style={{ fontSize: "1.4rem", fontWeight: 700, color: "#b07d62", fontFamily: "'Caveat', cursive", marginRight: "auto", marginLeft: "1rem" }}>Palet Perasaan</h1>
                     </div>
@@ -385,25 +409,30 @@ export default function JournalPage() {
                         {/* Top Accent Bar */}
                         <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: "6px", background: "#d2b48c", opacity: 0.6 }} />
 
-                        {/* Date - Stamp Style */}
+                        {/* Date - Minimal Aesthetic */}
                         <div style={{
-                            border: "3px double #b07d62",
-                            padding: "4px 16px",
-                            borderRadius: "4px",
+                            fontFamily: "'Crimson Pro', serif",
+                            fontSize: "1.2rem",
+                            fontStyle: "italic",
                             color: "#b07d62",
-                            fontFamily: "'Courier New', monospace",
-                            fontWeight: "bold",
-                            letterSpacing: "1px",
-                            transform: "rotate(-2deg)",
                             marginBottom: "1.5rem",
-                            background: "rgba(176, 125, 98, 0.05)"
+                            marginTop: "1rem",
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "10px",
+                            opacity: 0.9
                         }}>
-                            {today.toLocaleDateString("id-ID", { day: '2-digit', month: 'short', year: 'numeric' }).toUpperCase()}
+                            <span style={{ height: "1px", width: "20px", background: "#b07d62", opacity: 0.4 }} />
+                            {today.toLocaleDateString("id-ID", { day: '2-digit', month: 'long', year: 'numeric' })}
+                            <span style={{ height: "1px", width: "20px", background: "#b07d62", opacity: 0.4 }} />
                         </div>
 
-                        <h2 style={{ fontFamily: "'Caveat', cursive", fontSize: "2.8rem", color: "#4e4439", margin: "0 0 1rem", lineHeight: 1 }}>
+                        <h2 style={{ fontFamily: "'Caveat', cursive", fontSize: "2.8rem", color: "#4e4439", margin: "0 0 0.5rem", lineHeight: 1 }}>
                             Cerita Hari Ini
                         </h2>
+                        <p style={{ fontSize: "0.95rem", color: "#8a7058", fontStyle: "italic", marginBottom: "2rem", opacity: 0.8, maxWidth: "380px" }}>
+                            "Apapun warna harimu ini, ia adalah bagian dari lukisan utuh perjalananmu."
+                        </p>
 
                         {todayEntry ? (
                             <div style={{ width: "100%", position: "relative", zIndex: 1 }}>
@@ -548,17 +577,22 @@ export default function JournalPage() {
                         )}
                     </div>
 
-                    {/* Privacy Disclaimer */}
-                    <div style={{ textAlign: "center", marginTop: "4rem", marginBottom: "2rem", opacity: 0.6 }}>
-                        <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "6px", color: "#a0907d", fontSize: "0.85rem", fontStyle: "italic" }}>
-                            <div style={{ width: "4px", height: "4px", borderRadius: "50%", background: "#a0907d" }} />
-                            <span>Ruang ini milikmu seutuhnya.</span>
-                            <div style={{ width: "4px", height: "4px", borderRadius: "50%", background: "#a0907d" }} />
+                    {/* Footer Narrative (Styled like Special Day) */}
+                    <div style={{ marginTop: "6rem", textAlign: "center", position: "relative", paddingBottom: "4rem" }}>
+                        <div style={{ width: "40px", height: "1px", background: "#b07d62", margin: "0 auto 2rem", opacity: 0.3 }} />
+
+                        <div style={{ position: "relative", maxWidth: "600px", margin: "0 auto" }}>
+                            <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "12px", marginBottom: "1rem" }}>
+                                <div style={{ width: "3px", height: "3px", borderRadius: "50%", background: "#b07d62", opacity: 0.6 }} />
+                                <HandwrittenNote style={{ fontSize: "1.3rem", color: "#b07d62" }}>Ruang ini milikmu seutuhnya.</HandwrittenNote>
+                                <div style={{ width: "3px", height: "3px", borderRadius: "50%", background: "#b07d62", opacity: 0.6 }} />
+                            </div>
+
+                            <p style={{ fontSize: "0.9rem", color: "#a0907d", lineHeight: 1.8, fontStyle: "italic", maxWidth: "480px", margin: "0 auto" }}>
+                                Setiap kata yang terukir di sini tersimpan aman dalam memori perangkatmu <i>(local storage)</i>. <br />
+                                Tak ada mata lain yang mengintip. Namun ingat, jika <strong>kamu</strong> membersihkan memori peramban ini, kenangan ini pun akan ikut memudar.
+                            </p>
                         </div>
-                        <p style={{ maxWidth: "450px", margin: "8px auto 0", fontSize: "0.75rem", color: "#b0a090", lineHeight: 1.6 }}>
-                            Setiap kata yang terukir di sini tersimpan aman dalam memori perangkatmu <i>(local storage)</i>. <br />
-                            Tak ada mata lain yang mengintip. Namun ingat, jika kau membersihkan memori peramban ini, kenangan ini pun akan ikut memudar.
-                        </p>
                     </div>
                 </div>
             </Container>
@@ -589,7 +623,6 @@ export default function JournalPage() {
                         >
                             <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: "6px", background: "linear-gradient(to right, #b07d62, #d2691e)" }} />
                             <div style={{ maxWidth: "600px", margin: "0 auto", position: "relative" }}>
-                                <WashiTape color="#b07d62" rotate="-2deg" width="30%" />
 
                                 {/* Header */}
                                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "start", marginBottom: "1.5rem", marginTop: "1rem" }}>
@@ -669,29 +702,48 @@ export default function JournalPage() {
                                     />
                                 </div>
 
-                                {/* Save Button */}
-                                <motion.button
-                                    whileTap={{ scale: 0.98 }}
-                                    onClick={handleSave}
-                                    disabled={!selectedMood}
-                                    style={{
-                                        width: "100%",
-                                        padding: "1.2rem",
-                                        background: selectedMood ? "#b07d62" : "#e0d0c0",
-                                        color: "#fff",
-                                        border: "none",
-                                        borderRadius: "16px",
-                                        fontSize: "1.1rem",
-                                        fontWeight: 700,
-                                        display: "flex", alignItems: "center", justifyContent: "center", gap: "10px",
-                                        cursor: selectedMood ? "pointer" : "not-allowed",
-                                        transition: "background 0.3s",
-                                        boxShadow: selectedMood ? "0 4px 12px rgba(176, 125, 98, 0.3)" : "none"
-                                    }}
-                                >
-                                    <Save size={20} />
-                                    Simpan Cerita
-                                </motion.button>
+                                {/* Save & Delete Buttons */}
+                                <div style={{ display: "flex", gap: "10px" }}>
+                                    {entries[selectedDate?.toISOString().split('T')[0] || ""] && (
+                                        <motion.button
+                                            whileTap={{ scale: 0.95 }}
+                                            onClick={handleDelete}
+                                            style={{
+                                                padding: "1.2rem",
+                                                background: "#f8d7da",
+                                                color: "#721c24",
+                                                border: "none",
+                                                borderRadius: "16px",
+                                                cursor: "pointer",
+                                                display: "flex", alignItems: "center", justifyContent: "center"
+                                            }}
+                                        >
+                                            <Trash2 size={20} />
+                                        </motion.button>
+                                    )}
+                                    <motion.button
+                                        whileTap={{ scale: 0.98 }}
+                                        onClick={handleSave}
+                                        disabled={!selectedMood}
+                                        style={{
+                                            flex: 1,
+                                            padding: "1.2rem",
+                                            background: selectedMood ? "#b07d62" : "#e0d0c0",
+                                            color: "#fff",
+                                            border: "none",
+                                            borderRadius: "16px",
+                                            fontSize: "1.1rem",
+                                            fontWeight: 700,
+                                            display: "flex", alignItems: "center", justifyContent: "center", gap: "10px",
+                                            cursor: selectedMood ? "pointer" : "not-allowed",
+                                            transition: "background 0.3s",
+                                            boxShadow: selectedMood ? "0 4px 12px rgba(176, 125, 98, 0.3)" : "none"
+                                        }}
+                                    >
+                                        <Save size={20} />
+                                        Simpan Cerita
+                                    </motion.button>
+                                </div>
                             </div>
                         </motion.div>
                     </>
