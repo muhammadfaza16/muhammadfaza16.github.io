@@ -385,7 +385,7 @@ const TimeCapsule = ({ onClick }: { onClick: () => void }) => (
 
 export default function SpecialDayBentoPage() {
     const [mounted, setMounted] = useState(false);
-    const [now, setNow] = useState(new Date());
+    const [now, setNow] = useState<Date | null>(null);
     const [isMobile, setIsMobile] = useState(false);
     const [wisdom, setWisdom] = useState("");
     const [kamusIndex, setKamusIndex] = useState(0);
@@ -402,6 +402,7 @@ export default function SpecialDayBentoPage() {
     const [dots, setDots] = useState("");
 
     const daysUntil = useMemo(() => {
+        if (!now) return 0;
         const diff = SPECIAL_DATE.getTime() - now.getTime();
         return Math.max(0, Math.ceil(diff / (1000 * 60 * 60 * 24)));
     }, [now, SPECIAL_DATE]);
@@ -460,6 +461,7 @@ export default function SpecialDayBentoPage() {
 
     useEffect(() => {
         setMounted(true);
+        setNow(new Date()); // Set initial date on client only
         const handleResize = () => setIsMobile(window.innerWidth < 768);
         handleResize();
         window.addEventListener('resize', handleResize);
@@ -607,23 +609,24 @@ export default function SpecialDayBentoPage() {
     if (!mounted) return null;
 
     // --- Calculations ---
-    const totalMsLived = now.getTime() - birthDate.getTime();
-    const monthsLived = (now.getFullYear() - birthDate.getFullYear()) * 12 + (now.getMonth() - birthDate.getMonth());
+    const currentNow = now || new Date(); // Fallback for initial render safety if needed, though mounted check should cover it
+    const totalMsLived = currentNow.getTime() - birthDate.getTime();
+    const monthsLived = (currentNow.getFullYear() - birthDate.getFullYear()) * 12 + (currentNow.getMonth() - birthDate.getMonth());
 
     // Exact Age
-    let age = now.getFullYear() - birthDate.getFullYear();
-    const m = now.getMonth() - birthDate.getMonth();
-    if (m < 0 || (m === 0 && now.getDate() < birthDate.getDate())) {
+    let age = currentNow.getFullYear() - birthDate.getFullYear();
+    const m = currentNow.getMonth() - birthDate.getMonth();
+    if (m < 0 || (m === 0 && currentNow.getDate() < birthDate.getDate())) {
         age--;
     }
 
     // --- Personal Year Loop (Birthday-to-Birthday Progress) ---
-    let startOfPersonalYear = new Date(now.getFullYear(), 10, 28);
-    if (now < startOfPersonalYear) startOfPersonalYear = new Date(now.getFullYear() - 1, 10, 28);
+    let startOfPersonalYear = new Date(currentNow.getFullYear(), 10, 28);
+    if (currentNow < startOfPersonalYear) startOfPersonalYear = new Date(currentNow.getFullYear() - 1, 10, 28);
 
     let endOfPersonalYear = new Date(startOfPersonalYear.getFullYear() + 1, 10, 28);
     const totalDaysInPersonalYear = Math.round((endOfPersonalYear.getTime() - startOfPersonalYear.getTime()) / (1000 * 60 * 60 * 24));
-    const currentDayInPersonalYear = Math.floor((now.getTime() - startOfPersonalYear.getTime()) / (1000 * 60 * 60 * 24));
+    const currentDayInPersonalYear = Math.floor((currentNow.getTime() - startOfPersonalYear.getTime()) / (1000 * 60 * 60 * 24));
     const daysLeftInPersonalYear = totalDaysInPersonalYear - currentDayInPersonalYear;
 
     // --- Journal Data Integration ---
@@ -646,14 +649,17 @@ export default function SpecialDayBentoPage() {
                     const diff = entryDate.getTime() - startDate.getTime();
                     const idx = Math.floor(diff / (1000 * 60 * 60 * 24));
 
-                    if (idx >= 0 && MOOD_CONFIG[entry.category]) {
+                    // SAFE ACCESS: Check if category exists in config
+                    if (idx >= 0 && entry.category && MOOD_CONFIG[entry.category]) {
                         colors[idx] = MOOD_CONFIG[entry.category].color;
                     }
                 });
                 setJournalColors(colors);
             } catch (e) { console.error("Error loading journal colors", e); }
         }
-    }, [startOfPersonalYear]);
+    }, [startOfPersonalYear.getTime()]);
+
+    if (!mounted || !now) return null; // Prevent hydration mismatch by not rendering until client-side active
 
     return (
         <div style={{
