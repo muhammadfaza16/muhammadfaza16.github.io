@@ -459,14 +459,8 @@ export default function SpecialDayBentoPage() {
     const [showTimeCapsuleMessage, setShowTimeCapsuleMessage] = useState(false);
     const [journalColors, setJournalColors] = useState<Record<number, string>>({}); // moved here
     const wisdomIndexRef = useRef(0);
-    const SPECIAL_DATE = useMemo(() => new Date("2026-11-28"), []);
     const [dots, setDots] = useState("");
 
-    const daysUntil = useMemo(() => {
-        if (!stableNow) return 0;
-        const diff = SPECIAL_DATE.getTime() - stableNow.getTime();
-        return Math.max(0, Math.ceil(diff / (1000 * 60 * 60 * 24)));
-    }, [stableNow, SPECIAL_DATE]);
 
     // Typewriter effect for dots
     useEffect(() => {
@@ -509,13 +503,58 @@ export default function SpecialDayBentoPage() {
     }
 
     // --- Personal Year Loop ---
+    // Make sure we are strictly using local dates (hours zeroed) for day-diff calculations
+    // Logic: If today is Nov 28, it IS the starts.
+    // Start of Personal Year: Last Nov 28
     let startOfPersonalYear = new Date(currentNow.getFullYear(), 10, 28);
-    if (currentNow < startOfPersonalYear) startOfPersonalYear = new Date(currentNow.getFullYear() - 1, 10, 28);
+    // If today is BEFORE Nov 28, then the personal year started LAST year.
+    // If today IS Nov 28, it starts TODAY (Day 1).
+    if (currentNow.getTime() < startOfPersonalYear.getTime()) {
+        startOfPersonalYear = new Date(currentNow.getFullYear() - 1, 10, 28);
+    }
+    // ensure midnight alignment
+    startOfPersonalYear.setHours(0, 0, 0, 0);
 
     let endOfPersonalYear = new Date(startOfPersonalYear.getFullYear() + 1, 10, 28);
+    endOfPersonalYear.setHours(0, 0, 0, 0);
+
     const totalDaysInPersonalYear = Math.round((endOfPersonalYear.getTime() - startOfPersonalYear.getTime()) / (1000 * 60 * 60 * 24));
-    const currentDayInPersonalYear = Math.floor((currentNow.getTime() - startOfPersonalYear.getTime()) / (1000 * 60 * 60 * 24));
-    const daysLeftInPersonalYear = totalDaysInPersonalYear - currentDayInPersonalYear;
+
+    // Correct logic: If today is start date, it's Day 1.
+    const currentNowMidnight = new Date(currentNow);
+    currentNowMidnight.setHours(0, 0, 0, 0);
+
+    const currentDayInPersonalYear = Math.floor((currentNowMidnight.getTime() - startOfPersonalYear.getTime()) / (1000 * 60 * 60 * 24)) + 1;
+    const daysLeftInPersonalYear = Math.max(0, totalDaysInPersonalYear - currentDayInPersonalYear + 1); // +1 because we are IN the current day
+
+    // --- Time Capsule Target ---
+    // Target: Next Birthday (Nov 28)
+    // We want the countdown to hit 0 at midnight of the 28th.
+    // If today is Nov 27, diff is 1 day. 
+    const nextBirthday = new Date(currentNow.getFullYear(), 10, 28);
+    if (currentNow.getTime() > nextBirthday.getTime() + 86400000) { // Allow 24h grace period or until next year
+        nextBirthday.setFullYear(nextBirthday.getFullYear() + 1);
+    }
+
+    // SPECIAL DATE for Time Capsule (Nov 28, 2026 as originally requested, or dynamic next birthday?)
+    // Original code used 2026-11-28. We should stick to next birthday for generic logic or specific 2026 if hardcoded.
+    // User asked "logic dynamic", so let's make it the UPCOMING Nov 28.
+    const SPECIAL_DATE = useMemo(() => {
+        const d = new Date(new Date().getFullYear(), 10, 28);
+        if (d.getTime() < new Date().setHours(0, 0, 0, 0)) {
+            d.setFullYear(d.getFullYear() + 1);
+        }
+        return d;
+    }, []);
+
+    const daysUntil = useMemo(() => {
+        if (!stableNow) return 0;
+        const nowMid = new Date(stableNow);
+        nowMid.setHours(0, 0, 0, 0);
+        const diff = SPECIAL_DATE.getTime() - nowMid.getTime();
+        return Math.max(0, Math.ceil(diff / (1000 * 60 * 60 * 24)));
+    }, [stableNow, SPECIAL_DATE]);
+
 
     const kamusMeanings = [
         {
@@ -535,17 +574,43 @@ export default function SpecialDayBentoPage() {
     const [footerIndex, setFooterIndex] = useState(0);
 
     const footerQuotes = [
-        "Ruang ini dibuat untuk merayakan setiap langkah kecilmu.",
-        "Percayalah, usahamu selama ini tidak pernah sia-sia.",
-        "Teruslah tumbuh, mekar, dan bahagia.",
-        "Jangan pernah takut untuk bersinar dengan warnamu sendiri.",
-        "Raihlah segala yang kamu impikan. Meski tak terlihat, doaku akan selalu menyertaimu."
+        "Ruang ini tercipta untuk merayakan setiap jejak langkah kecilmu.",
+        "Percayalah, setiap peluh yang luruh sedang membasuh benih-benih impianmu.",
+        "Kamu hebat, karena mampu bertahan sejauh ini dengan kaki dan hatimu sendiri.",
+        "Teruslah menjadi pribadi yang hangat, karena bagian paling mempesona dari manusia adalah kebaikannya.",
+        "Dan kamu, adalah wujud nyata dari kebaikan itu."
     ];
 
     useEffect(() => {
         setMounted(true);
         const nowInit = new Date();
         setStableNow(nowInit);
+
+        // Fetch Journal Data for Colors
+        const savedJournal = localStorage.getItem("journal_entries_25");
+        if (savedJournal) {
+            try {
+                const entries = JSON.parse(savedJournal) as Record<string, JournalEntry>;
+                const colorMap: Record<number, string> = {};
+
+                Object.values(entries).forEach(entry => {
+                    const entryDate = new Date(entry.date);
+                    entryDate.setHours(0, 0, 0, 0);
+
+                    // Only map if within current personal year
+                    if (entryDate >= startOfPersonalYear && entryDate < endOfPersonalYear) {
+                        const dayIndex = Math.floor((entryDate.getTime() - startOfPersonalYear.getTime()) / (1000 * 60 * 60 * 24));
+                        // Map 0-indexed day to color
+                        if (dayIndex >= 0) {
+                            colorMap[dayIndex] = MOOD_CONFIG[entry.category]?.color || "#b07d62";
+                        }
+                    }
+                });
+                setJournalColors(colorMap);
+            } catch (e) {
+                console.error("Failed to parse journal colors", e);
+            }
+        }
 
         const handleResize = () => setIsMobile(window.innerWidth < 768);
         handleResize();
