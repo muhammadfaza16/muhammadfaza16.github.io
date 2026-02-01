@@ -1410,67 +1410,8 @@ export default function SpecialDayBentoPage() {
                             </div>
                         </BentoCard>
 
-                        {/* 3. Haiku Kecil (Moved from Dashboard) */}
-                        <BentoCard key="haiku" isMobile={isMobile} style={{ gridColumn: isMobile ? "span 1" : "span 12", width: "100%", background: "#fff", borderLeft: "6px solid #d2691e" }} rotate="-0.4deg" tapeColor="#a06cd5">
-                            <div style={{ position: "absolute", top: "5px", right: "5px", width: "100px", height: "100px", opacity: 0.6, transform: "rotate(-15deg)", pointerEvents: "none", zIndex: 0, mixBlendMode: "multiply" }}>
-                                <Image src="/lavender_sketch.webp" alt="" fill style={{ objectFit: "contain" }} />
-                            </div>
-                            <div
-                                onClick={() => !haikuRevealed && setHaikuRevealed(true)}
-                                style={{ position: "relative", zIndex: 1, cursor: "pointer", height: "100%", display: "flex", flexDirection: "column" }}
-                            >
-                                <SectionTitle icon={Sparkles}>Haiku Kecil</SectionTitle>
+                        {/* 3. Haiku Kecil (Removed - Moved back to Dashboard) */}
 
-                                {/* Tap to reveal prompt */}
-                                {!haikuRevealed && (
-                                    <motion.div
-                                        animate={{ opacity: [0.5, 1, 0.5] }}
-                                        transition={{ duration: 2, repeat: Infinity }}
-                                        style={{
-                                            flex: 1,
-                                            display: "flex",
-                                            alignItems: "center",
-                                            justifyContent: "center",
-                                            minHeight: "150px"
-                                        }}
-                                    >
-                                        <HandwrittenNote style={{ fontSize: "1.2rem", color: "#a0907d" }}>✨ tap untuk membaca...</HandwrittenNote>
-                                    </motion.div>
-                                )}
-
-                                {/* Animated Haiku Lines */}
-                                {haikuRevealed && (
-                                    <div style={{ marginTop: "1.5rem", flex: 1, display: "flex", flexDirection: "column", justifyContent: "center" }}>
-                                        {[dailyHaiku.line1, dailyHaiku.line2, dailyHaiku.line3].map((line, lineIndex) => (
-                                            <div key={lineIndex} style={{ marginBottom: "0.5rem" }}>
-                                                {line.split("").map((char, charIndex) => (
-                                                    <motion.span
-                                                        key={charIndex}
-                                                        initial={{ opacity: 0, y: 10 }}
-                                                        animate={{ opacity: 1, y: 0 }}
-                                                        transition={{
-                                                            delay: (lineIndex * line.length + charIndex) * 0.03,
-                                                            duration: 0.3
-                                                        }}
-                                                        style={{
-                                                            fontFamily: "'Caveat', cursive",
-                                                            fontSize: "1.4rem",
-                                                            color: "#4e4439",
-                                                            display: "inline-block"
-                                                        }}
-                                                    >
-                                                        {char === " " ? "\u00A0" : char}
-                                                    </motion.span>
-                                                ))}
-                                            </div>
-                                        ))}
-                                    </div>
-                                )}
-                            </div>
-                            <div style={{ position: "absolute", bottom: "1rem", right: "1rem", opacity: 0.2 }}>
-                                <Wind size={20} color="#a0907d" />
-                            </div>
-                        </BentoCard>
 
                         {/* 4. Heartbeat Counter */}
                         <BentoCard key="heartbeat" isMobile={isMobile} style={{ gridColumn: isMobile ? "span 1" : "span 12", width: "100%", textAlign: "center" }} rotate="0.3deg" tapeColor="#87b0a5">

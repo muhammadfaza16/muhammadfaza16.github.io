@@ -45,10 +45,11 @@ const sheets = [
         ]
     },
     {
-        title: "Doa Baik",
+        title: "Doa Untukmu",
         content: [
-            "Semoga kamu selalu dikelilingi oleh orang-orang yang mampu menghargai ketulusanmu dengan cara yang paling utuh, tanpa membuatmu harus menebak-nebak, tanpa membuatmu merasa berlebihan, dan tanpa membuatmu merasa harus meminta izin untuk menjadi dirimu sendiri, seperti yang mungkin aku lakukan dulu",
-            "Semoga apapun yang sedang kamu perjuangkan di hidupmu saat ini berjalan dengan baik. Sekali lagi, terima kasih dan maaf dari lubuk hatiku yang paling dalam, Salsa."
+            "Semoga kamu selalu dikelilingi oleh orang-orang yang mampu menghargai ketulusanmu dengan cara yang paling utuh, tanpa membuatmu harus menebak-nebak, tanpa membuatmu merasa berlebihan, dan tanpa membuatmu merasa harus meminta izin untuk menjadi dirimu sendiri, seperti yang mungkin aku lakukan dulu.",
+            "Semoga apapun yang sedang kamu perjuangkan di hidupmu saat ini berjalan dengan baik.",
+            "Sekali lagi, terima kasih dan maaf dari lubuk hatiku yang paling dalam."
         ],
         signature: "Muhammad Faza"
     },
