@@ -47,10 +47,10 @@ const sheets = [
     {
         title: "Doa Baik",
         content: [
-            "Semoga kamu selalu dikelilingi oleh orang-orang yang mampu menghargai ketulusanmu dengan cara yang paling utuh, tanpa membuatmu harus menebak-nebak, tanpa membuatmu merasa berlebihan, dan tanpa membuatmu merasa harus meminta izin untuk menjadi dirimu sendiri, seperti yang mungkin aku lakukan dulu.",
-            "Terima kasih sudah memberikan ruang untuk membaca ini. Aku berharap apapun yang terbaik dalam hidup dan masa depan yang sedang kamu perjuangkan saat ini akan menemukan jalannya kepadamu, Salsa."
+            "Semoga kamu selalu dikelilingi oleh orang-orang yang mampu menghargai ketulusanmu dengan cara yang paling utuh, tanpa membuatmu harus menebak-nebak, tanpa membuatmu merasa berlebihan, dan tanpa membuatmu merasa harus meminta izin untuk menjadi dirimu sendiri, seperti yang mungkin aku lakukan dulu",
+            "Semoga apapun yang sedang kamu perjuangkan di hidupmu saat ini berjalan dengan baik. Sekali lagi, terima kasih dan maaf yang terdalam dari dalam hatiku, Salsa."
         ],
-        signature: "MF"
+        signature: "Muhammad Faza"
     },
     {
         title: "Satu Hal Terakhir",
@@ -202,36 +202,34 @@ export default function LetterPage() {
                                             initial={{ opacity: 0 }}
                                             animate={{ opacity: 1 }}
                                             transition={{ delay: 0.5 }}
-                                            style={{ fontFamily: "'Crimson Pro', serif", fontSize: "1.1rem", color: "#8a7058", fontStyle: "italic", marginBottom: "-10px", marginRight: "10px" }}
+                                            style={{
+                                                fontFamily: "'Crimson Pro', serif",
+                                                fontSize: "1.1rem",
+                                                color: "#8a7058",
+                                                fontStyle: "italic",
+                                                marginBottom: "0.5rem",
+                                                marginRight: "10px"
+                                            }}
                                         >
                                             Tertanda,
                                         </motion.div>
-                                        <svg width="150" height="80" viewBox="0 0 150 80" style={{ overflow: "visible", maxWidth: "100%" }}>
-                                            {/* Abstract Flowing Signature "MF" */}
-                                            <motion.path
-                                                d="M20,50 C20,50 30,10 40,40 C50,70 60,30 70,60 C80,20 90,20 80,50 M70,40 L90,40"
-                                                fill="transparent"
-                                                stroke="#5a5a5a"
-                                                strokeWidth="2.5"
-                                                strokeLinecap="round"
-                                                initial={{ pathLength: 0, opacity: 0 }}
-                                                whileInView={{ pathLength: 1, opacity: 1 }}
-                                                viewport={{ once: true, margin: "-50px" }}
-                                                transition={{ duration: 2.5, ease: "easeInOut" }}
-                                            />
-                                            {/* Underline for emphasis */}
-                                            <motion.path
-                                                d="M10,70 Q75,85 140,60"
-                                                fill="transparent"
-                                                stroke="#5a5a5a"
-                                                strokeWidth="2"
-                                                strokeLinecap="round"
-                                                initial={{ pathLength: 0, opacity: 0 }}
-                                                whileInView={{ pathLength: 1, opacity: 1 }}
-                                                viewport={{ once: true }}
-                                                transition={{ duration: 1, delay: 2, ease: "easeOut" }}
-                                            />
-                                        </svg>
+                                        <motion.div
+                                            initial={{ opacity: 0, y: 10 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            transition={{ delay: 1, duration: 1 }}
+                                            style={{
+                                                fontFamily: "'Courier New', Courier, monospace",
+                                                fontSize: "1.4rem",
+                                                fontWeight: "bold",
+                                                color: "#444",
+                                                letterSpacing: "0.05em",
+                                                padding: "0.5rem 1rem",
+                                                borderBottom: "2px solid #5a5a5a",
+                                                display: "inline-block"
+                                            }}
+                                        >
+                                            {sheets[currentPage].signature}
+                                        </motion.div>
                                     </div>
                                 )}
                             </motion.div>
