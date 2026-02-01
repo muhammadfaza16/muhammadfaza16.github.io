@@ -162,7 +162,6 @@ const Butterflies = () => {
 
 // --- Page ---
 
-import { haikuCollection } from "@/data/guestNo28Haikus";
 
 export default function GuestNo28Dashboard() {
     const [mounted, setMounted] = useState(false);
@@ -170,13 +169,10 @@ export default function GuestNo28Dashboard() {
     const [subtext, setSubtext] = useState("");
     const [dateString, setDateString] = useState("");
     const [isMobile, setIsMobile] = useState(false);
-    const [dailyHaiku, setDailyHaiku] = useState(haikuCollection[0]);
 
     // New interactive states
     const [showSecretMessage, setShowSecretMessage] = useState(false);
-    const [haikuRevealed, setHaikuRevealed] = useState(false);
     const [hearts, setHearts] = useState<{ id: number; x: number; y: number }[]>([]);
-    const [longPressHearts, setLongPressHearts] = useState<{ id: number; x: number; y: number }[]>([]);
     const [pullRefreshMessage, setPullRefreshMessage] = useState("");
 
     // Parallax Effects Removed
@@ -251,12 +247,7 @@ export default function GuestNo28Dashboard() {
         setGreeting(greet);
         setSubtext(sub);
 
-        // Daily Haiku Logic
-        const startEpoch = new Date("2025-01-01").getTime();
-        const today = new Date().getTime();
-        const daysSince = Math.floor((today - startEpoch) / (1000 * 60 * 60 * 24));
-        const haikuIndex = Math.abs(daysSince) % haikuCollection.length;
-        setDailyHaiku(haikuCollection[haikuIndex]);
+
 
         return () => window.removeEventListener('resize', checkMobile);
     }, []);
@@ -330,41 +321,7 @@ export default function GuestNo28Dashboard() {
         return () => window.removeEventListener('devicemotion', handleMotion);
     }, []);
 
-    // Double-tap heart handler
-    const handleDoubleTap = (e: React.TouchEvent | React.MouseEvent) => {
-        const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
-        const x = 'touches' in e ? e.touches[0].clientX - rect.left : (e as React.MouseEvent).clientX - rect.left;
-        const y = 'touches' in e ? e.touches[0].clientY - rect.top : (e as React.MouseEvent).clientY - rect.top;
-        const newHeart = { id: Date.now(), x, y };
-        setHearts(prev => [...prev, newHeart]);
-        if (navigator.vibrate) navigator.vibrate(50);
-        setTimeout(() => {
-            setHearts(prev => prev.filter(h => h.id !== newHeart.id));
-        }, 1000);
-    };
 
-    // Long-press easter egg handler
-    let longPressTimer: NodeJS.Timeout | null = null;
-    const handleLongPressStart = (e: React.TouchEvent) => {
-        const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
-        const centerX = rect.width / 2;
-        const centerY = rect.height / 2;
-
-        longPressTimer = setTimeout(() => {
-            if (navigator.vibrate) navigator.vibrate([50, 50, 100]);
-            // Create explosion of hearts
-            const newHearts = Array.from({ length: 8 }).map((_, i) => ({
-                id: Date.now() + i,
-                x: centerX + (Math.random() - 0.5) * 100,
-                y: centerY + (Math.random() - 0.5) * 100
-            }));
-            setLongPressHearts(newHearts);
-            setTimeout(() => setLongPressHearts([]), 1500);
-        }, 800);
-    };
-    const handleLongPressEnd = () => {
-        if (longPressTimer) clearTimeout(longPressTimer);
-    };
 
     // Secret messages for shake
     const secretMessages = [
@@ -793,107 +750,7 @@ export default function GuestNo28Dashboard() {
                             </motion.div>
                         </Link>
 
-                        <motion.div
-                            variants={itemVariants}
-                            whileHover={{ y: -5, rotate: -0.5, boxShadow: "0 15px 30px rgba(0,0,0,0.12)" }}
-                            onTouchStart={handleLongPressStart}
-                            onTouchEnd={handleLongPressEnd}
-                            onDoubleClick={handleDoubleTap}
-                            onClick={() => !haikuRevealed && setHaikuRevealed(true)}
-                            style={{
-                                ...baseCardStyle,
-                                height: isMobile ? "auto" : "320px",
-                                minHeight: "200px",
-                                padding: "1.8rem",
-                                background: "#ffffff",
-                                border: "1px solid #dcdde1",
-                                borderLeft: "6px solid #d2691e",
-                                boxShadow: "0 8px 24px rgba(0,0,0,0.08)",
-                                borderRadius: "4px 8px 12px 4px",
-                                opacity: 1,
-                                width: isMobile ? "96%" : "auto",
-                                alignSelf: isMobile ? "center" : "auto",
-                                cursor: "pointer"
-                            }}
-                        >
-                            <WashiTape color="#a06cd5" rotate="1deg" width="60px" />
 
-                            {/* Long-press heart explosion overlay */}
-                            {longPressHearts.map(heart => (
-                                <motion.div
-                                    key={heart.id}
-                                    initial={{ scale: 0, opacity: 1 }}
-                                    animate={{ scale: 2, opacity: 0, y: -50 }}
-                                    transition={{ duration: 1 }}
-                                    style={{
-                                        position: "absolute",
-                                        left: heart.x,
-                                        top: heart.y,
-                                        fontSize: "2rem",
-                                        pointerEvents: "none",
-                                        zIndex: 100
-                                    }}
-                                >
-                                    💕
-                                </motion.div>
-                            ))}
-
-                            <div style={{ position: "absolute", top: "5px", right: "5px", width: "100px", height: "100px", opacity: 0.6, transform: "rotate(-15deg)", pointerEvents: "none", zIndex: 0, mixBlendMode: "multiply" }}>
-                                <Image src="/lavender_sketch.webp" alt="" fill style={{ objectFit: "contain" }} />
-                            </div>
-                            <div style={{ position: "relative", zIndex: 1 }}>
-                                <SectionTitle icon={Sparkles}>Haiku Kecil</SectionTitle>
-
-                                {/* Tap to reveal prompt */}
-                                {!haikuRevealed && (
-                                    <motion.p
-                                        animate={{ opacity: [0.5, 1, 0.5] }}
-                                        transition={{ duration: 2, repeat: Infinity }}
-                                        style={{
-                                            fontFamily: "'Caveat', cursive",
-                                            fontSize: "1rem",
-                                            color: "#a0907d",
-                                            marginTop: "1rem",
-                                            textAlign: "center"
-                                        }}
-                                    >
-                                        ✨ tap untuk membaca...
-                                    </motion.p>
-                                )}
-
-                                {/* Animated Haiku Lines (letter by letter) */}
-                                {haikuRevealed && (
-                                    <div style={{ marginTop: "1rem" }}>
-                                        {[dailyHaiku.line1, dailyHaiku.line2, dailyHaiku.line3].map((line, lineIndex) => (
-                                            <div key={lineIndex} style={{ marginBottom: "0.3rem" }}>
-                                                {line.split("").map((char, charIndex) => (
-                                                    <motion.span
-                                                        key={charIndex}
-                                                        initial={{ opacity: 0, y: 10 }}
-                                                        animate={{ opacity: 1, y: 0 }}
-                                                        transition={{
-                                                            delay: (lineIndex * line.length + charIndex) * 0.03,
-                                                            duration: 0.3
-                                                        }}
-                                                        style={{
-                                                            fontFamily: "'Caveat', cursive",
-                                                            fontSize: "1.25rem",
-                                                            color: "#4e4439",
-                                                            display: "inline-block"
-                                                        }}
-                                                    >
-                                                        {char === " " ? "\u00A0" : char}
-                                                    </motion.span>
-                                                ))}
-                                            </div>
-                                        ))}
-                                    </div>
-                                )}
-                            </div>
-                            <div style={{ position: "absolute", bottom: "1rem", right: "1rem", opacity: 0.2 }}>
-                                <Wind size={20} color="#a0907d" />
-                            </div>
-                        </motion.div>
 
 
 
