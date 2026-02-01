@@ -7,6 +7,8 @@ import Link from "next/link";
 import Image from "next/image";
 import { Container } from "@/components/Container";
 import { MOOD_CONFIG, JournalEntry } from "@/types/journal";
+import { haikuCollection } from "@/data/guestNo28Haikus";
+
 
 // --- Components ---
 
@@ -444,58 +446,7 @@ const TimeCapsule = ({ onClick }: { onClick: () => void }) => (
     </motion.div>
 );
 
-const CardSlider = ({ slides, isMobile }: { slides: React.ReactNode[], isMobile: boolean }) => {
-    const [index, setIndex] = useState(0);
 
-    return (
-        <div style={{ gridColumn: isMobile ? "span 1" : "span 12", position: "relative", marginTop: "2rem" }}>
-            <div style={{ position: "relative", overflow: "hidden", padding: "10px" }}>
-                <AnimatePresence mode="wait">
-                    <motion.div
-                        key={index}
-                        initial={{ opacity: 0, x: 20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        exit={{ opacity: 0, x: -20 }}
-                        transition={{ duration: 0.3 }}
-                    >
-                        {slides[index]}
-                    </motion.div>
-                </AnimatePresence>
-            </div>
-
-            {/* Controls */}
-            <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: "2rem", marginTop: "-1rem", paddingBottom: "2rem" }}>
-                <button
-                    onClick={() => setIndex((prev) => (prev - 1 + slides.length) % slides.length)}
-                    style={{ background: "none", border: "none", cursor: "pointer", padding: "10px", color: "#b07d62" }}
-                >
-                    <ArrowLeft size={24} />
-                </button>
-
-                <div style={{ display: "flex", gap: "8px" }}>
-                    {slides.map((_, i) => (
-                        <div
-                            key={i}
-                            onClick={() => setIndex(i)}
-                            style={{
-                                width: "8px", height: "8px", borderRadius: "50%",
-                                background: i === index ? "#b07d62" : "#e8e2d9",
-                                cursor: "pointer", transition: "all 0.3s"
-                            }}
-                        />
-                    ))}
-                </div>
-
-                <button
-                    onClick={() => setIndex((prev) => (prev + 1) % slides.length)}
-                    style={{ background: "none", border: "none", cursor: "pointer", padding: "10px", color: "#b07d62" }}
-                >
-                    <ArrowLeft size={24} style={{ transform: "rotate(180deg)" }} />
-                </button>
-            </div>
-        </div>
-    )
-}
 
 export default function SpecialDayBentoPage() {
     const [mounted, setMounted] = useState(false);
@@ -513,6 +464,10 @@ export default function SpecialDayBentoPage() {
     const [journalColors, setJournalColors] = useState<Record<number, string>>({}); // moved here
     const wisdomIndexRef = useRef(0);
     const [dots, setDots] = useState("");
+
+    // Haiku State
+    const [dailyHaiku, setDailyHaiku] = useState(haikuCollection[0]);
+    const [haikuRevealed, setHaikuRevealed] = useState(false);
 
 
     // Typewriter effect for dots
@@ -612,6 +567,8 @@ export default function SpecialDayBentoPage() {
 
         const diff = target.getTime() - nowMid.getTime();
         return Math.ceil(diff / (1000 * 60 * 60 * 24));
+
+
     }, [stableNow]);
 
 
@@ -702,6 +659,15 @@ export default function SpecialDayBentoPage() {
             clearInterval(stableTimer);
             clearInterval(kamusTimer);
         };
+    }, []);
+
+    // Haiku Logic (Separated for clarity)
+    useEffect(() => {
+        const startEpoch = new Date("2025-01-01").getTime();
+        const today = new Date().getTime();
+        const daysSince = Math.floor((today - startEpoch) / (1000 * 60 * 60 * 24));
+        const haikuIndex = Math.abs(daysSince) % haikuCollection.length;
+        setDailyHaiku(haikuCollection[haikuIndex]);
     }, []);
 
     useEffect(() => {
@@ -1329,128 +1295,187 @@ export default function SpecialDayBentoPage() {
                             </div>
                         </BentoCard>
 
-                        {/* --- SLIDER SECTION: Musim, Kamus, Heartbeat --- */}
-                        <CardSlider isMobile={isMobile} slides={[
-                            // 1. Musim-Musim Kehidupan
-                            <BentoCard key="musim2" isMobile={isMobile} style={{ width: "100%", minHeight: isMobile ? "auto" : "280px" }} rotate="0.2deg" tapeColor="#e8c9a0">
-                                <SectionTitle icon={BookOpen}>Musim-Musim Kehidupanmu</SectionTitle>
-                                <div style={{
-                                    position: "absolute",
-                                    bottom: isMobile ? "-30px" : "-50px",
-                                    right: isMobile ? "-30px" : "-20px",
-                                    width: isMobile ? "180px" : "320px",
-                                    height: isMobile ? "180px" : "320px",
-                                    opacity: 0.25,
-                                    transform: isMobile ? "rotate(8deg)" : "rotate(-3deg)",
-                                    pointerEvents: "none",
-                                    zIndex: 0
-                                }}>
-                                    <Image src="/special_hijabi_main.webp" alt="" fill style={{ objectFit: "contain" }} />
-                                </div>
-                                <div style={{ display: "flex", flexDirection: isMobile ? "column" : "row", gap: isMobile ? "1.5rem" : "3rem", marginTop: "1rem", position: "relative" }}>
-                                    {/* Golden Thread (Dashed Line) */}
-                                    {!isMobile && (
-                                        <div style={{ position: "absolute", top: "24px", left: "1.5rem", right: "2rem", height: "2px", borderTop: "2px dashed #e8e2d9", zIndex: 0 }} />
-                                    )}
-                                    {[
-                                        { year: "2000 - 2006", title: "Fajar yang Lembut", desc: "Awal dari segalanya. Waktu yang membentuk siapa kamu.", icon: Sparkles },
-                                        { year: "2006 - 2018", title: "Musim Bertumbuh", desc: "Tahun-tahun penuh warna, belajar, dan menemukan diri.", icon: Star },
-                                        { year: "2018 - Kini", title: "Langkah Mendewasa", desc: "Perjalanan menjadi versi terbaik dari diri sendiri.", icon: Heart }
-                                    ].map((chapter, i) => (
-                                        <div key={i} style={{ flex: 1, position: "relative", paddingLeft: isMobile ? "1.5rem" : "0", borderLeft: isMobile ? "1px dashed #e5e0d8" : "none", zIndex: 1 }}>
-                                            {!isMobile && i > 0 && <div style={{ position: "absolute", left: "-1rem", top: "1.5rem", width: "1rem", borderTop: "1px dashed #e5e0d8" }} />}
-                                            <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "8px" }}>
-                                                <div style={{
-                                                    width: "32px", height: "32px", borderRadius: "50%", background: "#fff",
-                                                    border: "1px solid #e8e2d9", display: "flex", alignItems: "center", justifyContent: "center",
-                                                    boxShadow: "0 0 12px rgba(176, 125, 98, 0.12)"
-                                                }}>
-                                                    <chapter.icon size={14} color="#b07d62" />
-                                                </div>
-                                                <span style={{ fontSize: "0.65rem", fontWeight: 700, color: "#aaa" }}>{chapter.year}</span>
+                        {/* 1. Musim-Musim Kehidupan */}
+                        <BentoCard key="musim2" isMobile={isMobile} style={{ gridColumn: isMobile ? "span 1" : "span 12", width: "100%", minHeight: isMobile ? "auto" : "280px" }} rotate="0.2deg" tapeColor="#e8c9a0">
+                            <SectionTitle icon={BookOpen}>Musim-Musim Kehidupanmu</SectionTitle>
+                            <div style={{
+                                position: "absolute",
+                                bottom: isMobile ? "-30px" : "-50px",
+                                right: isMobile ? "-30px" : "-20px",
+                                width: isMobile ? "180px" : "320px",
+                                height: isMobile ? "180px" : "320px",
+                                opacity: 0.25,
+                                transform: isMobile ? "rotate(8deg)" : "rotate(-3deg)",
+                                pointerEvents: "none",
+                                zIndex: 0
+                            }}>
+                                <Image src="/special_hijabi_main.webp" alt="" fill style={{ objectFit: "contain" }} />
+                            </div>
+                            <div style={{ display: "flex", flexDirection: isMobile ? "column" : "row", gap: isMobile ? "1.5rem" : "3rem", marginTop: "1rem", position: "relative" }}>
+                                {/* Golden Thread (Dashed Line) */}
+                                {!isMobile && (
+                                    <div style={{ position: "absolute", top: "24px", left: "1.5rem", right: "2rem", height: "2px", borderTop: "2px dashed #e8e2d9", zIndex: 0 }} />
+                                )}
+                                {[
+                                    { year: "2000 - 2006", title: "Fajar yang Lembut", desc: "Awal dari segalanya. Waktu yang membentuk siapa kamu.", icon: Sparkles },
+                                    { year: "2006 - 2018", title: "Musim Bertumbuh", desc: "Tahun-tahun penuh warna, belajar, dan menemukan diri.", icon: Star },
+                                    { year: "2018 - Kini", title: "Langkah Mendewasa", desc: "Perjalanan menjadi versi terbaik dari diri sendiri.", icon: Heart }
+                                ].map((chapter, i) => (
+                                    <div key={i} style={{ flex: 1, position: "relative", paddingLeft: isMobile ? "1.5rem" : "0", borderLeft: isMobile ? "1px dashed #e5e0d8" : "none", zIndex: 1 }}>
+                                        {!isMobile && i > 0 && <div style={{ position: "absolute", left: "-1rem", top: "1.5rem", width: "1rem", borderTop: "1px dashed #e5e0d8" }} />}
+                                        <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "8px" }}>
+                                            <div style={{
+                                                width: "32px", height: "32px", borderRadius: "50%", background: "#fff",
+                                                border: "1px solid #e8e2d9", display: "flex", alignItems: "center", justifyContent: "center",
+                                                boxShadow: "0 0 12px rgba(176, 125, 98, 0.12)"
+                                            }}>
+                                                <chapter.icon size={14} color="#b07d62" />
                                             </div>
-                                            <h4 style={{ fontSize: "1rem", fontWeight: 700, color: "#4e4439" }}>{chapter.title}</h4>
-                                            <HandwrittenNote style={{ fontSize: "0.9rem", marginTop: "4px" }}>{chapter.desc}</HandwrittenNote>
+                                            <span style={{ fontSize: "0.65rem", fontWeight: 700, color: "#aaa" }}>{chapter.year}</span>
                                         </div>
-                                    ))}
-                                </div>
-                            </BentoCard>,
+                                        <h4 style={{ fontSize: "1rem", fontWeight: 700, color: "#4e4439" }}>{chapter.title}</h4>
+                                        <HandwrittenNote style={{ fontSize: "0.9rem", marginTop: "4px" }}>{chapter.desc}</HandwrittenNote>
+                                    </div>
+                                ))}
+                            </div>
+                        </BentoCard>
 
-                            // 2. Kamus Angka 28
-                            <BentoCard key="kamus28" isMobile={isMobile} style={{ width: "100%", background: "linear-gradient(to bottom, #fff, #fdfbf7)" }} rotate="0.6deg" tapeColor="#b598d9">
-                                <SectionTitle icon={Sparkles}>Kamus Angka 28</SectionTitle>
-                                <div
-                                    onTouchStart={handleKamusLongPressStart}
-                                    onTouchEnd={handleKamusLongPressEnd}
-                                    style={{ textAlign: "center", padding: "1.5rem 0", position: "relative", cursor: "pointer" }}
-                                >
-                                    {/* Long-press hearts explosion */}
-                                    {kamusHearts.map(heart => (
+                        {/* 2. Kamus Angka 28 */}
+                        <BentoCard key="kamus28" isMobile={isMobile} style={{ gridColumn: isMobile ? "span 1" : "span 12", width: "100%", background: "linear-gradient(to bottom, #fff, #fdfbf7)" }} rotate="0.6deg" tapeColor="#b598d9">
+                            <SectionTitle icon={Sparkles}>Kamus Angka 28</SectionTitle>
+                            <div
+                                onTouchStart={handleKamusLongPressStart}
+                                onTouchEnd={handleKamusLongPressEnd}
+                                style={{ textAlign: "center", padding: "1.5rem 0", position: "relative", cursor: "pointer" }}
+                            >
+                                {/* Long-press hearts explosion */}
+                                {kamusHearts.map(heart => (
+                                    <motion.div
+                                        key={heart.id}
+                                        initial={{ scale: 0, opacity: 1 }}
+                                        animate={{ scale: 2, opacity: 0, y: -50 }}
+                                        transition={{ duration: 1 }}
+                                        style={{
+                                            position: "absolute",
+                                            left: heart.x,
+                                            top: heart.y,
+                                            fontSize: "1.5rem",
+                                            pointerEvents: "none",
+                                            zIndex: 100
+                                        }}
+                                    >
+                                        ✨
+                                    </motion.div>
+                                ))}
+                                <div style={{
+                                    fontSize: "6rem",
+                                    fontWeight: 900,
+                                    lineHeight: 0.8,
+                                    fontFamily: "'Crimson Pro', serif",
+                                    position: "relative",
+                                    display: "inline-block",
+                                    backgroundImage: "linear-gradient(45deg, #b07d62, #d2691e, #8b4513)",
+                                    backgroundClip: "text",
+                                    WebkitBackgroundClip: "text",
+                                    color: "transparent",
+                                    textShadow: "2px 2px 4px rgba(0,0,0,0.1)"
+                                }}>
+                                    28
+                                    <motion.div animate={{ rotate: [0, 10, 0], scale: [1, 1.1, 1] }} transition={{ duration: 4, repeat: Infinity }} style={{ position: "absolute", top: "-10px", right: "-20px" }}>
+                                        <Sparkles size={24} color="#d2691e" opacity={0.6} />
+                                    </motion.div>
+                                    <motion.div animate={{ y: [0, -5, 0] }} transition={{ duration: 3, repeat: Infinity, delay: 1 }} style={{ position: "absolute", bottom: "5px", left: "-15px" }}>
+                                        <Star size={16} color="#e6a23c" fill="#e6a23c" opacity={0.6} />
+                                    </motion.div>
+                                </div>
+                                <div style={{ marginTop: "2rem", textAlign: "left", height: "140px", position: "relative" }}>
+                                    <AnimatePresence mode="wait">
                                         <motion.div
-                                            key={heart.id}
-                                            initial={{ scale: 0, opacity: 1 }}
-                                            animate={{ scale: 2, opacity: 0, y: -50 }}
-                                            transition={{ duration: 1 }}
-                                            style={{
-                                                position: "absolute",
-                                                left: heart.x,
-                                                top: heart.y,
-                                                fontSize: "1.5rem",
-                                                pointerEvents: "none",
-                                                zIndex: 100
-                                            }}
+                                            key={kamusIndex}
+                                            initial={{ opacity: 0, y: 10 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            exit={{ opacity: 0, y: -10 }}
+                                            transition={{ duration: 0.5 }}
+                                            style={{ position: "absolute", top: 0, left: 0, width: "100%" }}
                                         >
-                                            ✨
+                                            <div style={{ marginBottom: "0.5rem", borderBottom: "1px dashed #e8e2d9", paddingBottom: "5px" }}>
+                                                <HandwrittenNote style={{ color: "#4e4439", fontSize: "1.1rem" }}>"{kamusMeanings[kamusIndex].title}"</HandwrittenNote>
+                                            </div>
+                                            <div style={{ fontSize: "0.85rem", color: "#a0907d", fontStyle: "italic", lineHeight: 1.6 }}>
+                                                {kamusMeanings[kamusIndex].desc}
+                                            </div>
                                         </motion.div>
-                                    ))}
-                                    <div style={{
-                                        fontSize: "6rem",
-                                        fontWeight: 900,
-                                        lineHeight: 0.8,
-                                        fontFamily: "'Crimson Pro', serif",
-                                        position: "relative",
-                                        display: "inline-block",
-                                        backgroundImage: "linear-gradient(45deg, #b07d62, #d2691e, #8b4513)",
-                                        backgroundClip: "text",
-                                        WebkitBackgroundClip: "text",
-                                        color: "transparent",
-                                        textShadow: "2px 2px 4px rgba(0,0,0,0.1)"
-                                    }}>
-                                        28
-                                        <motion.div animate={{ rotate: [0, 10, 0], scale: [1, 1.1, 1] }} transition={{ duration: 4, repeat: Infinity }} style={{ position: "absolute", top: "-10px", right: "-20px" }}>
-                                            <Sparkles size={24} color="#d2691e" opacity={0.6} />
-                                        </motion.div>
-                                        <motion.div animate={{ y: [0, -5, 0] }} transition={{ duration: 3, repeat: Infinity, delay: 1 }} style={{ position: "absolute", bottom: "5px", left: "-15px" }}>
-                                            <Star size={16} color="#e6a23c" fill="#e6a23c" opacity={0.6} />
-                                        </motion.div>
-                                    </div>
-                                    <div style={{ marginTop: "2rem", textAlign: "left", height: "140px", position: "relative" }}>
-                                        <AnimatePresence mode="wait">
-                                            <motion.div
-                                                key={kamusIndex}
-                                                initial={{ opacity: 0, y: 10 }}
-                                                animate={{ opacity: 1, y: 0 }}
-                                                exit={{ opacity: 0, y: -10 }}
-                                                transition={{ duration: 0.5 }}
-                                                style={{ position: "absolute", top: 0, left: 0, width: "100%" }}
-                                            >
-                                                <div style={{ marginBottom: "0.5rem", borderBottom: "1px dashed #e8e2d9", paddingBottom: "5px" }}>
-                                                    <HandwrittenNote style={{ color: "#4e4439", fontSize: "1.1rem" }}>"{kamusMeanings[kamusIndex].title}"</HandwrittenNote>
-                                                </div>
-                                                <div style={{ fontSize: "0.85rem", color: "#a0907d", fontStyle: "italic", lineHeight: 1.6 }}>
-                                                    {kamusMeanings[kamusIndex].desc}
-                                                </div>
-                                            </motion.div>
-                                        </AnimatePresence>
-                                    </div>
+                                    </AnimatePresence>
                                 </div>
-                            </BentoCard>,
+                            </div>
+                        </BentoCard>
 
-                            // 3. Heartbeat Counter
-                            <BentoCard key="heartbeat" isMobile={isMobile} style={{ width: "100%", textAlign: "center" }} rotate="0.3deg" tapeColor="#87b0a5">
-                                <HeartbeatWidget isMobile={isMobile} />
-                            </BentoCard>
-                        ]} />
+                        {/* 3. Haiku Kecil (Moved from Dashboard) */}
+                        <BentoCard key="haiku" isMobile={isMobile} style={{ gridColumn: isMobile ? "span 1" : "span 12", width: "100%", background: "#fff", borderLeft: "6px solid #d2691e" }} rotate="-0.4deg" tapeColor="#a06cd5">
+                            <div style={{ position: "absolute", top: "5px", right: "5px", width: "100px", height: "100px", opacity: 0.6, transform: "rotate(-15deg)", pointerEvents: "none", zIndex: 0, mixBlendMode: "multiply" }}>
+                                <Image src="/lavender_sketch.webp" alt="" fill style={{ objectFit: "contain" }} />
+                            </div>
+                            <div
+                                onClick={() => !haikuRevealed && setHaikuRevealed(true)}
+                                style={{ position: "relative", zIndex: 1, cursor: "pointer", height: "100%", display: "flex", flexDirection: "column" }}
+                            >
+                                <SectionTitle icon={Sparkles}>Haiku Kecil</SectionTitle>
+
+                                {/* Tap to reveal prompt */}
+                                {!haikuRevealed && (
+                                    <motion.div
+                                        animate={{ opacity: [0.5, 1, 0.5] }}
+                                        transition={{ duration: 2, repeat: Infinity }}
+                                        style={{
+                                            flex: 1,
+                                            display: "flex",
+                                            alignItems: "center",
+                                            justifyContent: "center",
+                                            minHeight: "150px"
+                                        }}
+                                    >
+                                        <HandwrittenNote style={{ fontSize: "1.2rem", color: "#a0907d" }}>✨ tap untuk membaca...</HandwrittenNote>
+                                    </motion.div>
+                                )}
+
+                                {/* Animated Haiku Lines */}
+                                {haikuRevealed && (
+                                    <div style={{ marginTop: "1.5rem", flex: 1, display: "flex", flexDirection: "column", justifyContent: "center" }}>
+                                        {[dailyHaiku.line1, dailyHaiku.line2, dailyHaiku.line3].map((line, lineIndex) => (
+                                            <div key={lineIndex} style={{ marginBottom: "0.5rem" }}>
+                                                {line.split("").map((char, charIndex) => (
+                                                    <motion.span
+                                                        key={charIndex}
+                                                        initial={{ opacity: 0, y: 10 }}
+                                                        animate={{ opacity: 1, y: 0 }}
+                                                        transition={{
+                                                            delay: (lineIndex * line.length + charIndex) * 0.03,
+                                                            duration: 0.3
+                                                        }}
+                                                        style={{
+                                                            fontFamily: "'Caveat', cursive",
+                                                            fontSize: "1.4rem",
+                                                            color: "#4e4439",
+                                                            display: "inline-block"
+                                                        }}
+                                                    >
+                                                        {char === " " ? "\u00A0" : char}
+                                                    </motion.span>
+                                                ))}
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+                            <div style={{ position: "absolute", bottom: "1rem", right: "1rem", opacity: 0.2 }}>
+                                <Wind size={20} color="#a0907d" />
+                            </div>
+                        </BentoCard>
+
+                        {/* 4. Heartbeat Counter */}
+                        <BentoCard key="heartbeat" isMobile={isMobile} style={{ gridColumn: isMobile ? "span 1" : "span 12", width: "100%", textAlign: "center" }} rotate="0.3deg" tapeColor="#87b0a5">
+                            <HeartbeatWidget isMobile={isMobile} />
+                        </BentoCard>
 
 
                         {/* 5. Bisikan Sanubari (Consolidated Wisdom) */}

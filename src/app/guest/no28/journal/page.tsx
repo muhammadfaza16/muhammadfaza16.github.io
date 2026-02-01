@@ -231,7 +231,7 @@ export default function JournalPage() {
 
         const moods: MoodCategory[] = ['grateful', 'energetic', 'mixed', 'peaceful', 'grateful'];
         const notes = [
-            "Akhirnya ngerjain fitur ini selesai juga. Seneng banget liat hasilnya yang aesthetic gini. ✨",
+            "Akhirnya ngerjain fitur ini selesai juga. ✨",
             "Mencoba rute pulang yang beda, ternyata nemu spot sunset yang bagus banget di jembatan layang.",
             "Hari yang lumayan berat. Banyak deadline numpuk dan rasanya overwhelm. But I survived.",
             "Hujan seharian. Cuma menghabiskan waktu di kasur sambil baca novel lama. Suasananya tenang banget.",
