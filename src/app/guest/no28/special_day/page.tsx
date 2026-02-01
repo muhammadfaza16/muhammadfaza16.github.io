@@ -487,7 +487,7 @@ export default function SpecialDayBentoPage() {
     const portraits = [
         { src: "/portrait_4.webp", label: "Ada banyak hal baik yang tumbuh dari senyummu" },
         { src: "/portrait_1.webp", label: "Binar itu, semoga tak pernah redup oleh ragu" },
-        { src: "/portrait_3.webp", label: "Sederhana, namun cukup untuk meneduhkan sekitar" },
+        { src: "/portrait_3_balloon.webp", label: "Sederhana, namun cukup untuk meneduhkan sekitar" },
         { src: "/portrait_2.webp", label: "Terima kasih telah menjadi bagian baik dari semesta" },
         { src: "/portrait_5.webp", label: "Hadirmu, pengingat bahwa hal indah itu nyata" }
     ];
