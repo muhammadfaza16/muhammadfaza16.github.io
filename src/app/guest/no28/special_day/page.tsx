@@ -444,6 +444,59 @@ const TimeCapsule = ({ onClick }: { onClick: () => void }) => (
     </motion.div>
 );
 
+const CardSlider = ({ slides, isMobile }: { slides: React.ReactNode[], isMobile: boolean }) => {
+    const [index, setIndex] = useState(0);
+
+    return (
+        <div style={{ gridColumn: isMobile ? "span 1" : "span 12", position: "relative", marginTop: "2rem" }}>
+            <div style={{ position: "relative", overflow: "hidden", padding: "10px" }}>
+                <AnimatePresence mode="wait">
+                    <motion.div
+                        key={index}
+                        initial={{ opacity: 0, x: 20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        exit={{ opacity: 0, x: -20 }}
+                        transition={{ duration: 0.3 }}
+                    >
+                        {slides[index]}
+                    </motion.div>
+                </AnimatePresence>
+            </div>
+
+            {/* Controls */}
+            <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: "2rem", marginTop: "-1rem", paddingBottom: "2rem" }}>
+                <button
+                    onClick={() => setIndex((prev) => (prev - 1 + slides.length) % slides.length)}
+                    style={{ background: "none", border: "none", cursor: "pointer", padding: "10px", color: "#b07d62" }}
+                >
+                    <ArrowLeft size={24} />
+                </button>
+
+                <div style={{ display: "flex", gap: "8px" }}>
+                    {slides.map((_, i) => (
+                        <div
+                            key={i}
+                            onClick={() => setIndex(i)}
+                            style={{
+                                width: "8px", height: "8px", borderRadius: "50%",
+                                background: i === index ? "#b07d62" : "#e8e2d9",
+                                cursor: "pointer", transition: "all 0.3s"
+                            }}
+                        />
+                    ))}
+                </div>
+
+                <button
+                    onClick={() => setIndex((prev) => (prev + 1) % slides.length)}
+                    style={{ background: "none", border: "none", cursor: "pointer", padding: "10px", color: "#b07d62" }}
+                >
+                    <ArrowLeft size={24} style={{ transform: "rotate(180deg)" }} />
+                </button>
+            </div>
+        </div>
+    )
+}
+
 export default function SpecialDayBentoPage() {
     const [mounted, setMounted] = useState(false);
     const [stableNow, setStableNow] = useState<Date | null>(null); // For static widgets (Calendar, Age) - Updates infrequently
@@ -987,6 +1040,7 @@ export default function SpecialDayBentoPage() {
                         }}
                     >
 
+
                         {/* 1. Stacked Polaroid Portrait Card */}
                         <BentoCard isMobile={isMobile} style={{ gridColumn: isMobile ? "span 1" : "span 12", minHeight: isMobile ? "auto" : "380px", display: "flex", alignItems: "center", justifyContent: "center" }} rotate="0deg" tapeColor="#87b0a5">
                             <div style={{
@@ -1159,54 +1213,8 @@ export default function SpecialDayBentoPage() {
                             </div>
                         </BentoCard>
 
-                        {/* 1b. Musim-Musim Kehidupan (Timeline) */}
-                        <BentoCard isMobile={isMobile} style={{ gridColumn: isMobile ? "span 1" : "span 12", minHeight: isMobile ? "auto" : "280px" }} rotate="0.2deg" tapeColor="#e8c9a0">
-                            <SectionTitle icon={BookOpen}>Musim-Musim Kehidupanmu</SectionTitle>
-                            <div style={{
-                                position: "absolute",
-                                bottom: isMobile ? "-30px" : "-50px",
-                                right: isMobile ? "-30px" : "-20px",
-                                width: isMobile ? "180px" : "320px",
-                                height: isMobile ? "180px" : "320px",
-                                opacity: 0.25,
-                                transform: isMobile ? "rotate(8deg)" : "rotate(-3deg)",
-                                pointerEvents: "none",
-                                zIndex: 0
-                            }}>
-                                <Image src="/special_hijabi_main.webp" alt="" fill style={{ objectFit: "contain" }} />
-                            </div>
-                            <div style={{ display: "flex", flexDirection: isMobile ? "column" : "row", gap: isMobile ? "1.5rem" : "3rem", marginTop: "1rem", position: "relative" }}>
-                                {/* Golden Thread (Dashed Line) */}
-                                {!isMobile && (
-                                    <div style={{ position: "absolute", top: "24px", left: "1.5rem", right: "2rem", height: "2px", borderTop: "2px dashed #e8e2d9", zIndex: 0 }} />
-                                )}
-                                {[
-                                    { year: "2000 - 2006", title: "Fajar yang Lembut", desc: "Awal dari segalanya. Waktu yang membentuk siapa kamu.", icon: Sparkles },
-                                    { year: "2006 - 2018", title: "Musim Bertumbuh", desc: "Tahun-tahun penuh warna, belajar, dan menemukan diri.", icon: Star },
-                                    { year: "2018 - Kini", title: "Langkah Mendewasa", desc: "Perjalanan menjadi versi terbaik dari diri sendiri.", icon: Heart }
-                                ].map((chapter, i) => (
-                                    <div key={i} style={{ flex: 1, position: "relative", paddingLeft: isMobile ? "1.5rem" : "0", borderLeft: isMobile ? "1px dashed #e5e0d8" : "none", zIndex: 1 }}>
-                                        {!isMobile && i > 0 && <div style={{ position: "absolute", left: "-1rem", top: "1.5rem", width: "1rem", borderTop: "1px dashed #e5e0d8" }} />}
-                                        <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "8px" }}>
-                                            <div style={{
-                                                width: "32px", height: "32px", borderRadius: "50%", background: "#fff",
-                                                border: "1px solid #e8e2d9", display: "flex", alignItems: "center", justifyContent: "center",
-                                                boxShadow: "0 0 12px rgba(176, 125, 98, 0.12)"
-                                            }}>
-                                                <chapter.icon size={14} color="#b07d62" />
-                                            </div>
-                                            <span style={{ fontSize: "0.65rem", fontWeight: 700, color: "#aaa" }}>{chapter.year}</span>
-                                        </div>
-                                        <h4 style={{ fontSize: "1rem", fontWeight: 700, color: "#4e4439" }}>{chapter.title}</h4>
-                                        <HandwrittenNote style={{ fontSize: "0.9rem", marginTop: "4px" }}>{chapter.desc}</HandwrittenNote>
-                                    </div>
-                                ))}
-                            </div>
-                        </BentoCard>
-
                         {/* 2. Personal Year Loop (Instead of Calendar) */}
-                        {/* 2. Personal Year Loop (Instead of Calendar) */}
-                        <Link href="/guest/no28/journal" style={{ gridColumn: isMobile ? "span 1" : "span 7", textDecoration: "none", color: "inherit", display: "block" }}>
+                        <Link href="/guest/no28/journal" style={{ gridColumn: isMobile ? "span 1" : "span 12", textDecoration: "none", color: "inherit", display: "block" }}>
                             <BentoCard isMobile={isMobile} rotate="-0.4deg" tapeColor="#f6a4a9" style={{ height: "100%", transition: "transform 0.2s" }}>
                                 <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "1.8rem" }}>
                                     <Map size={14} color="#a0907d" style={{ opacity: 0.8 }} />
@@ -1315,80 +1323,129 @@ export default function SpecialDayBentoPage() {
                             </div>
                         </BentoCard>
 
-                        {/* 3. Kamus Angka 28 (Dedicated Widget) */}
-                        <BentoCard isMobile={isMobile} style={{ gridColumn: isMobile ? "span 1" : "span 5", background: "linear-gradient(to bottom, #fff, #fdfbf7)" }} rotate="0.6deg" tapeColor="#b598d9">
-                            <SectionTitle icon={Sparkles}>Kamus Angka 28</SectionTitle>
-                            <div
-                                onTouchStart={handleKamusLongPressStart}
-                                onTouchEnd={handleKamusLongPressEnd}
-                                style={{ textAlign: "center", padding: "1.5rem 0", position: "relative", cursor: "pointer" }}
-                            >
-                                {/* Long-press hearts explosion */}
-                                {kamusHearts.map(heart => (
-                                    <motion.div
-                                        key={heart.id}
-                                        initial={{ scale: 0, opacity: 1 }}
-                                        animate={{ scale: 2, opacity: 0, y: -50 }}
-                                        transition={{ duration: 1 }}
-                                        style={{
-                                            position: "absolute",
-                                            left: heart.x,
-                                            top: heart.y,
-                                            fontSize: "1.5rem",
-                                            pointerEvents: "none",
-                                            zIndex: 100
-                                        }}
-                                    >
-                                        ✨
-                                    </motion.div>
-                                ))}
+                        {/* --- SLIDER SECTION: Musim, Kamus, Heartbeat --- */}
+                        <CardSlider isMobile={isMobile} slides={[
+                            // 1. Musim-Musim Kehidupan
+                            <BentoCard key="musim2" isMobile={isMobile} style={{ width: "100%", minHeight: isMobile ? "auto" : "280px" }} rotate="0.2deg" tapeColor="#e8c9a0">
+                                <SectionTitle icon={BookOpen}>Musim-Musim Kehidupanmu</SectionTitle>
                                 <div style={{
-                                    fontSize: "6rem",
-                                    fontWeight: 900,
-                                    lineHeight: 0.8,
-                                    fontFamily: "'Crimson Pro', serif",
-                                    position: "relative",
-                                    display: "inline-block",
-                                    backgroundImage: "linear-gradient(45deg, #b07d62, #d2691e, #8b4513)",
-                                    backgroundClip: "text",
-                                    WebkitBackgroundClip: "text",
-                                    color: "transparent",
-                                    textShadow: "2px 2px 4px rgba(0,0,0,0.1)"
+                                    position: "absolute",
+                                    bottom: isMobile ? "-30px" : "-50px",
+                                    right: isMobile ? "-30px" : "-20px",
+                                    width: isMobile ? "180px" : "320px",
+                                    height: isMobile ? "180px" : "320px",
+                                    opacity: 0.25,
+                                    transform: isMobile ? "rotate(8deg)" : "rotate(-3deg)",
+                                    pointerEvents: "none",
+                                    zIndex: 0
                                 }}>
-                                    28
-                                    <motion.div animate={{ rotate: [0, 10, 0], scale: [1, 1.1, 1] }} transition={{ duration: 4, repeat: Infinity }} style={{ position: "absolute", top: "-10px", right: "-20px" }}>
-                                        <Sparkles size={24} color="#d2691e" opacity={0.6} />
-                                    </motion.div>
-                                    <motion.div animate={{ y: [0, -5, 0] }} transition={{ duration: 3, repeat: Infinity, delay: 1 }} style={{ position: "absolute", bottom: "5px", left: "-15px" }}>
-                                        <Star size={16} color="#e6a23c" fill="#e6a23c" opacity={0.6} />
-                                    </motion.div>
+                                    <Image src="/special_hijabi_main.webp" alt="" fill style={{ objectFit: "contain" }} />
                                 </div>
-                                <div style={{ marginTop: "2rem", textAlign: "left", height: "140px", position: "relative" }}>
-                                    <AnimatePresence mode="wait">
-                                        <motion.div
-                                            key={kamusIndex}
-                                            initial={{ opacity: 0, y: 10 }}
-                                            animate={{ opacity: 1, y: 0 }}
-                                            exit={{ opacity: 0, y: -10 }}
-                                            transition={{ duration: 0.5 }}
-                                            style={{ position: "absolute", top: 0, left: 0, width: "100%" }}
-                                        >
-                                            <div style={{ marginBottom: "0.5rem", borderBottom: "1px dashed #e8e2d9", paddingBottom: "5px" }}>
-                                                <HandwrittenNote style={{ color: "#4e4439", fontSize: "1.1rem" }}>"{kamusMeanings[kamusIndex].title}"</HandwrittenNote>
+                                <div style={{ display: "flex", flexDirection: isMobile ? "column" : "row", gap: isMobile ? "1.5rem" : "3rem", marginTop: "1rem", position: "relative" }}>
+                                    {/* Golden Thread (Dashed Line) */}
+                                    {!isMobile && (
+                                        <div style={{ position: "absolute", top: "24px", left: "1.5rem", right: "2rem", height: "2px", borderTop: "2px dashed #e8e2d9", zIndex: 0 }} />
+                                    )}
+                                    {[
+                                        { year: "2000 - 2006", title: "Fajar yang Lembut", desc: "Awal dari segalanya. Waktu yang membentuk siapa kamu.", icon: Sparkles },
+                                        { year: "2006 - 2018", title: "Musim Bertumbuh", desc: "Tahun-tahun penuh warna, belajar, dan menemukan diri.", icon: Star },
+                                        { year: "2018 - Kini", title: "Langkah Mendewasa", desc: "Perjalanan menjadi versi terbaik dari diri sendiri.", icon: Heart }
+                                    ].map((chapter, i) => (
+                                        <div key={i} style={{ flex: 1, position: "relative", paddingLeft: isMobile ? "1.5rem" : "0", borderLeft: isMobile ? "1px dashed #e5e0d8" : "none", zIndex: 1 }}>
+                                            {!isMobile && i > 0 && <div style={{ position: "absolute", left: "-1rem", top: "1.5rem", width: "1rem", borderTop: "1px dashed #e5e0d8" }} />}
+                                            <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "8px" }}>
+                                                <div style={{
+                                                    width: "32px", height: "32px", borderRadius: "50%", background: "#fff",
+                                                    border: "1px solid #e8e2d9", display: "flex", alignItems: "center", justifyContent: "center",
+                                                    boxShadow: "0 0 12px rgba(176, 125, 98, 0.12)"
+                                                }}>
+                                                    <chapter.icon size={14} color="#b07d62" />
+                                                </div>
+                                                <span style={{ fontSize: "0.65rem", fontWeight: 700, color: "#aaa" }}>{chapter.year}</span>
                                             </div>
-                                            <div style={{ fontSize: "0.85rem", color: "#a0907d", fontStyle: "italic", lineHeight: 1.6 }}>
-                                                {kamusMeanings[kamusIndex].desc}
-                                            </div>
-                                        </motion.div>
-                                    </AnimatePresence>
+                                            <h4 style={{ fontSize: "1rem", fontWeight: 700, color: "#4e4439" }}>{chapter.title}</h4>
+                                            <HandwrittenNote style={{ fontSize: "0.9rem", marginTop: "4px" }}>{chapter.desc}</HandwrittenNote>
+                                        </div>
+                                    ))}
                                 </div>
-                            </div>
-                        </BentoCard>
+                            </BentoCard>,
 
-                        {/* 4. Heartbeat Counter Widget (Swapped & Isolated) */}
-                        <BentoCard isMobile={isMobile} style={{ gridColumn: isMobile ? "span 1" : "span 12", textAlign: "center" }} rotate="0.3deg" tapeColor="#87b0a5">
-                            <HeartbeatWidget isMobile={isMobile} />
-                        </BentoCard>
+                            // 2. Kamus Angka 28
+                            <BentoCard key="kamus28" isMobile={isMobile} style={{ width: "100%", background: "linear-gradient(to bottom, #fff, #fdfbf7)" }} rotate="0.6deg" tapeColor="#b598d9">
+                                <SectionTitle icon={Sparkles}>Kamus Angka 28</SectionTitle>
+                                <div
+                                    onTouchStart={handleKamusLongPressStart}
+                                    onTouchEnd={handleKamusLongPressEnd}
+                                    style={{ textAlign: "center", padding: "1.5rem 0", position: "relative", cursor: "pointer" }}
+                                >
+                                    {/* Long-press hearts explosion */}
+                                    {kamusHearts.map(heart => (
+                                        <motion.div
+                                            key={heart.id}
+                                            initial={{ scale: 0, opacity: 1 }}
+                                            animate={{ scale: 2, opacity: 0, y: -50 }}
+                                            transition={{ duration: 1 }}
+                                            style={{
+                                                position: "absolute",
+                                                left: heart.x,
+                                                top: heart.y,
+                                                fontSize: "1.5rem",
+                                                pointerEvents: "none",
+                                                zIndex: 100
+                                            }}
+                                        >
+                                            ✨
+                                        </motion.div>
+                                    ))}
+                                    <div style={{
+                                        fontSize: "6rem",
+                                        fontWeight: 900,
+                                        lineHeight: 0.8,
+                                        fontFamily: "'Crimson Pro', serif",
+                                        position: "relative",
+                                        display: "inline-block",
+                                        backgroundImage: "linear-gradient(45deg, #b07d62, #d2691e, #8b4513)",
+                                        backgroundClip: "text",
+                                        WebkitBackgroundClip: "text",
+                                        color: "transparent",
+                                        textShadow: "2px 2px 4px rgba(0,0,0,0.1)"
+                                    }}>
+                                        28
+                                        <motion.div animate={{ rotate: [0, 10, 0], scale: [1, 1.1, 1] }} transition={{ duration: 4, repeat: Infinity }} style={{ position: "absolute", top: "-10px", right: "-20px" }}>
+                                            <Sparkles size={24} color="#d2691e" opacity={0.6} />
+                                        </motion.div>
+                                        <motion.div animate={{ y: [0, -5, 0] }} transition={{ duration: 3, repeat: Infinity, delay: 1 }} style={{ position: "absolute", bottom: "5px", left: "-15px" }}>
+                                            <Star size={16} color="#e6a23c" fill="#e6a23c" opacity={0.6} />
+                                        </motion.div>
+                                    </div>
+                                    <div style={{ marginTop: "2rem", textAlign: "left", height: "140px", position: "relative" }}>
+                                        <AnimatePresence mode="wait">
+                                            <motion.div
+                                                key={kamusIndex}
+                                                initial={{ opacity: 0, y: 10 }}
+                                                animate={{ opacity: 1, y: 0 }}
+                                                exit={{ opacity: 0, y: -10 }}
+                                                transition={{ duration: 0.5 }}
+                                                style={{ position: "absolute", top: 0, left: 0, width: "100%" }}
+                                            >
+                                                <div style={{ marginBottom: "0.5rem", borderBottom: "1px dashed #e8e2d9", paddingBottom: "5px" }}>
+                                                    <HandwrittenNote style={{ color: "#4e4439", fontSize: "1.1rem" }}>"{kamusMeanings[kamusIndex].title}"</HandwrittenNote>
+                                                </div>
+                                                <div style={{ fontSize: "0.85rem", color: "#a0907d", fontStyle: "italic", lineHeight: 1.6 }}>
+                                                    {kamusMeanings[kamusIndex].desc}
+                                                </div>
+                                            </motion.div>
+                                        </AnimatePresence>
+                                    </div>
+                                </div>
+                            </BentoCard>,
+
+                            // 3. Heartbeat Counter
+                            <BentoCard key="heartbeat" isMobile={isMobile} style={{ width: "100%", textAlign: "center" }} rotate="0.3deg" tapeColor="#87b0a5">
+                                <HeartbeatWidget isMobile={isMobile} />
+                            </BentoCard>
+                        ]} />
+
 
                         {/* 5. Bisikan Sanubari (Consolidated Wisdom) */}
                         <BentoCard isMobile={isMobile} style={{ gridColumn: isMobile ? "span 1" : "span 12", padding: isMobile ? "3rem 1.8rem" : "6rem 4rem", background: "#fefbfc" }} rotate="0deg" tapeColor="#f08bb1">
