@@ -9,34 +9,46 @@ import { Container } from "@/components/Container";
 
 const sheets = [
     {
-        title: "Sebuah Catatan Pembuka",
+        title: "Sebuah Awal",
         content: [
-            "Aku sadar waktu punya cara yang sangat efektif untuk mengaburkan ingatan. Kemungkinan paling besar adalah kamu sudah lupa, baik tentang kejadian bertahun-tahun lalu, atau bahkan tentang siapa aku. Itu adalah hal yang sangat wajar dan sebenarnya, aku mengharapkan itu.",
-            "Jika kamu bertanya-tanya kenapa pesan ini ada sekarang, jawabannya sederhana: ini bukan tentang menghidupkan kembali apa yang sudah mati, tapi tentang menyelesaikan apa yang pernah tertunda. Dalam perjalanan hidup, aku belajar bahwa ada \"lingkaran yang tidak tuntas\" yang perlu ditutup agar kita bisa melangkah dengan lebih ringan. Menulis ini adalah caraku untuk bertanggung jawab atas sikapku di masa lalu, terlepas dari apakah hal itu masih membekas di ingatanmu atau tidak.",
-            "Jadi, jika bagian ini terasa asing bagimu, anggap saja ini sebagai sebuah pesan dari masa lalu yang akhirnya sampai ke alamat yang benar; hanya untuk sekadar diletakkan, bukan untuk dibawa pulang."
+            "Halo, Salsa.",
+            "Aku harap pesan ini menemukanmu dalam kondisi yang baik.",
+            "Belakangan ini, aku banyak menghabiskan waktu untuk melihat kembali cara-cara lama ku berinteraksi dengan orang-orang di sekitarku - terutama di masa-masa ketika aku belum mengenali diriku sendiri dengan baik. Dalam proses itu, aku terus kembali pada satu momen yang entah mengapa selalu terasa belum tuntas: saat kamu hadir dengan cara yang tulus, dan aku justru merespons dengan ketidakhadiran yang dingin."
         ]
     },
     {
-        title: "Kejujuran & Permintaan Maaf",
+        title: "Jeda yang Panjang",
         content: [
-            "Aku menulis ini untuk mengembalikan sebuah kejernihan yang seharusnya sudah aku sampaikan sejak lama. Aku minta maaf.",
-            "Bertahun-tahun lalu, aku menyadari ada perhatian yang kamu berikan. Namun, pada saat itu, aku gagal memberikan respons yang layak. Aku memilih untuk menutup diri dan mengabaikanmu begitu saja. Aku menyadari sekarang bahwa diamku mungkin telah membuatmu merasa tidak dianggap atau merasa kecil, seolah-olah keberadaanmu tidak terlihat. Itu adalah kesalahan besar dalam caraku bersikap, dan aku menyadari sepenuhnya sekarang bahwa keputusan itu keliru.",
-            "Satu hal yang perlu kamu simpan dengan yakin: kamu tidak melakukan kesalahan apa pun. Akulah yang tidak cukup dewasa untuk mengelola situasi tersebut. Diamnya aku sepenuhnya adalah kegagalanku, dan bukan cerminan dari siapa kamu."
+            "Aku sadar waktu sudah berlalu cukup lama sejak kita berbagi ruang yang sama. Mungkin kamu sudah melupakan detailnya, atau mungkin kamu sudah menempatkannya di kotak kenangan yang tidak perlu dibuka lagi. Aku mengerti sepenuhnya kalau pesan ini terasa datang dari waktu yang tidak jelas - terlambat bertahun-tahun, di saat hidupmu mungkin sudah sangat berbeda.",
+            "Tapi aku belajar bahwa permintaan maaf yang sungguh-sungguh tidak punya tanggal kedaluwarsa, dan kesempatan untuk memperbaiki kesalahan masa lalu tidak harus selalu bertujuan mengubah masa kini, tapi sekadar memberikan penutup yang lebih adil."
         ]
     },
     {
-        title: "Tentang Jarak dan Penundaan",
+        title: "Yang Seharusnya Terucap",
         content: [
-            "Penundaan ini bukan karena aku baru tersadar hari ini. Kegelisahan ini sudah ada sejak lama, bahkan sesaat setelah kita tidak lagi berada di lingkungan yang sama. Aku sudah lama ingin bicara, tapi aku membiarkan jarak dan perbedaan hidup kita membuatku terus menunda.",
-            "Sebenarnya, ada rasa hormat dan kagum yang tetap aku simpan dengan baik. Aku melihat duniamu sudah tumbuh ke arah yang berbeda, dan aku merasa tenang melihatnya. Namun, rasa bersalah karena pernah membuatmu merasa tidak berharga selalu lebih besar daripada keberanianku untuk jujur. Aku membiarkan rasa ragu itu menang, sampai akhirnya penundaan ini menjadi pembiaran selama bertahun-tahun."
+            "Jadi ini yang ingin kusampaikan: Aku minta maaf atas sikapku yang dulu. Aku ingat betul ketika kamu mencoba mendekat dengan cara yang hangat dan tidak berprasangka, namun aku justru memilih untuk menarik diri dan membekukanmu dengan sikap acuh yang tidak kau deserve.",
+            "Saat itu, aku belum memiliki kematangan untuk menghadapi kebaikan orang lain dengan cara yang sehat. Aku membawa luka atau kebingungan yang bukan tanggung jawabmu, tapi kuperlakukan seolah-olah itu hakku untuk mengabaikanmu tanpa penjelasan."
         ]
     },
     {
-        title: "Penutup",
+        title: "Tentang Ketulusanmu",
         content: [
-            "Biarkan ini menjadi doa tanpa suara yang menyertai langkahmu ke depan. Aku senang mengetahui bahwa hidup telah membawamu ke tempat yang lebih baik hari ini, dan aku sangat menghargai privasi serta kebahagiaan yang kamu miliki sekarang.",
-            "Aku sudah selesai dengan beban masa laluku, dan aku ingin kamu pun melangkah tanpa sedikit pun keraguan tentang betapa hebatnya dirimu. Sederhananya: aku yang salah, dan kamu tidak.",
-            "Terima kasih sudah pernah menjadi bagian dari ceritaku. Tetaplah bersinar dengan caramu sendiri."
+            "Aku ingin kamu tahu bahwa tidak ada yang salah dari caramu bersikap saat itu. Ketulusanmu adalah kualitas yang langka dan berharga; kegagalanku untuk meresponsnya dengan setimpal adalah murni kekuranganku saat itu, bukan karena ada yang kurang darimu.",
+            "Jika ada bagian dari dirimu yang sempat meragukan apakah kamu sudah cukup baik, cukup hangat, atau cukup pantas saat itu - biarkan keraguan itu terhapus sekarang. Kamu sudah cukup. Bahkan lebih dari cukup. Aku saja yang belum memiliki kematangan untuk melihatnya dan menerimanya dengan cara yang seharusnya."
+        ]
+    },
+    {
+        title: "Tanpa Tuntutan",
+        content: [
+            "Aku menyampaikan ini bukan untuk membuka kembali cerita lama atau meminta tempat di hidupmu yang sekarang. Aku tidak mengharapkan balasan, maaf balik, atau bahkan pengakuan bahwa kamu masih ingat kejadian tersebut.",
+            "Yang kuinginkan hanya sederhana: jika suatu saat kenangan itu kembali terlintas di benakmu - entah dalam momen refleksi sendiri atau ketika kamu menemukan dirimu meragukan kualitasmu sendiri - kamu tahu bahwa versi dirimu yang dulu tidak salah. Yang salah adalah caraku menerimanya."
+        ]
+    },
+    {
+        title: "Doa Baik",
+        content: [
+            "Semoga kamu selalu dikelilingi oleh orang-orang yang mampu menghargai ketulusanmu dengan cara yang paling utuh: tanpa membuatmu harus menebak-nebak, tanpa membuatmu merasa berlebihan, dan tanpa membuatmu merasa harus meminta izin untuk menjadi dirimu sendiri.",
+            "Terima kasih sudah memberikan ruang untuk membaca ini. Aku berharap hanya yang terbaik untukmu, Salsa."
         ],
         signature: "MF"
     },
@@ -44,7 +56,7 @@ const sheets = [
         title: "Satu Hal Terakhir",
         content: [
             "Aku tahu, diamku dulu mungkin sempat membuatmu merasa tidak dianggap atau merasa kecil. Itulah alasan kenapa aku menyiapkan sisa ruang di halaman ini. Aku ingin ada sesuatu yang secara jujur mencatat dan merayakan hari-harimu.",
-            "Anggap saja ini sebagai caraku mengakui bahwa setiap detik yang kamu jalani itu nyata, penting, dan sangat berharga, tidak pernah sekecil apa yang mungkin aku buat kamu rasakan dulu."
+            "Anggap saja ini sebagai caraku mengakui bahwa setiap detik yang kamu jalani itu nyata, penting, dan sangat berharga."
         ],
         isFootnote: true
     }
