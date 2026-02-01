@@ -592,21 +592,27 @@ export default function SpecialDayBentoPage() {
     // SPECIAL DATE for Time Capsule (Nov 28, 2026 as originally requested, or dynamic next birthday?)
     // Original code used 2026-11-28. We should stick to next birthday for generic logic or specific 2026 if hardcoded.
     // User asked "logic dynamic", so let's make it the UPCOMING Nov 28.
-    const SPECIAL_DATE = useMemo(() => {
-        const d = new Date(new Date().getFullYear(), 10, 28);
-        if (d.getTime() < new Date().setHours(0, 0, 0, 0)) {
-            d.setFullYear(d.getFullYear() + 1);
-        }
-        return d;
-    }, []);
-
     const daysUntil = useMemo(() => {
         if (!stableNow) return 0;
-        const nowMid = new Date(stableNow);
+
+        const now = new Date(stableNow);
+        const currentYear = now.getFullYear();
+
+        // Target: Nov 28 of current year
+        let target = new Date(currentYear, 10, 28);
+
+        // Normalize to midnight for fair comparison to avoid sub-day diffs
+        const nowMid = new Date(now);
         nowMid.setHours(0, 0, 0, 0);
-        const diff = SPECIAL_DATE.getTime() - nowMid.getTime();
-        return Math.max(0, Math.ceil(diff / (1000 * 60 * 60 * 24)));
-    }, [stableNow, SPECIAL_DATE]);
+
+        // If today is AFTER Nov 28, target is next year
+        if (nowMid.getTime() > target.getTime()) {
+            target.setFullYear(currentYear + 1);
+        }
+
+        const diff = target.getTime() - nowMid.getTime();
+        return Math.ceil(diff / (1000 * 60 * 60 * 24));
+    }, [stableNow]);
 
 
     const kamusMeanings = [
