@@ -26,29 +26,29 @@ const sheets = [
     {
         title: "Yang Seharusnya Terucap",
         content: [
-            "Jadi ini yang ingin kusampaikan. Aku minta maaf atas sikapku yang dulu. Aku ingat betul ketika kamu mencoba mendekat dengan cara yang hangat dan tidak berprasangka, namun aku justru memilih untuk menarik diri dan membekukanmu dengan sikap acuh yang tidak sepantasnya kamu terima.",
-            "Saat itu, aku belum memiliki kematangan untuk menghadapi kebaikan orang lain dengan cara yang sehat. Aku membawa luka atau kebingungan yang bukan tanggung jawabmu, tapi kuperlakukan seolah-olah itu hakku untuk mengabaikanmu tanpa penjelasan."
+            "Jadi ini yang ingin kusampaikan. Aku minta maaf atas sikapku yang dulu. Aku ingat betul ketika kamu mencoba mendekat dengan cara yang hangat dan terbuka, namun aku justru memilih untuk menarik diri dan membekukanmu dengan sikap acuh yang tidak sepantasnya kamu terima.",
+            "Saat itu, aku belum memiliki kematangan untuk menghadapi kebaikan orang lain dengan cara yang pantas. Aku membawa luka atau kebingungan yang bukan tanggung jawabmu, tapi aku memperlakukan kamu seolah-olah aku berhak untuk mengabaikan perhatian dan kehangatan yang kamu tunjukkan."
         ]
     },
     {
         title: "Tentang Ketulusanmu",
         content: [
-            "Aku ingin kamu tahu bahwa tidak ada yang salah dari caramu bersikap saat itu. Ketulusanmu adalah kualitas yang langka dan berharga; kegagalanku untuk meresponsnya dengan setimpal adalah murni kekuranganku saat itu, bukan karena ada yang kurang darimu.",
-            "Jika ada bagian dari dirimu yang sempat meragukan apakah kamu sudah cukup baik, cukup hangat, atau cukup pantas saat itu, biarkan keraguan itu terhapus sekarang. Kamu sudah cukup. Bahkan lebih dari cukup. Aku saja yang belum memiliki kematangan untuk melihatnya dan menerimanya dengan cara yang seharusnya."
+            "Aku ingin kamu tahu bahwa tidak ada yang salah dari caramu bersikap saat itu. Ketulusanmu adalah hal istimewa yang jarang kutemui, dan kegagalanku untuk meresponsnya dengan setimpal adalah murni kekuranganku saat itu, bukan karena ada yang kurang darimu.",
+            "Jika ada bagian dari dirimu yang sempat meragukan apakah kamu sudah cukup baik, cukup hangat, atau cukup pantas saat itu, biarkan keraguan itu terhapus. Kamu sudah cukup. Bahkan lebih dari cukup. Aku saja yang belum memiliki kematangan untuk melihat dan membalasnya dengan cara yang seharusnya."
         ]
     },
     {
         title: "Tanpa Tuntutan",
         content: [
             "Aku menyampaikan ini bukan untuk membuka kembali cerita lama atau meminta tempat di hidupmu yang sekarang. Aku tidak mengharapkan balasan atau bahkan pengakuan bahwa kamu masih ingat kejadian tersebut.",
-            "Aku harap, jika suatu saat kenangan itu kembali terlintas di benakmu, entah dalam momen refleksi sendiri atau ketika kamu menemukan dirimu meragukan kualitasmu sendiri, kamu tahu bahwa versi dirimu yang dulu tidak salah. Yang salah adalah caraku menerimanya."
+            "Aku harap, jika suatu saat kenangan itu kembali terlintas di benakmu, entah dalam momen refleksi sendiri atau ketika kamu menemukan dirimu meragukan kualitasmu sendiri, kamu tahu bahwa versi dirimu yang dulu tidak kurang dari segi apapun. Kamu adalah sosok yang sempurna. Yang salah adalah caraku menerimanya."
         ]
     },
     {
         title: "Doa Baik",
         content: [
-            "Semoga kamu selalu dikelilingi oleh orang-orang yang mampu menghargai ketulusanmu dengan cara yang paling utuh, tanpa membuatmu harus menebak-nebak, tanpa membuatmu merasa berlebihan, dan tanpa membuatmu merasa harus meminta izin untuk menjadi dirimu sendiri.",
-            "Terima kasih sudah memberikan ruang untuk membaca ini. Aku berharap hanya yang terbaik untukmu, Salsa."
+            "Semoga kamu selalu dikelilingi oleh orang-orang yang mampu menghargai ketulusanmu dengan cara yang paling utuh, tanpa membuatmu harus menebak-nebak, tanpa membuatmu merasa berlebihan, dan tanpa membuatmu merasa harus meminta izin untuk menjadi dirimu sendiri, seperti yang mungkin aku lakukan dulu.",
+            "Terima kasih sudah memberikan ruang untuk membaca ini. Aku berharap apapun yang terbaik dalam hidup dan masa depan yang sedang kamu perjuangkan saat ini akan menemukan jalannya kepadamu, Salsa."
         ],
         signature: "MF"
     },
