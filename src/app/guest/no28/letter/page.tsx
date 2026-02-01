@@ -13,20 +13,20 @@ const sheets = [
         content: [
             "Halo, Salsa.",
             "Aku harap pesan ini menemukanmu dalam kondisi yang baik.",
-            "Belakangan ini, aku banyak menghabiskan waktu untuk melihat kembali cara-cara lama ku berinteraksi dengan orang-orang di sekitarku - terutama di masa-masa ketika aku belum mengenali diriku sendiri dengan baik. Dalam proses itu, aku terus kembali pada satu momen yang entah mengapa selalu terasa belum tuntas: saat kamu hadir dengan cara yang tulus, dan aku justru merespons dengan ketidakhadiran yang dingin."
+            "Belakangan ini, aku banyak menghabiskan waktu untuk melihat kembali cara-cara lama ku berinteraksi dengan orang-orang di sekitarku, terutama di masa-masa ketika aku belum mengenali diriku sendiri dengan baik. Dalam proses itu, aku terus kembali pada satu momen yang entah mengapa selalu terasa belum tuntas: saat kamu hadir dengan cara yang tulus, dan aku justru merespons dengan ketidakhadiran yang dingin."
         ]
     },
     {
         title: "Jeda yang Panjang",
         content: [
-            "Aku sadar waktu sudah berlalu cukup lama sejak kita berbagi ruang yang sama. Mungkin kamu sudah melupakan detailnya, atau mungkin kamu sudah menempatkannya di kotak kenangan yang tidak perlu dibuka lagi. Aku mengerti sepenuhnya kalau pesan ini terasa datang dari waktu yang tidak jelas - terlambat bertahun-tahun, di saat hidupmu mungkin sudah sangat berbeda.",
+            "Aku sadar waktu sudah berlalu cukup lama sejak kita berbagi ruang yang sama. Mungkin kamu sudah melupakan detailnya, atau mungkin kamu sudah menempatkannya di kotak kenangan yang tidak perlu dibuka lagi. Aku mengerti sepenuhnya kalau pesan ini terasa datang dari waktu yang tidak jelas, terlambat bertahun-tahun, di saat hidupmu mungkin sudah sangat berbeda.",
             "Tapi aku belajar bahwa permintaan maaf yang sungguh-sungguh tidak punya tanggal kedaluwarsa, dan kesempatan untuk memperbaiki kesalahan masa lalu tidak harus selalu bertujuan mengubah masa kini, tapi sekadar memberikan penutup yang lebih adil."
         ]
     },
     {
         title: "Yang Seharusnya Terucap",
         content: [
-            "Jadi ini yang ingin kusampaikan: Aku minta maaf atas sikapku yang dulu. Aku ingat betul ketika kamu mencoba mendekat dengan cara yang hangat dan tidak berprasangka, namun aku justru memilih untuk menarik diri dan membekukanmu dengan sikap acuh yang tidak kau deserve.",
+            "Jadi ini yang ingin kusampaikan. Aku minta maaf atas sikapku yang dulu. Aku ingat betul ketika kamu mencoba mendekat dengan cara yang hangat dan tidak berprasangka, namun aku justru memilih untuk menarik diri dan membekukanmu dengan sikap acuh yang tidak sepantasnya kamu terima.",
             "Saat itu, aku belum memiliki kematangan untuk menghadapi kebaikan orang lain dengan cara yang sehat. Aku membawa luka atau kebingungan yang bukan tanggung jawabmu, tapi kuperlakukan seolah-olah itu hakku untuk mengabaikanmu tanpa penjelasan."
         ]
     },
@@ -34,20 +34,20 @@ const sheets = [
         title: "Tentang Ketulusanmu",
         content: [
             "Aku ingin kamu tahu bahwa tidak ada yang salah dari caramu bersikap saat itu. Ketulusanmu adalah kualitas yang langka dan berharga; kegagalanku untuk meresponsnya dengan setimpal adalah murni kekuranganku saat itu, bukan karena ada yang kurang darimu.",
-            "Jika ada bagian dari dirimu yang sempat meragukan apakah kamu sudah cukup baik, cukup hangat, atau cukup pantas saat itu - biarkan keraguan itu terhapus sekarang. Kamu sudah cukup. Bahkan lebih dari cukup. Aku saja yang belum memiliki kematangan untuk melihatnya dan menerimanya dengan cara yang seharusnya."
+            "Jika ada bagian dari dirimu yang sempat meragukan apakah kamu sudah cukup baik, cukup hangat, atau cukup pantas saat itu, biarkan keraguan itu terhapus sekarang. Kamu sudah cukup. Bahkan lebih dari cukup. Aku saja yang belum memiliki kematangan untuk melihatnya dan menerimanya dengan cara yang seharusnya."
         ]
     },
     {
         title: "Tanpa Tuntutan",
         content: [
-            "Aku menyampaikan ini bukan untuk membuka kembali cerita lama atau meminta tempat di hidupmu yang sekarang. Aku tidak mengharapkan balasan, maaf balik, atau bahkan pengakuan bahwa kamu masih ingat kejadian tersebut.",
-            "Yang kuinginkan hanya sederhana: jika suatu saat kenangan itu kembali terlintas di benakmu - entah dalam momen refleksi sendiri atau ketika kamu menemukan dirimu meragukan kualitasmu sendiri - kamu tahu bahwa versi dirimu yang dulu tidak salah. Yang salah adalah caraku menerimanya."
+            "Aku menyampaikan ini bukan untuk membuka kembali cerita lama atau meminta tempat di hidupmu yang sekarang. Aku tidak mengharapkan balasan atau bahkan pengakuan bahwa kamu masih ingat kejadian tersebut.",
+            "Aku harap, jika suatu saat kenangan itu kembali terlintas di benakmu, entah dalam momen refleksi sendiri atau ketika kamu menemukan dirimu meragukan kualitasmu sendiri, kamu tahu bahwa versi dirimu yang dulu tidak salah. Yang salah adalah caraku menerimanya."
         ]
     },
     {
         title: "Doa Baik",
         content: [
-            "Semoga kamu selalu dikelilingi oleh orang-orang yang mampu menghargai ketulusanmu dengan cara yang paling utuh: tanpa membuatmu harus menebak-nebak, tanpa membuatmu merasa berlebihan, dan tanpa membuatmu merasa harus meminta izin untuk menjadi dirimu sendiri.",
+            "Semoga kamu selalu dikelilingi oleh orang-orang yang mampu menghargai ketulusanmu dengan cara yang paling utuh, tanpa membuatmu harus menebak-nebak, tanpa membuatmu merasa berlebihan, dan tanpa membuatmu merasa harus meminta izin untuk menjadi dirimu sendiri.",
             "Terima kasih sudah memberikan ruang untuk membaca ini. Aku berharap hanya yang terbaik untukmu, Salsa."
         ],
         signature: "MF"
