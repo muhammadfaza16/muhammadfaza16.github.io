@@ -591,8 +591,6 @@ export default function SpecialDayBentoPage() {
 
     const footerQuotes = [
         "Ruang ini tercipta untuk merayakan setiap jejak langkah kecilmu.",
-        "Percayalah, setiap peluh yang luruh sedang membasuh benih-benih impianmu.",
-        "Kamu hebat, karena mampu bertahan sejauh ini dengan kaki dan hatimu sendiri.",
         "Teruslah menjadi pribadi yang hangat, karena bagian paling mempesona dari manusia adalah kebaikannya.",
         "Dan kamu, adalah wujud nyata dari kebaikan itu."
     ];
