@@ -9,7 +9,7 @@ const MilkyWay = dynamic(() => import("@/components/MilkyWay").then(mod => mod.M
 import { StarlightJarvisHero } from "@/components/sanctuary/StarlightJarvisHero";
 import { StarlightBentoGrid } from "@/components/sanctuary/StarlightBentoGrid";
 import Link from "next/link";
-import { LogOut } from "lucide-react";
+import { LogOut, ChevronLeft } from "lucide-react";
 import { useEffect } from "react";
 
 export default function StarlightPage() {
@@ -44,7 +44,7 @@ export default function StarlightPage() {
 
       {/* Ambient Background */}
       <div style={{
-        position: "fixed", // Fixed background for that wallpaper feel
+        position: "fixed",
         top: 0,
         left: 0,
         width: "100%",
@@ -56,6 +56,36 @@ export default function StarlightPage() {
         <MilkyWay />
         <GradientOrb />
         <CosmicStars />
+      </div>
+
+      {/* Manual Back Button for Starlight */}
+      <div style={{
+        position: "fixed",
+        top: "24px",
+        left: "24px",
+        zIndex: 40
+      }}>
+        <Link
+          href="/"
+          aria-label="Go Back"
+          style={{
+            width: "40px",
+            height: "40px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            backgroundColor: "rgba(255, 255, 255, 0.08)",
+            backdropFilter: "blur(4px)",
+            borderRadius: "50%",
+            color: "white",
+            transition: "all 0.2s cubic-bezier(0.4, 0, 0.2, 1)",
+            border: "none",
+            textDecoration: "none"
+          }}
+          className="hover:scale-110 active:scale-95 group"
+        >
+          <ChevronLeft size={24} className="group-hover:-translate-x-0.5 transition-transform" />
+        </Link>
       </div>
 
       <ZenHideable hideInZen>

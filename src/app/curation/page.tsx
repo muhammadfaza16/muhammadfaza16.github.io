@@ -1,68 +1,48 @@
 "use client";
 
 import React from "react";
-import dynamic from "next/dynamic";
 import { Container } from "@/components/Container";
-import { IosBentoCard } from "@/components/sanctuary/IosBentoCard";
 import { ZenHideable } from "@/components/ZenHideable";
-import { Library, ArrowLeft, Twitter, FileText, Bookmark } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
+import { CurationSimpleItem } from "@/components/curation/CurationSimpleItem";
 
-const GradientOrb = dynamic(() => import("@/components/GradientOrb").then(mod => mod.GradientOrb), { ssr: false });
-const CosmicStars = dynamic(() => import("@/components/CosmicStars").then(mod => mod.CosmicStars), { ssr: false });
-const MilkyWay = dynamic(() => import("@/components/MilkyWay").then(mod => mod.MilkyWay), { ssr: false });
-
-// Sample Curation Data - Designed to be high-quality placeholders
+// Sample Curation Data - Minimalist
 const CURATION_DATA = [
     {
         id: "1",
-        type: "tweet",
         title: "How to Build for the Speed of Light",
-        subtitle: "Twitter / X",
-        imageUrl: "https://images.unsplash.com/photo-1614850523296-d8c1af93d400?q=80&w=2070&auto=format&fit=crop",
+        subtitle: "Twitter / X • Paul Graham",
         href: "https://twitter.com",
-        colSpan: 2,
-        accentColor: "#1DA1F2"
+        year: "2024"
     },
     {
         id: "2",
-        type: "article",
         title: "The Psychology of Minimalist UI",
-        subtitle: "Article / Medium",
-        imageUrl: "https://images.unsplash.com/photo-1550745165-9bc0b252726f?q=80&w=2070&auto=format&fit=crop",
+        subtitle: "Essay • Medium",
         href: "https://medium.com",
-        colSpan: 1,
-        accentColor: "#facc15"
+        year: "2023"
     },
     {
         id: "3",
-        type: "reference",
         title: "Apple's Human Interface Guidelines",
-        subtitle: "Reference / Apple",
-        imageUrl: "https://images.unsplash.com/photo-1491933382434-500287f9b54b?q=80&w=1964&auto=format&fit=crop",
+        subtitle: "Reference • Apple",
         href: "https://developer.apple.com/design/human-interface-guidelines",
-        colSpan: 1,
-        accentColor: "#ffffff"
+        year: "Manual"
     },
     {
         id: "4",
-        type: "tweet",
         title: "AI & The Future of Human Agency",
-        subtitle: "Twitter / X",
-        imageUrl: "https://images.unsplash.com/photo-1677442136019-21780ecad995?q=80&w=1932&auto=format&fit=crop",
+        subtitle: "Thread • Twitter",
         href: "https://twitter.com",
-        colSpan: 2,
-        accentColor: "#1DA1F2"
+        year: "2024"
     },
     {
         id: "5",
-        type: "article",
         title: "Crafting Digital Sanctuaries",
-        subtitle: "Essay",
-        imageUrl: "https://images.unsplash.com/photo-1506126613408-eca07ce68773?q=80&w=1999&auto=format&fit=crop",
+        subtitle: "Manifesto • Personal",
         href: "#",
-        colSpan: 3,
-        accentColor: "#a855f7"
+        year: "2024"
     }
 ];
 
@@ -70,103 +50,86 @@ export default function CurationPage() {
     return (
         <div style={{
             minHeight: "100vh",
-            backgroundColor: "#050505",
-            color: "white",
-            position: "relative",
-            overflowX: "hidden"
+            backgroundColor: "#080808", // Slightly softer dark
+            color: "#e5e5e5",
+            fontFamily: "var(--font-sans)",
+            position: "relative"
         }}>
-            {/* Ambient Background */}
-            <div style={{ position: "fixed", inset: 0, zIndex: 0, pointerEvents: "none" }}>
-                <MilkyWay />
-                <GradientOrb />
-                <CosmicStars />
+            {/* Minimalist Header */}
+            <div style={{
+                position: "sticky",
+                top: 0,
+                zIndex: 50,
+                backgroundColor: "rgba(8, 8, 8, 0.8)",
+                backdropFilter: "blur(12px)",
+                borderBottom: "1px solid rgba(255, 255, 255, 0.05)",
+                padding: "1.5rem 0"
+            }}>
+                <Container>
+                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                        <Link href="/starlight" style={{
+                            color: "rgba(255, 255, 255, 0.6)",
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "0.5rem",
+                            textDecoration: "none",
+                            fontSize: "0.9rem",
+                            transition: "color 0.2s"
+                        }} className="hover:text-white">
+                            <ArrowLeft size={18} />
+                            <span style={{ fontFamily: "var(--font-mono)", textTransform: "uppercase", letterSpacing: "0.05em" }}>Back</span>
+                        </Link>
+                    </div>
+                </Container>
             </div>
 
-            <main style={{ position: "relative", zIndex: 1, paddingBottom: "8rem" }}>
-                {/* Custom Header (iOS Style) */}
-                <div style={{
-                    position: "sticky",
-                    top: 0,
-                    zIndex: 100,
-                    backdropFilter: "blur(20px) saturate(180%)",
-                    backgroundColor: "rgba(5, 5, 5, 0.5)",
-                    borderBottom: "1px solid rgba(255, 255, 255, 0.05)",
-                    padding: "1rem 0"
-                }}>
-                    <Container>
-                        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                            <Link href="/starlight" style={{
-                                color: "rgba(255, 255, 255, 0.6)",
-                                display: "flex",
-                                alignItems: "center",
-                                gap: "0.5rem",
-                                textDecoration: "none",
-                                fontSize: "0.9rem",
-                                fontWeight: 500
-                            }} className="hover:text-white transition-colors">
-                                <ArrowLeft size={18} />
-                                Back
-                            </Link>
-                            <div style={{ textAlign: "center", position: "absolute", left: "50%", transform: "translateX(-50%)" }}>
-                                <span style={{ fontSize: "0.7rem", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--accent)", display: "block", marginBottom: "2px" }}>The Starlight</span>
-                                <h1 style={{ fontSize: "1.1rem", fontWeight: 600, margin: 0 }}>Curation</h1>
-                            </div>
-                            <div style={{ width: "40px" }} /> {/* Spacer */}
-                        </div>
-                    </Container>
-                </div>
-
+            <main style={{ paddingBottom: "6rem" }}>
                 <ZenHideable hideInZen>
-                    {/* Hero Intro */}
-                    <section style={{ paddingTop: "4rem", paddingBottom: "2rem" }}>
-                        <Container>
-                            <div style={{ maxWidth: "600px" }}>
-                                <h2 style={{
-                                    fontSize: "clamp(2rem, 5vw, 2.5rem)",
-                                    fontWeight: 700,
-                                    letterSpacing: "-0.03em",
-                                    lineHeight: 1.1,
-                                    marginBottom: "1.5rem"
-                                }}>
-                                    Knowledge, <span style={{ color: "rgba(255,255,255,0.4)" }}>distilled.</span>
-                                </h2>
-                                <p style={{
-                                    fontSize: "clamp(1rem, 3vw, 1.1rem)",
-                                    color: "rgba(255,255,255,0.6)",
-                                    lineHeight: 1.6,
-                                    margin: 0
-                                }}>
-                                    Potongan-potongan digital yang gue simpan buat dibaca ulang.
-                                    Dari filosofi teknologi sampai desain yang "nyawa"-nya dapet.
-                                </p>
-                            </div>
-                        </Container>
-                    </section>
+                    <Container>
+                        {/* Minimal Hero */}
+                        <section style={{ paddingTop: "4rem", paddingBottom: "4rem", maxWidth: "600px" }}>
+                            <h1 style={{
+                                fontSize: "clamp(2.5rem, 6vw, 3.5rem)",
+                                fontWeight: 300,
+                                letterSpacing: "-0.04em",
+                                lineHeight: 1.1,
+                                marginBottom: "1.5rem",
+                                color: "#fff"
+                            }}>
+                                Curation.
+                            </h1>
+                            <p style={{
+                                fontSize: "clamp(1.1rem, 3vw, 1.25rem)",
+                                color: "rgba(255,255,255,0.5)",
+                                lineHeight: 1.6,
+                                maxWidth: "480px",
+                                fontWeight: 300
+                            }}>
+                                A collection of signals in the noise.
+                                Things I read, watched, and thought were worth keeping.
+                            </p>
+                        </section>
 
-                    {/* Bento Grid Content */}
-                    <section style={{ marginTop: "2rem" }}>
-                        <Container>
+                        {/* List Content */}
+                        <section>
                             <div style={{
-                                display: "grid",
-                                gridTemplateColumns: "repeat(auto-fill, minmax(min(100%, 300px), 1fr))",
-                                gridAutoFlow: "dense",
-                                gap: "1.5rem"
+                                display: "flex",
+                                flexDirection: "column",
+                                borderTop: "1px solid rgba(255, 255, 255, 0.1)"
                             }}>
                                 {CURATION_DATA.map((item, idx) => (
-                                    <IosBentoCard
+                                    <CurationSimpleItem
                                         key={item.id}
+                                        index={idx}
                                         title={item.title}
                                         subtitle={item.subtitle}
-                                        imageUrl={item.imageUrl}
                                         href={item.href}
-                                        colSpan={item.colSpan}
-                                        delay={idx * 0.1}
-                                        accentColor={item.accentColor}
+                                        year={item.year}
                                     />
                                 ))}
                             </div>
-                        </Container>
-                    </section>
+                        </section>
+                    </Container>
                 </ZenHideable>
             </main>
         </div>

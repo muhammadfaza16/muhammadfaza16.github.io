@@ -16,22 +16,10 @@ export function GuestAudioPlayer() {
     const isHome = pathname === "/guest/no28" || pathname === "/guest/no28/";
 
     // Manage Playback
-    useEffect(() => {
-        if (!isGuestSection) {
-            // Left the section: stop and reset
-            if (audioRef.current) {
-                audioRef.current.pause();
-                audioRef.current.currentTime = 0;
-            }
-            setIsPlaying(false);
-            intentionallyPausedRef.current = false;
-            return;
-        }
-
-        // Entering or navigating within section
-        // If we are supposed to be playing (and user hasn't paused), try to play
-        // Note: New visits usually require interaction. We start paused by default.
-    }, [isGuestSection]);
+    // REMOVED: Auto-stop on navigation to allow persistence per user request
+    // useEffect(() => {
+    //     if (!isGuestSection) { ... }
+    // }, [isGuestSection]);
 
     // Handle toggle
     const toggleSong = () => {
@@ -48,10 +36,12 @@ export function GuestAudioPlayer() {
         }
     };
 
-    // Render nothing if not in guest section for cleaner DOM,
-    // BUT we want to keep the audio *mounted* if we are in the section to persist state.
-    // If we leave the section, we can unmount.
-    if (!isGuestSection) return null;
+    // Render logic:
+    // 1. Audio element always stays mounted to persist playback
+    // 2. Visuals (Button/Notes) only appear in Guest Section (or if playing?)
+    //    User asked strictly for persistence, so we keep controls local to avoid cluttering Home.
+
+    const showControls = isHome; // Only show controls on the dashboard itself
 
     return (
         <>
@@ -65,7 +55,7 @@ export function GuestAudioPlayer() {
             />
 
             {/* Floating Music Button - visible ONLY on Guest Home */}
-            {isHome && (
+            {showControls && (
                 <motion.button
                     initial={{ scale: 0, opacity: 0 }}
                     animate={{ scale: 1, opacity: 1 }}
@@ -100,7 +90,7 @@ export function GuestAudioPlayer() {
 
             {/* Floating Notes Animation - Polished & Smoother */}
             <AnimatePresence>
-                {isPlaying && isHome && (
+                {isPlaying && showControls && (
                     <div style={{ position: "fixed", bottom: "160px", right: "25px", zIndex: 9998, pointerEvents: "none" }}>
                         {[0, 1, 2, 3].map(i => (
                             <motion.div

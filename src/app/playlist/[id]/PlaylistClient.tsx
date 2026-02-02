@@ -371,7 +371,7 @@ export default function PlaylistClient({ playlistId }: { playlistId: string }) {
                         background: "rgba(255,255,255,0.03)",
                         backdropFilter: "blur(20px)",
                         borderRadius: "24px",
-                        overflow: "hidden",
+                        // overflow: "hidden", // REMOVED: Might conflict with Virtuoso measuring
                         border: "1px solid rgba(255,255,255,0.08)"
                     }}>
                         <div style={{ padding: "20px 24px", borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
@@ -381,6 +381,7 @@ export default function PlaylistClient({ playlistId }: { playlistId: string }) {
                         </div>
 
                         <Virtuoso
+                            key={activePlaylist?.id || "playlist-list"} // Force remount on playlist change to ensure fresh measurement
                             useWindowScroll
                             initialTopMostItemIndex={activeItemIndex !== -1 ? activeItemIndex : undefined}
                             data={filteredPlaylist}
