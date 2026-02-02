@@ -86,6 +86,25 @@ export default function PlaylistClient({ playlistId }: { playlistId: string }) {
         return `${mins}:${secs.toString().padStart(2, '0')}`;
     };
 
+    useEffect(() => {
+        // Safe styling for window scrolling (Virtuoso)
+        const originalOverflow = document.body.style.overflow;
+        const originalHeight = document.body.style.height;
+        const originalMinHeight = document.body.style.minHeight;
+
+        // Apply overrides
+        document.body.style.overflow = isZen ? 'hidden' : 'unset';
+        document.body.style.height = 'auto';
+        document.body.style.minHeight = '100svh';
+
+        return () => {
+            // Restore cleanup
+            document.body.style.overflow = originalOverflow;
+            document.body.style.height = originalHeight;
+            document.body.style.minHeight = originalMinHeight;
+        };
+    }, [isZen]);
+
     if (!mounted) return null;
 
     return (
@@ -94,12 +113,9 @@ export default function PlaylistClient({ playlistId }: { playlistId: string }) {
                 __html: `
         header, footer, .zen-toggle-floating { display: none !important; }
         #main-content { padding-top: 0 !important; }
-        html, body { 
-            overflow: ${isZen ? 'hidden' : 'unset'} !important; 
+        html { 
             overscroll-behavior: none; 
             touch-action: pan-y; 
-            min-height: 100svh !important;
-            height: auto !important;
             background: #000;
         }
         @keyframes eq-bar1 { 0%,100%{height:4px} 50%{height:14px} }
