@@ -383,7 +383,7 @@ export default function PlaylistClient({ playlistId }: { playlistId: string }) {
                         <Virtuoso
                             key={activePlaylist?.id || "playlist-list"} // Force remount on playlist change to ensure fresh measurement
                             useWindowScroll
-                            initialTopMostItemIndex={activeItemIndex !== -1 ? activeItemIndex : undefined}
+                            initialTopMostItemIndex={activeItemIndex !== -1 ? activeItemIndex : 0}
                             data={filteredPlaylist}
                             itemContent={(i, song) => {
                                 const isActive = currentSong?.audioUrl === song.audioUrl;
