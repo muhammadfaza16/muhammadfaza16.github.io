@@ -2,6 +2,7 @@
 
 import React, { useState, useMemo, useEffect } from "react";
 import { Play, Pause, Search, Disc, Shuffle, ChevronLeft, SkipBack, SkipForward, Sparkles } from "lucide-react";
+import { Virtuoso } from 'react-virtuoso';
 import { GradientOrb } from "@/components/GradientOrb";
 import { CosmicStars } from "@/components/CosmicStars";
 import { MilkyWay } from "@/components/MilkyWay";
@@ -60,12 +61,20 @@ export default function PlaylistClient({ playlistId }: { playlistId: string }) {
             );
     }, [activePlaylist, searchQuery]);
 
+    // Scroll to active song on mount
+    const activeItemIndex = useMemo(() => {
+        return filteredPlaylist.findIndex(s => s.audioUrl === currentSong.audioUrl);
+    }, [filteredPlaylist, currentSong]);
+
     const isThisPlaylistInQueue = useMemo(() => {
         if (queue.length === 0) return false;
-        if (queue.length !== filteredPlaylist.length) return false;
-
+        // Logic for exact match, simplified for performance
         const currentUrls = new Set(queue.map(s => s.audioUrl));
-        return filteredPlaylist.every(s => currentUrls.has(s.audioUrl));
+        // Check if first few songs match (heuristic) or length matches
+        if (filteredPlaylist.length > 0 && queue.length === filteredPlaylist.length) {
+            return filteredPlaylist[0].audioUrl === queue[0].audioUrl;
+        }
+        return false;
     }, [queue, filteredPlaylist]);
 
     const isThisPlaylistPlaying = isPlaying && isThisPlaylistInQueue;
@@ -238,7 +247,7 @@ export default function PlaylistClient({ playlistId }: { playlistId: string }) {
                                     onClick={() => {
                                         triggerHaptic();
                                         if (isThisPlaylistInQueue) togglePlay();
-                                        else playQueue(filteredPlaylist, 0);
+                                        else playQueue(filteredPlaylist, 0, playlistId);
                                     }}
                                     style={{
                                         flex: 2,
@@ -265,7 +274,7 @@ export default function PlaylistClient({ playlistId }: { playlistId: string }) {
                                     onClick={() => {
                                         triggerHaptic();
                                         const shuffled = [...filteredPlaylist].sort(() => Math.random() - 0.5);
-                                        playQueue(shuffled, 0);
+                                        playQueue(shuffled, 0, playlistId);
                                     }}
                                     style={{
                                         flex: 1,
@@ -354,43 +363,48 @@ export default function PlaylistClient({ playlistId }: { playlistId: string }) {
                             </h3>
                         </div>
 
-                        {filteredPlaylist.map((song, i) => {
-                            const isActive = currentSong?.title === song.title;
-                            return (
-                                <div
-                                    key={song.originalIndex}
-                                    onClick={() => playQueue(filteredPlaylist, i)}
-                                    style={{
-                                        display: "flex",
-                                        alignItems: "center",
-                                        gap: "18px",
-                                        padding: "18px 24px",
-                                        backgroundColor: isActive ? "rgba(255,255,255,0.1)" : "transparent",
-                                        cursor: "pointer",
-                                        borderBottom: "1px solid rgba(255,255,255,0.03)"
-                                    }}
-                                >
-                                    <div style={{ width: "24px", textAlign: "center", color: isActive ? "#3b82f6" : "rgba(255,255,255,0.2)", fontWeight: 700 }}>
-                                        {isActive && isPlaying ? (
-                                            <div className="flex gap-[3px] items-end h-[14px]">
-                                                <div className="eq-bar" style={{ animation: 'eq-bar1 0.5s ease infinite' }} />
-                                                <div className="eq-bar" style={{ animation: 'eq-bar2 0.5s ease infinite 0.1s' }} />
-                                                <div className="eq-bar" style={{ animation: 'eq-bar3 0.5s ease infinite 0.2s' }} />
+                        <Virtuoso
+                            useWindowScroll
+                            initialTopMostItemIndex={activeItemIndex !== -1 ? activeItemIndex : undefined}
+                            data={filteredPlaylist}
+                            itemContent={(i, song) => {
+                                const isActive = currentSong?.audioUrl === song.audioUrl;
+                                return (
+                                    <div
+                                        key={song.originalIndex} // Virtuoso handles keys but we can keep it on the div
+                                        onClick={() => playQueue(filteredPlaylist, i, playlistId)}
+                                        style={{
+                                            display: "flex",
+                                            alignItems: "center",
+                                            gap: "18px",
+                                            padding: "18px 24px",
+                                            backgroundColor: isActive ? "rgba(255,255,255,0.1)" : "transparent",
+                                            cursor: "pointer",
+                                            borderBottom: "1px solid rgba(255,255,255,0.03)"
+                                        }}
+                                    >
+                                        <div style={{ width: "24px", textAlign: "center", color: isActive ? "#3b82f6" : "rgba(255,255,255,0.2)", fontWeight: 700 }}>
+                                            {isActive && isPlaying ? (
+                                                <div className="flex gap-[3px] items-end h-[14px]">
+                                                    <div className="eq-bar" style={{ animation: 'eq-bar1 0.5s ease infinite' }} />
+                                                    <div className="eq-bar" style={{ animation: 'eq-bar2 0.5s ease infinite 0.1s' }} />
+                                                    <div className="eq-bar" style={{ animation: 'eq-bar3 0.5s ease infinite 0.2s' }} />
+                                                </div>
+                                            ) : (i + 1)}
+                                        </div>
+                                        <div style={{ flex: 1, minWidth: 0 }}>
+                                            <div style={{ color: isActive ? "white" : "rgba(255,255,255,0.9)", fontWeight: 600, fontSize: "1rem", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                                                {song.title.split("—")[1]?.trim() || song.title}
                                             </div>
-                                        ) : (i + 1)}
-                                    </div>
-                                    <div style={{ flex: 1, minWidth: 0 }}>
-                                        <div style={{ color: isActive ? "white" : "rgba(255,255,255,0.9)", fontWeight: 600, fontSize: "1rem", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-                                            {song.title.split("—")[1]?.trim() || song.title}
+                                            <div style={{ color: "rgba(255,255,255,0.4)", fontSize: "0.85rem" }}>
+                                                {song.title.split("—")[0]?.trim() || "Unknown Artist"}
+                                            </div>
                                         </div>
-                                        <div style={{ color: "rgba(255,255,255,0.4)", fontSize: "0.85rem" }}>
-                                            {song.title.split("—")[0]?.trim() || "Unknown Artist"}
-                                        </div>
+                                        {isActive && <Disc className="animate-spin-slow" size={18} color="#3b82f6" />}
                                     </div>
-                                    {isActive && <Disc className="animate-spin-slow" size={18} color="#3b82f6" />}
-                                </div>
-                            );
-                        })}
+                                );
+                            }}
+                        />
                     </div>
                 </main>
             )}

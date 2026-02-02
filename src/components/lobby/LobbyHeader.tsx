@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { Container } from "@/components/Container";
+import { MusicRecall } from "@/components/MusicRecall";
 
 export function LobbyHeader() {
     return (
@@ -40,6 +41,7 @@ export function LobbyHeader() {
 
                     {/* Theme Toggle Area */}
                     <div style={{ pointerEvents: "auto" }} className="flex items-center gap-4">
+                        <MusicRecall />
                         <div className="bg-white/5 backdrop-blur-md border border-white/10 rounded-full p-1 shadow-lg">
                             <ThemeToggle />
                         </div>

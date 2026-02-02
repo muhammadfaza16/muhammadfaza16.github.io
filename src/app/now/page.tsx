@@ -11,7 +11,7 @@ import {
     Pencil,
     Clock
 } from "lucide-react";
-import { MusicPlayer } from "@/components/MusicPlayer";
+
 
 export const metadata: Metadata = {
     title: "Now | The Almanack of Broken Wanderer",
@@ -273,7 +273,7 @@ export default function NowPage() {
 
                     {/* Currently Playing */}
                     <section>
-                        <MusicPlayer />
+
                     </section>
 
                     {/* Inspirational footer */}

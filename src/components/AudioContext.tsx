@@ -29,9 +29,12 @@ interface AudioContextType {
     setShowNarrative: (v: boolean) => void;
     currentLyricText: string | null;
     activeLyrics: LyricItem[];
-    playQueue: (songs: any[], startIndex?: number) => void;
+    playQueue: (songs: any[], startIndex?: number, playlistId?: string | null) => void;
     queue: { title: string; audioUrl: string }[];
     currentIndex: number;
+    activePlaylistId: string | null;
+    isMiniPlayerDismissed: boolean;
+    setMiniPlayerDismissed: (v: boolean) => void;
     // Time tracking
     currentTime: number;
     duration: number;
@@ -157,6 +160,8 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
     const [isBuffering, setIsBuffering] = useState(false);
     const [queue, setQueue] = useState(PLAYLIST);
     const [currentIndex, setCurrentIndex] = useState(0);
+    const [activePlaylistId, setActivePlaylistId] = useState<string | null>(null);
+    const [isMiniPlayerDismissed, setMiniPlayerDismissed] = useState(false);
     const [analyser, setAnalyser] = useState<AnalyserNode | null>(null);
     const [hasInteracted, setHasInteracted] = useState(false);
 
@@ -291,9 +296,10 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
         }
     }, [isPlaying, initializeAudio]);
 
-    const playQueue = useCallback((newQueue: typeof PLAYLIST, startIndex = 0) => {
+    const playQueue = useCallback((newQueue: typeof PLAYLIST, startIndex = 0, playlistId: string | null = null) => {
         setQueue(newQueue);
         setCurrentIndex(startIndex);
+        setActivePlaylistId(playlistId);
         setIsBuffering(false);
         setHasInteracted(true);
         setIsPlaying(true);
@@ -486,6 +492,9 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
             playQueue,
             queue,
             currentIndex,
+            activePlaylistId,
+            isMiniPlayerDismissed,
+            setMiniPlayerDismissed,
             currentTime,
             duration,
             seekTo

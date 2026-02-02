@@ -12,12 +12,11 @@ interface MiniPlayerProps {
 }
 
 export function MiniPlayerWidget({ style: customStyle }: MiniPlayerProps) {
-    const { isPlaying, togglePlay, currentSong, hasInteracted, queue, currentIndex, nextSong, prevSong } = useAudio();
+    const { isPlaying, togglePlay, currentSong, hasInteracted, queue, currentIndex, nextSong, prevSong, activePlaylistId, isMiniPlayerDismissed, setMiniPlayerDismissed } = useAudio();
     const { isZen, setZen } = useZen();
     const router = useRouter();
     const pathname = usePathname();
 
-    const [isDismissed, setIsDismissed] = useState(false);
     const prevSongTitle = useRef(currentSong.title);
 
     // Check if on home page for full-width version
@@ -26,13 +25,13 @@ export function MiniPlayerWidget({ style: customStyle }: MiniPlayerProps) {
     // Reset dismissal if song changes
     useEffect(() => {
         if (prevSongTitle.current !== currentSong.title) {
-            setIsDismissed(false);
+            setMiniPlayerDismissed(false);
             prevSongTitle.current = currentSong.title;
         }
     }, [currentSong.title]);
 
     // Only show if user has started playing something or interacted
-    if (!hasInteracted || isDismissed) return null;
+    if (!hasInteracted || isMiniPlayerDismissed) return null;
 
     // Split title for artist/song
     const parts = currentSong.title.split("—");
@@ -69,7 +68,7 @@ export function MiniPlayerWidget({ style: customStyle }: MiniPlayerProps) {
                             dragElastic={0.7}
                             onDragEnd={(e, info) => {
                                 if (Math.abs(info.offset.x) > 120) {
-                                    setIsDismissed(true);
+                                    setMiniPlayerDismissed(true);
                                 }
                             }}
                             style={{
@@ -90,8 +89,11 @@ export function MiniPlayerWidget({ style: customStyle }: MiniPlayerProps) {
                             }}
                             whileTap={{ cursor: "grabbing" }}
                             onClick={() => {
-                                setZen(true);
-                                router.push("/playlist");
+                                if (activePlaylistId) {
+                                    router.push(`/playlist/${activePlaylistId}`);
+                                } else {
+                                    router.push("/playlist/all");
+                                }
                             }}
                         >
                             {/* Rotating Disk */}
@@ -224,7 +226,7 @@ export function MiniPlayerWidget({ style: customStyle }: MiniPlayerProps) {
                         dragElastic={0.5}
                         onDragEnd={(e, info) => {
                             if (info.offset.x > 80) {
-                                setIsDismissed(true);
+                                setMiniPlayerDismissed(true);
                             }
                         }}
                         style={{
@@ -245,8 +247,11 @@ export function MiniPlayerWidget({ style: customStyle }: MiniPlayerProps) {
                         whileHover={{ scale: 1.02 }}
                         whileTap={{ scale: 0.98 }}
                         onClick={() => {
-                            setZen(true);
-                            router.push("/playlist");
+                            if (activePlaylistId) {
+                                router.push(`/playlist/${activePlaylistId}`);
+                            } else {
+                                router.push("/playlist/all");
+                            }
                         }}
                     >
                         {/* Rotating Disk */}
