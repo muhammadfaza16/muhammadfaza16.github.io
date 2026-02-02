@@ -95,10 +95,11 @@ export default function PlaylistClient({ playlistId }: { playlistId: string }) {
         header, footer, .zen-toggle-floating { display: none !important; }
         #main-content { padding-top: 0 !important; }
         html, body { 
-            overflow: ${isZen ? 'hidden' : 'auto'} !important; 
+            overflow: ${isZen ? 'hidden' : 'unset'} !important; 
             overscroll-behavior: none; 
             touch-action: pan-y; 
-            height: 100svh !important; 
+            min-height: 100svh !important;
+            height: auto !important;
             background: #000;
         }
         @keyframes eq-bar1 { 0%,100%{height:4px} 50%{height:14px} }
