@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Home, ChevronLeft, ChevronRight } from "lucide-react";
 import Link from "next/link";
@@ -49,7 +49,7 @@ const sheets = [
         content: [
             "Semoga kamu selalu dikelilingi oleh orang-orang yang mampu menghargai ketulusanmu dengan cara yang paling utuh, tanpa membuatmu harus menebak-nebak, tanpa membuatmu merasa berlebihan, dan tanpa membuatmu merasa harus meminta izin untuk menjadi dirimu sendiri, seperti yang mungkin aku lakukan dulu.",
             "Sekali lagi, terima kasih dan maaf dari lubuk hatiku yang paling dalam.",
-            "Semoga apapun yang sedang kamu perjuangkan di hidupmu saat ini berjalan dengan baik."
+            "Jaga kesehatan ya, semoga ke depannya kamu selalu diberikan yang terbaik."
         ],
         signature: "Muhammad Faza"
     },
@@ -62,6 +62,42 @@ const sheets = [
         isFootnote: true
     }
 ];
+
+const TypewriterSignature = ({ text }: { text: string }) => {
+    const [displayText, setDisplayText] = useState("");
+
+    // Reset and start animation when component mounts or text changes
+    useState(() => {
+        setDisplayText(""); // Start empty
+    });
+
+    React.useEffect(() => {
+        let currentIndex = 0;
+        setDisplayText("");
+
+        const interval = setInterval(() => {
+            if (currentIndex < text.length) {
+                setDisplayText(prev => prev + text[currentIndex]);
+                currentIndex++;
+            } else {
+                clearInterval(interval);
+            }
+        }, 150); // Speed of typing
+
+        return () => clearInterval(interval);
+    }, [text]);
+
+    return (
+        <span>
+            {displayText}
+            <motion.span
+                animate={{ opacity: [0, 1, 0] }}
+                transition={{ repeat: Infinity, duration: 0.8 }}
+                style={{ marginLeft: "2px", borderRight: "2px solid #444" }}
+            />
+        </span>
+    );
+};
 
 export default function LetterPage() {
     const router = useRouter();
@@ -215,9 +251,6 @@ export default function LetterPage() {
                                             Tertanda,
                                         </motion.div>
                                         <motion.div
-                                            initial={{ opacity: 0, y: 10 }}
-                                            animate={{ opacity: 1, y: 0 }}
-                                            transition={{ delay: 1, duration: 1 }}
                                             style={{
                                                 fontFamily: "'Courier New', Courier, monospace",
                                                 fontSize: "1.4rem",
@@ -226,10 +259,12 @@ export default function LetterPage() {
                                                 letterSpacing: "0.05em",
                                                 padding: "0.5rem 1rem",
                                                 borderBottom: "2px solid #5a5a5a",
-                                                display: "inline-block"
+                                                display: "inline-block",
+                                                minWidth: "200px", // Reserve space to prevent layout jump
+                                                textAlign: "center"
                                             }}
                                         >
-                                            {sheets[currentPage].signature}
+                                            <TypewriterSignature text={sheets[currentPage].signature} />
                                         </motion.div>
                                     </div>
                                 )}
