@@ -67,6 +67,7 @@ export default function StarlightPage() {
       }}>
         <Link
           href="/"
+          prefetch={false}
           aria-label="Go Back"
           style={{
             width: "40px",

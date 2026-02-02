@@ -72,14 +72,13 @@ export default function LifeCompassPage() {
                             </p>
                         </section>
 
-                        {/* Structured List Content */}
                         <div style={{
                             display: "flex",
                             flexDirection: "column",
-                            gap: "4rem"
+                            gap: "3rem"
                         }}>
                             {VISION_TRACKS.map((track, trackIdx) => (
-                                <section key={track.title}>
+                                <div key={track.title} style={{ marginBottom: "1rem" }}>
                                     <div style={{
                                         display: "flex",
                                         alignItems: "center",
@@ -113,7 +112,7 @@ export default function LifeCompassPage() {
                                             />
                                         ))}
                                     </div>
-                                </section>
+                                </div>
                             ))}
                         </div>
                     </Container>
