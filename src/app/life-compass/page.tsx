@@ -7,6 +7,7 @@ import { IosBentoCard } from "@/components/sanctuary/IosBentoCard";
 import { ZenHideable } from "@/components/ZenHideable";
 import { Compass, ArrowLeft, Target, Heart, GraduationCap, Briefcase } from "lucide-react";
 import Link from "next/link";
+import { StandardBackButton } from "@/components/ui/StandardBackButton";
 import { motion } from "framer-motion";
 
 const GradientOrb = dynamic(() => import("@/components/GradientOrb").then(mod => mod.GradientOrb), { ssr: false });
@@ -59,38 +60,8 @@ export default function LifeCompassPage() {
             </div>
 
             <main style={{ position: "relative", zIndex: 1, paddingBottom: "8rem" }}>
-                {/* Custom Header (iOS Style) */}
-                <div style={{
-                    position: "sticky",
-                    top: 0,
-                    zIndex: 100,
-                    backdropFilter: "blur(20px) saturate(180%)",
-                    backgroundColor: "rgba(5, 5, 5, 0.5)",
-                    borderBottom: "1px solid rgba(255, 255, 255, 0.05)",
-                    padding: "1rem 0"
-                }}>
-                    <Container>
-                        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                            <Link href="/starlight" style={{
-                                color: "rgba(255, 255, 255, 0.6)",
-                                display: "flex",
-                                alignItems: "center",
-                                gap: "0.5rem",
-                                textDecoration: "none",
-                                fontSize: "0.9rem",
-                                fontWeight: 500
-                            }} className="hover:text-white transition-colors">
-                                <ArrowLeft size={18} />
-                                Back
-                            </Link>
-                            <div style={{ textAlign: "center", position: "absolute", left: "50%", transform: "translateX(-50%)" }}>
-                                <span style={{ fontSize: "0.7rem", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "#34c759", display: "block", marginBottom: "2px" }}>The Starlight</span>
-                                <h1 style={{ fontSize: "1.1rem", fontWeight: 600, margin: 0 }}>Life Compass</h1>
-                            </div>
-                            <div style={{ width: "40px" }} /> {/* Spacer */}
-                        </div>
-                    </Container>
-                </div>
+                {/* Standard Back Button */}
+                <StandardBackButton href="/starlight" />
 
                 <ZenHideable hideInZen>
                     {/* Hero Intro */}

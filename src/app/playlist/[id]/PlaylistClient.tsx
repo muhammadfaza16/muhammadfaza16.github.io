@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useMemo, useEffect } from "react";
-import { Play, Pause, Search, Disc, Shuffle, ChevronLeft, SkipBack, SkipForward, Sparkles } from "lucide-react";
+import { Play, Pause, Search, Disc, Shuffle, SkipBack, SkipForward, Sparkles } from "lucide-react";
 import { Virtuoso } from 'react-virtuoso';
 import { GradientOrb } from "@/components/GradientOrb";
 import { CosmicStars } from "@/components/CosmicStars";
@@ -11,12 +11,12 @@ import { useAudio, PLAYLIST } from "@/components/AudioContext";
 import { useZen } from "@/components/ZenContext";
 import { motion, PanInfo, AnimatePresence } from "framer-motion";
 import { PLAYLIST_CATEGORIES } from "@/data/playlists";
-import { useRouter } from "next/navigation";
+import { StandardBackButton } from "@/components/ui/StandardBackButton";
 
 export default function PlaylistClient({ playlistId }: { playlistId: string }) {
     const { isPlaying, currentSong, jumpToSong, playQueue, queue, currentIndex, togglePlay, nextSong, prevSong, hasInteracted, currentTime, duration, seekTo } = useAudio();
     const { isZen, setZen } = useZen();
-    const router = useRouter();
+
     const [searchQuery, setSearchQuery] = useState("");
     const [mounted, setMounted] = useState(false);
 
@@ -183,24 +183,10 @@ export default function PlaylistClient({ playlistId }: { playlistId: string }) {
                     flexDirection: "column",
                     gap: "1.5rem"
                 }}>
-                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "0.5rem" }}>
-                        <button
-                            onClick={() => router.push("/playlist")}
-                            style={{
-                                background: "rgba(255,255,255,0.08)",
-                                border: "none",
-                                borderRadius: "50%",
-                                width: "40px",
-                                height: "40px",
-                                display: "flex",
-                                alignItems: "center",
-                                justifyContent: "center",
-                                cursor: "pointer",
-                                color: "white"
-                            }}
-                        >
-                            <ChevronLeft size={24} />
-                        </button>
+                    {/* Standard Back Button */}
+                    <StandardBackButton href="/playlist" />
+
+                    <div style={{ display: "flex", alignItems: "center", justifyContent: "center", marginBottom: "0.5rem" }}>
                         <h2 style={{
                             color: "white",
                             fontSize: "1.1rem",
@@ -210,7 +196,6 @@ export default function PlaylistClient({ playlistId }: { playlistId: string }) {
                         }}>
                             {activePlaylist?.title || "All Tracks"}
                         </h2>
-                        <div style={{ width: "40px" }} />
                     </div>
 
                     {activePlaylist && (

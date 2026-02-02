@@ -2,6 +2,7 @@
 
 import { Container } from "@/components/Container";
 import Link from "next/link";
+import { StandardBackButton } from "@/components/ui/StandardBackButton";
 import {
     Brain,
     ArrowLeft,
@@ -82,6 +83,8 @@ export default function AIAgentPage() {
     return (
         <div style={{ paddingBottom: "clamp(4rem, 8vh, 8rem)" }}>
             {/* Hero Section */}
+            {/* Standard Back Button */}
+            <StandardBackButton href="/journey" />
             <section style={{
                 minHeight: "auto",
                 display: "flex",
@@ -97,28 +100,7 @@ export default function AIAgentPage() {
                         variants={containerVariants}
                         className="animate-fade-in-up"
                     >
-                        {/* Back link */}
-                        <Link
-                            href="/journey"
-                            style={{
-                                display: "inline-flex",
-                                alignItems: "center",
-                                gap: "0.5rem",
-                                padding: "0.35rem 0.75rem",
-                                backgroundColor: "var(--hover-bg)",
-                                borderRadius: "99px",
-                                fontSize: "clamp(0.7rem, 2vw, 0.8rem)",
-                                fontFamily: "var(--font-mono)",
-                                marginBottom: "clamp(1.5rem, 3vh, 2rem)",
-                                color: "var(--text-secondary)",
-                                textDecoration: "none",
-                                transition: "all 0.2s ease"
-                            }}
-                            className="hover:bg-[var(--card-bg)]"
-                        >
-                            <ArrowLeft className="w-3.5 h-3.5" />
-                            <span>Back to Journey</span>
-                        </Link>
+
 
                         <motion.div
                             variants={itemVariants}

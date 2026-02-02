@@ -7,6 +7,7 @@ import { IosBentoCard } from "@/components/sanctuary/IosBentoCard";
 import { ZenHideable } from "@/components/ZenHideable";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
+import { StandardBackButton } from "@/components/ui/StandardBackButton";
 
 const GradientOrb = dynamic(() => import("@/components/GradientOrb").then(mod => mod.GradientOrb), { ssr: false });
 const CosmicStars = dynamic(() => import("@/components/CosmicStars").then(mod => mod.CosmicStars), { ssr: false });
@@ -29,6 +30,8 @@ export function BlogClient({ posts }: { posts: any[] }) {
             </div>
 
             <main style={{ position: "relative", zIndex: 1, paddingBottom: "8rem" }}>
+                {/* Standard Back Button */}
+                <StandardBackButton href="/starlight" className="!z-[101]" />
                 {/* Custom Header (iOS Style) */}
                 <div style={{
                     position: "sticky",
@@ -41,23 +44,10 @@ export function BlogClient({ posts }: { posts: any[] }) {
                 }}>
                     <Container>
                         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                            <Link href="/starlight" style={{
-                                color: "rgba(255, 255, 255, 0.6)",
-                                display: "flex",
-                                alignItems: "center",
-                                gap: "0.5rem",
-                                textDecoration: "none",
-                                fontSize: "0.9rem",
-                                fontWeight: 500
-                            }} className="hover:text-white transition-colors">
-                                <ArrowLeft size={18} />
-                                Back
-                            </Link>
                             <div style={{ textAlign: "center", position: "absolute", left: "50%", transform: "translateX(-50%)" }}>
                                 <span style={{ fontSize: "0.7rem", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "#FFCC00", display: "block", marginBottom: "2px" }}>The Starlight</span>
                                 <h1 style={{ fontSize: "1.1rem", fontWeight: 600, margin: 0 }}>Writing</h1>
                             </div>
-                            <div style={{ width: "40px" }} /> {/* Spacer */}
                         </div>
                     </Container>
                 </div>

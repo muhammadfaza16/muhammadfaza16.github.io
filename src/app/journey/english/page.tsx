@@ -2,6 +2,7 @@
 
 import { Container } from "@/components/Container";
 import Link from "next/link";
+import { StandardBackButton } from "@/components/ui/StandardBackButton";
 import {
     Globe,
     ArrowLeft,
@@ -57,6 +58,8 @@ export default function EnglishPage() {
 
     return (
         <div style={{ paddingBottom: "clamp(4rem, 8vh, 8rem)" }}>
+            {/* Standard Back Button */}
+            <StandardBackButton href="/journey" />
             <section style={{
                 minHeight: "auto",
                 display: "flex",
@@ -67,25 +70,7 @@ export default function EnglishPage() {
             }}>
                 <Container>
                     <motion.div initial="hidden" animate="show" variants={containerVariants} className="animate-fade-in-up">
-                        <Link
-                            href="/journey"
-                            style={{
-                                display: "inline-flex",
-                                alignItems: "center",
-                                gap: "0.5rem",
-                                padding: "0.35rem 0.75rem",
-                                backgroundColor: "var(--hover-bg)",
-                                borderRadius: "99px",
-                                fontSize: "clamp(0.7rem, 2vw, 0.8rem)",
-                                fontFamily: "var(--font-mono)",
-                                marginBottom: "clamp(1.5rem, 3vh, 2rem)",
-                                color: "var(--text-secondary)",
-                                textDecoration: "none"
-                            }}
-                        >
-                            <ArrowLeft className="w-3.5 h-3.5" />
-                            <span>Back to Journey</span>
-                        </Link>
+
 
                         <motion.div variants={itemVariants} style={{ display: "flex", alignItems: "center", gap: "1rem", marginBottom: "clamp(1rem, 2vh, 1.5rem)" }}>
                             <div style={{

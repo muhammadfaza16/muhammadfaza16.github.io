@@ -6,6 +6,7 @@ import { ZenHideable } from "@/components/ZenHideable";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { CurationSimpleItem } from "@/components/curation/CurationSimpleItem";
+import { StandardBackButton } from "@/components/ui/StandardBackButton";
 
 // Sample Curation Data - Minimalist
 const CURATION_DATA = [
@@ -55,33 +56,8 @@ export default function CurationPage() {
             fontFamily: "var(--font-sans)",
             position: "relative"
         }}>
-            {/* Minimalist Header */}
-            <div style={{
-                position: "sticky",
-                top: 0,
-                zIndex: 50,
-                backgroundColor: "rgba(8, 8, 8, 0.8)",
-                backdropFilter: "blur(12px)",
-                borderBottom: "1px solid rgba(255, 255, 255, 0.05)",
-                padding: "1.5rem 0"
-            }}>
-                <Container>
-                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                        <Link href="/starlight" style={{
-                            color: "rgba(255, 255, 255, 0.6)",
-                            display: "flex",
-                            alignItems: "center",
-                            gap: "0.5rem",
-                            textDecoration: "none",
-                            fontSize: "0.9rem",
-                            transition: "color 0.2s"
-                        }} className="hover:text-white">
-                            <ArrowLeft size={18} />
-                            <span style={{ fontFamily: "var(--font-mono)", textTransform: "uppercase", letterSpacing: "0.05em" }}>Back</span>
-                        </Link>
-                    </div>
-                </Container>
-            </div>
+            {/* Standard Back Button */}
+            <StandardBackButton href="/starlight" />
 
             <main style={{ paddingBottom: "6rem" }}>
                 <ZenHideable hideInZen>

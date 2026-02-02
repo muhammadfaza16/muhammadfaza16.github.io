@@ -11,6 +11,7 @@ const CosmicStars = dynamic(() => import("@/components/CosmicStars").then(mod =>
 const MilkyWay = dynamic(() => import("@/components/MilkyWay").then(mod => mod.MilkyWay), { ssr: false });
 
 // --- Enhanced Design System ---
+import { StandardBackButton } from "@/components/ui/StandardBackButton";
 import { BentoCard, theme } from "@/components/BentoCard";
 
 // 1. Life Stats (Redesigned with Living Tickers)
@@ -584,26 +585,8 @@ export default function ClockPage() {
                 <div style={{ position: "absolute", inset: 0, background: "radial-gradient(circle at center, transparent 0%, #000 120%)" }} />
             </div>
 
-            {/* Navigation */}
-            <Link href="/" style={{
-                position: "fixed",
-                top: "24px",
-                left: "24px",
-                zIndex: 50,
-                width: "44px",
-                height: "44px",
-                background: "rgba(255,255,255,0.05)",
-                backdropFilter: "blur(12px)",
-                border: "1px solid rgba(255,255,255,0.1)",
-                borderRadius: "50%",
-                color: "white",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                transition: "all 0.2s"
-            }}>
-                <ArrowLeft size={20} />
-            </Link>
+            {/* Standard Back Button */}
+            <StandardBackButton href="/" />
 
             <div className="clock-container">
                 <motion.div

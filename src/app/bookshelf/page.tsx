@@ -6,6 +6,7 @@ import { Container } from "@/components/Container";
 import { IosBentoCard } from "@/components/sanctuary/IosBentoCard";
 import { ZenHideable } from "@/components/ZenHideable";
 import { BookOpen, ArrowLeft, Star, Clock, CheckCircle } from "lucide-react";
+import { StandardBackButton } from "@/components/ui/StandardBackButton";
 import Link from "next/link";
 import { motion } from "framer-motion";
 
@@ -37,38 +38,8 @@ export default function BookshelfPage() {
             </div>
 
             <main style={{ position: "relative", zIndex: 1, paddingBottom: "8rem" }}>
-                {/* Custom Header (iOS Style) */}
-                <div style={{
-                    position: "sticky",
-                    top: 0,
-                    zIndex: 100,
-                    backdropFilter: "blur(20px) saturate(180%)",
-                    backgroundColor: "rgba(5, 5, 5, 0.5)",
-                    borderBottom: "1px solid rgba(255, 255, 255, 0.05)",
-                    padding: "1rem 0"
-                }}>
-                    <Container>
-                        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                            <Link href="/starlight" style={{
-                                color: "rgba(255, 255, 255, 0.6)",
-                                display: "flex",
-                                alignItems: "center",
-                                gap: "0.5rem",
-                                textDecoration: "none",
-                                fontSize: "0.9rem",
-                                fontWeight: 500
-                            }} className="hover:text-white transition-colors">
-                                <ArrowLeft size={18} />
-                                Back
-                            </Link>
-                            <div style={{ textAlign: "center", position: "absolute", left: "50%", transform: "translateX(-50%)" }}>
-                                <span style={{ fontSize: "0.7rem", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "#FF9500", display: "block", marginBottom: "2px" }}>The Starlight</span>
-                                <h1 style={{ fontSize: "1.1rem", fontWeight: 600, margin: 0 }}>Bookshelf</h1>
-                            </div>
-                            <div style={{ width: "40px" }} /> {/* Spacer */}
-                        </div>
-                    </Container>
-                </div>
+                {/* Standard Back Button */}
+                <StandardBackButton href="/starlight" />
 
                 <ZenHideable hideInZen>
                     {/* Hero Intro */}

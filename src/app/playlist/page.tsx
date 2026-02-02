@@ -1,13 +1,14 @@
 "use client";
 
 import React, { useState, useMemo } from "react";
-import { Search, Disc, Shuffle, ChevronLeft } from "lucide-react";
+import { Search, Disc, Shuffle } from "lucide-react";
 import { GradientOrb } from "@/components/GradientOrb";
 import { CosmicStars } from "@/components/CosmicStars";
 import { MilkyWay } from "@/components/MilkyWay";
 import { useAudio, PLAYLIST } from "@/components/AudioContext";
 import { motion } from "framer-motion";
 import { PLAYLIST_CATEGORIES } from "@/data/playlists";
+import { StandardBackButton } from "@/components/ui/StandardBackButton";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 
@@ -96,24 +97,9 @@ export default function LibraryIndexPage() {
                 gap: "2rem"
             }}>
                 {/* Header */}
-                <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-                    <button
-                        onClick={() => router.push("/")}
-                        style={{
-                            background: "rgba(255,255,255,0.08)",
-                            border: "none",
-                            borderRadius: "50%",
-                            width: "40px",
-                            height: "40px",
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                            cursor: "pointer",
-                            color: "white"
-                        }}
-                    >
-                        <ChevronLeft size={24} />
-                    </button>
+                {/* Header */}
+                <StandardBackButton href="/" />
+                <div> {/* Wrapper to maintain vertical spacing if needed, or just H1 directly */}
                     <h1 style={{
                         fontFamily: "-apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif",
                         fontSize: "2.8rem",
