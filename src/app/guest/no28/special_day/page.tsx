@@ -828,11 +828,10 @@ export default function SpecialDayBentoPage() {
                                     "Maaf, pesan ini masih terlelap. <br />Ia akan terbangun untuk menyapamu tepat di hari istimewamu nanti."
                                 </HandwrittenNote>
 
-                                <div style={{ marginTop: "1rem" }}>
-                                    <HandwrittenNote style={{ fontSize: "1.4rem", color: "#b07d62", fontWeight: 600 }}>
-                                        {daysUntil} hari lagi{dots}
-                                    </HandwrittenNote>
-                                </div>
+                                <HandwrittenNote style={{ fontSize: "1.4rem", color: "#b07d62", fontWeight: 600, display: "inline-flex", alignItems: "center" }}>
+                                    {daysUntil} hari lagi
+                                    <span style={{ display: "inline-block", width: "24px", textAlign: "left", marginLeft: "2px" }}>{dots}</span>
+                                </HandwrittenNote>
                                 <div style={{ fontSize: "0.8rem", color: "#aaa", marginTop: "1.5rem", fontStyle: "italic" }}>
                                     (ketuk di luar untuk menutup)
                                 </div>

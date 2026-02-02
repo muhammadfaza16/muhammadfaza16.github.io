@@ -38,7 +38,7 @@ const sheets = [
         ]
     },
     {
-        title: "Tanpa Tuntutan",
+        title: "Setelah Ini",
         content: [
             "Aku menyampaikan ini bukan untuk membuka kembali cerita lama atau meminta tempat di hidupmu yang sekarang. Aku tidak mengharapkan balasan atau bahkan pengakuan bahwa kamu masih ingat kejadian tersebut.",
             "Aku harap, jika suatu saat kenangan itu kembali terlintas di benakmu, entah dalam momen refleksi sendiri atau ketika kamu menemukan dirimu meragukan kualitasmu sendiri, kamu tahu bahwa versi dirimu yang dulu tidak kurang dari segi apapun. Kamu adalah sosok yang sempurna. Yang salah adalah caraku menerimanya."
@@ -63,41 +63,7 @@ const sheets = [
     }
 ];
 
-const TypewriterSignature = ({ text }: { text: string }) => {
-    const [displayText, setDisplayText] = useState("");
 
-    // Reset and start animation when component mounts or text changes
-    useState(() => {
-        setDisplayText(""); // Start empty
-    });
-
-    React.useEffect(() => {
-        let currentIndex = 0;
-        setDisplayText("");
-
-        const interval = setInterval(() => {
-            if (currentIndex < text.length) {
-                setDisplayText(prev => prev + text[currentIndex]);
-                currentIndex++;
-            } else {
-                clearInterval(interval);
-            }
-        }, 150); // Speed of typing
-
-        return () => clearInterval(interval);
-    }, [text]);
-
-    return (
-        <span>
-            {displayText}
-            <motion.span
-                animate={{ opacity: [0, 1, 0] }}
-                transition={{ repeat: Infinity, duration: 0.8 }}
-                style={{ marginLeft: "2px", borderRight: "2px solid #444" }}
-            />
-        </span>
-    );
-};
 
 export default function LetterPage() {
     const router = useRouter();
@@ -264,7 +230,7 @@ export default function LetterPage() {
                                                 textAlign: "center"
                                             }}
                                         >
-                                            <TypewriterSignature text={sheets[currentPage].signature} />
+                                            {sheets[currentPage].signature}
                                         </motion.div>
                                     </div>
                                 )}
