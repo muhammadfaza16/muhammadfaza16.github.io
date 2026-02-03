@@ -13,7 +13,7 @@ const sheets = [
         content: [
             "Halo, Salsa.",
             "Aku harap pesan ini menemukanmu dalam kondisi yang baik.",
-            "Belakangan ini, aku banyak menghabiskan waktu untuk melihat kembali cara-cara lama ku berinteraksi dengan orang-orang di sekitarku, terutama di masa-masa ketika aku belum mengenali diriku sendiri dengan baik. Dalam proses itu, aku terus kembali pada satu momen yang entah mengapa selalu terasa belum tuntas: saat kamu hadir dengan cara yang tulus, dan aku justru merespons dengan ketidakhadiran yang dingin."
+            "Belakangan ini, aku banyak menghabiskan waktu untuk melihat kembali cara-cara lama ku berinteraksi dengan orang-orang di sekitarku, terutama di masa-masa ketika aku belum mengenali diriku sendiri dengan baik. Dalam proses itu, aku terus kembali pada satu momen yang entah mengapa selalu terasa belum tuntas: saat kamu bersikap baik dan terbuka, tapi aku justru meresponsnya dengan kaku dan berjarak."
         ]
     },
     {
@@ -26,28 +26,28 @@ const sheets = [
     {
         title: "Yang Seharusnya Terucap",
         content: [
-            "Jadi ini yang ingin kusampaikan. Aku minta maaf atas sikapku yang dulu. Aku ingat betul ketika kamu mencoba mendekat dengan cara yang hangat dan terbuka, namun aku justru memilih untuk menarik diri dan membekukanmu dengan sikap acuh yang tidak sepantasnya kamu terima.",
-            "Saat itu, aku belum memiliki kematangan untuk menghadapi kebaikan orang lain dengan cara yang pantas. Aku membawa luka atau kebingungan yang bukan tanggung jawabmu, tapi aku memperlakukan kamu seolah-olah aku berhak untuk mengabaikan perhatian dan kehangatan yang kamu tunjukkan."
+            "Inti dari pesan ini adalah bahwa aku ingin meminta maaf atas sikapku yang dulu. Aku ingat betul ketika kamu menunjukkan keramahan yang tulus, namun aku justru memilih untuk menutup diri. Sikap acuh itu muncul bukan karena kamu berlebihan, tapi karena aku yang belum selesai dengan urusanku sendiri.",
+            "Saat itu, aku belum memiliki kematangan untuk menghadapi kebaikan orang lain dengan cara yang pantas. Aku membawa luka atau kebingungan yang bukan tanggung jawabmu, tapi aku memperlakukan kamu seolah-olah aku berhak untuk mengabaikan sapaan atau interaksi sederhana yang kamu berikan."
         ]
     },
     {
         title: "Tentang Ketulusanmu",
         content: [
             "Aku ingin kamu tahu bahwa tidak ada yang salah dari caramu bersikap saat itu. Ketulusanmu adalah hal istimewa yang jarang kutemui, dan kegagalanku untuk meresponsnya dengan setimpal adalah murni kekuranganku saat itu, bukan karena ada yang kurang darimu.",
-            "Jika ada bagian dari dirimu yang sempat meragukan apakah kamu sudah cukup baik, cukup hangat, atau cukup pantas saat itu, biarkan keraguan itu terhapus. Kamu sudah cukup. Bahkan lebih dari cukup. Aku saja yang belum memiliki kematangan untuk melihat dan membalasnya dengan cara yang seharusnya."
+            "Aku khawatir diamku dulu sempat membuatmu bertanya-tanya apakah ada yang salah. Tolong ketahuilah, tidak ada yang salah sama sekali dari sikapmu. Itu murni ketidakmampuanku saat itu."
         ]
     },
     {
         title: "Setelah Ini",
         content: [
             "Aku menyampaikan ini bukan untuk membuka kembali cerita lama atau meminta tempat di hidupmu yang sekarang. Aku tidak mengharapkan balasan atau bahkan pengakuan bahwa kamu masih ingat kejadian tersebut.",
-            "Aku harap, jika suatu saat kenangan itu kembali terlintas di benakmu, entah dalam momen refleksi sendiri atau ketika kamu menemukan dirimu meragukan kualitasmu sendiri, kamu tahu bahwa versi dirimu yang dulu tidak kurang dari segi apapun. Kamu adalah sosok yang sempurna. Yang salah adalah caraku menerimanya."
+            "Aku harap, jika suatu saat kenangan itu kembali terlintas di benakmu, entah dalam momen refleksi sendiri atau ketika kamu menemukan dirimu meragukan kualitasmu sendiri, kamu tahu bahwa versi dirimu yang dulu tidak kurang dari segi apapun. Kamu orang baik, dan kamu berhak diperlakukan dengan baik juga. Yang salah adalah caraku menerimanya."
         ]
     },
     {
         title: "Doa Untukmu",
         content: [
-            "Semoga kamu selalu dikelilingi oleh orang-orang yang mampu menghargai ketulusanmu dengan cara yang paling utuh, tanpa membuatmu harus menebak-nebak, tanpa membuatmu merasa berlebihan, dan tanpa membuatmu merasa harus meminta izin untuk menjadi dirimu sendiri, seperti yang mungkin aku lakukan dulu.",
+            "Semoga kamu selalu dikelilingi oleh orang-orang yang mampu menghargai ketulusanmu dengan cara yang paling utuh, tanpa membuatmu harus menebak-nebak, tanpa membuatmu merasa berlebihan, dan tanpa membuatmu merasa harus meminta izin untuk menjadi dirimu sendiri.",
             "Sekali lagi, terima kasih dan maaf dari lubuk hatiku yang paling dalam.",
             "Jaga kesehatan ya, semoga ke depannya kamu selalu diberikan yang terbaik."
         ],
