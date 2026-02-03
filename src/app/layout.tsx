@@ -5,7 +5,7 @@ import { ThemeProvider } from "@/components/ThemeProvider";
 import { SkipLink } from "@/components/SkipLink";
 import { KonamiCode } from "@/components/KonamiCode";
 import { FloatingZenToggle } from "@/components/FloatingZenToggle";
-import { NativeBrowserGuard } from "@/components/NativeBrowserGuard";
+
 import { AudioProvider } from "@/components/AudioContext";
 import { NarrativeProvider } from "@/components/NarrativeContext";
 import { GuestAudioPlayer } from "@/components/GuestAudioPlayer";
@@ -106,7 +106,7 @@ export default function RootLayout({
                 <KonamiCode />
                 <KonamiCode />
                 <FloatingZenToggle />
-                <NativeBrowserGuard />
+
                 <LayoutShell>
                   <GuestAudioPlayer />
                   {children}
