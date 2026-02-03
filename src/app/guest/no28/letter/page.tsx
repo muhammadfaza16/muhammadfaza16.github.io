@@ -53,19 +53,12 @@ const sheets = [
         ],
         signature: "Muhammad Faza"
     },
-    {
-        title: "Satu Hal Terakhir",
-        content: [
-            "Aku tahu, diamku dulu mungkin sempat membuatmu merasa tidak dianggap atau merasa kecil. Itulah alasan kenapa aku menyiapkan sisa ruang di halaman ini. Aku ingin ada sesuatu yang secara jujur mencatat dan merayakan hari-harimu.",
-            "Anggap saja ini sebagai caraku mengakui bahwa setiap detik yang kamu jalani itu nyata, penting, dan sangat berharga."
-        ],
-        isFootnote: true
-    },
+
     {
         title: "Catatan Kecil",
         content: [
-            "Sebenarnya, pesan ini sudah ingin kusampaikan sejak 2015—hampir sebelas tahun yang lalu. Namun, mungkin karena ketidaksiapanku saat itu, niat ini tersimpan terlalu lama dan baru menemukan jalannya sekarang.",
-            "Anggaplah seluruh halaman ini sebagai cinderamata sederhana, sebuah simbol permohonan maaf atas sikapku yang dulu. Kendati demikian, kenyamananmu tetaplah yang utama. Jika ruang ini dirasa mengganggu atau membuatmu tidak berkenan, tolong beritahu aku—aku akan menghapusnya saat itu juga.",
+            "Sebenarnya, pesan ini sudah ingin kusampaikan sejak 2015, hampir sebelas tahun yang lalu. Namun, mungkin karena ketidaksiapanku saat itu, niat ini tersimpan terlalu lama dan baru menemukan jalannya sekarang.",
+            "Anggaplah seluruh halaman ini sebagai cinderamata sederhana, sebuah simbol permohonan maaf atas sikapku yang dulu. Kendati demikian, kenyamananmu tetaplah yang utama. Jika ruang ini dirasa mengganggu atau membuatmu tidak berkenan, tolong beritahu aku, aku akan menghapusnya saat itu juga.",
             "Aku hanya ingin menyampaikan itikad baik yang sempat tertunda, tanpa bermaksud sedikitpun untuk mengusik ketenanganmu."
         ],
         isFootnote: true
