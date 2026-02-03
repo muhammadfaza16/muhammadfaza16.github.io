@@ -600,6 +600,12 @@ export default function SpecialDayBentoPage() {
         const nowInit = new Date();
         setStableNow(nowInit);
 
+        // Load palette preference
+        const savedPalettePref = localStorage.getItem("journal_use_palette");
+        if (savedPalettePref === "true") {
+            setUsePaletteColors(true);
+        }
+
         // Fetch Journal Data for Colors
         const savedJournal = localStorage.getItem("journal_entries_25");
         if (savedJournal) {
@@ -1185,41 +1191,16 @@ export default function SpecialDayBentoPage() {
                         {/* 2. Personal Year Loop (Instead of Calendar) */}
                         <Link href="/guest/no28/journal" style={{ gridColumn: isMobile ? "span 1" : "span 12", textDecoration: "none", color: "inherit", display: "block" }}>
                             <BentoCard isMobile={isMobile} rotate="-0.4deg" tapeColor="#f6a4a9" style={{ height: "100%", transition: "transform 0.2s" }}>
-                                <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "1.8rem" }}>
-                                    <Map size={14} color="#a0907d" style={{ opacity: 0.8 }} />
-                                    <h3 style={{ fontSize: "0.7rem", fontWeight: 700, color: "#a0907d", textTransform: "uppercase", letterSpacing: "2.5px" }}>Lembaran Kisah Ke-{age + 1}</h3>
-                                    <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: "15px" }}>
-                                        <motion.div
-                                            animate={{ opacity: [0.7, 1, 0.7], textShadow: ["0 0 0px rgba(176, 125, 98, 0)", "0 0 8px rgba(176, 125, 98, 0.5)", "0 0 0px rgba(176, 125, 98, 0)"] }}
-                                            transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
-                                            style={{ fontFamily: "'Caveat', cursive", fontSize: "1.2rem", color: "#b07d62", transform: "rotate(-2deg)" }}
-                                        >
-                                            ukir ceritamu...
-                                        </motion.div>
+                                <Map size={14} color="#a0907d" style={{ opacity: 0.8 }} />
+                                <h3 style={{ fontSize: "0.7rem", fontWeight: 700, color: "#a0907d", textTransform: "uppercase", letterSpacing: "2.5px" }}>Lembaran Kisah Ke-{age + 1}</h3>
+                                <motion.div
+                                    animate={{ opacity: [0.7, 1, 0.7], textShadow: ["0 0 0px rgba(176, 125, 98, 0)", "0 0 8px rgba(176, 125, 98, 0.5)", "0 0 0px rgba(176, 125, 98, 0)"] }}
+                                    transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+                                    style={{ marginLeft: "auto", fontFamily: "'Caveat', cursive", fontSize: "1.2rem", color: "#b07d62", transform: "rotate(-2deg)" }}
+                                >
+                                    ukir ceritamu...
+                                </motion.div>
 
-                                        <div
-                                            onClick={(e) => {
-                                                e.preventDefault();
-                                                e.stopPropagation();
-                                                setUsePaletteColors(!usePaletteColors);
-                                            }}
-                                            style={{
-                                                cursor: "pointer",
-                                                padding: "4px 8px",
-                                                background: usePaletteColors ? "#f0e6d2" : "transparent",
-                                                borderRadius: "12px",
-                                                border: "1px solid #e8e2d9",
-                                                display: "flex",
-                                                alignItems: "center",
-                                                gap: "4px",
-                                                fontSize: "0.8rem",
-                                                transition: "all 0.2s"
-                                            }}
-                                        >
-                                            <span>{usePaletteColors ? "🎨 Palet" : "🟤 Statis"}</span>
-                                        </div>
-                                    </div>
-                                </div>
 
                                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: "1.5rem" }}>
                                     <div>
@@ -1546,6 +1527,6 @@ export default function SpecialDayBentoPage() {
 
                 </Container>
             </main>
-        </div>
+        </div >
     );
 }

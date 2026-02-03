@@ -191,6 +191,7 @@ export default function JournalPage() {
     const [selectedDate, setSelectedDate] = useState<Date | null>(null);
     const [isMobile, setIsMobile] = useState(false);
     const [showFullHistory, setShowFullHistory] = useState(false);
+    const [usePaletteColors, setUsePaletteColors] = useState(false);
 
     // Modal State
     const [noteInput, setNoteInput] = useState("");
@@ -222,8 +223,19 @@ export default function JournalPage() {
             setEntries(parsed);
         }
 
+        const savedPalettePref = localStorage.getItem("journal_use_palette");
+        if (savedPalettePref === "true") {
+            setUsePaletteColors(true);
+        }
+
         return () => window.removeEventListener('resize', checkMobile);
     }, []);
+
+    const togglePalette = () => {
+        const newValue = !usePaletteColors;
+        setUsePaletteColors(newValue);
+        localStorage.setItem("journal_use_palette", String(newValue));
+    };
 
     const seedSimulationData = (existing: Record<string, JournalEntry> = {}) => {
         const demoEntries: Record<string, JournalEntry> = { ...existing };
@@ -381,6 +393,25 @@ export default function JournalPage() {
                             <ArrowLeft size={22} strokeWidth={2} />
                         </Link>
                         <h1 style={{ fontSize: "1.4rem", fontWeight: 700, color: "#b07d62", fontFamily: "'Caveat', cursive", marginRight: "auto", marginLeft: "1rem" }}>Palet Perasaan</h1>
+
+                        <div
+                            onClick={togglePalette}
+                            style={{
+                                cursor: "pointer",
+                                padding: "6px 12px",
+                                background: usePaletteColors ? "#f0e6d2" : "#fff",
+                                borderRadius: "20px",
+                                border: "1px solid #e8e2d9",
+                                display: "flex",
+                                alignItems: "center",
+                                gap: "6px",
+                                fontSize: "0.85rem",
+                                transition: "all 0.2s",
+                                boxShadow: "0 2px 5px rgba(0,0,0,0.05)"
+                            }}
+                        >
+                            <span>{usePaletteColors ? "🎨 Palet" : "🟤 Default"}</span>
+                        </div>
                     </div>
                 </Container>
             </div>
