@@ -1209,7 +1209,6 @@ export default function SpecialDayBentoPage() {
                                         columns={isMobile ? 18 : 27}
                                         size={isMobile ? "4px" : "6px"}
                                         color="#b07d62"
-                                        customColors={journalColors}
                                     />
                                     <div style={{ display: "flex", justifyContent: "space-between", marginTop: "1rem", fontSize: "0.7rem", fontWeight: 700, color: "#aaa" }}>
                                         <span>28 NOV {startOfPersonalYear.getFullYear()}</span>
