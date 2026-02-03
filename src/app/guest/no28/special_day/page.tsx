@@ -135,7 +135,7 @@ const DotGrid = React.memo(({ total, filled, columns = 20, color = "#b07d62", si
                             background: dotColor,
                             opacity: 1,
                             transform: `rotate(${dot.rotation}deg) scale(${isLast ? 1.5 : 1})`,
-                            boxShadow: isToday ? "0 0 4px #d2691e" : "none",
+                            boxShadow: isToday ? `0 0 4px ${dotColor}` : "none",
                             position: "relative",
                             clipPath: isLast ? "polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%)" : "none" // Star shape for the last day
                         }}
@@ -462,6 +462,7 @@ export default function SpecialDayBentoPage() {
     const [showTodayMessage, setShowTodayMessage] = useState(false);
     const [showTimeCapsuleMessage, setShowTimeCapsuleMessage] = useState(false);
     const [journalColors, setJournalColors] = useState<Record<number, string>>({}); // moved here
+    const [usePaletteColors, setUsePaletteColors] = useState(false);
     const wisdomIndexRef = useRef(0);
     const [dots, setDots] = useState("");
 
@@ -1187,7 +1188,28 @@ export default function SpecialDayBentoPage() {
                                 <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "1.8rem" }}>
                                     <Map size={14} color="#a0907d" style={{ opacity: 0.8 }} />
                                     <h3 style={{ fontSize: "0.7rem", fontWeight: 700, color: "#a0907d", textTransform: "uppercase", letterSpacing: "2.5px" }}>Lembaran Kisah Ke-{age + 1}</h3>
-                                    <div style={{ marginLeft: "auto", fontFamily: "'Caveat', cursive", fontSize: "1.1rem", color: "#b07d62", transform: "rotate(-2deg)", opacity: 0.8 }}>ukir ceritamu...</div>
+                                    <div
+                                        onClick={(e) => {
+                                            e.preventDefault();
+                                            e.stopPropagation();
+                                            setUsePaletteColors(!usePaletteColors);
+                                        }}
+                                        style={{
+                                            marginLeft: "auto",
+                                            cursor: "pointer",
+                                            padding: "4px 8px",
+                                            background: usePaletteColors ? "#f0e6d2" : "transparent",
+                                            borderRadius: "12px",
+                                            border: "1px solid #e8e2d9",
+                                            display: "flex",
+                                            alignItems: "center",
+                                            gap: "4px",
+                                            fontSize: "0.8rem",
+                                            transition: "all 0.2s"
+                                        }}
+                                    >
+                                        <span>{usePaletteColors ? "🎨 Palet" : "🟤 Statis"}</span>
+                                    </div>
                                 </div>
 
                                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: "1.5rem" }}>
@@ -1209,6 +1231,7 @@ export default function SpecialDayBentoPage() {
                                         columns={isMobile ? 18 : 27}
                                         size={isMobile ? "4px" : "6px"}
                                         color="#b07d62"
+                                        customColors={usePaletteColors ? journalColors : {}}
                                     />
                                     <div style={{ display: "flex", justifyContent: "space-between", marginTop: "1rem", fontSize: "0.7rem", fontWeight: 700, color: "#aaa" }}>
                                         <span>28 NOV {startOfPersonalYear.getFullYear()}</span>
