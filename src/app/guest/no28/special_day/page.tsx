@@ -485,11 +485,11 @@ export default function SpecialDayBentoPage() {
     const [portraitIndex, setPortraitIndex] = useState(0);
     const [selectedPortrait, setSelectedPortrait] = useState<{ src: string, label: string } | null>(null);
     const portraits = [
-        { src: "/portrait_4.webp", label: "Ada banyak hal baik yang tumbuh dari senyummu" },
-        { src: "/portrait_1.webp", label: "Binar itu, semoga tak pernah redup oleh ragu" },
+        { src: "/portrait_4.webp", label: "Ada banyak hal baik yang bermula dari keramahanmu" },
+        { src: "/portrait_1.webp", label: "Semoga semangat itu tak pernah redup oleh ragu" },
         { src: "/portrait_3_balloon.webp", label: "Sederhana, namun cukup untuk meneduhkan sekitar" },
         { src: "/portrait_2.webp", label: "Terima kasih telah menjadi bagian baik dari semesta" },
-        { src: "/portrait_5.webp", label: "Hadirmu, pengingat bahwa hal indah itu nyata" }
+        { src: "/portrait_5.webp", label: "Hadirmu, pengingat bahwa kebaikan itu nyata" }
     ];
 
     // Birth Date: 28 November 2000
@@ -591,7 +591,7 @@ export default function SpecialDayBentoPage() {
 
     const footerQuotes = [
         "Ruang ini tercipta untuk merayakan setiap jejak langkah kecilmu.",
-        "Teruslah menjadi pribadi yang hangat, karena bagian paling mempesona dari manusia adalah kebaikannya.",
+        "Teruslah menjadi pribadi yang hangat, karena kualitas terbaik dari manusia adalah kebaikannya.",
         "Dan kamu, adalah wujud nyata dari kebaikan itu."
     ];
 
@@ -639,13 +639,13 @@ export default function SpecialDayBentoPage() {
         const kamusTimer = setInterval(() => setKamusIndex(prev => (prev + 1) % kamusMeanings.length), 20000);
 
         const dailyWisdoms = [
-            "Kamu adalah alasan di balik senyuman yang merekah hari ini, meski terkadang kamu tak menyadarinya. Keberadaanmu bukan sekadar angka di kalender, melainkan anugerah terindah bagi semesta yang seringkali lupa cara bersyukur.",
-            "Setiap langkah yang kamu tapaki adalah guratan berharga dalam kanvas waktu yang abadi. Jangan pernah ragu pada dirimu sendiri, karena setiap hela nafasmu adalah bukti nyata bahwa dunia masih membutuhkan cahayamu.",
-            "Hari ini adalah selembar kertas kosong yang menanti sentuhan cintamu yang paling jujur. Lukislah setiap detiknya dengan kebaikan dan keberanian, sebab kamu jauh lebih kuat dari rintangan mana pun.",
-            "Tetaplah bersinar dengan caramu yang paling tenang. Dunia ini mungkin riuh dengan suara-suara yang asing, tapi ingatlah selalu bahwa di antara milyaran melodi, kamulah simfoni paling damai.",
-            "Kebahagiaanmu bukanlah sebuah tujuan jauh di ufuk sana, melainkan prioritas utama yang harus kamu jaga di sini, saat ini. Cintailah dirimu sendiri seakan-akan kamu adalah permata paling langka.",
-            "Terimalah dirimu apa adanya, dekaplah setiap detik yang kamu miliki dengan rasa syukur yang mendalam. Sebab di antara riuh rendah bisingnya dunia, kamulah melodi paling tenang yang pernah semesta ciptakan.",
-            "Jangan pernah biarkan cahayamu redup hanya karena dunia belum siap menerima benderangnya. Kamu adalah kepingan teka-teki paling indah yang membuat gambaran tentang hidup ini menjadi sempurna."
+            "Kamu adalah alasan di balik senyuman yang merekah hari ini, meski terkadang kamu tak menyadarinya. Keberadaanmu bukan sekadar angka di kalender, melainkan anugerah bagi semesta yang seringkali lupa cara bersyukur.",
+            "Setiap langkah yang kamu tapaki adalah guratan berharga dalam kanvas waktu. Jangan pernah ragu pada dirimu sendiri, karena setiap hela nafasmu adalah bukti nyata bahwa dunia masih membutuhkan peranmu.",
+            "Hari ini adalah selembar kertas kosong yang menanti sentuhan ketulusanmu yang paling jujur. Lukislah setiap detiknya dengan kebaikan dan keberanian, sebab kamu jauh lebih kuat dari rintangan mana pun.",
+            "Tetaplah melangkah dengan caramu yang paling tenang. Dunia ini mungkin riuh dengan suara-suara yang asing, tapi ingatlah selalu bahwa di antara milyaran melodi, kamulah salah satu nada yang tenang.",
+            "Kebahagiaanmu bukanlah sebuah tujuan jauh di ufuk sana, melainkan prioritas utama yang harus kamu jaga di sini, saat ini. Hargailah dirimu sendiri seakan-akan kamu adalah sosok yang berharga.",
+            "Terimalah dirimu apa adanya, dekaplah setiap detik yang kamu miliki dengan rasa syukur yang mendalam. Sebab di antara riuh rendah bisingnya dunia, kamulah melodi tenang yang pernah semesta ciptakan.",
+            "Jangan pernah biarkan semangatmu redup hanya karena dunia belum siap menerimanya. Kamu adalah kepingan teka-teki indah yang membuat gambaran tentang hidup ini menjadi utuh."
         ];
 
         // Initial wisdom (Locked to the day of the month)
@@ -1282,7 +1282,7 @@ export default function SpecialDayBentoPage() {
                                         Banyak yang bilang usia 25 adalah fase yang membingungkan. Seolah kamu harus memilih satu jalan pasti saat hatimu masih ingin menjelajah segalanya.
                                         <br /><br />
                                         Tapi percayalah, ini adalah <strong>usia terindah</strong>. Kakimu sudah cukup kuat untuk berdiri sendiri, tapi hatimu masih cukup lembut untuk memimpikan banyak hal.
-                                        Kamu tidak terlambat. Kamu tidak tertinggal. Kamu sedang mekar tepat pada waktunya.
+                                        Kamu tidak terlambat. Kamu tidak tertinggal. Kamu sedang bertumbuh di waktu yang tepat.
                                     </p>
                                     <div style={{ display: "flex", alignItems: "center", gap: "10px", marginTop: "1rem" }}>
                                         <div style={{ height: "1px", width: "40px", background: "#aebdca" }} />
@@ -1499,9 +1499,9 @@ export default function SpecialDayBentoPage() {
                                     </div>
 
                                     <HandwrittenNote style={{ fontSize: "1.2rem", color: "#4e4439", marginBottom: "1rem", lineHeight: 1.6 }}>
-                                        "Maaf ya, sudah lancang mengabadikan ini tanpa izin.
+                                        "Izin simpan foto ini sebagai kenang-kenangan.
                                         <br /><br />
-                                        Tapi rasanya berdosa jika membiarkan cahaya seindah ini berlalu tanpa kenangan.
+                                        Sayang kalau momen sebagus ini terlewat begitu saja.
                                         <br /><br />
                                         Tetaplah bersinar, dengan caramu sendiri."
                                     </HandwrittenNote>
