@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useMemo, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Home, Sparkles, Clock, Calendar, Heart, Gift, Activity, Wind, Star, BookOpen, Map, MapPin, Quote, ArrowLeft } from "lucide-react";
+import { Home, Sparkles, Clock, Calendar, Heart, Gift, Activity, Wind, Star, BookOpen, Map, MapPin, Quote, ArrowLeft, Palette } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import { Container } from "@/components/Container";
@@ -1191,15 +1191,41 @@ export default function SpecialDayBentoPage() {
                         {/* 2. Personal Year Loop (Instead of Calendar) */}
                         <Link href="/guest/no28/journal" style={{ gridColumn: isMobile ? "span 1" : "span 12", textDecoration: "none", color: "inherit", display: "block" }}>
                             <BentoCard isMobile={isMobile} rotate="-0.4deg" tapeColor="#f6a4a9" style={{ height: "100%", transition: "transform 0.2s" }}>
-                                <Map size={14} color="#a0907d" style={{ opacity: 0.8 }} />
-                                <h3 style={{ fontSize: "0.7rem", fontWeight: 700, color: "#a0907d", textTransform: "uppercase", letterSpacing: "2.5px" }}>Lembaran Kisah Ke-{age + 1}</h3>
-                                <motion.div
-                                    animate={{ opacity: [0.7, 1, 0.7], textShadow: ["0 0 0px rgba(176, 125, 98, 0)", "0 0 8px rgba(176, 125, 98, 0.5)", "0 0 0px rgba(176, 125, 98, 0)"] }}
-                                    transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
-                                    style={{ marginLeft: "auto", fontFamily: "'Caveat', cursive", fontSize: "1.2rem", color: "#b07d62", transform: "rotate(-2deg)" }}
-                                >
-                                    ukir ceritamu...
-                                </motion.div>
+                                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "1rem" }}>
+                                    <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                                        <Map size={14} color="#a0907d" style={{ opacity: 0.8 }} />
+                                        <h3 style={{ fontSize: "0.7rem", fontWeight: 700, color: "#a0907d", textTransform: "uppercase", letterSpacing: "2.5px" }}>Lembaran Kisah Ke-{age + 1}</h3>
+                                    </div>
+                                    <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+                                        <button
+                                            onClick={(e) => {
+                                                e.preventDefault();
+                                                e.stopPropagation();
+                                                const newVal = !usePaletteColors;
+                                                setUsePaletteColors(newVal);
+                                                localStorage.setItem("journal_use_palette", String(newVal));
+                                            }}
+                                            style={{
+                                                background: "none",
+                                                border: "none",
+                                                cursor: "pointer",
+                                                padding: "4px",
+                                                opacity: usePaletteColors ? 1 : 0.4,
+                                                transition: "opacity 0.2s"
+                                            }}
+                                            title="Toggle Mood Colors"
+                                        >
+                                            <Palette size={16} color="#b07d62" />
+                                        </button>
+                                        <motion.div
+                                            animate={{ opacity: [0.7, 1, 0.7], textShadow: ["0 0 0px rgba(176, 125, 98, 0)", "0 0 8px rgba(176, 125, 98, 0.5)", "0 0 0px rgba(176, 125, 98, 0)"] }}
+                                            transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+                                            style={{ fontFamily: "'Caveat', cursive", fontSize: "1.2rem", color: "#b07d62", transform: "rotate(-2deg)" }}
+                                        >
+                                            ukir ceritamu...
+                                        </motion.div>
+                                    </div>
+                                </div>
 
 
                                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: "1.5rem" }}>
