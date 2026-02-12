@@ -4,33 +4,28 @@ import React from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import {
-    Sparkles,
-    Hammer,
     Users,
-    Wifi,
-    Globe,
-    Music,
     Clock,
     Activity,
-    Lightbulb
+    Sparkles,
+    Music
 } from "lucide-react";
 
-interface AppIconProps {
+interface NavIconProps {
     title: string;
     href: string;
     icon: React.ReactNode;
-    gradient: string;
+    bgColor: string;
+    inkColor: string;
     delay?: number;
-    inDock?: boolean;
 }
 
-const AppIcon = ({ title, href, icon, gradient, delay = 0, inDock = false }: AppIconProps) => {
+const NavIcon = ({ title, href, icon, bgColor, inkColor, delay = 0 }: NavIconProps) => {
     return (
         <Link href={href} style={{ textDecoration: 'none' }} className="group">
             <motion.div
-                initial={{ opacity: 0, scale: 0.5, y: 20 }}
-                whileInView={{ opacity: 1, scale: 1, y: 0 }}
-                viewport={{ once: true }}
+                initial={{ opacity: 0, y: 12, scale: 0.9 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
                 transition={{
                     duration: 0.5,
                     delay,
@@ -42,89 +37,28 @@ const AppIcon = ({ title, href, icon, gradient, delay = 0, inDock = false }: App
                     display: "flex",
                     flexDirection: "column",
                     alignItems: "center",
-                    gap: inDock ? "0" : "0.5rem",
+                    gap: "0.5rem",
                 }}
             >
-                {/* The App Icon (Premium Skeuomorphic) */}
-                <div style={{
-                    position: "relative",
-                    width: "clamp(60px, 17vw, 72px)",
-                    height: "clamp(60px, 17vw, 72px)",
-                    borderRadius: "22.5%", // Superellipse
-                    background: gradient,
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    boxShadow: "0 12px 24px -6px rgba(0,0,0,0.6), inset 0 -3px 6px rgba(0,0,0,0.2), inset 0 1px 2px rgba(255,255,255,0.5)",
-                    transition: "transform 0.1s ease",
-                    overflow: "hidden",
-                    zIndex: 1
-                }} className="hover:scale-105 active:scale-90">
-
-                    {/* Symbol */}
-                    <div style={{
-                        color: "white",
-                        zIndex: 10,
-                        position: "absolute",
-                        inset: 0,
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        filter: "drop-shadow(0 2px 4px rgba(0,0,0,0.2))"
-                    }}>
-                        {React.cloneElement(icon as any, { size: "45%", strokeWidth: 2.5 })}
-                    </div>
-
-                    {/* Glossy Top Shine */}
-                    <div style={{
-                        position: "absolute",
-                        top: 0,
-                        left: 0,
-                        right: 0,
-                        height: "55%",
-                        background: "linear-gradient(180deg, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0.05) 90%, rgba(255,255,255,0) 100%)",
-                        borderTopLeftRadius: "22.5%",
-                        borderTopRightRadius: "22.5%",
-                        borderBottomLeftRadius: "80% 20%",
-                        borderBottomRightRadius: "80% 20%",
-                        zIndex: 5,
-                        pointerEvents: "none",
-                    }} />
-
-                    {/* Bottom Glow */}
-                    <div style={{
-                        position: "absolute",
-                        bottom: 0,
-                        left: 0,
-                        right: 0,
-                        height: "40%",
-                        background: "radial-gradient(ellipse at bottom, rgba(255,255,255,0.2) 0%, transparent 70%)",
-                        zIndex: 4,
-                        pointerEvents: "none"
-                    }} />
-
-                    {/* Noise Texture */}
-                    <div style={{
-                        position: "absolute",
-                        inset: 0,
-                        opacity: 0.08,
-                        backgroundImage: "url('https://grainy-gradients.vercel.app/noise.svg')",
-                        filter: "contrast(150%) brightness(100%)",
-                        zIndex: 2,
-                        pointerEvents: "none",
-                    }} />
+                {/* The Icon Circle */}
+                <div
+                    className="journal-icon-circle"
+                    style={{
+                        background: bgColor,
+                        color: inkColor,
+                    }}
+                >
+                    {icon}
                 </div>
 
-                {/* App Label - Always Visible */}
-                <span style={{
-                    fontFamily: "-apple-system, BlinkMacSystemFont, sans-serif",
-                    fontSize: "0.75rem",
+                {/* Label */}
+                <span className="font-journal-hand" style={{
+                    fontSize: "clamp(0.8rem, 2.5vw, 0.95rem)",
                     fontWeight: 500,
-                    color: "white",
+                    color: "var(--ink-secondary, #5d534a)",
                     textAlign: "center",
-                    textShadow: "0 1px 3px rgba(0,0,0,0.8)",
-                    letterSpacing: "0.02em",
-                    marginTop: "2px"
+                    letterSpacing: "0.01em",
+                    transition: "color 0.2s ease"
                 }}>
                     {title}
                 </span>
@@ -134,20 +68,42 @@ const AppIcon = ({ title, href, icon, gradient, delay = 0, inDock = false }: App
 };
 
 export function RoomBentoGrid() {
-    // Merged Apps (All standard Grid)
-    const apps = [
-        { title: "Guest", href: "/guest", icon: <Users />, gradient: "linear-gradient(135deg, #FF2D55, #FF375F)" }, // Pink Red
-        { title: "Time", href: "/time", icon: <Clock />, gradient: "linear-gradient(135deg, #8E8E93, #636366)" }, // Gray
-        { title: "Life", href: "/clock", icon: <Activity />, gradient: "linear-gradient(135deg, #00c6ff, #0072ff)" }, // Blue
-        { title: "My Space", href: "/starlight", icon: <Sparkles />, gradient: "linear-gradient(135deg, #AF52DE, #5856D6)" }, // Purple
-        { title: "Music", href: "/playlist", icon: <Music />, gradient: "linear-gradient(135deg, #FF9500, #FF5E3A)" }, // Orange
-        /* 
-        Hiding for a leaner home experience:
-        { title: "Insights", href: "/insights", icon: <Lightbulb />, gradient: "linear-gradient(135deg, #34C759, #30B0C7)" },
-        { title: "Web", href: "https://muhammadfaza16.github.io", icon: <Globe />, gradient: "linear-gradient(135deg, #8E8E93, #636366)" },
-        { title: "Workspace", href: "/workspace", icon: <Hammer />, gradient: "linear-gradient(135deg, #007AFF, #00C7BE)" },
-        { title: "Connect", href: "#connect", icon: <Wifi />, gradient: "linear-gradient(135deg, #FF9500, #FF5E3A)" },
-        */
+    const apps: NavIconProps[] = [
+        {
+            title: "Teman",
+            href: "/guest",
+            icon: <Users />,
+            bgColor: "rgba(255, 173, 173, 0.25)",
+            inkColor: "#c45b5b"
+        },
+        {
+            title: "Waktu",
+            href: "/time",
+            icon: <Clock />,
+            bgColor: "rgba(160, 196, 255, 0.25)",
+            inkColor: "#5b7daa"
+        },
+        {
+            title: "Hidup",
+            href: "/clock",
+            icon: <Activity />,
+            bgColor: "rgba(181, 214, 167, 0.25)",
+            inkColor: "#4a7c59"
+        },
+        {
+            title: "Ruang",
+            href: "/starlight",
+            icon: <Sparkles />,
+            bgColor: "rgba(212, 181, 230, 0.25)",
+            inkColor: "#7a5b99"
+        },
+        {
+            title: "Lagu",
+            href: "/playlist",
+            icon: <Music />,
+            bgColor: "rgba(255, 214, 165, 0.25)",
+            inkColor: "#b07d42"
+        },
     ];
 
     return (
@@ -156,24 +112,24 @@ export function RoomBentoGrid() {
             flexDirection: "column",
             alignItems: "center",
             width: "100%",
-            paddingBottom: "4rem"
+            paddingBottom: "clamp(1.25rem, 3vh, 2.5rem)"
         }}>
-            {/* Main Springboard Grid */}
-            <section style={{
+            <nav style={{
                 padding: "0 1.5rem",
                 width: "100%",
-                maxWidth: "420px",
+                maxWidth: "380px",
             }}>
                 <div style={{
-                    display: "grid",
-                    gridTemplateColumns: "repeat(4, 1fr)",
-                    gap: "2rem 1rem",
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "flex-start",
+                    gap: "0.5rem",
                 }}>
                     {apps.map((app, idx) => (
-                        <AppIcon key={idx} {...app} delay={idx * 0.05} />
+                        <NavIcon key={idx} {...app} delay={0.6 + idx * 0.08} />
                     ))}
                 </div>
-            </section>
+            </nav>
         </div>
     );
 }

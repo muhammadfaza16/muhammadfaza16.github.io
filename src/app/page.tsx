@@ -1,33 +1,22 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import Link from "next/link";
-import dynamic from "next/dynamic";
 import { ZenHideable } from "@/components/ZenHideable";
-
-const GradientOrb = dynamic(() => import("@/components/GradientOrb").then(mod => mod.GradientOrb), { ssr: false });
-const CosmicStars = dynamic(() => import("@/components/CosmicStars").then(mod => mod.CosmicStars), { ssr: false });
-const MilkyWay = dynamic(() => import("@/components/MilkyWay").then(mod => mod.MilkyWay), { ssr: false });
-import { JarvisHero } from "@/components/lobby/JarvisHero";
+import { JournalHero } from "@/components/lobby/JournalHero";
 import { RoomBentoGrid } from "@/components/lobby/RoomBentoGrid";
 import { MiniPlayerWidget } from "@/components/MiniPlayerWidget";
+import "./home-journal.css";
 
 export default function HomePage() {
   const mainRef = useRef<HTMLElement>(null);
 
-  // JS-based Scroll Lock (The "Nuclear" Option)
-  // JS-based Scroll Lock (The "Nuclear" Option) - GLOBAL
+  // Scroll Lock
   useEffect(() => {
-    // Prevent touchmove (scrolling) entirely
     const preventScroll = (e: TouchEvent) => {
       e.preventDefault();
     };
 
-    // { passive: false } is required to allow preventDefault
-    // Target document to catch touches on empty space/body
     document.addEventListener('touchmove', preventScroll, { passive: false });
-
-    // Also lock wheel for desktop
     document.addEventListener('wheel', (e) => e.preventDefault(), { passive: false });
 
     return () => {
@@ -39,13 +28,8 @@ export default function HomePage() {
   useEffect(() => {
     const mainContent = document.getElementById("main-content");
     if (mainContent) {
-      // Reset scroll to top on mount
       mainContent.scrollTop = 0;
-
-      // Lock body scroll
       document.body.style.overflow = "hidden";
-
-      // Unlock body scroll on unmount
       return () => {
         document.body.style.overflow = "";
       };
@@ -58,55 +42,54 @@ export default function HomePage() {
         __html: `
         header, footer, .zen-toggle-floating { display: none !important; }
         #main-content { padding-top: 0 !important; }
-        /* Height locked, but overflow managed by JS to allow scroll reset */
         html, body { overscroll-behavior: none; }
         #main-content::-webkit-scrollbar { display: none; }
+        @supports (padding-bottom: env(safe-area-inset-bottom)) {
+          .safe-area-bottom { padding-bottom: env(safe-area-inset-bottom); }
+        }
       `}} />
-
-      {/* Ambient Background - Spans whole screen */}
-      <div style={{
-        position: "fixed",
-        top: 0,
-        left: 0,
-        width: "100%",
-        height: "120vh", // Extended to ensure coverage
-        zIndex: 0,
-        pointerEvents: "none",
-        overflow: "hidden"
-      }}>
-        <MilkyWay />
-        <GradientOrb />
-        <CosmicStars />
-      </div>
 
       <ZenHideable hideInZen>
         <main
           ref={mainRef}
+          className="bg-journal-paper"
           style={{
-            position: "relative", // Revert to relative (Fixes ZenHideable transform conflict)
+            position: "relative",
             zIndex: 1,
-            paddingTop: "2rem", // Match Starlight
-            width: "100%", // Revert width
-            height: "100svh", // RESTORED
-            overflow: "hidden", // STATIC
+            width: "100%",
+            height: "100svh",
+            overflow: "hidden",
             overflowX: "hidden",
             scrollbarWidth: "none",
-            display: "flex",
-            flexDirection: "column",
-            justifyContent: "flex-start",
-            gap: "0"
           }}>
-          {/* iOS Widgets Area (Hero) */}
-          <div style={{ padding: "2rem 0 0" }}>
-            <JarvisHero />
-          </div>
 
-          {/* Mini Player */}
-          <MiniPlayerWidget style={{ marginBottom: "1.5rem" }} />
+          {/* Full-page journal content — fills entire screen */}
+          <JournalHero />
 
-          {/* Springboard App Grid & Dock */}
-          <div style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "flex-end" }}>
-            <RoomBentoGrid />
+          {/* ── Bottom widget area — frosted paper card ── */}
+          <div style={{
+            position: "absolute",
+            bottom: 0,
+            left: 0,
+            right: 0,
+            zIndex: 2,
+            background: "rgba(255, 255, 255, 0.72)",
+            backdropFilter: "blur(24px) saturate(180%)",
+            WebkitBackdropFilter: "blur(24px) saturate(180%)",
+            borderTop: "1px solid rgba(0, 0, 0, 0.06)",
+            borderRadius: "24px 24px 0 0",
+            boxShadow: "0 -4px 24px rgba(0, 0, 0, 0.04)",
+            paddingTop: "12px",
+          }}>
+            {/* Mini Player */}
+            <div style={{ paddingBottom: "4px" }}>
+              <MiniPlayerWidget style={{ marginBottom: "0" }} />
+            </div>
+
+            {/* Navigation Grid */}
+            <div className="safe-area-bottom">
+              <RoomBentoGrid />
+            </div>
           </div>
         </main>
       </ZenHideable>

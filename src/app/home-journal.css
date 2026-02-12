@@ -1,0 +1,447 @@
+/* ============================================
+   HOME JOURNAL THEME — Design System
+   ============================================ */
+@import url('https://fonts.googleapis.com/css2?family=Caveat:wght@400;500;600;700&family=Crimson+Pro:ital,wght@0,200..900;1,200..900&family=Nothing+You+Could+Do&display=swap');
+
+/* --- Font Utilities --- */
+.font-journal-hand {
+    font-family: 'Caveat', 'Nothing You Could Do', cursive;
+}
+
+.font-journal-serif {
+    font-family: 'Crimson Pro', serif;
+}
+
+.font-journal-sketch {
+    font-family: 'Nothing You Could Do', 'Caveat', cursive;
+}
+
+/* --- Color Tokens --- */
+:root {
+    --ink-primary: #2c2420;
+    --ink-secondary: #5d534a;
+    --ink-accent: #b07d62;
+    --ink-muted: #a0907d;
+    --paper-bg: #f5f5f5;
+    --paper-card: #ffffff;
+    --paper-warm: #f8f4ee;
+    --washi-pink: #ffadad;
+    --washi-blue: #a0c4ff;
+    --washi-sage: #b5d6a7;
+    --washi-lavender: #d4b5e6;
+    --washi-peach: #ffd6a5;
+    --watercolor-blush: rgba(255, 173, 173, 0.15);
+    --watercolor-sky: rgba(160, 196, 255, 0.12);
+    --watercolor-sage: rgba(181, 214, 167, 0.12);
+}
+
+/* --- Clean Premium Background --- */
+.bg-journal-paper {
+    background-color: var(--paper-bg);
+    background-image:
+        radial-gradient(ellipse at 50% 30%, #ffffff 0%, transparent 70%);
+    position: relative;
+}
+
+/* Subtle noise grain overlay */
+.bg-journal-paper::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+}
+
+/* Soft edge vignette for depth */
+.bg-journal-paper::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    box-shadow: inset 0 0 80px 20px rgba(0, 0, 0, 0.03);
+    pointer-events: none;
+    z-index: 0;
+}
+
+/* --- Interactive Doodles --- */
+@keyframes doodle-wiggle {
+
+    0%,
+    100% {
+        transform: rotate(var(--doodle-rot, 0deg));
+    }
+
+    15% {
+        transform: rotate(calc(var(--doodle-rot, 0deg) + 6deg)) scale(1.12);
+    }
+
+    30% {
+        transform: rotate(calc(var(--doodle-rot, 0deg) - 4deg)) scale(1.08);
+    }
+
+    45% {
+        transform: rotate(calc(var(--doodle-rot, 0deg) + 3deg)) scale(1.1);
+    }
+
+    60% {
+        transform: rotate(calc(var(--doodle-rot, 0deg) - 2deg));
+    }
+
+    75% {
+        transform: rotate(calc(var(--doodle-rot, 0deg) + 1deg));
+    }
+}
+
+.doodle-interactive {
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.3s ease;
+    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.08));
+}
+
+.doodle-interactive:hover {
+    transform: rotate(var(--doodle-rot, 0deg)) scale(1.12);
+    filter: drop-shadow(0 3px 8px rgba(0, 0, 0, 0.12));
+}
+
+.doodle-interactive:active {
+    animation: doodle-wiggle 0.6s ease;
+    filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.15));
+}
+
+/* --- Sketch Border (kept for other pages) --- */
+.sketch-border {
+    position: relative;
+    border: 2px solid transparent;
+}
+
+.sketch-border::before {
+    content: '';
+    position: absolute;
+    inset: -4px;
+    border: 2px solid var(--ink-primary);
+    border-radius: 4px 255px 5px 25px / 255px 7px 225px 15px;
+    pointer-events: none;
+    opacity: 0.6;
+}
+
+/* --- Washi Tape (kept for other pages) --- */
+.washi-tape {
+    position: absolute;
+    top: -15px;
+    left: 50%;
+    transform: translateX(-50%) rotate(-2deg);
+    width: 100px;
+    height: 28px;
+    opacity: 0.85;
+    z-index: 20;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+    clip-path: polygon(2% 0%, 98% 0%, 100% 100%, 0% 100%);
+}
+
+/* --- Ink Text Colors --- */
+.text-ink-primary {
+    color: var(--ink-primary);
+}
+
+.text-ink-secondary {
+    color: var(--ink-secondary);
+}
+
+.text-ink-accent {
+    color: var(--ink-accent);
+}
+
+.text-ink-muted {
+    color: var(--ink-muted);
+}
+
+/* --- Hover Ink Bleed Effect --- */
+.hover-ink-bleed {
+    transition: color 0.3s ease, text-shadow 0.3s ease;
+}
+
+.hover-ink-bleed:hover {
+    color: var(--ink-primary);
+    text-shadow: 0 0 2px rgba(44, 36, 32, 0.25);
+}
+
+/* --- Journal Card --- */
+.journal-card {
+    background: var(--paper-card);
+    border-radius: 4px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.04), 0 2px 8px rgba(0, 0, 0, 0.02);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.journal-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.06), 0 4px 12px rgba(0, 0, 0, 0.03);
+}
+
+/* --- Journal Icon (Navigation) --- */
+.journal-icon-circle {
+    width: clamp(50px, 13vw, 64px);
+    height: clamp(50px, 13vw, 64px);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.journal-icon-circle::before {
+    content: '';
+    position: absolute;
+    inset: -3px;
+    border: 2px solid var(--ink-primary);
+    border-radius: 50%;
+    opacity: 0.4;
+}
+
+.journal-icon-circle:hover {
+    transform: scale(1.08);
+}
+
+.journal-icon-circle:active {
+    transform: scale(0.95);
+}
+
+/* --- Floating Gentle Animation --- */
+@keyframes journal-float {
+
+    0%,
+    100% {
+        transform: translateY(0px) rotate(0deg);
+    }
+
+    50% {
+        transform: translateY(-6px) rotate(0.5deg);
+    }
+}
+
+.animate-journal-float {
+    animation: journal-float 6s ease-in-out infinite;
+}
+
+/* --- Fade In Stagger (for icons) --- */
+@keyframes journal-fade-in {
+    from {
+        opacity: 0;
+        transform: translateY(12px) scale(0.9);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.animate-journal-fade-in {
+    animation: journal-fade-in 0.5s ease-out forwards;
+    opacity: 0;
+}
+
+/* --- Sketch Underline SVG replacement --- */
+.sketch-underline {
+    display: block;
+    margin-top: -4px;
+    opacity: 0.6;
+}
+
+/* --- Watercolor Accent Blobs --- */
+.watercolor-accent {
+    position: absolute;
+    border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+    filter: blur(40px);
+    pointer-events: none;
+    z-index: 0;
+    animation: watercolor-morph 12s ease-in-out infinite;
+}
+
+@keyframes watercolor-morph {
+
+    0%,
+    100% {
+        border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+    }
+
+    50% {
+        border-radius: 40% 60% 70% 30% / 30% 70% 40% 60%;
+    }
+}
+
+/* --- Crossed Out Text (journal ref 6) --- */
+.text-crossed {
+    text-decoration: line-through;
+    text-decoration-thickness: 2px;
+    opacity: 0.5;
+}
+
+/* --- Journal Player (light reskin) --- */
+.journal-player {
+    background: var(--paper-card);
+    border: 1px solid rgba(44, 36, 32, 0.1);
+    border-radius: 16px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+    color: var(--ink-primary);
+}
+
+.journal-player .player-accent {
+    color: var(--ink-accent);
+}
+
+/* --- Scribble Draw-In Animation --- */
+@keyframes scribble-draw {
+    from {
+        stroke-dashoffset: 800;
+    }
+
+    to {
+        stroke-dashoffset: 0;
+    }
+}
+
+.scribble-draw path {
+    stroke-dasharray: 800;
+    animation: scribble-draw 2.5s ease forwards;
+}
+
+/* --- VOL. Label --- */
+.journal-vol-label {
+    font-family: 'Nothing You Could Do', 'Caveat', cursive;
+    font-size: clamp(0.7rem, 2vw, 0.85rem);
+    color: var(--ink-muted);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    opacity: 0.7;
+}
+
+/* --- Notification Bar Hint Lines --- */
+.journal-bar-hint {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    opacity: 0.25;
+}
+
+.journal-bar-hint span {
+    display: block;
+    height: 3px;
+    background: var(--ink-secondary);
+    border-radius: 2px;
+}
+
+.journal-bar-hint span:first-child {
+    width: 32px;
+}
+
+.journal-bar-hint span:last-child {
+    width: 22px;
+}
+
+/* --- Cascade Indent Text --- */
+.cascade-indent {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.cascade-indent .cascade-line {
+    font-family: 'Nothing You Could Do', 'Caveat', cursive;
+    font-size: clamp(0.7rem, 2.2vw, 0.85rem);
+    color: var(--ink-secondary);
+    line-height: 1.6;
+    white-space: nowrap;
+}
+
+/* --- Thick Strikethrough --- */
+.thick-strike {
+    text-decoration: line-through;
+    text-decoration-thickness: 3px;
+    text-decoration-color: var(--ink-primary);
+}
+
+/* --- Afterthought Fragment --- */
+.journal-afterthought {
+    font-family: 'Nothing You Could Do', 'Caveat', cursive;
+    font-size: clamp(0.6rem, 1.8vw, 0.72rem);
+    color: var(--ink-muted);
+    line-height: 1.7;
+    max-width: 55%;
+    text-align: left;
+}
+
+/* --- Ink Blot Decoration --- */
+@keyframes ink-blot-appear {
+    from {
+        opacity: 0;
+        transform: scale(0.5);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.journal-ink-mark {
+    animation: ink-blot-appear 0.8s ease forwards;
+}
+
+/* --- Scattered scrawl text — organic handwritten feel --- */
+.scrawl {
+    font-family: 'Nothing You Could Do', cursive;
+    line-height: 1.3;
+    word-spacing: 0.08em;
+}
+
+/* Variants for different "pens" — slightly diff sizing/skew */
+.scrawl-a {
+    letter-spacing: 0.04em;
+    transform: skewX(-1.5deg) skewY(0.5deg);
+    font-size: 105%;
+}
+
+.scrawl-b {
+    letter-spacing: -0.01em;
+    transform: skewX(1deg) skewY(-0.8deg);
+    font-size: 95%;
+    word-spacing: 0.12em;
+}
+
+.scrawl-c {
+    letter-spacing: 0.06em;
+    transform: skewX(-0.5deg) skewY(1.2deg);
+    font-size: 98%;
+}
+
+.scrawl-d {
+    font-family: 'Caveat', cursive;
+    letter-spacing: 0.02em;
+    transform: skewX(0.8deg) skewY(-0.5deg);
+    font-size: 110%;
+    word-spacing: -0.02em;
+}
+
+.scrawl-e {
+    letter-spacing: 0.08em;
+    transform: skewX(-2deg) skewY(0.3deg);
+    font-size: 92%;
+    word-spacing: 0.15em;
+}
+
+/* Pressure variation — some words "pressed harder" */
+.scrawl-heavy {
+    font-weight: 600;
+    opacity: 1 !important;
+}
+
+.scrawl-light {
+    font-weight: 300;
+}
+
+/* Ink fade for worn-out pen look */
+.scrawl-faded {
+    filter: blur(0.3px);
+    opacity: 0.15 !important;
+}

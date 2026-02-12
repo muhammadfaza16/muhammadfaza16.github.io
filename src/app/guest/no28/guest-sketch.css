@@ -1,0 +1,72 @@
+/* Guest Sketch Theme CSS */
+@import url('https://fonts.googleapis.com/css2?family=Caveat:wght@400;700&family=Crimson+Pro:ital,wght@0,200..900;1,200..900&family=Nothing+You+Could+Do&display=swap');
+
+/* Utilities */
+.font-handwriting {
+    font-family: 'Nothing You Could Do', 'Caveat', cursive;
+}
+
+.font-serif-display {
+    font-family: 'Crimson Pro', serif;
+}
+
+/* Paper Texture Background */
+.bg-sketch-paper {
+    background-color: #fdfbf7;
+    background-image: 
+        url("https://www.transparenttextures.com/patterns/natural-paper.png"),
+        linear-gradient(to right, rgba(0,0,0,0.02) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(0,0,0,0.02) 1px, transparent 1px);
+    background-size: auto, 40px 40px, 40px 40px;
+    background-blend-mode: multiply;
+}
+
+/* High-Definition Text */
+.text-ink-primary {
+    color: #2c2420; /* Deep charcoal brown/black ink */
+}
+
+.text-ink-secondary {
+    color: #5d534a; /* Lighter pencil lead color */
+}
+
+.text-ink-accent {
+    color: #b07d62; /* Sepia / terracotta accent */
+}
+
+/* Sketch Border */
+.sketch-border {
+    position: relative;
+    border: 2px solid transparent; 
+}
+
+.sketch-border::before {
+    content: '';
+    position: absolute;
+    inset: -4px;
+    border: 2px solid #2c2420;
+    border-radius: 4px 255px 5px 25px / 255px 7px 225px 15px; /* Organic elliptical border */
+    mask-image: url("https://www.transparenttextures.com/patterns/natural-paper.png"); 
+    pointer-events: none;
+    opacity: 0.8;
+}
+
+/* Ink Bleed Hover Effect */
+.hover-ink-bleed {
+    transition: color 0.3s ease, text-shadow 0.3s ease;
+}
+
+.hover-ink-bleed:hover {
+    color: #000;
+    text-shadow: 0 0 2px rgba(44, 36, 32, 0.3); /* Slight bleed blur */
+}
+
+/* Floating Animation */
+@keyframes float-gentle {
+    0%, 100% { transform: translateY(0px) rotate(0deg); }
+    50% { transform: translateY(-8px) rotate(1deg); }
+}
+
+.animate-float-gentle {
+    animation: float-gentle 6s ease-in-out infinite;
+}
