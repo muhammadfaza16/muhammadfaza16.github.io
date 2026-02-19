@@ -454,34 +454,45 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
     }, []);
 
     // Smart Strategy: "The Next Song" Prefetcher
+    // Eagerly prefetch the next song after 3s of stable playback
     useEffect(() => {
         if (!isPlaying || isBuffering) return;
 
-        // Wait for network to be "Idle" (simulated by timeout after stable play)
-        // If playing smoothly for 10 seconds, assume bandwidth is free to fetch next song.
         const idleFetcher = setTimeout(() => {
-            const nextIndex = (currentIndex + 1) % PLAYLIST.length;
-            const nextUrl = PLAYLIST[nextIndex].audioUrl;
+            const nextIdx = (currentIndex + 1) % queue.length;
+            const nextUrl = queue[nextIdx]?.audioUrl;
+            if (!nextUrl) return;
 
             // Check if already preloaded to avoid duplicates
             if (!document.querySelector(`link[rel="preload"][href="${nextUrl}"]`)) {
-                // Std DOM way to prefetch audio
                 const link = document.createElement('link');
                 link.rel = 'preload';
                 link.as = 'audio';
                 link.href = nextUrl;
-                // Suppress errors to avoid "Uncaught (in promise) Event" crashes
                 link.onerror = () => {
-                    console.warn(`[SmartLoader] Preload failed for: ${nextUrl}`);
                     link.remove();
                 };
                 document.head.appendChild(link);
-                console.log(`[SmartLoader] Prefetching next song: ${PLAYLIST[nextIndex].title}`);
             }
-        }, 10000); // 10s delay
+        }, 3000); // 3s — start prefetching much sooner
 
         return () => clearTimeout(idleFetcher);
-    }, [currentIndex, isPlaying, isBuffering]);
+    }, [currentIndex, isPlaying, isBuffering, queue]);
+
+    // Immediate preload: inject a preload link for the next song as soon as current song changes
+    useEffect(() => {
+        const nextIdx = (currentIndex + 1) % queue.length;
+        const nextUrl = queue[nextIdx]?.audioUrl;
+        if (!nextUrl) return;
+
+        if (!document.querySelector(`link[rel="prefetch"][href="${nextUrl}"]`)) {
+            const link = document.createElement('link');
+            link.rel = 'prefetch';
+            link.href = nextUrl;
+            link.onerror = () => link.remove();
+            document.head.appendChild(link);
+        }
+    }, [currentIndex, queue]);
 
     return (
         <AudioContext.Provider value={{
@@ -503,7 +514,7 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
                 ref={audioRef}
                 crossOrigin="anonymous"
                 src={queue[currentIndex]?.audioUrl}
-                preload="metadata"
+                preload="auto"
                 onTimeUpdate={handleTimeUpdate}
                 onLoadedMetadata={() => {
                     if (audioRef.current) {

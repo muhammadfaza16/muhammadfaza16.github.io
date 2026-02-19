@@ -12,7 +12,7 @@ interface MiniPlayerProps {
 }
 
 export function MiniPlayerWidget({ style: customStyle }: MiniPlayerProps) {
-    const { isPlaying, togglePlay, currentSong, hasInteracted, queue, currentIndex, nextSong, prevSong, activePlaylistId, isMiniPlayerDismissed, setMiniPlayerDismissed } = useAudio();
+    const { isPlaying, togglePlay, currentSong, hasInteracted, queue, currentIndex, nextSong, prevSong, activePlaylistId, isMiniPlayerDismissed, setMiniPlayerDismissed, isBuffering } = useAudio();
     const { isZen, setZen } = useZen();
     const router = useRouter();
     const pathname = usePathname();
@@ -106,8 +106,10 @@ export function MiniPlayerWidget({ style: customStyle }: MiniPlayerProps) {
                                 alignItems: "center",
                                 justifyContent: "center",
                                 flexShrink: 0,
-                                boxShadow: isPlaying ? "0 0 16px rgba(255, 214, 10, 0.5)" : "none"
+                                boxShadow: isPlaying ? "0 0 16px rgba(255, 214, 10, 0.5)" : "none",
+                                animation: isBuffering ? "pulse-buffering 1.2s ease-in-out infinite" : "none"
                             }}>
+                                <style dangerouslySetInnerHTML={{ __html: `@keyframes pulse-buffering { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }` }} />
                                 <motion.div
                                     animate={{ rotate: isPlaying ? 360 : 0 }}
                                     transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
@@ -264,7 +266,8 @@ export function MiniPlayerWidget({ style: customStyle }: MiniPlayerProps) {
                             alignItems: "center",
                             justifyContent: "center",
                             flexShrink: 0,
-                            boxShadow: isPlaying ? "0 0 12px rgba(255, 214, 10, 0.4)" : "none"
+                            boxShadow: isPlaying ? "0 0 12px rgba(255, 214, 10, 0.4)" : "none",
+                            animation: isBuffering ? "pulse-buffering 1.2s ease-in-out infinite" : "none"
                         }}>
                             <motion.div
                                 animate={{ rotate: isPlaying ? 360 : 0 }}
