@@ -354,13 +354,13 @@ export function CleanHomeHero() {
                                 <div style={{ flex: 1, minWidth: 0 }}>
                                     <div style={{
                                         fontSize: "0.9rem", fontWeight: 700,
-                                        color: "var(--ink-primary, #1c211a)",
+                                        color: "rgba(255,255,255,0.95)",
                                         whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
                                         marginBottom: "2px",
                                     }}>{song}</div>
                                     <div style={{
                                         fontSize: "0.75rem", fontWeight: 500,
-                                        color: "var(--ink-muted, #5e6b5a)",
+                                        color: "rgba(255,255,255,0.55)",
                                         whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
                                     }}>{artist}</div>
                                 </div>
@@ -368,7 +368,7 @@ export function CleanHomeHero() {
                                 {/* Controls */}
                                 <div style={{ display: "flex", alignItems: "center", gap: "2px", flexShrink: 0 }}>
                                     <div onClick={prevSong} style={{ padding: "6px", cursor: "pointer", display: "flex" }}>
-                                        <SkipBack size={15} fill="var(--ink-primary, #1c211a)" color="var(--ink-primary, #1c211a)" />
+                                        <SkipBack size={15} fill="rgba(255,255,255,0.95)" color="rgba(255,255,255,0.95)" />
                                     </div>
                                     <div onClick={togglePlay} style={{
                                         width: "34px", height: "34px", borderRadius: "50%",
@@ -377,12 +377,12 @@ export function CleanHomeHero() {
                                         cursor: "pointer",
                                     }}>
                                         {isPlaying
-                                            ? <Pause size={15} fill="var(--ink-primary, #1c211a)" color="var(--ink-primary, #1c211a)" />
-                                            : <Play size={15} fill="var(--ink-primary, #1c211a)" color="var(--ink-primary, #1c211a)" style={{ marginLeft: "2px" }} />
+                                            ? <Pause size={15} fill="rgba(255,255,255,0.95)" color="rgba(255,255,255,0.95)" />
+                                            : <Play size={15} fill="rgba(255,255,255,0.95)" color="rgba(255,255,255,0.95)" style={{ marginLeft: "2px" }} />
                                         }
                                     </div>
                                     <div onClick={() => nextSong()} style={{ padding: "6px", cursor: "pointer", display: "flex" }}>
-                                        <SkipForward size={15} fill="var(--ink-primary, #1c211a)" color="var(--ink-primary, #1c211a)" />
+                                        <SkipForward size={15} fill="rgba(255,255,255,0.95)" color="rgba(255,255,255,0.95)" />
                                     </div>
                                 </div>
                             </div>
@@ -419,8 +419,8 @@ export function CleanHomeHero() {
                                             fontSize: i === activeLyricIndex ? "0.82rem" : "0.72rem",
                                             fontWeight: i === activeLyricIndex ? 700 : 400,
                                             color: i === activeLyricIndex
-                                                ? "var(--ink-primary, #1c211a)"
-                                                : "var(--ink-muted, #5e6b5a)",
+                                                ? "rgba(255,255,255,0.95)"
+                                                : "rgba(255,255,255,0.55)",
                                             opacity: i === activeLyricIndex ? 1 : 0.5,
                                             transition: "all 0.3s ease",
                                             textAlign: "center",
@@ -432,7 +432,7 @@ export function CleanHomeHero() {
                                 ) : (
                                     <div style={{
                                         textAlign: "center", padding: "1.5rem 0",
-                                        fontSize: "0.78rem", color: "var(--ink-muted, #5e6b5a)",
+                                        fontSize: "0.78rem", color: "rgba(255,255,255,0.55)",
                                         fontStyle: "italic",
                                     }}>♪ No lyrics available ♪</div>
                                 )}
@@ -629,12 +629,12 @@ export function CleanHomeHero() {
                             }}>
                                 {/* Weather details */}
                                 <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                                    <Droplets size={15} strokeWidth={2.5} color="var(--ink-primary)" style={{ opacity: 0.7, flexShrink: 0 }} />
-                                    <span style={{ fontSize: "0.82rem", fontWeight: 600, color: "var(--ink-secondary)", whiteSpace: "nowrap" }}>
+                                    <Droplets size={15} strokeWidth={2.5} color="rgba(255,255,255,0.95)" style={{ opacity: 0.7, flexShrink: 0 }} />
+                                    <span style={{ fontSize: "0.82rem", fontWeight: 600, color: "rgba(255,255,255,0.75)", whiteSpace: "nowrap" }}>
                                         {weather ? `${weather.humidity}%` : '··'}
                                     </span>
-                                    <Wind size={15} strokeWidth={2.5} color="var(--ink-primary)" style={{ opacity: 0.7, flexShrink: 0, marginLeft: "0.3rem" }} />
-                                    <span style={{ fontSize: "0.82rem", fontWeight: 600, color: "var(--ink-secondary)", whiteSpace: "nowrap" }}>
+                                    <Wind size={15} strokeWidth={2.5} color="rgba(255,255,255,0.95)" style={{ opacity: 0.7, flexShrink: 0, marginLeft: "0.3rem" }} />
+                                    <span style={{ fontSize: "0.82rem", fontWeight: 600, color: "rgba(255,255,255,0.75)", whiteSpace: "nowrap" }}>
                                         {weather ? `${weather.wind} km/h` : '··'}
                                     </span>
                                 </div>
@@ -648,7 +648,7 @@ export function CleanHomeHero() {
                                     <div style={{
                                         display: "flex", alignItems: "center", gap: "0.35rem",
                                         fontSize: "0.68rem", fontWeight: 700, textTransform: "uppercase" as const,
-                                        letterSpacing: "0.03em", color: "var(--ink-primary)",
+                                        letterSpacing: "0.03em", color: "rgba(255,255,255,0.95)",
                                         marginBottom: "0.3rem",
                                     }}>
                                         <GitBranch size={13} strokeWidth={2.5} />
@@ -657,19 +657,19 @@ export function CleanHomeHero() {
                                     {github ? (
                                         <>
                                             <div style={{ display: "flex", alignItems: "baseline", gap: "0.3rem" }}>
-                                                <span style={{ fontSize: "1.4rem", fontWeight: 800, color: "var(--ink-primary)", lineHeight: 1 }}>
+                                                <span style={{ fontSize: "1.4rem", fontWeight: 800, color: "rgba(255,255,255,0.95)", lineHeight: 1 }}>
                                                     {github.streak}
                                                 </span>
-                                                <span style={{ fontSize: "0.68rem", fontWeight: 500, color: "var(--ink-muted)" }}>
+                                                <span style={{ fontSize: "0.68rem", fontWeight: 500, color: "rgba(255,255,255,0.55)" }}>
                                                     day streak 🔥
                                                 </span>
                                             </div>
-                                            <div style={{ fontSize: "0.65rem", color: "var(--ink-muted)", marginTop: "0.15rem" }}>
+                                            <div style={{ fontSize: "0.65rem", color: "rgba(255,255,255,0.55)", marginTop: "0.15rem" }}>
                                                 {github.repos} repos · {github.todayActive ? '✅ active today' : '⏳ no push today'}
                                             </div>
                                         </>
                                     ) : (
-                                        <div style={{ fontSize: "0.75rem", color: "var(--ink-muted)" }}>Loading···</div>
+                                        <div style={{ fontSize: "0.75rem", color: "rgba(255,255,255,0.55)" }}>Loading···</div>
                                     )}
                                 </div>
 
@@ -677,7 +677,7 @@ export function CleanHomeHero() {
                                 <div style={{ marginTop: "0.1rem" }}>
                                     <div style={{
                                         fontSize: "0.68rem", fontWeight: 700, textTransform: "uppercase" as const,
-                                        letterSpacing: "0.03em", color: "var(--ink-primary)",
+                                        letterSpacing: "0.03em", color: "rgba(255,255,255,0.95)",
                                         marginBottom: "0.2rem",
                                         display: "flex", alignItems: "center", gap: "0.3rem",
                                     }}>
@@ -688,16 +688,16 @@ export function CleanHomeHero() {
                                         <>
                                             <div style={{
                                                 fontSize: "0.72rem", fontWeight: 500, fontStyle: "italic",
-                                                color: "var(--ink-secondary)", lineHeight: 1.4,
+                                                color: "rgba(255,255,255,0.75)", lineHeight: 1.4,
                                             }}>
                                                 &quot;{quote.text}&quot;
                                             </div>
-                                            <div style={{ fontSize: "0.62rem", color: "var(--ink-muted)", marginTop: "0.15rem" }}>
+                                            <div style={{ fontSize: "0.62rem", color: "rgba(255,255,255,0.55)", marginTop: "0.15rem" }}>
                                                 — {quote.author}
                                             </div>
                                         </>
                                     ) : (
-                                        <div style={{ fontSize: "0.72rem", fontStyle: "italic", color: "var(--ink-muted)" }}>Loading···</div>
+                                        <div style={{ fontSize: "0.72rem", fontStyle: "italic", color: "rgba(255,255,255,0.55)" }}>Loading···</div>
                                     )}
                                 </div>
                             </div>
@@ -727,7 +727,7 @@ export function CleanHomeHero() {
                                     height: "7px",
                                     borderRadius: "4px",
                                     background: activeWidget === item.key
-                                        ? "var(--ink-primary, #1c211a)"
+                                        ? "rgba(255,255,255,0.95)"
                                         : "rgba(0,0,0,0.15)",
                                     cursor: "pointer",
                                     transition: "all 0.3s ease",
@@ -775,7 +775,7 @@ export function CleanHomeHero() {
                                 width: "100%",
                                 maxHeight: "70vh",
                                 overflowY: "auto",
-                                color: "var(--ink-primary)",
+                                color: "rgba(255,255,255,0.95)",
                             }}
                         >
                             {/* Header */}
@@ -789,7 +789,7 @@ export function CleanHomeHero() {
                                         width: "28px", height: "28px", borderRadius: "50%",
                                         background: "rgba(255,255,255,0.1)",
                                         display: "flex", alignItems: "center", justifyContent: "center",
-                                        cursor: "pointer", fontSize: "0.8rem", color: "var(--ink-muted)",
+                                        cursor: "pointer", fontSize: "0.8rem", color: "rgba(255,255,255,0.55)",
                                     }}
                                 >
                                     ✕
@@ -812,10 +812,10 @@ export function CleanHomeHero() {
                                                 <div style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "0.82rem", fontWeight: 700 }}>
                                                     <span>{m.leagueEmoji}</span>
                                                     <span>{m.home}</span>
-                                                    <span style={{ color: "var(--ink-muted)", fontWeight: 400, fontSize: "0.7rem" }}>vs</span>
+                                                    <span style={{ color: "rgba(255,255,255,0.55)", fontWeight: 400, fontSize: "0.7rem" }}>vs</span>
                                                     <span>{m.away}</span>
                                                 </div>
-                                                <div style={{ fontSize: "0.65rem", color: "var(--ink-muted)", fontWeight: 500 }}>
+                                                <div style={{ fontSize: "0.65rem", color: "rgba(255,255,255,0.55)", fontWeight: 500 }}>
                                                     {m.league}
                                                 </div>
                                             </div>
@@ -827,19 +827,19 @@ export function CleanHomeHero() {
                                                 ) : m.state === "post" ? (
                                                     <div style={{ fontWeight: 700, fontSize: "0.82rem" }}>
                                                         {m.homeScore} - {m.awayScore}
-                                                        <div style={{ fontSize: "0.6rem", color: "var(--ink-muted)" }}>FT</div>
+                                                        <div style={{ fontSize: "0.6rem", color: "rgba(255,255,255,0.55)" }}>FT</div>
                                                     </div>
                                                 ) : (
                                                     <div>
                                                         <div style={{ fontWeight: 700, fontSize: "0.82rem" }}>{m.time}</div>
-                                                        <div style={{ fontSize: "0.6rem", color: "var(--ink-muted)" }}>{m.date}</div>
+                                                        <div style={{ fontSize: "0.6rem", color: "rgba(255,255,255,0.55)" }}>{m.date}</div>
                                                     </div>
                                                 )}
                                             </div>
                                         </div>
                                     ))}
                                 {football.matches.filter(m => m.isBigMatch).length === 0 && (
-                                    <div style={{ textAlign: "center", padding: "1rem", color: "var(--ink-muted)", fontSize: "0.8rem" }}>
+                                    <div style={{ textAlign: "center", padding: "1rem", color: "rgba(255,255,255,0.55)", fontSize: "0.8rem" }}>
                                         No big team matches today
                                     </div>
                                 )}
