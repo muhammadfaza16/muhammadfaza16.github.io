@@ -131,10 +131,9 @@ export function CleanHomeHero() {
     // Wallpaper scheduling — time-of-day based
     const wallpaper = useMemo(() => {
         const hour = now.getHours();
-        // Morning/Daytime (6am - 5pm): bright nature scene
-        if (hour >= 6 && hour < 17) return '/wallpapers/morning.jpg';
-        // Evening/Night (5pm - 6am): sunset street scene
-        return '/wallpapers/afternoon.jpg';
+        if (hour >= 6 && hour < 14) return '/wallpapers/morning.jpg';       // Morning: forest cycling
+        if (hour >= 14 && hour < 18) return '/wallpapers/afternoon.webp';   // Afternoon: lone tree field
+        return '/wallpapers/evening.jpg';                                    // Evening/Night: coastal sunset
     }, [now]);
 
     return (
@@ -165,7 +164,7 @@ export function CleanHomeHero() {
             <div style={{
                 position: "fixed",
                 inset: 0,
-                background: "linear-gradient(180deg, rgba(0,0,0,0.50) 0%, rgba(0,0,0,0.25) 35%, rgba(0,0,0,0.15) 55%, rgba(0,0,0,0.45) 100%)",
+                background: "linear-gradient(180deg, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.35) 35%, rgba(0,0,0,0.30) 55%, rgba(0,0,0,0.55) 100%)",
                 zIndex: -1,
             }} />
             {/* Content */}
@@ -178,7 +177,7 @@ export function CleanHomeHero() {
                     alignItems: "center",
                     marginBottom: "0.1rem",
                 }}>
-                    <span style={{ fontSize: "0.95rem", fontWeight: 600, color: "rgba(255,255,255,0.85)" }}>
+                    <span style={{ fontSize: "0.95rem", fontWeight: 600, color: "rgba(255,255,255,0.9)", textShadow: "0 1px 6px rgba(0,0,0,0.5)" }}>
                         {dateStr}
                     </span>
                     <div style={{
@@ -188,6 +187,7 @@ export function CleanHomeHero() {
                         fontSize: "1.5rem",
                         fontWeight: 600,
                         color: "rgba(255,255,255,0.95)",
+                        textShadow: "0 1px 6px rgba(0,0,0,0.5)",
                     }}>
                         {weather ? (
                             <>
@@ -211,7 +211,7 @@ export function CleanHomeHero() {
                     lineHeight: 1,
                     color: "#fff",
                     marginBottom: "0.35rem",
-                    textShadow: "0 2px 12px rgba(0,0,0,0.3)",
+                    textShadow: "0 2px 16px rgba(0,0,0,0.5), 0 1px 3px rgba(0,0,0,0.4)",
                 }}>
                     {dayName}
                 </div>
@@ -233,11 +233,11 @@ export function CleanHomeHero() {
                     alignItems: "center",
                     marginTop: "0.25rem",
                 }}>
-                    <span style={{ fontSize: "0.75rem", fontWeight: 500, color: "rgba(255,255,255,0.6)" }}>
+                    <span style={{ fontSize: "0.75rem", fontWeight: 600, color: "rgba(255,255,255,0.7)", textShadow: "0 1px 4px rgba(0,0,0,0.5)" }}>
                         {weather ? `${weather.label} · Jaksel` : '···'}
                     </span>
                     {prayer?.next && (
-                        <span style={{ fontSize: "0.75rem", fontWeight: 600, color: "rgba(255,255,255,0.7)" }}>
+                        <span style={{ fontSize: "0.75rem", fontWeight: 700, color: "rgba(255,255,255,0.8)", textShadow: "0 1px 4px rgba(0,0,0,0.5)" }}>
                             🕌 {prayer.next.name} {prayer.next.time}
                         </span>
                     )}
@@ -252,9 +252,10 @@ export function CleanHomeHero() {
                         style={{
                             fontSize: "0.78rem",
                             fontStyle: "italic",
-                            fontWeight: 400,
-                            color: "rgba(255,255,255,0.6)",
+                            fontWeight: 500,
+                            color: "rgba(255,255,255,0.7)",
                             marginTop: "0.35rem",
+                            textShadow: "0 1px 4px rgba(0,0,0,0.5)",
                             lineHeight: 1.4,
                         }}
                     >
