@@ -183,20 +183,20 @@ export function CleanHomeHero() {
                     <div style={{
                         display: "flex",
                         alignItems: "center",
-                        gap: "0.35rem",
-                        fontSize: "1.5rem",
+                        gap: "0.3rem",
+                        fontSize: "1rem",
                         fontWeight: 600,
                         color: "rgba(255,255,255,0.95)",
                         textShadow: "0 1px 6px rgba(0,0,0,0.5)",
                     }}>
                         {weather ? (
                             <>
-                                <span style={{ fontSize: "1.2rem" }}>{weather.icon}</span>
+                                <span style={{ fontSize: "1rem" }}>{weather.icon}</span>
                                 <span>{weather.temp}°C</span>
                             </>
                         ) : (
                             <>
-                                <CloudSun size={22} strokeWidth={2.5} />
+                                <CloudSun size={18} strokeWidth={2.5} />
                                 <span>···</span>
                             </>
                         )}
@@ -205,7 +205,7 @@ export function CleanHomeHero() {
 
                 {/* Big Day Name */}
                 <div style={{
-                    fontSize: "clamp(2.8rem, 11vw, 3.6rem)",
+                    fontSize: "clamp(2.2rem, 9vw, 3rem)",
                     fontWeight: 800,
                     letterSpacing: "-0.04em",
                     lineHeight: 1,
@@ -754,8 +754,8 @@ export function CleanHomeHero() {
                             display: "flex",
                             alignItems: "center",
                             justifyContent: "center",
-                            background: "rgba(0,0,0,0.5)",
-                            backdropFilter: "blur(8px)",
+                            background: "rgba(0,0,0,0.35)",
+                            backdropFilter: "blur(6px)",
                             padding: "1rem",
                         }}
                     >
@@ -765,16 +765,18 @@ export function CleanHomeHero() {
                             exit={{ scale: 0.9, opacity: 0, y: 20 }}
                             transition={{ type: "spring", damping: 25, stiffness: 300 }}
                             onClick={(e) => e.stopPropagation()}
+                            data-scrollable="true"
                             style={{
-                                background: "linear-gradient(135deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0.05) 100%)",
+                                background: "linear-gradient(135deg, rgba(30,35,50,0.92) 0%, rgba(20,25,40,0.95) 100%)",
                                 backdropFilter: "blur(40px)",
-                                border: "1px solid rgba(255,255,255,0.2)",
+                                border: "1px solid rgba(255,255,255,0.15)",
                                 borderRadius: "24px",
                                 padding: "1.2rem 1.4rem",
                                 maxWidth: "380px",
                                 width: "100%",
                                 maxHeight: "70vh",
                                 overflowY: "auto",
+                                WebkitOverflowScrolling: "touch" as React.CSSProperties['WebkitOverflowScrolling'],
                                 color: "rgba(255,255,255,0.95)",
                             }}
                         >
@@ -805,17 +807,17 @@ export function CleanHomeHero() {
                                             display: "flex", alignItems: "center", justifyContent: "space-between",
                                             padding: "8px 10px",
                                             borderRadius: "12px",
-                                            background: "rgba(255,255,255,0.06)",
-                                            border: "1px solid rgba(255,255,255,0.06)",
+                                            background: "rgba(255,255,255,0.08)",
+                                            border: "1px solid rgba(255,255,255,0.1)",
                                         }}>
                                             <div style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
                                                 <div style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "0.82rem", fontWeight: 700 }}>
                                                     <span>{m.leagueEmoji}</span>
                                                     <span>{m.home}</span>
-                                                    <span style={{ color: "rgba(255,255,255,0.55)", fontWeight: 400, fontSize: "0.7rem" }}>vs</span>
+                                                    <span style={{ color: "rgba(255,255,255,0.45)", fontWeight: 400, fontSize: "0.7rem" }}>vs</span>
                                                     <span>{m.away}</span>
                                                 </div>
-                                                <div style={{ fontSize: "0.65rem", color: "rgba(255,255,255,0.55)", fontWeight: 500 }}>
+                                                <div style={{ fontSize: "0.65rem", color: "rgba(255,255,255,0.6)", fontWeight: 500 }}>
                                                     {m.league}
                                                 </div>
                                             </div>

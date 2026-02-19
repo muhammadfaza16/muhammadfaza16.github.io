@@ -10,18 +10,33 @@ import "./home-journal.css";
 export default function HomePage() {
   const mainRef = useRef<HTMLElement>(null);
 
-  // Scroll Lock
+  // Scroll Lock — but allow scrolling inside [data-scrollable] elements
   useEffect(() => {
     const preventScroll = (e: TouchEvent) => {
+      // Allow scroll inside elements marked as scrollable
+      let target = e.target as HTMLElement | null;
+      while (target) {
+        if (target.getAttribute?.('data-scrollable') === 'true') return;
+        target = target.parentElement;
+      }
+      e.preventDefault();
+    };
+
+    const preventWheel = (e: WheelEvent) => {
+      let target = e.target as HTMLElement | null;
+      while (target) {
+        if (target.getAttribute?.('data-scrollable') === 'true') return;
+        target = target.parentElement;
+      }
       e.preventDefault();
     };
 
     document.addEventListener('touchmove', preventScroll, { passive: false });
-    document.addEventListener('wheel', (e) => e.preventDefault(), { passive: false });
+    document.addEventListener('wheel', preventWheel, { passive: false });
 
     return () => {
       document.removeEventListener('touchmove', preventScroll);
-      document.removeEventListener('wheel', (e) => e.preventDefault());
+      document.removeEventListener('wheel', preventWheel);
     };
   }, []);
 
