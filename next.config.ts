@@ -21,11 +21,11 @@ const withPWA = require("next-pwa")({
 
 const nextConfig: NextConfig = {
   /* config options here */
-  // Vercel deployment: Use default output (Node.js server) instead of 'export'
-  // output: process.env.NODE_ENV === 'production' ? 'export' : undefined,
+  // Only use static export for production builds
+  // API routes work in development for the CMS
+  output: process.env.NODE_ENV === 'production' ? 'export' : undefined,
   images: {
-    // Enable image optimization on Vercel
-    // unoptimized: true, 
+    unoptimized: true,
     qualities: [75, 90],
   },
   reactCompiler: true,
