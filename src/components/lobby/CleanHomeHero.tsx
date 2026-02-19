@@ -608,15 +608,21 @@ export function CleanHomeHero() {
                                                             fontSize: "0.52rem",
                                                             fontWeight: 500,
                                                             textAlign: "right",
-                                                            whiteSpace: "nowrap",
-                                                            minWidth: "60px",
+                                                            display: "flex",
+                                                            flexDirection: "column",
+                                                            alignItems: "flex-end",
+                                                            lineHeight: 1.1,
+                                                            minWidth: "40px",
                                                         }}>
                                                             {m.state === "in" ? (
-                                                                <span style={{ color: "#4ade80", fontWeight: 700 }}>LIVE {m.homeScore}-{m.awayScore}</span>
+                                                                <span style={{ color: "#4ade80", fontWeight: 700 }}>LIVE<br />{m.homeScore}-{m.awayScore}</span>
                                                             ) : m.state === "post" ? (
-                                                                <span>{m.homeScore}-{m.awayScore} FT</span>
+                                                                <span>{m.homeScore}-{m.awayScore}<br /><span style={{ fontSize: "0.45rem", opacity: 0.8 }}>FT</span></span>
                                                             ) : (
-                                                                <span>{m.date} · {m.time}</span>
+                                                                <>
+                                                                    <span style={{ whiteSpace: "nowrap" }}>{m.date}</span>
+                                                                    <span style={{ whiteSpace: "nowrap" }}>{m.time}</span>
+                                                                </>
                                                             )}
                                                         </div>
                                                     </div>
