@@ -11,98 +11,131 @@ import {
     Music
 } from "lucide-react";
 
-interface NavIconProps {
+interface DockIconProps {
     title: string;
     href: string;
     icon: React.ReactNode;
-    bgColor: string;
-    inkColor: string;
+    iconColor: string;
     delay?: number;
 }
 
-const NavIcon = ({ title, href, icon, bgColor, inkColor, delay = 0 }: NavIconProps) => {
+const DockIcon = ({ title, href, icon, iconColor, delay = 0 }: DockIconProps) => {
     return (
-        <Link href={href} style={{ textDecoration: 'none' }} className="group">
+        <Link href={href} style={{ textDecoration: 'none' }}>
             <motion.div
-                initial={{ opacity: 0, y: 12, scale: 0.9 }}
+                initial={{ opacity: 0, y: 6, scale: 0.9 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 transition={{
-                    duration: 0.5,
+                    duration: 0.3,
                     delay,
                     type: "spring",
-                    stiffness: 300,
-                    damping: 20
+                    stiffness: 400,
+                    damping: 24
                 }}
                 style={{
                     display: "flex",
                     flexDirection: "column",
                     alignItems: "center",
-                    gap: "0.5rem",
                 }}
             >
-                {/* The Icon Circle */}
-                <div
-                    className="journal-icon-circle"
-                    style={{
-                        background: bgColor,
-                        color: inkColor,
-                    }}
-                >
-                    {icon}
-                </div>
+                {/* iOS-style dark glass icon */}
+                <div style={{
+                    position: "relative",
+                    width: "clamp(52px, 13.5vw, 62px)",
+                    height: "clamp(52px, 13.5vw, 62px)",
+                    borderRadius: "26%",
+                    background: "linear-gradient(145deg, rgba(50,55,50,0.50) 0%, rgba(30,35,30,0.60) 100%)",
+                    backdropFilter: "blur(20px) saturate(140%)",
+                    WebkitBackdropFilter: "blur(20px) saturate(140%)",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    boxShadow: `
+                        0 8px 24px -4px rgba(0,0,0,0.12),
+                        0 2px 8px rgba(0,0,0,0.06),
+                        inset 0 1px 1px rgba(255,255,255,0.14),
+                        inset 0 -1px 1px rgba(0,0,0,0.15)
+                    `,
+                    overflow: "hidden",
+                    border: "1px solid rgba(255,255,255,0.10)",
+                    cursor: "pointer",
+                    transition: "transform 0.15s ease",
+                }} className="hover:scale-105 active:scale-95">
 
-                {/* Label */}
-                <span className="font-journal-hand" style={{
-                    fontSize: "clamp(0.8rem, 2.5vw, 0.95rem)",
-                    fontWeight: 500,
-                    color: "var(--ink-secondary, #5d534a)",
-                    textAlign: "center",
-                    letterSpacing: "0.01em",
-                    transition: "color 0.2s ease"
-                }}>
-                    {title}
-                </span>
+                    {/* Icon with vivid color */}
+                    <div style={{
+                        color: iconColor,
+                        zIndex: 2,
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        filter: "drop-shadow(0 2px 4px rgba(0,0,0,0.3))"
+                    }}>
+                        {React.cloneElement(icon as React.ReactElement<{ size?: number; strokeWidth?: number }>, { size: 26, strokeWidth: 2.5 })}
+                    </div>
+
+                    {/* Specular highlight — top edge shine */}
+                    <div style={{
+                        position: "absolute",
+                        top: 0,
+                        left: "15%",
+                        right: "15%",
+                        height: "1px",
+                        background: "linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.45) 30%, rgba(255,255,255,0.55) 50%, rgba(255,255,255,0.45) 70%, transparent 100%)",
+                        pointerEvents: "none",
+                        zIndex: 4,
+                        filter: "blur(0.3px)",
+                    }} />
+
+                    {/* Glossy sheen */}
+                    <div style={{
+                        position: "absolute",
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        height: "50%",
+                        background: "linear-gradient(180deg, rgba(255,255,255,0.10) 0%, rgba(255,255,255,0.02) 60%, transparent 100%)",
+                        zIndex: 3,
+                        pointerEvents: "none",
+                        borderRadius: "26% 26% 0 0",
+                    }} />
+                </div>
             </motion.div>
         </Link>
     );
 };
 
 export function RoomBentoGrid() {
-    const apps: NavIconProps[] = [
+    const apps: DockIconProps[] = [
         {
             title: "Teman",
             href: "/guest",
             icon: <Users />,
-            bgColor: "rgba(255, 173, 173, 0.25)",
-            inkColor: "#c45b5b"
+            iconColor: "#FF9F0A" // Vivid Orange
         },
         {
             title: "Waktu",
             href: "/time",
             icon: <Clock />,
-            bgColor: "rgba(160, 196, 255, 0.25)",
-            inkColor: "#5b7daa"
+            iconColor: "#32D74B" // Vivid Green
         },
         {
             title: "Hidup",
             href: "/clock",
             icon: <Activity />,
-            bgColor: "rgba(181, 214, 167, 0.25)",
-            inkColor: "#4a7c59"
+            iconColor: "#BF5AF2" // Vivid Purple
         },
         {
             title: "Ruang",
             href: "/starlight",
             icon: <Sparkles />,
-            bgColor: "rgba(212, 181, 230, 0.25)",
-            inkColor: "#7a5b99"
+            iconColor: "#0A84FF" // Vivid Blue
         },
         {
             title: "Lagu",
             href: "/playlist",
             icon: <Music />,
-            bgColor: "rgba(255, 214, 165, 0.25)",
-            inkColor: "#b07d42"
+            iconColor: "#FF375F" // Vivid Pink
         },
     ];
 
@@ -112,21 +145,21 @@ export function RoomBentoGrid() {
             flexDirection: "column",
             alignItems: "center",
             width: "100%",
-            paddingBottom: "clamp(1.25rem, 3vh, 2.5rem)"
+            padding: "0.4rem 0",
         }}>
             <nav style={{
-                padding: "0 1.5rem",
+                padding: "0 1.25rem",
                 width: "100%",
-                maxWidth: "380px",
+                maxWidth: "400px",
             }}>
                 <div style={{
                     display: "flex",
                     justifyContent: "space-between",
                     alignItems: "flex-start",
-                    gap: "0.5rem",
+                    gap: "0.65rem",
                 }}>
                     {apps.map((app, idx) => (
-                        <NavIcon key={idx} {...app} delay={0.6 + idx * 0.08} />
+                        <DockIcon key={idx} {...app} delay={0.3 + idx * 0.06} />
                     ))}
                 </div>
             </nav>

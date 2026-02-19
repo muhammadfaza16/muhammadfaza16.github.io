@@ -16,51 +16,88 @@
     font-family: 'Nothing You Could Do', 'Caveat', cursive;
 }
 
-/* --- Color Tokens --- */
+/* --- Color Tokens (Accurate Reference Sage) --- */
 :root {
-    --ink-primary: #2c2420;
-    --ink-secondary: #5d534a;
-    --ink-accent: #b07d62;
-    --ink-muted: #a0907d;
-    --paper-bg: #f5f5f5;
-    --paper-card: #ffffff;
-    --paper-warm: #f8f4ee;
-    --washi-pink: #ffadad;
-    --washi-blue: #a0c4ff;
-    --washi-sage: #b5d6a7;
-    --washi-lavender: #d4b5e6;
-    --washi-peach: #ffd6a5;
-    --watercolor-blush: rgba(255, 173, 173, 0.15);
-    --watercolor-sky: rgba(160, 196, 255, 0.12);
-    --watercolor-sage: rgba(181, 214, 167, 0.12);
+    /* Ink */
+    --ink-primary: #1c211a;
+    /* Near black/green */
+    --ink-secondary: #424a40;
+    --ink-muted: #5e6b5a;
+
+    /* Backgrounds */
+    --paper-bg: #99a290;
+    /* The Reference Sage */
+
+    /* Accents */
+    --accent-red: #ff453a;
+    --cal-bg: rgba(60, 70, 60, 0.35);
+    /* Dark card bg */
+
+    /* Atmospheric tokens (Flat Sage) */
+    --atmos-top: #aeb5a6;
+    --atmos-mid: #99a290;
+    --atmos-bottom: #8a9485;
 }
 
-/* --- Clean Premium Background --- */
+/* --- Clean Premium Background (iOS-style living glass surface) --- */
 .bg-journal-paper {
-    background-color: var(--paper-bg);
+    background-color: #9aa18e;
     background-image:
-        radial-gradient(ellipse at 50% 30%, #ffffff 0%, transparent 70%);
+        linear-gradient(180deg,
+            var(--atmos-top) 0%,
+            var(--atmos-mid) 40%,
+            var(--atmos-bottom) 100%);
     position: relative;
+    color: var(--ink-primary);
 }
 
-/* Subtle noise grain overlay */
+/* Animated color blobs — gives glass elements something rich to blur */
 .bg-journal-paper::before {
     content: '';
     position: absolute;
     inset: 0;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+    background:
+        radial-gradient(ellipse 50% 50% at 25% 75%, rgba(195, 160, 110, 0.30) 0%, transparent 70%),
+        radial-gradient(ellipse 45% 45% at 75% 25%, rgba(140, 170, 130, 0.28) 0%, transparent 65%),
+        radial-gradient(ellipse 55% 40% at 50% 50%, rgba(165, 145, 115, 0.18) 0%, transparent 60%),
+        radial-gradient(ellipse 40% 60% at 15% 30%, rgba(130, 155, 120, 0.20) 0%, transparent 55%),
+        radial-gradient(ellipse 35% 50% at 85% 70%, rgba(185, 155, 125, 0.22) 0%, transparent 60%);
     pointer-events: none;
     z-index: 0;
+    animation: blob-drift 12s ease-in-out infinite alternate;
 }
 
-/* Soft edge vignette for depth */
+@keyframes blob-drift {
+    0% {
+        transform: scale(1) translate(0, 0);
+        opacity: 0.8;
+    }
+
+    33% {
+        transform: scale(1.05) translate(1%, -1%);
+        opacity: 1;
+    }
+
+    66% {
+        transform: scale(0.98) translate(-1%, 1%);
+        opacity: 0.9;
+    }
+
+    100% {
+        transform: scale(1.02) translate(0.5%, -0.5%);
+        opacity: 0.85;
+    }
+}
+
+/* Soft noise grain overlay */
 .bg-journal-paper::after {
     content: '';
     position: absolute;
     inset: 0;
-    box-shadow: inset 0 0 80px 20px rgba(0, 0, 0, 0.03);
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.025'/%3E%3C/svg%3E");
     pointer-events: none;
     z-index: 0;
+    opacity: 0.35;
 }
 
 /* --- Interactive Doodles --- */

@@ -2,11 +2,10 @@
 
 import React from "react";
 import { Container } from "@/components/Container";
+import { AtmosphericBackground } from "@/components/AtmosphericBackground";
 import { ZenHideable } from "@/components/ZenHideable";
-import { ArrowLeft } from "lucide-react";
-import Link from "next/link";
-import { CurationSimpleItem } from "@/components/curation/CurationSimpleItem";
 import { StandardBackButton } from "@/components/ui/StandardBackButton";
+import { CurationSimpleItem } from "@/components/curation/CurationSimpleItem";
 
 // Sample Curation Data - Minimalist
 const CURATION_DATA = [
@@ -49,13 +48,7 @@ const CURATION_DATA = [
 
 export default function CurationPage() {
     return (
-        <div style={{
-            minHeight: "100vh",
-            backgroundColor: "#080808", // Slightly softer dark
-            color: "#e5e5e5",
-            fontFamily: "var(--font-sans)",
-            position: "relative"
-        }}>
+        <AtmosphericBackground variant="cool">
             {/* Standard Back Button */}
             <StandardBackButton href="/starlight" />
 
@@ -70,13 +63,13 @@ export default function CurationPage() {
                                 letterSpacing: "-0.04em",
                                 lineHeight: 1.1,
                                 marginBottom: "1.5rem",
-                                color: "#fff"
+                                color: "var(--ink-primary)"
                             }}>
                                 Curation.
                             </h1>
                             <p style={{
                                 fontSize: "clamp(1.1rem, 3vw, 1.25rem)",
-                                color: "rgba(255,255,255,0.5)",
+                                color: "var(--ink-secondary)",
                                 lineHeight: 1.6,
                                 maxWidth: "480px",
                                 fontWeight: 300
@@ -91,7 +84,7 @@ export default function CurationPage() {
                             <div style={{
                                 display: "flex",
                                 flexDirection: "column",
-                                borderTop: "1px solid rgba(255, 255, 255, 0.1)"
+                                borderTop: "1px solid var(--glass-border)"
                             }}>
                                 {CURATION_DATA.map((item, idx) => (
                                     <CurationSimpleItem
@@ -108,6 +101,6 @@ export default function CurationPage() {
                     </Container>
                 </ZenHideable>
             </main>
-        </div>
+        </AtmosphericBackground>
     );
 }

@@ -30,7 +30,7 @@ export function CurationSimpleItem({ title, subtitle, href, index, year = "2024"
                 alignItems: "baseline",
                 justifyContent: "space-between",
                 padding: "1.5rem 0",
-                borderBottom: "1px solid rgba(255, 255, 255, 0.1)",
+                borderBottom: "1px solid var(--glass-border, rgba(255, 255, 255, 0.1))",
                 textDecoration: "none",
                 color: "inherit",
                 cursor: "pointer",
@@ -42,7 +42,7 @@ export function CurationSimpleItem({ title, subtitle, href, index, year = "2024"
                 <span style={{
                     display: "block",
                     fontSize: "0.75rem",
-                    color: "rgba(255, 255, 255, 0.5)",
+                    color: "var(--ink-muted, rgba(255, 255, 255, 0.5))",
                     marginBottom: "0.25rem",
                     textTransform: "uppercase",
                     letterSpacing: "0.05em",
@@ -55,7 +55,7 @@ export function CurationSimpleItem({ title, subtitle, href, index, year = "2024"
                     fontWeight: 400,
                     margin: 0,
                     lineHeight: 1.4,
-                    color: "rgba(255, 255, 255, 0.9)",
+                    color: "var(--ink-primary, rgba(255, 255, 255, 0.9))",
                     fontFamily: "var(--font-sans)"
                 }} className="group-hover:text-white transition-colors">
                     {title}
@@ -66,7 +66,7 @@ export function CurationSimpleItem({ title, subtitle, href, index, year = "2024"
                 {year && (
                     <span style={{
                         fontSize: "0.85rem",
-                        color: "rgba(255, 255, 255, 0.3)",
+                        color: "var(--ink-muted, rgba(255, 255, 255, 0.3))",
                         fontFamily: "var(--font-mono)",
                         display: "none" // Hidden on smallest mobile, shown on larger
                     }} className="md:block">
@@ -75,7 +75,7 @@ export function CurationSimpleItem({ title, subtitle, href, index, year = "2024"
                 )}
                 <ArrowUpRight
                     size={18}
-                    color="rgba(255,255,255,0.4)"
+                    color="var(--ink-muted, rgba(255,255,255,0.4))"
                     style={{ transition: "transform 0.2s ease, opacity 0.2s ease" }}
                     className="group-hover:translate-x-1 group-hover:-translate-y-1 group-hover:text-white"
                 />

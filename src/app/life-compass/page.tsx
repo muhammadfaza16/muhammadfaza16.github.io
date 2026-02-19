@@ -2,6 +2,7 @@
 
 import React from "react";
 import { Container } from "@/components/Container";
+import { AtmosphericBackground } from "@/components/AtmosphericBackground";
 import { ZenHideable } from "@/components/ZenHideable";
 import { StandardBackButton } from "@/components/ui/StandardBackButton";
 import { CurationSimpleItem } from "@/components/curation/CurationSimpleItem";
@@ -10,7 +11,7 @@ import { motion } from "framer-motion";
 const VISION_TRACKS = [
     {
         title: "Personal",
-        color: "#ff2d55",
+        color: "#8a6050",
         goals: [
             { title: "Physical Mastery", subtitle: "Wellness • Optimization", href: "#", year: "Ongoing" },
             { title: "Digital Sanctuary", subtitle: "Living • Environment", href: "#", year: "2026" },
@@ -18,7 +19,7 @@ const VISION_TRACKS = [
     },
     {
         title: "Career",
-        color: "#5856d6",
+        color: "#5a6a80",
         goals: [
             { title: "AI Product Architecture", subtitle: "Expertise • Engineering", href: "#", year: "Focus" },
             { title: "Autonomous Systems", subtitle: "Innovation • R&D", href: "#", year: "Future" },
@@ -26,7 +27,7 @@ const VISION_TRACKS = [
     },
     {
         title: "Education",
-        color: "#34c759",
+        color: "#5a7a4e",
         goals: [
             { title: "Computational Logic", subtitle: "Deep Learning • Theory", href: "#", year: "Q3 2026" },
         ]
@@ -35,13 +36,7 @@ const VISION_TRACKS = [
 
 export default function LifeCompassPage() {
     return (
-        <div style={{
-            minHeight: "100vh",
-            backgroundColor: "#080808",
-            color: "#e5e5e5",
-            fontFamily: "var(--font-sans)",
-            position: "relative"
-        }}>
+        <AtmosphericBackground variant="sage">
             {/* Standard Back Button */}
             <StandardBackButton href="/starlight" />
 
@@ -56,13 +51,13 @@ export default function LifeCompassPage() {
                                 letterSpacing: "-0.04em",
                                 lineHeight: 1.1,
                                 marginBottom: "1.5rem",
-                                color: "#fff"
+                                color: "var(--ink-primary)"
                             }}>
                                 Life Compass.
                             </h1>
                             <p style={{
                                 fontSize: "clamp(1.1rem, 3vw, 1.25rem)",
-                                color: "rgba(255,255,255,0.5)",
+                                color: "var(--ink-secondary)",
                                 lineHeight: 1.6,
                                 maxWidth: "480px",
                                 fontWeight: 300
@@ -85,7 +80,7 @@ export default function LifeCompassPage() {
                                         gap: "1rem",
                                         marginBottom: "1.5rem",
                                         paddingBottom: "0.5rem",
-                                        borderBottom: "1px solid rgba(255, 255, 255, 0.1)"
+                                        borderBottom: "1px solid var(--glass-border)"
                                     }}>
                                         <h2 style={{
                                             fontSize: "0.9rem",
@@ -118,6 +113,6 @@ export default function LifeCompassPage() {
                     </Container>
                 </ZenHideable>
             </main>
-        </div>
+        </AtmosphericBackground>
     );
 }

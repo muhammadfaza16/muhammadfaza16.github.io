@@ -74,16 +74,16 @@ export function MiniPlayerWidget({ style: customStyle }: MiniPlayerProps) {
                             style={{
                                 width: "100%",
                                 maxWidth: "420px",
-                                background: "rgba(18, 18, 20, 0.9)",
-                                backdropFilter: "blur(20px) saturate(180%)",
-                                WebkitBackdropFilter: "blur(20px) saturate(180%)",
-                                border: "1px solid rgba(255, 255, 255, 0.08)",
-                                borderRadius: "20px",
-                                padding: "12px 16px",
+                                background: "transparent",
+                                backdropFilter: "none",
+                                WebkitBackdropFilter: "none",
+                                border: "none",
+                                borderRadius: "16px",
+                                padding: "8px 12px",
                                 display: "flex",
                                 alignItems: "center",
                                 gap: "12px",
-                                boxShadow: "0 8px 32px rgba(0, 0, 0, 0.4)",
+                                boxShadow: "none",
                                 cursor: "grab",
                                 touchAction: "none"
                             }}
@@ -123,9 +123,9 @@ export function MiniPlayerWidget({ style: customStyle }: MiniPlayerProps) {
                             <div style={{ flex: 1, overflow: "hidden", minWidth: 0 }}>
                                 <div style={{
                                     fontFamily: "-apple-system, sans-serif",
-                                    fontSize: "0.9rem",
+                                    fontSize: "0.85rem",
                                     fontWeight: 600,
-                                    color: "white",
+                                    color: "var(--ink-primary, #1c211a)",
                                     whiteSpace: "nowrap",
                                     overflow: "hidden",
                                     textOverflow: "ellipsis",
@@ -135,8 +135,8 @@ export function MiniPlayerWidget({ style: customStyle }: MiniPlayerProps) {
                                 </div>
                                 <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
                                     <span style={{
-                                        fontSize: "0.75rem",
-                                        color: "rgba(255,255,255,0.5)",
+                                        fontSize: "0.72rem",
+                                        color: "var(--ink-muted, #5e6b5a)",
                                         whiteSpace: "nowrap",
                                         overflow: "hidden",
                                         textOverflow: "ellipsis"
@@ -168,25 +168,25 @@ export function MiniPlayerWidget({ style: customStyle }: MiniPlayerProps) {
                                     className="p-2 hover:bg-white/10 rounded-full transition-colors active:scale-90 cursor-pointer"
                                     style={{ display: "flex", alignItems: "center", justifyContent: "center" }}
                                 >
-                                    <SkipBack size={18} fill="white" className="text-white/80" />
+                                    <SkipBack size={16} fill="var(--ink-primary, #1c211a)" color="var(--ink-primary, #1c211a)" />
                                 </div>
 
                                 {/* Play/Pause */}
                                 <div
                                     onClick={(e) => { e.stopPropagation(); togglePlay(); }}
                                     style={{
-                                        width: "36px",
-                                        height: "36px",
+                                        width: "34px",
+                                        height: "34px",
                                         borderRadius: "50%",
-                                        background: "rgba(255,255,255,0.12)",
+                                        background: "rgba(0,0,0,0.08)",
                                         display: "flex",
                                         alignItems: "center",
                                         justifyContent: "center",
-                                        color: "white"
+                                        color: "var(--ink-primary, #1c211a)"
                                     }}
-                                    className="hover:bg-white/20 active:scale-90"
+                                    className="hover:bg-black/15 active:scale-90"
                                 >
-                                    {isPlaying ? <Pause size={16} fill="white" /> : <Play size={16} fill="white" style={{ marginLeft: "2px" }} />}
+                                    {isPlaying ? <Pause size={15} fill="var(--ink-primary, #1c211a)" /> : <Play size={15} fill="var(--ink-primary, #1c211a)" style={{ marginLeft: "2px" }} />}
                                 </div>
 
                                 {/* Next */}
@@ -195,7 +195,7 @@ export function MiniPlayerWidget({ style: customStyle }: MiniPlayerProps) {
                                     className="p-2 hover:bg-white/10 rounded-full transition-colors active:scale-90 cursor-pointer"
                                     style={{ display: "flex", alignItems: "center", justifyContent: "center" }}
                                 >
-                                    <SkipForward size={18} fill="white" className="text-white/80" />
+                                    <SkipForward size={16} fill="var(--ink-primary, #1c211a)" color="var(--ink-primary, #1c211a)" />
                                 </div>
                             </div>
                         </motion.div>

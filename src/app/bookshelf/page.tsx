@@ -1,43 +1,23 @@
 "use client";
 
 import React from "react";
-import dynamic from "next/dynamic";
 import { Container } from "@/components/Container";
-import { IosBentoCard } from "@/components/sanctuary/IosBentoCard";
+import { AtmosphericBackground } from "@/components/AtmosphericBackground";
 import { ZenHideable } from "@/components/ZenHideable";
-import { BookOpen, ArrowLeft, Star, Clock, CheckCircle } from "lucide-react";
 import { StandardBackButton } from "@/components/ui/StandardBackButton";
-import Link from "next/link";
 import { motion } from "framer-motion";
 
-const GradientOrb = dynamic(() => import("@/components/GradientOrb").then(mod => mod.GradientOrb), { ssr: false });
-const CosmicStars = dynamic(() => import("@/components/CosmicStars").then(mod => mod.CosmicStars), { ssr: false });
-const MilkyWay = dynamic(() => import("@/components/MilkyWay").then(mod => mod.MilkyWay), { ssr: false });
-
 const books = [
-    { title: "Co-Intelligence", author: "Ethan Mollick", status: "Reading", imageUrl: "https://images.unsplash.com/photo-1677442136019-21780ecad995?q=80&w=1932&auto=format&fit=crop", notes: "Living and working with AI. Not just using it, but collaborating with it.", colSpan: 2, color: "#ff9500" },
-    { title: "StoryBrand", author: "Donald Miller", status: "Reading", imageUrl: "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?q=80&w=1974&auto=format&fit=crop", notes: "Clarifying the message. If you confuse, you'll lose.", colSpan: 1, color: "#ff9500" },
-    { title: "Naval Almanack", author: "Naval Ravikant", status: "Favorite", imageUrl: "https://images.unsplash.com/photo-1589998059171-988d887df643?q=80&w=2070&auto=format&fit=crop", notes: "Wealth and happiness. The guide to playing long-term games.", colSpan: 1, color: "#f59e0b" },
-    { title: "Psychology of Money", author: "Morgan Housel", status: "Favorite", imageUrl: "https://images.unsplash.com/photo-1579621970563-ebec7560ff3e?q=80&w=2071&auto=format&fit=crop", notes: "Doing well with money is about behavior, not just knowledge.", colSpan: 2, color: "#f59e0b" },
+    { title: "Co-Intelligence", author: "Ethan Mollick", status: "Reading", imageUrl: "https://images.unsplash.com/photo-1677442136019-21780ecad995?q=80&w=1932&auto=format&fit=crop", notes: "Living and working with AI. Not just using it, but collaborating with it.", colSpan: 2, color: "#6b7d5e" },
+    { title: "StoryBrand", author: "Donald Miller", status: "Reading", imageUrl: "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?q=80&w=1974&auto=format&fit=crop", notes: "Clarifying the message. If you confuse, you'll lose.", colSpan: 1, color: "#6b7d5e" },
+    { title: "Naval Almanack", author: "Naval Ravikant", status: "Favorite", imageUrl: "https://images.unsplash.com/photo-1589998059171-988d887df643?q=80&w=2070&auto=format&fit=crop", notes: "Wealth and happiness. The guide to playing long-term games.", colSpan: 1, color: "#8a7a50" },
+    { title: "Psychology of Money", author: "Morgan Housel", status: "Favorite", imageUrl: "https://images.unsplash.com/photo-1579621970563-ebec7560ff3e?q=80&w=2071&auto=format&fit=crop", notes: "Doing well with money is about behavior, not just knowledge.", colSpan: 2, color: "#8a7a50" },
 ];
 
 export default function BookshelfPage() {
     return (
-        <div style={{
-            minHeight: "100vh",
-            backgroundColor: "#050505",
-            color: "white",
-            position: "relative",
-            overflowX: "hidden"
-        }}>
-            {/* Ambient Background */}
-            <div style={{ position: "fixed", inset: 0, zIndex: 0, pointerEvents: "none" }}>
-                <MilkyWay />
-                <GradientOrb />
-                <CosmicStars />
-            </div>
-
-            <main style={{ position: "relative", zIndex: 1, paddingBottom: "8rem" }}>
+        <AtmosphericBackground variant="warm">
+            <main style={{ paddingBottom: "8rem" }}>
                 {/* Standard Back Button */}
                 <StandardBackButton href="/starlight" />
 
@@ -51,13 +31,14 @@ export default function BookshelfPage() {
                                     fontWeight: 700,
                                     letterSpacing: "-0.03em",
                                     lineHeight: 1.1,
-                                    marginBottom: "1.5rem"
+                                    marginBottom: "1.5rem",
+                                    color: "var(--ink-primary)"
                                 }}>
-                                    Mentors <span style={{ color: "rgba(255,255,255,0.4)" }}>on paper.</span>
+                                    Mentors <span style={{ color: "var(--ink-muted)" }}>on paper.</span>
                                 </h2>
                                 <p style={{
                                     fontSize: "clamp(1rem, 3vw, 1.1rem)",
-                                    color: "rgba(255,255,255,0.6)",
+                                    color: "var(--ink-secondary)",
                                     lineHeight: 1.6,
                                     margin: 0
                                 }}>
@@ -68,42 +49,86 @@ export default function BookshelfPage() {
                         </Container>
                     </section>
 
-                    {/* Bento Grid Content */}
+                    {/* Frosted Glass Book Cards */}
                     <section style={{ marginTop: "2rem" }}>
                         <Container>
                             <div style={{
                                 display: "grid",
-                                gridTemplateColumns: "repeat(auto-fill, minmax(min(100%, 300px), 1fr))",
+                                gridTemplateColumns: "repeat(auto-fill, minmax(min(100%, 280px), 1fr))",
                                 gridAutoFlow: "dense",
-                                gap: "1.5rem"
+                                gap: "1rem"
                             }}>
                                 {books.map((book, idx) => (
-                                    <IosBentoCard
+                                    <motion.div
                                         key={book.title}
-                                        title={book.title}
-                                        subtitle={`${book.author} • ${book.status}`}
-                                        imageUrl={book.imageUrl}
-                                        href="#"
-                                        colSpan={book.colSpan}
-                                        delay={idx * 0.1}
-                                        accentColor={book.color}
+                                        initial={{ opacity: 0, y: 16 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        transition={{ duration: 0.4, delay: idx * 0.1 }}
+                                        style={{
+                                            gridColumn: book.colSpan === 2 ? "span 2" : "span 1",
+                                            background: "var(--glass-bg)",
+                                            backdropFilter: "var(--glass-blur)",
+                                            WebkitBackdropFilter: "var(--glass-blur)",
+                                            border: "1px solid var(--glass-border)",
+                                            borderRadius: "16px",
+                                            padding: "1.25rem",
+                                            boxShadow: "var(--glass-shadow)",
+                                            position: "relative",
+                                            overflow: "hidden",
+                                            cursor: "pointer",
+                                            transition: "transform 0.2s ease, box-shadow 0.2s ease",
+                                        }}
                                     >
-                                        <p style={{
-                                            fontSize: "0.85rem",
-                                            color: "rgba(255,255,255,0.5)",
-                                            fontStyle: "italic",
-                                            lineHeight: 1.4,
-                                            margin: 0
+                                        {/* Status Badge */}
+                                        <div style={{
+                                            display: "inline-block",
+                                            fontSize: "0.65rem",
+                                            fontWeight: 600,
+                                            letterSpacing: "0.08em",
+                                            textTransform: "uppercase",
+                                            color: book.color,
+                                            background: `${book.color}18`,
+                                            padding: "0.2rem 0.6rem",
+                                            borderRadius: "6px",
+                                            marginBottom: "0.75rem",
                                         }}>
-                                            "{book.notes}"
+                                            {book.status}
+                                        </div>
+
+                                        <h3 style={{
+                                            fontSize: "clamp(1rem, 3vw, 1.15rem)",
+                                            fontWeight: 600,
+                                            color: "var(--ink-primary)",
+                                            margin: "0 0 0.25rem 0",
+                                            lineHeight: 1.3
+                                        }}>
+                                            {book.title}
+                                        </h3>
+                                        <p style={{
+                                            fontSize: "0.8rem",
+                                            color: "var(--ink-muted)",
+                                            margin: "0 0 0.75rem 0",
+                                            fontWeight: 500
+                                        }}>
+                                            {book.author}
                                         </p>
-                                    </IosBentoCard>
+                                        <p style={{
+                                            fontSize: "0.82rem",
+                                            color: "var(--ink-secondary)",
+                                            fontStyle: "italic",
+                                            lineHeight: 1.5,
+                                            margin: 0,
+                                            opacity: 0.8
+                                        }}>
+                                            &ldquo;{book.notes}&rdquo;
+                                        </p>
+                                    </motion.div>
                                 ))}
                             </div>
                         </Container>
                     </section>
                 </ZenHideable>
             </main>
-        </div>
+        </AtmosphericBackground>
     );
 }

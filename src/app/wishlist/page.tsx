@@ -2,6 +2,7 @@
 
 import React from "react";
 import { Container } from "@/components/Container";
+import { AtmosphericBackground } from "@/components/AtmosphericBackground";
 import { ZenHideable } from "@/components/ZenHideable";
 import { StandardBackButton } from "@/components/ui/StandardBackButton";
 import { CurationSimpleItem } from "@/components/curation/CurationSimpleItem";
@@ -35,13 +36,7 @@ const WISHLIST_ITEMS = [
 
 export default function WishlistPage() {
     return (
-        <div style={{
-            minHeight: "100vh",
-            backgroundColor: "#080808",
-            color: "#e5e5e5",
-            fontFamily: "var(--font-sans)",
-            position: "relative"
-        }}>
+        <AtmosphericBackground variant="warm">
             {/* Standard Back Button */}
             <StandardBackButton href="/starlight" />
 
@@ -56,13 +51,13 @@ export default function WishlistPage() {
                                 letterSpacing: "-0.04em",
                                 lineHeight: 1.1,
                                 marginBottom: "1.5rem",
-                                color: "#fff"
+                                color: "var(--ink-primary)"
                             }}>
                                 Wishlist.
                             </h1>
                             <p style={{
                                 fontSize: "clamp(1.1rem, 3vw, 1.25rem)",
-                                color: "rgba(255,255,255,0.5)",
+                                color: "var(--ink-secondary)",
                                 lineHeight: 1.6,
                                 maxWidth: "480px",
                                 fontWeight: 300
@@ -77,7 +72,7 @@ export default function WishlistPage() {
                             <div style={{
                                 display: "flex",
                                 flexDirection: "column",
-                                borderTop: "1px solid rgba(255, 255, 255, 0.1)"
+                                borderTop: "1px solid var(--glass-border)"
                             }}>
                                 {WISHLIST_ITEMS.map((item, idx) => (
                                     <CurationSimpleItem
@@ -94,6 +89,6 @@ export default function WishlistPage() {
                     </Container>
                 </ZenHideable>
             </main>
-        </div>
+        </AtmosphericBackground>
     );
 }

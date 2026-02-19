@@ -548,7 +548,7 @@ export function JournalHero() {
 
                 {/* ── Detailed sketch doodles (solid + interactive) ── */}
 
-                {/* 🌹 Rose — vivid, solid colors */}
+                {/* 🌹 Rose — muted sage/dusty tones */}
                 <svg className="doodle-interactive" style={{
                     position: "absolute", right: "4%", top: "6%",
                     width: "clamp(55px, 16vw, 75px)",
@@ -557,29 +557,29 @@ export function JournalHero() {
                     animation: "journal-fade-in 2s ease 1.2s both",
                     cursor: "pointer",
                 }} viewBox="0 0 80 110" fill="none">
-                    {/* Petals — rich solid pink */}
-                    <path d="M40 28 Q55 18 58 30 Q62 42 48 42 Q40 42 40 35Z" fill="#e8627a" stroke="#c44d62" strokeWidth="1" strokeLinecap="round" />
-                    <path d="M40 28 Q25 16 20 28 Q15 40 30 42 Q38 42 40 35Z" fill="#f07088" stroke="#c44d62" strokeWidth="1" strokeLinecap="round" />
-                    <path d="M30 42 Q18 45 22 55 Q26 62 38 56Z" fill="#e8627a" stroke="#c44d62" strokeWidth="0.8" strokeLinecap="round" />
-                    <path d="M48 42 Q60 46 56 56 Q52 63 42 56Z" fill="#d95570" stroke="#c44d62" strokeWidth="0.8" strokeLinecap="round" />
-                    <path d="M38 56 Q32 64 36 68 Q40 70 44 66 Q48 62 42 56Z" fill="#f07088" stroke="#c44d62" strokeWidth="0.7" />
+                    {/* Petals — dusty sage-rose */}
+                    <path d="M40 28 Q55 18 58 30 Q62 42 48 42 Q40 42 40 35Z" fill="#b0927a" stroke="#8a7060" strokeWidth="1" strokeLinecap="round" />
+                    <path d="M40 28 Q25 16 20 28 Q15 40 30 42 Q38 42 40 35Z" fill="#c0a088" stroke="#8a7060" strokeWidth="1" strokeLinecap="round" />
+                    <path d="M30 42 Q18 45 22 55 Q26 62 38 56Z" fill="#b0927a" stroke="#8a7060" strokeWidth="0.8" strokeLinecap="round" />
+                    <path d="M48 42 Q60 46 56 56 Q52 63 42 56Z" fill="#a08568" stroke="#8a7060" strokeWidth="0.8" strokeLinecap="round" />
+                    <path d="M38 56 Q32 64 36 68 Q40 70 44 66 Q48 62 42 56Z" fill="#c0a088" stroke="#8a7060" strokeWidth="0.7" />
                     {/* Center spiral */}
-                    <path d="M40 34 Q44 30 46 34 Q48 38 44 40 Q40 42 38 38 Q36 34 40 32 Q43 30 45 33" stroke="#a03050" strokeWidth="1.5" fill="none" strokeLinecap="round" />
-                    <path d="M40 36 Q42 34 43 36 Q44 38 42 39 Q40 40 39 38" stroke="#8a2040" strokeWidth="1.2" fill="none" strokeLinecap="round" />
-                    {/* Stem — bold green */}
-                    <path d="M40 58 Q38 68 39 78 Q40 88 38 98" stroke="#2d8a2d" strokeWidth="2" strokeLinecap="round" fill="none" />
-                    <path d="M39 78 Q36 76 34 72" stroke="#2d8a2d" strokeWidth="1.5" strokeLinecap="round" fill="none" />
+                    <path d="M40 34 Q44 30 46 34 Q48 38 44 40 Q40 42 38 38 Q36 34 40 32 Q43 30 45 33" stroke="#6b5a48" strokeWidth="1.5" fill="none" strokeLinecap="round" />
+                    <path d="M40 36 Q42 34 43 36 Q44 38 42 39 Q40 40 39 38" stroke="#5a4a38" strokeWidth="1.2" fill="none" strokeLinecap="round" />
+                    {/* Stem — olive green */}
+                    <path d="M40 58 Q38 68 39 78 Q40 88 38 98" stroke="#5a7a4e" strokeWidth="2" strokeLinecap="round" fill="none" />
+                    <path d="M39 78 Q36 76 34 72" stroke="#5a7a4e" strokeWidth="1.5" strokeLinecap="round" fill="none" />
                     {/* Thorns */}
-                    <path d="M39 70 Q36 68 35 66" stroke="#2d8a2d" strokeWidth="1.2" strokeLinecap="round" />
-                    <path d="M40 82 Q43 80 44 78" stroke="#2d8a2d" strokeWidth="1.2" strokeLinecap="round" />
-                    {/* Leaves — solid green */}
-                    <path d="M34 72 Q26 68 22 72 Q26 76 34 72Z" fill="#4aad4a" stroke="#2d8a2d" strokeWidth="0.8" />
-                    <path d="M34 72 L28 72" stroke="#2d8a2d" strokeWidth="0.6" strokeLinecap="round" />
-                    <path d="M44 82 Q52 78 56 82 Q52 86 44 82Z" fill="#3d9d3d" stroke="#2d8a2d" strokeWidth="0.8" />
-                    <path d="M44 82 L50 82" stroke="#2d8a2d" strokeWidth="0.6" strokeLinecap="round" />
+                    <path d="M39 70 Q36 68 35 66" stroke="#5a7a4e" strokeWidth="1.2" strokeLinecap="round" />
+                    <path d="M40 82 Q43 80 44 78" stroke="#5a7a4e" strokeWidth="1.2" strokeLinecap="round" />
+                    {/* Leaves — sage green */}
+                    <path d="M34 72 Q26 68 22 72 Q26 76 34 72Z" fill="#7a9a6a" stroke="#5a7a4e" strokeWidth="0.8" />
+                    <path d="M34 72 L28 72" stroke="#5a7a4e" strokeWidth="0.6" strokeLinecap="round" />
+                    <path d="M44 82 Q52 78 56 82 Q52 86 44 82Z" fill="#6a8a5a" stroke="#5a7a4e" strokeWidth="0.8" />
+                    <path d="M44 82 L50 82" stroke="#5a7a4e" strokeWidth="0.6" strokeLinecap="round" />
                 </svg>
 
-                {/* 🐱 Sitting cat — vivid, solid colors */}
+                {/* 🐱 Sitting cat — muted olive/taupe tones */}
                 <svg className="doodle-interactive" style={{
                     position: "absolute", left: "5%", top: "58%",
                     width: "clamp(50px, 14vw, 65px)",
@@ -590,44 +590,44 @@ export function JournalHero() {
                 }} viewBox="0 0 70 100" fill="none">
                     {/* Body */}
                     <path d="M35 45 Q50 42 55 55 Q58 68 50 78 Q42 86 35 86 Q28 86 20 78 Q12 68 15 55 Q20 42 35 45Z"
-                        fill="#f0c088" stroke="#c49050" strokeWidth="1.5" strokeLinecap="round" />
+                        fill="#b5a890" stroke="#8a7a60" strokeWidth="1.5" strokeLinecap="round" />
                     {/* Head */}
-                    <ellipse cx="35" cy="32" rx="14" ry="12" fill="#f5d0a0" stroke="#c49050" strokeWidth="1.5" />
+                    <ellipse cx="35" cy="32" rx="14" ry="12" fill="#c0b098" stroke="#8a7a60" strokeWidth="1.5" />
                     {/* Left ear */}
-                    <path d="M23 26 L17 12 L28 22" stroke="#c49050" strokeWidth="1.5" strokeLinejoin="round" fill="#f0c088" />
-                    <path d="M20 18 L25 22" stroke="#e88090" strokeWidth="1" strokeLinecap="round" />
+                    <path d="M23 26 L17 12 L28 22" stroke="#8a7a60" strokeWidth="1.5" strokeLinejoin="round" fill="#b5a890" />
+                    <path d="M20 18 L25 22" stroke="#b0927a" strokeWidth="1" strokeLinecap="round" />
                     {/* Right ear */}
-                    <path d="M47 26 L53 12 L42 22" stroke="#c49050" strokeWidth="1.5" strokeLinejoin="round" fill="#f0c088" />
-                    <path d="M50 18 L45 22" stroke="#e88090" strokeWidth="1" strokeLinecap="round" />
+                    <path d="M47 26 L53 12 L42 22" stroke="#8a7a60" strokeWidth="1.5" strokeLinejoin="round" fill="#b5a890" />
+                    <path d="M50 18 L45 22" stroke="#b0927a" strokeWidth="1" strokeLinecap="round" />
                     {/* Eyes */}
-                    <ellipse cx="29" cy="31" rx="2.8" ry="2.2" fill="#3a3025" />
+                    <ellipse cx="29" cy="31" rx="2.8" ry="2.2" fill="#3a3a30" />
                     <circle cx="28" cy="30.3" r="1" fill="#fff" opacity="0.8" />
-                    <ellipse cx="41" cy="31" rx="2.8" ry="2.2" fill="#3a3025" />
+                    <ellipse cx="41" cy="31" rx="2.8" ry="2.2" fill="#3a3a30" />
                     <circle cx="40" cy="30.3" r="1" fill="#fff" opacity="0.8" />
                     {/* Nose */}
-                    <path d="M34 35 L36 35 L35 36.5 Z" fill="#e8627a" />
+                    <path d="M34 35 L36 35 L35 36.5 Z" fill="#b0927a" />
                     {/* Mouth */}
-                    <path d="M35 36.5 Q32 39 29 38" stroke="#c49050" strokeWidth="0.8" fill="none" strokeLinecap="round" />
-                    <path d="M35 36.5 Q38 39 41 38" stroke="#c49050" strokeWidth="0.8" fill="none" strokeLinecap="round" />
+                    <path d="M35 36.5 Q32 39 29 38" stroke="#8a7a60" strokeWidth="0.8" fill="none" strokeLinecap="round" />
+                    <path d="M35 36.5 Q38 39 41 38" stroke="#8a7a60" strokeWidth="0.8" fill="none" strokeLinecap="round" />
                     {/* Whiskers */}
-                    <path d="M12 30 L27 32" stroke="#c49050" strokeWidth="0.7" opacity="0.6" strokeLinecap="round" />
-                    <path d="M10 34 L27 34" stroke="#c49050" strokeWidth="0.7" opacity="0.5" strokeLinecap="round" />
-                    <path d="M14 38 L28 36" stroke="#c49050" strokeWidth="0.7" opacity="0.4" strokeLinecap="round" />
-                    <path d="M58 30 L43 32" stroke="#c49050" strokeWidth="0.7" opacity="0.6" strokeLinecap="round" />
-                    <path d="M60 34 L43 34" stroke="#c49050" strokeWidth="0.7" opacity="0.5" strokeLinecap="round" />
-                    <path d="M56 38 L42 36" stroke="#c49050" strokeWidth="0.7" opacity="0.4" strokeLinecap="round" />
+                    <path d="M12 30 L27 32" stroke="#8a7a60" strokeWidth="0.7" opacity="0.6" strokeLinecap="round" />
+                    <path d="M10 34 L27 34" stroke="#8a7a60" strokeWidth="0.7" opacity="0.5" strokeLinecap="round" />
+                    <path d="M14 38 L28 36" stroke="#8a7a60" strokeWidth="0.7" opacity="0.4" strokeLinecap="round" />
+                    <path d="M58 30 L43 32" stroke="#8a7a60" strokeWidth="0.7" opacity="0.6" strokeLinecap="round" />
+                    <path d="M60 34 L43 34" stroke="#8a7a60" strokeWidth="0.7" opacity="0.5" strokeLinecap="round" />
+                    <path d="M56 38 L42 36" stroke="#8a7a60" strokeWidth="0.7" opacity="0.4" strokeLinecap="round" />
                     {/* Front paws */}
-                    <path d="M25 78 Q22 86 20 90 Q22 92 26 90 Q28 86 28 80" stroke="#c49050" strokeWidth="1.2" fill="#f5d0a0" strokeLinecap="round" />
-                    <path d="M45 78 Q48 86 50 90 Q48 92 44 90 Q42 86 42 80" stroke="#c49050" strokeWidth="1.2" fill="#f5d0a0" strokeLinecap="round" />
+                    <path d="M25 78 Q22 86 20 90 Q22 92 26 90 Q28 86 28 80" stroke="#8a7a60" strokeWidth="1.2" fill="#c0b098" strokeLinecap="round" />
+                    <path d="M45 78 Q48 86 50 90 Q48 92 44 90 Q42 86 42 80" stroke="#8a7a60" strokeWidth="1.2" fill="#c0b098" strokeLinecap="round" />
                     {/* Paw pads */}
-                    <circle cx="23" cy="89" r="1.2" fill="#e88090" />
-                    <circle cx="47" cy="89" r="1.2" fill="#e88090" />
+                    <circle cx="23" cy="89" r="1.2" fill="#b0927a" />
+                    <circle cx="47" cy="89" r="1.2" fill="#b0927a" />
                     {/* Tail */}
-                    <path d="M50 75 Q60 72 62 62 Q64 52 58 48 Q55 46 54 50" stroke="#c49050" strokeWidth="2" fill="none" strokeLinecap="round" />
+                    <path d="M50 75 Q60 72 62 62 Q64 52 58 48 Q55 46 54 50" stroke="#8a7a60" strokeWidth="2" fill="none" strokeLinecap="round" />
                     {/* Belly stripes */}
-                    <path d="M30 55 Q35 52 40 55" stroke="#daa860" strokeWidth="0.8" strokeLinecap="round" />
-                    <path d="M28 62 Q35 58 42 62" stroke="#daa860" strokeWidth="0.8" strokeLinecap="round" />
-                    <path d="M26 69 Q35 65 44 69" stroke="#daa860" strokeWidth="0.8" strokeLinecap="round" />
+                    <path d="M30 55 Q35 52 40 55" stroke="#a09070" strokeWidth="0.8" strokeLinecap="round" />
+                    <path d="M28 62 Q35 58 42 62" stroke="#a09070" strokeWidth="0.8" strokeLinecap="round" />
+                    <path d="M26 69 Q35 65 44 69" stroke="#a09070" strokeWidth="0.8" strokeLinecap="round" />
                 </svg>
 
                 {/* ── SVG ink marks ── */}
@@ -709,6 +709,6 @@ export function JournalHero() {
                     </span>
                 </div>
             </div>
-        </section>
+        </section >
     );
 }
