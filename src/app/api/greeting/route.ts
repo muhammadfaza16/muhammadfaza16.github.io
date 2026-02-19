@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { GoogleGenAI } from "@google/genai";
 
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+export const dynamic = "force-dynamic";
 
 export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
@@ -11,6 +11,8 @@ export async function GET(request: Request) {
     const hour = searchParams.get("hour") || "12";
 
     try {
+        if (!process.env.GEMINI_API_KEY) throw new Error("No API key");
+        const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
         const timeOfDay = Number(hour) < 12 ? "morning" : Number(hour) < 17 ? "afternoon" : Number(hour) < 21 ? "evening" : "night";
 
         const prompt = `You are generating a short, personal daily greeting for a developer's personal website widget. The greeting should feel warm, human and poetic — like a message from a thoughtful friend.
