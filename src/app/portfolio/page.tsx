@@ -3,31 +3,65 @@
 import React from "react";
 import Link from "next/link";
 import { AtmosphericBackground } from "@/components/AtmosphericBackground";
-import { Github, Linkedin, Twitter, ArrowUpRight, Mail } from "lucide-react";
+import { Github, Linkedin, Twitter, Mail, ChevronLeft } from "lucide-react";
 import { motion } from "framer-motion";
 
 export default function PortfolioPage() {
     return (
         <AtmosphericBackground variant="sage">
-            <main className="min-h-screen flex flex-col items-center justify-center p-6 relative overflow-hidden">
+            <main style={{
+                minHeight: "100svh",
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                justifyContent: "center",
+                padding: "1.5rem",
+                position: "relative",
+            }}>
 
-                {/* Back Button (Floating Top Left) */}
-                <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ delay: 0.5 }}
-                    className="absolute top-6 left-6"
-                >
-                    <Link href="/starlight" className="text-sm font-medium text-ink-secondary hover:text-ink-primary transition-colors no-underline">
-                        ← back
+                {/* Back Button */}
+                <div style={{
+                    position: "fixed",
+                    top: "24px",
+                    left: "24px",
+                    zIndex: 40,
+                }}>
+                    <Link
+                        href="/starlight"
+                        prefetch={false}
+                        aria-label="Go Back"
+                        style={{
+                            width: "40px",
+                            height: "40px",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            backgroundColor: "rgba(30, 30, 30, 0.4)",
+                            backdropFilter: "blur(12px)",
+                            WebkitBackdropFilter: "blur(12px)",
+                            borderRadius: "50%",
+                            color: "white",
+                            transition: "all 0.2s ease",
+                            border: "1px solid rgba(255, 255, 255, 0.1)",
+                            textDecoration: "none",
+                        }}
+                    >
+                        <ChevronLeft size={24} />
                     </Link>
-                </motion.div>
+                </div>
 
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.6, ease: "easeOut" }}
-                    className="flex flex-col items-center text-center max-w-2xl w-full"
+                    style={{
+                        display: "flex",
+                        flexDirection: "column",
+                        alignItems: "center",
+                        textAlign: "center",
+                        maxWidth: "640px",
+                        width: "100%",
+                    }}
                 >
                     {/* Name */}
                     <h1 style={{
@@ -36,7 +70,8 @@ export default function PortfolioPage() {
                         letterSpacing: "-0.03em",
                         color: "var(--ink-primary)",
                         lineHeight: 1.1,
-                        marginBottom: "0.5rem"
+                        marginBottom: "0.5rem",
+                        margin: 0,
                     }}>
                         Muhammad Faza
                     </h1>
@@ -45,18 +80,22 @@ export default function PortfolioPage() {
                     <p style={{
                         fontSize: "clamp(1.1rem, 4vw, 1.25rem)",
                         color: "var(--ink-secondary)",
-                        fontFamily: "var(--font-nothing), cursive", // Use handwritten font for "builder" feel? or just serif
-                        // Reference used a clean serif/sans mix. 
-                        // Let's stick to standard sans but italic for "a builder."
                         fontStyle: "italic",
                         opacity: 0.8,
-                        marginBottom: "3rem"
+                        marginBottom: "3rem",
+                        marginTop: "0.5rem",
                     }}>
                         a builder.
                     </p>
 
                     {/* Navigation Links */}
-                    <nav className="flex flex-wrap justify-center gap-6 md:gap-10 mb-12">
+                    <nav style={{
+                        display: "flex",
+                        flexWrap: "wrap",
+                        justifyContent: "center",
+                        gap: "1.5rem",
+                        marginBottom: "3rem",
+                    }}>
                         {[
                             { name: "blog", href: "/blog" },
                             { name: "projects", href: "/projects" },
@@ -71,21 +110,30 @@ export default function PortfolioPage() {
                             >
                                 <Link
                                     href={item.href}
-                                    className="text-lg font-medium text-ink-primary hover:text-ink-secondary transition-all no-underline relative group"
+                                    style={{
+                                        fontSize: "1.05rem",
+                                        fontWeight: 500,
+                                        color: "var(--ink-primary)",
+                                        textDecoration: "none",
+                                        padding: "0.3rem 0",
+                                        borderBottom: "1.5px solid transparent",
+                                        transition: "border-color 0.2s ease",
+                                    }}
+                                    onMouseEnter={e => (e.currentTarget.style.borderColor = "var(--ink-primary)")}
+                                    onMouseLeave={e => (e.currentTarget.style.borderColor = "transparent")}
                                 >
                                     {item.name}
-                                    <span className="absolute -bottom-1 left-0 w-0 h-[1px] bg-ink-primary transition-all group-hover:w-full opacity-50"></span>
                                 </Link>
                             </motion.div>
                         ))}
                     </nav>
 
                     {/* Social Icons */}
-                    <div className="flex gap-6 mt-4">
+                    <div style={{ display: "flex", gap: "1rem", marginTop: "1rem" }}>
                         {[
                             { icon: Github, href: "https://github.com/muhammadfaza16" },
                             { icon: Linkedin, href: "https://linkedin.com" },
-                            { icon: Twitter, href: "https://twitter.com" }, // Using Twitter icon for X
+                            { icon: Twitter, href: "https://twitter.com" },
                             { icon: Mail, href: "mailto:hello@muhammadfaza.com" }
                         ].map((Item, i) => (
                             <motion.a
@@ -96,7 +144,21 @@ export default function PortfolioPage() {
                                 initial={{ opacity: 0, scale: 0.8 }}
                                 animate={{ opacity: 1, scale: 1 }}
                                 transition={{ delay: 0.4 + (i * 0.1) }}
-                                className="p-3 rounded-full bg-black/5 hover:bg-black/10 text-ink-primary transition-all border border-black/5 backdrop-blur-sm"
+                                style={{
+                                    padding: "0.65rem",
+                                    borderRadius: "50%",
+                                    backgroundColor: "rgba(0,0,0,0.05)",
+                                    border: "1px solid rgba(0,0,0,0.06)",
+                                    backdropFilter: "blur(8px)",
+                                    color: "var(--ink-primary)",
+                                    display: "flex",
+                                    alignItems: "center",
+                                    justifyContent: "center",
+                                    transition: "background-color 0.2s ease, transform 0.15s ease",
+                                    textDecoration: "none",
+                                }}
+                                onMouseEnter={e => { e.currentTarget.style.backgroundColor = "rgba(0,0,0,0.1)"; e.currentTarget.style.transform = "scale(1.1)"; }}
+                                onMouseLeave={e => { e.currentTarget.style.backgroundColor = "rgba(0,0,0,0.05)"; e.currentTarget.style.transform = "scale(1)"; }}
                             >
                                 <Item.icon size={20} strokeWidth={2} />
                             </motion.a>

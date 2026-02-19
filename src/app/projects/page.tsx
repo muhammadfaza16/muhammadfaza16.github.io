@@ -3,7 +3,7 @@
 import React from "react";
 import Link from "next/link";
 import { AtmosphericBackground } from "@/components/AtmosphericBackground";
-import { Github, Globe, ArrowUpRight } from "lucide-react";
+import { Github, Globe, ChevronLeft } from "lucide-react";
 import { motion } from "framer-motion";
 
 const PROJECTS = [
@@ -36,57 +36,124 @@ const PROJECTS = [
 export default function ProjectsPage() {
     return (
         <AtmosphericBackground variant="sage">
-            <main className="min-h-screen p-6 md:p-12 relative">
+            <main style={{
+                minHeight: "100svh",
+                padding: "1.5rem",
+                position: "relative",
+            }}>
 
                 {/* Back Button */}
-                <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ delay: 0.2 }}
-                    className="fixed top-6 left-6 z-20"
-                >
-                    <Link href="/portfolio" className="text-sm font-medium text-ink-secondary hover:text-ink-primary transition-colors no-underline">
-                        ← portfolio
+                <div style={{
+                    position: "fixed",
+                    top: "24px",
+                    left: "24px",
+                    zIndex: 40,
+                }}>
+                    <Link
+                        href="/portfolio"
+                        prefetch={false}
+                        aria-label="Go Back"
+                        style={{
+                            width: "40px",
+                            height: "40px",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            backgroundColor: "rgba(30, 30, 30, 0.4)",
+                            backdropFilter: "blur(12px)",
+                            WebkitBackdropFilter: "blur(12px)",
+                            borderRadius: "50%",
+                            color: "white",
+                            transition: "all 0.2s ease",
+                            border: "1px solid rgba(255, 255, 255, 0.1)",
+                            textDecoration: "none",
+                        }}
+                    >
+                        <ChevronLeft size={24} />
                     </Link>
-                </motion.div>
+                </div>
 
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.6 }}
-                    className="max-w-4xl mx-auto pt-20 md:pt-32"
+                    style={{
+                        maxWidth: "720px",
+                        margin: "0 auto",
+                        paddingTop: "5rem",
+                    }}
                 >
-                    <h1 className="text-3xl md:text-5xl font-bold text-ink-primary mb-2 tracking-tight">Projects</h1>
-                    <p className="text-ink-secondary mb-12 italic opacity-80">Selected works and experiments.</p>
+                    <h1 style={{
+                        fontSize: "clamp(1.8rem, 6vw, 2.8rem)",
+                        fontWeight: 800,
+                        color: "var(--ink-primary)",
+                        letterSpacing: "-0.03em",
+                        marginBottom: "0.3rem",
+                    }}>Projects</h1>
+                    <p style={{
+                        color: "var(--ink-secondary)",
+                        fontStyle: "italic",
+                        opacity: 0.8,
+                        marginBottom: "2.5rem",
+                        fontSize: "0.95rem",
+                    }}>Selected works and experiments.</p>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div style={{
+                        display: "grid",
+                        gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))",
+                        gap: "1.2rem",
+                    }}>
                         {PROJECTS.map((project, i) => (
                             <motion.div
                                 key={project.title}
                                 initial={{ opacity: 0, scale: 0.95 }}
                                 animate={{ opacity: 1, scale: 1 }}
                                 transition={{ delay: 0.1 + (i * 0.1) }}
-                                className="group relative bg-white/40 backdrop-blur-md rounded-2xl p-6 border border-white/20 hover:bg-white/60 transition-all hover:shadow-lg hover:-translate-y-1"
+                                style={{
+                                    background: "rgba(255,255,255,0.35)",
+                                    backdropFilter: "blur(16px)",
+                                    WebkitBackdropFilter: "blur(16px)",
+                                    borderRadius: "16px",
+                                    padding: "1.25rem",
+                                    border: "1px solid rgba(255,255,255,0.18)",
+                                    transition: "transform 0.2s ease, box-shadow 0.2s ease",
+                                }}
+                                onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-4px)"; e.currentTarget.style.boxShadow = "0 12px 30px rgba(0,0,0,0.1)"; }}
+                                onMouseLeave={e => { e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = "none"; }}
                             >
-                                <div className="flex justify-between items-start mb-4">
-                                    <h3 className="text-xl font-bold text-ink-primary">{project.title}</h3>
-                                    <div className="flex gap-3">
-                                        <a href={project.links.github} className="text-ink-secondary hover:text-ink-primary transition-colors">
+                                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "0.8rem" }}>
+                                    <h3 style={{ fontSize: "1.15rem", fontWeight: 700, color: "var(--ink-primary)", margin: 0 }}>{project.title}</h3>
+                                    <div style={{ display: "flex", gap: "0.6rem" }}>
+                                        <a href={project.links.github} style={{ color: "var(--ink-secondary)", transition: "color 0.2s" }}>
                                             <Github size={18} />
                                         </a>
-                                        <a href={project.links.demo} className="text-ink-secondary hover:text-ink-primary transition-colors">
+                                        <a href={project.links.demo} style={{ color: "var(--ink-secondary)", transition: "color 0.2s" }}>
                                             <Globe size={18} />
                                         </a>
                                     </div>
                                 </div>
 
-                                <p className="text-ink-secondary mb-6 text-sm leading-relaxed">
+                                <p style={{
+                                    color: "var(--ink-secondary)",
+                                    fontSize: "0.85rem",
+                                    lineHeight: 1.6,
+                                    marginBottom: "1rem",
+                                }}>
                                     {project.description}
                                 </p>
 
-                                <div className="flex flex-wrap gap-2 mt-auto">
+                                <div style={{ display: "flex", flexWrap: "wrap", gap: "0.4rem" }}>
                                     {project.tags.map(tag => (
-                                        <span key={tag} className="text-xs font-mono font-medium text-ink-muted bg-white/50 px-2 py-1 rounded-md border border-white/30">
+                                        <span key={tag} style={{
+                                            fontSize: "0.7rem",
+                                            fontFamily: "monospace",
+                                            fontWeight: 600,
+                                            color: "var(--ink-muted)",
+                                            backgroundColor: "rgba(255,255,255,0.45)",
+                                            padding: "0.2rem 0.5rem",
+                                            borderRadius: "6px",
+                                            border: "1px solid rgba(255,255,255,0.25)",
+                                        }}>
                                             {tag}
                                         </span>
                                     ))}

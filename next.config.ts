@@ -21,9 +21,6 @@ const withPWA = require("next-pwa")({
 
 const nextConfig: NextConfig = {
   /* config options here */
-  // Only use static export for production builds
-  // API routes work in development for the CMS
-  output: process.env.NODE_ENV === 'production' ? 'export' : undefined,
   images: {
     unoptimized: true,
     qualities: [75, 90],

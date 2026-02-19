@@ -3,6 +3,7 @@
 import React from "react";
 import Link from "next/link";
 import { AtmosphericBackground } from "@/components/AtmosphericBackground";
+import { ChevronLeft } from "lucide-react";
 import { motion } from "framer-motion";
 
 const EXPERIENCE = [
@@ -41,50 +42,134 @@ const EXPERIENCE = [
 export default function ExperiencePage() {
     return (
         <AtmosphericBackground variant="sage">
-            <main className="min-h-screen p-6 md:p-12 relative">
+            <main style={{
+                minHeight: "100svh",
+                padding: "1.5rem",
+                position: "relative",
+            }}>
 
                 {/* Back Button */}
-                <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ delay: 0.2 }}
-                    className="fixed top-6 left-6 z-20"
-                >
-                    <Link href="/portfolio" className="text-sm font-medium text-ink-secondary hover:text-ink-primary transition-colors no-underline">
-                        ← portfolio
+                <div style={{
+                    position: "fixed",
+                    top: "24px",
+                    left: "24px",
+                    zIndex: 40,
+                }}>
+                    <Link
+                        href="/portfolio"
+                        prefetch={false}
+                        aria-label="Go Back"
+                        style={{
+                            width: "40px",
+                            height: "40px",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            backgroundColor: "rgba(30, 30, 30, 0.4)",
+                            backdropFilter: "blur(12px)",
+                            WebkitBackdropFilter: "blur(12px)",
+                            borderRadius: "50%",
+                            color: "white",
+                            transition: "all 0.2s ease",
+                            border: "1px solid rgba(255, 255, 255, 0.1)",
+                            textDecoration: "none",
+                        }}
+                    >
+                        <ChevronLeft size={24} />
                     </Link>
-                </motion.div>
+                </div>
 
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.6 }}
-                    className="max-w-2xl mx-auto pt-20 md:pt-32"
+                    style={{
+                        maxWidth: "600px",
+                        margin: "0 auto",
+                        paddingTop: "5rem",
+                    }}
                 >
-                    <h1 className="text-3xl md:text-5xl font-bold text-ink-primary mb-2 tracking-tight">Experience</h1>
-                    <p className="text-ink-secondary mb-12 italic opacity-80">My professional journey so far.</p>
+                    <h1 style={{
+                        fontSize: "clamp(1.8rem, 6vw, 2.8rem)",
+                        fontWeight: 800,
+                        color: "var(--ink-primary)",
+                        letterSpacing: "-0.03em",
+                        marginBottom: "0.3rem",
+                    }}>Experience</h1>
+                    <p style={{
+                        color: "var(--ink-secondary)",
+                        fontStyle: "italic",
+                        opacity: 0.8,
+                        marginBottom: "2.5rem",
+                        fontSize: "0.95rem",
+                    }}>My professional journey so far.</p>
 
-                    <div className="relative border-l border-ink-primary/20 ml-3 md:ml-6 pl-8 md:pl-12 space-y-12">
+                    {/* Timeline */}
+                    <div style={{
+                        position: "relative",
+                        borderLeft: "2px solid rgba(0,0,0,0.1)",
+                        marginLeft: "0.8rem",
+                        paddingLeft: "2rem",
+                        display: "flex",
+                        flexDirection: "column",
+                        gap: "2.5rem",
+                    }}>
                         {EXPERIENCE.map((job, i) => (
                             <motion.div
                                 key={i}
                                 initial={{ opacity: 0, x: -10 }}
                                 animate={{ opacity: 1, x: 0 }}
                                 transition={{ delay: 0.2 + (i * 0.1) }}
-                                className="relative"
+                                style={{ position: "relative" }}
                             >
                                 {/* Timeline Dot */}
-                                <div className="absolute -left-[41px] md:-left-[57px] top-2 w-4 h-4 rounded-full bg-paper-bg border-2 border-ink-primary"></div>
+                                <div style={{
+                                    position: "absolute",
+                                    left: "-2.6rem",
+                                    top: "0.4rem",
+                                    width: "12px",
+                                    height: "12px",
+                                    borderRadius: "50%",
+                                    backgroundColor: "var(--paper-bg, #f5f2eb)",
+                                    border: "2.5px solid var(--ink-primary)",
+                                }} />
 
-                                <div className="flex flex-col sm:flex-row sm:items-baseline justify-between mb-2">
-                                    <h3 className="text-xl font-bold text-ink-primary">{job.role}</h3>
-                                    <span className="font-mono text-sm text-ink-muted">{job.date}</span>
+                                <div style={{
+                                    display: "flex",
+                                    flexDirection: "column",
+                                    gap: "0.15rem",
+                                    marginBottom: "0.5rem",
+                                }}>
+                                    <h3 style={{
+                                        fontSize: "1.15rem",
+                                        fontWeight: 700,
+                                        color: "var(--ink-primary)",
+                                        margin: 0,
+                                    }}>{job.role}</h3>
+                                    <div style={{
+                                        display: "flex",
+                                        justifyContent: "space-between",
+                                        alignItems: "center",
+                                    }}>
+                                        <span style={{ color: "var(--ink-secondary)", fontWeight: 500, fontSize: "0.9rem" }}>{job.company}</span>
+                                        <span style={{ fontFamily: "monospace", fontSize: "0.75rem", color: "var(--ink-muted)" }}>{job.date}</span>
+                                    </div>
                                 </div>
-                                <div className="text-ink-secondary font-medium mb-4">{job.company}</div>
 
-                                <ul className="list-disc list-outside ml-4 space-y-2 text-ink-secondary/90 leading-relaxed">
+                                <ul style={{
+                                    listStyle: "disc",
+                                    paddingLeft: "1.2rem",
+                                    margin: 0,
+                                    display: "flex",
+                                    flexDirection: "column",
+                                    gap: "0.4rem",
+                                }}>
                                     {job.description.map((desc, j) => (
-                                        <li key={j}>{desc}</li>
+                                        <li key={j} style={{
+                                            color: "var(--ink-secondary)",
+                                            fontSize: "0.85rem",
+                                            lineHeight: 1.6,
+                                        }}>{desc}</li>
                                     ))}
                                 </ul>
                             </motion.div>
