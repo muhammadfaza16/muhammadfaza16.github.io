@@ -118,12 +118,15 @@ export function StarlightBentoGrid() {
             alignItems: "center",
             width: "100%",
         }}>
-            <section style={{
-                padding: "0 1.5rem",
-                width: "100%",
-                maxWidth: "380px", // Reduced from 420px for closer clustering
-                paddingBottom: "3rem"
-            }}>
+            <motion.section
+                animate={{ x: [0, -15, 6, -2, 0] }}
+                transition={{ duration: 0.8, repeat: Infinity, repeatDelay: 10, ease: "easeInOut" }}
+                style={{
+                    padding: "0 1.5rem",
+                    width: "100%",
+                    maxWidth: "380px", // Reduced from 420px for closer clustering
+                    paddingBottom: "3rem"
+                }}>
                 <div style={{
                     display: "grid",
                     gridTemplateColumns: "repeat(3, 1fr)",
@@ -133,7 +136,7 @@ export function StarlightBentoGrid() {
                         <AppIcon key={idx} {...app} delay={0.1 + idx * 0.06} />
                     ))}
                 </div>
-            </section>
+            </motion.section>
         </div>
     );
 }
