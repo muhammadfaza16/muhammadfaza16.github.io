@@ -1,17 +1,13 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import Link from "next/link";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import {
-    PenTool,
-    Book,
-    Compass,
-    Briefcase,
-    Gift,
-    Library,
-    ChevronLeft,
-    ChevronRight
+    PenTool, Book, Compass, Briefcase, Gift, Library,
+    ChevronLeft, ChevronRight,
+    Terminal, Cpu, Megaphone, Lightbulb, Monitor, FileText,
+    Film, Music, Zap, Lock, Backpack
 } from "lucide-react";
 
 interface AppIconProps {
@@ -103,8 +99,9 @@ const AppIcon = ({ title, href, icon, iconColor, delay = 0 }: AppIconProps) => {
 };
 
 export function StarlightBentoGrid() {
-    // Dark icons with vivid glyphs for Starlight
-    const apps = [
+    const [activeDock, setActiveDock] = useState(0);
+
+    const dock1Apps = [
         { title: "Bookshelf", href: "/bookshelf", icon: <Book />, iconColor: "#FF9F0A" }, // Orange
         { title: "Writing", href: "/blog", icon: <PenTool />, iconColor: "#FFD60A" }, // Gold
         { title: "Curation", href: "/curation", icon: <Library />, iconColor: "#64D2FF" }, // Teal/Blue
@@ -112,6 +109,33 @@ export function StarlightBentoGrid() {
         { title: "Portfolio", href: "/portfolio", icon: <Briefcase />, iconColor: "#5E5CE6" }, // Indigo
         { title: "Wishlist", href: "/wishlist", icon: <Gift />, iconColor: "#FF375F" }, // Pink
     ];
+
+    const dock2Apps = [
+        { title: "Projects", href: "/projects", icon: <Terminal />, iconColor: "#0A84FF" }, // Blue
+        { title: "AI Agents", href: "/journey/ai-agent", icon: <Cpu />, iconColor: "#BF5AF2" }, // Purple
+        { title: "Brand", href: "/journey/brand-building", icon: <Megaphone />, iconColor: "#FF453A" }, // Red
+        { title: "Insights", href: "/insights", icon: <Lightbulb />, iconColor: "#FFD60A" }, // Gold
+        { title: "Workspace", href: "/workspace", icon: <Monitor />, iconColor: "#8E8E93" }, // Gray
+        { title: "Resume", href: "/resume", icon: <FileText />, iconColor: "#32D74B" }, // Green
+    ];
+
+    const dock3Apps = [
+        { title: "Movies", href: "/movies", icon: <Film />, iconColor: "#FF453A" }, // Red
+        { title: "Playlist", href: "/playlist", icon: <Music />, iconColor: "#FF2D55" }, // Pink-Red
+        { title: "Now", href: "/now", icon: <Zap />, iconColor: "#FF9F0A" }, // Orange
+        { title: "Secrets", href: "/secrets", icon: <Lock />, iconColor: "#8E8E93" }, // Gray
+        { title: "Uses", href: "/uses", icon: <Backpack />, iconColor: "#5E5CE6" }, // Indigo
+    ];
+
+    const allDocks = [dock1Apps, dock2Apps, dock3Apps];
+
+    const handlePrev = () => {
+        setActiveDock((prev) => (prev > 0 ? prev - 1 : allDocks.length - 1));
+    };
+
+    const handleNext = () => {
+        setActiveDock((prev) => (prev < allDocks.length - 1 ? prev + 1 : 0));
+    };
 
     return (
         <div style={{
@@ -122,19 +146,22 @@ export function StarlightBentoGrid() {
             position: "relative", // For absolute positioning the chevrons
         }}>
             {/* Left Chevron */}
-            <div style={{
-                position: "absolute",
-                left: "-1rem",
-                top: "calc(50% - 1.5rem)", // Offset by half of the container's paddingBottom
-                transform: "translateY(-50%)",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                color: "rgba(255, 255, 255, 0.4)", // Softer transparent white
-                pointerEvents: "none",
-                zIndex: 10,
-            }}>
-                <ChevronLeft size={28} strokeWidth={1.5} />
+            <div
+                onClick={handlePrev}
+                style={{
+                    position: "absolute",
+                    left: "-1rem",
+                    top: "calc(50% - 1.5rem)", // Offset by half of the container's paddingBottom
+                    transform: "translateY(-50%)",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    color: "rgba(255, 255, 255, 0.4)", // Softer transparent white
+                    pointerEvents: "auto",
+                    cursor: "pointer",
+                    zIndex: 10,
+                }}>
+                <ChevronLeft size={28} strokeWidth={1.5} className="hover:scale-110 active:scale-95 transition-transform" />
             </div>
 
             <section style={{
@@ -143,31 +170,43 @@ export function StarlightBentoGrid() {
                 maxWidth: "380px", // Reduced from 420px for closer clustering
                 paddingBottom: "3rem"
             }}>
-                <div style={{
-                    display: "grid",
-                    gridTemplateColumns: "repeat(3, 1fr)",
-                    gap: "1.5rem 0.5rem", // Reduced gap to match Home Screen dock clustered feel
-                }}>
-                    {apps.map((app, idx) => (
-                        <AppIcon key={idx} {...app} delay={0.1 + idx * 0.06} />
-                    ))}
-                </div>
+                <AnimatePresence mode="wait">
+                    <motion.div
+                        key={activeDock}
+                        initial={{ opacity: 0, x: 20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        exit={{ opacity: 0, x: -20 }}
+                        transition={{ duration: 0.25, type: "spring", stiffness: 300, damping: 25 }}
+                        style={{
+                            display: "grid",
+                            gridTemplateColumns: "repeat(3, 1fr)",
+                            gap: "1.5rem 0.5rem", // Reduced gap to match Home Screen dock clustered feel
+                        }}
+                    >
+                        {allDocks[activeDock].map((app, idx) => (
+                            <AppIcon key={idx} {...app} delay={0.05 + idx * 0.04} />
+                        ))}
+                    </motion.div>
+                </AnimatePresence>
             </section>
 
             {/* Right Chevron */}
-            <div style={{
-                position: "absolute",
-                right: "-1rem",
-                top: "calc(50% - 1.5rem)", // Offset by half of the container's paddingBottom
-                transform: "translateY(-50%)",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                color: "rgba(255, 255, 255, 0.4)", // Softer transparent white
-                pointerEvents: "none",
-                zIndex: 10,
-            }}>
-                <ChevronRight size={28} strokeWidth={1.5} />
+            <div
+                onClick={handleNext}
+                style={{
+                    position: "absolute",
+                    right: "-1rem",
+                    top: "calc(50% - 1.5rem)", // Offset by half of the container's paddingBottom
+                    transform: "translateY(-50%)",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    color: "rgba(255, 255, 255, 0.4)", // Softer transparent white
+                    pointerEvents: "auto",
+                    cursor: "pointer",
+                    zIndex: 10,
+                }}>
+                <ChevronRight size={28} strokeWidth={1.5} className="hover:scale-110 active:scale-95 transition-transform" />
             </div>
         </div>
     );
