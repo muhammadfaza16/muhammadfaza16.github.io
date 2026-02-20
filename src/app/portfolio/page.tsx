@@ -3,7 +3,7 @@
 import React from "react";
 import Link from "next/link";
 import { AtmosphericBackground } from "@/components/AtmosphericBackground";
-import { Github, Linkedin, Twitter, Mail, ChevronLeft } from "lucide-react";
+import { Github, Twitter, Mail, ChevronLeft, Instagram } from "lucide-react";
 import { motion } from "framer-motion";
 
 export default function PortfolioPage() {
@@ -31,22 +31,28 @@ export default function PortfolioPage() {
                         prefetch={false}
                         aria-label="Go Back"
                         style={{
-                            width: "40px",
-                            height: "40px",
+                            width: "44px", // Standard iOS touch target minimum
+                            height: "44px",
                             display: "flex",
                             alignItems: "center",
                             justifyContent: "center",
-                            backgroundColor: "rgba(30, 30, 30, 0.4)",
-                            backdropFilter: "blur(12px)",
-                            WebkitBackdropFilter: "blur(12px)",
+                            backgroundColor: "transparent", // Remove glass background
                             borderRadius: "50%",
-                            color: "white",
+                            color: "var(--ink-secondary)", // Slightly muted
                             transition: "all 0.2s ease",
-                            border: "1px solid rgba(255, 255, 255, 0.1)",
+                            border: "none", // Remove border
                             textDecoration: "none",
                         }}
+                        onMouseEnter={e => {
+                            e.currentTarget.style.color = "var(--ink-primary)";
+                            e.currentTarget.style.transform = "translateX(-4px)"; // iOS style slide back intent
+                        }}
+                        onMouseLeave={e => {
+                            e.currentTarget.style.color = "var(--ink-secondary)";
+                            e.currentTarget.style.transform = "translateX(0)";
+                        }}
                     >
-                        <ChevronLeft size={24} />
+                        <ChevronLeft size={32} strokeWidth={1} /> {/* Extra thin & slightly larger line */}
                     </Link>
                 </div>
 
@@ -63,116 +69,135 @@ export default function PortfolioPage() {
                         width: "100%",
                     }}
                 >
-                    {/* Name */}
-                    <h1 style={{
-                        fontSize: "clamp(2.8rem, 9vw, 4.5rem)",
-                        fontWeight: 800,
-                        letterSpacing: "-0.04em",
-                        color: "var(--ink-primary)",
-                        lineHeight: 1.1,
-                        marginBottom: "0.5rem",
-                        fontFamily: "var(--font-serif), serif",
-                        margin: 0,
+                    <div style={{
+                        display: "inline-flex",
+                        flexDirection: "column",
+                        alignItems: "stretch",
+                        width: "max-content",
+                        maxWidth: "100%",
+                        margin: "0 auto",
+                        fontFamily: '-apple-system, BlinkMacSystemFont, "Helvetica Neue", "SF Pro Display", Helvetica, Arial, sans-serif',
                     }}>
-                        Muhammad Faza
-                    </h1>
+                        {/* Name - Apple Style Header */}
+                        <h1 style={{
+                            fontSize: "clamp(2.8rem, 10vw, 4.5rem)", // Bigger size helps ultra-thin fonts
+                            fontWeight: 100, // Ultra-thin
+                            letterSpacing: "-0.01em", // Less tight than bold versions, thin needs air
+                            color: "var(--ink-primary)",
+                            lineHeight: 1.1,
+                            marginBottom: "0.2rem",
+                            margin: 0,
+                            textAlign: "center",
+                        }}>
+                            Muhammad Faza
+                        </h1>
 
-                    {/* Subtitle */}
-                    <p style={{
-                        fontSize: "clamp(1.1rem, 4vw, 1.25rem)",
-                        color: "var(--ink-secondary)",
-                        fontStyle: "italic",
-                        opacity: 0.8,
-                        marginBottom: "3rem",
-                        marginTop: "0.5rem",
-                    }}>
-                        a builder.
-                    </p>
+                        {/* Subtitle - Apple Style Body/Secondary */}
+                        <p style={{
+                            fontSize: "clamp(0.9rem, 3vw, 1.1rem)", // Made slightly smaller for that minimalist understatement
+                            color: "var(--ink-secondary)",
+                            fontWeight: 300, // Light weight
+                            letterSpacing: "0.03em", // Slightly increased tracking to balance smaller size
+                            opacity: 0.5, // Even more subtle and less distracting
+                            paddingBottom: "3.5rem",
+                            paddingTop: "0.2rem", // Tighter to header
+                            margin: 0,
+                            textAlign: "center",
+                        }}>
+                            Software & Machine Learning Engineer
+                        </p>
 
-                    {/* Navigation Links */}
-                    <nav style={{
-                        display: "flex",
-                        flexWrap: "wrap",
-                        justifyContent: "center",
-                        gap: "1.5rem",
-                        marginBottom: "3rem",
-                    }}>
-                        {[
-                            { name: "blog", href: "/blog" },
-                            { name: "projects", href: "/projects" },
-                            { name: "experience", href: "/experience" },
-                            { name: "contact", href: "mailto:hello@muhammadfaza.com" }
-                        ].map((item, i) => (
-                            <motion.div
-                                key={item.name}
-                                initial={{ opacity: 0, y: 10 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: 0.2 + (i * 0.1) }}
-                            >
-                                <Link
-                                    href={item.href}
-                                    style={{
-                                        fontSize: "1.05rem",
-                                        fontWeight: 500,
-                                        color: "var(--ink-primary)",
-                                        textDecoration: "none",
-                                        padding: "0.6rem 1.4rem",
-                                        borderRadius: "100px",
-                                        border: "1px solid transparent",
-                                        transition: "all 0.4s cubic-bezier(0.4, 0, 0.2, 1)",
-                                        display: "inline-block",
-                                        backgroundColor: "transparent",
-                                    }}
-                                    onMouseEnter={e => {
-                                        e.currentTarget.style.backgroundColor = "rgba(0,0,0,0.04)";
-                                        e.currentTarget.style.border = "1px solid rgba(0,0,0,0.08)";
-                                        e.currentTarget.style.transform = "translateY(-2px)";
-                                    }}
-                                    onMouseLeave={e => {
-                                        e.currentTarget.style.backgroundColor = "transparent";
-                                        e.currentTarget.style.border = "1px solid transparent";
-                                        e.currentTarget.style.transform = "translateY(0)";
-                                    }}
+                        <nav style={{
+                            display: "flex",
+                            flexWrap: "nowrap",
+                            justifyContent: "space-between",
+                            alignItems: "center",
+                            gap: "0",
+                            marginBottom: "3rem",
+                            width: "100%",
+                            padding: "0",
+                        }}>
+                            {[
+                                { name: "about", href: "/about" },
+                                { name: "blog", href: "/blog" },
+                                { name: "projects", href: "/projects" },
+                                { name: "experience", href: "/experience" }
+                            ].map((item, i) => (
+                                <motion.div
+                                    key={item.name}
+                                    initial={{ opacity: 0, y: 10 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ delay: 0.2 + (i * 0.1) }}
                                 >
-                                    {item.name}
-                                </Link>
-                            </motion.div>
-                        ))}
-                    </nav>
+                                    <Link
+                                        href={item.href}
+                                        style={{
+                                            fontSize: "clamp(0.9rem, 4vw, 1.1rem)",
+                                            fontWeight: 300, // Light weight for a delicate touch
+                                            letterSpacing: "0.01em",
+                                            color: "var(--ink-primary)",
+                                            textDecoration: "none",
+                                            padding: "0.5rem 0",
+                                            borderRadius: "0",
+                                            border: "none",
+                                            transition: "all 0.4s cubic-bezier(0.4, 0, 0.2, 1)",
+                                            display: "inline-block",
+                                            backgroundColor: "transparent",
+                                            whiteSpace: "nowrap",
+                                        }}
+                                        onMouseEnter={e => {
+                                            e.currentTarget.style.color = "var(--ink-secondary)";
+                                            e.currentTarget.style.opacity = "0.5";
+                                        }}
+                                        onMouseLeave={e => {
+                                            e.currentTarget.style.color = "var(--ink-primary)";
+                                            e.currentTarget.style.opacity = "1";
+                                        }}
+                                    >
+                                        {item.name}
+                                    </Link>
+                                </motion.div>
+                            ))}
+                        </nav>
+                    </div>
 
                     {/* Social Icons */}
                     <div style={{ display: "flex", gap: "1rem", marginTop: "1rem" }}>
                         {[
-                            { icon: Github, href: "https://github.com/muhammadfaza16" },
-                            { icon: Linkedin, href: "https://linkedin.com" },
-                            { icon: Twitter, href: "https://twitter.com" },
-                            { icon: Mail, href: "mailto:hello@muhammadfaza.com" }
+                            { icon: Github, href: "https://github.com/mfazans23" },
+                            { icon: Twitter, href: "https://twitter.com/scienfilix" },
+                            { icon: Instagram, href: "https://instagram.com/scnflx23" },
+                            { icon: Mail, href: "mailto:mfaza16717@mail.ugm.ac.id" }
                         ].map((Item, i) => (
                             <motion.a
                                 key={i}
                                 href={Item.href}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                initial={{ opacity: 0, scale: 0.8 }}
+                                initial={{ opacity: 0, scale: 0.9 }}
                                 animate={{ opacity: 1, scale: 1 }}
                                 transition={{ delay: 0.4 + (i * 0.1) }}
                                 style={{
-                                    padding: "0.65rem",
-                                    borderRadius: "50%",
-                                    backgroundColor: "rgba(0,0,0,0.05)",
-                                    border: "1px solid rgba(0,0,0,0.06)",
-                                    backdropFilter: "blur(8px)",
-                                    color: "var(--ink-primary)",
+                                    padding: "0.5rem", // Minimal padding simply for touch target area
+                                    color: "var(--ink-secondary)", // Start slightly muted
                                     display: "flex",
                                     alignItems: "center",
                                     justifyContent: "center",
-                                    transition: "background-color 0.2s ease, transform 0.15s ease",
+                                    transition: "color 0.2s ease, transform 0.15s ease",
                                     textDecoration: "none",
+                                    borderRadius: "8px", // small radius for the invisible touch target
+                                    backgroundColor: "transparent", // No visible background
                                 }}
-                                onMouseEnter={e => { e.currentTarget.style.backgroundColor = "rgba(0,0,0,0.1)"; e.currentTarget.style.transform = "scale(1.1)"; }}
-                                onMouseLeave={e => { e.currentTarget.style.backgroundColor = "rgba(0,0,0,0.05)"; e.currentTarget.style.transform = "scale(1)"; }}
+                                onMouseEnter={e => {
+                                    e.currentTarget.style.color = "var(--ink-primary)";
+                                    e.currentTarget.style.transform = "scale(1.05)";
+                                }}
+                                onMouseLeave={e => {
+                                    e.currentTarget.style.color = "var(--ink-secondary)";
+                                    e.currentTarget.style.transform = "scale(1)";
+                                }}
                             >
-                                <Item.icon size={20} strokeWidth={2} />
+                                <Item.icon size={28} strokeWidth={1.25} /> {/* Ultrathin icons */}
                             </motion.a>
                         ))}
                     </div>
