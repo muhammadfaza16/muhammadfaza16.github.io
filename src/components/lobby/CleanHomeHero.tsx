@@ -57,7 +57,7 @@ export function CleanHomeHero() {
         const deltaY = e.changedTouches[0].clientY - touchStartRef.current.y;
         if (Math.abs(deltaX) > 50 && Math.abs(deltaX) > Math.abs(deltaY)) {
             setSwipeDirection(deltaX < 0 ? 1 : -1);
-            setWidgetIndex(prev => deltaX < 0 ? Math.min(prev + 1, WIDGETS.length - 1) : Math.max(prev - 1, 0));
+            setWidgetIndex(prev => deltaX < 0 ? (prev + 1) % WIDGETS.length : (prev - 1 + WIDGETS.length) % WIDGETS.length);
         }
         touchStartRef.current = null;
     }, []);
@@ -68,7 +68,7 @@ export function CleanHomeHero() {
         if (hasInteracted) { setWidgetIndex(1); setSwipeDirection(1); }
     }, [hasInteracted]);
 
-    const showNowPlaying = WIDGETS[widgetIndex] === 'music' && hasInteracted;
+    // Deprecated: const showNowPlaying = WIDGETS[widgetIndex] === 'music' && hasInteracted;
 
     // API data states
     const [weather, setWeather] = useState<{ temp: number; label: string; icon: string; humidity: number; wind: number } | null>(null);
@@ -306,7 +306,12 @@ export function CleanHomeHero() {
             }, [])}
             {/* Content */}
             {/* ── Header Area ── */}
-            <div style={{ marginBottom: "1rem" }}>
+            <motion.div
+                initial={{ opacity: 0, scale: 0.96, y: 15 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                transition={{ duration: 0.8, type: "spring", bounce: 0.3 }}
+                style={{ marginBottom: "1rem" }}
+            >
                 {/* Top: Date left, Weather right */}
                 <div style={{
                     display: "flex",
@@ -408,10 +413,14 @@ export function CleanHomeHero() {
                         <style>{`@keyframes blink-cursor { 0%,100%{opacity:1} 50%{opacity:0} } @keyframes today-pulse { 0%,100%{box-shadow:0 0 6px rgba(255,59,48,0.4)} 50%{box-shadow:0 0 14px rgba(255,59,48,0.7)} }`}</style>
                     </div>
                 )}
-            </div>
+            </motion.div>
 
             {/* ── Main Widget Area — Premium Frosted Glass ── */}
-            <div
+            <motion.div
+                initial={{ opacity: 0, y: 25 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8, delay: 0.15, type: "spring", bounce: 0.35 }}
+                whileHover={{ y: -4, transition: { duration: 0.2 } }}
                 onTouchStart={handleTouchStart}
                 onTouchEnd={handleTouchEnd}
                 style={{
@@ -471,13 +480,19 @@ export function CleanHomeHero() {
                     zIndex: 2,
                 }} />
 
-                <AnimatePresence mode="wait" initial={false}>
-                    {showNowPlaying ? (
+                <AnimatePresence mode="wait" initial={false} custom={swipeDirection}>
+                    {WIDGETS[widgetIndex] === 'music' ? (
                         <motion.div
                             key="now-playing"
-                            initial={{ opacity: 0, x: swipeDirection * 60 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            exit={{ opacity: 0, x: swipeDirection * -60 }}
+                            custom={swipeDirection}
+                            variants={{
+                                initial: (d: number) => ({ opacity: 0, x: d * 60 }),
+                                animate: { opacity: 1, x: 0 },
+                                exit: (d: number) => ({ opacity: 0, x: d * -60 })
+                            }}
+                            initial="initial"
+                            animate="animate"
+                            exit="exit"
                             transition={{ duration: 0.3, ease: [0.25, 0.46, 0.45, 0.94] }}
                             style={{ position: "relative", zIndex: 1 }}
                         >
@@ -606,9 +621,15 @@ export function CleanHomeHero() {
                     ) : WIDGETS[widgetIndex] === 'news' ? (
                         <motion.div
                             key="news"
-                            initial={{ opacity: 0, x: swipeDirection * 60 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            exit={{ opacity: 0, x: swipeDirection * -60 }}
+                            custom={swipeDirection}
+                            variants={{
+                                initial: (d: number) => ({ opacity: 0, x: d * 60 }),
+                                animate: { opacity: 1, x: 0 },
+                                exit: (d: number) => ({ opacity: 0, x: d * -60 })
+                            }}
+                            initial="initial"
+                            animate="animate"
+                            exit="exit"
                             transition={{ duration: 0.3, ease: [0.25, 0.46, 0.45, 0.94] }}
                             style={{ position: "relative", zIndex: 1 }}
                         >
@@ -636,9 +657,15 @@ export function CleanHomeHero() {
                     ) : WIDGETS[widgetIndex] === 'crypto' ? (
                         <motion.div
                             key="crypto"
-                            initial={{ opacity: 0, x: swipeDirection * 60 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            exit={{ opacity: 0, x: swipeDirection * -60 }}
+                            custom={swipeDirection}
+                            variants={{
+                                initial: (d: number) => ({ opacity: 0, x: d * 60 }),
+                                animate: { opacity: 1, x: 0 },
+                                exit: (d: number) => ({ opacity: 0, x: d * -60 })
+                            }}
+                            initial="initial"
+                            animate="animate"
+                            exit="exit"
                             transition={{ duration: 0.3, ease: [0.25, 0.46, 0.45, 0.94] }}
                             style={{ position: "relative", zIndex: 1 }}
                         >
@@ -674,9 +701,15 @@ export function CleanHomeHero() {
                     ) : WIDGETS[widgetIndex] === 'movies' ? (
                         <motion.div
                             key="movies"
-                            initial={{ opacity: 0, x: swipeDirection * 60 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            exit={{ opacity: 0, x: swipeDirection * -60 }}
+                            custom={swipeDirection}
+                            variants={{
+                                initial: (d: number) => ({ opacity: 0, x: d * 60 }),
+                                animate: { opacity: 1, x: 0 },
+                                exit: (d: number) => ({ opacity: 0, x: d * -60 })
+                            }}
+                            initial="initial"
+                            animate="animate"
+                            exit="exit"
                             transition={{ duration: 0.3, ease: [0.25, 0.46, 0.45, 0.94] }}
                             style={{ position: "relative", zIndex: 1 }}
                         >
@@ -710,9 +743,15 @@ export function CleanHomeHero() {
                     ) : (
                         <motion.div
                             key="calendar-stats"
-                            initial={{ opacity: 0, x: swipeDirection * -60 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            exit={{ opacity: 0, x: swipeDirection * 60 }}
+                            custom={swipeDirection}
+                            variants={{
+                                initial: (d: number) => ({ opacity: 0, x: d * 60 }),
+                                animate: { opacity: 1, x: 0 },
+                                exit: (d: number) => ({ opacity: 0, x: d * -60 })
+                            }}
+                            initial="initial"
+                            animate="animate"
+                            exit="exit"
                             transition={{ duration: 0.3, ease: [0.25, 0.46, 0.45, 0.94] }}
                             style={{
                                 display: "grid",
@@ -997,67 +1036,33 @@ export function CleanHomeHero() {
 
                 {/* Widget Toggle — iOS page dots */}
                 {hasInteracted && (
-                    <>
-                        <div style={{
-                            display: "flex",
-                            justifyContent: "center",
-                            gap: "6px",
-                            marginTop: "0.6rem",
-                            position: "relative",
-                            zIndex: 5,
-                        }}>
-                            {WIDGETS.map((w, i) => (
-                                <div
-                                    key={w}
-                                    onClick={() => { setSwipeDirection(i > widgetIndex ? 1 : -1); setWidgetIndex(i); }}
-                                    style={{
-                                        width: widgetIndex === i ? "20px" : "7px",
-                                        height: "7px",
-                                        borderRadius: "4px",
-                                        background: widgetIndex === i
-                                            ? "rgba(255,255,255,0.95)"
-                                            : "rgba(0,0,0,0.15)",
-                                        cursor: "pointer",
-                                        transition: "all 0.3s ease",
-                                    }}
-                                />
-                            ))}
-                        </div>
-
-                        {/* Swipe hint — subtle animated indicator */}
-                        {widgetIndex === 0 && (
-                            <motion.div
-                                initial={{ opacity: 0 }}
-                                animate={{ opacity: [0, 0.6, 0.6, 0] }}
-                                transition={{ duration: 3, times: [0, 0.15, 0.7, 1], delay: 0.5 }}
+                    <div style={{
+                        display: "flex",
+                        justifyContent: "center",
+                        alignItems: "flex-end",
+                        gap: "4px",
+                        marginTop: "0.8rem",
+                        height: "12px",
+                        position: "relative",
+                        zIndex: 5,
+                    }}>
+                        {WIDGETS.map((w, i) => (
+                            <div
+                                key={w}
+                                onClick={() => { setSwipeDirection(i > widgetIndex ? 1 : -1); setWidgetIndex(i); }}
                                 style={{
-                                    display: "flex",
-                                    alignItems: "center",
-                                    justifyContent: "center",
-                                    gap: "6px",
-                                    marginTop: "0.4rem",
-                                    fontSize: "0.58rem",
-                                    fontWeight: 500,
-                                    color: "rgba(255,255,255,0.55)",
-                                    letterSpacing: "0.05em",
-                                    pointerEvents: "none",
+                                    width: "3px",
+                                    borderRadius: "2px",
+                                    background: widgetIndex === i ? "rgba(255,255,255,0.9)" : "rgba(255,255,255,0.2)",
+                                    height: widgetIndex === i ? "12px" : "4px",
+                                    cursor: "pointer",
+                                    transition: "all 0.3s ease",
                                 }}
-                            >
-                                <motion.span
-                                    animate={{ x: [0, -3, 0] }}
-                                    transition={{ duration: 1.2, repeat: 2, ease: "easeInOut" }}
-                                >‹</motion.span>
-                                <span>swipe</span>
-                                <motion.span
-                                    animate={{ x: [0, 3, 0] }}
-                                    transition={{ duration: 1.2, repeat: 2, ease: "easeInOut" }}
-                                >›</motion.span>
-                            </motion.div>
-                        )}
-                    </>
+                            />
+                        ))}
+                    </div>
                 )}
-            </div>
-
+            </motion.div>
 
             {/* ── Football Matches Popup ── */}
             <AnimatePresence>
