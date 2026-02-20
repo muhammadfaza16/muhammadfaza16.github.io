@@ -95,13 +95,14 @@ export default function HomePage() {
           {/* ── Dock — Icon-only (Premium Frosted Glass) ── */}
           <div style={{
             flexShrink: 0,
-            width: "auto",
+            width: "calc(100% - 3rem)", // Matches the widget padding (1.5rem * 2)
+            maxWidth: "460px", // Match the widget max-width
             margin: "0 auto 1.5rem",
             background: "linear-gradient(135deg, rgba(255,255,255,0.10) 0%, rgba(255,255,255,0.03) 100%)",
             backdropFilter: "blur(50px) saturate(160%) brightness(105%)",
             WebkitBackdropFilter: "blur(50px) saturate(160%) brightness(105%)",
             borderRadius: "36px",
-            padding: "8px 16px",
+            padding: "8px 12px", // Slightly tighter vertical padding, wider horizontal inner space
             boxShadow: `
               0 2px 0 rgba(255,255,255,0.12) inset,
               0 -1px 0 rgba(0,0,0,0.03) inset,

@@ -44,7 +44,7 @@ const DockIcon = ({ title, href, icon, iconColor, delay = 0 }: DockIconProps) =>
                     width: "clamp(52px, 13.5vw, 62px)",
                     height: "clamp(52px, 13.5vw, 62px)",
                     borderRadius: "26%",
-                    background: "linear-gradient(145deg, rgba(50,55,50,0.50) 0%, rgba(30,35,30,0.60) 100%)",
+                    background: "linear-gradient(145deg, rgba(255,255,255,0.10) 0%, rgba(20,20,20,0.40) 100%)",
                     backdropFilter: "blur(20px) saturate(140%)",
                     WebkitBackdropFilter: "blur(20px) saturate(140%)",
                     display: "flex",
@@ -53,7 +53,7 @@ const DockIcon = ({ title, href, icon, iconColor, delay = 0 }: DockIconProps) =>
                     boxShadow: `
                         0 8px 24px -4px rgba(0,0,0,0.12),
                         0 2px 8px rgba(0,0,0,0.06),
-                        inset 0 1px 1px rgba(255,255,255,0.14),
+                        inset 0 1px 1px rgba(255,255,255,0.30),
                         inset 0 -1px 1px rgba(0,0,0,0.15)
                     `,
                     overflow: "hidden",
@@ -142,9 +142,9 @@ export function RoomBentoGrid() {
             padding: "0.4rem 0",
         }}>
             <nav style={{
-                padding: "0 1.25rem",
+                padding: "0 0.5rem", // Give icons more breathing room horizontally
                 width: "100%",
-                maxWidth: "400px",
+                maxWidth: "460px", // Match the CleanHomeHero widget max-width precisely
             }}>
                 <div style={{
                     display: "flex",

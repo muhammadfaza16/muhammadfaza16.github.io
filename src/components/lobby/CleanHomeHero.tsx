@@ -424,12 +424,13 @@ export function CleanHomeHero() {
                 onTouchStart={handleTouchStart}
                 onTouchEnd={handleTouchEnd}
                 style={{
-                    background: "linear-gradient(135deg, rgba(255,255,255,0.18) 0%, rgba(255,255,255,0.08) 100%)",
-                    backdropFilter: "blur(40px) saturate(160%) brightness(105%)",
-                    WebkitBackdropFilter: "blur(40px) saturate(160%) brightness(105%)",
+                    background: "linear-gradient(135deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.02) 100%)",
+                    backdropFilter: "blur(20px) saturate(160%) brightness(105%)",
+                    WebkitBackdropFilter: "blur(20px) saturate(160%) brightness(105%)",
                     borderRadius: "24px",
                     border: "1px solid rgba(255,255,255,0.15)",
                     boxShadow: `
+                    inset 0 1px 1px rgba(255, 255, 255, 0.25),
                     0 2px 0 rgba(255,255,255,0.15) inset,
                     0 -1px 0 rgba(0,0,0,0.04) inset,
                     0 20px 60px -10px rgba(0,0,0,0.15),
