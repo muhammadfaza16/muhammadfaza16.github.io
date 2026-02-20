@@ -120,11 +120,11 @@ export default function StarlightPage() {
                 borderBottom: "1px solid rgba(255, 255, 255, 0.08)",
                 background: "rgba(255, 255, 255, 0.02)",
               }}>
-                {/* Traffic Lights Controls */}
+                {/* Traffic Lights Controls (Swipe Indicators) */}
                 <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
-                  <div style={{ width: "12px", height: "12px", borderRadius: "50%", background: "var(--ink-secondary)", opacity: 0.4 }} />
-                  <div style={{ width: "12px", height: "12px", borderRadius: "50%", background: "var(--ink-secondary)", opacity: 0.4 }} />
-                  <div style={{ width: "12px", height: "12px", borderRadius: "50%", background: "var(--ink-secondary)", opacity: 0.4 }} />
+                  <div style={{ width: "12px", height: "12px", borderRadius: "50%", background: "#FF5F56", opacity: 0.9 }} /> {/* Red */}
+                  <div style={{ width: "12px", height: "12px", borderRadius: "50%", background: "#FFBD2E", opacity: 0.9 }} /> {/* Yellow */}
+                  <div style={{ width: "12px", height: "12px", borderRadius: "50%", background: "#27C93F", opacity: 0.9 }} /> {/* Green */}
                 </div>
 
                 {/* Window Title */}
@@ -138,7 +138,7 @@ export default function StarlightPage() {
                   opacity: 0.9,
                   letterSpacing: "0.02em"
                 }}>
-                  Sanctuary OS
+                  Muhammad Faza
                 </span>
 
                 {/* Empty right spacer for flex balance */}
