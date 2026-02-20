@@ -98,17 +98,13 @@ export default function HomePage() {
             width: "calc(100% - 3rem)", // Matches the widget padding (1.5rem * 2)
             maxWidth: "460px", // Match the widget max-width
             margin: "0 auto 1.5rem",
-            background: "linear-gradient(135deg, rgba(255,255,255,0.10) 0%, rgba(255,255,255,0.03) 100%)",
-            backdropFilter: "blur(50px) saturate(160%) brightness(105%)",
-            WebkitBackdropFilter: "blur(50px) saturate(160%) brightness(105%)",
-            borderRadius: "36px",
+            background: "rgba(255, 255, 255, 0.02)",
+            backdropFilter: "blur(24px) saturate(150%) brightness(105%)",
+            WebkitBackdropFilter: "blur(24px) saturate(150%) brightness(105%)",
+            borderRadius: "32px",
             padding: "8px 12px", // Slightly tighter vertical padding, wider horizontal inner space
-            boxShadow: `
-              0 2px 0 rgba(255,255,255,0.12) inset,
-              0 -1px 0 rgba(0,0,0,0.03) inset,
-              0 16px 44px -10px rgba(0,0,0,0.12),
-              0 3px 14px rgba(0,0,0,0.04)
-            `,
+            border: "1px solid rgba(255,255,255,0.08)",
+            boxShadow: "0 16px 32px rgba(0,0,0,0.15), inset 0 1px 0.5px rgba(255,255,255,0.2)",
             position: "relative" as const,
             overflow: "hidden",
           }}>
@@ -122,11 +118,11 @@ export default function HomePage() {
             <div style={{
               position: "absolute", top: 0, left: 0, right: 0, height: "50%",
               background: "linear-gradient(180deg, rgba(255,255,255,0.07) 0%, transparent 100%)",
-              borderRadius: "36px 36px 0 0", pointerEvents: "none" as const, zIndex: 2,
+              borderRadius: "32px 32px 0 0", pointerEvents: "none" as const, zIndex: 2,
             }} />
             {/* Gradient border */}
             <div style={{
-              position: "absolute", inset: 0, borderRadius: "36px", padding: "1px",
+              position: "absolute", inset: 0, borderRadius: "32px", padding: "1px",
               background: "linear-gradient(160deg, rgba(255,255,255,0.25) 0%, rgba(255,255,255,0.05) 40%, transparent 60%)",
               WebkitMask: "linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)",
               WebkitMaskComposite: "xor" as any, maskComposite: "exclude" as any,

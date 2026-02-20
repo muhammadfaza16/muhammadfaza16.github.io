@@ -424,19 +424,13 @@ export function CleanHomeHero() {
                 onTouchStart={handleTouchStart}
                 onTouchEnd={handleTouchEnd}
                 style={{
-                    background: "linear-gradient(135deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.02) 100%)",
-                    backdropFilter: "blur(20px) saturate(160%) brightness(105%)",
-                    WebkitBackdropFilter: "blur(20px) saturate(160%) brightness(105%)",
-                    borderRadius: "24px",
-                    border: "1px solid rgba(255,255,255,0.15)",
-                    boxShadow: `
-                    inset 0 1px 1px rgba(255, 255, 255, 0.25),
-                    0 2px 0 rgba(255,255,255,0.15) inset,
-                    0 -1px 0 rgba(0,0,0,0.04) inset,
-                    0 20px 60px -10px rgba(0,0,0,0.15),
-                    0 4px 20px rgba(0,0,0,0.06)
-                `,
-                    padding: "1.1rem",
+                    background: "rgba(255, 255, 255, 0.02)", // Extremely thin, clear glass
+                    backdropFilter: "blur(24px) saturate(150%) brightness(105%)",
+                    WebkitBackdropFilter: "blur(24px) saturate(150%) brightness(105%)",
+                    borderRadius: "28px", // Refined iOS curve
+                    border: "1px solid rgba(255,255,255,0.08)", // Subtle white stroke
+                    boxShadow: "0 20px 40px -10px rgba(0,0,0,0.15), inset 0 1px 0.5px rgba(255,255,255,0.2)", // Crisp shadow + thin specular highlight
+                    padding: "1.2rem",
                     position: "relative",
                     overflow: "hidden",
                     touchAction: "pan-y",
@@ -445,9 +439,9 @@ export function CleanHomeHero() {
                 <div style={{
                     position: "absolute",
                     inset: 0,
-                    borderRadius: "32px",
+                    borderRadius: "28px", // MUST EXACTLY MATCH CONTAINER
                     padding: "1px",
-                    background: "linear-gradient(160deg, rgba(255,255,255,0.28) 0%, rgba(255,255,255,0.06) 40%, transparent 60%, rgba(255,255,255,0.04) 100%)",
+                    background: "linear-gradient(160deg, rgba(255,255,255,0.25) 0%, rgba(255,255,255,0.05) 40%, transparent 60%, rgba(255,255,255,0.02) 100%)",
                     WebkitMask: "linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)",
                     WebkitMaskComposite: "xor" as any,
                     maskComposite: "exclude" as any,
@@ -459,8 +453,8 @@ export function CleanHomeHero() {
                 <div style={{
                     position: "absolute",
                     top: 0,
-                    left: "10%",
-                    right: "10%",
+                    left: "20%",
+                    right: "20%",
                     height: "1px",
                     background: "linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.5) 30%, rgba(255,255,255,0.6) 50%, rgba(255,255,255,0.5) 70%, transparent 100%)",
                     pointerEvents: "none",

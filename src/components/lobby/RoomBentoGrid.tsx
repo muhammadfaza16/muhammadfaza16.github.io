@@ -44,20 +44,18 @@ const DockIcon = ({ title, href, icon, iconColor, delay = 0 }: DockIconProps) =>
                     width: "clamp(52px, 13.5vw, 62px)",
                     height: "clamp(52px, 13.5vw, 62px)",
                     borderRadius: "26%",
-                    background: "linear-gradient(145deg, rgba(255,255,255,0.10) 0%, rgba(20,20,20,0.40) 100%)",
-                    backdropFilter: "blur(20px) saturate(140%)",
-                    WebkitBackdropFilter: "blur(20px) saturate(140%)",
+                    background: "rgba(0, 0, 0, 0.15)",
+                    backdropFilter: "blur(16px) saturate(150%)",
+                    WebkitBackdropFilter: "blur(16px) saturate(150%)",
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
                     boxShadow: `
-                        0 8px 24px -4px rgba(0,0,0,0.12),
-                        0 2px 8px rgba(0,0,0,0.06),
-                        inset 0 1px 1px rgba(255,255,255,0.30),
-                        inset 0 -1px 1px rgba(0,0,0,0.15)
+                        0 4px 12px rgba(0,0,0,0.1),
+                        inset 0 1px 0.5px rgba(255,255,255,0.2)
                     `,
                     overflow: "hidden",
-                    border: "1px solid rgba(255,255,255,0.10)",
+                    border: "1px solid rgba(255,255,255,0.05)",
                     cursor: "pointer",
                     transition: "transform 0.15s ease",
                 }} className="hover:scale-105 active:scale-95">
@@ -142,15 +140,15 @@ export function RoomBentoGrid() {
             padding: "0.4rem 0",
         }}>
             <nav style={{
-                padding: "0 0.5rem", // Give icons more breathing room horizontally
+                padding: "0 1.5rem", // Increased padding pushes icons toward center
                 width: "100%",
-                maxWidth: "460px", // Match the CleanHomeHero widget max-width precisely
+                maxWidth: "460px",
             }}>
                 <div style={{
                     display: "flex",
                     justifyContent: "space-between",
                     alignItems: "flex-start",
-                    gap: "0.65rem",
+                    gap: "0.2rem", // Reduced gap to bring icons closer together
                 }}>
                     {apps.map((app, idx) => (
                         <DockIcon key={idx} {...app} delay={0.3 + idx * 0.06} />
