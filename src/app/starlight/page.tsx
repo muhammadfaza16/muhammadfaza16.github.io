@@ -151,25 +151,25 @@ export default function StarlightPage() {
                 <div style={{ width: "52px" }} />
               </div>
 
-              {/* Small Ambient Glassy Teardrop */}
+              {/* Small Ambient Glassy Sphere */}
               <motion.div
                 animate={{
-                  y: [0, -20, 15, 0],
-                  x: [0, 15, -10, 0],
-                  rotate: [-45, -20, -70, -45],
+                  y: [0, 100, 200, 100, 0], // Move down and up across the window
+                  x: [0, -100, -200, -100, 0], // Move left and right across the window
+                  scale: [1, 1.1, 0.9, 1.05, 1], // Gentle pulsing
                 }}
                 transition={{
-                  duration: 16,
+                  duration: 24, // Slow, graceful movement
                   repeat: Infinity,
                   ease: "easeInOut",
                 }}
                 style={{
                   position: "absolute",
-                  top: "12%",
-                  right: "12%",
+                  top: "10%",
+                  right: "15%",
                   width: "76px",
                   height: "76px",
-                  borderRadius: "0 50% 50% 50%", /* Teardrop shape */
+                  borderRadius: "50%", /* Perfect sphere */
                   background: "linear-gradient(135deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0) 100%)",
                   boxShadow: "inset 6px 6px 12px rgba(255,255,255,0.25), inset -8px -8px 16px rgba(0,0,0,0.05), 0 10px 20px rgba(0,0,0,0.15)",
                   backdropFilter: "blur(20px) saturate(140%)",
