@@ -65,12 +65,13 @@ export default function PortfolioPage() {
                 >
                     {/* Name */}
                     <h1 style={{
-                        fontSize: "clamp(2.5rem, 8vw, 4rem)",
+                        fontSize: "clamp(2.8rem, 9vw, 4.5rem)",
                         fontWeight: 800,
-                        letterSpacing: "-0.03em",
+                        letterSpacing: "-0.04em",
                         color: "var(--ink-primary)",
                         lineHeight: 1.1,
                         marginBottom: "0.5rem",
+                        fontFamily: "var(--font-serif), serif",
                         margin: 0,
                     }}>
                         Muhammad Faza
@@ -115,12 +116,23 @@ export default function PortfolioPage() {
                                         fontWeight: 500,
                                         color: "var(--ink-primary)",
                                         textDecoration: "none",
-                                        padding: "0.3rem 0",
-                                        borderBottom: "1.5px solid transparent",
-                                        transition: "border-color 0.2s ease",
+                                        padding: "0.6rem 1.4rem",
+                                        borderRadius: "100px",
+                                        border: "1px solid transparent",
+                                        transition: "all 0.4s cubic-bezier(0.4, 0, 0.2, 1)",
+                                        display: "inline-block",
+                                        backgroundColor: "transparent",
                                     }}
-                                    onMouseEnter={e => (e.currentTarget.style.borderColor = "var(--ink-primary)")}
-                                    onMouseLeave={e => (e.currentTarget.style.borderColor = "transparent")}
+                                    onMouseEnter={e => {
+                                        e.currentTarget.style.backgroundColor = "rgba(0,0,0,0.04)";
+                                        e.currentTarget.style.border = "1px solid rgba(0,0,0,0.08)";
+                                        e.currentTarget.style.transform = "translateY(-2px)";
+                                    }}
+                                    onMouseLeave={e => {
+                                        e.currentTarget.style.backgroundColor = "transparent";
+                                        e.currentTarget.style.border = "1px solid transparent";
+                                        e.currentTarget.style.transform = "translateY(0)";
+                                    }}
                                 >
                                     {item.name}
                                 </Link>
