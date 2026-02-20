@@ -33,7 +33,7 @@ export default function StarlightPage() {
       <div style={{
         position: "fixed",
         inset: 0,
-        backgroundImage: "url('/wallpapers/wp_1.jpg')",
+        backgroundImage: "url('/wallpapers/wp1-edited.webp')",
         backgroundSize: "cover",
         backgroundPosition: "center",
         zIndex: -2,
@@ -151,8 +151,68 @@ export default function StarlightPage() {
                 <div style={{ width: "52px" }} />
               </div>
 
+              {/* Ambient Glassy Teardrops (Floating background rich UI elements) */}
+              <motion.div
+                animate={{
+                  y: [0, -30, 20, 0],
+                  x: [0, 20, -15, 0],
+                  rotate: [-45, -20, -70, -45],
+                }}
+                transition={{
+                  duration: 14,
+                  repeat: Infinity,
+                  ease: "easeInOut",
+                }}
+                style={{
+                  position: "absolute",
+                  top: "10%",
+                  right: "10%",
+                  width: "140px",
+                  height: "140px",
+                  borderRadius: "0 50% 50% 50%", /* Teardrop shape */
+                  background: "linear-gradient(135deg, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0) 100%)",
+                  boxShadow: "inset 10px 10px 20px rgba(255,255,255,0.3), inset -15px -15px 25px rgba(0,0,0,0.1), 0 20px 40px rgba(0,0,0,0.2)",
+                  backdropFilter: "blur(24px) saturate(150%)",
+                  WebkitBackdropFilter: "blur(24px) saturate(150%)",
+                  border: "1px solid rgba(255,255,255,0.15)",
+                  borderTop: "1px solid rgba(255,255,255,0.3)",
+                  borderLeft: "1px solid rgba(255,255,255,0.3)",
+                  zIndex: 0,
+                  pointerEvents: "none",
+                }}
+              />
+
+              {/* Secondary Floating Glass Sphere */}
+              <motion.div
+                animate={{
+                  y: [0, 40, -10, 0],
+                  x: [0, -30, 10, 0],
+                  rotate: [0, 180, 360],
+                }}
+                transition={{
+                  duration: 18,
+                  repeat: Infinity,
+                  ease: "easeInOut",
+                }}
+                style={{
+                  position: "absolute",
+                  bottom: "15%",
+                  left: "10%",
+                  width: "90px",
+                  height: "90px",
+                  borderRadius: "50%",
+                  background: "radial-gradient(circle at 30% 30%, rgba(255,255,255,0.25) 0%, rgba(255,255,255,0.02) 70%, transparent 100%)",
+                  boxShadow: "inset 5px 5px 15px rgba(255,255,255,0.3), inset -5px -5px 15px rgba(0,0,0,0.05), 0 10px 20px rgba(0,0,0,0.15)",
+                  backdropFilter: "blur(16px) saturate(120%)",
+                  WebkitBackdropFilter: "blur(16px) saturate(120%)",
+                  border: "1px solid rgba(255,255,255,0.1)",
+                  zIndex: 0,
+                  pointerEvents: "none",
+                }}
+              />
+
               {/* Window Content */}
-              <div style={{ padding: "2rem 1.5rem 3rem" }}>
+              <div style={{ padding: "2rem 1.5rem 3rem", position: "relative", zIndex: 1 }}>
                 {/* Simple Heading */}
                 <div style={{
                   width: "100%",
