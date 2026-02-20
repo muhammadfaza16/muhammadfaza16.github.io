@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useRef, useMemo } from "react";
+import React, { useState, useEffect, useRef, useMemo, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Cloud, CloudSun, Sun, CloudRain, Calendar as CalIcon, GitBranch, Quote, Thermometer, Droplets, Wind, Disc, Play, Pause, SkipBack, SkipForward } from "lucide-react";
 import { useAudio } from "@/components/AudioContext";
@@ -42,6 +42,29 @@ export function CleanHomeHero() {
 
     // Widget toggle: 'music' or 'calendar'
     const [activeWidget, setActiveWidget] = useState<'music' | 'calendar'>('calendar');
+    const touchStartRef = useRef<{ x: number; y: number } | null>(null);
+
+    // Swipe handlers for widget toggling
+    const handleTouchStart = useCallback((e: React.TouchEvent) => {
+        touchStartRef.current = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+    }, []);
+
+    const handleTouchEnd = useCallback((e: React.TouchEvent) => {
+        if (!touchStartRef.current) return;
+        const deltaX = e.changedTouches[0].clientX - touchStartRef.current.x;
+        const deltaY = e.changedTouches[0].clientY - touchStartRef.current.y;
+        // Only trigger if horizontal swipe is dominant and > 50px
+        if (Math.abs(deltaX) > 50 && Math.abs(deltaX) > Math.abs(deltaY)) {
+            if (deltaX < 0) {
+                // Swipe left → next widget
+                setActiveWidget(prev => prev === 'calendar' ? 'music' : 'calendar');
+            } else {
+                // Swipe right → previous widget
+                setActiveWidget(prev => prev === 'music' ? 'calendar' : 'music');
+            }
+        }
+        touchStartRef.current = null;
+    }, []);
 
     // Auto-switch to music when user first interacts
     useEffect(() => {
@@ -60,9 +83,11 @@ export function CleanHomeHero() {
     const [prayer, setPrayer] = useState<{ prayers: { name: string; time: string }[]; next: { name: string; time: string } | null; hijriDate: string | null } | null>(null);
     const [football, setFootball] = useState<{ matches: { home: string; homeAbbr: string; away: string; awayAbbr: string; date: string; time: string; league: string; leagueEmoji: string; status: string; state: string; homeScore?: string; awayScore?: string; isBigMatch: boolean }[] } | null>(null);
     const [showMatchesPopup, setShowMatchesPopup] = useState(false);
+    const [matchPage, setMatchPage] = useState(0);
 
+    // Update clock every second for live time display
     useEffect(() => {
-        const id = setInterval(() => setNow(new Date()), 60000);
+        const id = setInterval(() => setNow(new Date()), 1000);
         return () => clearInterval(id);
     }, []);
 
@@ -114,7 +139,43 @@ export function CleanHomeHero() {
         return set;
     }, [github, currentMonth, currentYear]);
 
+    // Dynamic next prayer — recomputed client-side every tick
+    const dynamicNextPrayer = useMemo(() => {
+        if (!prayer?.prayers || prayer.prayers.length === 0) return prayer?.next || null;
+        const nowMinutes = now.getHours() * 60 + now.getMinutes();
+        for (const p of prayer.prayers) {
+            const [h, m] = p.time.split(':').map(Number);
+            if (h * 60 + m > nowMinutes) return p;
+        }
+        // All prayers passed → show tomorrow's Subuh
+        return prayer.prayers[0] || null;
+    }, [prayer, now]);
+
+    // Rolling football match page — cycle every 10s
+    const bigMatches = useMemo(() => {
+        if (!football) return [];
+        return football.matches.filter(m => m.isBigMatch);
+    }, [football]);
+
+    useEffect(() => {
+        if (bigMatches.length <= 3) return;
+        const id = setInterval(() => {
+            setMatchPage(prev => {
+                const totalPages = Math.ceil(bigMatches.length / 3);
+                return (prev + 1) % totalPages;
+            });
+        }, 10000);
+        return () => clearInterval(id);
+    }, [bigMatches.length]);
+
+    const visibleMatches = useMemo(() => {
+        if (bigMatches.length === 0) return [];
+        const start = (matchPage * 3) % bigMatches.length;
+        return bigMatches.slice(start, start + 3);
+    }, [bigMatches, matchPage]);
+
     const dayName = DAYS_FULL[now.getDay()];
+    const timeStr = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
     const dateStr = `${now.getDate()} ${MONTHS_SHORT[now.getMonth()]}`;
 
     // Calendar Generation
@@ -178,7 +239,7 @@ export function CleanHomeHero() {
                     marginBottom: "0.1rem",
                 }}>
                     <span style={{ fontSize: "0.95rem", fontWeight: 600, color: "rgba(255,255,255,0.9)", textShadow: "0 1px 6px rgba(0,0,0,0.5)" }}>
-                        {dateStr}
+                        {dateStr} · {timeStr}
                     </span>
                     <div style={{
                         display: "flex",
@@ -236,9 +297,9 @@ export function CleanHomeHero() {
                     <span style={{ fontSize: "0.75rem", fontWeight: 600, color: "rgba(255,255,255,0.7)", textShadow: "0 1px 4px rgba(0,0,0,0.5)" }}>
                         {weather ? `${weather.label} · Jaksel` : '···'}
                     </span>
-                    {prayer?.next && (
+                    {dynamicNextPrayer && (
                         <span style={{ fontSize: "0.75rem", fontWeight: 700, color: "rgba(255,255,255,0.8)", textShadow: "0 1px 4px rgba(0,0,0,0.5)" }}>
-                            🕌 {prayer.next.name} {prayer.next.time}
+                            🕌 {dynamicNextPrayer.name} {dynamicNextPrayer.time}
                         </span>
                     )}
                 </div>
@@ -265,22 +326,26 @@ export function CleanHomeHero() {
             </div>
 
             {/* ── Main Widget Area — Premium Frosted Glass ── */}
-            <div style={{
-                background: "linear-gradient(135deg, rgba(255,255,255,0.18) 0%, rgba(255,255,255,0.08) 100%)",
-                backdropFilter: "blur(40px) saturate(160%) brightness(105%)",
-                WebkitBackdropFilter: "blur(40px) saturate(160%) brightness(105%)",
-                borderRadius: "24px",
-                border: "1px solid rgba(255,255,255,0.15)",
-                boxShadow: `
+            <div
+                onTouchStart={handleTouchStart}
+                onTouchEnd={handleTouchEnd}
+                style={{
+                    background: "linear-gradient(135deg, rgba(255,255,255,0.18) 0%, rgba(255,255,255,0.08) 100%)",
+                    backdropFilter: "blur(40px) saturate(160%) brightness(105%)",
+                    WebkitBackdropFilter: "blur(40px) saturate(160%) brightness(105%)",
+                    borderRadius: "24px",
+                    border: "1px solid rgba(255,255,255,0.15)",
+                    boxShadow: `
                     0 2px 0 rgba(255,255,255,0.15) inset,
                     0 -1px 0 rgba(0,0,0,0.04) inset,
                     0 20px 60px -10px rgba(0,0,0,0.15),
                     0 4px 20px rgba(0,0,0,0.06)
                 `,
-                padding: "1.1rem",
-                position: "relative",
-                overflow: "hidden",
-            }}>
+                    padding: "1.1rem",
+                    position: "relative",
+                    overflow: "hidden",
+                    touchAction: "pan-y",
+                }}>
                 {/* Layer 1: Gradient border — soft edge that catches light */}
                 <div style={{
                     position: "absolute",
@@ -585,12 +650,17 @@ export function CleanHomeHero() {
                                             <span>⚽ Upcoming</span>
                                             <span style={{ fontSize: "0.5rem", opacity: 0.6 }}>See all →</span>
                                         </div>
-                                        <div style={{ display: "flex", flexDirection: "column", gap: "3px" }}>
-                                            {football.matches
-                                                .filter(m => m.isBigMatch)
-                                                .slice(0, 3)
-                                                .map((m, i) => (
-                                                    <div key={i} style={{
+                                        <AnimatePresence mode="wait">
+                                            <motion.div
+                                                key={matchPage}
+                                                initial={{ opacity: 0, y: 6 }}
+                                                animate={{ opacity: 1, y: 0 }}
+                                                exit={{ opacity: 0, y: -6 }}
+                                                transition={{ duration: 0.35 }}
+                                                style={{ display: "flex", flexDirection: "column", gap: "3px" }}
+                                            >
+                                                {visibleMatches.map((m, i) => (
+                                                    <div key={`${matchPage}-${i}`} style={{
                                                         display: "flex", alignItems: "center", justifyContent: "space-between",
                                                         fontSize: "0.58rem",
                                                         padding: "3px 5px",
@@ -627,7 +697,8 @@ export function CleanHomeHero() {
                                                         </div>
                                                     </div>
                                                 ))}
-                                        </div>
+                                            </motion.div>
+                                        </AnimatePresence>
                                     </div>
                                 )}
                             </div>
@@ -734,7 +805,7 @@ export function CleanHomeHero() {
                         ].map((item) => (
                             <div
                                 key={item.key}
-                                onClick={() => setActiveWidget(item.key)}
+                                /* dots are now passive indicators — swipe to toggle */
                                 style={{
                                     width: activeWidget === item.key ? "20px" : "7px",
                                     height: "7px",
