@@ -1035,33 +1035,31 @@ export function CleanHomeHero() {
                 </AnimatePresence>
 
                 {/* Widget Toggle — iOS page dots */}
-                {hasInteracted && (
-                    <div style={{
-                        display: "flex",
-                        justifyContent: "center",
-                        alignItems: "flex-end",
-                        gap: "4px",
-                        marginTop: "0.8rem",
-                        height: "12px",
-                        position: "relative",
-                        zIndex: 5,
-                    }}>
-                        {WIDGETS.map((w, i) => (
-                            <div
-                                key={w}
-                                onClick={() => { setSwipeDirection(i > widgetIndex ? 1 : -1); setWidgetIndex(i); }}
-                                style={{
-                                    width: "3px",
-                                    borderRadius: "2px",
-                                    background: widgetIndex === i ? "rgba(255,255,255,0.9)" : "rgba(255,255,255,0.2)",
-                                    height: widgetIndex === i ? "12px" : "4px",
-                                    cursor: "pointer",
-                                    transition: "all 0.3s ease",
-                                }}
-                            />
-                        ))}
-                    </div>
-                )}
+                <div style={{
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "flex-end",
+                    gap: "4px",
+                    marginTop: "0.8rem",
+                    height: "12px",
+                    position: "relative",
+                    zIndex: 5,
+                }}>
+                    {WIDGETS.map((w, i) => (
+                        <div
+                            key={w}
+                            onClick={() => { setSwipeDirection(i > widgetIndex ? 1 : -1); setWidgetIndex(i); }}
+                            style={{
+                                width: "3px",
+                                borderRadius: "2px",
+                                background: widgetIndex === i ? "rgba(255,255,255,0.9)" : "rgba(255,255,255,0.2)",
+                                height: widgetIndex === i ? "12px" : "4px",
+                                cursor: "pointer",
+                                transition: "all 0.3s ease",
+                            }}
+                        />
+                    ))}
+                </div>
             </motion.div>
 
             {/* ── Football Matches Popup ── */}
