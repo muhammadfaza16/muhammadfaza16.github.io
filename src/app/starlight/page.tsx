@@ -1,7 +1,6 @@
 ﻿"use client";
 
 import { ZenHideable } from "@/components/ZenHideable";
-import { AtmosphericBackground } from "@/components/AtmosphericBackground";
 import { StarlightBentoGrid } from "@/components/sanctuary/StarlightBentoGrid";
 import Link from "next/link";
 import { ChevronLeft } from "lucide-react";
@@ -30,8 +29,24 @@ export default function StarlightPage() {
         #main-content::-webkit-scrollbar { display: none; }
       `}} />
 
-      {/* Sage Background (Reference Match) */}
-      <AtmosphericBackground variant="sage">
+      {/* Naruto Wallpaper Background */}
+      <div style={{
+        position: "fixed",
+        inset: 0,
+        backgroundImage: "url('/wallpapers/wp_1.jpg')",
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        zIndex: -2,
+      }} />
+      {/* Dark overlay for readability against the wallpaper */}
+      <div style={{
+        position: "fixed",
+        inset: 0,
+        background: "linear-gradient(180deg, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.7) 100%)",
+        zIndex: -1,
+      }} />
+
+      <div>
         {/* Back Button */}
         <div style={{
           position: "fixed",
@@ -168,7 +183,7 @@ export default function StarlightPage() {
             </motion.div>
           </main>
         </ZenHideable>
-      </AtmosphericBackground>
+      </div>
     </>
   );
 }
