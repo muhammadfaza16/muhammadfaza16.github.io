@@ -83,16 +83,13 @@ export default function StarlightPage() {
           <main style={{
             position: "relative",
             zIndex: 1,
-            minHeight: "100svh", // Changed from height to minHeight to prevent bottom clipping
+            minHeight: "100svh", // Prevent bottom clipping
             overflowX: "hidden", // Allow vertical scrolling if the device is very short
             display: "flex",
             flexDirection: "column",
             alignItems: "center",
-            justifyContent: "flex-start", // Change from center to flex-start
-            paddingTop: "15vh", // Explicitly position down from the top without negative margins
-            paddingLeft: "1rem",
-            paddingRight: "1rem",
-            paddingBottom: "1rem",
+            justifyContent: "center", // Perfectly center the dock
+            padding: "2rem 1rem", // Standard padding all around
           }}>
             <motion.div
               initial={{ opacity: 0, scale: 0.9, y: 20 }}
@@ -150,37 +147,6 @@ export default function StarlightPage() {
                 {/* Empty right spacer for flex balance */}
                 <div style={{ width: "52px" }} />
               </div>
-
-              {/* Small Ambient Glassy Sphere */}
-              <motion.div
-                animate={{
-                  y: [0, 80, -20, 150, 40, 250, 60, -10, 0], // Highly randomized vertical path
-                  x: [0, -120, -250, -80, -300, -150, -50, -200, 0], // Sweeping left-to-right path
-                  scale: [1, 1.15, 0.9, 1.2, 0.85, 1.1, 0.95, 1.05, 1], // Organic pulsing
-                }}
-                transition={{
-                  duration: 60, // Very slow, organic wandering movement
-                  repeat: Infinity,
-                  ease: "easeInOut",
-                }}
-                style={{
-                  position: "absolute",
-                  top: "10%",
-                  right: "15%",
-                  width: "76px",
-                  height: "76px",
-                  borderRadius: "50%", /* Perfect sphere */
-                  background: "linear-gradient(135deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0) 100%)",
-                  boxShadow: "inset 6px 6px 12px rgba(255,255,255,0.25), inset -8px -8px 16px rgba(0,0,0,0.05), 0 10px 20px rgba(0,0,0,0.15)",
-                  backdropFilter: "blur(20px) saturate(140%)",
-                  WebkitBackdropFilter: "blur(20px) saturate(140%)",
-                  border: "1px solid rgba(255,255,255,0.12)",
-                  borderTop: "1px solid rgba(255,255,255,0.25)",
-                  borderLeft: "1px solid rgba(255,255,255,0.25)",
-                  zIndex: 0,
-                  pointerEvents: "none",
-                }}
-              />
 
               {/* Window Content */}
               <div style={{ padding: "2rem 1.5rem 3rem", position: "relative", zIndex: 1 }}>
