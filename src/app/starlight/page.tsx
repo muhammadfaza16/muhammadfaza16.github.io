@@ -38,11 +38,11 @@ export default function StarlightPage() {
         backgroundPosition: "center",
         zIndex: -2,
       }} />
-      {/* Thin elegant dark overlay for contrast */}
+      {/* Barely visible elegant dark overlay for text contrast */}
       <div style={{
         position: "fixed",
         inset: 0,
-        background: "linear-gradient(180deg, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.2) 50%, rgba(0,0,0,0.4) 100%)",
+        background: "linear-gradient(180deg, rgba(0,0,0,0.02) 0%, rgba(0,0,0,0.08) 50%, rgba(0,0,0,0.2) 100%)",
         zIndex: -1,
       }} />
       <div>
@@ -151,61 +151,32 @@ export default function StarlightPage() {
                 <div style={{ width: "52px" }} />
               </div>
 
-              {/* Ambient Glassy Teardrops (Floating background rich UI elements) */}
+              {/* Small Ambient Glassy Teardrop */}
               <motion.div
                 animate={{
-                  y: [0, -30, 20, 0],
-                  x: [0, 20, -15, 0],
+                  y: [0, -20, 15, 0],
+                  x: [0, 15, -10, 0],
                   rotate: [-45, -20, -70, -45],
                 }}
                 transition={{
-                  duration: 14,
+                  duration: 16,
                   repeat: Infinity,
                   ease: "easeInOut",
                 }}
                 style={{
                   position: "absolute",
-                  top: "10%",
-                  right: "10%",
-                  width: "140px",
-                  height: "140px",
+                  top: "12%",
+                  right: "12%",
+                  width: "76px",
+                  height: "76px",
                   borderRadius: "0 50% 50% 50%", /* Teardrop shape */
-                  background: "linear-gradient(135deg, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0) 100%)",
-                  boxShadow: "inset 10px 10px 20px rgba(255,255,255,0.3), inset -15px -15px 25px rgba(0,0,0,0.1), 0 20px 40px rgba(0,0,0,0.2)",
-                  backdropFilter: "blur(24px) saturate(150%)",
-                  WebkitBackdropFilter: "blur(24px) saturate(150%)",
-                  border: "1px solid rgba(255,255,255,0.15)",
-                  borderTop: "1px solid rgba(255,255,255,0.3)",
-                  borderLeft: "1px solid rgba(255,255,255,0.3)",
-                  zIndex: 0,
-                  pointerEvents: "none",
-                }}
-              />
-
-              {/* Secondary Floating Glass Sphere */}
-              <motion.div
-                animate={{
-                  y: [0, 40, -10, 0],
-                  x: [0, -30, 10, 0],
-                  rotate: [0, 180, 360],
-                }}
-                transition={{
-                  duration: 18,
-                  repeat: Infinity,
-                  ease: "easeInOut",
-                }}
-                style={{
-                  position: "absolute",
-                  bottom: "15%",
-                  left: "10%",
-                  width: "90px",
-                  height: "90px",
-                  borderRadius: "50%",
-                  background: "radial-gradient(circle at 30% 30%, rgba(255,255,255,0.25) 0%, rgba(255,255,255,0.02) 70%, transparent 100%)",
-                  boxShadow: "inset 5px 5px 15px rgba(255,255,255,0.3), inset -5px -5px 15px rgba(0,0,0,0.05), 0 10px 20px rgba(0,0,0,0.15)",
-                  backdropFilter: "blur(16px) saturate(120%)",
-                  WebkitBackdropFilter: "blur(16px) saturate(120%)",
-                  border: "1px solid rgba(255,255,255,0.1)",
+                  background: "linear-gradient(135deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0) 100%)",
+                  boxShadow: "inset 6px 6px 12px rgba(255,255,255,0.25), inset -8px -8px 16px rgba(0,0,0,0.05), 0 10px 20px rgba(0,0,0,0.15)",
+                  backdropFilter: "blur(20px) saturate(140%)",
+                  WebkitBackdropFilter: "blur(20px) saturate(140%)",
+                  border: "1px solid rgba(255,255,255,0.12)",
+                  borderTop: "1px solid rgba(255,255,255,0.25)",
+                  borderLeft: "1px solid rgba(255,255,255,0.25)",
                   zIndex: 0,
                   pointerEvents: "none",
                 }}
