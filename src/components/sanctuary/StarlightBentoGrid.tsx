@@ -107,7 +107,6 @@ export function StarlightBentoGrid({ activeDock, setActiveDock }: StarlightBento
 
     const dock1Apps = [
         { title: "Bookshelf", href: "/bookshelf", icon: <Book />, iconColor: "#FF9F0A" }, // Orange
-        { title: "Writing", href: "/blog", icon: <PenTool />, iconColor: "#FFD60A" }, // Gold
         { title: "Curation", href: "/curation", icon: <Library />, iconColor: "#64D2FF" }, // Teal/Blue
         { title: "Life Compass", href: "/life-compass", icon: <Compass />, iconColor: "#32D74B" }, // Green
         { title: "Portfolio", href: "/portfolio", icon: <Briefcase />, iconColor: "#5E5CE6" }, // Indigo
@@ -115,12 +114,11 @@ export function StarlightBentoGrid({ activeDock, setActiveDock }: StarlightBento
     ];
 
     const dock2Apps = [
-        { title: "Projects", href: "/projects", icon: <Terminal />, iconColor: "#0A84FF" }, // Blue
         { title: "AI Agents", href: "/journey/ai-agent", icon: <Cpu />, iconColor: "#BF5AF2" }, // Purple
         { title: "Brand", href: "/journey/brand-building", icon: <Megaphone />, iconColor: "#FF453A" }, // Red
         { title: "Insights", href: "/insights", icon: <Lightbulb />, iconColor: "#FFD60A" }, // Gold
         { title: "Workspace", href: "/workspace", icon: <Monitor />, iconColor: "#8E8E93" }, // Gray
-        { title: "Experience", href: "/experience", icon: <FileText />, iconColor: "#32D74B" }, // Green
+        { title: "Uses", href: "/uses", icon: <Backpack />, iconColor: "#5E5CE6" }, // Indigo
     ];
 
     const dock3Apps = [
@@ -128,7 +126,6 @@ export function StarlightBentoGrid({ activeDock, setActiveDock }: StarlightBento
         { title: "Playlist", href: "/playlist", icon: <Music />, iconColor: "#FF2D55" }, // Pink-Red
         { title: "Now", href: "/now", icon: <Zap />, iconColor: "#FF9F0A" }, // Orange
         { title: "Secrets", href: "/secrets", icon: <Lock />, iconColor: "#8E8E93" }, // Gray
-        { title: "Uses", href: "/uses", icon: <Backpack />, iconColor: "#5E5CE6" }, // Indigo
     ];
 
     const allDocks = [dock1Apps, dock2Apps, dock3Apps];

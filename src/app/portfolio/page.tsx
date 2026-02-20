@@ -100,7 +100,7 @@ export default function PortfolioPage() {
                             { name: "blog", href: "/blog" },
                             { name: "projects", href: "/projects" },
                             { name: "experience", href: "/experience" },
-                            { name: "contact", href: "mailto:hello@example.com" }
+                            { name: "contact", href: "mailto:hello@muhammadfaza.com" }
                         ].map((item, i) => (
                             <motion.div
                                 key={item.name}
