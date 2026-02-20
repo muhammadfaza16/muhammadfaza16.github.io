@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -98,16 +98,12 @@ const AppIcon = ({ title, href, icon, iconColor, delay = 0 }: AppIconProps) => {
     );
 };
 
-export function StarlightBentoGrid() {
-    const [activeDock, setActiveDock] = useState(0);
+interface StarlightBentoGridProps {
+    activeDock: number;
+    setActiveDock: React.Dispatch<React.SetStateAction<number>>;
+}
 
-    // Initialize from sessionStorage to persist dock location on 'Back'
-    useEffect(() => {
-        const saved = sessionStorage.getItem("starlight_active_dock");
-        if (saved !== null) {
-            setActiveDock(parseInt(saved, 10));
-        }
-    }, []);
+export function StarlightBentoGrid({ activeDock, setActiveDock }: StarlightBentoGridProps) {
 
     const dock1Apps = [
         { title: "Bookshelf", href: "/bookshelf", icon: <Book />, iconColor: "#FF9F0A" }, // Orange

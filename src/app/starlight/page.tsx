@@ -4,11 +4,18 @@ import { ZenHideable } from "@/components/ZenHideable";
 import { StarlightBentoGrid } from "@/components/sanctuary/StarlightBentoGrid";
 import Link from "next/link";
 import { ChevronLeft } from "lucide-react";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 
 export default function StarlightPage() {
+  const [activeDock, setActiveDock] = useState(0);
+
   useEffect(() => {
+    const saved = sessionStorage.getItem("starlight_active_dock");
+    if (saved !== null) {
+      setActiveDock(parseInt(saved, 10));
+    }
+
     const mainContent = document.getElementById("main-content");
     if (mainContent) {
       mainContent.scrollTop = 0;
@@ -118,31 +125,24 @@ export default function StarlightPage() {
               }}>
                 {/* Traffic Lights Controls (Swipe Indicators) */}
                 <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
-                  {/* Active Dot (Red) with Spark Effect */}
-                  <div style={{ position: "relative", width: "12px", height: "12px" }}>
-                    <motion.div
-                      animate={{
-                        scale: [1, 1.8, 1],
-                        opacity: [0.6, 0, 0.6],
-                      }}
-                      transition={{
-                        duration: 2,
-                        repeat: Infinity,
-                        ease: "easeOut",
-                      }}
-                      style={{
-                        position: "absolute",
-                        inset: "-2px",
-                        borderRadius: "50%",
-                        background: "#FF5F56",
-                        zIndex: 0,
-                      }}
-                    />
-                    <div style={{ position: "relative", width: "100%", height: "100%", borderRadius: "50%", background: "#FF5F56", opacity: 0.9, zIndex: 1 }} />
-                  </div>
-                  {/* Inactive Dots */}
-                  <div style={{ width: "12px", height: "12px", borderRadius: "50%", background: "#FFBD2E", opacity: 0.4 }} /> {/* Yellow - Dimmed */}
-                  <div style={{ width: "12px", height: "12px", borderRadius: "50%", background: "#27C93F", opacity: 0.4 }} /> {/* Green - Dimmed */}
+                  {[0, 1, 2].map((dockIndex) => {
+                    const colors = ["#FF5F56", "#FFBD2E", "#27C93F"];
+                    const isActive = activeDock === dockIndex;
+                    const color = colors[dockIndex];
+
+                    return (
+                      <div key={dockIndex} style={{ position: "relative", width: "12px", height: "12px" }}>
+                        {isActive && (
+                          <motion.div
+                            animate={{ scale: [1, 1.8, 1], opacity: [0.6, 0, 0.6] }}
+                            transition={{ duration: 2, repeat: Infinity, ease: "easeOut" }}
+                            style={{ position: "absolute", inset: "-2px", borderRadius: "50%", background: color, zIndex: 0 }}
+                          />
+                        )}
+                        <div style={{ position: "relative", width: "100%", height: "100%", borderRadius: "50%", background: color, opacity: isActive ? 0.9 : 0.4, zIndex: 1 }} />
+                      </div>
+                    );
+                  })}
                 </div>
 
                 {/* Window Title */}
@@ -180,7 +180,7 @@ export default function StarlightPage() {
                     textShadow: "0 2px 12px rgba(0,0,0,0.2)",
                     marginBottom: "0.4rem",
                   }}>
-                    Explore.
+                    {activeDock === 0 ? "Explore." : activeDock === 1 ? "Work." : "Life."}
                   </h1>
                   <p style={{
                     fontSize: "0.95rem",
@@ -189,12 +189,12 @@ export default function StarlightPage() {
                     fontWeight: 500,
                     margin: 0,
                   }}>
-                    Curated sections of my world.
+                    {activeDock === 0 ? "Curated sections of my world." : activeDock === 1 ? "Projects, insights, and career." : "Moments, media, and the present."}
                   </p>
                 </div>
 
                 {/* Springboard App Grid */}
-                <StarlightBentoGrid />
+                <StarlightBentoGrid activeDock={activeDock} setActiveDock={setActiveDock} />
               </div>
             </motion.div>
           </main>
