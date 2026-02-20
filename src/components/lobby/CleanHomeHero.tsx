@@ -997,31 +997,64 @@ export function CleanHomeHero() {
 
                 {/* Widget Toggle — iOS page dots */}
                 {hasInteracted && (
-                    <div style={{
-                        display: "flex",
-                        justifyContent: "center",
-                        gap: "6px",
-                        marginTop: "0.6rem",
-                        position: "relative",
-                        zIndex: 5,
-                    }}>
-                        {WIDGETS.map((w, i) => (
-                            <div
-                                key={w}
-                                onClick={() => { setSwipeDirection(i > widgetIndex ? 1 : -1); setWidgetIndex(i); }}
+                    <>
+                        <div style={{
+                            display: "flex",
+                            justifyContent: "center",
+                            gap: "6px",
+                            marginTop: "0.6rem",
+                            position: "relative",
+                            zIndex: 5,
+                        }}>
+                            {WIDGETS.map((w, i) => (
+                                <div
+                                    key={w}
+                                    onClick={() => { setSwipeDirection(i > widgetIndex ? 1 : -1); setWidgetIndex(i); }}
+                                    style={{
+                                        width: widgetIndex === i ? "20px" : "7px",
+                                        height: "7px",
+                                        borderRadius: "4px",
+                                        background: widgetIndex === i
+                                            ? "rgba(255,255,255,0.95)"
+                                            : "rgba(0,0,0,0.15)",
+                                        cursor: "pointer",
+                                        transition: "all 0.3s ease",
+                                    }}
+                                />
+                            ))}
+                        </div>
+
+                        {/* Swipe hint — subtle animated indicator */}
+                        {widgetIndex === 0 && (
+                            <motion.div
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: [0, 0.6, 0.6, 0] }}
+                                transition={{ duration: 3, times: [0, 0.15, 0.7, 1], delay: 0.5 }}
                                 style={{
-                                    width: widgetIndex === i ? "20px" : "7px",
-                                    height: "7px",
-                                    borderRadius: "4px",
-                                    background: widgetIndex === i
-                                        ? "rgba(255,255,255,0.95)"
-                                        : "rgba(0,0,0,0.15)",
-                                    cursor: "pointer",
-                                    transition: "all 0.3s ease",
+                                    display: "flex",
+                                    alignItems: "center",
+                                    justifyContent: "center",
+                                    gap: "6px",
+                                    marginTop: "0.4rem",
+                                    fontSize: "0.58rem",
+                                    fontWeight: 500,
+                                    color: "rgba(255,255,255,0.55)",
+                                    letterSpacing: "0.05em",
+                                    pointerEvents: "none",
                                 }}
-                            />
-                        ))}
-                    </div>
+                            >
+                                <motion.span
+                                    animate={{ x: [0, -3, 0] }}
+                                    transition={{ duration: 1.2, repeat: 2, ease: "easeInOut" }}
+                                >‹</motion.span>
+                                <span>swipe</span>
+                                <motion.span
+                                    animate={{ x: [0, 3, 0] }}
+                                    transition={{ duration: 1.2, repeat: 2, ease: "easeInOut" }}
+                                >›</motion.span>
+                            </motion.div>
+                        )}
+                    </>
                 )}
             </div>
 
