@@ -90,13 +90,7 @@ export default function PortfolioPage() {
                     </p>
 
                     {/* Navigation Links */}
-                    <nav style={{
-                        display: "flex",
-                        flexWrap: "wrap",
-                        justifyContent: "center",
-                        gap: "1.5rem",
-                        marginBottom: "3rem",
-                    }}>
+                    <nav className="flex flex-col sm:flex-row flex-wrap justify-center gap-3 sm:gap-6 mb-12 w-full max-w-[280px] sm:max-w-none mx-auto">
                         {[
                             { name: "blog", href: "/blog" },
                             { name: "projects", href: "/projects" },
@@ -108,31 +102,11 @@ export default function PortfolioPage() {
                                 initial={{ opacity: 0, y: 10 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ delay: 0.2 + (i * 0.1) }}
+                                className="w-full sm:w-auto"
                             >
                                 <Link
                                     href={item.href}
-                                    style={{
-                                        fontSize: "1.05rem",
-                                        fontWeight: 500,
-                                        color: "var(--ink-primary)",
-                                        textDecoration: "none",
-                                        padding: "0.6rem 1.4rem",
-                                        borderRadius: "100px",
-                                        border: "1px solid transparent",
-                                        transition: "all 0.4s cubic-bezier(0.4, 0, 0.2, 1)",
-                                        display: "inline-block",
-                                        backgroundColor: "transparent",
-                                    }}
-                                    onMouseEnter={e => {
-                                        e.currentTarget.style.backgroundColor = "rgba(0,0,0,0.04)";
-                                        e.currentTarget.style.border = "1px solid rgba(0,0,0,0.08)";
-                                        e.currentTarget.style.transform = "translateY(-2px)";
-                                    }}
-                                    onMouseLeave={e => {
-                                        e.currentTarget.style.backgroundColor = "transparent";
-                                        e.currentTarget.style.border = "1px solid transparent";
-                                        e.currentTarget.style.transform = "translateY(0)";
-                                    }}
+                                    className="flex w-full items-center justify-center rounded-full border border-transparent px-6 py-3 text-[1.05rem] font-medium text-[var(--ink-primary)] no-underline transition-all duration-400 ease-out hover:-translate-y-1 hover:border-black/10 hover:bg-black/5 active:scale-95"
                                 >
                                     {item.name}
                                 </Link>
@@ -141,7 +115,7 @@ export default function PortfolioPage() {
                     </nav>
 
                     {/* Social Icons */}
-                    <div style={{ display: "flex", gap: "1rem", marginTop: "1rem" }}>
+                    <div className="flex flex-wrap justify-center gap-4 mt-2">
                         {[
                             { icon: Github, href: "https://github.com/muhammadfaza16" },
                             { icon: Linkedin, href: "https://linkedin.com" },
@@ -156,21 +130,7 @@ export default function PortfolioPage() {
                                 initial={{ opacity: 0, scale: 0.8 }}
                                 animate={{ opacity: 1, scale: 1 }}
                                 transition={{ delay: 0.4 + (i * 0.1) }}
-                                style={{
-                                    padding: "0.65rem",
-                                    borderRadius: "50%",
-                                    backgroundColor: "rgba(0,0,0,0.05)",
-                                    border: "1px solid rgba(0,0,0,0.06)",
-                                    backdropFilter: "blur(8px)",
-                                    color: "var(--ink-primary)",
-                                    display: "flex",
-                                    alignItems: "center",
-                                    justifyContent: "center",
-                                    transition: "background-color 0.2s ease, transform 0.15s ease",
-                                    textDecoration: "none",
-                                }}
-                                onMouseEnter={e => { e.currentTarget.style.backgroundColor = "rgba(0,0,0,0.1)"; e.currentTarget.style.transform = "scale(1.1)"; }}
-                                onMouseLeave={e => { e.currentTarget.style.backgroundColor = "rgba(0,0,0,0.05)"; e.currentTarget.style.transform = "scale(1)"; }}
+                                className="flex items-center justify-center p-[0.65rem] rounded-full bg-black/5 border border-black/5 text-[var(--ink-primary)] no-underline transition-all duration-300 hover:scale-110 hover:bg-black/10 active:scale-95 backdrop-blur-sm"
                             >
                                 <Item.icon size={20} strokeWidth={2} />
                             </motion.a>
