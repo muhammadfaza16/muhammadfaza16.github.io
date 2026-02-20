@@ -40,7 +40,7 @@ const AppIcon = ({ title, href, icon, iconColor, delay = 0 }: AppIconProps) => {
                     gap: "0.4rem",
                 }}
             >
-                {/* iOS Dark Mode Icon Style (Matches Home) */}
+                {/* iOS Glass Icon Style (Matches Home Dock) */}
                 <div style={{
                     position: "relative",
                     width: "clamp(58px, 16vw, 72px)",
@@ -58,7 +58,7 @@ const AppIcon = ({ title, href, icon, iconColor, delay = 0 }: AppIconProps) => {
                     border: "1px solid rgba(255,255,255,0.20)", // Brighter border for crisp edge
                 }} className="hover:scale-105 active:scale-95">
 
-                    {/* Icon symbol */}
+                    {/* Icon symbol (Restored Brand Colors) */}
                     <div style={{
                         color: iconColor,
                         zIndex: 2,
@@ -70,7 +70,7 @@ const AppIcon = ({ title, href, icon, iconColor, delay = 0 }: AppIconProps) => {
                         {React.cloneElement(icon as any, { size: "42%", strokeWidth: 2.5 })}
                     </div>
 
-                    {/* Gloss top */}
+                    {/* Gloss top (Subtle glass reflection) */}
                     <div style={{
                         position: "absolute",
                         top: 0,
