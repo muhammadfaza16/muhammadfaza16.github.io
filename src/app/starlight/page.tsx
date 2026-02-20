@@ -97,14 +97,14 @@ export default function StarlightPage() {
                 maxWidth: "520px",
                 display: "flex",
                 flexDirection: "column",
-                background: "rgba(255, 255, 255, 0.45)", // Strong white frosted glass
-                backdropFilter: "blur(48px) saturate(180%)",
-                WebkitBackdropFilter: "blur(48px) saturate(180%)",
+                background: "rgba(0, 0, 0, 0.25)", // Thin premium dark glass
+                backdropFilter: "blur(48px) saturate(180%) brightness(90%)",
+                WebkitBackdropFilter: "blur(48px) saturate(180%) brightness(90%)",
                 borderRadius: "32px",
-                border: "1px solid rgba(255, 255, 255, 0.5)", // Stronger white highlight edge
+                border: "1px solid rgba(255, 255, 255, 0.12)", // Delicate bright edge
                 boxShadow: `
-                  0 32px 64px -16px rgba(0,0,0,0.15),
-                  inset 0 1px 2px rgba(255,255,255,0.8)
+                  0 32px 64px -16px rgba(0,0,0,0.4),
+                  inset 0 1px 1px rgba(255,255,255,0.25)
                 `,
                 overflow: "hidden", // Keep children inside rounded corners
                 position: "relative"
@@ -134,7 +134,7 @@ export default function StarlightPage() {
                   transform: "translateX(-50%)",
                   fontSize: "0.85rem",
                   fontWeight: 600,
-                  color: "var(--ink-primary)",
+                  color: "#ffffff",
                   opacity: 0.9,
                   letterSpacing: "0.02em"
                 }}>
@@ -158,14 +158,15 @@ export default function StarlightPage() {
                     fontWeight: 800,
                     letterSpacing: "-0.04em",
                     lineHeight: 1.1,
-                    color: "var(--ink-primary)",
+                    color: "#ffffff",
+                    textShadow: "0 2px 12px rgba(0,0,0,0.2)",
                     marginBottom: "0.4rem",
                   }}>
                     Explore.
                   </h1>
                   <p style={{
                     fontSize: "0.95rem",
-                    color: "var(--ink-secondary)",
+                    color: "rgba(255, 255, 255, 0.8)",
                     lineHeight: 1.5,
                     fontWeight: 500,
                     margin: 0,

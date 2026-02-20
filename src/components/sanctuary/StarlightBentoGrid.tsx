@@ -40,22 +40,22 @@ const AppIcon = ({ title, href, icon, iconColor, delay = 0 }: AppIconProps) => {
                     gap: "0.4rem",
                 }}
             >
-                {/* iOS Thin Premium Dark Glass */}
+                {/* iOS Premium Dark Glass */}
                 <div style={{
                     position: "relative",
                     width: "clamp(58px, 16vw, 72px)",
                     height: "clamp(58px, 16vw, 72px)",
                     borderRadius: "22.5%",
-                    background: "rgba(0, 0, 0, 0.16)", // Thin, elegant dark glass tint
+                    background: "rgba(0, 0, 0, 0.45)", // Darker glass to contrast with the thin dark dock
                     backdropFilter: "blur(40px) saturate(150%)",
                     WebkitBackdropFilter: "blur(40px) saturate(150%)",
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
-                    boxShadow: "0 8px 16px -4px rgba(0,0,0,0.1), inset 0 1px 1px rgba(255,255,255,0.7)", // Premium polished inner highlight
+                    boxShadow: "0 8px 16px -4px rgba(0,0,0,0.2), inset 0 1px 1px rgba(255,255,255,0.4)", // Adjusted inner spec for darker background
                     transition: "transform 0.15s ease",
                     overflow: "hidden",
-                    border: "1px solid rgba(0, 0, 0, 0.08)", // Delicate edge separation from the white dock
+                    border: "1px solid rgba(255, 255, 255, 0.15)", // Brighter edge for definition
                 }} className="hover:scale-105 active:scale-95">
 
                     {/* Icon symbol (Restored Brand Colors) */}
@@ -87,8 +87,9 @@ const AppIcon = ({ title, href, icon, iconColor, delay = 0 }: AppIconProps) => {
                 <span style={{
                     fontFamily: "-apple-system, BlinkMacSystemFont, sans-serif",
                     fontSize: "0.74rem",
-                    fontWeight: 600, // Slightly bolder for better readability
-                    color: "var(--ink-primary)", // Dark text for the new white dock
+                    fontWeight: 500,
+                    color: "#ffffff", // Pure white for perfect contrast against dark dock
+                    textShadow: "0 1px 4px rgba(0,0,0,0.5)", // Strong shadow to separate from background
                     textAlign: "center",
                     letterSpacing: "0.02em",
                 }}>
