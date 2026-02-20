@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import React, { useState, useEffect, useRef, useMemo, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -13,7 +13,7 @@ const MONTHS_SHORT = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "S
 export function CleanHomeHero() {
     const [now, setNow] = useState(new Date());
     const { isPlaying, togglePlay, currentSong, hasInteracted, currentTime, duration, nextSong, prevSong } = useAudio();
-    const songParts = currentSong.title.split("â€”");
+    const songParts = currentSong.title.split("—");
     const artist = songParts[0]?.trim() || "Unknown";
     const song = songParts[1]?.trim() || currentSong.title;
     const { lyrics } = useLyrics(currentSong.title);
@@ -40,7 +40,7 @@ export function CleanHomeHero() {
         }
     }, [activeLyricIndex]);
 
-    // Widget slider â€” N widgets by index
+    // Widget system: N-widget slider
     const WIDGETS = ['calendar', 'music', 'news', 'crypto', 'movies'] as const;
     const [widgetIndex, setWidgetIndex] = useState(0);
     const touchStartRef = useRef<{ x: number; y: number } | null>(null);
@@ -57,10 +57,7 @@ export function CleanHomeHero() {
         const deltaY = e.changedTouches[0].clientY - touchStartRef.current.y;
         if (Math.abs(deltaX) > 50 && Math.abs(deltaX) > Math.abs(deltaY)) {
             setSwipeDirection(deltaX < 0 ? 1 : -1);
-            setWidgetIndex(prev => {
-                if (deltaX < 0) return Math.min(prev + 1, WIDGETS.length - 1);
-                return Math.max(prev - 1, 0);
-            });
+            setWidgetIndex(prev => deltaX < 0 ? Math.min(prev + 1, WIDGETS.length - 1) : Math.max(prev - 1, 0));
         }
         touchStartRef.current = null;
     }, []);
@@ -68,10 +65,7 @@ export function CleanHomeHero() {
 
     // Auto-switch to music when user first interacts
     useEffect(() => {
-        if (hasInteracted) {
-            setSwipeDirection(1);
-            setWidgetIndex(1); // music is index 1
-        }
+        if (hasInteracted) { setWidgetIndex(1); setSwipeDirection(1); }
     }, [hasInteracted]);
 
     const showNowPlaying = WIDGETS[widgetIndex] === 'music' && hasInteracted;
@@ -87,9 +81,12 @@ export function CleanHomeHero() {
     const [football, setFootball] = useState<{ matches: { home: string; homeAbbr: string; away: string; awayAbbr: string; date: string; time: string; league: string; leagueEmoji: string; status: string; state: string; homeScore?: string; awayScore?: string; isBigMatch: boolean }[] } | null>(null);
     const [showMatchesPopup, setShowMatchesPopup] = useState(false);
     const [matchPage, setMatchPage] = useState(0);
-    const [news, setNews] = useState<{ articles: { title: string; source: string; url: string; timeAgo: string }[] } | null>(null);
-    const [crypto, setCrypto] = useState<{ prices: { id: string; name: string; symbol: string; emoji: string; usd: number; change24h: number }[] } | null>(null);
-    const [movies, setMovies] = useState<{ movies: { id: number; title: string; poster: string | null; rating: number; year: string }[] } | null>(null);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const [news, setNews] = useState<{ articles: any[] } | null>(null);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const [movies, setMovies] = useState<{ movies: any[] } | null>(null);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const [cryptoData, setCryptoData] = useState<{ prices: any[] } | null>(null);
 
     // Typewriter greeting
     const [displayedGreeting, setDisplayedGreeting] = useState('');
@@ -122,7 +119,7 @@ export function CleanHomeHero() {
         fetch('/api/prayer').then(r => r.json()).then(setPrayer).catch(() => { });
         fetch('/api/football').then(r => r.json()).then(setFootball).catch(() => { });
         fetch('/api/news').then(r => r.json()).then(setNews).catch(() => { });
-        fetch('/api/crypto').then(r => r.json()).then(setCrypto).catch(() => { });
+        fetch('/api/crypto').then(r => r.json()).then(d => setCryptoData(d)).catch(() => { });
         fetch('/api/movies').then(r => r.json()).then(setMovies).catch(() => { });
     }, []);
 
@@ -164,7 +161,7 @@ export function CleanHomeHero() {
         return set;
     }, [github, currentMonth, currentYear]);
 
-    // Dynamic next prayer â€” recomputed client-side every tick + countdown
+    // Dynamic next prayer — recomputed client-side every tick + countdown
     const dynamicNextPrayer = useMemo(() => {
         if (!prayer?.prayers || prayer.prayers.length === 0) return prayer?.next || null;
         const nowMinutes = now.getHours() * 60 + now.getMinutes();
@@ -172,7 +169,7 @@ export function CleanHomeHero() {
             const [h, m] = p.time.split(':').map(Number);
             if (h * 60 + m > nowMinutes) return p;
         }
-        // All prayers passed â†’ show tomorrow's Subuh
+        // All prayers passed → show tomorrow's Subuh
         return prayer.prayers[0] || null;
     }, [prayer, now]);
 
@@ -188,7 +185,7 @@ export function CleanHomeHero() {
         return `in ${mins}m`;
     }, [dynamicNextPrayer, now]);
 
-    // Rolling football match page â€” cycle every 10s
+    // Rolling football match page — cycle every 10s
     const bigMatches = useMemo(() => {
         if (!football) return [];
         return football.matches.filter(m => m.isBigMatch);
@@ -226,7 +223,7 @@ export function CleanHomeHero() {
     const totalCells = calendarGrid.length;
     const rowCount = Math.ceil(totalCells / 7);
 
-    // Wallpaper scheduling â€” time-of-day based
+    // Wallpaper scheduling — time-of-day based
     const wallpaper = useMemo(() => {
         const hour = now.getHours();
         if (hour >= 6 && hour < 14) return '/wallpapers/morning.jpg';       // Morning: forest cycling
@@ -248,7 +245,7 @@ export function CleanHomeHero() {
             fontFamily: "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif",
             color: "#fff",
         }}>
-            {/* Wallpaper Background â€” covers full viewport */}
+            {/* Wallpaper Background — covers full viewport */}
             <div style={{
                 position: "fixed",
                 inset: 0,
@@ -308,7 +305,7 @@ export function CleanHomeHero() {
                 ));
             }, [])}
             {/* Content */}
-            {/* â”€â”€ Header Area â”€â”€ */}
+            {/* ── Header Area ── */}
             <div style={{ marginBottom: "1rem" }}>
                 {/* Top: Date left, Weather right */}
                 <div style={{
@@ -318,7 +315,7 @@ export function CleanHomeHero() {
                     marginBottom: "0.1rem",
                 }}>
                     <span style={{ fontSize: "0.95rem", fontWeight: 600, color: "rgba(255,255,255,0.9)", textShadow: "0 1px 6px rgba(0,0,0,0.5)" }}>
-                        {dateStr} Â· {timeStr}
+                        {dateStr} · {timeStr}
                     </span>
                     <div style={{
                         display: "flex",
@@ -332,12 +329,12 @@ export function CleanHomeHero() {
                         {weather ? (
                             <>
                                 <span style={{ fontSize: "1rem" }}>{weather.icon}</span>
-                                <span>{weather.temp}Â°C</span>
+                                <span>{weather.temp}°C</span>
                             </>
                         ) : (
                             <>
                                 <CloudSun size={18} strokeWidth={2.5} />
-                                <span>Â·Â·Â·</span>
+                                <span>···</span>
                             </>
                         )}
                     </div>
@@ -356,7 +353,7 @@ export function CleanHomeHero() {
                     {dayName}
                 </div>
 
-                {/* Double Separator (Solid + Striped) â€” pixel match */}
+                {/* Double Separator (Solid + Striped) — pixel match */}
                 <div style={{ width: "100%", display: "flex", flexDirection: "column", gap: "2px" }}>
                     <div style={{ height: "2px", background: "rgba(255,255,255,0.6)", opacity: 0.7 }} />
                     <div style={{
@@ -374,16 +371,16 @@ export function CleanHomeHero() {
                     marginTop: "0.25rem",
                 }}>
                     <span style={{ fontSize: "0.75rem", fontWeight: 600, color: "rgba(255,255,255,0.7)", textShadow: "0 1px 4px rgba(0,0,0,0.5)" }}>
-                        {weather ? `${weather.label} Â· Jaksel` : 'Â·Â·Â·'}
+                        {weather ? `${weather.label} · Jaksel` : '···'}
                     </span>
                     {dynamicNextPrayer && (
                         <span style={{ fontSize: "0.75rem", fontWeight: 700, color: "rgba(255,255,255,0.8)", textShadow: "0 1px 4px rgba(0,0,0,0.5)" }}>
-                            ðŸ•Œ {dynamicNextPrayer.name} <span style={{ fontWeight: 500, fontSize: "0.68rem", opacity: 0.8 }}>{prayerCountdown}</span>
+                            🕌 {dynamicNextPrayer.name} <span style={{ fontWeight: 500, fontSize: "0.68rem", opacity: 0.8 }}>{prayerCountdown}</span>
                         </span>
                     )}
                 </div>
 
-                {/* AI Generated Greeting â€” Typewriter */}
+                {/* AI Generated Greeting — Typewriter */}
                 {greeting && (
                     <div
                         style={{
@@ -413,7 +410,7 @@ export function CleanHomeHero() {
                 )}
             </div>
 
-            {/* â”€â”€ Main Widget Area â€” Premium Frosted Glass â”€â”€ */}
+            {/* ── Main Widget Area — Premium Frosted Glass ── */}
             <div
                 onTouchStart={handleTouchStart}
                 onTouchEnd={handleTouchEnd}
@@ -434,7 +431,7 @@ export function CleanHomeHero() {
                     overflow: "hidden",
                     touchAction: "pan-y",
                 }}>
-                {/* Layer 1: Gradient border â€” soft edge that catches light */}
+                {/* Layer 1: Gradient border — soft edge that catches light */}
                 <div style={{
                     position: "absolute",
                     inset: 0,
@@ -448,7 +445,7 @@ export function CleanHomeHero() {
                     zIndex: 3,
                 }} />
 
-                {/* Layer 2: Specular highlight â€” bright focused shine at top */}
+                {/* Layer 2: Specular highlight — bright focused shine at top */}
                 <div style={{
                     position: "absolute",
                     top: 0,
@@ -461,7 +458,7 @@ export function CleanHomeHero() {
                     filter: "blur(0.5px)",
                 }} />
 
-                {/* Layer 3: Glossy sheen â€” smooth light sweep across surface */}
+                {/* Layer 3: Glossy sheen — smooth light sweep across surface */}
                 <div style={{
                     position: "absolute",
                     top: 0,
@@ -477,7 +474,7 @@ export function CleanHomeHero() {
                 <AnimatePresence mode="wait" initial={false}>
                     {showNowPlaying ? (
                         <motion.div
-                            key="music"
+                            key="now-playing"
                             initial={{ opacity: 0, x: swipeDirection * 60 }}
                             animate={{ opacity: 1, x: 0 }}
                             exit={{ opacity: 0, x: swipeDirection * -60 }}
@@ -594,7 +591,7 @@ export function CleanHomeHero() {
                                             textAlign: "center",
                                             lineHeight: 1.5,
                                         }}>
-                                            {line.text || "â™ª"}
+                                            {line.text || "♪"}
                                         </div>
                                     ))
                                 ) : (
@@ -602,7 +599,7 @@ export function CleanHomeHero() {
                                         textAlign: "center", padding: "1.5rem 0",
                                         fontSize: "0.78rem", color: "rgba(255,255,255,0.55)",
                                         fontStyle: "italic",
-                                    }}>â™ª No lyrics available â™ª</div>
+                                    }}>♪ No lyrics available ♪</div>
                                 )}
                             </div>
                         </motion.div>
@@ -616,11 +613,11 @@ export function CleanHomeHero() {
                             style={{ position: "relative", zIndex: 1 }}
                         >
                             <div style={{ display: "flex", alignItems: "center", gap: "0.3rem", fontSize: "0.7rem", fontWeight: 700, color: "rgba(255,255,255,0.95)", marginBottom: "0.5rem", textTransform: "uppercase" as const, letterSpacing: "0.03em" }}>
-                                ðŸ“° Headlines
+                                📰 Headlines
                             </div>
                             {news && news.articles.length > 0 ? (
                                 <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-                                    {news.articles.slice(0, 4).map((a, i) => (
+                                    {news.articles.slice(0, 4).map((a: { url: string; title: string; source: string; timeAgo: string }, i: number) => (
                                         <a key={i} href={a.url} target="_blank" rel="noopener noreferrer" style={{ textDecoration: "none", display: "flex", flexDirection: "column", gap: "1px", padding: "5px 6px", borderRadius: "8px", background: "rgba(255,255,255,0.06)" }}>
                                             <div style={{ fontSize: "0.68rem", fontWeight: 600, color: "rgba(255,255,255,0.9)", lineHeight: 1.3, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical" as const, overflow: "hidden" }}>
                                                 {a.title}
@@ -633,7 +630,7 @@ export function CleanHomeHero() {
                                     ))}
                                 </div>
                             ) : (
-                                <div style={{ fontSize: "0.72rem", color: "rgba(255,255,255,0.55)", textAlign: "center", padding: "1.5rem 0" }}>Loading newsÂ·Â·Â·</div>
+                                <div style={{ fontSize: "0.72rem", color: "rgba(255,255,255,0.55)", textAlign: "center", padding: "1.5rem 0" }}>Loading news···</div>
                             )}
                         </motion.div>
                     ) : WIDGETS[widgetIndex] === 'crypto' ? (
@@ -646,11 +643,11 @@ export function CleanHomeHero() {
                             style={{ position: "relative", zIndex: 1 }}
                         >
                             <div style={{ display: "flex", alignItems: "center", gap: "0.3rem", fontSize: "0.7rem", fontWeight: 700, color: "rgba(255,255,255,0.95)", marginBottom: "0.5rem", textTransform: "uppercase" as const, letterSpacing: "0.03em" }}>
-                                ðŸ’± Crypto
+                                💱 Crypto
                             </div>
-                            {crypto && crypto.prices.length > 0 ? (
+                            {cryptoData && cryptoData.prices.length > 0 ? (
                                 <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-                                    {crypto.prices.map((c) => (
+                                    {cryptoData.prices.map((c: { id: string; symbol: string; name: string; emoji: string; usd: number; change24h: number }) => (
                                         <div key={c.id} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "6px 8px", borderRadius: "10px", background: "rgba(255,255,255,0.06)" }}>
                                             <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
                                                 <span style={{ fontSize: "1.1rem" }}>{c.emoji}</span>
@@ -659,19 +656,19 @@ export function CleanHomeHero() {
                                                     <div style={{ fontSize: "0.52rem", color: "rgba(255,255,255,0.45)" }}>{c.name}</div>
                                                 </div>
                                             </div>
-                                            <div style={{ textAlign: "right" }}>
+                                            <div style={{ textAlign: "right" as const }}>
                                                 <div style={{ fontSize: "0.75rem", fontWeight: 700, color: "rgba(255,255,255,0.95)", fontVariantNumeric: "tabular-nums" }}>
                                                     ${c.usd >= 1000 ? c.usd.toLocaleString('en-US', { maximumFractionDigits: 0 }) : c.usd.toFixed(2)}
                                                 </div>
                                                 <div style={{ fontSize: "0.55rem", fontWeight: 600, color: c.change24h >= 0 ? "#4ade80" : "#f87171" }}>
-                                                    {c.change24h >= 0 ? "â–²" : "â–¼"} {Math.abs(c.change24h).toFixed(1)}%
+                                                    {c.change24h >= 0 ? "▲" : "▼"} {Math.abs(c.change24h).toFixed(1)}%
                                                 </div>
                                             </div>
                                         </div>
                                     ))}
                                 </div>
                             ) : (
-                                <div style={{ fontSize: "0.72rem", color: "rgba(255,255,255,0.55)", textAlign: "center", padding: "1.5rem 0" }}>Loading cryptoÂ·Â·Â·</div>
+                                <div style={{ fontSize: "0.72rem", color: "rgba(255,255,255,0.55)", textAlign: "center", padding: "1.5rem 0" }}>Loading crypto···</div>
                             )}
                         </motion.div>
                     ) : WIDGETS[widgetIndex] === 'movies' ? (
@@ -684,23 +681,23 @@ export function CleanHomeHero() {
                             style={{ position: "relative", zIndex: 1 }}
                         >
                             <div style={{ display: "flex", alignItems: "center", gap: "0.3rem", fontSize: "0.7rem", fontWeight: 700, color: "rgba(255,255,255,0.95)", marginBottom: "0.5rem", textTransform: "uppercase" as const, letterSpacing: "0.03em" }}>
-                                ðŸŽ¬ Trending
+                                🎬 Trending
                             </div>
                             {movies && movies.movies.length > 0 ? (
                                 <div style={{ display: "flex", flexDirection: "column", gap: "5px" }}>
-                                    {movies.movies.slice(0, 4).map((m) => (
+                                    {movies.movies.slice(0, 4).map((m: { id: number; title: string; poster: string | null; rating: number; year: string }) => (
                                         <div key={m.id} style={{ display: "flex", alignItems: "center", gap: "8px", padding: "4px 6px", borderRadius: "8px", background: "rgba(255,255,255,0.06)" }}>
                                             {m.poster ? (
-                                                <img src={m.poster} alt={m.title} style={{ width: "28px", height: "40px", borderRadius: "4px", objectFit: "cover", flexShrink: 0 }} />
+                                                <img src={m.poster} alt={m.title} style={{ width: "28px", height: "40px", borderRadius: "4px", objectFit: "cover" as const, flexShrink: 0 }} />
                                             ) : (
-                                                <div style={{ width: "28px", height: "40px", borderRadius: "4px", background: "rgba(255,255,255,0.1)", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", fontSize: "0.8rem" }}>ðŸŽ¬</div>
+                                                <div style={{ width: "28px", height: "40px", borderRadius: "4px", background: "rgba(255,255,255,0.1)", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", fontSize: "0.8rem" }}>🎬</div>
                                             )}
                                             <div style={{ flex: 1, minWidth: 0 }}>
-                                                <div style={{ fontSize: "0.68rem", fontWeight: 600, color: "rgba(255,255,255,0.9)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                                                <div style={{ fontSize: "0.68rem", fontWeight: 600, color: "rgba(255,255,255,0.9)", whiteSpace: "nowrap" as const, overflow: "hidden", textOverflow: "ellipsis" }}>
                                                     {m.title}
                                                 </div>
                                                 <div style={{ fontSize: "0.52rem", color: "rgba(255,255,255,0.5)" }}>
-                                                    â­ {m.rating} Â· {m.year}
+                                                    ⭐ {m.rating} · {m.year}
                                                 </div>
                                             </div>
                                         </div>
@@ -726,7 +723,7 @@ export function CleanHomeHero() {
                                 zIndex: 1,
                             }}
                         >
-                            {/* â”€â”€ Calendar Card (inset within glass) â”€â”€ */}
+                            {/* ── Calendar Card (inset within glass) ── */}
                             <div style={{
                                 display: "flex",
                                 flexDirection: "column",
@@ -786,9 +783,9 @@ export function CleanHomeHero() {
 
                                         // Build tooltip text
                                         const tooltipParts: string[] = [];
-                                        if (holidayName) tooltipParts.push(`ðŸ”´ ${holidayName}`);
-                                        if (isGithubDay) tooltipParts.push('ðŸŸ¢ GitHub push');
-                                        const tooltipText = tooltipParts.join(' Â· ');
+                                        if (holidayName) tooltipParts.push(`🔴 ${holidayName}`);
+                                        if (isGithubDay) tooltipParts.push('🟢 GitHub push');
+                                        const tooltipText = tooltipParts.join(' · ');
 
                                         return (
                                             <div
@@ -856,8 +853,8 @@ export function CleanHomeHero() {
                                                 cursor: "pointer",
                                                 justifyContent: "space-between",
                                             }}>
-                                            <span>âš½ Upcoming</span>
-                                            <span style={{ fontSize: "0.5rem", opacity: 0.6 }}>See all â†’</span>
+                                            <span>⚽ Upcoming</span>
+                                            <span style={{ fontSize: "0.5rem", opacity: 0.6 }}>See all →</span>
                                         </div>
                                         <AnimatePresence mode="wait">
                                             <motion.div
@@ -912,7 +909,7 @@ export function CleanHomeHero() {
                                 )}
                             </div>
 
-                            {/* â”€â”€ Live Stats (Right â€” API-powered) â”€â”€ */}
+                            {/* ── Live Stats (Right — API-powered) ── */}
                             <div style={{
                                 display: "flex",
                                 flexDirection: "column",
@@ -924,11 +921,11 @@ export function CleanHomeHero() {
                                 <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
                                     <Droplets size={15} strokeWidth={2.5} color="rgba(255,255,255,0.95)" style={{ opacity: 0.7, flexShrink: 0 }} />
                                     <span style={{ fontSize: "0.82rem", fontWeight: 600, color: "rgba(255,255,255,0.75)", whiteSpace: "nowrap" }}>
-                                        {weather ? `${weather.humidity}%` : 'Â·Â·'}
+                                        {weather ? `${weather.humidity}%` : '··'}
                                     </span>
                                     <Wind size={15} strokeWidth={2.5} color="rgba(255,255,255,0.95)" style={{ opacity: 0.7, flexShrink: 0, marginLeft: "0.3rem" }} />
                                     <span style={{ fontSize: "0.82rem", fontWeight: 600, color: "rgba(255,255,255,0.75)", whiteSpace: "nowrap" }}>
-                                        {weather ? `${weather.wind} km/h` : 'Â·Â·'}
+                                        {weather ? `${weather.wind} km/h` : '··'}
                                     </span>
                                 </div>
 
@@ -954,15 +951,15 @@ export function CleanHomeHero() {
                                                     {github.streak}
                                                 </span>
                                                 <span style={{ fontSize: "0.68rem", fontWeight: 500, color: "rgba(255,255,255,0.55)" }}>
-                                                    day streak ðŸ”¥
+                                                    day streak 🔥
                                                 </span>
                                             </div>
                                             <div style={{ fontSize: "0.65rem", color: "rgba(255,255,255,0.55)", marginTop: "0.15rem" }}>
-                                                {github.repos} repos Â· {github.todayActive ? 'âœ… active today' : 'â³ no push today'}
+                                                {github.repos} repos · {github.todayActive ? '✅ active today' : '⏳ no push today'}
                                             </div>
                                         </>
                                     ) : (
-                                        <div style={{ fontSize: "0.75rem", color: "rgba(255,255,255,0.55)" }}>LoadingÂ·Â·Â·</div>
+                                        <div style={{ fontSize: "0.75rem", color: "rgba(255,255,255,0.55)" }}>Loading···</div>
                                     )}
                                 </div>
 
@@ -986,11 +983,11 @@ export function CleanHomeHero() {
                                                 &quot;{quote.text}&quot;
                                             </div>
                                             <div style={{ fontSize: "0.62rem", color: "rgba(255,255,255,0.55)", marginTop: "0.15rem" }}>
-                                                â€” {quote.author}
+                                                — {quote.author}
                                             </div>
                                         </>
                                     ) : (
-                                        <div style={{ fontSize: "0.72rem", fontStyle: "italic", color: "rgba(255,255,255,0.55)" }}>LoadingÂ·Â·Â·</div>
+                                        <div style={{ fontSize: "0.72rem", fontStyle: "italic", color: "rgba(255,255,255,0.55)" }}>Loading···</div>
                                     )}
                                 </div>
                             </div>
@@ -998,153 +995,148 @@ export function CleanHomeHero() {
                     )}
                 </AnimatePresence>
 
-                {/* Widget Toggle â€” iOS page dots */ }
-    {
-        hasInteracted && (
-            <div style={{
-                display: "flex",
-                justifyContent: "center",
-                gap: "6px",
-                marginTop: "0.6rem",
-                position: "relative",
-                zIndex: 5,
-            }}>
-                {WIDGETS.map((w, i) => (
-                    <div
-                        key={w}
-                        onClick={() => { setSwipeDirection(i > widgetIndex ? 1 : -1); setWidgetIndex(i); }}
-                        style={{
-                            width: widgetIndex === i ? "20px" : "7px",
-                            height: "7px",
-                            borderRadius: "4px",
-                            background: widgetIndex === i
-                                ? "rgba(255,255,255,0.95)"
-                                : "rgba(0,0,0,0.15)",
-                            cursor: "pointer",
-                            transition: "all 0.3s ease",
-                        }}
-                    />
-                ))}
-
+                {/* Widget Toggle — iOS page dots */}
+                {hasInteracted && (
+                    <div style={{
+                        display: "flex",
+                        justifyContent: "center",
+                        gap: "6px",
+                        marginTop: "0.6rem",
+                        position: "relative",
+                        zIndex: 5,
+                    }}>
+                        {WIDGETS.map((w, i) => (
+                            <div
+                                key={w}
+                                onClick={() => { setSwipeDirection(i > widgetIndex ? 1 : -1); setWidgetIndex(i); }}
+                                style={{
+                                    width: widgetIndex === i ? "20px" : "7px",
+                                    height: "7px",
+                                    borderRadius: "4px",
+                                    background: widgetIndex === i
+                                        ? "rgba(255,255,255,0.95)"
+                                        : "rgba(0,0,0,0.15)",
+                                    cursor: "pointer",
+                                    transition: "all 0.3s ease",
+                                }}
+                            />
+                        ))}
+                    </div>
+                )}
             </div>
-        )
-    }
-            </div >
 
 
-        {/* â”€â”€ Football Matches Popup â”€â”€ */ }
-        <AnimatePresence>
-    {
-        showMatchesPopup && football && (
-            <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                onClick={() => setShowMatchesPopup(false)}
-                style={{
-                    position: "fixed",
-                    inset: 0,
-                    zIndex: 9999,
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    background: "rgba(0,0,0,0.35)",
-                    backdropFilter: "blur(6px)",
-                    padding: "1rem",
-                }}
-            >
-                <motion.div
-                    initial={{ scale: 0.9, opacity: 0, y: 20 }}
-                    animate={{ scale: 1, opacity: 1, y: 0 }}
-                    exit={{ scale: 0.9, opacity: 0, y: 20 }}
-                    transition={{ type: "spring", damping: 25, stiffness: 300 }}
-                    onClick={(e) => e.stopPropagation()}
-                    data-scrollable="true"
-                    style={{
-                        background: "linear-gradient(135deg, rgba(30,35,50,0.92) 0%, rgba(20,25,40,0.95) 100%)",
-                        backdropFilter: "blur(40px)",
-                        border: "1px solid rgba(255,255,255,0.15)",
-                        borderRadius: "24px",
-                        padding: "1.2rem 1.4rem",
-                        maxWidth: "380px",
-                        width: "100%",
-                        maxHeight: "70vh",
-                        overflowY: "auto",
-                        WebkitOverflowScrolling: "touch" as React.CSSProperties['WebkitOverflowScrolling'],
-                        color: "rgba(255,255,255,0.95)",
-                    }}
-                >
-                    {/* Header */}
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
-                        <div style={{ fontSize: "1rem", fontWeight: 800, letterSpacing: "-0.02em" }}>
-                            âš½ Upcoming Matches
-                        </div>
-                        <div
-                            onClick={() => setShowMatchesPopup(false)}
+            {/* ── Football Matches Popup ── */}
+            <AnimatePresence>
+                {showMatchesPopup && football && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        onClick={() => setShowMatchesPopup(false)}
+                        style={{
+                            position: "fixed",
+                            inset: 0,
+                            zIndex: 9999,
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            background: "rgba(0,0,0,0.35)",
+                            backdropFilter: "blur(6px)",
+                            padding: "1rem",
+                        }}
+                    >
+                        <motion.div
+                            initial={{ scale: 0.9, opacity: 0, y: 20 }}
+                            animate={{ scale: 1, opacity: 1, y: 0 }}
+                            exit={{ scale: 0.9, opacity: 0, y: 20 }}
+                            transition={{ type: "spring", damping: 25, stiffness: 300 }}
+                            onClick={(e) => e.stopPropagation()}
+                            data-scrollable="true"
                             style={{
-                                width: "28px", height: "28px", borderRadius: "50%",
-                                background: "rgba(255,255,255,0.1)",
-                                display: "flex", alignItems: "center", justifyContent: "center",
-                                cursor: "pointer", fontSize: "0.8rem", color: "rgba(255,255,255,0.55)",
+                                background: "linear-gradient(135deg, rgba(30,35,50,0.92) 0%, rgba(20,25,40,0.95) 100%)",
+                                backdropFilter: "blur(40px)",
+                                border: "1px solid rgba(255,255,255,0.15)",
+                                borderRadius: "24px",
+                                padding: "1.2rem 1.4rem",
+                                maxWidth: "380px",
+                                width: "100%",
+                                maxHeight: "70vh",
+                                overflowY: "auto",
+                                WebkitOverflowScrolling: "touch" as React.CSSProperties['WebkitOverflowScrolling'],
+                                color: "rgba(255,255,255,0.95)",
                             }}
                         >
-                            âœ•
-                        </div>
-                    </div>
-
-                    {/* Match List */}
-                    <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-                        {football.matches
-                            .filter(m => m.isBigMatch)
-                            .map((m, i) => (
-                                <div key={i} style={{
-                                    display: "flex", alignItems: "center", justifyContent: "space-between",
-                                    padding: "8px 10px",
-                                    borderRadius: "12px",
-                                    background: "rgba(255,255,255,0.08)",
-                                    border: "1px solid rgba(255,255,255,0.1)",
-                                }}>
-                                    <div style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
-                                        <div style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "0.82rem", fontWeight: 700 }}>
-                                            <span>{m.leagueEmoji}</span>
-                                            <span>{m.home}</span>
-                                            <span style={{ color: "rgba(255,255,255,0.45)", fontWeight: 400, fontSize: "0.7rem" }}>vs</span>
-                                            <span>{m.away}</span>
-                                        </div>
-                                        <div style={{ fontSize: "0.65rem", color: "rgba(255,255,255,0.6)", fontWeight: 500 }}>
-                                            {m.league}
-                                        </div>
-                                    </div>
-                                    <div style={{ textAlign: "right" }}>
-                                        {m.state === "in" ? (
-                                            <div style={{ color: "#4ade80", fontWeight: 800, fontSize: "0.85rem" }}>
-                                                LIVE<br />{m.homeScore} - {m.awayScore}
-                                            </div>
-                                        ) : m.state === "post" ? (
-                                            <div style={{ fontWeight: 700, fontSize: "0.82rem" }}>
-                                                {m.homeScore} - {m.awayScore}
-                                                <div style={{ fontSize: "0.6rem", color: "rgba(255,255,255,0.55)" }}>FT</div>
-                                            </div>
-                                        ) : (
-                                            <div>
-                                                <div style={{ fontWeight: 700, fontSize: "0.82rem" }}>{m.time}</div>
-                                                <div style={{ fontSize: "0.6rem", color: "rgba(255,255,255,0.55)" }}>{m.date}</div>
-                                            </div>
-                                        )}
-                                    </div>
+                            {/* Header */}
+                            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
+                                <div style={{ fontSize: "1rem", fontWeight: 800, letterSpacing: "-0.02em" }}>
+                                    ⚽ Upcoming Matches
                                 </div>
-                            ))}
-                        {football.matches.filter(m => m.isBigMatch).length === 0 && (
-                            <div style={{ textAlign: "center", padding: "1rem", color: "rgba(255,255,255,0.55)", fontSize: "0.8rem" }}>
-                                No big team matches today
+                                <div
+                                    onClick={() => setShowMatchesPopup(false)}
+                                    style={{
+                                        width: "28px", height: "28px", borderRadius: "50%",
+                                        background: "rgba(255,255,255,0.1)",
+                                        display: "flex", alignItems: "center", justifyContent: "center",
+                                        cursor: "pointer", fontSize: "0.8rem", color: "rgba(255,255,255,0.55)",
+                                    }}
+                                >
+                                    ✕
+                                </div>
                             </div>
-                        )}
-                    </div>
-                </motion.div>
-            </motion.div>
-        )
-    }
-            </AnimatePresence >
+
+                            {/* Match List */}
+                            <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+                                {football.matches
+                                    .filter(m => m.isBigMatch)
+                                    .map((m, i) => (
+                                        <div key={i} style={{
+                                            display: "flex", alignItems: "center", justifyContent: "space-between",
+                                            padding: "8px 10px",
+                                            borderRadius: "12px",
+                                            background: "rgba(255,255,255,0.08)",
+                                            border: "1px solid rgba(255,255,255,0.1)",
+                                        }}>
+                                            <div style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
+                                                <div style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "0.82rem", fontWeight: 700 }}>
+                                                    <span>{m.leagueEmoji}</span>
+                                                    <span>{m.home}</span>
+                                                    <span style={{ color: "rgba(255,255,255,0.45)", fontWeight: 400, fontSize: "0.7rem" }}>vs</span>
+                                                    <span>{m.away}</span>
+                                                </div>
+                                                <div style={{ fontSize: "0.65rem", color: "rgba(255,255,255,0.6)", fontWeight: 500 }}>
+                                                    {m.league}
+                                                </div>
+                                            </div>
+                                            <div style={{ textAlign: "right" }}>
+                                                {m.state === "in" ? (
+                                                    <div style={{ color: "#4ade80", fontWeight: 800, fontSize: "0.85rem" }}>
+                                                        LIVE<br />{m.homeScore} - {m.awayScore}
+                                                    </div>
+                                                ) : m.state === "post" ? (
+                                                    <div style={{ fontWeight: 700, fontSize: "0.82rem" }}>
+                                                        {m.homeScore} - {m.awayScore}
+                                                        <div style={{ fontSize: "0.6rem", color: "rgba(255,255,255,0.55)" }}>FT</div>
+                                                    </div>
+                                                ) : (
+                                                    <div>
+                                                        <div style={{ fontWeight: 700, fontSize: "0.82rem" }}>{m.time}</div>
+                                                        <div style={{ fontSize: "0.6rem", color: "rgba(255,255,255,0.55)" }}>{m.date}</div>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </div>
+                                    ))}
+                                {football.matches.filter(m => m.isBigMatch).length === 0 && (
+                                    <div style={{ textAlign: "center", padding: "1rem", color: "rgba(255,255,255,0.55)", fontSize: "0.8rem" }}>
+                                        No big team matches today
+                                    </div>
+                                )}
+                            </div>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
         </section >
     );
 }
