@@ -77,13 +77,16 @@ export default function StarlightPage() {
           <main style={{
             position: "relative",
             zIndex: 1,
-            height: "100svh",
-            overflow: "hidden", // Prevent full page scrolling
+            minHeight: "100svh", // Changed from height to minHeight to prevent bottom clipping
+            overflowX: "hidden", // Allow vertical scrolling if the device is very short
             display: "flex",
             flexDirection: "column",
             alignItems: "center",
-            justifyContent: "center",
-            padding: "1rem"
+            justifyContent: "flex-start", // Change from center to flex-start
+            paddingTop: "15vh", // Explicitly position down from the top without negative margins
+            paddingLeft: "1rem",
+            paddingRight: "1rem",
+            paddingBottom: "1rem",
           }}>
             <motion.div
               initial={{ opacity: 0, scale: 0.9, y: 20 }}
@@ -94,9 +97,9 @@ export default function StarlightPage() {
                 maxWidth: "520px",
                 display: "flex",
                 flexDirection: "column",
-                background: "rgba(0, 0, 0, 0.35)", // Dark frosted glass grounds the entire container
-                backdropFilter: "blur(48px) saturate(180%) brightness(85%)", // Max blur, slightly darkened to make white text pop
-                WebkitBackdropFilter: "blur(48px) saturate(180%) brightness(85%)",
+                background: "rgba(0, 0, 0, 0.6)", // Much darker frosted glass to obscure the wallpaper text behind it
+                backdropFilter: "blur(48px) saturate(160%) brightness(80%)", // Stronger blur
+                WebkitBackdropFilter: "blur(48px) saturate(160%) brightness(80%)",
                 borderRadius: "32px",
                 border: "1px solid rgba(255, 255, 255, 0.12)", // Thinner, subtler edge for dark glass
                 boxShadow: `
