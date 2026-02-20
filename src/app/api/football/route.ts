@@ -83,7 +83,7 @@ export async function GET() {
                             away: away.team.shortDisplayName,
                             awayAbbr: away.team.abbreviation,
                             awayLogo: away.team.logo,
-                            date: d.toLocaleDateString("en-GB", { day: "numeric", month: "short" }),
+                            date: d.toLocaleDateString("en-GB", { day: "numeric", month: "short", timeZone: "Asia/Jakarta" }),
                             time: d.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit", hour12: false, timeZone: "Asia/Jakarta" }),
                             league: league.name,
                             leagueEmoji: league.emoji,
