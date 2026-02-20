@@ -38,7 +38,13 @@ export default function StarlightPage() {
         backgroundPosition: "center",
         zIndex: -2,
       }} />
-      {/* Removed dark overlay to let the natural wallpaper shine through */}
+      {/* Thin elegant dark overlay for contrast */}
+      <div style={{
+        position: "fixed",
+        inset: 0,
+        background: "linear-gradient(180deg, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.2) 50%, rgba(0,0,0,0.4) 100%)",
+        zIndex: -1,
+      }} />
       <div>
         {/* Back Button */}
         <div style={{
