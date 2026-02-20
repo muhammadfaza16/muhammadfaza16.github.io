@@ -94,14 +94,14 @@ export default function StarlightPage() {
                 maxWidth: "520px",
                 display: "flex",
                 flexDirection: "column",
-                background: "rgba(255, 255, 255, 0.05)", // Ultra-thin frosted glass structure
-                backdropFilter: "blur(48px) saturate(160%) brightness(115%)", // Max blur to obliterate busy BG details
-                WebkitBackdropFilter: "blur(48px) saturate(160%) brightness(115%)",
+                background: "rgba(0, 0, 0, 0.35)", // Dark frosted glass grounds the entire container
+                backdropFilter: "blur(48px) saturate(180%) brightness(85%)", // Max blur, slightly darkened to make white text pop
+                WebkitBackdropFilter: "blur(48px) saturate(180%) brightness(85%)",
                 borderRadius: "32px",
-                border: "1px solid rgba(255, 255, 255, 0.2)",
+                border: "1px solid rgba(255, 255, 255, 0.12)", // Thinner, subtler edge for dark glass
                 boxShadow: `
-                  0 32px 64px -16px rgba(0,0,0,0.3),
-                  inset 0 1px 1px rgba(255,255,255,0.5)
+                  0 32px 64px -16px rgba(0,0,0,0.5),
+                  inset 0 1px 1px rgba(255,255,255,0.3)
                 `,
                 overflow: "hidden", // Keep children inside rounded corners
                 position: "relative"
