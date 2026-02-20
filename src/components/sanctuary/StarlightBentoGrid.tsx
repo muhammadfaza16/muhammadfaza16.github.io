@@ -40,22 +40,22 @@ const AppIcon = ({ title, href, icon, iconColor, delay = 0 }: AppIconProps) => {
                     gap: "0.4rem",
                 }}
             >
-                {/* iOS Glass Icon Style */}
+                {/* iOS Dark Transparent Icon Style */}
                 <div style={{
                     position: "relative",
                     width: "clamp(58px, 16vw, 72px)",
                     height: "clamp(58px, 16vw, 72px)",
                     borderRadius: "22.5%",
-                    background: "rgba(0, 0, 0, 0.05)", // Very subtle dark tint to separate icon from bright white dock
-                    backdropFilter: "blur(32px) saturate(150%)",
-                    WebkitBackdropFilter: "blur(32px) saturate(150%)",
+                    background: "rgba(0, 0, 0, 0.65)", // Strong dark transparent base inside the white dock
+                    backdropFilter: "blur(32px) saturate(160%)",
+                    WebkitBackdropFilter: "blur(32px) saturate(160%)",
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
-                    boxShadow: "0 8px 16px -4px rgba(0,0,0,0.08), inset 0 1px 1px rgba(255,255,255,0.8)", // Bright inner spec
+                    boxShadow: "0 8px 16px -4px rgba(0,0,0,0.2), inset 0 1px 1px rgba(255,255,255,0.2)", // Softer inner spec for dark background
                     transition: "transform 0.15s ease",
                     overflow: "hidden",
-                    border: "1px solid rgba(255,255,255,0.4)", // Crisper edge
+                    border: "1px solid rgba(255,255,255,0.15)", // Subtler border for dark transparent box
                 }} className="hover:scale-105 active:scale-95">
 
                     {/* Icon symbol (Restored Brand Colors) */}
