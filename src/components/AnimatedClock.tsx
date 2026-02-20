@@ -34,14 +34,14 @@ export function AnimatedClock({ size = 24, onClick }: AnimatedClockProps) {
     const minuteDegrees = (minutes / 60) * 360 + (seconds / 60) * 6;
     const hourDegrees = (hours / 12) * 360 + (minutes / 60) * 30;
 
-    const isActive = pathname === "/time";
+    const isActive = pathname === "/clock";
 
     // Don't animate until mounted to avoid hydration mismatch
     const shouldAnimate = mounted;
 
     return (
         <Link
-            href="/time"
+            href="/clock"
             onClick={onClick}
             style={{
                 opacity: isActive ? 1 : 0.6,

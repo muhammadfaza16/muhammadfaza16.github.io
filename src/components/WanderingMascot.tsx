@@ -118,7 +118,7 @@ export function WanderingMascot() {
             }}
         >
             <Link
-                href="/time"
+                href="/clock"
                 style={{
                     position: "absolute",
                     left: `${position.x}%`,

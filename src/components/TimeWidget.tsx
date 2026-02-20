@@ -121,7 +121,7 @@ export function TimeWidget() {
 
             {/* Link to Time Page */}
             <Link
-                href="/time"
+                href="/clock"
                 style={{
                     display: "inline-flex",
                     alignItems: "center",

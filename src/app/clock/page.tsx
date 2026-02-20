@@ -452,75 +452,78 @@ const DayProgress = () => {
     );
 };
 
-// 5. Month & Calendar Combined
-const CalendarBlock = () => {
-    const now = new Date();
-    const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
-    const currentDay = now.getDate();
-    const currentMonthStr = now.toLocaleDateString('en-US', { month: 'short' }).toUpperCase();
-    const months = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
+// Helper Functions
+function getMonthName(month: number): string {
+    const months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+        'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+    return months[month];
+}
+
+function getDayName(day: number): string {
+    const days = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+    return days[day];
+}
+
+function formatTime(num: number): string {
+    return num.toString().padStart(2, '0');
+}
+
+// 5. Big Clock (Imported from Time page)
+const BigClock = () => {
+    const [mounted, setMounted] = useState(false);
+    const [now, setNow] = useState(new Date());
+
+    useEffect(() => {
+        setMounted(true);
+        const interval = setInterval(() => setNow(new Date()), 1000);
+        return () => clearInterval(interval);
+    }, []);
+
+    const year = now.getFullYear();
+    const month = now.getMonth();
+    const dayOfMonth = now.getDate();
+    const dayOfWeek = now.getDay();
+
+    const hoursStr = formatTime(now.getHours());
+    const minutesStr = formatTime(now.getMinutes());
+    const secondsStr = formatTime(now.getSeconds());
+
+    if (!mounted) return (
+        <BentoCard colSpanMobile={1} colSpanDesktop={2} delay={0.1}>
+            <div style={{ height: "100%", width: "100%" }} />
+        </BentoCard>
+    );
 
     return (
-        <BentoCard colSpanMobile={1} colSpanDesktop={2} delay={0.5}>
-            <div style={{ display: "flex", gap: "2rem", height: "100%" }}>
-                {/* Month Progress Circle */}
-                <div style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: "0.6rem", color: theme.colors.textMuted }}>
-                        <Calendar size={14} />
-                        <span style={{ fontSize: "0.65rem", fontWeight: 600, letterSpacing: "0.15em", textTransform: "uppercase" }}>{currentMonthStr}</span>
-                    </div>
-
-                    <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: "6px", marginTop: "1rem" }}>
-                        {Array.from({ length: daysInMonth }).map((_, i) => {
-                            const dayNum = i + 1;
-                            const isDone = dayNum <= currentDay;
-                            const isToday = dayNum === currentDay;
-                            return (
-                                <motion.div
-                                    key={i}
-                                    animate={isToday ? { scale: [1, 1.15, 1], opacity: [0.6, 1, 0.6] } : {}}
-                                    transition={isToday ? { repeat: Infinity, duration: 3, ease: [0.4, 0, 0.2, 1] } : {}}
-                                    style={{
-                                        aspectRatio: "1/1",
-                                        borderRadius: "50%",
-                                        background: isToday ? theme.colors.textMain : isDone ? "rgba(255,255,255,0.4)" : "rgba(255,255,255,0.06)",
-                                        // boxShadow moved to animate
-                                    }}
-                                />
-                            );
-                        })}
-                    </div>
-                    <div style={{ marginTop: "1rem" }}>
-                        <span style={{ fontSize: "0.8rem", color: theme.colors.textMuted }}>
-                            {daysInMonth - currentDay} days remaining
-                        </span>
-                    </div>
+        <BentoCard colSpanMobile={1} colSpanDesktop={2} delay={0.1}>
+            <div style={{ height: "100%", display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center" }}>
+                <div style={{
+                    fontFamily: "var(--font-mono)",
+                    fontSize: "clamp(3.5rem, 6vw, 5rem)",
+                    fontWeight: 200,
+                    lineHeight: 1,
+                    letterSpacing: "-0.05em",
+                    display: "flex",
+                    alignItems: "baseline",
+                    gap: "0.5rem"
+                }}>
+                    <span>{hoursStr}</span>
+                    <motion.span
+                        animate={{ opacity: [1, 0.4, 1] }}
+                        transition={{ duration: 1, repeat: Infinity, ease: "easeInOut" }}
+                        style={{ opacity: 0.5 }}
+                    >:</motion.span>
+                    <span>{minutesStr}</span>
+                    <span style={{ fontSize: "0.4em", opacity: 0.4, fontWeight: 400 }}>{secondsStr}</span>
                 </div>
-
-                {/* Divider */}
-                <div style={{ width: "1px", background: "rgba(255,255,255,0.1)" }} />
-
-                {/* Mini Year Map */}
-                <div style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "center" }}>
-                    <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "0.8rem" }}>
-                        {months.map((m, i) => {
-                            const isCurrent = i === now.getMonth();
-                            const isPast = i < now.getMonth();
-                            return (
-                                <div key={m} style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
-                                    <span style={{
-                                        fontSize: "0.8rem",
-                                        fontWeight: isCurrent ? 800 : 500,
-                                        color: isCurrent ? theme.colors.primary : isPast ? theme.colors.textDim : theme.colors.textMuted,
-                                        textDecoration: isPast ? "line-through" : "none",
-                                        opacity: isPast ? 0.5 : 1
-                                    }}>
-                                        {m}
-                                    </span>
-                                </div>
-                            )
-                        })}
-                    </div>
+                <div style={{
+                    marginTop: "1rem",
+                    fontSize: "1.1rem",
+                    color: "rgba(255,255,255,0.6)",
+                    fontFamily: "'Playfair Display', serif",
+                    fontStyle: "italic"
+                }}>
+                    {getDayName(dayOfWeek)}, {dayOfMonth} {getMonthName(month)} {year}
                 </div>
             </div>
         </BentoCard>
@@ -621,11 +624,11 @@ export default function ClockPage() {
                 </motion.div>
 
                 <div className="bento-grid">
+                    <BigClock />
                     <LifeStats birthDate={BIRTH_DATE} />
                     <LifeGrid birthDate={BIRTH_DATE} />
                     <YearProgress />
                     <DayProgress />
-                    <CalendarBlock />
                 </div>
 
                 <motion.div

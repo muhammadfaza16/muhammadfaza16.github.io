@@ -91,6 +91,7 @@ export default function RootLayout({
         />
       </head>
       <body
+        suppressHydrationWarning
         className={`${playfair.variable} ${sourceSerif.variable} ${spaceMono.variable}`}
         style={{ minHeight: "100svh", display: "flex", flexDirection: "column" }}
       >

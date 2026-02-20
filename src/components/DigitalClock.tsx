@@ -39,7 +39,7 @@ export function DigitalClock({ onClick }: DigitalClockProps) {
 
     return (
         <Link
-            href="/time"
+            href="/clock"
             onClick={onClick}
             style={{
                 fontFamily: "var(--font-mono)",

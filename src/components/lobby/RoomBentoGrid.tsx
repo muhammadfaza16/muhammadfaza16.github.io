@@ -115,15 +115,9 @@ export function RoomBentoGrid() {
         },
         {
             title: "Waktu",
-            href: "/time",
+            href: "/clock",
             icon: <Clock />,
             iconColor: "#32D74B" // Vivid Green
-        },
-        {
-            title: "Hidup",
-            href: "/clock",
-            icon: <Activity />,
-            iconColor: "#BF5AF2" // Vivid Purple
         },
         {
             title: "Ruang",
