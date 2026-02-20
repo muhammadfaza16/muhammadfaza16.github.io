@@ -46,16 +46,16 @@ const AppIcon = ({ title, href, icon, iconColor, delay = 0 }: AppIconProps) => {
                     width: "clamp(58px, 16vw, 72px)",
                     height: "clamp(58px, 16vw, 72px)",
                     borderRadius: "22.5%",
-                    background: "rgba(255, 255, 255, 0.04)", // Ultra-thin light glass to pop on Sage background
-                    backdropFilter: "blur(24px) saturate(150%)",
-                    WebkitBackdropFilter: "blur(24px) saturate(150%)",
+                    background: "rgba(0, 0, 0, 0.15)", // A darker base grounds the icon against busy, bright wallpapers
+                    backdropFilter: "blur(32px) saturate(160%) brightness(110%)",
+                    WebkitBackdropFilter: "blur(32px) saturate(160%) brightness(110%)",
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
-                    boxShadow: "0 8px 24px -4px rgba(0,0,0,0.1), inset 0 1px 0.5px rgba(255,255,255,0.4)", // Strong specular highlight
+                    boxShadow: "0 8px 24px -4px rgba(0,0,0,0.3), inset 0 1px 1px rgba(255,255,255,0.4)", // Strong specular highlight
                     transition: "transform 0.15s ease",
                     overflow: "hidden",
-                    border: "1px solid rgba(255,255,255,0.15)", // Brighter border for crisp edge
+                    border: "1px solid rgba(255,255,255,0.20)", // Brighter border for crisp edge
                 }} className="hover:scale-105 active:scale-95">
 
                     {/* Icon symbol */}
@@ -88,7 +88,8 @@ const AppIcon = ({ title, href, icon, iconColor, delay = 0 }: AppIconProps) => {
                     fontFamily: "-apple-system, BlinkMacSystemFont, sans-serif",
                     fontSize: "0.74rem",
                     fontWeight: 500,
-                    color: "var(--ink-primary)",
+                    color: "#ffffff", // Pure white for perfect contrast
+                    textShadow: "0 1px 4px rgba(0,0,0,0.5)", // Stronger shadow to pop against bright spots
                     textAlign: "center",
                     letterSpacing: "0.02em",
                 }}>

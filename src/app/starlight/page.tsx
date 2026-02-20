@@ -38,11 +38,11 @@ export default function StarlightPage() {
         backgroundPosition: "center",
         zIndex: -2,
       }} />
-      {/* Dark overlay for readability against the wallpaper */}
+      {/* Dark overlay for readability against the wallpaper - Stronger gradient */}
       <div style={{
         position: "fixed",
         inset: 0,
-        background: "linear-gradient(180deg, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.7) 100%)",
+        background: "linear-gradient(180deg, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.6) 40%, rgba(0,0,0,0.85) 100%)",
         zIndex: -1,
       }} />
 
@@ -64,14 +64,14 @@ export default function StarlightPage() {
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              backgroundColor: "rgba(255, 255, 255, 0.04)", // Ultra-thin light glass
-              backdropFilter: "blur(24px) saturate(150%)",
-              WebkitBackdropFilter: "blur(24px) saturate(150%)",
+              backgroundColor: "rgba(255, 255, 255, 0.08)", // Slightly more opaque structure
+              backdropFilter: "blur(32px) saturate(160%) brightness(110%)", // Stronger blur
+              WebkitBackdropFilter: "blur(32px) saturate(160%) brightness(110%)",
               borderRadius: "50%",
-              color: "var(--ink-primary)", // Adapt to light/dark themes cleanly
+              color: "#ffffff", // Pure white for guaranteed contrast on dark overlays
               transition: "all 0.2s cubic-bezier(0.4, 0, 0.2, 1)",
-              border: "1px solid rgba(255, 255, 255, 0.15)",
-              boxShadow: "0 8px 24px -4px rgba(0,0,0,0.1), inset 0 1px 0.5px rgba(255,255,255,0.4)", // Specular highlight
+              border: "1px solid rgba(255, 255, 255, 0.25)", // Crisper edge
+              boxShadow: "0 8px 24px -4px rgba(0,0,0,0.2), inset 0 1px 1px rgba(255,255,255,0.5)", // Stronger shadow + spec
               textDecoration: "none"
             }}
             className="hover:scale-110 active:scale-95 group"
@@ -101,14 +101,14 @@ export default function StarlightPage() {
                 maxWidth: "520px",
                 display: "flex",
                 flexDirection: "column",
-                background: "rgba(255, 255, 255, 0.03)", // Ultra-thin frosted glass
-                backdropFilter: "blur(32px) saturate(150%) brightness(105%)",
-                WebkitBackdropFilter: "blur(32px) saturate(150%) brightness(105%)",
+                background: "rgba(255, 255, 255, 0.05)", // Ultra-thin frosted glass structure
+                backdropFilter: "blur(48px) saturate(160%) brightness(115%)", // Max blur to obliterate busy BG details
+                WebkitBackdropFilter: "blur(48px) saturate(160%) brightness(115%)",
                 borderRadius: "32px",
-                border: "1px solid rgba(255, 255, 255, 0.15)",
+                border: "1px solid rgba(255, 255, 255, 0.2)",
                 boxShadow: `
-                  0 24px 48px -12px rgba(0,0,0,0.2),
-                  inset 0 1px 0.5px rgba(255,255,255,0.4)
+                  0 32px 64px -16px rgba(0,0,0,0.3),
+                  inset 0 1px 1px rgba(255,255,255,0.5)
                 `,
                 overflow: "hidden", // Keep children inside rounded corners
                 position: "relative"
@@ -138,7 +138,8 @@ export default function StarlightPage() {
                   transform: "translateX(-50%)",
                   fontSize: "0.85rem",
                   fontWeight: 600,
-                  color: "var(--ink-primary)",
+                  color: "#ffffff",
+                  opacity: 0.9,
                   letterSpacing: "0.02em"
                 }}>
                   Sanctuary OS
@@ -161,14 +162,15 @@ export default function StarlightPage() {
                     fontWeight: 800,
                     letterSpacing: "-0.04em",
                     lineHeight: 1.1,
-                    color: "var(--ink-primary)",
+                    color: "#ffffff", // Pure white for perfect contrast
+                    textShadow: "0 2px 12px rgba(0,0,0,0.15)", // Soft shadow to detach from glass
                     marginBottom: "0.4rem",
                   }}>
                     Explore.
                   </h1>
                   <p style={{
                     fontSize: "0.95rem",
-                    color: "var(--ink-secondary)",
+                    color: "rgba(255, 255, 255, 0.8)", // Bright translucent white
                     lineHeight: 1.5,
                     fontWeight: 500,
                     margin: 0,
