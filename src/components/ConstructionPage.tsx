@@ -82,7 +82,7 @@ export function ConstructionPage({ title, description = "This feature is current
                     <div style={{ width: "100%", height: "1px", background: "rgba(255,255,255,0.1)" }} />
 
                     <Link
-                        href="/"
+                        href="/starlight"
                         style={{
                             display: "inline-flex",
                             alignItems: "center",

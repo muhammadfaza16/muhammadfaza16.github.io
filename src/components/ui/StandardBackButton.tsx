@@ -1,9 +1,8 @@
 "use client";
 
 import React from "react";
-import Link from "next/link";
 import { ChevronLeft } from "lucide-react";
-import { usePathname } from "next/navigation";
+import { useRouter } from "next/navigation";
 
 interface StandardBackButtonProps {
     href?: string;
@@ -12,11 +11,19 @@ interface StandardBackButtonProps {
 }
 
 export function StandardBackButton({ href, label, className = "" }: StandardBackButtonProps) {
-    const pathname = usePathname();
+    const router = useRouter();
 
-    // Default fallback: if in a sub-page of starlight, go back to starlight
-    // If href is provided, use it.
-    const targetHref = href || "/starlight";
+    const handleBack = (e: React.MouseEvent) => {
+        e.preventDefault();
+
+        // Smart back logic: if we have browser history, go back to smoothly preserve state (like active Starlight dock).
+        // Otherwise fallback to the provided href or Starlight boundary.
+        if (window.history.length > 2) {
+            router.back();
+        } else {
+            router.push(href || "/starlight");
+        }
+    };
 
     return (
         <div style={{
@@ -25,8 +32,8 @@ export function StandardBackButton({ href, label, className = "" }: StandardBack
             left: "24px",
             zIndex: 50 // High z-index to sit above content
         }} className={className}>
-            <Link
-                href={targetHref}
+            <button
+                onClick={handleBack}
                 aria-label="Go Back"
                 style={{
                     width: "40px",
@@ -46,7 +53,7 @@ export function StandardBackButton({ href, label, className = "" }: StandardBack
                 className="hover:scale-110 active:scale-95 group hover:bg-white/10"
             >
                 <ChevronLeft size={22} className="group-hover:-translate-x-0.5 transition-transform" />
-            </Link>
+            </button>
         </div>
     );
 }

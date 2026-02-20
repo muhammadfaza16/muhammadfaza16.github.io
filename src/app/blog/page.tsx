@@ -45,8 +45,8 @@ export default function BlogPage() {
                     transition={{ delay: 0.2 }}
                     className="fixed top-6 left-6 z-20"
                 >
-                    <Link href="/portfolio" className="text-sm font-medium text-ink-secondary hover:text-ink-primary transition-colors no-underline">
-                        ← portfolio
+                    <Link href="/starlight" className="text-sm font-medium text-ink-secondary hover:text-ink-primary transition-colors no-underline">
+                        ← starlight
                     </Link>
                 </motion.div>
 

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -101,6 +101,14 @@ const AppIcon = ({ title, href, icon, iconColor, delay = 0 }: AppIconProps) => {
 export function StarlightBentoGrid() {
     const [activeDock, setActiveDock] = useState(0);
 
+    // Initialize from sessionStorage to persist dock location on 'Back'
+    useEffect(() => {
+        const saved = sessionStorage.getItem("starlight_active_dock");
+        if (saved !== null) {
+            setActiveDock(parseInt(saved, 10));
+        }
+    }, []);
+
     const dock1Apps = [
         { title: "Bookshelf", href: "/bookshelf", icon: <Book />, iconColor: "#FF9F0A" }, // Orange
         { title: "Writing", href: "/blog", icon: <PenTool />, iconColor: "#FFD60A" }, // Gold
@@ -116,7 +124,7 @@ export function StarlightBentoGrid() {
         { title: "Brand", href: "/journey/brand-building", icon: <Megaphone />, iconColor: "#FF453A" }, // Red
         { title: "Insights", href: "/insights", icon: <Lightbulb />, iconColor: "#FFD60A" }, // Gold
         { title: "Workspace", href: "/workspace", icon: <Monitor />, iconColor: "#8E8E93" }, // Gray
-        { title: "Resume", href: "/resume", icon: <FileText />, iconColor: "#32D74B" }, // Green
+        { title: "Experience", href: "/experience", icon: <FileText />, iconColor: "#32D74B" }, // Green
     ];
 
     const dock3Apps = [
@@ -130,11 +138,19 @@ export function StarlightBentoGrid() {
     const allDocks = [dock1Apps, dock2Apps, dock3Apps];
 
     const handlePrev = () => {
-        setActiveDock((prev) => (prev > 0 ? prev - 1 : allDocks.length - 1));
+        setActiveDock((prev) => {
+            const next = prev > 0 ? prev - 1 : allDocks.length - 1;
+            sessionStorage.setItem("starlight_active_dock", next.toString());
+            return next;
+        });
     };
 
     const handleNext = () => {
-        setActiveDock((prev) => (prev < allDocks.length - 1 ? prev + 1 : 0));
+        setActiveDock((prev) => {
+            const next = prev < allDocks.length - 1 ? prev + 1 : 0;
+            sessionStorage.setItem("starlight_active_dock", next.toString());
+            return next;
+        });
     };
 
     return (
