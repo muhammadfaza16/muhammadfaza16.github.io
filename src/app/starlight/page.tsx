@@ -97,14 +97,14 @@ export default function StarlightPage() {
                 maxWidth: "520px",
                 display: "flex",
                 flexDirection: "column",
-                background: "rgba(0, 0, 0, 0.6)", // Much darker frosted glass to obscure the wallpaper text behind it
-                backdropFilter: "blur(48px) saturate(160%) brightness(80%)", // Stronger blur
-                WebkitBackdropFilter: "blur(48px) saturate(160%) brightness(80%)",
+                background: "rgba(255, 255, 255, 0.45)", // Strong white frosted glass
+                backdropFilter: "blur(48px) saturate(180%)",
+                WebkitBackdropFilter: "blur(48px) saturate(180%)",
                 borderRadius: "32px",
-                border: "1px solid rgba(255, 255, 255, 0.12)", // Thinner, subtler edge for dark glass
+                border: "1px solid rgba(255, 255, 255, 0.5)", // Stronger white highlight edge
                 boxShadow: `
-                  0 32px 64px -16px rgba(0,0,0,0.5),
-                  inset 0 1px 1px rgba(255,255,255,0.3)
+                  0 32px 64px -16px rgba(0,0,0,0.15),
+                  inset 0 1px 2px rgba(255,255,255,0.8)
                 `,
                 overflow: "hidden", // Keep children inside rounded corners
                 position: "relative"
@@ -134,7 +134,7 @@ export default function StarlightPage() {
                   transform: "translateX(-50%)",
                   fontSize: "0.85rem",
                   fontWeight: 600,
-                  color: "#ffffff",
+                  color: "var(--ink-primary)",
                   opacity: 0.9,
                   letterSpacing: "0.02em"
                 }}>
@@ -158,15 +158,14 @@ export default function StarlightPage() {
                     fontWeight: 800,
                     letterSpacing: "-0.04em",
                     lineHeight: 1.1,
-                    color: "#ffffff", // Pure white for perfect contrast
-                    textShadow: "0 2px 12px rgba(0,0,0,0.15)", // Soft shadow to detach from glass
+                    color: "var(--ink-primary)",
                     marginBottom: "0.4rem",
                   }}>
                     Explore.
                   </h1>
                   <p style={{
                     fontSize: "0.95rem",
-                    color: "rgba(255, 255, 255, 0.8)", // Bright translucent white
+                    color: "var(--ink-secondary)",
                     lineHeight: 1.5,
                     fontWeight: 500,
                     margin: 0,
