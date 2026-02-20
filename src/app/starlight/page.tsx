@@ -38,13 +38,6 @@ export default function StarlightPage() {
         backgroundPosition: "center",
         zIndex: -2,
       }} />
-      {/* Barely visible elegant dark overlay for text contrast */}
-      <div style={{
-        position: "fixed",
-        inset: 0,
-        background: "linear-gradient(180deg, rgba(0,0,0,0.02) 0%, rgba(0,0,0,0.08) 50%, rgba(0,0,0,0.2) 100%)",
-        zIndex: -1,
-      }} />
       <div>
         {/* Back Button */}
         <div style={{
@@ -125,9 +118,31 @@ export default function StarlightPage() {
               }}>
                 {/* Traffic Lights Controls (Swipe Indicators) */}
                 <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
-                  <div style={{ width: "12px", height: "12px", borderRadius: "50%", background: "#FF5F56", opacity: 0.9 }} /> {/* Red */}
-                  <div style={{ width: "12px", height: "12px", borderRadius: "50%", background: "#FFBD2E", opacity: 0.9 }} /> {/* Yellow */}
-                  <div style={{ width: "12px", height: "12px", borderRadius: "50%", background: "#27C93F", opacity: 0.9 }} /> {/* Green */}
+                  {/* Active Dot (Red) with Spark Effect */}
+                  <div style={{ position: "relative", width: "12px", height: "12px" }}>
+                    <motion.div
+                      animate={{
+                        scale: [1, 1.8, 1],
+                        opacity: [0.6, 0, 0.6],
+                      }}
+                      transition={{
+                        duration: 2,
+                        repeat: Infinity,
+                        ease: "easeOut",
+                      }}
+                      style={{
+                        position: "absolute",
+                        inset: "-2px",
+                        borderRadius: "50%",
+                        background: "#FF5F56",
+                        zIndex: 0,
+                      }}
+                    />
+                    <div style={{ position: "relative", width: "100%", height: "100%", borderRadius: "50%", background: "#FF5F56", opacity: 0.9, zIndex: 1 }} />
+                  </div>
+                  {/* Inactive Dots */}
+                  <div style={{ width: "12px", height: "12px", borderRadius: "50%", background: "#FFBD2E", opacity: 0.4 }} /> {/* Yellow - Dimmed */}
+                  <div style={{ width: "12px", height: "12px", borderRadius: "50%", background: "#27C93F", opacity: 0.4 }} /> {/* Green - Dimmed */}
                 </div>
 
                 {/* Window Title */}
@@ -184,7 +199,7 @@ export default function StarlightPage() {
             </motion.div>
           </main>
         </ZenHideable>
-      </div>
+      </div >
     </>
   );
 }
