@@ -9,7 +9,9 @@ import {
     Compass,
     Briefcase,
     Gift,
-    Library
+    Library,
+    ChevronLeft,
+    ChevronRight
 } from "lucide-react";
 
 interface AppIconProps {
@@ -117,16 +119,30 @@ export function StarlightBentoGrid() {
             flexDirection: "column",
             alignItems: "center",
             width: "100%",
+            position: "relative", // For absolute positioning the chevrons
         }}>
-            <motion.section
-                animate={{ x: [0, -15, 6, -2, 0] }}
-                transition={{ duration: 0.8, repeat: Infinity, repeatDelay: 10, ease: "easeInOut" }}
-                style={{
-                    padding: "0 1.5rem",
-                    width: "100%",
-                    maxWidth: "380px", // Reduced from 420px for closer clustering
-                    paddingBottom: "3rem"
-                }}>
+            {/* Left Chevron */}
+            <div style={{
+                position: "absolute",
+                left: "-1rem",
+                top: "calc(50% - 1.5rem)", // Offset by half of the container's paddingBottom
+                transform: "translateY(-50%)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                color: "rgba(255, 255, 255, 0.4)", // Softer transparent white
+                pointerEvents: "none",
+                zIndex: 10,
+            }}>
+                <ChevronLeft size={28} strokeWidth={1.5} />
+            </div>
+
+            <section style={{
+                padding: "0 1.5rem",
+                width: "100%",
+                maxWidth: "380px", // Reduced from 420px for closer clustering
+                paddingBottom: "3rem"
+            }}>
                 <div style={{
                     display: "grid",
                     gridTemplateColumns: "repeat(3, 1fr)",
@@ -136,7 +152,23 @@ export function StarlightBentoGrid() {
                         <AppIcon key={idx} {...app} delay={0.1 + idx * 0.06} />
                     ))}
                 </div>
-            </motion.section>
+            </section>
+
+            {/* Right Chevron */}
+            <div style={{
+                position: "absolute",
+                right: "-1rem",
+                top: "calc(50% - 1.5rem)", // Offset by half of the container's paddingBottom
+                transform: "translateY(-50%)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                color: "rgba(255, 255, 255, 0.4)", // Softer transparent white
+                pointerEvents: "none",
+                zIndex: 10,
+            }}>
+                <ChevronRight size={28} strokeWidth={1.5} />
+            </div>
         </div>
     );
 }
