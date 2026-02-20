@@ -70,52 +70,102 @@ export default function StarlightPage() {
             position: "relative",
             zIndex: 1,
             height: "100svh",
-            overflowY: "auto",
-            overflowX: "hidden",
-            scrollbarWidth: "none",
+            overflow: "hidden", // Prevent full page scrolling
             display: "flex",
             flexDirection: "column",
-            justifyContent: "flex-start",
-            gap: "1rem"
+            alignItems: "center",
+            justifyContent: "center",
+            padding: "1rem"
           }}>
-            {/* Simple Heading */}
-            <section style={{
-              padding: "5rem 1.5rem 1rem",
-              width: "100%",
-              maxWidth: "480px",
-              margin: "0 auto",
-            }}>
-              <motion.div
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5 }}
-              >
-                <h1 style={{
-                  fontSize: "clamp(2.2rem, 7vw, 3rem)",
-                  fontWeight: 800,
-                  letterSpacing: "-0.04em",
-                  lineHeight: 1.1,
-                  color: "var(--ink-primary)",
-                  marginBottom: "0.5rem",
-                }}>
-                  Explore.
-                </h1>
-                <p style={{
-                  fontSize: "clamp(0.95rem, 3vw, 1.1rem)",
-                  color: "var(--ink-secondary)",
-                  lineHeight: 1.5,
-                  fontWeight: 500,
-                  margin: 0,
-                }}>
-                  Curated sections of my world.
-                </p>
-              </motion.div>
-            </section>
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              transition={{ duration: 0.6, type: "spring", bounce: 0.3 }}
+              style={{
+                width: "100%",
+                maxWidth: "520px",
+                display: "flex",
+                flexDirection: "column",
+                background: "rgba(255, 255, 255, 0.03)", // Ultra-thin frosted glass
+                backdropFilter: "blur(32px) saturate(150%) brightness(105%)",
+                WebkitBackdropFilter: "blur(32px) saturate(150%) brightness(105%)",
+                borderRadius: "32px",
+                border: "1px solid rgba(255, 255, 255, 0.15)",
+                boxShadow: `
+                  0 24px 48px -12px rgba(0,0,0,0.2),
+                  inset 0 1px 0.5px rgba(255,255,255,0.4)
+                `,
+                overflow: "hidden", // Keep children inside rounded corners
+                position: "relative"
+              }}
+            >
+              {/* Window Header (VisionOS / macOS style) */}
+              <div style={{
+                height: "48px",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                padding: "0 1.25rem",
+                borderBottom: "1px solid rgba(255, 255, 255, 0.08)",
+                background: "rgba(255, 255, 255, 0.02)",
+              }}>
+                {/* Traffic Lights Controls */}
+                <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
+                  <div style={{ width: "12px", height: "12px", borderRadius: "50%", background: "var(--ink-secondary)", opacity: 0.4 }} />
+                  <div style={{ width: "12px", height: "12px", borderRadius: "50%", background: "var(--ink-secondary)", opacity: 0.4 }} />
+                  <div style={{ width: "12px", height: "12px", borderRadius: "50%", background: "var(--ink-secondary)", opacity: 0.4 }} />
+                </div>
 
-            {/* Springboard App Grid */}
-            <div style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "flex-start" }}>
-              <StarlightBentoGrid />
-            </div>
+                {/* Window Title */}
+                <span style={{
+                  position: "absolute",
+                  left: "50%",
+                  transform: "translateX(-50%)",
+                  fontSize: "0.85rem",
+                  fontWeight: 600,
+                  color: "var(--ink-primary)",
+                  letterSpacing: "0.02em"
+                }}>
+                  Sanctuary OS
+                </span>
+
+                {/* Empty right spacer for flex balance */}
+                <div style={{ width: "52px" }} />
+              </div>
+
+              {/* Window Content */}
+              <div style={{ padding: "2rem 1.5rem 3rem" }}>
+                {/* Simple Heading */}
+                <div style={{
+                  width: "100%",
+                  textAlign: "center",
+                  marginBottom: "2.5rem",
+                }}>
+                  <h1 style={{
+                    fontSize: "clamp(2rem, 6vw, 2.5rem)",
+                    fontWeight: 800,
+                    letterSpacing: "-0.04em",
+                    lineHeight: 1.1,
+                    color: "var(--ink-primary)",
+                    marginBottom: "0.4rem",
+                  }}>
+                    Explore.
+                  </h1>
+                  <p style={{
+                    fontSize: "0.95rem",
+                    color: "var(--ink-secondary)",
+                    lineHeight: 1.5,
+                    fontWeight: 500,
+                    margin: 0,
+                  }}>
+                    Curated sections of my world.
+                  </p>
+                </div>
+
+                {/* Springboard App Grid */}
+                <StarlightBentoGrid />
+              </div>
+            </motion.div>
           </main>
         </ZenHideable>
       </AtmosphericBackground>
