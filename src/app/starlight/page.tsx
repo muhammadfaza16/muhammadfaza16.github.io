@@ -49,13 +49,14 @@ export default function StarlightPage() {
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              backgroundColor: "rgba(30, 30, 30, 0.4)", // Dark glass
-              backdropFilter: "blur(12px)",
-              WebkitBackdropFilter: "blur(12px)",
+              backgroundColor: "rgba(255, 255, 255, 0.04)", // Ultra-thin light glass
+              backdropFilter: "blur(24px) saturate(150%)",
+              WebkitBackdropFilter: "blur(24px) saturate(150%)",
               borderRadius: "50%",
-              color: "white", // White icon for contrast on dark
+              color: "var(--ink-primary)", // Adapt to light/dark themes cleanly
               transition: "all 0.2s cubic-bezier(0.4, 0, 0.2, 1)",
-              border: "1px solid rgba(255, 255, 255, 0.1)",
+              border: "1px solid rgba(255, 255, 255, 0.15)",
+              boxShadow: "0 8px 24px -4px rgba(0,0,0,0.1), inset 0 1px 0.5px rgba(255,255,255,0.4)", // Specular highlight
               textDecoration: "none"
             }}
             className="hover:scale-110 active:scale-95 group"
