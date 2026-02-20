@@ -43,6 +43,7 @@ export function CleanHomeHero() {
     // Widget toggle: 'music' or 'calendar'
     const [activeWidget, setActiveWidget] = useState<'music' | 'calendar'>('calendar');
     const touchStartRef = useRef<{ x: number; y: number } | null>(null);
+    const [swipeDirection, setSwipeDirection] = useState<1 | -1>(1);
 
     // Swipe handlers for widget toggling
     const handleTouchStart = useCallback((e: React.TouchEvent) => {
@@ -53,18 +54,13 @@ export function CleanHomeHero() {
         if (!touchStartRef.current) return;
         const deltaX = e.changedTouches[0].clientX - touchStartRef.current.x;
         const deltaY = e.changedTouches[0].clientY - touchStartRef.current.y;
-        // Only trigger if horizontal swipe is dominant and > 50px
         if (Math.abs(deltaX) > 50 && Math.abs(deltaX) > Math.abs(deltaY)) {
-            if (deltaX < 0) {
-                // Swipe left → next widget
-                setActiveWidget(prev => prev === 'calendar' ? 'music' : 'calendar');
-            } else {
-                // Swipe right → previous widget
-                setActiveWidget(prev => prev === 'music' ? 'calendar' : 'music');
-            }
+            setSwipeDirection(deltaX < 0 ? 1 : -1);
+            setActiveWidget(prev => prev === 'calendar' ? 'music' : 'calendar');
         }
         touchStartRef.current = null;
     }, []);
+
 
     // Auto-switch to music when user first interacts
     useEffect(() => {
@@ -84,6 +80,22 @@ export function CleanHomeHero() {
     const [football, setFootball] = useState<{ matches: { home: string; homeAbbr: string; away: string; awayAbbr: string; date: string; time: string; league: string; leagueEmoji: string; status: string; state: string; homeScore?: string; awayScore?: string; isBigMatch: boolean }[] } | null>(null);
     const [showMatchesPopup, setShowMatchesPopup] = useState(false);
     const [matchPage, setMatchPage] = useState(0);
+
+    // Typewriter greeting
+    const [displayedGreeting, setDisplayedGreeting] = useState('');
+    const [greetingDone, setGreetingDone] = useState(false);
+    useEffect(() => {
+        if (!greeting) { setDisplayedGreeting(''); setGreetingDone(false); return; }
+        let idx = 0;
+        setDisplayedGreeting('');
+        setGreetingDone(false);
+        const id = setInterval(() => {
+            idx++;
+            if (idx >= greeting.length) { setDisplayedGreeting(greeting); setGreetingDone(true); clearInterval(id); return; }
+            setDisplayedGreeting(greeting.slice(0, idx));
+        }, 30);
+        return () => clearInterval(id);
+    }, [greeting]);
 
     // Update clock every second for live time display
     useEffect(() => {
@@ -139,7 +151,7 @@ export function CleanHomeHero() {
         return set;
     }, [github, currentMonth, currentYear]);
 
-    // Dynamic next prayer — recomputed client-side every tick
+    // Dynamic next prayer — recomputed client-side every tick + countdown
     const dynamicNextPrayer = useMemo(() => {
         if (!prayer?.prayers || prayer.prayers.length === 0) return prayer?.next || null;
         const nowMinutes = now.getHours() * 60 + now.getMinutes();
@@ -150,6 +162,18 @@ export function CleanHomeHero() {
         // All prayers passed → show tomorrow's Subuh
         return prayer.prayers[0] || null;
     }, [prayer, now]);
+
+    // Prayer countdown string
+    const prayerCountdown = useMemo(() => {
+        if (!dynamicNextPrayer) return '';
+        const [h, m] = dynamicNextPrayer.time.split(':').map(Number);
+        let diffMin = (h * 60 + m) - (now.getHours() * 60 + now.getMinutes());
+        if (diffMin < 0) diffMin += 24 * 60; // wraps to next day
+        const hours = Math.floor(diffMin / 60);
+        const mins = diffMin % 60;
+        if (hours > 0) return `in ${hours}h ${mins}m`;
+        return `in ${mins}m`;
+    }, [dynamicNextPrayer, now]);
 
     // Rolling football match page — cycle every 10s
     const bigMatches = useMemo(() => {
@@ -228,6 +252,48 @@ export function CleanHomeHero() {
                 background: "linear-gradient(180deg, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.35) 35%, rgba(0,0,0,0.30) 55%, rgba(0,0,0,0.55) 100%)",
                 zIndex: -1,
             }} />
+
+            {/* Ambient Bokeh Particles */}
+            {useMemo(() => {
+                const particles = Array.from({ length: 10 }, (_, i) => ({
+                    id: i,
+                    w: 6 + (((i * 7 + 3) % 11) / 11) * 16,
+                    left: ((i * 17 + 5) % 100),
+                    top: ((i * 23 + 11) % 100),
+                    opacity: 0.08 + (((i * 13 + 2) % 7) / 7) * 0.12,
+                    yDrift: -30 - (((i * 11 + 4) % 8) / 8) * 40,
+                    xDrift: (((i * 19 + 1) % 10) / 10 - 0.5) * 30,
+                    dur: 15 + (((i * 9 + 6) % 9) / 9) * 20,
+                    delay: ((i * 14 + 3) % 10),
+                }));
+                return particles.map(p => (
+                    <motion.div
+                        key={`bokeh-${p.id}`}
+                        style={{
+                            position: 'fixed',
+                            width: `${p.w}px`,
+                            height: `${p.w}px`,
+                            borderRadius: '50%',
+                            background: `radial-gradient(circle, rgba(255,255,255,${p.opacity}) 0%, transparent 70%)`,
+                            left: `${p.left}%`,
+                            top: `${p.top}%`,
+                            zIndex: -1,
+                            pointerEvents: 'none',
+                        }}
+                        animate={{
+                            y: [0, p.yDrift, 0],
+                            x: [0, p.xDrift, 0],
+                            opacity: [0.15, 0.3, 0.15],
+                        }}
+                        transition={{
+                            duration: p.dur,
+                            repeat: Infinity,
+                            ease: 'easeInOut',
+                            delay: p.delay,
+                        }}
+                    />
+                ));
+            }, [])}
             {/* Content */}
             {/* ── Header Area ── */}
             <div style={{ marginBottom: "1rem" }}>
@@ -299,17 +365,14 @@ export function CleanHomeHero() {
                     </span>
                     {dynamicNextPrayer && (
                         <span style={{ fontSize: "0.75rem", fontWeight: 700, color: "rgba(255,255,255,0.8)", textShadow: "0 1px 4px rgba(0,0,0,0.5)" }}>
-                            🕌 {dynamicNextPrayer.name} {dynamicNextPrayer.time}
+                            🕌 {dynamicNextPrayer.name} <span style={{ fontWeight: 500, fontSize: "0.68rem", opacity: 0.8 }}>{prayerCountdown}</span>
                         </span>
                     )}
                 </div>
 
-                {/* AI Generated Greeting */}
+                {/* AI Generated Greeting — Typewriter */}
                 {greeting && (
-                    <motion.div
-                        initial={{ opacity: 0, y: 4 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.6 }}
+                    <div
                         style={{
                             fontSize: "0.78rem",
                             fontStyle: "italic",
@@ -320,8 +383,20 @@ export function CleanHomeHero() {
                             lineHeight: 1.4,
                         }}
                     >
-                        "{greeting}"
-                    </motion.div>
+                        "{displayedGreeting}"
+                        {!greetingDone && (
+                            <span style={{
+                                display: 'inline-block',
+                                width: '2px',
+                                height: '0.85em',
+                                background: 'rgba(255,255,255,0.7)',
+                                marginLeft: '2px',
+                                verticalAlign: 'text-bottom',
+                                animation: 'blink-cursor 0.8s steps(2) infinite',
+                            }} />
+                        )}
+                        <style>{`@keyframes blink-cursor { 0%,100%{opacity:1} 50%{opacity:0} } @keyframes today-pulse { 0%,100%{box-shadow:0 0 6px rgba(255,59,48,0.4)} 50%{box-shadow:0 0 14px rgba(255,59,48,0.7)} }`}</style>
+                    </div>
                 )}
             </div>
 
@@ -386,14 +461,14 @@ export function CleanHomeHero() {
                     zIndex: 2,
                 }} />
 
-                <AnimatePresence mode="wait">
+                <AnimatePresence mode="wait" initial={false}>
                     {showNowPlaying ? (
                         <motion.div
                             key="now-playing"
-                            initial={{ opacity: 0, scale: 0.95 }}
-                            animate={{ opacity: 1, scale: 1 }}
-                            exit={{ opacity: 0, scale: 0.95 }}
-                            transition={{ duration: 0.35, ease: "easeOut" }}
+                            initial={{ opacity: 0, x: swipeDirection * 60 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            exit={{ opacity: 0, x: swipeDirection * -60 }}
+                            transition={{ duration: 0.3, ease: [0.25, 0.46, 0.45, 0.94] }}
                             style={{ position: "relative", zIndex: 1 }}
                         >
                             {/* Now Playing Header */}
@@ -427,7 +502,22 @@ export function CleanHomeHero() {
                                         fontSize: "0.75rem", fontWeight: 500,
                                         color: "rgba(255,255,255,0.55)",
                                         whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
-                                    }}>{artist}</div>
+                                        display: "flex", alignItems: "center", gap: "6px",
+                                    }}>
+                                        {artist}
+                                        {isPlaying && (
+                                            <span style={{ display: "flex", alignItems: "flex-end", gap: "1.5px", height: "12px" }}>
+                                                {[0, 1, 2].map(b => (
+                                                    <motion.span
+                                                        key={b}
+                                                        style={{ width: "2px", borderRadius: "1px", background: "#FFD60A" }}
+                                                        animate={{ height: ["3px", `${8 + b * 3}px`, "4px", `${10 - b * 2}px`, "3px"] }}
+                                                        transition={{ duration: 0.8 + b * 0.15, repeat: Infinity, ease: "easeInOut", delay: b * 0.12 }}
+                                                    />
+                                                ))}
+                                            </span>
+                                        )}
+                                    </div>
                                 </div>
 
                                 {/* Controls */}
@@ -506,10 +596,10 @@ export function CleanHomeHero() {
                     ) : (
                         <motion.div
                             key="calendar-stats"
-                            initial={{ opacity: 0, scale: 0.95 }}
-                            animate={{ opacity: 1, scale: 1 }}
-                            exit={{ opacity: 0, scale: 0.95 }}
-                            transition={{ duration: 0.35, ease: "easeOut" }}
+                            initial={{ opacity: 0, x: swipeDirection * -60 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            exit={{ opacity: 0, x: swipeDirection * 60 }}
+                            transition={{ duration: 0.3, ease: [0.25, 0.46, 0.45, 0.94] }}
                             style={{
                                 display: "grid",
                                 gridTemplateColumns: "auto 1fr",
@@ -596,6 +686,8 @@ export function CleanHomeHero() {
                                                     borderRadius: "6px",
                                                     color: isToday ? "white" : isHoliday ? "#ff6b6b" : (d ? "rgba(255,255,255,0.85)" : "transparent"),
                                                     backgroundColor: isToday ? "var(--accent-red)" : "transparent",
+                                                    boxShadow: isToday ? "0 0 8px rgba(255,59,48,0.5)" : "none",
+                                                    animation: isToday ? "today-pulse 2.5s ease-in-out infinite" : "none",
                                                     fontWeight: isToday ? 700 : isHoliday ? 600 : 400,
                                                     fontSize: "0.65rem",
                                                     cursor: hasDots ? "pointer" : "default",
