@@ -154,12 +154,12 @@ export default function StarlightPage() {
               {/* Small Ambient Glassy Sphere */}
               <motion.div
                 animate={{
-                  y: [0, 100, 200, 100, 0], // Move down and up across the window
-                  x: [0, -100, -200, -100, 0], // Move left and right across the window
-                  scale: [1, 1.1, 0.9, 1.05, 1], // Gentle pulsing
+                  y: [0, 80, -20, 150, 40, 250, 60, -10, 0], // Highly randomized vertical path
+                  x: [0, -120, -250, -80, -300, -150, -50, -200, 0], // Sweeping left-to-right path
+                  scale: [1, 1.15, 0.9, 1.2, 0.85, 1.1, 0.95, 1.05, 1], // Organic pulsing
                 }}
                 transition={{
-                  duration: 24, // Slow, graceful movement
+                  duration: 60, // Very slow, organic wandering movement
                   repeat: Infinity,
                   ease: "easeInOut",
                 }}
