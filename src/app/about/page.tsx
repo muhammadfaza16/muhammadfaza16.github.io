@@ -189,29 +189,29 @@ export default function AboutPage() {
         {
             icon: MousePointer2,
             title: "Simplicity First",
-            desc: "Kompleksitas adalah hutang. Setiap fitur yang gak perlu adalah beban yang harus dibayar nanti."
+            desc: "Complexity is a debt we pay later. I build only what's necessary."
         },
         {
             icon: Atom,
             title: "First Principles",
-            desc: "Jangan percaya best practices secara buta. Breakdown sampai ke akar, rebuild dari situ."
+            desc: "Beyond best practices. Breaking problems down to their fundamental truths."
         },
         {
             icon: Fingerprint,
             title: "Soulful Craft",
-            desc: "Kode yang bagus itu kayak prosa yang bagus — tiap baris punya alasan untuk ada."
+            desc: "Code should read like good prose—every line serving a clear purpose."
         }
     ];
 
     const archiveLinks = [
-        { href: "/now", icon: Zap, title: "Now", desc: "Lagi sibuk apa sekarang" },
+        { href: "/now", icon: Zap, title: "Now", desc: "What I'm focused on right now" },
         { href: "/journey", icon: Compass, title: "Journey", desc: "Long-term goals & learning log" },
-        { href: "/bookshelf", icon: BookOpen, title: "Bookshelf", desc: "Koleksi bacaan" },
-        { href: "/ideas", icon: Lightbulb, title: "Ideas", desc: "Gudang ide mentah" },
-        { href: "/links", icon: Link2, title: "Links", desc: "Bookmark pilihan" },
-        { href: "/changelog", icon: Clock, title: "Changelog", desc: "Timeline perjalanan" },
-        { href: "/til", icon: GraduationCap, title: "TIL", desc: "Catatan harian" },
-        { href: "/uses", icon: Monitor, title: "Uses", desc: "Gear dan tools" }
+        { href: "/bookshelf", icon: BookOpen, title: "Bookshelf", desc: "Books and articles I'm reading" },
+        { href: "/ideas", icon: Lightbulb, title: "Ideas", desc: "A repository of unrefined thoughts" },
+        { href: "/links", icon: Link2, title: "Links", desc: "Curated web bookmarks" },
+        { href: "/changelog", icon: Clock, title: "Changelog", desc: "Updates and milestones timeline" },
+        { href: "/til", icon: GraduationCap, title: "TIL", desc: "Daily learnings and micro-notes" },
+        { href: "/uses", icon: Monitor, title: "Uses", desc: "The tools I use daily" }
     ];
 
     return (
@@ -247,7 +247,7 @@ export default function AboutPage() {
                                 maxWidth: "16ch"
                             }}
                         >
-                            I turn caffeine into code.
+                            Building with intent.
                         </motion.h1>
 
                         <motion.p
@@ -261,9 +261,9 @@ export default function AboutPage() {
                                 margin: 0
                             }}
                         >
-                            Halo, gue Faza. Cuma orang biasa yang suka ngoding sambil ngopi.
-                            Ini personal log gue. Kumpulan eksperimen, catatan teknis,
-                            dan hal-hal random yang gue kerjain.
+                            Hi, I'm Faza. I craft software and explore machine learning.
+                            This is my quiet corner on the web—a collection of thoughts,
+                            technical notes, and ongoing experiments.
                         </motion.p>
 
                         <motion.p
@@ -275,7 +275,7 @@ export default function AboutPage() {
                                 marginTop: "clamp(1.5rem, 3vh, 2rem)"
                             }}
                         >
-                            Software Engineer · Professional Overthinker · Part-time Lover
+                            Software Engineer · Systems Thinker · Eternal Learner
                         </motion.p>
                     </motion.div>
                 </Container>
@@ -379,7 +379,7 @@ export default function AboutPage() {
                         lineHeight: 1.5,
                         marginBottom: "clamp(1.5rem, 3vh, 2rem)"
                     }}>
-                        "Stay hungry, stay foolish. Tapi jangan lupa makan."
+                        "Stay curious. Keep building."
                     </p>
 
                     <div style={{

@@ -102,7 +102,7 @@ export default function ExperiencePage() {
                         opacity: 0.8,
                         marginBottom: "2.5rem",
                         fontSize: "0.95rem",
-                    }}>My professional journey so far.</p>
+                    }}>A log of my professional work.</p>
 
                     {/* Timeline */}
                     <div style={{
