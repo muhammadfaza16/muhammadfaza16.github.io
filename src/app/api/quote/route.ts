@@ -1,17 +1,25 @@
 import { NextResponse } from "next/server";
 
 export async function GET() {
+    // Determine the current day of the month in Jakarta time
+    const wibDateString = new Date().toLocaleDateString("en-CA", { timeZone: "Asia/Jakarta" });
+    const wibDay = parseInt(wibDateString.split("-")[2], 10);
     try {
-        const res = await fetch("https://zenquotes.io/api/today", {
-            next: { revalidate: 3600 }, // cache 1 hour
+        // Fetch a batch of 50 random quotes and cache for 24 hours
+        // This ensures we always have quotes available without hitting limits
+        const res = await fetch("https://zenquotes.io/api/quotes", {
+            next: { revalidate: 86400 }, // cache 24 hours
         });
         if (!res.ok) throw new Error("Quote API failed");
         const data = await res.json();
 
-        if (data && data[0]) {
+        // Index the quotes array based on the current WIB day 
+        // This guarantees exactly 1 quote per day that rolls over precisely at 00:00 WIB
+        if (data && data.length > 0) {
+            const quote = data[wibDay % data.length];
             return NextResponse.json({
-                text: data[0].q,
-                author: data[0].a,
+                text: quote.q,
+                author: quote.a,
             });
         }
         throw new Error("No quote");
@@ -24,7 +32,6 @@ export async function GET() {
             { text: "First, solve the problem. Then, write the code.", author: "John Johnson" },
             { text: "Simplicity is the soul of efficiency.", author: "Austin Freeman" },
         ];
-        const today = new Date().getDate();
-        return NextResponse.json(fallbacks[today % fallbacks.length]);
+        return NextResponse.json(fallbacks[wibDay % fallbacks.length]);
     }
 }

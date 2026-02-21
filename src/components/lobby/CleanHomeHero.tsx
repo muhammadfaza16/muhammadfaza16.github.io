@@ -71,7 +71,7 @@ export function CleanHomeHero() {
     // Deprecated: const showNowPlaying = WIDGETS[widgetIndex] === 'music' && hasInteracted;
 
     // API data states
-    const [weather, setWeather] = useState<{ temp: number; label: string; icon: string; humidity: number; wind: number } | null>(null);
+    const [weather, setWeather] = useState<{ temp: number; label: string; icon: string; humidity: number; wind: number; location?: string } | null>(null);
     const [quote, setQuote] = useState<{ text: string; author: string } | null>(null);
     const [github, setGithub] = useState<{ repos: number; streak: number; todayActive: boolean; pushDates: string[] } | null>(null);
     const [holidays, setHolidays] = useState<{ date: string; name: string; localName: string }[]>([]);
@@ -127,8 +127,10 @@ export function CleanHomeHero() {
     useEffect(() => {
         if (!weather) return;
         const h = new Date().getHours();
+        const m = new Date().getMinutes();
         const dayN = DAYS_FULL[new Date().getDay()];
-        fetch(`/api/greeting?weather=${encodeURIComponent(weather.label)}&temp=${weather.temp}&day=${dayN}&hour=${h}`)
+        const bust = new Date().getTime(); // Anti-cache mechanism to prevent stale old prompts
+        fetch(`/api/greeting?weather=${encodeURIComponent(weather.label)}&temp=${weather.temp}&day=${dayN}&hour=${h}&minute=${m}&t=${bust}`)
             .then(r => r.json())
             .then(d => setGreeting(d.greeting || ''))
             .catch(() => { });
@@ -376,7 +378,7 @@ export function CleanHomeHero() {
                     marginTop: "0.25rem",
                 }}>
                     <span style={{ fontSize: "0.75rem", fontWeight: 600, color: "rgba(255,255,255,0.7)", textShadow: "0 1px 4px rgba(0,0,0,0.5)" }}>
-                        {weather ? `${weather.label} · Jaksel` : '···'}
+                        {weather ? `${weather.label} · ${weather.location || 'Jakarta Selatan, ID'}` : '···'}
                     </span>
                     {dynamicNextPrayer && (
                         <span style={{ fontSize: "0.75rem", fontWeight: 700, color: "rgba(255,255,255,0.8)", textShadow: "0 1px 4px rgba(0,0,0,0.5)" }}>

@@ -19,26 +19,30 @@ export async function GET() {
         });
         const events = eventsRes.ok ? await eventsRes.json() : [];
 
-        // Calculate streak from push events
+        // Calculate streak from push events using WIB timezone strictly
+        const getWIBDate = (d: string | Date) => new Date(d).toLocaleDateString("en-CA", { timeZone: "Asia/Jakarta" });
         const pushDates = new Set<string>();
+
         for (const event of events) {
             if (event.type === "PushEvent") {
-                const date = event.created_at.split("T")[0];
-                pushDates.add(date);
+                pushDates.add(getWIBDate(event.created_at));
             }
         }
 
-        // Count consecutive days from today backwards
+        // Count consecutive days from "today" (in WIB) backwards
         let streak = 0;
-        const today = new Date();
+        const todayStr = getWIBDate(new Date());
+
         for (let i = 0; i < 60; i++) {
-            const d = new Date(today);
-            d.setDate(d.getDate() - i);
-            const dateStr = d.toISOString().split("T")[0];
-            if (pushDates.has(dateStr)) {
+            // Subtract exactly i days in UTC to get the rolling date, then format it to a WIB string
+            const checkDate = new Date();
+            checkDate.setUTCDate(checkDate.getUTCDate() - i);
+            const checkStr = getWIBDate(checkDate);
+
+            if (pushDates.has(checkStr)) {
                 streak++;
             } else if (i > 0) {
-                break; // Allow today to not have a push yet
+                break; // Allow today (i=0) to not have a push yet
             }
         }
 
@@ -48,7 +52,7 @@ export async function GET() {
             followers: user.followers,
             streak,
             avatar: user.avatar_url,
-            todayActive: pushDates.has(today.toISOString().split("T")[0]),
+            todayActive: pushDates.has(todayStr),
             pushDates: Array.from(pushDates),
         });
     } catch {

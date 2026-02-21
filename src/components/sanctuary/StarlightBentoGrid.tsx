@@ -44,7 +44,7 @@ const AppIcon = ({ title, href, icon, iconColor, delay = 0 }: AppIconProps) => {
                     width: "clamp(58px, 16vw, 72px)",
                     height: "clamp(58px, 16vw, 72px)",
                     borderRadius: "22.5%",
-                    background: "rgba(255, 255, 255, 0.05)", // Barely-there frosted glass
+                    background: "rgba(0, 0, 0, 0.15)", // Lighter built-in dark opacity
                     backdropFilter: "blur(32px) saturate(180%) brightness(110%)",
                     WebkitBackdropFilter: "blur(32px) saturate(180%) brightness(110%)",
                     display: "flex",

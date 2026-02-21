@@ -9,7 +9,8 @@ interface DigitalClockProps {
 
 export function DigitalClock({ onClick }: DigitalClockProps) {
     const [mounted, setMounted] = useState(false);
-    const [time, setTime] = useState<Date | null>(null);
+    // Initialize immediately with local date, but be prepared for hydration diff
+    const [time, setTime] = useState<Date>(new Date());
 
     useEffect(() => {
         setMounted(true);
@@ -22,14 +23,16 @@ export function DigitalClock({ onClick }: DigitalClockProps) {
         return () => clearInterval(timer);
     }, []);
 
-    if (!mounted || !time) {
+    if (!mounted) {
+        // Render an empty container of the exact same size to avoid layout shifts during SSR
         return (
-            <div style={{ height: "2rem" }} />
+            <div style={{ height: "42px", marginBottom: "1rem" }} />
         );
     }
 
     const formatTime = (date: Date) => {
         return date.toLocaleTimeString("id-ID", {
+            timeZone: "Asia/Jakarta", // Enforce WIB (Indonesian time) to solve timezone delay/drift
             hour: "2-digit",
             minute: "2-digit",
             second: "2-digit",
@@ -56,7 +59,7 @@ export function DigitalClock({ onClick }: DigitalClockProps) {
             className="hover:opacity-70 clock-container"
         >
             <div style={{ position: 'relative', display: 'inline-block' }}>
-                <span className="clock-time">{formatTime(time)}</span>
+                <span className="clock-time" suppressHydrationWarning>{formatTime(time)}</span>
                 <span
                     className="clock-hint"
                     style={{

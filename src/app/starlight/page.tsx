@@ -42,7 +42,7 @@ export default function StarlightPage() {
         inset: 0,
         backgroundImage: "url('/wallpapers/wp1-edited.webp')",
         backgroundSize: "cover",
-        backgroundPosition: "center",
+        backgroundPosition: "bottom center",
         zIndex: -2,
       }} />
       <div>

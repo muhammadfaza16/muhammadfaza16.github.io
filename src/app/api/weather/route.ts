@@ -16,27 +16,27 @@ export async function GET() {
 
         // Map WMO weather codes to readable descriptions
         const weatherMap: Record<number, { label: string; icon: string }> = {
-            0: { label: "Clear", icon: "☀️" },
+            0: { label: "Clear Sky", icon: "☀️" },
             1: { label: "Mostly Clear", icon: "🌤️" },
             2: { label: "Partly Cloudy", icon: "⛅" },
-            3: { label: "Overcast", icon: "☁️" },
-            45: { label: "Foggy", icon: "🌫️" },
-            48: { label: "Icy Fog", icon: "🌫️" },
-            51: { label: "Light Drizzle", icon: "🌦️" },
-            53: { label: "Drizzle", icon: "🌦️" },
+            3: { label: "Gloomy", icon: "☁️" },
+            45: { label: "Misty", icon: "🌫️" },
+            48: { label: "Frosty Fog", icon: "🌫️" },
+            51: { label: "Misty Rain", icon: "🌦️" },
+            53: { label: "Gentle Rain", icon: "🌦️" },
             55: { label: "Heavy Drizzle", icon: "🌧️" },
             61: { label: "Light Rain", icon: "🌧️" },
-            63: { label: "Rain", icon: "🌧️" },
+            63: { label: "Pouring", icon: "🌧️" },
             65: { label: "Heavy Rain", icon: "🌧️" },
             71: { label: "Light Snow", icon: "🌨️" },
-            73: { label: "Snow", icon: "❄️" },
+            73: { label: "Snowing", icon: "❄️" },
             75: { label: "Heavy Snow", icon: "❄️" },
-            80: { label: "Showers", icon: "🌦️" },
-            81: { label: "Moderate Showers", icon: "🌧️" },
+            80: { label: "Passing Showers", icon: "🌦️" },
+            81: { label: "Rain Showers", icon: "🌧️" },
             82: { label: "Heavy Showers", icon: "⛈️" },
             95: { label: "Thunderstorm", icon: "⛈️" },
-            96: { label: "Thunderstorm + Hail", icon: "⛈️" },
-            99: { label: "Severe Thunderstorm", icon: "⛈️" },
+            96: { label: "Thunder & Hail", icon: "⛈️" },
+            99: { label: "Severe Storm", icon: "⛈️" },
         };
 
         const weather = weatherMap[weatherCode] || { label: "Unknown", icon: "🌡️" };
@@ -47,11 +47,11 @@ export async function GET() {
             wind: Math.round(current.wind_speed_10m),
             label: weather.label,
             icon: weather.icon,
-            location: "Jakarta Selatan",
+            location: "Jakarta Selatan, ID", // Updated location precision per request
         });
     } catch {
         return NextResponse.json(
-            { temp: 28, humidity: 75, wind: 10, label: "Cloudy", icon: "☁️", location: "Jakarta Selatan" },
+            { temp: 28, humidity: 75, wind: 10, label: "Gloomy", icon: "☁️", location: "Jakarta Selatan, ID" },
             { status: 200 }
         );
     }
