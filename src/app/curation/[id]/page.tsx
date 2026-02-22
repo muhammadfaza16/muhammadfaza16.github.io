@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { use, useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { ArrowLeft, Clock } from "lucide-react";
 import Link from "next/link";
 import ReactMarkdown from "react-markdown";
@@ -15,16 +15,16 @@ type Article = {
     isRead: boolean;
 };
 
-export default function CurationReaderPage() {
-    const params = useParams();
+export default function CurationReaderPage({ params }: { params: Promise<{ id: string }> }) {
+    const { id } = use(params);
     const router = useRouter();
     const [article, setArticle] = useState<Article | null>(null);
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
-        if (!params.id) return;
+        if (!id) return;
 
-        fetch(`/api/curation/${params.id}`)
+        fetch(`/api/curation/${id}`)
             .then(res => {
                 if (!res.ok) throw new Error("Article not found");
                 return res.json();
@@ -32,7 +32,7 @@ export default function CurationReaderPage() {
             .then(data => setArticle(data))
             .catch(() => router.push('/curation'))
             .finally(() => setIsLoading(false));
-    }, [params.id, router]);
+    }, [id, router]);
 
     if (isLoading) {
         return (

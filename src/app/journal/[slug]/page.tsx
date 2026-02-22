@@ -1,10 +1,9 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { use, useEffect, useState } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
 import Link from "next/link";
 import { ChevronLeft } from "lucide-react";
-import { useParams } from "next/navigation";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 
@@ -16,9 +15,8 @@ type Post = {
     createdAt: string;
 };
 
-export default function JournalReaderPage() {
-    const params = useParams();
-    const slug = params.slug as string;
+export default function JournalReaderPage({ params }: { params: Promise<{ slug: string }> }) {
+    const { slug } = use(params);
 
     const [post, setPost] = useState<Post | null>(null);
     const [isLoading, setIsLoading] = useState(true);
