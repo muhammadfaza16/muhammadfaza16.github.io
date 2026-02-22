@@ -9,6 +9,39 @@ import React from "react";
 
 type Tab = "curation" | "writing" | "bookshelf" | "wishlist";
 
+const AnimatedMeshBackground = React.memo(({ activeTab }: { activeTab: string }) => {
+    return (
+        <>
+            {/* SVG Noise Overlay for Realism */}
+            <div className="absolute inset-0 z-0 opacity-[0.4] pointer-events-none mix-blend-overlay" style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")` }}></div>
+
+            {/* Dynamic Animated Mesh Gradients */}
+            <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
+                <motion.div
+                    animate={{
+                        x: ["-5%", "5%", "-5%"],
+                        y: ["-5%", "10%", "-5%"],
+                        rotate: [0, 5, 0]
+                    }}
+                    transition={{ duration: 15, repeat: Infinity, ease: "easeInOut" }}
+                    className="absolute top-[-10%] left-[-20%] w-[70vw] h-[70vw] rounded-full mix-blend-multiply filter blur-[100px] opacity-60"
+                    style={{ background: activeTab === 'home' || activeTab === 'curation' ? '#a2d2ff' : activeTab === 'writing' ? '#ffdfb8' : activeTab === 'bookshelf' ? '#e2c5ff' : '#ffc4c4' }}
+                />
+                <motion.div
+                    animate={{
+                        x: ["5%", "-10%", "5%"],
+                        y: ["10%", "-5%", "10%"],
+                        scale: [1, 1.1, 1]
+                    }}
+                    transition={{ duration: 20, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+                    className="absolute bottom-[-10%] right-[-10%] w-[60vw] h-[60vw] rounded-full mix-blend-multiply filter blur-[100px] opacity-50"
+                    style={{ background: activeTab === 'home' || activeTab === 'bookshelf' ? '#cda4ff' : activeTab === 'writing' ? '#ffd0a1' : activeTab === 'curation' ? '#8bc4ff' : '#ff9494' }}
+                />
+            </div>
+        </>
+    );
+});
+
 export default function GlobalMasterConsole() {
     const router = useRouter();
     const [password, setPassword] = useState("");
@@ -43,6 +76,7 @@ export default function GlobalMasterConsole() {
 
     const handleLogin = (e: React.FormEvent) => {
         e.preventDefault();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
         if (password === "admin123") {
             setIsAuthenticated(true);
         } else {
@@ -127,32 +161,8 @@ export default function GlobalMasterConsole() {
                 fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif",
             }}
         >
-            {/* SVG Noise Overlay for Realism */}
-            <div className="absolute inset-0 z-0 opacity-[0.4] pointer-events-none mix-blend-overlay" style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")` }}></div>
-
-            {/* Dynamic Animated Mesh Gradients */}
-            <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
-                <motion.div
-                    animate={{
-                        x: ["-5%", "5%", "-5%"],
-                        y: ["-5%", "10%", "-5%"],
-                        rotate: [0, 5, 0]
-                    }}
-                    transition={{ duration: 15, repeat: Infinity, ease: "easeInOut" }}
-                    className="absolute top-[-10%] left-[-20%] w-[70vw] h-[70vw] rounded-full mix-blend-multiply filter blur-[100px] opacity-60"
-                    style={{ background: activeTab === 'home' || activeTab === 'curation' ? '#a2d2ff' : activeTab === 'writing' ? '#ffdfb8' : activeTab === 'bookshelf' ? '#e2c5ff' : '#ffc4c4' }}
-                />
-                <motion.div
-                    animate={{
-                        x: ["5%", "-10%", "5%"],
-                        y: ["10%", "-5%", "10%"],
-                        scale: [1, 1.1, 1]
-                    }}
-                    transition={{ duration: 20, repeat: Infinity, ease: "easeInOut", delay: 1 }}
-                    className="absolute bottom-[-10%] right-[-10%] w-[60vw] h-[60vw] rounded-full mix-blend-multiply filter blur-[100px] opacity-50"
-                    style={{ background: activeTab === 'home' || activeTab === 'bookshelf' ? '#cda4ff' : activeTab === 'writing' ? '#ffd0a1' : activeTab === 'curation' ? '#8bc4ff' : '#ff9494' }}
-                />
-            </div>
+            {/* Animated Memoized Background to stop keystroke render lag */}
+            <AnimatedMeshBackground activeTab={activeTab} />
 
             <div className="w-full max-w-[500px] h-[100svh] flex flex-col relative overflow-hidden z-10 border-x border-black/5 bg-white/10 backdrop-blur-[2px]">
                 {/* TOP NAVIGATION */}
@@ -221,6 +231,7 @@ export default function GlobalMasterConsole() {
                                         placeholder="Enter passphrase"
                                         value={password}
                                         onChange={(e) => setPassword(e.target.value)}
+                                        onBlur={() => window.scrollTo({ top: 0, behavior: 'instant' })}
                                         className="w-full h-[52px] bg-transparent outline-none font-semibold text-center placeholder:text-[#8E8E93]/70 text-[16px]"
                                         style={{ color: textDark }}
                                         autoFocus
@@ -395,6 +406,7 @@ export default function GlobalMasterConsole() {
                                             placeholder="Enter title..."
                                             value={formData.title}
                                             onChange={(e) => handleInputChange("title", e.target.value)}
+                                            onBlur={() => window.scrollTo({ top: 0, behavior: 'instant' })}
                                             className="w-full h-12 px-4 bg-transparent border-none outline-none font-semibold text-[15px] placeholder:text-[#8E8E93]/60"
                                         />
                                     </div>
@@ -411,6 +423,7 @@ export default function GlobalMasterConsole() {
                                                 placeholder="Author Name"
                                                 value={formData.author}
                                                 onChange={(e) => handleInputChange("author", e.target.value)}
+                                                onBlur={() => window.scrollTo({ top: 0, behavior: 'instant' })}
                                                 className="w-full h-12 px-4 bg-transparent border-none outline-none font-semibold text-[15px] placeholder:text-[#8E8E93]/60"
                                             />
                                         </div>
@@ -428,6 +441,7 @@ export default function GlobalMasterConsole() {
                                                 placeholder="Rp 500.000"
                                                 value={formData.price}
                                                 onChange={(e) => handleInputChange("price", e.target.value)}
+                                                onBlur={() => window.scrollTo({ top: 0, behavior: 'instant' })}
                                                 className="w-full h-12 px-4 bg-transparent border-none outline-none font-semibold text-[15px] placeholder:text-[#8E8E93]/60"
                                             />
                                         </div>
@@ -446,6 +460,7 @@ export default function GlobalMasterConsole() {
                                             placeholder="https://..."
                                             value={formData.coverImage}
                                             onChange={(e) => handleInputChange("coverImage", e.target.value)}
+                                            onBlur={() => window.scrollTo({ top: 0, behavior: 'instant' })}
                                             className="w-full bg-transparent border-none outline-none font-medium text-[14px] placeholder:text-[#8E8E93]/60"
                                         />
                                     </div>
@@ -464,6 +479,7 @@ export default function GlobalMasterConsole() {
                                             placeholder={activeTab === "bookshelf" ? "What did you think of the book?" : "Paste your markdown content here..."}
                                             value={formData.content}
                                             onChange={(e) => handleInputChange("content", e.target.value)}
+                                            onBlur={() => window.scrollTo({ top: 0, behavior: 'instant' })}
                                             className="w-full h-full min-h-[200px] bg-transparent border-none outline-none resize-none font-medium text-[15px] leading-relaxed placeholder:text-[#8E8E93]/60"
                                             style={{ color: textDark }}
                                         />
