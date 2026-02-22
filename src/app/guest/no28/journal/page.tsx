@@ -6,6 +6,7 @@ import { ArrowLeft, Save, X, Calendar, PenLine, Sparkles, ChevronLeft, ChevronRi
 import Link from "next/link";
 import { Container } from "@/components/Container"; // Adjust path if needed
 import { MOOD_CONFIG, JournalEntry, MoodCategory } from "@/types/journal";
+import "../../../globals.css";
 
 // --- Components ---
 
@@ -53,11 +54,8 @@ const NoiseOverlay = () => (
 const FloatingParticles = () => (
     <div style={{ position: "fixed", inset: 0, zIndex: 1, pointerEvents: "none", overflow: "hidden" }}>
         {[...Array(8)].map((_, i) => (
-            <motion.div
+            <div
                 key={i}
-                initial={{ opacity: 1, y: 0 }}
-                animate={{ opacity: [0, 0.4, 0], y: -120, x: Math.random() * 60 - 30 }}
-                transition={{ duration: 12 + Math.random() * 10, repeat: Infinity, delay: i * 2, ease: "linear" }}
                 style={{
                     position: "absolute",
                     left: `${Math.random() * 100}%`,
@@ -65,7 +63,8 @@ const FloatingParticles = () => (
                     width: "3px", height: "3px",
                     background: "#b07d62",
                     borderRadius: "50%",
-                    filter: "blur(1px)"
+                    filter: "blur(1px)",
+                    animation: `floatParticle ${12 + Math.random() * 10}s linear ${i * 2}s infinite`
                 }}
             />
         ))}
@@ -73,40 +72,20 @@ const FloatingParticles = () => (
 );
 
 const FallingPetals = () => {
-    const petals = useMemo(() => Array.from({ length: 6 }).map((_, i) => ({
-        id: i,
-        left: `${Math.random() * 100}%`,
-        delay: Math.random() * 8,
-        duration: 12 + Math.random() * 5,
-        size: 8 + Math.random() * 6,
-    })), []);
-
     return (
         <div style={{ position: "fixed", inset: 0, zIndex: 1, pointerEvents: "none", overflow: "hidden" }}>
-            {petals.map(petal => (
-                <motion.div
-                    key={petal.id}
-                    initial={{ y: "-5%", opacity: 0 }}
-                    animate={{
-                        y: "105vh",
-                        x: [0, 25, -20, 15, 0],
-                        opacity: [0, 0.5, 0.5, 0.3, 0],
-                        rotate: [0, 180, 360]
-                    }}
-                    transition={{
-                        duration: petal.duration,
-                        delay: petal.delay,
-                        repeat: Infinity,
-                        ease: "linear"
-                    }}
+            {Array.from({ length: 6 }).map((_, i) => (
+                <div
+                    key={i}
                     style={{
                         position: "absolute",
-                        left: petal.left,
-                        width: petal.size,
-                        height: petal.size,
+                        left: `${Math.random() * 100}%`,
+                        width: 8 + Math.random() * 6,
+                        height: 8 + Math.random() * 6,
                         borderRadius: "50% 0 50% 50%",
                         background: "linear-gradient(135deg, #f0d0d0 0%, #e6ccb2 100%)", // Warmer/Earthier tone for Journal
-                        willChange: "transform, opacity"
+                        willChange: "transform, opacity",
+                        animation: `fallPetal ${12 + Math.random() * 5}s linear ${Math.random() * 8}s infinite`
                     }}
                 />
             ))}
@@ -114,74 +93,8 @@ const FallingPetals = () => {
     );
 };
 
-const Butterflies = () => {
-    const butterflies = useMemo(() => [
-        { id: 1, startX: "10%", startY: "30%", color: "#e6a8d7" },
-        { id: 2, startX: "85%", startY: "65%", color: "#a8d7e6" },
-    ], []);
-
-    return (
-        <div style={{ position: "fixed", inset: 0, zIndex: 3, pointerEvents: "none" }}>
-            {butterflies.map(butterfly => (
-                <motion.div
-                    key={butterfly.id}
-                    animate={{
-                        x: [0, 50, -20, 60, 0],
-                        y: [0, -40, 30, -50, 0],
-                        rotate: [0, 10, -10, 5, 0]
-                    }}
-                    transition={{
-                        duration: 30 + butterfly.id * 10,
-                        repeat: Infinity,
-                        ease: "easeInOut"
-                    }}
-                    style={{
-                        position: "absolute",
-                        left: butterfly.startX,
-                        top: butterfly.startY,
-                        fontSize: "1.2rem",
-                        willChange: "transform",
-                        opacity: 0.7
-                    }}
-                >
-                    🦋
-                </motion.div>
-            ))}
-        </div>
-    );
-};
-
-
-const WatercolorSplash = ({ color, top, left, size = "200px", opacity = 0.1 }: { color: string, top: string, left: string, size?: string, opacity?: number }) => (
-    <div style={{
-        position: "absolute",
-        top, left,
-        width: size, height: size,
-        background: `radial-gradient(circle, ${color} 0%, transparent 70%)`,
-        filter: "url(#watercolor)",
-        opacity,
-        zIndex: 0,
-        pointerEvents: "none",
-        transform: "scale(1.5)",
-    }} />
-);
-
-// SVG Filter for "Liquid/Watercolor" feel (Hidden but referenced)
-const AmbientFilters = () => (
-    <svg style={{ position: "absolute", width: 0, height: 0 }}>
-        <filter id="watercolor">
-            <feTurbulence type="fractalNoise" baseFrequency="0.015" numOctaves="3" result="noise" />
-            <feDisplacementMap in="SourceGraphic" in2="noise" scale="30" />
-            <feGaussianBlur stdDeviation="5" />
-        </filter>
-        <filter id="rough-paper">
-            <feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="3" result="noise" />
-            <feDiffuseLighting in="noise" lightingColor="white" surfaceScale="1">
-                <feDistantLight azimuth="45" elevation="60" />
-            </feDiffuseLighting>
-        </filter>
-    </svg>
-);
+// Butterflies removed to clean up UI as per premium editorial goal.
+// SVG filters (watercolors/rough-paper) removed to optimize render pipeline and remove visual clutter.
 
 // --- Main Page ---
 
@@ -364,7 +277,6 @@ export default function JournalPage() {
             <NoiseOverlay />
             <FloatingParticles />
             <FallingPetals />
-            <Butterflies />
 
             {/* Header */}
             <div style={{
@@ -659,7 +571,7 @@ export default function JournalPage() {
                 {selectedDate && (
                     <>
                         <motion.div
-                            initial={{ opacity: 1,}} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                            initial={{ opacity: 1, }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
                             onClick={() => setSelectedDate(null)}
                             style={{ position: "fixed", inset: 0, background: "rgba(78, 68, 57, 0.4)", zIndex: 50, backdropFilter: "blur(4px)" }}
                         />

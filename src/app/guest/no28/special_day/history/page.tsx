@@ -10,6 +10,7 @@ import Image from "next/image";
 import { Container } from "@/components/Container";
 import { useTheme } from "@/components/guest/no28/ThemeContext";
 import { ThemeToggle } from "@/components/guest/no28/ThemeToggle";
+import "../../../../globals.css";
 
 // --- Shared UI Primitives ---
 
@@ -194,7 +195,7 @@ export default function HistoryPage() {
                                     >
                                         <div style={{ width: "100%", height: "calc(100% - 28px)", position: "relative", overflow: "hidden", background: "#faf8f5" }}>
                                             <AnimatePresence mode="wait">
-                                                <motion.div key={portraitIndex} initial={{ opacity: 1,}} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.5 }} style={{ position: "absolute", inset: 0 }}>
+                                                <motion.div key={portraitIndex} initial={{ opacity: 1, }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.5 }} style={{ position: "absolute", inset: 0 }}>
                                                     <Image src={portraits[portraitIndex].src} alt={portraits[portraitIndex].label} fill style={{ objectFit: "cover", objectPosition: "center top" }} />
                                                 </motion.div>
                                             </AnimatePresence>
@@ -239,16 +240,15 @@ export default function HistoryPage() {
                             padding: isMobile ? "3rem 1.5rem" : "4rem 3rem",
                             textAlign: "center", position: "relative", overflow: "hidden"
                         }}>
-                            {/* Stars Background */}
+                            {/* Stars Background using CSS Keyframes for performance */}
                             {Array.from({ length: 30 }).map((_, i) => (
-                                <motion.div key={i}
-                                    animate={{ opacity: [0.2, 0.8, 0.2] }}
-                                    transition={{ duration: 2 + Math.random() * 3, repeat: Infinity, delay: Math.random() * 2 }}
+                                <div key={i}
                                     style={{
                                         position: "absolute",
                                         left: `${Math.random() * 100}%`, top: `${Math.random() * 100}%`,
                                         width: "2px", height: "2px", borderRadius: "50%",
-                                        background: "#fff"
+                                        background: "#fff",
+                                        animation: `twinkleStar ${2 + Math.random() * 3}s ease-in-out ${Math.random() * 2}s infinite`
                                     }}
                                 />
                             ))}
@@ -460,7 +460,7 @@ export default function HistoryPage() {
             {/* Portrait Popup */}
             <AnimatePresence>
                 {selectedPortrait && (
-                    <motion.div initial={{ opacity: 1,}} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                    <motion.div initial={{ opacity: 1, }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
                         onClick={() => setSelectedPortrait(null)}
                         style={{
                             position: "fixed", inset: 0, background: "rgba(0,0,0,0.6)",

@@ -10,22 +10,20 @@ import { useTheme } from "@/components/guest/no28/ThemeContext";
 import { ThemeToggle } from "@/components/guest/no28/ThemeToggle";
 
 // ═══════════════════════════════════════════
-// AMBIENT COMPONENTS
+// AMBIENT COMPONENTS (CSS GPU ACCELERATED)
 // ═══════════════════════════════════════════
 
 const FloatingParticles = ({ color }: { color: string }) => {
-    const particles = useMemo(() => Array.from({ length: 14 }).map((_, i) => ({
-        id: i, left: `${Math.random() * 100}%`, top: `${Math.random() * 100}%`,
-        size: Math.random() * 3 + 2, duration: Math.random() * 20 + 12, delay: Math.random() * 5
-    })), []);
-
     return (
         <div style={{ position: "fixed", inset: 0, zIndex: 0, pointerEvents: "none" }}>
-            {particles.map((p) => (
-                <motion.div key={p.id}
-                    animate={{ y: [0, -80, 0], opacity: [0, 0.3, 0], scale: [0.8, 1.2, 0.8] }}
-                    transition={{ duration: p.duration, repeat: Infinity, ease: "linear" as const, delay: p.delay }}
-                    style={{ position: "absolute", left: p.left, top: p.top, width: p.size, height: p.size, borderRadius: "50%", background: color, filter: "blur(1px)" }}
+            {Array.from({ length: 14 }).map((_, i) => (
+                <div key={i}
+                    style={{
+                        position: "absolute", left: `${Math.random() * 100}%`, top: `${Math.random() * 100}%`,
+                        width: Math.random() * 3 + 2, height: Math.random() * 3 + 2, borderRadius: "50%",
+                        background: color, filter: "blur(1px)",
+                        animation: `floatParticle ${Math.random() * 20 + 12}s linear ${Math.random() * 5}s infinite`
+                    }}
                 />
             ))}
         </div>
@@ -33,19 +31,17 @@ const FloatingParticles = ({ color }: { color: string }) => {
 };
 
 const FallingPetals = ({ gradient }: { gradient: string }) => {
-    const petals = useMemo(() => Array.from({ length: 8 }).map((_, i) => ({
-        id: i, left: `${Math.random() * 100}%`, delay: Math.random() * 10,
-        duration: 14 + Math.random() * 6, size: 8 + Math.random() * 6,
-    })), []);
-
     return (
         <div style={{ position: "fixed", inset: 0, zIndex: 2, pointerEvents: "none", overflow: "hidden" }}>
-            {petals.map(petal => (
-                <motion.div key={petal.id}
-                    initial={{ y: "-5%", opacity: 0 }}
-                    animate={{ y: "105vh", x: [0, 20, -15, 25, 0], opacity: [0, 0.5, 0.5, 0.3, 0], rotate: [0, 45, 90, 135, 180] }}
-                    transition={{ duration: petal.duration, delay: petal.delay, repeat: Infinity, ease: "linear" as const }}
-                    style={{ position: "absolute", left: petal.left, width: petal.size, height: petal.size, borderRadius: "50% 0 50% 50%", background: gradient, willChange: "transform, opacity" }}
+            {Array.from({ length: 8 }).map((_, i) => (
+                <div key={i}
+                    style={{
+                        position: "absolute", left: `${Math.random() * 100}%`,
+                        width: 8 + Math.random() * 6, height: 8 + Math.random() * 6,
+                        borderRadius: "50% 0 50% 50%", background: gradient,
+                        willChange: "transform, opacity",
+                        animation: `fallPetal ${14 + Math.random() * 6}s linear ${Math.random() * 10}s infinite`
+                    }}
                 />
             ))}
         </div>
@@ -53,18 +49,16 @@ const FallingPetals = ({ gradient }: { gradient: string }) => {
 };
 
 const TwinklingStars = ({ count = 12, color = "#c8b8a4" }: { count?: number; color?: string }) => {
-    const stars = useMemo(() => Array.from({ length: count }).map((_, i) => ({
-        id: i, left: `${10 + Math.random() * 80}%`, top: `${10 + Math.random() * 80}%`,
-        size: Math.random() * 2 + 1.5, duration: 2 + Math.random() * 3, delay: Math.random() * 4
-    })), [count]);
-
     return (
         <>
-            {stars.map(s => (
-                <motion.div key={s.id}
-                    animate={{ opacity: [0.2, 0.8, 0.2], scale: [0.8, 1.2, 0.8] }}
-                    transition={{ duration: s.duration, repeat: Infinity, ease: "easeInOut" as const, delay: s.delay }}
-                    style={{ position: "absolute", left: s.left, top: s.top, width: s.size, height: s.size, borderRadius: "50%", background: color, boxShadow: `0 0 4px ${color}`, zIndex: 1 }}
+            {Array.from({ length: count }).map((_, i) => (
+                <div key={i}
+                    style={{
+                        position: "absolute", left: `${10 + Math.random() * 80}%`, top: `${10 + Math.random() * 80}%`,
+                        width: Math.random() * 2 + 1.5, height: Math.random() * 2 + 1.5, borderRadius: "50%",
+                        background: color, boxShadow: `0 0 4px ${color}`, zIndex: 1,
+                        animation: `twinkleStar ${2 + Math.random() * 3}s ease-in-out ${Math.random() * 4}s infinite`
+                    }}
                 />
             ))}
         </>
@@ -72,16 +66,12 @@ const TwinklingStars = ({ count = 12, color = "#c8b8a4" }: { count?: number; col
 };
 
 const MiniEqualizer = ({ color = "#87b0a5", bars = 5 }: { color?: string; bars?: number }) => {
-    const barData = useMemo(() => Array.from({ length: bars }).map((_, i) => ({
-        id: i, maxH: 12 + Math.random() * 16, duration: 0.6 + Math.random() * 0.5, delay: i * 0.1
-    })), [bars]);
-
     return (
         <div style={{ display: "flex", alignItems: "flex-end", gap: "3px", height: "28px" }}>
-            {barData.map(b => (
-                <motion.div key={b.id}
-                    animate={{ height: [4, b.maxH, 6, b.maxH * 0.7, 4] }}
-                    transition={{ duration: b.duration, repeat: Infinity, ease: "easeInOut" as const, delay: b.delay }}
+            {Array.from({ length: bars }).map((_, i) => (
+                <motion.div key={i}
+                    animate={{ height: [4, 12 + Math.random() * 16, 6, (12 + Math.random() * 16) * 0.7, 4] }}
+                    transition={{ duration: 0.6 + Math.random() * 0.5, repeat: Infinity, ease: "easeInOut", delay: i * 0.1 }}
                     style={{ width: "3px", borderRadius: "2px", backgroundColor: color, opacity: 0.7 }}
                 />
             ))}
@@ -151,10 +141,16 @@ export default function SpecialDayHub() {
             {/* Ambient Layers */}
             <FloatingParticles color={T.particleColor} />
             <FallingPetals gradient={T.petalGradient} />
-            <motion.div animate={{ scale: [1, 1.05, 1], opacity: [0.25, 0.35, 0.25] }} transition={{ duration: 15, repeat: Infinity, ease: "easeInOut" as const }}
-                style={{ position: "fixed", top: "10%", right: "-10%", width: "500px", height: "500px", background: `radial-gradient(circle, ${T.accentGlow} 0%, transparent 70%)`, filter: "blur(60px)", pointerEvents: "none", zIndex: 0 }} />
-            <motion.div animate={{ scale: [1, 1.1, 1], opacity: [0.3, 0.4, 0.3] }} transition={{ duration: 18, repeat: Infinity, ease: "easeInOut" as const, delay: 3 }}
-                style={{ position: "fixed", bottom: "5%", left: "-5%", width: "450px", height: "450px", background: `radial-gradient(circle, ${T.accentGlow} 0%, transparent 70%)`, filter: "blur(60px)", pointerEvents: "none", zIndex: 0 }} />
+            <div style={{
+                position: "fixed", top: "10%", right: "-10%", width: "500px", height: "500px",
+                background: `radial-gradient(circle, ${T.accentGlow} 0%, transparent 70%)`, filter: "blur(60px)",
+                pointerEvents: "none", zIndex: 0, animation: "glowPulse 15s ease-in-out infinite"
+            }} />
+            <div style={{
+                position: "fixed", bottom: "5%", left: "-5%", width: "450px", height: "450px",
+                background: `radial-gradient(circle, ${T.accentGlow} 0%, transparent 70%)`, filter: "blur(60px)",
+                pointerEvents: "none", zIndex: 0, animation: "glowPulse 18s ease-in-out infinite 3s"
+            }} />
             <div style={{ position: "fixed", inset: 0, opacity: 0.35, pointerEvents: "none", backgroundImage: T.paperTexture, zIndex: 5 }} />
 
             <main style={{ position: "relative", zIndex: 10 }}>

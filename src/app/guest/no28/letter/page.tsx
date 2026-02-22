@@ -6,6 +6,7 @@ import { Home, ChevronLeft, ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Container } from "@/components/Container";
+import "../../../globals.css";
 
 const sheets = [
     {
@@ -204,7 +205,7 @@ export default function LetterPage() {
                                 {sheets[currentPage].signature && (
                                     <div style={{ marginTop: "4rem", textAlign: "right", display: "flex", flexDirection: "column", alignItems: "flex-end" }}>
                                         <motion.div
-                                            initial={{ opacity: 1,}}
+                                            initial={{ opacity: 1, }}
                                             animate={{ opacity: 1 }}
                                             transition={{ delay: 0.5 }}
                                             style={{

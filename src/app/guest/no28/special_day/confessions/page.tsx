@@ -7,6 +7,7 @@ import Link from "next/link";
 import { Container } from "@/components/Container";
 import { useTheme } from "@/components/guest/no28/ThemeContext";
 import { ThemeToggle } from "@/components/guest/no28/ThemeToggle";
+import "../../../../globals.css";
 
 // --- Shared UI ---
 
@@ -65,10 +66,13 @@ export default function ConfessionsPage() {
             {/* Stars */}
             <div style={{ position: "fixed", inset: 0, pointerEvents: "none", zIndex: 0 }}>
                 {Array.from({ length: 60 }).map((_, i) => (
-                    <motion.div key={i}
-                        animate={{ opacity: [0.1, 0.6, 0.1] }}
-                        transition={{ duration: 2 + Math.random() * 4, repeat: Infinity, delay: Math.random() * 3 }}
-                        style={{ position: "absolute", left: `${Math.random() * 100}%`, top: `${Math.random() * 100}%`, width: `${1 + Math.random() * 2}px`, height: `${1 + Math.random() * 2}px`, borderRadius: "50%", background: "#fff" }}
+                    <div key={i}
+                        style={{
+                            position: "absolute", left: `${Math.random() * 100}%`, top: `${Math.random() * 100}%`,
+                            width: `${1 + Math.random() * 2}px`, height: `${1 + Math.random() * 2}px`,
+                            borderRadius: "50%", background: "#fff",
+                            animation: `twinkleStar ${2 + Math.random() * 4}s ease-in-out ${Math.random() * 3}s infinite`
+                        }}
                     />
                 ))}
             </div>

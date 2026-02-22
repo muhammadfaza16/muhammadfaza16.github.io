@@ -7,15 +7,12 @@ import Link from "next/link";
 import { Container } from "@/components/Container";
 import { useTheme } from "@/components/guest/no28/ThemeContext";
 import { ThemeToggle } from "@/components/guest/no28/ThemeToggle";
+import "../../../../globals.css";
 
 // --- Shared UI ---
 
 const HandwrittenNote = ({ children, style = {} }: { children: React.ReactNode, style?: React.CSSProperties }) => (
     <span style={{ fontFamily: "'Caveat', cursive, 'Brush Script MT'", color: "#a0907d", fontSize: "1.2rem", display: "inline-block", lineHeight: 1.2, ...style }}>{children}</span>
-);
-
-const NoiseOverlay = () => (
-    <div style={{ position: "fixed", inset: 0, pointerEvents: "none", zIndex: 50, opacity: 0.07, background: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`, mixBlendMode: "overlay" as const }} />
 );
 
 // --- Types ---
@@ -85,7 +82,7 @@ export default function MelodyPage() {
     return (
         <div style={{ backgroundColor: T.pageBg, backgroundImage: T.pageBgDots, backgroundSize: T.pageBgSize, minHeight: "100svh", color: T.textPrimary, fontFamily: "'Crimson Pro', serif, -apple-system", position: "relative", overflowX: "hidden", paddingBottom: "5rem", transition: "background-color 0.5s ease, color 0.5s ease" }}>
             <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;700&display=swap" rel="stylesheet" />
-            <NoiseOverlay />
+
             <div style={{ position: "fixed", inset: 0, opacity: 0.4, pointerEvents: "none", backgroundImage: T.paperTexture, zIndex: 5 }} />
 
             <main style={{ position: "relative", zIndex: 10, padding: isMobile ? "4rem 0" : "6rem 0" }}>
