@@ -21,7 +21,7 @@ interface DockIconProps {
 
 const DockIcon = ({ title, href, icon, iconColor, delay = 0 }: DockIconProps) => {
     return (
-        <Link href={href} style={{ textDecoration: 'none' }}>
+        <Link href={href} prefetch={true} style={{ textDecoration: 'none' }}>
             <motion.div
                 initial={{ opacity: 0, y: 6, scale: 0.9 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}

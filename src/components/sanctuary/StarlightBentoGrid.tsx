@@ -20,7 +20,7 @@ interface AppIconProps {
 
 const AppIcon = ({ title, href, icon, iconColor, delay = 0 }: AppIconProps) => {
     return (
-        <Link href={href} prefetch={false} style={{ textDecoration: 'none' }} className="group">
+        <Link href={href} prefetch={true} style={{ textDecoration: 'none' }} className="group">
             <motion.div
                 initial={{ opacity: 0, scale: 0.85, y: 8 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}
