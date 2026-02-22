@@ -116,7 +116,7 @@ export default function MelodyPage() {
                     <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem", maxWidth: "700px", margin: "0 auto" }}>
                         {songs.map((song, i) => (
                             <motion.div key={i}
-                                initial={{ opacity: 0, y: 20 }}
+                                initial={{ opacity: 1, y: 20 }}
                                 whileInView={{ opacity: 1, y: 0 }}
                                 viewport={{ once: true }}
                                 transition={{ duration: 0.4, delay: i * 0.1 }}
@@ -156,7 +156,7 @@ export default function MelodyPage() {
                                     {/* Expanded Content */}
                                     {expandedSong === i && (
                                         <motion.div
-                                            initial={{ opacity: 0, height: 0 }}
+                                            initial={{ opacity: 1, height: 0 }}
                                             animate={{ opacity: 1, height: "auto" }}
                                             transition={{ duration: 0.3 }}
                                             style={{ paddingLeft: "1rem", marginTop: "1.5rem", borderTop: "1px dashed #e8e2d9", paddingTop: "1.5rem" }}

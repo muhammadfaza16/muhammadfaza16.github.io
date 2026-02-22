@@ -188,7 +188,7 @@ export default function GlobalMasterConsole() {
 
                 {!isAuthenticated ? (
                     <motion.div
-                        initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                        initial={{ opacity: 1, scale: 0.95, y: 20 }}
                         animate={{ opacity: 1, scale: 1, y: 0 }}
                         className="flex flex-col flex-grow items-center justify-center px-6 pb-32 w-full"
                     >
@@ -264,7 +264,7 @@ export default function GlobalMasterConsole() {
                 ) : activeTab === "home" ? (
                     <motion.div
                         key="dashboard"
-                        initial={{ opacity: 0, y: 10 }}
+                        initial={{ opacity: 1, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -10 }}
                         className="flex flex-col flex-grow px-5 overflow-y-auto no-scrollbar pb-32 pt-2"
@@ -320,7 +320,7 @@ export default function GlobalMasterConsole() {
                 ) : (
                     <motion.div
                         key="form"
-                        initial={{ opacity: 0, y: 10, scale: 0.98 }}
+                        initial={{ opacity: 1, y: 10, scale: 0.98 }}
                         animate={{ opacity: 1, y: 0, scale: 1 }}
                         exit={{ opacity: 0, y: -10, scale: 0.98 }}
                         transition={{ type: "spring", damping: 25, stiffness: 300 }}

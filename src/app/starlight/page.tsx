@@ -92,7 +92,7 @@ export default function StarlightPage() {
             padding: "2rem 1rem", // Standard padding all around
           }}>
             <motion.div
-              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              initial={{ opacity: 1, scale: 0.9, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               transition={{ duration: 0.6, type: "spring", bounce: 0.3 }}
               style={{

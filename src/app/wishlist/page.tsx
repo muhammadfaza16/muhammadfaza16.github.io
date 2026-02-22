@@ -121,7 +121,7 @@ export default function WishlistPage() {
 
                 {/* Receipt Aggregation Panel */}
                 <motion.div
-                    initial={{ opacity: 0, y: -20 }}
+                    initial={{ opacity: 1, y: -20 }}
                     animate={{ opacity: 1, y: 0 }}
                     className="mb-10 p-6 sm:p-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 relative overflow-hidden"
                     style={{
@@ -159,7 +159,7 @@ export default function WishlistPage() {
                                 return (
                                     <motion.div
                                         key={item.id}
-                                        initial={{ opacity: 0, y: 20 }}
+                                        initial={{ opacity: 1, y: 20 }}
                                         animate={{ opacity: 1, y: 0 }}
                                         transition={{ delay: index * 0.05, ease: [0.22, 1, 0.36, 1] }}
                                     >

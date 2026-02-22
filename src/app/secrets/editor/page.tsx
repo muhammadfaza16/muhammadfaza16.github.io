@@ -139,7 +139,7 @@ export default function SecretsEditorPage() {
     if (!isAuthenticated) {
         return (
             <Container>
-                <div className="animate-fade-in" style={{
+                <div className="" style={{
                     maxWidth: "400px",
                     margin: "4rem auto",
                     textAlign: "center"
@@ -212,7 +212,7 @@ export default function SecretsEditorPage() {
 
     return (
         <Container>
-            <div className="animate-fade-in-up" style={{ maxWidth: "50rem", marginTop: "2rem", marginBottom: "6rem" }}>
+            <div className="" style={{ maxWidth: "50rem", marginTop: "2rem", marginBottom: "6rem" }}>
 
                 <header style={{ marginBottom: "2rem" }}>
                     <span style={{

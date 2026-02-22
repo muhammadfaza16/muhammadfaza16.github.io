@@ -194,14 +194,14 @@ export default function HistoryPage() {
                                     >
                                         <div style={{ width: "100%", height: "calc(100% - 28px)", position: "relative", overflow: "hidden", background: "#faf8f5" }}>
                                             <AnimatePresence mode="wait">
-                                                <motion.div key={portraitIndex} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.5 }} style={{ position: "absolute", inset: 0 }}>
+                                                <motion.div key={portraitIndex} initial={{ opacity: 1,}} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.5 }} style={{ position: "absolute", inset: 0 }}>
                                                     <Image src={portraits[portraitIndex].src} alt={portraits[portraitIndex].label} fill style={{ objectFit: "cover", objectPosition: "center top" }} />
                                                 </motion.div>
                                             </AnimatePresence>
                                         </div>
                                         <div style={{ position: "absolute", bottom: "10px", left: 0, right: 0, textAlign: "center" }}>
                                             <AnimatePresence mode="wait">
-                                                <motion.div key={portraitIndex} initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -5 }} transition={{ duration: 0.4 }}>
+                                                <motion.div key={portraitIndex} initial={{ opacity: 1, y: 5 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -5 }} transition={{ duration: 0.4 }}>
                                                     <HandwrittenNote style={{ color: "#8a7058", fontSize: "0.95rem", lineHeight: 1.1 }}>
                                                         {portraits[portraitIndex].label}
                                                     </HandwrittenNote>
@@ -430,7 +430,7 @@ export default function HistoryPage() {
                             <div style={{ marginTop: "2rem", textAlign: "left", height: "140px", position: "relative" }}>
                                 <AnimatePresence mode="wait">
                                     <motion.div key={kamusIndex}
-                                        initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}
+                                        initial={{ opacity: 1, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}
                                         transition={{ duration: 0.5 }}
                                         style={{ position: "absolute", top: 0, left: 0, width: "100%" }}
                                     >
@@ -460,7 +460,7 @@ export default function HistoryPage() {
             {/* Portrait Popup */}
             <AnimatePresence>
                 {selectedPortrait && (
-                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                    <motion.div initial={{ opacity: 1,}} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
                         onClick={() => setSelectedPortrait(null)}
                         style={{
                             position: "fixed", inset: 0, background: "rgba(0,0,0,0.6)",

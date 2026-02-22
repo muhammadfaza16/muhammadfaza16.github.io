@@ -21,7 +21,7 @@ export default function ProjectPage() {
                 paddingBottom: "clamp(2rem, 4vh, 3rem)"
             }}>
                 <Container>
-                    <div className="animate-fade-in-up">
+                    <div className="">
                         <div style={{
                             display: "inline-flex",
                             alignItems: "center",
@@ -67,7 +67,7 @@ export default function ProjectPage() {
 
             {/* Main Content */}
             <Container>
-                <div className="animate-fade-in animation-delay-200">
+                <div className=" animation-delay-200">
                     <ProjectGrid />
                 </div>
             </Container>

@@ -189,7 +189,7 @@ export default function ColophonPage() {
                         initial="hidden"
                         animate="show"
                         variants={containerVariants}
-                        className="animate-fade-in-up"
+                        className=""
                     >
                         <div style={{
                             display: "inline-flex",
@@ -246,7 +246,7 @@ export default function ColophonPage() {
                     initial="hidden"
                     animate="show"
                     variants={containerVariants}
-                    className="animate-fade-in animation-delay-200"
+                    className=" animation-delay-200"
                     style={{ marginBottom: "clamp(4rem, 8vh, 6rem)" }}
                 >
                     <div style={{
@@ -315,7 +315,7 @@ export default function ColophonPage() {
                     initial="hidden"
                     animate="show"
                     variants={containerVariants}
-                    className="animate-fade-in animation-delay-300"
+                    className=" animation-delay-300"
                     style={{ maxWidth: "48rem" }}
                 >
                     <div style={{

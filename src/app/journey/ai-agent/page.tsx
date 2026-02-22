@@ -98,7 +98,7 @@ export default function AIAgentPage() {
                         initial="hidden"
                         animate="show"
                         variants={containerVariants}
-                        className="animate-fade-in-up"
+                        className=""
                     >
 
 
@@ -176,7 +176,7 @@ export default function AIAgentPage() {
 
             {/* Main Content */}
             <Container>
-                <div className="animate-fade-in animation-delay-200" style={{ maxWidth: "52rem" }}>
+                <div className=" animation-delay-200" style={{ maxWidth: "52rem" }}>
 
                     {/* Key Insights */}
                     <motion.section

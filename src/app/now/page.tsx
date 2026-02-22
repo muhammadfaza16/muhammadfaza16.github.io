@@ -136,7 +136,7 @@ export default function NowPage() {
                 paddingBottom: "clamp(2rem, 4vh, 3rem)"
             }}>
                 <Container>
-                    <div className="animate-fade-in-up">
+                    <div className="">
                         <StatusPill status="Online" time="Jakarta" />
 
                         <h1 style={{
@@ -179,7 +179,7 @@ export default function NowPage() {
 
             {/* Main Content */}
             <Container>
-                <div className="animate-fade-in animation-delay-200" style={{ maxWidth: "42rem" }}>
+                <div className=" animation-delay-200" style={{ maxWidth: "42rem" }}>
 
                     {/* Current Focus */}
                     <section style={{ marginBottom: "clamp(3rem, 6vh, 4rem)" }}>

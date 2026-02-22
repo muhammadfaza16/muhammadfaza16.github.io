@@ -227,7 +227,7 @@ export default function YearPage() {
                     {/* ============================== */}
                     {/* SECTION 1: Personal Year Grid  */}
                     {/* ============================== */}
-                    <motion.section initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
+                    <motion.section initial={{ opacity: 1, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
                         <Link href="/guest/no28/journal" style={{ textDecoration: "none", color: "inherit", display: "block" }}>
                             <div style={{ background: "#fff", backgroundImage: "url('https://www.transparenttextures.com/patterns/natural-paper.png')", borderRadius: "6px", border: "1px solid #e8e2d9", boxShadow: "0 8px 24px rgba(0,0,0,0.08)", padding: isMobile ? "2rem 1.5rem" : "3rem 2.5rem", transition: "transform 0.2s" }}>
                                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "1rem" }}>
@@ -276,7 +276,7 @@ export default function YearPage() {
                     {/* ============================== */}
                     <SectionDivider label="Menuju hari istimewamu" />
 
-                    <motion.section initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.5 }}>
+                    <motion.section initial={{ opacity: 1, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.5 }}>
                         <div
                             onClick={() => setShowTimeCapsuleMessage(true)}
                             style={{ background: "#fff", backgroundImage: "url('https://www.transparenttextures.com/patterns/natural-paper.png')", borderRadius: "6px", border: "1px solid #e8e2d9", boxShadow: "0 8px 24px rgba(0,0,0,0.08)", padding: isMobile ? "3rem 1.5rem" : "4rem 2.5rem", textAlign: "center", cursor: "pointer" }}
@@ -299,7 +299,7 @@ export default function YearPage() {
                     {/* ============================== */}
                     <SectionDivider label="Irama kehidupanmu" />
 
-                    <motion.section initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.5 }}>
+                    <motion.section initial={{ opacity: 1, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.5 }}>
                         <div style={{ background: "#fff", backgroundImage: "url('https://www.transparenttextures.com/patterns/natural-paper.png')", borderRadius: "6px", border: "1px solid #e8e2d9", boxShadow: "0 8px 24px rgba(0,0,0,0.08)", padding: isMobile ? "3rem 1.5rem" : "4rem 2.5rem" }}>
                             <HeartbeatWidget isMobile={isMobile} />
                         </div>
@@ -310,7 +310,7 @@ export default function YearPage() {
                     {/* ============================== */}
                     <SectionDivider label="Bait untukmu hari ini" />
 
-                    <motion.section initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.5 }}>
+                    <motion.section initial={{ opacity: 1, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.5 }}>
                         <div style={{ background: "#fefbfc", backgroundImage: "url('https://www.transparenttextures.com/patterns/natural-paper.png')", borderRadius: "6px", border: "1px solid #e8e2d9", boxShadow: "0 8px 24px rgba(0,0,0,0.08)", padding: isMobile ? "3rem 1.8rem" : "6rem 4rem", position: "relative", overflow: "hidden" }}>
                             <div style={{ position: "absolute", bottom: "-10px", right: "-10px", width: "140px", height: "140px", opacity: 0.85, transform: "rotate(-15deg)", pointerEvents: "none", zIndex: 0, mixBlendMode: "multiply" as const }}>
                                 <Image src="/special_peony.webp" alt="" fill style={{ objectFit: "contain" }} />
@@ -342,7 +342,7 @@ export default function YearPage() {
             {/* Time Capsule Popup */}
             <AnimatePresence>
                 {showTimeCapsuleMessage && (
-                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                    <motion.div initial={{ opacity: 1,}} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
                         onClick={() => setShowTimeCapsuleMessage(false)}
                         style={{ position: "fixed", inset: 0, zIndex: 9999, background: "rgba(0,0,0,0.4)", backdropFilter: "blur(2px)", display: "flex", alignItems: "center", justifyContent: "center", padding: "1rem" }}
                     >

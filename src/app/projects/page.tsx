@@ -74,7 +74,7 @@ export default function ProjectsPage() {
                 </div>
 
                 <motion.div
-                    initial={{ opacity: 0, y: 20 }}
+                    initial={{ opacity: 1, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.6 }}
                     style={{
@@ -106,7 +106,7 @@ export default function ProjectsPage() {
                         {PROJECTS.map((project, i) => (
                             <motion.div
                                 key={project.title}
-                                initial={{ opacity: 0, scale: 0.95 }}
+                                initial={{ opacity: 1, scale: 0.95 }}
                                 animate={{ opacity: 1, scale: 1 }}
                                 transition={{ delay: 0.1 + (i * 0.1) }}
                                 style={{

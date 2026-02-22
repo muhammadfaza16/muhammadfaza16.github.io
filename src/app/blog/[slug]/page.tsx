@@ -117,7 +117,7 @@ export default async function BlogPostPage({ params }: PageProps) {
 
                 {/* Hero Header - Read Mode */}
                 <header
-                    className="animate-fade-in-up"
+                    className=""
                     style={{
                         marginTop: "2rem", // Reduced from 8rem since we have the nav above
                         marginBottom: "6rem",
@@ -128,7 +128,7 @@ export default async function BlogPostPage({ params }: PageProps) {
                     }}
                 >
                     <div
-                        className="animate-fade-in animation-delay-100"
+                        className=" animation-delay-100"
                         style={{
                             fontFamily: "var(--font-mono)",
                             fontSize: "0.85rem",
@@ -143,7 +143,7 @@ export default async function BlogPostPage({ params }: PageProps) {
                     </div>
 
                     <h1
-                        className="animate-fade-in animation-delay-200"
+                        className=" animation-delay-200"
                         style={{
                             fontFamily: "'Playfair Display', serif",
                             fontSize: "clamp(3rem, 6vw, 5.5rem)", // Massive title
@@ -158,7 +158,7 @@ export default async function BlogPostPage({ params }: PageProps) {
                     </h1>
 
                     <div
-                        className="animate-fade-in animation-delay-300"
+                        className=" animation-delay-300"
                         style={{
                             display: "flex",
                             justifyContent: "center",
@@ -178,7 +178,7 @@ export default async function BlogPostPage({ params }: PageProps) {
                 {/* Featured Image - Cinematic */}
                 {post.thumbnail && (
                     <div
-                        className="animate-fade-in animation-delay-400"
+                        className=" animation-delay-400"
                         style={{
                             width: "100%",
                             maxWidth: "1200px",

@@ -111,7 +111,7 @@ export default function ConfessionsPage() {
                     <div style={{ display: "flex", flexDirection: "column", gap: "3rem", maxWidth: "700px", margin: "4rem auto 0" }}>
                         {poems.map((poem, i) => (
                             <motion.div key={i}
-                                initial={{ opacity: 0, y: 30 }}
+                                initial={{ opacity: 1, y: 30 }}
                                 whileInView={{ opacity: 1, y: 0 }}
                                 viewport={{ once: true }}
                                 transition={{ duration: 0.6, delay: i * 0.1 }}

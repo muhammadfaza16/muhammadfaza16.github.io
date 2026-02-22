@@ -141,7 +141,7 @@ export default function PlaylistClient({ playlistId }: { playlistId: string }) {
 
             {isZen ? (
                 <motion.main
-                    initial={{ opacity: 0, y: "100%" }}
+                    initial={{ opacity: 1, y: "100%" }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ type: "spring", damping: 25, stiffness: 200 }}
                     drag="y"

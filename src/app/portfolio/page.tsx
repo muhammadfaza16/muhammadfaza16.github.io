@@ -57,7 +57,7 @@ export default function PortfolioPage() {
                 </div>
 
                 <motion.div
-                    initial={{ opacity: 0, y: 20 }}
+                    initial={{ opacity: 1, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.6, ease: "easeOut" }}
                     style={{
@@ -125,7 +125,7 @@ export default function PortfolioPage() {
                             ].map((item, i) => (
                                 <motion.div
                                     key={item.name}
-                                    initial={{ opacity: 0, y: 10 }}
+                                    initial={{ opacity: 1, y: 10 }}
                                     animate={{ opacity: 1, y: 0 }}
                                     transition={{ delay: 0.2 + (i * 0.1) }}
                                 >
@@ -174,7 +174,7 @@ export default function PortfolioPage() {
                                 href={Item.href}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                initial={{ opacity: 0, scale: 0.9 }}
+                                initial={{ opacity: 1, scale: 0.9 }}
                                 animate={{ opacity: 1, scale: 1 }}
                                 transition={{ delay: 0.4 + (i * 0.1) }}
                                 style={{

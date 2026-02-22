@@ -186,7 +186,7 @@ export default function SpecialDayHub() {
                         }}>
                             {/* Illustration */}
                             <motion.div
-                                initial={{ opacity: 0, scale: 0.9, rotate: -3 }}
+                                initial={{ opacity: 1, scale: 0.9, rotate: -3 }}
                                 animate={{ opacity: 1, scale: 1, rotate: 0 }}
                                 transition={{ duration: 1.2, ease: "easeOut" as const, delay: 0.3 }}
                                 style={{ position: "relative", flexShrink: 0 }}
@@ -232,7 +232,7 @@ export default function SpecialDayHub() {
 
                             {/* Text */}
                             <motion.div
-                                initial={{ opacity: 0, x: 30 }}
+                                initial={{ opacity: 1, x: 30 }}
                                 animate={{ opacity: 1, x: 0 }}
                                 transition={{ duration: 0.8, delay: 0.6 }}
                                 style={{ textAlign: isMobile ? "center" : "left", maxWidth: "420px" }}
@@ -620,7 +620,7 @@ export default function SpecialDayHub() {
                         {/* CLOSING / LETTER ENDING                    */}
                         {/* ═══════════════════════════════════════════ */}
                         <motion.div
-                            initial={{ opacity: 0, y: 30 }}
+                            initial={{ opacity: 1, y: 30 }}
                             whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true }}
                             transition={{ duration: 0.8 }}

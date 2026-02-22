@@ -230,7 +230,7 @@ export default function AboutPage() {
                         initial="hidden"
                         animate="show"
                         variants={containerVariants}
-                        className="animate-fade-in-up"
+                        className=""
                     >
                         <StatusPill />
 
@@ -287,7 +287,7 @@ export default function AboutPage() {
                     initial="hidden"
                     animate="show"
                     variants={containerVariants}
-                    className="animate-fade-in animation-delay-200"
+                    className=" animation-delay-200"
                     style={{
                         maxWidth: "52rem",
                         marginBottom: "clamp(3rem, 6vh, 4rem)"
@@ -328,7 +328,7 @@ export default function AboutPage() {
                     initial="hidden"
                     animate="show"
                     variants={containerVariants}
-                    className="animate-fade-in animation-delay-300"
+                    className=" animation-delay-300"
                     style={{ maxWidth: "42rem" }}
                 >
                     <div style={{

@@ -401,7 +401,7 @@ export default function GuestNo28Dashboard() {
                 fontFamily: "'Crimson Pro', serif"
             }}>
                 <motion.div
-                    initial={{ opacity: 0, y: 20 }}
+                    initial={{ opacity: 1, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     style={{
                         background: "#fff",
@@ -464,7 +464,7 @@ export default function GuestNo28Dashboard() {
                         />
                         {pinError && (
                             <motion.p
-                                initial={{ opacity: 0, y: -5 }}
+                                initial={{ opacity: 1, y: -5 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 style={{ color: "#e57373", fontSize: "0.85rem", marginTop: "0.5rem" }}
                             >
@@ -557,7 +557,7 @@ export default function GuestNo28Dashboard() {
             <AnimatePresence>
                 {showSecretMessage && (
                     <motion.div
-                        initial={{ opacity: 0 }}
+                        initial={{ opacity: 1,}}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
                         style={{
@@ -624,7 +624,7 @@ export default function GuestNo28Dashboard() {
             {/* Subtle Decorative Sketches - Enabled on all screens, reduced for subtlety */}
             <>
                 <motion.div
-                    initial={{ opacity: 0, scale: 0.8 }}
+                    initial={{ opacity: 1, scale: 0.8 }}
                     animate={{ opacity: isMobile ? 0.25 : 0.35, y: [0, -12, 0], rotate: [-8, -3, -8] }}
                     transition={{ opacity: { duration: 1 }, y: { duration: 8, repeat: Infinity, ease: "easeInOut" }, rotate: { duration: 10, repeat: Infinity, ease: "easeInOut" } }}
                     style={{ position: "fixed", top: "8%", left: isMobile ? "3%" : "8%", width: isMobile ? "100px" : "130px", height: isMobile ? "100px" : "130px", zIndex: 1, pointerEvents: "none" }}
@@ -633,7 +633,7 @@ export default function GuestNo28Dashboard() {
                 </motion.div>
 
                 <motion.div
-                    initial={{ opacity: 0, scale: 0.8 }}
+                    initial={{ opacity: 1, scale: 0.8 }}
                     animate={{ opacity: isMobile ? 0.2 : 0.3, y: [0, -8, 0], rotate: [-5, 0, -5] }}
                     transition={{ opacity: { duration: 1, delay: 0.3 }, y: { duration: 9, repeat: Infinity, ease: "easeInOut" }, rotate: { duration: 11, repeat: Infinity, ease: "easeInOut" } }}
                     style={{ position: "fixed", bottom: "18%", right: isMobile ? "3%" : "6%", width: isMobile ? "90px" : "120px", height: isMobile ? "90px" : "120px", zIndex: 1, pointerEvents: "none" }}
@@ -663,7 +663,7 @@ export default function GuestNo28Dashboard() {
                         >
                             {/* Watercolor Splash Behind Text */}
                             <motion.div
-                                initial={{ opacity: 0, scale: 0.8 }}
+                                initial={{ opacity: 1, scale: 0.8 }}
                                 animate={{ opacity: 0.8, scale: 1 }}
                                 transition={{ duration: 1.5, delay: 0.5 }}
                                 style={{
@@ -869,7 +869,7 @@ export default function GuestNo28Dashboard() {
                                                 {line.split("").map((char, charIndex) => (
                                                     <motion.span
                                                         key={charIndex}
-                                                        initial={{ opacity: 0, y: 10 }}
+                                                        initial={{ opacity: 1, y: 10 }}
                                                         animate={{ opacity: 1, y: 0 }}
                                                         transition={{
                                                             delay: (lineIndex * line.length + charIndex) * 0.03,
@@ -900,7 +900,7 @@ export default function GuestNo28Dashboard() {
                     </motion.div>
 
                     <motion.div
-                        initial={{ opacity: 0 }}
+                        initial={{ opacity: 1,}}
                         animate={{ opacity: 0.8 }}
                         transition={{ delay: 1.5, duration: 2 }}
                         style={{ textAlign: "center", marginTop: "5rem", marginBottom: "1rem" }}

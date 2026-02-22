@@ -109,7 +109,7 @@ export default function TILPage() {
                 paddingBottom: "clamp(2rem, 4vh, 3rem)"
             }}>
                 <Container>
-                    <div className="animate-fade-in-up">
+                    <div className="">
                         <div style={{
                             display: "inline-flex",
                             alignItems: "center",
@@ -155,7 +155,7 @@ export default function TILPage() {
 
             {/* Main Content */}
             <Container>
-                <div className="animate-fade-in animation-delay-200" style={{ maxWidth: "42rem" }}>
+                <div className=" animation-delay-200" style={{ maxWidth: "42rem" }}>
 
                     {/* Disclaimer */}
                     <div style={{

@@ -120,7 +120,7 @@ export default function JournalFeedPage() {
                                 return (
                                     <motion.div
                                         key={post.id}
-                                        initial={{ opacity: 0, y: 20 }}
+                                        initial={{ opacity: 1, y: 20 }}
                                         animate={{ opacity: 1, y: 0 }}
                                         transition={{ delay: index * 0.05, ease: [0.22, 1, 0.36, 1] }}
                                     >

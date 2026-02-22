@@ -4,7 +4,7 @@ import { Skeleton } from "@/components/Skeleton";
 export default function Loading() {
     return (
         <Container className="py-24">
-            <div className="space-y-8 animate-fade-in">
+            <div className="space-y-8 ">
                 {/* Header Skeleton */}
                 <div className="space-y-4">
                     <Skeleton className="h-12 w-3/4 max-w-lg" />

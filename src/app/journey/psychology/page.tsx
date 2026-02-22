@@ -69,7 +69,7 @@ export default function PsychologyPage() {
                 paddingBottom: "clamp(2rem, 4vh, 3rem)"
             }}>
                 <Container>
-                    <motion.div initial="hidden" animate="show" variants={containerVariants} className="animate-fade-in-up">
+                    <motion.div initial="hidden" animate="show" variants={containerVariants} className="">
 
 
                         <motion.div variants={itemVariants} style={{ display: "flex", alignItems: "center", gap: "1rem", marginBottom: "clamp(1rem, 2vh, 1.5rem)" }}>
@@ -124,7 +124,7 @@ export default function PsychologyPage() {
             </section>
 
             <Container>
-                <div className="animate-fade-in animation-delay-200" style={{ maxWidth: "52rem" }}>
+                <div className=" animation-delay-200" style={{ maxWidth: "52rem" }}>
 
                     <motion.section initial="hidden" animate="show" variants={containerVariants} style={{ marginBottom: "clamp(3rem, 6vh, 4rem)" }}>
                         <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", marginBottom: "clamp(1.25rem, 3vh, 1.75rem)" }}>

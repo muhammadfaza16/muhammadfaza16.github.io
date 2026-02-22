@@ -542,7 +542,7 @@
   /* Fade In Animation */
   @keyframes fadeIn {
     from {
-      opacity: 0;
+      opacity: 1;
       transform: translateY(20px);
     }
 
@@ -554,7 +554,7 @@
 
   @keyframes fadeInUp {
     from {
-      opacity: 0;
+      opacity: 1;
       transform: translateY(30px);
     }
 
@@ -566,7 +566,7 @@
 
   @keyframes slideIn {
     from {
-      opacity: 0;
+      opacity: 1;
       transform: translateX(-20px);
     }
 
@@ -590,7 +590,7 @@
 
   @keyframes fadeInOpacity {
     from {
-      opacity: 0;
+      opacity: 1;
     }
 
     to {

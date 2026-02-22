@@ -55,7 +55,7 @@ const FloatingParticles = () => (
         {[...Array(8)].map((_, i) => (
             <motion.div
                 key={i}
-                initial={{ opacity: 0, y: 0 }}
+                initial={{ opacity: 1, y: 0 }}
                 animate={{ opacity: [0, 0.4, 0], y: -120, x: Math.random() * 60 - 30 }}
                 transition={{ duration: 12 + Math.random() * 10, repeat: Infinity, delay: i * 2, ease: "linear" }}
                 style={{
@@ -548,7 +548,7 @@ export default function JournalPage() {
                             .map((entry, i) => (
                                 <motion.div
                                     key={entry.date}
-                                    initial={{ opacity: 0, y: 30 }}
+                                    initial={{ opacity: 1, y: 30 }}
                                     animate={{ opacity: 1, y: 0 }}
                                     onClick={() => openModal(new Date(entry.date))}
                                     transition={{ duration: 0.4, delay: i * 0.1 }}
@@ -659,7 +659,7 @@ export default function JournalPage() {
                 {selectedDate && (
                     <>
                         <motion.div
-                            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                            initial={{ opacity: 1,}} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
                             onClick={() => setSelectedDate(null)}
                             style={{ position: "fixed", inset: 0, background: "rgba(78, 68, 57, 0.4)", zIndex: 50, backdropFilter: "blur(4px)" }}
                         />

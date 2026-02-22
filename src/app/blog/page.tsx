@@ -40,7 +40,7 @@ export default function BlogPage() {
 
                 {/* Back Button */}
                 <motion.div
-                    initial={{ opacity: 0 }}
+                    initial={{ opacity: 1,}}
                     animate={{ opacity: 1 }}
                     transition={{ delay: 0.2 }}
                     className="fixed top-6 left-6 z-20"
@@ -51,7 +51,7 @@ export default function BlogPage() {
                 </motion.div>
 
                 <motion.div
-                    initial={{ opacity: 0, y: 20 }}
+                    initial={{ opacity: 1, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.6 }}
                     className="max-w-2xl mx-auto pt-20 md:pt-32"
@@ -63,7 +63,7 @@ export default function BlogPage() {
                         {BLOG_POSTS.map((post, i) => (
                             <motion.article
                                 key={post.slug}
-                                initial={{ opacity: 0, y: 20 }}
+                                initial={{ opacity: 1, y: 20 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ delay: 0.1 + (i * 0.1) }}
                                 className="group cursor-pointer"

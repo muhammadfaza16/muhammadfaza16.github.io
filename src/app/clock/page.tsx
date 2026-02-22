@@ -183,7 +183,7 @@ const LifeGrid = ({ birthDate }: { birthDate: Date }) => {
                 {dots.map((isLived, i) => (
                     <motion.div
                         key={i}
-                        initial={{ opacity: 0 }}
+                        initial={{ opacity: 1,}}
                         animate={{ opacity: 1 }}
                         transition={{ delay: i * 0.01 }}
                         style={{
@@ -195,7 +195,7 @@ const LifeGrid = ({ birthDate }: { birthDate: Date }) => {
                     >
                         {isLived && (
                             <motion.div
-                                initial={{ opacity: 0 }}
+                                initial={{ opacity: 1,}}
                                 animate={{ opacity: [0, 0.3, 0] }}
                                 transition={{ repeat: Infinity, duration: Math.random() * 3 + 2, delay: Math.random() * 2 }}
                                 style={{ width: "100%", height: "100%", background: "#fff" }}
@@ -420,7 +420,7 @@ const DayProgress = () => {
                             >
                                 {isHovered && (
                                     <motion.div
-                                        initial={{ opacity: 0, y: 10 }}
+                                        initial={{ opacity: 1, y: 10 }}
                                         animate={{ opacity: 1, y: 0 }}
                                         style={{
                                             position: "absolute",
@@ -593,7 +593,7 @@ export default function ClockPage() {
 
             <div className="clock-container">
                 <motion.div
-                    initial={{ opacity: 0, y: 20 }}
+                    initial={{ opacity: 1, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.8, ease: [0.2, 0.8, 0.2, 1] }}
                     style={{ marginBottom: "2rem", textAlign: "center", paddingTop: "2rem" }}
@@ -632,7 +632,7 @@ export default function ClockPage() {
                 </div>
 
                 <motion.div
-                    initial={{ opacity: 0 }}
+                    initial={{ opacity: 1,}}
                     animate={{ opacity: 1 }}
                     transition={{ delay: 1.5, duration: 2 }}
                     style={{

@@ -140,7 +140,7 @@ export default function LetterPage() {
                         <AnimatePresence mode="wait">
                             <motion.div
                                 key={currentPage}
-                                initial={{ opacity: 0, x: 50, rotate: 2 }}
+                                initial={{ opacity: 1, x: 50, rotate: 2 }}
                                 animate={{ opacity: 1, x: 0, rotate: currentPage % 2 === 0 ? -0.5 : 0.5 }}
                                 exit={{ opacity: 0, x: -50, rotate: -2 }}
                                 transition={{ type: "spring", stiffness: 100, damping: 20 }}
@@ -204,7 +204,7 @@ export default function LetterPage() {
                                 {sheets[currentPage].signature && (
                                     <div style={{ marginTop: "4rem", textAlign: "right", display: "flex", flexDirection: "column", alignItems: "flex-end" }}>
                                         <motion.div
-                                            initial={{ opacity: 0 }}
+                                            initial={{ opacity: 1,}}
                                             animate={{ opacity: 1 }}
                                             transition={{ delay: 0.5 }}
                                             style={{

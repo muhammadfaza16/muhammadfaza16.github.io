@@ -6,7 +6,7 @@ export default function Loading() {
         <section className="py-16 md:py-24">
             <Container>
                 {/* Page Header Skeleton */}
-                <div className="mb-16 animate-fade-in">
+                <div className="mb-16 ">
                     <Skeleton className="h-10 w-32 mb-4" /> {/* "Blog" Title */}
                     <Skeleton className="h-5 w-full max-w-lg" /> {/* Description line 1 */}
                     <Skeleton className="h-5 w-3/4 max-w-md mt-2" /> {/* Description line 2 */}

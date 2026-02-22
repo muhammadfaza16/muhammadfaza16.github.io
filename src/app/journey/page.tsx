@@ -84,7 +84,7 @@ export default function JourneyPage() {
                                 {SKILL_ACQUISITION.map((skill, idx) => (
                                     <motion.div
                                         key={skill.name}
-                                        initial={{ opacity: 0, y: 20 }}
+                                        initial={{ opacity: 1, y: 20 }}
                                         whileInView={{ opacity: 1, y: 0 }}
                                         transition={{ delay: idx * 0.1 }}
                                         style={{
@@ -146,7 +146,7 @@ export default function JourneyPage() {
                                     {QUARTERLY_TARGETS.map((q, idx) => (
                                         <motion.div
                                             key={q.q}
-                                            initial={{ opacity: 0, scale: 0.95 }}
+                                            initial={{ opacity: 1, scale: 0.95 }}
                                             whileInView={{ opacity: 1, scale: 1 }}
                                             transition={{ delay: idx * 0.1 }}
                                             style={{

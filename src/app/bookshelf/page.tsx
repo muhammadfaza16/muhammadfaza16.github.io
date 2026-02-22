@@ -231,7 +231,7 @@ export default function BookshelfPage() {
                     <>
                         {/* Backdrop */}
                         <motion.div
-                            initial={{ opacity: 0 }}
+                            initial={{ opacity: 1,}}
                             animate={{ opacity: 1 }}
                             exit={{ opacity: 0 }}
                             onClick={() => setSelectedId(null)}

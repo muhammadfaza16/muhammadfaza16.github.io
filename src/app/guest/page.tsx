@@ -36,7 +36,7 @@ const PasswordPopup = ({ onClose }: { onClose: () => void }) => {
 
     return (
         <motion.div
-            initial={{ opacity: 0 }}
+            initial={{ opacity: 1,}}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             style={{
@@ -130,7 +130,7 @@ const PasswordPopup = ({ onClose }: { onClose: () => void }) => {
                     />
                     {pinError && (
                         <motion.p
-                            initial={{ opacity: 0, y: -5 }}
+                            initial={{ opacity: 1, y: -5 }}
                             animate={{ opacity: 1, y: 0 }}
                             style={{ color: "#e57373", fontSize: "0.9rem", marginTop: "0.8rem", fontWeight: 500 }}
                         >
@@ -166,7 +166,7 @@ const PasswordPopup = ({ onClose }: { onClose: () => void }) => {
 const GuestIcon = ({ title, icon, gradient, href, delay = 0, fullSymbol = false, rotation = 0, locked = false, onLockClick }: any) => {
     const Content = (
         <motion.div
-            initial={{ opacity: 0, scale: 0.5, y: 20, rotate: rotation }}
+            initial={{ opacity: 1, scale: 0.5, y: 20, rotate: rotation }}
             whileInView={{ opacity: 1, scale: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{
