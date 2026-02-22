@@ -26,19 +26,16 @@ export default function GuestLayout({ children }: { children: React.ReactNode })
                 background: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
             }} />
 
-            {/* Smooth Page Transitions */}
-            <AnimatePresence mode="wait">
-                <motion.div
-                    key={pathname}
-                    initial={{ opacity: 1, filter: "blur(8px)" }}
-                    animate={{ opacity: 1, filter: "blur(0px)" }}
-                    exit={{ opacity: 0, filter: "blur(4px)" }}
-                    transition={{ duration: 0.8, ease: "easeInOut" }}
-                    style={{ width: "100%" }}
-                >
-                    {children}
-                </motion.div>
-            </AnimatePresence>
+            {/* Fast Page Transitions without blackout gaps */}
+            <motion.div
+                key={pathname}
+                initial={{ filter: "blur(8px)" }}
+                animate={{ filter: "blur(0px)" }}
+                transition={{ duration: 0.6, ease: "easeOut" }}
+                style={{ width: "100%" }}
+            >
+                {children}
+            </motion.div>
         </>
     );
 }

@@ -94,17 +94,17 @@ const MiniEqualizer = ({ color = "#87b0a5", bars = 5 }: { color?: string; bars?:
 // ═══════════════════════════════════════════
 
 const staggerContainer = {
-    hidden: { opacity: 0 },
+    hidden: { opacity: 1 },
     show: { opacity: 1, transition: { staggerChildren: 0.25, delayChildren: 0.1 } }
 };
 
 const fadeUp = {
-    hidden: { opacity: 0, y: 40 },
+    hidden: { opacity: 1, y: 40 },
     show: { opacity: 1, y: 0, transition: { type: "spring" as const, stiffness: 40, damping: 16 } }
 };
 
 const fadeIn = {
-    hidden: { opacity: 0 },
+    hidden: { opacity: 1 },
     show: { opacity: 1, transition: { duration: 0.8 } }
 };
 

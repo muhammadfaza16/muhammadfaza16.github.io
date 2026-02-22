@@ -71,12 +71,12 @@ const FloatingParticles = () => {
 };
 
 const containerVariants: Variants = {
-    hidden: { opacity: 0 },
+    hidden: { opacity: 1 },
     show: { opacity: 1, transition: { staggerChildren: 0.15, delayChildren: 0.2 } }
 };
 
 const itemVariants: Variants = {
-    hidden: { opacity: 0, y: 30 },
+    hidden: { opacity: 1, y: 30 },
     show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 50, damping: 15 } }
 };
 
