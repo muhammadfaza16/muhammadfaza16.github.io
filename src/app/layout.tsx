@@ -59,6 +59,8 @@ const spaceMono = Space_Mono({
   display: "swap",
 });
 
+import NextTopLoader from 'nextjs-toploader';
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -106,6 +108,7 @@ export default function RootLayout({
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
+        <NextTopLoader color="#E5E5E5" showSpinner={false} height={2} shadow="0 0 10px #E5E5E5,0 0 5px #E5E5E5" />
         <ThemeProvider>
           <NarrativeProvider>
             <AudioProvider>
