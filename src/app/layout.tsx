@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { LayoutShell } from "@/components/layout/LayoutShell";
 import { ThemeProvider } from "@/components/ThemeProvider";
@@ -27,6 +27,13 @@ export const metadata: Metadata = {
       'application/rss+xml': 'https://manifesto.dev/rss',
     },
   },
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
 };
 
 import { ZenProvider } from "@/components/ZenContext";

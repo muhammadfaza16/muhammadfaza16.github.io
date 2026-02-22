@@ -31,7 +31,12 @@ export default function GlobalMasterConsole() {
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [mounted, setMounted] = useState(false);
 
-    useEffect(() => setMounted(true), []);
+    useEffect(() => {
+        setMounted(true);
+        if (localStorage.getItem("master_auth") === "true") {
+            setIsAuthenticated(true);
+        }
+    }, []);
 
     // Active Tab Logic ('home' means showing the bento grid dashboard)
     const [activeTab, setActiveTab] = useState<Tab | "home">("home");
@@ -60,10 +65,11 @@ export default function GlobalMasterConsole() {
     const handleLogin = (e: React.FormEvent) => {
         e.preventDefault();
         window.scrollTo({ top: 0, behavior: 'smooth' });
-        if (password === "admin123") {
+        if (password === "161616") {
             setIsAuthenticated(true);
+            localStorage.setItem("master_auth", "true");
         } else {
-            alert("Incorrect password");
+            alert("Incorrect PIN");
             setPassword("");
         }
     };
@@ -211,7 +217,9 @@ export default function GlobalMasterConsole() {
                                 <div style={glassInput}>
                                     <input
                                         type="password"
-                                        placeholder="Enter passphrase"
+                                        inputMode="numeric"
+                                        pattern="[0-9]*"
+                                        placeholder="Enter PIN"
                                         value={password}
                                         onChange={(e) => setPassword(e.target.value)}
                                         onBlur={() => window.scrollTo({ top: 0, behavior: 'instant' })}
@@ -390,7 +398,7 @@ export default function GlobalMasterConsole() {
                                             value={formData.title}
                                             onChange={(e) => handleInputChange("title", e.target.value)}
                                             onBlur={() => window.scrollTo({ top: 0, behavior: 'instant' })}
-                                            className="w-full h-12 px-4 bg-transparent border-none outline-none font-semibold text-[15px] placeholder:text-[#8E8E93]/60"
+                                            className="w-full h-12 px-4 bg-transparent border-none outline-none font-semibold text-[16px] placeholder:text-[#8E8E93]/60"
                                         />
                                     </div>
                                 </div>
@@ -407,7 +415,7 @@ export default function GlobalMasterConsole() {
                                                 value={formData.author}
                                                 onChange={(e) => handleInputChange("author", e.target.value)}
                                                 onBlur={() => window.scrollTo({ top: 0, behavior: 'instant' })}
-                                                className="w-full h-12 px-4 bg-transparent border-none outline-none font-semibold text-[15px] placeholder:text-[#8E8E93]/60"
+                                                className="w-full h-12 px-4 bg-transparent border-none outline-none font-semibold text-[16px] placeholder:text-[#8E8E93]/60"
                                             />
                                         </div>
                                     </div>
@@ -425,7 +433,7 @@ export default function GlobalMasterConsole() {
                                                 value={formData.price}
                                                 onChange={(e) => handleInputChange("price", e.target.value)}
                                                 onBlur={() => window.scrollTo({ top: 0, behavior: 'instant' })}
-                                                className="w-full h-12 px-4 bg-transparent border-none outline-none font-semibold text-[15px] placeholder:text-[#8E8E93]/60"
+                                                className="w-full h-12 px-4 bg-transparent border-none outline-none font-semibold text-[16px] placeholder:text-[#8E8E93]/60"
                                             />
                                         </div>
                                     </div>
@@ -444,7 +452,7 @@ export default function GlobalMasterConsole() {
                                             value={formData.coverImage}
                                             onChange={(e) => handleInputChange("coverImage", e.target.value)}
                                             onBlur={() => window.scrollTo({ top: 0, behavior: 'instant' })}
-                                            className="w-full bg-transparent border-none outline-none font-medium text-[14px] placeholder:text-[#8E8E93]/60"
+                                            className="w-full bg-transparent border-none outline-none font-medium text-[16px] placeholder:text-[#8E8E93]/60"
                                         />
                                     </div>
                                 </div>
@@ -463,7 +471,7 @@ export default function GlobalMasterConsole() {
                                             value={formData.content}
                                             onChange={(e) => handleInputChange("content", e.target.value)}
                                             onBlur={() => window.scrollTo({ top: 0, behavior: 'instant' })}
-                                            className="w-full h-full min-h-[200px] bg-transparent border-none outline-none resize-none font-medium text-[15px] leading-relaxed placeholder:text-[#8E8E93]/60"
+                                            className="w-full h-full min-h-[200px] bg-transparent border-none outline-none resize-none font-medium text-[16px] leading-relaxed placeholder:text-[#8E8E93]/60"
                                             style={{ color: textDark }}
                                         />
                                     </div>
