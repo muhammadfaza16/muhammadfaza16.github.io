@@ -156,24 +156,34 @@ export default function GlobalMasterConsole() {
             <div className="w-full max-w-[500px] h-full flex flex-col relative overflow-hidden z-10 border-x border-black/5 bg-white/10 backdrop-blur-[2px]">
                 {/* TOP NAVIGATION */}
                 <div className="w-full flex items-center justify-between p-5 pt-12 z-20 flex-shrink-0">
-                    <motion.button
-                        whileTap={{ scale: 0.95 }}
-                        onClick={() => {
-                            if (!isAuthenticated || activeTab === "home") {
-                                router.push("/");
-                            } else {
-                                setActiveTab("home");
-                            }
-                        }}
-                        className="flex px-1.5 py-1.5 items-center justify-center gap-2 rounded-full bg-white/50 backdrop-blur-xl border border-white/60 shadow-sm cursor-pointer outline-none"
-                    >
-                        <div className="w-9 h-9 rounded-full flex items-center justify-center relative transition-transform bg-[#1c1c1e] text-white shadow-md">
-                            <ChevronLeft size={18} className="mr-0.5" />
-                        </div>
-                        <div className="flex items-center justify-center px-4 font-bold text-[11px] tracking-[0.2em] uppercase pr-5 opacity-80 text-[#1c1c1e]">
-                            {!isAuthenticated || activeTab === "home" ? "HOME" : "CONSOLE"}
-                        </div>
-                    </motion.button>
+                    {!isAuthenticated || activeTab === "home" ? (
+                        <Link href="/" className="outline-none block">
+                            <motion.div
+                                whileTap={{ scale: 0.95 }}
+                                className="flex px-1.5 py-1.5 items-center justify-center gap-2 rounded-full bg-white/50 backdrop-blur-xl border border-white/60 shadow-sm cursor-pointer outline-none"
+                            >
+                                <div className="w-9 h-9 rounded-full flex items-center justify-center relative transition-transform bg-[#1c1c1e] text-white shadow-md">
+                                    <ChevronLeft size={18} className="mr-0.5" />
+                                </div>
+                                <div className="flex items-center justify-center px-4 font-bold text-[11px] tracking-[0.2em] uppercase pr-5 opacity-80 text-[#1c1c1e]">
+                                    HOME
+                                </div>
+                            </motion.div>
+                        </Link>
+                    ) : (
+                        <motion.button
+                            whileTap={{ scale: 0.95 }}
+                            onClick={() => setActiveTab("home")}
+                            className="flex px-1.5 py-1.5 items-center justify-center gap-2 rounded-full bg-white/50 backdrop-blur-xl border border-white/60 shadow-sm cursor-pointer outline-none"
+                        >
+                            <div className="w-9 h-9 rounded-full flex items-center justify-center relative transition-transform bg-[#1c1c1e] text-white shadow-md">
+                                <ChevronLeft size={18} className="mr-0.5" />
+                            </div>
+                            <div className="flex items-center justify-center px-4 font-bold text-[11px] tracking-[0.2em] uppercase pr-5 opacity-80 text-[#1c1c1e]">
+                                CONSOLE
+                            </div>
+                        </motion.button>
+                    )}
                 </div>
 
                 {!isAuthenticated ? (
