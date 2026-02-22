@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useRef, useMemo, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Cloud, CloudSun, Sun, CloudRain, Calendar as CalIcon, GitBranch, Quote, Thermometer, Droplets, Wind, Disc, Play, Pause, SkipBack, SkipForward } from "lucide-react";
+import Link from "next/link";
 import { useAudio } from "@/components/AudioContext";
 import { useLyrics } from "@/hooks/useLyrics";
 
@@ -81,6 +82,7 @@ export function CleanHomeHero() {
     const [football, setFootball] = useState<{ matches: { home: string; homeAbbr: string; away: string; awayAbbr: string; date: string; time: string; league: string; leagueEmoji: string; status: string; state: string; homeScore?: string; awayScore?: string; isBigMatch: boolean }[] } | null>(null);
     const [showMatchesPopup, setShowMatchesPopup] = useState(false);
     const [matchPage, setMatchPage] = useState(0);
+    const [curationReminder, setCurationReminder] = useState<any>(null);
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const [news, setNews] = useState<{ articles: any[] } | null>(null);
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -135,6 +137,17 @@ export function CleanHomeHero() {
             .then(d => setGreeting(d.greeting || ''))
             .catch(() => { });
     }, [weather]);
+
+    // Fetch Curation Reminder
+    useEffect(() => {
+        const h = new Date().getHours();
+        fetch(`/api/curation/reminder?hour=${h}`)
+            .then(res => res.json())
+            .then(data => {
+                if (data.active) setCurationReminder(data);
+            })
+            .catch(() => { });
+    }, []);
 
     // Build event lookup maps for current month
     const currentMonth = now.getMonth(); // 0-indexed
@@ -414,6 +427,18 @@ export function CleanHomeHero() {
                         )}
                         <style>{`@keyframes blink-cursor { 0%,100%{opacity:1} 50%{opacity:0} } @keyframes today-pulse { 0%,100%{box-shadow:0 0 6px rgba(255,59,48,0.4)} 50%{box-shadow:0 0 14px rgba(255,59,48,0.7)} }`}</style>
                     </div>
+                )}
+
+                {curationReminder && (
+                    <Link href={`/curation/${curationReminder.article.id}`} style={{ display: "block", width: "fit-content", marginBottom: "0.8rem", marginTop: "0.8rem" }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", background: "rgba(231,231,231,0.1)", border: "1px solid rgba(231,231,231,0.2)", backdropFilter: "blur(12px)", padding: "0.625rem 1rem", borderRadius: "1rem", transition: "all 0.3s ease" }}>
+                            <div style={{ width: "0.5rem", height: "0.5rem", borderRadius: "50%", background: "#f87171", animation: "pulse 1.5s infinite" }} />
+                            <div>
+                                <p style={{ color: "white", fontSize: "0.875rem", fontWeight: 600, marginBottom: "0.125rem" }}>{curationReminder.message}</p>
+                                <p style={{ color: "rgba(255,255,255,0.6)", fontSize: "0.75rem" }}>Read: {curationReminder.article.title}</p>
+                            </div>
+                        </div>
+                    </Link>
                 )}
             </motion.div>
 

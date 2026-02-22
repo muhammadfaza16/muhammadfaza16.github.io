@@ -49,3 +49,5 @@ src/data/secrets.json
 # PWA
 public/sw.js
 public/workbox-*.js
+
+/src/generated/prisma

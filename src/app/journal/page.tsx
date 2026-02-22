@@ -1,41 +1,37 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
-import { formatDistanceToNow } from "date-fns";
-import { ChevronRight, FileText, ChevronLeft, Plus } from "lucide-react";
+import { ChevronLeft, Plus, Feather } from "lucide-react";
 
-type ArticleMeta = {
+type PostPartial = {
     id: string;
     title: string;
+    slug: string;
     coverImage: string | null;
     createdAt: string;
-    isRead: boolean;
 };
 
-export default function CurationList() {
-    const [articles, setArticles] = useState<ArticleMeta[]>([]);
+export default function JournalFeedPage() {
+    const [posts, setPosts] = useState<PostPartial[]>([]);
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
-        fetch("/api/curation")
+        fetch("/api/writing")
             .then(res => res.json())
             .then(data => {
-                if (Array.isArray(data)) setArticles(data);
+                if (Array.isArray(data)) setPosts(data);
             })
             .catch(console.error)
             .finally(() => setIsLoading(false));
     }, []);
-
-    const unreadCount = articles.filter(a => !a.isRead).length;
 
     // Glass-Neumorphism Design Tokens
     const baseBg = "#e0e5ec";
     const textPrimary = "#4a4a4a";
     const textSecondary = "#8b9bb4";
 
-    // Glassy + Extruded (Cards)
     const glassNeuExtruded = {
         background: "rgba(224, 229, 236, 0.45)",
         backdropFilter: "blur(16px)",
@@ -45,7 +41,6 @@ export default function CurationList() {
         borderRadius: "24px",
     };
 
-    // Glassy + Extruded (Buttons)
     const glassNeuButton = {
         background: "rgba(224, 229, 236, 0.45)",
         backdropFilter: "blur(16px)",
@@ -83,7 +78,7 @@ export default function CurationList() {
                         <ChevronLeft size={24} className="text-[#8b9bb4] -ml-1" />
                     </Link>
                     <div className="text-sm font-bold tracking-widest uppercase text-[#8b9bb4] px-4 py-2 rounded-full" style={glassNeuExtruded}>
-                        Curation
+                        Journal
                     </div>
                     <Link
                         href="/master"
@@ -95,64 +90,64 @@ export default function CurationList() {
                 </div>
 
                 {/* Title Section */}
-                <div className="px-2 mb-8 relative">
-                    <h1 className="text-4xl font-extrabold tracking-tight mb-2" style={{ color: textPrimary }}>
-                        The Archive
+                <div className="px-2 mb-10 relative text-center">
+                    <Feather size={48} className="mx-auto mb-6 text-[#8b9bb4]" strokeWidth={1} />
+                    <h1 className="font-serif text-5xl md:text-6xl tracking-tight mb-4" style={{ color: textPrimary, fontWeight: 400 }}>
+                        Writings
                     </h1>
-                    <p className="text-sm font-medium" style={{ color: textSecondary }}>
-                        {unreadCount > 0 ? `${unreadCount} unread articles resting in the void.` : "You're completely caught up."}
+                    <p className="text-[15px] font-medium max-w-md mx-auto leading-relaxed" style={{ color: textSecondary }}>
+                        Thoughts, essays, and technical deep dives. Documented for clarity and future reflection.
                     </p>
                 </div>
 
-                {/* Article List */}
-                <div className="flex flex-col gap-6 relative">
+                {/* Feed List */}
+                <div className="flex flex-col gap-6 relative px-2">
                     {isLoading ? (
                         [1, 2, 3].map((i) => (
-                            <div key={i} className="h-24 w-full animate-pulse" style={glassNeuExtruded}></div>
+                            <div key={i} className="h-32 w-full animate-pulse opacity-50" style={glassNeuExtruded}></div>
                         ))
-                    ) : articles.length === 0 ? (
+                    ) : posts.length === 0 ? (
                         <div className="flex flex-col items-center justify-center py-20 opacity-50">
-                            <FileText size={48} className="mb-4 text-[#8b9bb4]" strokeWidth={1.5} />
-                            <p className="text-lg font-medium tracking-tight">Nothing here yet.</p>
+                            <p className="text-lg font-medium tracking-tight">The ink is dry. No recordings exist yet.</p>
                         </div>
                     ) : (
                         <AnimatePresence>
-                            {articles.map((article, index) => (
-                                <motion.div
-                                    key={article.id}
-                                    initial={{ opacity: 0, y: 20 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    transition={{ delay: index * 0.05, ease: [0.22, 1, 0.36, 1] }}
-                                >
-                                    <Link
-                                        href={`/curation/${article.id}`}
-                                        className="block p-5 sm:p-6 active:scale-[0.98] transition-transform relative overflow-hidden"
-                                        style={glassNeuExtruded}
-                                    >
-                                        {/* Inner shiny highlight */}
-                                        <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-white/80 to-transparent opacity-60"></div>
+                            {posts.map((post, index) => {
+                                const dateObj = new Date(post.createdAt);
+                                const month = dateObj.toLocaleString('en-US', { month: 'short' }).toUpperCase();
+                                const year = dateObj.getFullYear();
 
-                                        <div className="flex items-start justify-between gap-4 relative z-10">
-                                            <div className="flex flex-col gap-1.5 min-w-0">
-                                                <div className="flex items-center gap-2">
-                                                    {!article.isRead && (
-                                                        <div className="w-2.5 h-2.5 rounded-full bg-blue-400 shadow-[0_0_8px_rgba(96,165,250,0.6)] flex-shrink-0" />
-                                                    )}
-                                                    <h2 className="text-[17px] font-bold tracking-tight truncate leading-tight" style={{ color: textPrimary }}>
-                                                        {article.title}
-                                                    </h2>
+                                return (
+                                    <motion.div
+                                        key={post.id}
+                                        initial={{ opacity: 0, y: 20 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        transition={{ delay: index * 0.05, ease: [0.22, 1, 0.36, 1] }}
+                                    >
+                                        <Link href={`/journal/${post.slug}`} className="block group">
+                                            <div
+                                                className="p-6 md:p-8 relative overflow-hidden flex flex-col sm:flex-row gap-6 items-start sm:items-center hover:scale-[1.01] active:scale-[0.99] transition-transform duration-300"
+                                                style={glassNeuExtruded}
+                                            >
+                                                {/* Date Badge */}
+                                                <div className="flex flex-col items-center justify-center shrink-0 w-16 h-16 rounded-[12px] bg-white/40 shadow-inner ring-1 ring-black/5">
+                                                    <span className="text-[10px] font-bold tracking-widest text-[#8b9bb4]">{month}</span>
+                                                    <span className="text-lg font-extrabold text-[#4a4a4a] leading-none">{dateObj.getDate()}</span>
                                                 </div>
-                                                <span className="text-[11px] font-bold tracking-widest uppercase pl-4" style={{ color: textSecondary }}>
-                                                    {formatDistanceToNow(new Date(article.createdAt))} ago
-                                                </span>
+
+                                                <div className="flex-grow flex flex-col gap-2 min-w-0">
+                                                    <h2 className="font-serif text-2xl md:text-3xl font-medium tracking-tight leading-snug group-hover:text-blue-900 transition-colors" style={{ color: textPrimary }}>
+                                                        {post.title}
+                                                    </h2>
+                                                    <span className="text-xs font-bold tracking-widest uppercase" style={{ color: textSecondary }}>
+                                                        {year} • Essay
+                                                    </span>
+                                                </div>
                                             </div>
-                                            <div className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0" style={glassNeuButton}>
-                                                <ChevronRight size={18} className="text-[#8b9bb4]" />
-                                            </div>
-                                        </div>
-                                    </Link>
-                                </motion.div>
-                            ))}
+                                        </Link>
+                                    </motion.div>
+                                )
+                            })}
                         </AnimatePresence>
                     )}
                 </div>

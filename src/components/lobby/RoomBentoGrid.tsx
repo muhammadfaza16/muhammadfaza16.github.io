@@ -8,7 +8,8 @@ import {
     Clock,
     Activity,
     Sparkles,
-    Music
+    Music,
+    BookOpen
 } from "lucide-react";
 
 interface DockIconProps {
@@ -128,6 +129,12 @@ export function RoomBentoGrid() {
             href: "/playlist",
             icon: <Music />,
             iconColor: "#FF375F" // Vivid Pink
+        },
+        {
+            title: "Feed",
+            href: "/master",
+            icon: <BookOpen />,
+            iconColor: "#BF5AF2" // Vivid Purple
         },
     ];
 
