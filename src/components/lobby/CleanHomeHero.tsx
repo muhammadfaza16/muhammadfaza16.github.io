@@ -523,6 +523,36 @@ export function CleanHomeHero() {
                     overflow: "hidden",
                     touchAction: "pan-y",
                 }}>
+                {/* Dynamic Ambient Aura */}
+                <motion.div
+                    animate={{
+                        background:
+                            WIDGETS[widgetIndex] === 'music' ? "radial-gradient(circle at 50% 120%, rgba(255, 159, 10, 0.15) 0%, transparent 60%)" :
+                                WIDGETS[widgetIndex] === 'crypto' ? "radial-gradient(circle at 80% 100%, rgba(52, 211, 153, 0.12) 0%, rgba(6, 182, 212, 0.08) 50%, transparent 75%)" :
+                                    WIDGETS[widgetIndex] === 'news' ? "radial-gradient(circle at 20% 110%, rgba(147, 197, 253, 0.15) 0%, transparent 65%)" :
+                                        "radial-gradient(circle at 50% 100%, rgba(167, 139, 250, 0.12) 0%, transparent 60%)"
+                    }}
+                    transition={{ duration: 1.5, ease: "easeInOut" }}
+                    style={{
+                        position: "absolute",
+                        inset: "-20%",
+                        filter: "blur(60px)",
+                        pointerEvents: "none",
+                        zIndex: 0,
+                    }}
+                />
+
+                {/* Glass Noise Texture */}
+                <div style={{
+                    position: "absolute",
+                    inset: 0,
+                    backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
+                    opacity: 0.04,
+                    pointerEvents: "none",
+                    mixBlendMode: "overlay",
+                    zIndex: 1,
+                }} />
+
                 {/* Layer 1: Gradient border — soft edge that catches light */}
                 <div style={{
                     position: "absolute",
@@ -1389,7 +1419,7 @@ export function CleanHomeHero() {
                             <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
                                 {football.matches
                                     .filter(m => m.isBigMatch && (matchTab === "upcoming" ? m.state !== "post" : m.state === "post"))
-                                    .map((m, i) => {
+                                    .map((m: any, i: number) => {
                                         const isExpanded = expandedMatchIndex === (matchTab === "upcoming" ? i : i + 1000);
                                         const hasScorers = m.homeScorers?.length > 0 || m.awayScorers?.length > 0;
                                         return (
@@ -1418,8 +1448,8 @@ export function CleanHomeHero() {
                                                     </div>
                                                     <div style={{ textAlign: "right", paddingLeft: "10px" }}>
                                                         {m.state === "in" ? (
-                                                            <div style={{ color: "#4ade80", fontWeight: 800, fontSize: "0.85rem", lineHeight: 1.1 }}>
-                                                                LIVE<br />{m.homeScore} - {m.awayScore}
+                                                            <div style={{ color: "#4ade80", fontWeight: 800, fontSize: "0.85rem", lineHeight: 1.1, whiteSpace: "nowrap" }}>
+                                                                {m.liveMinute || "LIVE"}<br />{m.homeScore} - {m.awayScore}
                                                             </div>
                                                         ) : m.state === "post" ? (
                                                             <div style={{ fontWeight: 700, fontSize: "0.85rem", lineHeight: 1.1 }}>
@@ -1453,12 +1483,12 @@ export function CleanHomeHero() {
                                                                 color: "rgba(255,255,255,0.75)"
                                                             }}>
                                                                 <div style={{ display: "flex", flexDirection: "column", gap: "3px", flex: 1 }}>
-                                                                    {m.homeScorers?.map((s, idx) => (
+                                                                    {m.homeScorers?.map((s: any, idx: number) => (
                                                                         <div key={idx}>⚽ {s.name} <span style={{ opacity: 0.6 }}>{s.time}</span></div>
                                                                     ))}
                                                                 </div>
                                                                 <div style={{ display: "flex", flexDirection: "column", gap: "3px", flex: 1, textAlign: "right" }}>
-                                                                    {m.awayScorers?.map((s, idx) => (
+                                                                    {m.awayScorers?.map((s: any, idx: number) => (
                                                                         <div key={idx}><span style={{ opacity: 0.6 }}>{s.time}</span> {s.name} ⚽</div>
                                                                     ))}
                                                                 </div>
