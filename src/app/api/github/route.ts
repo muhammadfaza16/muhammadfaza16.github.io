@@ -19,51 +19,56 @@ export async function GET() {
         });
         const events = eventsRes.ok ? await eventsRes.json() : [];
 
-        // Calculate streak from push events using WIB timezone strictly
+        // Monthly Benchmark Metrics
+        const now = new Date();
+        const currentMonth = now.getMonth();
+        const currentYear = now.getFullYear();
+        const currentMonthTotalDays = new Date(currentYear, currentMonth + 1, 0).getDate();
+
+        let currentMonthPushCount = 0;
+        const currentMonthActiveDates = new Set<string>();
+
         const getWIBDate = (d: string | Date) => new Date(d).toLocaleDateString("en-CA", { timeZone: "Asia/Jakarta" });
         const pushDates = new Set<string>();
 
         for (const event of events) {
             if (event.type === "PushEvent") {
-                pushDates.add(getWIBDate(event.created_at));
+                const eventDate = new Date(event.created_at);
+                const wibDateStr = getWIBDate(eventDate);
+                pushDates.add(wibDateStr);
+
+                // Track current month activity
+                if (eventDate.getMonth() === currentMonth && eventDate.getFullYear() === currentYear) {
+                    currentMonthPushCount += event.payload?.size || 1; // Number of commits in the push
+                    currentMonthActiveDates.add(wibDateStr);
+                }
             }
         }
 
-        // Count consecutive days from "today" (in WIB) backwards
-        let streak = 0;
-        const todayStr = getWIBDate(new Date());
-
-        for (let i = 0; i < 60; i++) {
-            // Subtract exactly i days in UTC to get the rolling date, then format it to a WIB string
-            const checkDate = new Date();
-            checkDate.setUTCDate(checkDate.getUTCDate() - i);
-            const checkStr = getWIBDate(checkDate);
-
-            if (pushDates.has(checkStr)) {
-                streak++;
-            } else if (i > 0) {
-                break; // Allow today (i=0) to not have a push yet
-            }
-        }
+        const todayStr = getWIBDate(now);
 
         return NextResponse.json({
             username: USERNAME,
             repos: user.public_repos,
             followers: user.followers,
-            streak,
             avatar: user.avatar_url,
             todayActive: pushDates.has(todayStr),
             pushDates: Array.from(pushDates),
+            currentMonthActiveDays: currentMonthActiveDates.size,
+            currentMonthTotalDays,
+            currentMonthPushCount,
         });
     } catch {
         return NextResponse.json({
             username: USERNAME,
             repos: 0,
             followers: 0,
-            streak: 0,
             avatar: "",
             todayActive: false,
             pushDates: [],
+            currentMonthActiveDays: 0,
+            currentMonthTotalDays: 30,
+            currentMonthPushCount: 0,
         });
     }
 }

@@ -26,13 +26,13 @@ function timeAgo(dateStr: string): string {
 
 export async function GET() {
     try {
-        const res = await fetch(API_URL, { next: { revalidate: 1800 } });
+        const res = await fetch(API_URL, { next: { revalidate: 600 } });
         if (!res.ok) throw new Error("RSS fetch failed");
 
         const data = await res.json();
         const items = (data.items || []) as RSSItem[];
 
-        const articles = items.slice(0, 8).map((item) => {
+        const articles = items.slice(0, 12).map((item) => {
             // Extract source from title (Google News format: "Title - Source")
             const parts = item.title.split(" - ");
             const source = parts.length > 1 ? parts.pop()! : "News";

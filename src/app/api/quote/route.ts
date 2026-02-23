@@ -13,10 +13,13 @@ export async function GET() {
         if (!res.ok) throw new Error("Quote API failed");
         const data = await res.json();
 
-        // Index the quotes array based on the current WIB day 
-        // This guarantees exactly 1 quote per day that rolls over precisely at 00:00 WIB
+        // Index the quotes array based on the current WIB day and the hour of the day (changes every 6 hours)
+        const now = new Date();
+        const hour = parseInt(now.toLocaleTimeString("en-US", { hour: "numeric", hour12: false, timeZone: "Asia/Jakarta" }), 10);
+        const quoteIndex = (wibDay * 4 + Math.floor(hour / 6));
+
         if (data && data.length > 0) {
-            const quote = data[wibDay % data.length];
+            const quote = data[quoteIndex % data.length];
             return NextResponse.json({
                 text: quote.q,
                 author: quote.a,
@@ -32,6 +35,9 @@ export async function GET() {
             { text: "First, solve the problem. Then, write the code.", author: "John Johnson" },
             { text: "Simplicity is the soul of efficiency.", author: "Austin Freeman" },
         ];
-        return NextResponse.json(fallbacks[wibDay % fallbacks.length]);
+        const now = new Date();
+        const hour = parseInt(now.toLocaleTimeString("en-US", { hour: "numeric", hour12: false, timeZone: "Asia/Jakarta" }), 10);
+        const fallbackIndex = (wibDay * 4 + Math.floor(hour / 6)) % fallbacks.length;
+        return NextResponse.json(fallbacks[fallbackIndex]);
     }
 }

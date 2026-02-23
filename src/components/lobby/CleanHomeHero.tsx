@@ -74,17 +74,20 @@ export function CleanHomeHero() {
     // API data states
     const [weather, setWeather] = useState<{ temp: number; label: string; icon: string; humidity: number; wind: number; location?: string } | null>(null);
     const [quote, setQuote] = useState<{ text: string; author: string } | null>(null);
-    const [github, setGithub] = useState<{ repos: number; streak: number; todayActive: boolean; pushDates: string[] } | null>(null);
+    const [github, setGithub] = useState<{ repos: number; currentMonthActiveDays: number; currentMonthTotalDays: number; currentMonthPushCount: number; todayActive: boolean; pushDates: string[] } | null>(null);
     const [holidays, setHolidays] = useState<{ date: string; name: string; localName: string }[]>([]);
     const [tooltipInfo, setTooltipInfo] = useState<{ day: number; text: string } | null>(null);
     const [greeting, setGreeting] = useState<string>('');
     const [prayer, setPrayer] = useState<{ prayers: { name: string; time: string }[]; next: { name: string; time: string } | null; hijriDate: string | null } | null>(null);
-    const [football, setFootball] = useState<{ matches: { home: string; homeAbbr: string; away: string; awayAbbr: string; date: string; time: string; league: string; leagueEmoji: string; status: string; state: string; homeScore?: string; awayScore?: string; isBigMatch: boolean }[] } | null>(null);
+    const [football, setFootball] = useState<{ matches: { home: string; homeAbbr: string; away: string; awayAbbr: string; date: string; time: string; league: string; leagueEmoji: string; status: string; state: string; homeScore?: string; awayScore?: string; homeScorers: { name: string; time: string }[]; awayScorers: { name: string; time: string }[]; isBigMatch: boolean }[] } | null>(null);
     const [showMatchesPopup, setShowMatchesPopup] = useState(false);
+    const [matchTab, setMatchTab] = useState<"upcoming" | "completed">("upcoming");
+    const [expandedMatchIndex, setExpandedMatchIndex] = useState<number | null>(null);
     const [matchPage, setMatchPage] = useState(0);
     const [curationReminder, setCurationReminder] = useState<any>(null);
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const [news, setNews] = useState<{ articles: any[] } | null>(null);
+    const [newsPage, setNewsPage] = useState(0);
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const [movies, setMovies] = useState<{ movies: any[] } | null>(null);
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -200,10 +203,10 @@ export function CleanHomeHero() {
         return `in ${mins}m`;
     }, [dynamicNextPrayer, now]);
 
-    // Rolling football match page — cycle every 10s
+    // Rolling football match page — cycle every 10s (only upcoming/live matches)
     const bigMatches = useMemo(() => {
         if (!football) return [];
-        return football.matches.filter(m => m.isBigMatch);
+        return football.matches.filter(m => m.isBigMatch && m.state !== 'post');
     }, [football]);
 
     useEffect(() => {
@@ -222,6 +225,24 @@ export function CleanHomeHero() {
         const start = (matchPage * 3) % bigMatches.length;
         return bigMatches.slice(start, start + 3);
     }, [bigMatches, matchPage]);
+
+    // Rolling news page — cycle every 20s
+    useEffect(() => {
+        if (!news || news.articles.length <= 4) return;
+        const id = setInterval(() => {
+            setNewsPage(prev => {
+                const totalPages = Math.ceil(news.articles.length / 4);
+                return (prev + 1) % totalPages;
+            });
+        }, 20000);
+        return () => clearInterval(id);
+    }, [news]);
+
+    const visibleNews = useMemo(() => {
+        if (!news?.articles) return [];
+        const start = (newsPage * 4) % news.articles.length;
+        return news.articles.slice(start, start + 4);
+    }, [news, newsPage]);
 
     const dayName = DAYS_FULL[now.getDay()];
     const timeStr = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
@@ -659,18 +680,29 @@ export function CleanHomeHero() {
                                 📰 Headlines
                             </div>
                             {news && news.articles.length > 0 ? (
-                                <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-                                    {news.articles.slice(0, 4).map((a: { url: string; title: string; source: string; timeAgo: string }, i: number) => (
-                                        <a key={i} href={a.url} target="_blank" rel="noopener noreferrer" style={{ textDecoration: "none", display: "flex", flexDirection: "column", gap: "1px", padding: "5px 6px", borderRadius: "8px", background: "rgba(255,255,255,0.06)" }}>
-                                            <div style={{ fontSize: "0.68rem", fontWeight: 600, color: "rgba(255,255,255,0.9)", lineHeight: 1.3, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical" as const, overflow: "hidden" }}>
-                                                {a.title}
-                                            </div>
-                                            <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.52rem", color: "rgba(255,255,255,0.45)", fontWeight: 500 }}>
-                                                <span>{a.source}</span>
-                                                <span>{a.timeAgo}</span>
-                                            </div>
-                                        </a>
-                                    ))}
+                                <div style={{ position: "relative", minHeight: "180px" }}>
+                                    <AnimatePresence mode="wait">
+                                        <motion.div
+                                            key={newsPage}
+                                            initial={{ opacity: 0, y: 10 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            exit={{ opacity: 0, y: -10 }}
+                                            transition={{ duration: 0.4 }}
+                                            style={{ display: "flex", flexDirection: "column", gap: "6px", position: "absolute", top: 0, left: 0, width: "100%" }}
+                                        >
+                                            {visibleNews.map((a: { url: string; title: string; source: string; timeAgo: string }, i: number) => (
+                                                <a key={`${newsPage}-${i}`} href={a.url} target="_blank" rel="noopener noreferrer" style={{ textDecoration: "none", display: "flex", flexDirection: "column", gap: "1px", padding: "5px 6px", borderRadius: "8px", background: "rgba(255,255,255,0.06)", transition: "background 0.2s ease" }}>
+                                                    <div style={{ fontSize: "0.68rem", fontWeight: 600, color: "rgba(255,255,255,0.9)", lineHeight: 1.3, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical" as const, overflow: "hidden" }}>
+                                                        {a.title}
+                                                    </div>
+                                                    <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.52rem", color: "rgba(255,255,255,0.45)", fontWeight: 500 }}>
+                                                        <span>{a.source}</span>
+                                                        <span>{a.timeAgo}</span>
+                                                    </div>
+                                                </a>
+                                            ))}
+                                        </motion.div>
+                                    </AnimatePresence>
                                 </div>
                             ) : (
                                 <div style={{ fontSize: "0.72rem", color: "rgba(255,255,255,0.55)", textAlign: "center", padding: "1.5rem 0" }}>Loading news···</div>
@@ -990,39 +1022,43 @@ export function CleanHomeHero() {
                                     </span>
                                 </div>
 
-                                {/* GitHub Streak */}
-                                <div style={{
-                                    background: "rgba(0,0,0,0.08)",
-                                    borderRadius: "12px",
-                                    padding: "0.55rem 0.7rem",
-                                }}>
+                                {/* GitHub Benchmark */}
+                                <Link href="https://github.com/muhammadfaza16" target="_blank">
                                     <div style={{
-                                        display: "flex", alignItems: "center", gap: "0.35rem",
-                                        fontSize: "0.68rem", fontWeight: 700, textTransform: "uppercase" as const,
-                                        letterSpacing: "0.03em", color: "rgba(255,255,255,0.95)",
-                                        marginBottom: "0.3rem",
+                                        background: "rgba(0,0,0,0.08)",
+                                        borderRadius: "12px",
+                                        padding: "0.55rem 0.7rem",
+                                        transition: "background 0.2s ease",
+                                        cursor: "pointer",
                                     }}>
-                                        <GitBranch size={13} strokeWidth={2.5} />
-                                        GitHub
+                                        <div style={{
+                                            display: "flex", alignItems: "center", gap: "0.35rem",
+                                            fontSize: "0.68rem", fontWeight: 700, textTransform: "uppercase" as const,
+                                            letterSpacing: "0.03em", color: "rgba(255,255,255,0.95)",
+                                            marginBottom: "0.3rem",
+                                        }}>
+                                            <GitBranch size={13} strokeWidth={2.5} />
+                                            GitHub
+                                        </div>
+                                        {github ? (
+                                            <>
+                                                <div style={{ display: "flex", alignItems: "baseline", gap: "0.3rem" }}>
+                                                    <span style={{ fontSize: "1.2rem", fontWeight: 800, color: "rgba(255,255,255,0.95)", lineHeight: 1 }}>
+                                                        {github.currentMonthActiveDays}<span style={{ fontSize: "0.8rem", color: "rgba(255,255,255,0.5)" }}>/{github.currentMonthTotalDays}</span>
+                                                    </span>
+                                                    <span style={{ fontSize: "0.65rem", fontWeight: 500, color: "rgba(255,255,255,0.65)" }}>
+                                                        days active
+                                                    </span>
+                                                </div>
+                                                <div style={{ fontSize: "0.62rem", color: "rgba(255,255,255,0.55)", marginTop: "0.2rem", display: "flex", alignItems: "center", gap: "4px" }}>
+                                                    <span style={{ color: "#4ade80", fontWeight: 700 }}>{github.currentMonthPushCount}</span> commits/pushes
+                                                </div>
+                                            </>
+                                        ) : (
+                                            <div style={{ fontSize: "0.75rem", color: "rgba(255,255,255,0.55)" }}>Loading···</div>
+                                        )}
                                     </div>
-                                    {github ? (
-                                        <>
-                                            <div style={{ display: "flex", alignItems: "baseline", gap: "0.3rem" }}>
-                                                <span style={{ fontSize: "1.4rem", fontWeight: 800, color: "rgba(255,255,255,0.95)", lineHeight: 1 }}>
-                                                    {github.streak}
-                                                </span>
-                                                <span style={{ fontSize: "0.68rem", fontWeight: 500, color: "rgba(255,255,255,0.55)" }}>
-                                                    day streak 🔥
-                                                </span>
-                                            </div>
-                                            <div style={{ fontSize: "0.65rem", color: "rgba(255,255,255,0.55)", marginTop: "0.15rem" }}>
-                                                {github.repos} repos · {github.todayActive ? '✅ active today' : '⏳ no push today'}
-                                            </div>
-                                        </>
-                                    ) : (
-                                        <div style={{ fontSize: "0.75rem", color: "rgba(255,255,255,0.55)" }}>Loading···</div>
-                                    )}
-                                </div>
+                                </Link>
 
                                 {/* Daily Quote */}
                                 <div style={{ marginTop: "0.1rem" }}>
@@ -1125,10 +1161,10 @@ export function CleanHomeHero() {
                                 color: "rgba(255,255,255,0.95)",
                             }}
                         >
-                            {/* Header */}
-                            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
+                            {/* Header & Tabs */}
+                            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.8rem" }}>
                                 <div style={{ fontSize: "1rem", fontWeight: 800, letterSpacing: "-0.02em" }}>
-                                    ⚽ Upcoming Matches
+                                    ⚽ Matches
                                 </div>
                                 <div
                                     onClick={() => setShowMatchesPopup(false)}
@@ -1143,51 +1179,107 @@ export function CleanHomeHero() {
                                 </div>
                             </div>
 
+                            {/* Tabs */}
+                            <div style={{ display: "flex", gap: "10px", marginBottom: "1rem", borderBottom: "1px solid rgba(255,255,255,0.1)", paddingBottom: "0.5rem" }}>
+                                <div
+                                    onClick={() => setMatchTab("upcoming")}
+                                    style={{ fontSize: "0.75rem", fontWeight: matchTab === "upcoming" ? 700 : 500, color: matchTab === "upcoming" ? "white" : "rgba(255,255,255,0.5)", cursor: "pointer", transition: "all 0.2s ease" }}>
+                                    Upcoming & Live
+                                </div>
+                                <div
+                                    onClick={() => setMatchTab("completed")}
+                                    style={{ fontSize: "0.75rem", fontWeight: matchTab === "completed" ? 700 : 500, color: matchTab === "completed" ? "white" : "rgba(255,255,255,0.5)", cursor: "pointer", transition: "all 0.2s ease" }}>
+                                    Completed
+                                </div>
+                            </div>
+
                             {/* Match List */}
                             <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
                                 {football.matches
-                                    .filter(m => m.isBigMatch)
-                                    .map((m, i) => (
-                                        <div key={i} style={{
-                                            display: "flex", alignItems: "center", justifyContent: "space-between",
-                                            padding: "8px 10px",
-                                            borderRadius: "12px",
-                                            background: "rgba(255,255,255,0.08)",
-                                            border: "1px solid rgba(255,255,255,0.1)",
-                                        }}>
-                                            <div style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
-                                                <div style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "0.82rem", fontWeight: 700 }}>
-                                                    <span>{m.leagueEmoji}</span>
-                                                    <span>{m.home}</span>
-                                                    <span style={{ color: "rgba(255,255,255,0.45)", fontWeight: 400, fontSize: "0.7rem" }}>vs</span>
-                                                    <span>{m.away}</span>
+                                    .filter(m => m.isBigMatch && (matchTab === "upcoming" ? m.state !== "post" : m.state === "post"))
+                                    .map((m, i) => {
+                                        const isExpanded = expandedMatchIndex === (matchTab === "upcoming" ? i : i + 1000);
+                                        const hasScorers = m.homeScorers?.length > 0 || m.awayScorers?.length > 0;
+                                        return (
+                                            <div key={i}
+                                                onClick={() => hasScorers && setExpandedMatchIndex(isExpanded ? null : (matchTab === "upcoming" ? i : i + 1000))}
+                                                style={{
+                                                    display: "flex", flexDirection: "column",
+                                                    padding: "10px 12px",
+                                                    borderRadius: "12px",
+                                                    background: "rgba(255,255,255,0.08)",
+                                                    border: "1px solid rgba(255,255,255,0.1)",
+                                                    cursor: hasScorers ? "pointer" : "default",
+                                                    transition: "background 0.2s ease",
+                                                }}>
+                                                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                                                    <div style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
+                                                        <div style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "0.82rem", fontWeight: 700 }}>
+                                                            <span>{m.leagueEmoji}</span>
+                                                            <span>{m.home}</span>
+                                                            <span style={{ color: "rgba(255,255,255,0.45)", fontWeight: 400, fontSize: "0.7rem", margin: "0 2px" }}>vs</span>
+                                                            <span>{m.away}</span>
+                                                        </div>
+                                                        <div style={{ fontSize: "0.65rem", color: "rgba(255,255,255,0.6)", fontWeight: 500 }}>
+                                                            {m.league}
+                                                        </div>
+                                                    </div>
+                                                    <div style={{ textAlign: "right", paddingLeft: "10px" }}>
+                                                        {m.state === "in" ? (
+                                                            <div style={{ color: "#4ade80", fontWeight: 800, fontSize: "0.85rem", lineHeight: 1.1 }}>
+                                                                LIVE<br />{m.homeScore} - {m.awayScore}
+                                                            </div>
+                                                        ) : m.state === "post" ? (
+                                                            <div style={{ fontWeight: 700, fontSize: "0.85rem", lineHeight: 1.1 }}>
+                                                                {m.homeScore} - {m.awayScore}
+                                                                <div style={{ fontSize: "0.55rem", color: "rgba(255,255,255,0.55)", marginTop: "2px" }}>FT</div>
+                                                            </div>
+                                                        ) : (
+                                                            <div style={{ lineHeight: 1.1 }}>
+                                                                <div style={{ fontWeight: 700, fontSize: "0.82rem" }}>{m.time}</div>
+                                                                <div style={{ fontSize: "0.6rem", color: "rgba(255,255,255,0.55)", marginTop: "2px" }}>{m.date}</div>
+                                                            </div>
+                                                        )}
+                                                    </div>
                                                 </div>
-                                                <div style={{ fontSize: "0.65rem", color: "rgba(255,255,255,0.6)", fontWeight: 500 }}>
-                                                    {m.league}
-                                                </div>
+
+                                                {/* Expandable Scorer Details */}
+                                                <AnimatePresence>
+                                                    {isExpanded && hasScorers && (
+                                                        <motion.div
+                                                            initial={{ height: 0, opacity: 0, marginTop: 0 }}
+                                                            animate={{ height: "auto", opacity: 1, marginTop: 10 }}
+                                                            exit={{ height: 0, opacity: 0, marginTop: 0 }}
+                                                            style={{ overflow: "hidden" }}
+                                                        >
+                                                            <div style={{
+                                                                display: "flex",
+                                                                justifyContent: "space-between",
+                                                                paddingTop: "8px",
+                                                                borderTop: "1px dashed rgba(255,255,255,0.15)",
+                                                                fontSize: "0.65rem",
+                                                                color: "rgba(255,255,255,0.75)"
+                                                            }}>
+                                                                <div style={{ display: "flex", flexDirection: "column", gap: "3px", flex: 1 }}>
+                                                                    {m.homeScorers?.map((s, idx) => (
+                                                                        <div key={idx}>⚽ {s.name} <span style={{ opacity: 0.6 }}>{s.time}</span></div>
+                                                                    ))}
+                                                                </div>
+                                                                <div style={{ display: "flex", flexDirection: "column", gap: "3px", flex: 1, textAlign: "right" }}>
+                                                                    {m.awayScorers?.map((s, idx) => (
+                                                                        <div key={idx}><span style={{ opacity: 0.6 }}>{s.time}</span> {s.name} ⚽</div>
+                                                                    ))}
+                                                                </div>
+                                                            </div>
+                                                        </motion.div>
+                                                    )}
+                                                </AnimatePresence>
                                             </div>
-                                            <div style={{ textAlign: "right" }}>
-                                                {m.state === "in" ? (
-                                                    <div style={{ color: "#4ade80", fontWeight: 800, fontSize: "0.85rem" }}>
-                                                        LIVE<br />{m.homeScore} - {m.awayScore}
-                                                    </div>
-                                                ) : m.state === "post" ? (
-                                                    <div style={{ fontWeight: 700, fontSize: "0.82rem" }}>
-                                                        {m.homeScore} - {m.awayScore}
-                                                        <div style={{ fontSize: "0.6rem", color: "rgba(255,255,255,0.55)" }}>FT</div>
-                                                    </div>
-                                                ) : (
-                                                    <div>
-                                                        <div style={{ fontWeight: 700, fontSize: "0.82rem" }}>{m.time}</div>
-                                                        <div style={{ fontSize: "0.6rem", color: "rgba(255,255,255,0.55)" }}>{m.date}</div>
-                                                    </div>
-                                                )}
-                                            </div>
-                                        </div>
-                                    ))}
-                                {football.matches.filter(m => m.isBigMatch).length === 0 && (
-                                    <div style={{ textAlign: "center", padding: "1rem", color: "rgba(255,255,255,0.55)", fontSize: "0.8rem" }}>
-                                        No big team matches today
+                                        )
+                                    })}
+                                {football.matches.filter(m => m.isBigMatch && (matchTab === "upcoming" ? m.state !== "post" : m.state === "post")).length === 0 && (
+                                    <div style={{ textAlign: "center", padding: "1.5rem", color: "rgba(255,255,255,0.55)", fontSize: "0.75rem" }}>
+                                        No {matchTab} matches found.
                                     </div>
                                 )}
                             </div>

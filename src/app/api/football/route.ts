@@ -22,9 +22,15 @@ interface ESPNEvent {
     status: { type: { description: string; state: string } };
     competitions: {
         competitors: {
-            team: { shortDisplayName: string; abbreviation: string; logo: string };
+            team: { id: string; shortDisplayName: string; abbreviation: string; logo: string };
             homeAway: string;
             score?: string;
+        }[];
+        details?: {
+            type: { text: string };
+            clock: { displayValue: string };
+            team: { id: string };
+            athletesInvolved?: { shortName: string }[];
         }[];
     }[];
 }
@@ -46,17 +52,20 @@ export async function GET() {
             state: string;
             homeScore?: string;
             awayScore?: string;
+            homeScorers: { name: string; time: string }[];
+            awayScorers: { name: string; time: string }[];
             isBigMatch: boolean;
         }[] = [];
 
         await Promise.all(
             LEAGUES.map(async (league) => {
                 try {
-                    // Fetch 10 days of fixtures
+                    // Fetch past 7 days up to next 10 days of fixtures
                     const now = new Date();
+                    const start = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
                     const end = new Date(now.getTime() + 10 * 24 * 60 * 60 * 1000);
                     const fmt = (d: Date) => d.toISOString().slice(0, 10).replace(/-/g, "");
-                    const dateRange = `${fmt(now)}-${fmt(end)}`;
+                    const dateRange = `${fmt(start)}-${fmt(end)}`;
 
                     const res = await fetch(
                         `https://site.api.espn.com/apis/site/v2/sports/soccer/${league.id}/scoreboard?dates=${dateRange}`,
@@ -76,6 +85,26 @@ export async function GET() {
                             BIG_TEAMS.has(away.team.shortDisplayName);
 
                         const d = new Date(event.date);
+
+                        const homeScorers: { name: string; time: string }[] = [];
+                        const awayScorers: { name: string; time: string }[] = [];
+
+                        if (comp.details) {
+                            for (const detail of comp.details) {
+                                if (detail.type.text.includes("Goal") && detail.athletesInvolved && detail.athletesInvolved.length > 0) {
+                                    const scorer = {
+                                        name: detail.athletesInvolved[0].shortName,
+                                        time: detail.clock.displayValue
+                                    };
+                                    if (detail.team.id === home.team.id) {
+                                        homeScorers.push(scorer);
+                                    } else if (detail.team.id === away.team.id) {
+                                        awayScorers.push(scorer);
+                                    }
+                                }
+                            }
+                        }
+
                         allMatches.push({
                             home: home.team.shortDisplayName,
                             homeAbbr: home.team.abbreviation,
@@ -91,6 +120,8 @@ export async function GET() {
                             state: event.status.type.state,
                             homeScore: home.score,
                             awayScore: away.score,
+                            homeScorers,
+                            awayScorers,
                             isBigMatch: isBig,
                         });
                     }
