@@ -27,12 +27,16 @@ export async function GET() {
 
         let currentMonthPushCount = 0;
         const currentMonthActiveDates = new Set<string>();
+        let recentRepo: string | null = null;
 
         const getWIBDate = (d: string | Date) => new Date(d).toLocaleDateString("en-CA", { timeZone: "Asia/Jakarta" });
         const pushDates = new Set<string>();
 
         for (const event of events) {
             if (event.type === "PushEvent") {
+                if (!recentRepo && event.repo?.name) {
+                    recentRepo = event.repo.name.replace(`${USERNAME}/`, "");
+                }
                 const eventDate = new Date(event.created_at);
                 const wibDateStr = getWIBDate(eventDate);
                 pushDates.add(wibDateStr);
@@ -57,6 +61,7 @@ export async function GET() {
             currentMonthActiveDays: currentMonthActiveDates.size,
             currentMonthTotalDays,
             currentMonthPushCount,
+            recentRepo,
         });
     } catch {
         return NextResponse.json({

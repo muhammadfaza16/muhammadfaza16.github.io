@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 
 // Google News Indonesia RSS → JSON via rss2json (free, no key, 10k/day)
-const RSS_URL = "https://news.google.com/rss/topics/CAAqJggKIiBDQkFTRWdvSUwyMHZNRFZxYUdjU0FtVnVHZ0pWVXlnQVAB?hl=id&gl=ID&ceid=ID:id";
+const RSS_URL = "https://news.google.com/rss/topics/CAAqJggKIiBDQkFTRWdvSUwyMHZNRGRqTVhZU0FtVnVHZ0pWVXlnQVAB?hl=en-US&gl=US&ceid=US:en";
 const API_URL = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(RSS_URL)}`;
 
 interface RSSItem {
@@ -43,6 +43,7 @@ export async function GET() {
                 source: source.trim(),
                 url: item.link,
                 timeAgo: timeAgo(item.pubDate),
+                excerpt: item.description ? item.description.replace(/<[^>]*>?/gm, '').substring(0, 150) + "..." : "",
             };
         });
 

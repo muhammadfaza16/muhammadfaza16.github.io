@@ -6,7 +6,7 @@ const LON = 106.8106;
 
 export async function GET() {
     try {
-        const url = `https://api.open-meteo.com/v1/forecast?latitude=${LAT}&longitude=${LON}&current=temperature_2m,weather_code,relative_humidity_2m,wind_speed_10m&timezone=Asia/Jakarta`;
+        const url = `https://api.open-meteo.com/v1/forecast?latitude=${LAT}&longitude=${LON}&current=temperature_2m,weather_code,relative_humidity_2m,wind_speed_10m,apparent_temperature,precipitation_probability,uv_index&timezone=Asia/Jakarta`;
         const res = await fetch(url, { next: { revalidate: 1800 } }); // cache 30 min
         if (!res.ok) throw new Error("Weather API failed");
         const data = await res.json();
@@ -43,15 +43,18 @@ export async function GET() {
 
         return NextResponse.json({
             temp: Math.round(current.temperature_2m),
+            feelsLike: Math.round(current.apparent_temperature),
             humidity: current.relative_humidity_2m,
             wind: Math.round(current.wind_speed_10m),
+            precip: current.precipitation_probability || 0,
+            uv: current.uv_index || 0,
             label: weather.label,
             icon: weather.icon,
             location: "Jakarta Selatan, ID", // Updated location precision per request
         });
     } catch {
         return NextResponse.json(
-            { temp: 28, humidity: 75, wind: 10, label: "Gloomy", icon: "☁️", location: "Jakarta Selatan, ID" },
+            { temp: 28, feelsLike: 30, humidity: 75, wind: 10, precip: 0, uv: 5, label: "Gloomy", icon: "☁️", location: "Jakarta Selatan, ID" },
             { status: 200 }
         );
     }

@@ -59,6 +59,8 @@ export async function GET() {
         return NextResponse.json({
             prayers,
             next: nextPrayer,
+            imsak: timings.Imsak ? timings.Imsak.replace(/\s*\(.*\)/, "") : null,
+            midnight: timings.Midnight ? timings.Midnight.replace(/\s*\(.*\)/, "") : null,
             hijriDate: data.data.date?.hijri
                 ? `${data.data.date.hijri.day} ${data.data.date.hijri.month?.en} ${data.data.date.hijri.year}`
                 : null,
@@ -67,6 +69,8 @@ export async function GET() {
         return NextResponse.json({
             prayers: [],
             next: null,
+            imsak: null,
+            midnight: null,
             hijriDate: null,
         });
     }

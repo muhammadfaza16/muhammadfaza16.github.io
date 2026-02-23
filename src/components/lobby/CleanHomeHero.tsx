@@ -72,13 +72,13 @@ export function CleanHomeHero() {
     // Deprecated: const showNowPlaying = WIDGETS[widgetIndex] === 'music' && hasInteracted;
 
     // API data states
-    const [weather, setWeather] = useState<{ temp: number; label: string; icon: string; humidity: number; wind: number; location?: string } | null>(null);
+    const [weather, setWeather] = useState<{ temp: number; feelsLike: number; precip: number; uv: number; label: string; icon: string; humidity: number; wind: number; location?: string } | null>(null);
     const [quote, setQuote] = useState<{ text: string; author: string } | null>(null);
-    const [github, setGithub] = useState<{ repos: number; currentMonthActiveDays: number; currentMonthTotalDays: number; currentMonthPushCount: number; todayActive: boolean; pushDates: string[] } | null>(null);
+    const [github, setGithub] = useState<{ repos: number; currentMonthActiveDays: number; currentMonthTotalDays: number; currentMonthPushCount: number; todayActive: boolean; pushDates: string[]; recentRepo: string | null; } | null>(null);
     const [holidays, setHolidays] = useState<{ date: string; name: string; localName: string }[]>([]);
     const [tooltipInfo, setTooltipInfo] = useState<{ day: number; text: string } | null>(null);
     const [greeting, setGreeting] = useState<string>('');
-    const [prayer, setPrayer] = useState<{ prayers: { name: string; time: string }[]; next: { name: string; time: string } | null; hijriDate: string | null } | null>(null);
+    const [prayer, setPrayer] = useState<{ prayers: { name: string; time: string }[]; next: { name: string; time: string } | null; hijriDate: string | null; imsak: string | null; midnight: string | null; } | null>(null);
     const [football, setFootball] = useState<{ matches: { home: string; homeAbbr: string; away: string; awayAbbr: string; date: string; time: string; league: string; leagueEmoji: string; status: string; state: string; homeScore?: string; awayScore?: string; homeScorers: { name: string; time: string }[]; awayScorers: { name: string; time: string }[]; isBigMatch: boolean }[] } | null>(null);
     const [showMatchesPopup, setShowMatchesPopup] = useState(false);
     const [matchTab, setMatchTab] = useState<"upcoming" | "completed">("upcoming");
@@ -90,8 +90,11 @@ export function CleanHomeHero() {
     const [newsPage, setNewsPage] = useState(0);
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const [movies, setMovies] = useState<{ movies: any[] } | null>(null);
+    const [showMoviesPopup, setShowMoviesPopup] = useState(false);
+    const [selectedMovieIndex, setSelectedMovieIndex] = useState<number | null>(null);
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const [cryptoData, setCryptoData] = useState<{ prices: any[] } | null>(null);
+    const [cryptoData, setCryptoData] = useState<{ crypto: any[]; global: any; forex: any } | null>(null);
+    const [hoveredCoin, setHoveredCoin] = useState<string | null>(null);
 
     // Typewriter greeting
     const [displayedGreeting, setDisplayedGreeting] = useState('');
@@ -183,20 +186,40 @@ export function CleanHomeHero() {
     const dynamicNextPrayer = useMemo(() => {
         if (!prayer?.prayers || prayer.prayers.length === 0) return prayer?.next || null;
         const nowMinutes = now.getHours() * 60 + now.getMinutes();
-        for (const p of prayer.prayers) {
-            const [h, m] = p.time.split(':').map(Number);
+
+        // Inject Imsak and Midnight
+        const fullBreakdown = [...prayer.prayers];
+        if (prayer.imsak) fullBreakdown.push({ name: "Imsak", time: prayer.imsak });
+        if (prayer.midnight) fullBreakdown.push({ name: "Midnight", time: prayer.midnight });
+
+        fullBreakdown.sort((a, b) => {
+            const [hA, mA] = a.time.split(':').map(Number);
+            const [hB, mB] = b.time.split(':').map(Number);
+            return (hA * 60 + mA) - (hB * 60 + mB);
+        });
+
+        for (const p of fullBreakdown) {
+            let [h, m] = p.time.split(':').map(Number);
+            if (p.name === "Midnight" && h < 12) h += 24; // Handle Midnight wrapping to next day
             if (h * 60 + m > nowMinutes) return p;
         }
-        // All prayers passed → show tomorrow's Subuh
-        return prayer.prayers[0] || null;
+
+        // All prayers passed → show tomorrow's Imsak/Subuh
+        return fullBreakdown[0] || null;
     }, [prayer, now]);
 
     // Prayer countdown string
     const prayerCountdown = useMemo(() => {
         if (!dynamicNextPrayer) return '';
         const [h, m] = dynamicNextPrayer.time.split(':').map(Number);
-        let diffMin = (h * 60 + m) - (now.getHours() * 60 + now.getMinutes());
-        if (diffMin < 0) diffMin += 24 * 60; // wraps to next day
+        const targetMins = h * 60 + m;
+        let diffMin = targetMins - (now.getHours() * 60 + now.getMinutes());
+
+        // Handle next-day wrapping
+        if (diffMin < 0 || (dynamicNextPrayer.name === "Midnight" && targetMins < 12 * 60)) {
+            diffMin += 24 * 60;
+        }
+
         const hours = Math.floor(diffMin / 60);
         const mins = diffMin % 60;
         if (hours > 0) return `in ${hours}h ${mins}m`;
@@ -228,10 +251,10 @@ export function CleanHomeHero() {
 
     // Rolling news page — cycle every 20s
     useEffect(() => {
-        if (!news || news.articles.length <= 4) return;
+        if (!news || news.articles.length <= 5) return;
         const id = setInterval(() => {
             setNewsPage(prev => {
-                const totalPages = Math.ceil(news.articles.length / 4);
+                const totalPages = Math.ceil(news.articles.length / 5);
                 return (prev + 1) % totalPages;
             });
         }, 20000);
@@ -240,8 +263,8 @@ export function CleanHomeHero() {
 
     const visibleNews = useMemo(() => {
         if (!news?.articles) return [];
-        const start = (newsPage * 4) % news.articles.length;
-        return news.articles.slice(start, start + 4);
+        const start = (newsPage * 5) % news.articles.length;
+        return news.articles.slice(start, start + 5);
     }, [news, newsPage]);
 
     const dayName = DAYS_FULL[now.getDay()];
@@ -688,14 +711,38 @@ export function CleanHomeHero() {
                                             animate={{ opacity: 1, y: 0 }}
                                             exit={{ opacity: 0, y: -10 }}
                                             transition={{ duration: 0.4 }}
-                                            style={{ display: "flex", flexDirection: "column", gap: "6px", position: "absolute", top: 0, left: 0, width: "100%" }}
+                                            style={{
+                                                display: "flex",
+                                                flexDirection: "column",
+                                                gap: "6px",
+                                                position: "absolute",
+                                                top: 0,
+                                                left: 0,
+                                                width: "100%",
+                                                maxHeight: "230px",
+                                                overflowY: "auto",
+                                                paddingRight: "4px",
+                                                scrollbarWidth: "thin",
+                                                scrollbarColor: "rgba(255,255,255,0.2) transparent"
+                                            }}
                                         >
-                                            {visibleNews.map((a: { url: string; title: string; source: string; timeAgo: string }, i: number) => (
-                                                <a key={`${newsPage}-${i}`} href={a.url} target="_blank" rel="noopener noreferrer" style={{ textDecoration: "none", display: "flex", flexDirection: "column", gap: "1px", padding: "5px 6px", borderRadius: "8px", background: "rgba(255,255,255,0.06)", transition: "background 0.2s ease" }}>
-                                                    <div style={{ fontSize: "0.68rem", fontWeight: 600, color: "rgba(255,255,255,0.9)", lineHeight: 1.3, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical" as const, overflow: "hidden" }}>
+                                            {visibleNews.map((a: { url: string; title: string; source: string; timeAgo: string; excerpt: string }, i: number) => (
+                                                <a
+                                                    key={`${newsPage}-${i}`}
+                                                    href={a.url}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    style={{ textDecoration: "none", display: "flex", flexDirection: "column", gap: "2px", padding: "6px 8px", borderRadius: "8px", background: "rgba(255,255,255,0.06)", transition: "background 0.2s ease" }}
+                                                    onMouseEnter={(e) => e.currentTarget.style.background = "rgba(255,255,255,0.12)"}
+                                                    onMouseLeave={(e) => e.currentTarget.style.background = "rgba(255,255,255,0.06)"}
+                                                >
+                                                    <div style={{ fontSize: "0.68rem", fontWeight: 700, color: "rgba(255,255,255,0.95)", lineHeight: 1.25, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical" as const, overflow: "hidden" }}>
                                                         {a.title}
                                                     </div>
-                                                    <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.52rem", color: "rgba(255,255,255,0.45)", fontWeight: 500 }}>
+                                                    {a.excerpt && (
+                                                        <div style={{ fontSize: "0.55rem", color: "rgba(255,255,255,0.55)", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical" as const, overflow: "hidden", lineHeight: 1.35, marginBottom: "2px" }} dangerouslySetInnerHTML={{ __html: a.excerpt }} />
+                                                    )}
+                                                    <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.5rem", color: "rgba(255,255,255,0.4)", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.02em" }}>
                                                         <span>{a.source}</span>
                                                         <span>{a.timeAgo}</span>
                                                     </div>
@@ -724,32 +771,84 @@ export function CleanHomeHero() {
                             style={{ position: "relative", zIndex: 1 }}
                         >
                             <div style={{ display: "flex", alignItems: "center", gap: "0.3rem", fontSize: "0.7rem", fontWeight: 700, color: "rgba(255,255,255,0.95)", marginBottom: "0.5rem", textTransform: "uppercase" as const, letterSpacing: "0.03em" }}>
-                                💱 Crypto
+                                📊 Markets
                             </div>
-                            {cryptoData && cryptoData.prices.length > 0 ? (
+                            {cryptoData && cryptoData.crypto.length > 0 ? (
                                 <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-                                    {cryptoData.prices.map((c: { id: string; symbol: string; name: string; emoji: string; usd: number; change24h: number }) => (
-                                        <div key={c.id} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "6px 8px", borderRadius: "10px", background: "rgba(255,255,255,0.06)" }}>
-                                            <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                                                <span style={{ fontSize: "1.1rem" }}>{c.emoji}</span>
-                                                <div>
-                                                    <div style={{ fontSize: "0.72rem", fontWeight: 700, color: "rgba(255,255,255,0.95)" }}>{c.symbol}</div>
-                                                    <div style={{ fontSize: "0.52rem", color: "rgba(255,255,255,0.45)" }}>{c.name}</div>
+
+                                    {/* Macro Dashboard */}
+                                    <div style={{ display: "flex", justifyContent: "space-between", padding: "8px", borderRadius: "10px", background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.05)", marginBottom: "2px" }}>
+                                        <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+                                            <div style={{ fontSize: "0.5rem", color: "rgba(255,255,255,0.5)", textTransform: "uppercase", letterSpacing: "0.05em", fontWeight: 600 }}>Forex / USD</div>
+                                            <div style={{ fontSize: "0.7rem", fontWeight: 700, color: "rgba(255,255,255,0.9)", fontVariantNumeric: "tabular-nums" }}>
+                                                Rp {(cryptoData.forex.IDR || 0).toLocaleString('id-ID')}
+                                                <span style={{ fontSize: "0.5rem", color: "rgba(255,255,255,0.4)", marginLeft: "4px", fontWeight: 500 }}>IDR</span>
+                                            </div>
+                                            <div style={{ fontSize: "0.7rem", fontWeight: 700, color: "rgba(255,255,255,0.9)", fontVariantNumeric: "tabular-nums" }}>
+                                                € {(cryptoData.forex.EUR || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                                <span style={{ fontSize: "0.5rem", color: "rgba(255,255,255,0.4)", marginLeft: "4px", fontWeight: 500 }}>EUR</span>
+                                            </div>
+                                        </div>
+
+                                        <div style={{ width: "1px", background: "rgba(255,255,255,0.1)", margin: "0 4px" }} />
+
+                                        <div style={{ display: "flex", flexDirection: "column", gap: "4px", textAlign: "right" }}>
+                                            <div style={{ fontSize: "0.5rem", color: "rgba(255,255,255,0.5)", textTransform: "uppercase", letterSpacing: "0.05em", fontWeight: 600 }}>Crypto Macro</div>
+                                            <div style={{ fontSize: "0.7rem", fontWeight: 700, color: "rgba(255,255,255,0.9)", fontVariantNumeric: "tabular-nums" }}>
+                                                ${((cryptoData.global.totalMarketCap || 0) / 1e12).toFixed(2)}T
+                                                <span style={{ fontSize: "0.5rem", color: "rgba(255,255,255,0.4)", marginLeft: "4px", fontWeight: 500 }}>Global Cap</span>
+                                            </div>
+                                            <div style={{ fontSize: "0.7rem", fontWeight: 700, color: "rgba(255,255,255,0.9)", fontVariantNumeric: "tabular-nums" }}>
+                                                {(cryptoData.global.btcDominance || 0).toFixed(1)}%
+                                                <span style={{ fontSize: "0.5rem", color: "rgba(255,255,255,0.4)", marginLeft: "4px", fontWeight: 500 }}>BTC Dom</span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* Top Assets */}
+                                    {cryptoData.crypto.map((c: { id: string; symbol: string; name: string; emoji: string; usd: number; change24h: number; vol24h: number; marketCap: number; }) => (
+                                        <div
+                                            key={c.id}
+                                            onMouseEnter={() => setHoveredCoin(c.id)}
+                                            onMouseLeave={() => setHoveredCoin(null)}
+                                            style={{ display: "flex", flexDirection: "column", padding: "6px 8px", borderRadius: "10px", background: hoveredCoin === c.id ? "rgba(255,255,255,0.12)" : "rgba(255,255,255,0.06)", cursor: "default", transition: "background 0.2s ease" }}
+                                        >
+                                            <div style={{ display: "flex", alignItems: "center", justifyItems: "center", justifyContent: "space-between" }}>
+                                                <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                                                    <span style={{ fontSize: "1.1rem" }}>{c.emoji}</span>
+                                                    <div>
+                                                        <div style={{ fontSize: "0.72rem", fontWeight: 700, color: "rgba(255,255,255,0.95)" }}>{c.symbol}</div>
+                                                        <div style={{ fontSize: "0.52rem", color: "rgba(255,255,255,0.45)" }}>{c.name}</div>
+                                                    </div>
+                                                </div>
+                                                <div style={{ textAlign: "right" as const }}>
+                                                    <div style={{ fontSize: "0.75rem", fontWeight: 700, color: "rgba(255,255,255,0.95)", fontVariantNumeric: "tabular-nums" }}>
+                                                        ${c.usd >= 1000 ? c.usd.toLocaleString('en-US', { maximumFractionDigits: 0 }) : c.usd.toFixed(2)}
+                                                    </div>
+                                                    <div style={{ fontSize: "0.55rem", fontWeight: 600, color: c.change24h >= 0 ? "#4ade80" : "#f87171" }}>
+                                                        {c.change24h >= 0 ? "▲" : "▼"} {Math.abs(c.change24h).toFixed(1)}%
+                                                    </div>
                                                 </div>
                                             </div>
-                                            <div style={{ textAlign: "right" as const }}>
-                                                <div style={{ fontSize: "0.75rem", fontWeight: 700, color: "rgba(255,255,255,0.95)", fontVariantNumeric: "tabular-nums" }}>
-                                                    ${c.usd >= 1000 ? c.usd.toLocaleString('en-US', { maximumFractionDigits: 0 }) : c.usd.toFixed(2)}
-                                                </div>
-                                                <div style={{ fontSize: "0.55rem", fontWeight: 600, color: c.change24h >= 0 ? "#4ade80" : "#f87171" }}>
-                                                    {c.change24h >= 0 ? "▲" : "▼"} {Math.abs(c.change24h).toFixed(1)}%
-                                                </div>
-                                            </div>
+                                            <AnimatePresence>
+                                                {hoveredCoin === c.id && (
+                                                    <motion.div
+                                                        initial={{ height: 0, opacity: 0, marginTop: 0 }}
+                                                        animate={{ height: "auto", opacity: 1, marginTop: "4px" }}
+                                                        exit={{ height: 0, opacity: 0, marginTop: 0 }}
+                                                        transition={{ duration: 0.2 }}
+                                                        style={{ overflow: "hidden", display: "flex", justifyContent: "space-between", fontSize: "0.55rem", color: "rgba(255,255,255,0.55)", borderTop: "1px solid rgba(255,255,255,0.1)", paddingTop: "4px" }}
+                                                    >
+                                                        <span>Vol: ${(c.vol24h / 1e9).toFixed(1)}B</span>
+                                                        <span>Cap: ${(c.marketCap / 1e9).toFixed(1)}B</span>
+                                                    </motion.div>
+                                                )}
+                                            </AnimatePresence>
                                         </div>
                                     ))}
                                 </div>
                             ) : (
-                                <div style={{ fontSize: "0.72rem", color: "rgba(255,255,255,0.55)", textAlign: "center", padding: "1.5rem 0" }}>Loading crypto···</div>
+                                <div style={{ fontSize: "0.72rem", color: "rgba(255,255,255,0.55)", textAlign: "center", padding: "1.5rem 0" }}>Loading markets···</div>
                             )}
                         </motion.div>
                     ) : WIDGETS[widgetIndex] === 'movies' ? (
@@ -772,8 +871,14 @@ export function CleanHomeHero() {
                             </div>
                             {movies && movies.movies.length > 0 ? (
                                 <div style={{ display: "flex", flexDirection: "column", gap: "5px" }}>
-                                    {movies.movies.slice(0, 4).map((m: { id: number; title: string; poster: string | null; rating: number; year: string }) => (
-                                        <div key={m.id} style={{ display: "flex", alignItems: "center", gap: "8px", padding: "4px 6px", borderRadius: "8px", background: "rgba(255,255,255,0.06)" }}>
+                                    {movies.movies.slice(0, 4).map((m: { id: number; title: string; poster: string | null; rating: number; year: string; overview: string; language: string; genres: number[] }, i: number) => (
+                                        <div
+                                            key={m.id}
+                                            onClick={() => { setSelectedMovieIndex(i); setShowMoviesPopup(true); }}
+                                            style={{ display: "flex", alignItems: "center", gap: "8px", padding: "4px 6px", borderRadius: "8px", background: "rgba(255,255,255,0.06)", cursor: "pointer", transition: "background 0.2s ease" }}
+                                            onMouseEnter={(e) => e.currentTarget.style.background = "rgba(255,255,255,0.12)"}
+                                            onMouseLeave={(e) => e.currentTarget.style.background = "rgba(255,255,255,0.06)"}
+                                        >
                                             {m.poster ? (
                                                 <img src={m.poster} alt={m.title} style={{ width: "28px", height: "40px", borderRadius: "4px", objectFit: "cover" as const, flexShrink: 0 }} />
                                             ) : (
@@ -828,15 +933,18 @@ export function CleanHomeHero() {
                                 width: "170px",
                             }}>
                                 {/* Month header */}
-                                <div style={{
-                                    display: "flex",
-                                    alignItems: "center",
-                                    gap: "0.35rem",
-                                    fontSize: "0.82rem",
-                                    fontWeight: 600,
-                                    color: "rgba(255,255,255,0.85)",
-                                    marginBottom: "0.5rem",
-                                }}>
+                                <div
+                                    title={prayer?.hijriDate || undefined}
+                                    style={{
+                                        display: "flex",
+                                        alignItems: "center",
+                                        gap: "0.35rem",
+                                        fontSize: "0.82rem",
+                                        fontWeight: 600,
+                                        color: "rgba(255,255,255,0.85)",
+                                        marginBottom: "0.5rem",
+                                        cursor: prayer?.hijriDate ? "help" : "default"
+                                    }}>
                                     <CalIcon size={13} strokeWidth={2} />
                                     {MONTHS_FULL[now.getMonth()]}
                                 </div>
@@ -1021,6 +1129,13 @@ export function CleanHomeHero() {
                                         {weather ? `${weather.wind} km/h` : '··'}
                                     </span>
                                 </div>
+                                {weather && (
+                                    <div style={{ display: "flex", alignItems: "center", gap: "0.6rem", fontSize: "0.62rem", fontWeight: 600, color: "rgba(255,255,255,0.5)", marginTop: "-0.2rem" }}>
+                                        <span>Feels like {weather.feelsLike}°</span>
+                                        <span>UV: {weather.uv}</span>
+                                        <span>Rain: {weather.precip}%</span>
+                                    </div>
+                                )}
 
                                 {/* GitHub Benchmark */}
                                 <Link href="https://github.com/muhammadfaza16" target="_blank">
@@ -1053,6 +1168,11 @@ export function CleanHomeHero() {
                                                 <div style={{ fontSize: "0.62rem", color: "rgba(255,255,255,0.55)", marginTop: "0.2rem", display: "flex", alignItems: "center", gap: "4px" }}>
                                                     <span style={{ color: "#4ade80", fontWeight: 700 }}>{github.currentMonthPushCount}</span> commits/pushes
                                                 </div>
+                                                {github.recentRepo && (
+                                                    <div style={{ fontSize: "0.58rem", color: "rgba(255,255,255,0.45)", marginTop: "0.3rem", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", fontStyle: "italic" }}>
+                                                        <span style={{ fontWeight: 600 }}>Last touched:</span> {github.recentRepo}
+                                                    </div>
+                                                )}
                                             </>
                                         ) : (
                                             <div style={{ fontSize: "0.75rem", color: "rgba(255,255,255,0.55)" }}>Loading···</div>
@@ -1282,6 +1402,74 @@ export function CleanHomeHero() {
                                         No {matchTab} matches found.
                                     </div>
                                 )}
+                            </div>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
+            {/* ── Movies Popup ── */}
+            <AnimatePresence>
+                {showMoviesPopup && movies && selectedMovieIndex !== null && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        onClick={() => setShowMoviesPopup(false)}
+                        style={{
+                            position: "fixed",
+                            inset: 0,
+                            zIndex: 9999,
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            background: "rgba(0,0,0,0.35)",
+                            backdropFilter: "blur(6px)",
+                            padding: "1rem",
+                        }}
+                    >
+                        <motion.div
+                            initial={{ scale: 0.9, opacity: 0, y: 20 }}
+                            animate={{ scale: 1, opacity: 1, y: 0 }}
+                            exit={{ scale: 0.9, opacity: 0, y: 20 }}
+                            transition={{ type: "spring", damping: 25, stiffness: 300 }}
+                            onClick={(e) => e.stopPropagation()}
+                            style={{
+                                background: "linear-gradient(135deg, rgba(30,35,50,0.92) 0%, rgba(20,25,40,0.95) 100%)",
+                                backdropFilter: "blur(40px)",
+                                border: "1px solid rgba(255,255,255,0.15)",
+                                borderRadius: "24px",
+                                padding: "1.5rem",
+                                maxWidth: "340px",
+                                width: "100%",
+                                color: "rgba(255,255,255,0.95)",
+                                display: "flex",
+                                flexDirection: "column",
+                                gap: "1rem",
+                            }}
+                        >
+                            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+                                <div style={{ display: "flex", gap: "1rem" }}>
+                                    {movies.movies[selectedMovieIndex].poster ? (
+                                        <img src={movies.movies[selectedMovieIndex].poster.replace("w92", "w154")} alt="poster" style={{ width: "80px", borderRadius: "8px", objectFit: "cover", boxShadow: "0 4px 12px rgba(0,0,0,0.3)" }} />
+                                    ) : (
+                                        <div style={{ width: "80px", height: "120px", borderRadius: "8px", background: "rgba(255,255,255,0.1)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "2rem" }}>🎬</div>
+                                    )}
+                                    <div style={{ display: "flex", flexDirection: "column", gap: "0.4rem" }}>
+                                        <div style={{ fontSize: "1.1rem", fontWeight: 800, lineHeight: 1.2 }}>{movies.movies[selectedMovieIndex].title}</div>
+                                        <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "0.4rem", fontSize: "0.7rem", color: "rgba(255,255,255,0.6)", fontWeight: 600 }}>
+                                            <span>⭐ {movies.movies[selectedMovieIndex].rating}</span>
+                                            <span>•</span>
+                                            <span>{movies.movies[selectedMovieIndex].year}</span>
+                                            <span>•</span>
+                                            <span style={{ textTransform: "uppercase" }}>{movies.movies[selectedMovieIndex].language}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div onClick={() => setShowMoviesPopup(false)} style={{ width: "26px", height: "26px", borderRadius: "50%", background: "rgba(255,255,255,0.1)", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", fontSize: "0.7rem", color: "rgba(255,255,255,0.55)", flexShrink: 0 }}>✕</div>
+                            </div>
+                            <div style={{ fontSize: "0.8rem", color: "rgba(255,255,255,0.8)", lineHeight: 1.5, maxHeight: "200px", overflowY: "auto" }}>
+                                {movies.movies[selectedMovieIndex].overview}
                             </div>
                         </motion.div>
                     </motion.div>
