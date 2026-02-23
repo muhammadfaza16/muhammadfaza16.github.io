@@ -40,6 +40,16 @@ function stripHtml(html: string): string {
     return html.replace(/<[^>]*>?/gm, '').trim();
 }
 
+// Fisher-Yates shuffle for true randomness
+function shuffleArray<T>(array: T[]): T[] {
+    const arr = [...array];
+    for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
+}
+
 export async function GET() {
     try {
         const feedPromises = CURATED_FEEDS.map(async (feedNode) => {
@@ -55,14 +65,17 @@ export async function GET() {
                 const xml = await response.text();
                 const feed = await parser.parseString(xml);
 
-                return feed.items.slice(0, 5).map(item => ({
+                // Parse top 15 items to get a good pool from each blog
+                const parsedItems = feed.items.slice(0, 15).map(item => ({
                     title: item.title || "Untitled",
                     source: feedNode.name,
                     url: item.link || item.guid || "",
                     timeAgo: item.isoDate ? timeAgo(item.isoDate) : item.pubDate ? timeAgo(item.pubDate) : "Recent",
-                    pubDateMs: item.isoDate ? new Date(item.isoDate).getTime() : item.pubDate ? new Date(item.pubDate).getTime() : 0,
                     excerpt: stripHtml(item.contentSnippet || item.description || item.contentEncoded || "").substring(0, 150) + "..."
                 }));
+
+                // Shuffle this blog's pool and pick 2-3 items randomly to ensure diversity
+                return shuffleArray(parsedItems).slice(0, 3);
             } catch (err) {
                 console.error(`Failed to parse feed ${feedNode.name}:`, err);
                 return [];
@@ -70,9 +83,12 @@ export async function GET() {
         });
 
         const nestedItems = await Promise.all(feedPromises);
-        const mergedItems = nestedItems.flat().sort((a, b) => b.pubDateMs - a.pubDateMs);
 
-        const articles = mergedItems.slice(0, 12).map((item) => ({
+        // Flatten and entirely shuffle the multi-source pool
+        const shuffledPool = shuffleArray(nestedItems.flat());
+
+        // Grab exactly 12 items for the UI
+        const articles = shuffledPool.slice(0, 12).map((item) => ({
             title: item.title,
             source: item.source,
             url: item.url,
@@ -80,9 +96,10 @@ export async function GET() {
             excerpt: item.excerpt,
         }));
 
+        // Use a shorter cache and stale-while-revalidate to let the shuffle refresh periodically
         return NextResponse.json({ articles }, {
             headers: {
-                "Cache-Control": "s-maxage=3600, stale-while-revalidate=1800"
+                "Cache-Control": "s-maxage=600, stale-while-revalidate=300"
             }
         });
     } catch (error) {
