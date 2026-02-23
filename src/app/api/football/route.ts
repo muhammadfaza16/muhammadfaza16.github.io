@@ -19,7 +19,7 @@ const BIG_TEAMS = new Set([
 interface ESPNEvent {
     name: string;
     date: string;
-    status: { type: { description: string; state: string } };
+    status: { type: { description: string; state: string; shortDetail?: string } };
     competitions: {
         competitors: {
             team: { id: string; shortDisplayName: string; abbreviation: string; logo: string };
@@ -50,6 +50,7 @@ export async function GET() {
             leagueEmoji: string;
             status: string;
             state: string;
+            liveMinute?: string;
             homeScore?: string;
             awayScore?: string;
             homeScorers: { name: string; time: string }[];
@@ -118,6 +119,7 @@ export async function GET() {
                             leagueEmoji: league.emoji,
                             status: event.status.type.description,
                             state: event.status.type.state,
+                            liveMinute: event.status.type.state === "in" ? event.status.type.shortDetail : undefined,
                             homeScore: home.score,
                             awayScore: away.score,
                             homeScorers,

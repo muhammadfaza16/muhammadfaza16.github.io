@@ -1115,7 +1115,7 @@ export function CleanHomeHero() {
 
                                 {/* Upcoming Matches */}
                                 {football && football.matches.length > 0 && (
-                                    <div style={{ marginTop: "0.2rem" }}>
+                                    <div style={{ marginTop: "0.8rem" }}>
                                         <div
                                             onClick={() => setShowMatchesPopup(true)}
                                             style={{
@@ -1138,7 +1138,7 @@ export function CleanHomeHero() {
                                                 transition={{ duration: 0.35 }}
                                                 style={{ display: "flex", flexDirection: "column", gap: "3px" }}
                                             >
-                                                {visibleMatches.map((m, i) => (
+                                                {visibleMatches.map((m: any, i: number) => (
                                                     <div key={`${matchPage}-${i}`} style={{
                                                         display: "flex", alignItems: "center", justifyContent: "space-between",
                                                         fontSize: "0.58rem",
@@ -1164,7 +1164,7 @@ export function CleanHomeHero() {
                                                             minWidth: "40px",
                                                         }}>
                                                             {m.state === "in" ? (
-                                                                <span style={{ color: "#4ade80", fontWeight: 700 }}>LIVE<br />{m.homeScore}-{m.awayScore}</span>
+                                                                <span style={{ color: "#4ade80", fontWeight: 700, whiteSpace: "nowrap" }}>{m.liveMinute || "LIVE"}<br />{m.homeScore}-{m.awayScore}</span>
                                                             ) : m.state === "post" ? (
                                                                 <span>{m.homeScore}-{m.awayScore}<br /><span style={{ fontSize: "0.45rem", opacity: 0.8 }}>FT</span></span>
                                                             ) : (
