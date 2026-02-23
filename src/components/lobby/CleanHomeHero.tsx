@@ -296,7 +296,7 @@ export function CleanHomeHero() {
             display: "flex",
             flexDirection: "column",
             padding: "0 1.5rem",
-            paddingTop: "1rem",
+            paddingTop: "0.4rem",
             paddingBottom: "1.5rem",
             width: "100%",
             maxWidth: "460px",
@@ -369,7 +369,7 @@ export function CleanHomeHero() {
                 initial={{ opacity: 0, scale: 0.96, y: 15 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 transition={{ duration: 0.8, type: "spring", bounce: 0.3 }}
-                style={{ marginBottom: "1rem" }}
+                style={{ marginBottom: "0.5rem" }}
             >
                 {/* Top: Date left, Weather right */}
                 <div style={{
@@ -406,12 +406,12 @@ export function CleanHomeHero() {
 
                 {/* Big Day Name */}
                 <div style={{
-                    fontSize: "clamp(2.2rem, 9vw, 3rem)",
+                    fontSize: "clamp(1.8rem, 8vw, 2.4rem)",
                     fontWeight: 800,
                     letterSpacing: "-0.04em",
                     lineHeight: 1,
                     color: "#fff",
-                    marginBottom: "0.35rem",
+                    marginBottom: "0.2rem",
                     textShadow: "0 2px 16px rgba(0,0,0,0.5), 0 1px 3px rgba(0,0,0,0.4)",
                 }}>
                     {dayName}
@@ -452,7 +452,7 @@ export function CleanHomeHero() {
                             fontStyle: "italic",
                             fontWeight: 500,
                             color: "rgba(255,255,255,0.7)",
-                            marginTop: "0.35rem",
+                            marginTop: "0.2rem",
                             textShadow: "0 1px 4px rgba(0,0,0,0.5)",
                             lineHeight: 1.4,
                         }}
@@ -501,7 +501,7 @@ export function CleanHomeHero() {
                     borderRadius: "28px", // Refined iOS curve
                     border: "1px solid rgba(255,255,255,0.08)", // Subtle white stroke
                     boxShadow: "0 20px 40px -10px rgba(0,0,0,0.15), inset 0 1px 0.5px rgba(255,255,255,0.2)", // Crisp shadow + thin specular highlight
-                    padding: "1.2rem",
+                    padding: "1rem",
                     position: "relative",
                     overflow: "hidden",
                     touchAction: "pan-y",
@@ -1043,7 +1043,7 @@ export function CleanHomeHero() {
 
                                 {/* Upcoming Matches */}
                                 {football && football.matches.length > 0 && (
-                                    <div style={{ marginTop: "0.4rem" }}>
+                                    <div style={{ marginTop: "0.2rem" }}>
                                         <div
                                             onClick={() => setShowMatchesPopup(true)}
                                             style={{
@@ -1114,7 +1114,7 @@ export function CleanHomeHero() {
                             <div style={{
                                 display: "flex",
                                 flexDirection: "column",
-                                gap: "0.6rem",
+                                gap: "0.45rem",
                                 paddingTop: "0.15rem",
                                 minWidth: 0,
                             }}>
