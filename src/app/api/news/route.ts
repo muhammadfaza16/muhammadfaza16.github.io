@@ -1,8 +1,10 @@
 import { NextResponse } from "next/server";
 
-// Google News Indonesia RSS → JSON via rss2json (free, no key, 10k/day)
-const RSS_URL = "https://news.google.com/rss/topics/CAAqJggKIiBDQkFTRWdvSUwyMHZNRGRqTVhZU0FtVnVHZ0pWVXlnQVAB?hl=en-US&gl=US&ceid=US:en";
-const API_URL = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(RSS_URL)}`;
+const RSS_TECH = 'https://news.google.com/rss/search?q=programming+OR+"software+engineering"+OR+"artificial+intelligence"&hl=en-US&gl=US&ceid=US:en';
+const RSS_FOOTBALL = 'https://news.google.com/rss/search?q="premier+league"+OR+"champions+league"+OR+"la+liga"&hl=en-US&gl=US&ceid=US:en';
+
+const API_TECH = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(RSS_TECH)}`;
+const API_FOOTBALL = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(RSS_FOOTBALL)}`;
 
 interface RSSItem {
     title: string;
@@ -26,14 +28,25 @@ function timeAgo(dateStr: string): string {
 
 export async function GET() {
     try {
-        const res = await fetch(API_URL, { next: { revalidate: 600 } });
-        if (!res.ok) throw new Error("RSS fetch failed");
+        const [resTech, resFootball] = await Promise.all([
+            fetch(API_TECH, { next: { revalidate: 600 } }),
+            fetch(API_FOOTBALL, { next: { revalidate: 600 } })
+        ]);
 
-        const data = await res.json();
-        const items = (data.items || []) as RSSItem[];
+        if (!resTech.ok || !resFootball.ok) throw new Error("RSS fetch failed");
 
-        const articles = items.slice(0, 12).map((item) => {
-            // Extract source from title (Google News format: "Title - Source")
+        const dataTech = await resTech.json();
+        const dataFootball = await resFootball.json();
+
+        const itemsTech = (dataTech.items || []) as RSSItem[];
+        const itemsFootball = (dataFootball.items || []) as RSSItem[];
+
+        // Merge and sort descending by pubDate
+        const mergedItems = [...itemsTech, ...itemsFootball].sort((a, b) => {
+            return new Date(b.pubDate).getTime() - new Date(a.pubDate).getTime();
+        });
+
+        const articles = mergedItems.slice(0, 12).map((item) => {
             const parts = item.title.split(" - ");
             const source = parts.length > 1 ? parts.pop()! : "News";
             const title = parts.join(" - ");
