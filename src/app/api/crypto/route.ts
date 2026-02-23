@@ -1,39 +1,47 @@
 import { NextResponse } from "next/server";
 
 const COINS = ["bitcoin", "ethereum"];
-const CG_PRICE_URL = `https://api.coingecko.com/api/v3/simple/price?ids=${COINS.join(",")}&vs_currencies=usd&include_24hr_change=true&include_24hr_vol=true&include_market_cap=true`;
+const CG_MARKETS_URL = `https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=${COINS.join(",")}&sparkline=true&price_change_percentage=24h`;
 const CG_GLOBAL_URL = `https://api.coingecko.com/api/v3/global`;
 const FOREX_URL = `https://api.exchangerate-api.com/v4/latest/USD`;
 
-const COIN_META: Record<string, { name: string; symbol: string; emoji: string }> = {
-    bitcoin: { name: "Bitcoin", symbol: "BTC", emoji: "₿" },
-    ethereum: { name: "Ethereum", symbol: "ETH", emoji: "Ξ" },
+const COIN_META: Record<string, { emoji: string }> = {
+    bitcoin: { emoji: "₿" },
+    ethereum: { emoji: "Ξ" },
 };
 
 export async function GET() {
     try {
-        const [priceRes, globalRes, forexRes] = await Promise.all([
-            fetch(CG_PRICE_URL, { next: { revalidate: 300 } }),
+        const [marketsRes, globalRes, forexRes] = await Promise.all([
+            fetch(CG_MARKETS_URL, { next: { revalidate: 300 } }),
             fetch(CG_GLOBAL_URL, { next: { revalidate: 900 } }),
             fetch(FOREX_URL, { next: { revalidate: 3600 } })
         ]);
 
-        const priceData = await (priceRes.ok ? priceRes.json() : Promise.resolve({}));
+        const marketsData = await (marketsRes.ok ? marketsRes.json() : Promise.resolve([]));
         const globalData = await (globalRes.ok ? globalRes.json() : Promise.resolve({ data: {} }));
         const forexData = await (forexRes.ok ? forexRes.json() : Promise.resolve({ rates: {} }));
 
-        const prices = COINS.map((id) => {
-            const coin = priceData[id];
-            const meta = COIN_META[id];
+        const prices = (marketsData as any[]).map((coin: any) => {
+            const meta = COIN_META[coin.id];
+            // Downsample sparkline to ~24 points for a lightweight SVG
+            const raw: number[] = coin.sparkline_in_7d?.price || [];
+            const sparkline: number[] = [];
+            if (raw.length > 0) {
+                const step = Math.max(1, Math.floor(raw.length / 24));
+                for (let i = 0; i < raw.length; i += step) sparkline.push(raw[i]);
+                if (sparkline[sparkline.length - 1] !== raw[raw.length - 1]) sparkline.push(raw[raw.length - 1]);
+            }
             return {
-                id,
-                name: meta?.name || id,
-                symbol: meta?.symbol || id.toUpperCase(),
+                id: coin.id,
+                name: coin.name || coin.id,
+                symbol: (coin.symbol || coin.id).toUpperCase(),
                 emoji: meta?.emoji || "🪙",
-                usd: coin?.usd ?? 0,
-                change24h: coin?.usd_24h_change ?? 0,
-                vol24h: coin?.usd_24h_vol ?? 0,
-                marketCap: coin?.usd_market_cap ?? 0,
+                usd: coin.current_price ?? 0,
+                change24h: coin.price_change_percentage_24h ?? 0,
+                vol24h: coin.total_volume ?? 0,
+                marketCap: coin.market_cap ?? 0,
+                sparkline,
             };
         });
 
@@ -57,3 +65,4 @@ export async function GET() {
         });
     }
 }
+

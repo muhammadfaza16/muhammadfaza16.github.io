@@ -782,9 +782,20 @@ export function CleanHomeHero() {
                                                             {a.excerpt}
                                                         </div>
                                                     )}
-                                                    <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.5rem", color: "rgba(255,255,255,0.4)", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.02em" }}>
+                                                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: "0.5rem", color: "rgba(255,255,255,0.4)", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.02em" }}>
                                                         <span>{a.source}</span>
-                                                        <span>{a.timeAgo}</span>
+                                                        <span style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+                                                            <span style={{
+                                                                width: "5px", height: "5px", borderRadius: "50%", display: "inline-block",
+                                                                background: a.timeAgo?.includes("Startup") ? "#a78bfa" :
+                                                                    a.timeAgo?.includes("Deep Dive") ? "#fb923c" :
+                                                                        a.timeAgo?.includes("Frontend") ? "#60a5fa" :
+                                                                            a.timeAgo?.includes("Mental") ? "#34d399" :
+                                                                                a.timeAgo?.includes("Engineering") ? "#f472b6" :
+                                                                                    "#94a3b8"
+                                                            }} />
+                                                            {a.timeAgo}
+                                                        </span>
                                                     </div>
                                                 </a>
                                             ))}
@@ -830,7 +841,7 @@ export function CleanHomeHero() {
                                             </div>
                                         </div>
 
-                                        <div style={{ width: "1px", background: "rgba(255,255,255,0.1)", margin: "0 4px" }} />
+                                        <div style={{ width: "1px", background: "linear-gradient(180deg, transparent 0%, rgba(147,197,253,0.4) 30%, rgba(167,139,250,0.4) 70%, transparent 100%)", margin: "0 4px" }} />
 
                                         <div style={{ display: "flex", flexDirection: "column", gap: "4px", textAlign: "right" }}>
                                             <div style={{ fontSize: "0.5rem", color: "rgba(255,255,255,0.5)", textTransform: "uppercase", letterSpacing: "0.05em", fontWeight: 600 }}>Crypto Macro</div>
@@ -846,46 +857,67 @@ export function CleanHomeHero() {
                                     </div>
 
                                     {/* Top Assets */}
-                                    {cryptoData.crypto.map((c: { id: string; symbol: string; name: string; emoji: string; usd: number; change24h: number; vol24h: number; marketCap: number; }) => (
-                                        <div
-                                            key={c.id}
-                                            onMouseEnter={() => setHoveredCoin(c.id)}
-                                            onMouseLeave={() => setHoveredCoin(null)}
-                                            style={{ display: "flex", flexDirection: "column", padding: "6px 8px", borderRadius: "10px", background: hoveredCoin === c.id ? "rgba(255,255,255,0.12)" : "rgba(255,255,255,0.06)", cursor: "default", transition: "background 0.2s ease" }}
-                                        >
-                                            <div style={{ display: "flex", alignItems: "center", justifyItems: "center", justifyContent: "space-between" }}>
-                                                <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                                                    <span style={{ fontSize: "1.1rem" }}>{c.emoji}</span>
-                                                    <div>
-                                                        <div style={{ fontSize: "0.72rem", fontWeight: 700, color: "rgba(255,255,255,0.95)" }}>{c.symbol}</div>
-                                                        <div style={{ fontSize: "0.52rem", color: "rgba(255,255,255,0.45)" }}>{c.name}</div>
-                                                    </div>
-                                                </div>
-                                                <div style={{ textAlign: "right" as const }}>
-                                                    <div style={{ fontSize: "0.75rem", fontWeight: 700, color: "rgba(255,255,255,0.95)", fontVariantNumeric: "tabular-nums" }}>
-                                                        ${c.usd >= 1000 ? c.usd.toLocaleString('en-US', { maximumFractionDigits: 0 }) : c.usd.toFixed(2)}
-                                                    </div>
-                                                    <div style={{ fontSize: "0.55rem", fontWeight: 600, color: c.change24h >= 0 ? "#4ade80" : "#f87171" }}>
-                                                        {c.change24h >= 0 ? "▲" : "▼"} {Math.abs(c.change24h).toFixed(1)}%
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <AnimatePresence>
-                                                {hoveredCoin === c.id && (
-                                                    <motion.div
-                                                        initial={{ height: 0, opacity: 0, marginTop: 0 }}
-                                                        animate={{ height: "auto", opacity: 1, marginTop: "4px" }}
-                                                        exit={{ height: 0, opacity: 0, marginTop: 0 }}
-                                                        transition={{ duration: 0.2 }}
-                                                        style={{ overflow: "hidden", display: "flex", justifyContent: "space-between", fontSize: "0.55rem", color: "rgba(255,255,255,0.55)", borderTop: "1px solid rgba(255,255,255,0.1)", paddingTop: "4px" }}
-                                                    >
-                                                        <span>Vol: ${(c.vol24h / 1e9).toFixed(1)}B</span>
-                                                        <span>Cap: ${(c.marketCap / 1e9).toFixed(1)}B</span>
-                                                    </motion.div>
+                                    {cryptoData.crypto.map((c: { id: string; symbol: string; name: string; emoji: string; usd: number; change24h: number; vol24h: number; marketCap: number; sparkline?: number[] }) => {
+                                        // Generate sparkline SVG path
+                                        const spark = c.sparkline || [];
+                                        let sparkPath = "";
+                                        if (spark.length > 1) {
+                                            const min = Math.min(...spark);
+                                            const max = Math.max(...spark);
+                                            const range = max - min || 1;
+                                            sparkPath = spark.map((v, idx) => {
+                                                const x = (idx / (spark.length - 1)) * 100;
+                                                const y = 100 - ((v - min) / range) * 100;
+                                                return `${idx === 0 ? "M" : "L"}${x},${y}`;
+                                            }).join(" ");
+                                        }
+                                        return (
+                                            <div
+                                                key={c.id}
+                                                onMouseEnter={() => setHoveredCoin(c.id)}
+                                                onMouseLeave={() => setHoveredCoin(null)}
+                                                style={{ display: "flex", flexDirection: "column", padding: "6px 8px", borderRadius: "10px", background: hoveredCoin === c.id ? "rgba(255,255,255,0.12)" : "rgba(255,255,255,0.06)", cursor: "default", transition: "background 0.2s ease", position: "relative", overflow: "hidden" }}
+                                            >
+                                                {/* Sparkline Background */}
+                                                {sparkPath && (
+                                                    <svg viewBox="0 0 100 100" preserveAspectRatio="none" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", opacity: 0.12, pointerEvents: "none" }}>
+                                                        <path d={sparkPath} fill="none" stroke={c.change24h >= 0 ? "#4ade80" : "#f87171"} strokeWidth="2" vectorEffect="non-scaling-stroke" />
+                                                    </svg>
                                                 )}
-                                            </AnimatePresence>
-                                        </div>
-                                    ))}
+                                                <div style={{ display: "flex", alignItems: "center", justifyItems: "center", justifyContent: "space-between", position: "relative", zIndex: 1 }}>
+                                                    <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                                                        <span style={{ fontSize: "1.1rem" }}>{c.emoji}</span>
+                                                        <div>
+                                                            <div style={{ fontSize: "0.72rem", fontWeight: 700, color: "rgba(255,255,255,0.95)" }}>{c.symbol}</div>
+                                                            <div style={{ fontSize: "0.52rem", color: "rgba(255,255,255,0.45)" }}>{c.name}</div>
+                                                        </div>
+                                                    </div>
+                                                    <div style={{ textAlign: "right" as const }}>
+                                                        <div style={{ fontSize: "0.75rem", fontWeight: 700, color: "rgba(255,255,255,0.95)", fontVariantNumeric: "tabular-nums" }}>
+                                                            ${c.usd >= 1000 ? c.usd.toLocaleString('en-US', { maximumFractionDigits: 0 }) : c.usd.toFixed(2)}
+                                                        </div>
+                                                        <div style={{ fontSize: "0.55rem", fontWeight: 600, color: c.change24h >= 0 ? "#4ade80" : "#f87171" }}>
+                                                            {c.change24h >= 0 ? "▲" : "▼"} {Math.abs(c.change24h).toFixed(1)}%
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <AnimatePresence>
+                                                    {hoveredCoin === c.id && (
+                                                        <motion.div
+                                                            initial={{ height: 0, opacity: 0, marginTop: 0 }}
+                                                            animate={{ height: "auto", opacity: 1, marginTop: "4px" }}
+                                                            exit={{ height: 0, opacity: 0, marginTop: 0 }}
+                                                            transition={{ duration: 0.2 }}
+                                                            style={{ overflow: "hidden", display: "flex", justifyContent: "space-between", fontSize: "0.55rem", color: "rgba(255,255,255,0.55)", borderTop: "1px solid rgba(255,255,255,0.1)", paddingTop: "4px" }}
+                                                        >
+                                                            <span>Vol: ${(c.vol24h / 1e9).toFixed(1)}B</span>
+                                                            <span>Cap: ${(c.marketCap / 1e9).toFixed(1)}B</span>
+                                                        </motion.div>
+                                                    )}
+                                                </AnimatePresence>
+                                            </div>
+                                        )
+                                    })}
                                 </div>
                             ) : (
                                 <div style={{ fontSize: "0.72rem", color: "rgba(255,255,255,0.55)", textAlign: "center", padding: "1.5rem 0" }}>Loading markets···</div>
@@ -930,7 +962,7 @@ export function CleanHomeHero() {
                                             {/* Gradient Overlay for Legibility */}
                                             <div style={{ position: "absolute", inset: 0, background: pulse.post?.coverImage ? "linear-gradient(to top, rgba(15,20,30,0.95) 0%, rgba(15,20,30,0.4) 50%, rgba(15,20,30,0.1) 100%)" : "transparent" }} />
 
-                                            <div style={{ position: "absolute", top: "10px", right: "10px", background: "rgba(0,0,0,0.5)", backdropFilter: "blur(8px)", padding: "4px 8px", borderRadius: "20px", fontSize: "0.5rem", fontWeight: 700, color: "rgba(255,255,255,0.9)", letterSpacing: "0.05em", border: "1px solid rgba(255,255,255,0.1)" }}>NEWEST POST</div>
+                                            <div style={{ position: "absolute", top: "10px", right: "10px", background: "linear-gradient(135deg, rgba(167,139,250,0.5) 0%, rgba(147,51,234,0.4) 100%)", backdropFilter: "blur(8px)", padding: "4px 8px", borderRadius: "20px", fontSize: "0.5rem", fontWeight: 700, color: "rgba(255,255,255,0.95)", letterSpacing: "0.05em", border: "1px solid rgba(167,139,250,0.3)", boxShadow: "0 2px 8px rgba(147,51,234,0.2)" }}>NEWEST POST</div>
 
                                             <div style={{ position: "absolute", bottom: "12px", left: "12px", right: "12px", display: "flex", flexDirection: "column", gap: "4px" }}>
                                                 <div style={{ fontSize: "0.95rem", fontWeight: 800, color: "#fff", lineHeight: 1.2, letterSpacing: "-0.02em", display: "-webkit-box", WebkitLineClamp: 3, WebkitBoxOrient: "vertical", overflow: "hidden" }}>
@@ -1102,8 +1134,8 @@ export function CleanHomeHero() {
                                                     padding: "2px 0",
                                                     borderRadius: "6px",
                                                     color: isToday ? "white" : isHoliday ? "#ff6b6b" : (d ? "rgba(255,255,255,0.85)" : "transparent"),
-                                                    backgroundColor: isToday ? "var(--accent-red)" : "transparent",
-                                                    boxShadow: isToday ? "0 0 8px rgba(255,59,48,0.5)" : "none",
+                                                    background: isToday ? "linear-gradient(135deg, #ff3b30 0%, #ff6b4a 50%, #ff9500 100%)" : "transparent",
+                                                    boxShadow: isToday ? "0 0 10px rgba(255,59,48,0.5), 0 0 20px rgba(255,149,0,0.2)" : "none",
                                                     animation: isToday ? "today-pulse 2.5s ease-in-out infinite" : "none",
                                                     fontWeight: isToday ? 700 : isHoliday ? 600 : 400,
                                                     fontSize: "0.65rem",
