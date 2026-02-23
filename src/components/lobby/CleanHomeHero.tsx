@@ -87,6 +87,7 @@ export function CleanHomeHero() {
     const [curationReminder, setCurationReminder] = useState<any>(null);
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const [news, setNews] = useState<{ articles: any[] } | null>(null);
+    const [newsPage, setNewsPage] = useState(0);
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const [pulse, setPulse] = useState<{ post: any; book: any; article: any; wishlist: any } | null>(null);
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -249,11 +250,23 @@ export function CleanHomeHero() {
         return bigMatches.slice(start, start + 3);
     }, [bigMatches, matchPage]);
 
-    // Rolling news - deprecated in favor of manual scroll
+    // Auto-rolling news - 3 articles per page, changing every 15s
+    useEffect(() => {
+        if (!news?.articles || news.articles.length <= 3) return;
+        const id = setInterval(() => {
+            setNewsPage(prev => {
+                const totalPages = Math.ceil(news.articles.length / 3);
+                return (prev + 1) % totalPages;
+            });
+        }, 15000);
+        return () => clearInterval(id);
+    }, [news]);
+
     const visibleNews = useMemo(() => {
         if (!news?.articles) return [];
-        return news.articles; // Show all for scrolling
-    }, [news]);
+        const start = newsPage * 3;
+        return news.articles.slice(start, start + 3);
+    }, [news, newsPage]);
 
     const dayName = DAYS_FULL[now.getDay()];
     const timeStr = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
@@ -707,47 +720,46 @@ export function CleanHomeHero() {
                                 📰 Headlines
                             </div>
                             {news && news.articles.length > 0 ? (
-                                <div style={{ position: "relative", height: "260px", overflow: "hidden" }}>
-                                    <motion.div
-                                        initial={{ opacity: 0, y: 10 }}
-                                        animate={{ opacity: 1, y: 0 }}
-                                        style={{
-                                            display: "flex",
-                                            flexDirection: "column",
-                                            gap: "8px",
-                                            height: "100%",
-                                            overflowY: "auto",
-                                            paddingRight: "8px",
-                                            scrollbarWidth: "thin",
-                                            scrollbarColor: "rgba(255,255,255,0.2) transparent"
-                                        }}
-                                        className="custom-scrollbar"
-                                    >
-                                        {visibleNews.map((a: { url: string; title: string; source: string; timeAgo: string; excerpt: string }, i: number) => (
-                                            <a
-                                                key={`news-${i}`}
-                                                href={a.url}
-                                                target="_blank"
-                                                rel="noopener noreferrer"
-                                                style={{ textDecoration: "none", display: "flex", flexDirection: "column", gap: "2px", padding: "6px 8px", borderRadius: "8px", background: "rgba(255,255,255,0.06)", transition: "background 0.2s ease" }}
-                                                onMouseEnter={(e) => e.currentTarget.style.background = "rgba(255,255,255,0.12)"}
-                                                onMouseLeave={(e) => e.currentTarget.style.background = "rgba(255,255,255,0.06)"}
-                                            >
-                                                <div style={{ fontSize: "0.68rem", fontWeight: 700, color: "rgba(255,255,255,0.95)", lineHeight: 1.25, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical" as const, overflow: "hidden" }}>
-                                                    {a.title}
-                                                </div>
-                                                {a.excerpt && (
-                                                    <div style={{ fontSize: "0.55rem", color: "rgba(255,255,255,0.55)", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical" as const, overflow: "hidden", lineHeight: 1.35, marginBottom: "2px" }}>
-                                                        {a.excerpt}
+                                <div style={{ position: "relative", minHeight: "220px" }}>
+                                    <AnimatePresence mode="wait">
+                                        <motion.div
+                                            key={`newspage-${newsPage}`}
+                                            initial={{ opacity: 0, y: 10 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            exit={{ opacity: 0, y: -10 }}
+                                            transition={{ duration: 0.3 }}
+                                            style={{
+                                                display: "flex",
+                                                flexDirection: "column",
+                                                gap: "8px",
+                                            }}
+                                        >
+                                            {visibleNews.map((a: { url: string; title: string; source: string; timeAgo: string; excerpt: string }, i: number) => (
+                                                <a
+                                                    key={`news-${i}`}
+                                                    href={a.url}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    style={{ textDecoration: "none", display: "flex", flexDirection: "column", gap: "2px", padding: "6px 8px", borderRadius: "8px", background: "rgba(255,255,255,0.06)", transition: "background 0.2s ease" }}
+                                                    onMouseEnter={(e) => e.currentTarget.style.background = "rgba(255,255,255,0.12)"}
+                                                    onMouseLeave={(e) => e.currentTarget.style.background = "rgba(255,255,255,0.06)"}
+                                                >
+                                                    <div style={{ fontSize: "0.68rem", fontWeight: 700, color: "rgba(255,255,255,0.95)", lineHeight: 1.25, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical" as const, overflow: "hidden" }}>
+                                                        {a.title}
                                                     </div>
-                                                )}
-                                                <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.5rem", color: "rgba(255,255,255,0.4)", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.02em" }}>
-                                                    <span>{a.source}</span>
-                                                    <span>{a.timeAgo}</span>
-                                                </div>
-                                            </a>
-                                        ))}
-                                    </motion.div>
+                                                    {a.excerpt && (
+                                                        <div style={{ fontSize: "0.55rem", color: "rgba(255,255,255,0.55)", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical" as const, overflow: "hidden", lineHeight: 1.35, marginBottom: "2px" }}>
+                                                            {a.excerpt}
+                                                        </div>
+                                                    )}
+                                                    <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.5rem", color: "rgba(255,255,255,0.4)", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.02em" }}>
+                                                        <span>{a.source}</span>
+                                                        <span>{a.timeAgo}</span>
+                                                    </div>
+                                                </a>
+                                            ))}
+                                        </motion.div>
+                                    </AnimatePresence>
                                 </div>
                             ) : (
                                 <div style={{ fontSize: "0.72rem", color: "rgba(255,255,255,0.55)", textAlign: "center", padding: "1.5rem 0" }}>Loading news···</div>
