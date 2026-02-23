@@ -6,42 +6,45 @@ const prisma = new PrismaClient();
 export async function GET() {
     try {
         const [
-            bookCount,
             latestBook,
-            writingCount,
             latestWriting,
-            curationCount,
-            unreadCurationCount,
             latestCuration,
-            wishlistCount,
-            highPriorityWishlist,
+            latestWishlist,
         ] = await Promise.all([
-            prisma.book.count(),
-            prisma.book.findFirst({ orderBy: { createdAt: "desc" }, select: { title: true } }),
-            prisma.post.count({ where: { published: true } }),
-            prisma.post.findFirst({ where: { published: true }, orderBy: { createdAt: "desc" }, select: { title: true } }),
-            prisma.article.count(),
-            prisma.article.count({ where: { isRead: false } }),
-            prisma.article.findFirst({ orderBy: { createdAt: "desc" }, select: { title: true } }),
-            prisma.wishlistItem.count(),
-            prisma.wishlistItem.count({ where: { priority: "High" } }),
+            prisma.book.findFirst({
+                orderBy: { createdAt: "desc" },
+                select: { title: true, author: true, coverImage: true, rating: true }
+            }),
+            prisma.post.findFirst({
+                where: { published: true },
+                orderBy: { createdAt: "desc" },
+                select: { title: true, slug: true, coverImage: true }
+            }),
+            prisma.article.findFirst({
+                orderBy: { createdAt: "desc" },
+                select: { title: true, coverImage: true, isRead: true }
+            }),
+            prisma.wishlistItem.findFirst({
+                orderBy: { createdAt: "desc" },
+                select: { name: true, price: true, url: true, priority: true }
+            }),
         ]);
 
         return NextResponse.json({
-            books: { total: bookCount, latest: latestBook?.title || null },
-            writings: { total: writingCount, latest: latestWriting?.title || null },
-            curations: { total: curationCount, unread: unreadCurationCount, latest: latestCuration?.title || null },
-            wishlist: { total: wishlistCount, highPriority: highPriorityWishlist },
+            book: latestBook,
+            post: latestWriting,
+            article: latestCuration,
+            wishlist: latestWishlist,
         }, {
             headers: { "Cache-Control": "s-maxage=600, stale-while-revalidate=300" }
         });
     } catch (error) {
         console.error("Failed to fetch pulse data:", error);
         return NextResponse.json({
-            books: { total: 0, latest: null },
-            writings: { total: 0, latest: null },
-            curations: { total: 0, unread: 0, latest: null },
-            wishlist: { total: 0, highPriority: 0 },
+            book: null,
+            post: null,
+            article: null,
+            wishlist: null,
         });
     }
 }
