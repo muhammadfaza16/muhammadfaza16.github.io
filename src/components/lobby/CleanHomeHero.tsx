@@ -593,758 +593,778 @@ export function CleanHomeHero() {
                     zIndex: 2,
                 }} />
 
-                <AnimatePresence mode="wait" initial={false} custom={swipeDirection}>
-                    {WIDGETS[widgetIndex] === 'music' ? (
-                        <motion.div
-                            key="now-playing"
-                            custom={swipeDirection}
-                            variants={{
-                                initial: (d: number) => ({ opacity: 0, x: d * 60 }),
-                                animate: { opacity: 1, x: 0 },
-                                exit: (d: number) => ({ opacity: 0, x: d * -60 })
-                            }}
-                            initial="initial"
-                            animate="animate"
-                            exit="exit"
-                            transition={{ duration: 0.3, ease: [0.25, 0.46, 0.45, 0.94] }}
-                            style={{ position: "relative", zIndex: 1 }}
-                        >
-                            {/* Now Playing Header */}
-                            <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", marginBottom: "0.75rem" }}>
-                                {/* Rotating Disc */}
-                                <div style={{
-                                    width: "48px", height: "48px", borderRadius: "50%",
-                                    background: "linear-gradient(135deg, #FFD60A 0%, #FF9F0A 100%)",
-                                    display: "flex", alignItems: "center", justifyContent: "center",
-                                    flexShrink: 0,
-                                    boxShadow: isPlaying ? "0 0 20px rgba(255,214,10,0.35)" : "none",
-                                }}>
-                                    <motion.div
-                                        animate={{ rotate: isPlaying ? 360 : 0 }}
-                                        transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
-                                        style={{ display: "flex", alignItems: "center", justifyContent: "center" }}
-                                    >
-                                        <Disc size={22} color="rgba(0,0,0,0.6)" />
-                                    </motion.div>
-                                </div>
-
-                                {/* Song Info */}
-                                <div style={{ flex: 1, minWidth: 0 }}>
-                                    <div style={{
-                                        fontSize: "0.9rem", fontWeight: 700,
-                                        color: "rgba(255,255,255,0.95)",
-                                        whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
-                                        marginBottom: "2px",
-                                    }}>{song}</div>
-                                    <div style={{
-                                        fontSize: "0.75rem", fontWeight: 500,
-                                        color: "rgba(255,255,255,0.55)",
-                                        whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
-                                        display: "flex", alignItems: "center", gap: "6px",
-                                    }}>
-                                        {artist}
-                                        {isPlaying && (
-                                            <span style={{ display: "flex", alignItems: "flex-end", gap: "1.5px", height: "12px" }}>
-                                                {[0, 1, 2].map(b => (
-                                                    <motion.span
-                                                        key={b}
-                                                        style={{ width: "2px", borderRadius: "1px", background: "#FFD60A" }}
-                                                        animate={{ height: ["3px", `${8 + b * 3}px`, "4px", `${10 - b * 2}px`, "3px"] }}
-                                                        transition={{ duration: 0.8 + b * 0.15, repeat: Infinity, ease: "easeInOut", delay: b * 0.12 }}
-                                                    />
-                                                ))}
-                                            </span>
-                                        )}
-                                    </div>
-                                </div>
-
-                                {/* Controls */}
-                                <div style={{ display: "flex", alignItems: "center", gap: "2px", flexShrink: 0 }}>
-                                    <div onClick={prevSong} style={{ padding: "6px", cursor: "pointer", display: "flex" }}>
-                                        <SkipBack size={15} fill="rgba(255,255,255,0.95)" color="rgba(255,255,255,0.95)" />
-                                    </div>
-                                    <div onClick={togglePlay} style={{
-                                        width: "34px", height: "34px", borderRadius: "50%",
-                                        background: "rgba(0,0,0,0.08)",
-                                        display: "flex", alignItems: "center", justifyContent: "center",
-                                        cursor: "pointer",
-                                    }}>
-                                        {isPlaying
-                                            ? <Pause size={15} fill="rgba(255,255,255,0.95)" color="rgba(255,255,255,0.95)" />
-                                            : <Play size={15} fill="rgba(255,255,255,0.95)" color="rgba(255,255,255,0.95)" style={{ marginLeft: "2px" }} />
-                                        }
-                                    </div>
-                                    <div onClick={() => nextSong()} style={{ padding: "6px", cursor: "pointer", display: "flex" }}>
-                                        <SkipForward size={15} fill="rgba(255,255,255,0.95)" color="rgba(255,255,255,0.95)" />
-                                    </div>
-                                </div>
-                            </div>
-
-                            {/* Progress Bar */}
-                            <div style={{
-                                width: "100%", height: "3px", borderRadius: "2px",
-                                background: "rgba(0,0,0,0.08)", marginBottom: "0.65rem",
-                                overflow: "hidden",
-                            }}>
-                                <div style={{
-                                    width: duration > 0 ? `${(currentTime / duration) * 100}%` : "0%",
-                                    height: "100%", borderRadius: "2px",
-                                    background: "linear-gradient(90deg, #FFD60A, #FF9F0A)",
-                                    transition: "width 0.3s linear",
-                                }} />
-                            </div>
-
-                            {/* Lyrics Area */}
-                            <div
-                                ref={lyricsContainerRef}
-                                style={{
-                                    maxHeight: "120px",
-                                    overflowY: "auto",
-                                    scrollbarWidth: "none",
-                                    WebkitMaskImage: "linear-gradient(transparent 0%, black 15%, black 85%, transparent 100%)",
-                                    maskImage: "linear-gradient(transparent 0%, black 15%, black 85%, transparent 100%)",
+                <motion.div layout transition={{ layout: { duration: 0.4, ease: [0.25, 0.46, 0.45, 0.94] } }} style={{ minHeight: "280px", position: "relative" }}>
+                    <AnimatePresence mode="wait" initial={false} custom={swipeDirection}>
+                        {WIDGETS[widgetIndex] === 'music' ? (
+                            <motion.div
+                                key="now-playing"
+                                custom={swipeDirection}
+                                variants={{
+                                    initial: (d: number) => ({ opacity: 0, x: d * 60 }),
+                                    animate: { opacity: 1, x: 0 },
+                                    exit: (d: number) => ({ opacity: 0, x: d * -60 })
                                 }}
+                                initial="initial"
+                                animate="animate"
+                                exit="exit"
+                                transition={{ duration: 0.3, ease: [0.25, 0.46, 0.45, 0.94] }}
+                                style={{ position: "relative", zIndex: 1 }}
                             >
-                                {lyrics && lyrics.length > 0 ? (
-                                    lyrics.map((line, i) => (
-                                        <div key={i} style={{
-                                            padding: "3px 0",
-                                            fontSize: i === activeLyricIndex ? "0.82rem" : "0.72rem",
-                                            fontWeight: i === activeLyricIndex ? 700 : 400,
-                                            color: i === activeLyricIndex
-                                                ? "rgba(255,255,255,0.95)"
-                                                : "rgba(255,255,255,0.55)",
-                                            opacity: i === activeLyricIndex ? 1 : 0.5,
-                                            transition: "all 0.3s ease",
-                                            textAlign: "center",
-                                            lineHeight: 1.5,
-                                        }}>
-                                            {line.text || "♪"}
-                                        </div>
-                                    ))
-                                ) : (
+                                {/* Now Playing Header */}
+                                <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", marginBottom: "0.75rem" }}>
+                                    {/* Rotating Disc */}
                                     <div style={{
-                                        textAlign: "center", padding: "1.5rem 0",
-                                        fontSize: "0.78rem", color: "rgba(255,255,255,0.55)",
-                                        fontStyle: "italic",
-                                    }}>♪ No lyrics available ♪</div>
-                                )}
-                            </div>
-                        </motion.div>
-                    ) : WIDGETS[widgetIndex] === 'news' ? (
-                        <motion.div
-                            key="news"
-                            custom={swipeDirection}
-                            variants={{
-                                initial: (d: number) => ({ opacity: 0, x: d * 60 }),
-                                animate: { opacity: 1, x: 0 },
-                                exit: (d: number) => ({ opacity: 0, x: d * -60 })
-                            }}
-                            initial="initial"
-                            animate="animate"
-                            exit="exit"
-                            transition={{ duration: 0.3, ease: [0.25, 0.46, 0.45, 0.94] }}
-                            style={{ position: "relative", zIndex: 1 }}
-                        >
-                            <div style={{ display: "flex", alignItems: "center", gap: "0.3rem", fontSize: "0.7rem", fontWeight: 700, color: "rgba(255,255,255,0.95)", marginBottom: "0.5rem", textTransform: "uppercase" as const, letterSpacing: "0.03em" }}>
-                                📰 Headlines
-                            </div>
-                            {news && news.articles.length > 0 ? (
-                                <div style={{ position: "relative", minHeight: "220px" }}>
-                                    <AnimatePresence mode="wait">
-                                        <motion.div
-                                            key={`newspage-${newsPage}`}
-                                            initial={{ opacity: 0, y: 10 }}
-                                            animate={{ opacity: 1, y: 0 }}
-                                            exit={{ opacity: 0, y: -10 }}
-                                            transition={{ duration: 0.3 }}
-                                            style={{
-                                                display: "flex",
-                                                flexDirection: "column",
-                                                gap: "8px",
-                                            }}
-                                        >
-                                            {visibleNews.map((a: { url: string; title: string; source: string; timeAgo: string; excerpt: string }, i: number) => (
-                                                <a
-                                                    key={`news-${i}`}
-                                                    href={a.url}
-                                                    target="_blank"
-                                                    rel="noopener noreferrer"
-                                                    style={{ textDecoration: "none", display: "flex", flexDirection: "column", gap: "2px", padding: "6px 8px", borderRadius: "8px", background: "rgba(255,255,255,0.06)", transition: "background 0.2s ease" }}
-                                                    onMouseEnter={(e) => e.currentTarget.style.background = "rgba(255,255,255,0.12)"}
-                                                    onMouseLeave={(e) => e.currentTarget.style.background = "rgba(255,255,255,0.06)"}
-                                                >
-                                                    <div style={{ fontSize: "0.68rem", fontWeight: 700, color: "rgba(255,255,255,0.95)", lineHeight: 1.25, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical" as const, overflow: "hidden" }}>
-                                                        {a.title}
-                                                    </div>
-                                                    {a.excerpt && (
-                                                        <div style={{ fontSize: "0.55rem", color: "rgba(255,255,255,0.55)", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical" as const, overflow: "hidden", lineHeight: 1.35, marginBottom: "2px" }}>
-                                                            {a.excerpt}
-                                                        </div>
-                                                    )}
-                                                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: "0.5rem", color: "rgba(255,255,255,0.4)", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.02em" }}>
-                                                        <span>{a.source}</span>
-                                                        <span style={{ display: "flex", alignItems: "center", gap: "4px" }}>
-                                                            <span style={{
-                                                                width: "5px", height: "5px", borderRadius: "50%", display: "inline-block",
-                                                                background: a.timeAgo?.includes("Startup") ? "#a78bfa" :
-                                                                    a.timeAgo?.includes("Deep Dive") ? "#fb923c" :
-                                                                        a.timeAgo?.includes("Frontend") ? "#60a5fa" :
-                                                                            a.timeAgo?.includes("Mental") ? "#34d399" :
-                                                                                a.timeAgo?.includes("Engineering") ? "#f472b6" :
-                                                                                    "#94a3b8"
-                                                            }} />
-                                                            {a.timeAgo}
-                                                        </span>
-                                                    </div>
-                                                </a>
-                                            ))}
-                                        </motion.div>
-                                    </AnimatePresence>
-                                </div>
-                            ) : (
-                                <div style={{ fontSize: "0.72rem", color: "rgba(255,255,255,0.55)", textAlign: "center", padding: "1.5rem 0" }}>Loading news···</div>
-                            )}
-                        </motion.div>
-                    ) : WIDGETS[widgetIndex] === 'crypto' ? (
-                        <motion.div
-                            key="crypto"
-                            custom={swipeDirection}
-                            variants={{
-                                initial: (d: number) => ({ opacity: 0, x: d * 60 }),
-                                animate: { opacity: 1, x: 0 },
-                                exit: (d: number) => ({ opacity: 0, x: d * -60 })
-                            }}
-                            initial="initial"
-                            animate="animate"
-                            exit="exit"
-                            transition={{ duration: 0.3, ease: [0.25, 0.46, 0.45, 0.94] }}
-                            style={{ position: "relative", zIndex: 1 }}
-                        >
-                            <div style={{ display: "flex", alignItems: "center", gap: "0.3rem", fontSize: "0.7rem", fontWeight: 700, color: "rgba(255,255,255,0.95)", marginBottom: "0.5rem", textTransform: "uppercase" as const, letterSpacing: "0.03em" }}>
-                                📊 Markets
-                            </div>
-                            {cryptoData && cryptoData.crypto.length > 0 ? (
-                                <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-
-                                    {/* Macro Dashboard */}
-                                    <div style={{ display: "flex", justifyContent: "space-between", padding: "8px", borderRadius: "10px", background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.05)", marginBottom: "2px" }}>
-                                        <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-                                            <div style={{ fontSize: "0.5rem", color: "rgba(255,255,255,0.5)", textTransform: "uppercase", letterSpacing: "0.05em", fontWeight: 600 }}>Forex / USD</div>
-                                            <div style={{ fontSize: "0.7rem", fontWeight: 700, color: "rgba(255,255,255,0.9)", fontVariantNumeric: "tabular-nums" }}>
-                                                Rp {(cryptoData.forex.IDR || 0).toLocaleString('id-ID')}
-                                                <span style={{ fontSize: "0.5rem", color: "rgba(255,255,255,0.4)", marginLeft: "4px", fontWeight: 500 }}>IDR</span>
-                                            </div>
-                                            <div style={{ fontSize: "0.7rem", fontWeight: 700, color: "rgba(255,255,255,0.9)", fontVariantNumeric: "tabular-nums" }}>
-                                                € {(cryptoData.forex.EUR || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                                                <span style={{ fontSize: "0.5rem", color: "rgba(255,255,255,0.4)", marginLeft: "4px", fontWeight: 500 }}>EUR</span>
-                                            </div>
-                                        </div>
-
-                                        <div style={{ width: "1px", background: "linear-gradient(180deg, transparent 0%, rgba(147,197,253,0.4) 30%, rgba(167,139,250,0.4) 70%, transparent 100%)", margin: "0 4px" }} />
-
-                                        <div style={{ display: "flex", flexDirection: "column", gap: "4px", textAlign: "right" }}>
-                                            <div style={{ fontSize: "0.5rem", color: "rgba(255,255,255,0.5)", textTransform: "uppercase", letterSpacing: "0.05em", fontWeight: 600 }}>Crypto Macro</div>
-                                            <div style={{ fontSize: "0.7rem", fontWeight: 700, color: "rgba(255,255,255,0.9)", fontVariantNumeric: "tabular-nums" }}>
-                                                ${((cryptoData.global.totalMarketCap || 0) / 1e12).toFixed(2)}T
-                                                <span style={{ fontSize: "0.5rem", color: "rgba(255,255,255,0.4)", marginLeft: "4px", fontWeight: 500 }}>Global Cap</span>
-                                            </div>
-                                            <div style={{ fontSize: "0.7rem", fontWeight: 700, color: "rgba(255,255,255,0.9)", fontVariantNumeric: "tabular-nums" }}>
-                                                {(cryptoData.global.btcDominance || 0).toFixed(1)}%
-                                                <span style={{ fontSize: "0.5rem", color: "rgba(255,255,255,0.4)", marginLeft: "4px", fontWeight: 500 }}>BTC Dom</span>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    {/* Top Assets */}
-                                    {cryptoData.crypto.map((c: { id: string; symbol: string; name: string; emoji: string; usd: number; change24h: number; vol24h: number; marketCap: number; sparkline?: number[] }) => {
-                                        // Generate sparkline SVG path
-                                        const spark = c.sparkline || [];
-                                        let sparkPath = "";
-                                        if (spark.length > 1) {
-                                            const min = Math.min(...spark);
-                                            const max = Math.max(...spark);
-                                            const range = max - min || 1;
-                                            sparkPath = spark.map((v, idx) => {
-                                                const x = (idx / (spark.length - 1)) * 100;
-                                                const y = 100 - ((v - min) / range) * 100;
-                                                return `${idx === 0 ? "M" : "L"}${x},${y}`;
-                                            }).join(" ");
-                                        }
-                                        return (
-                                            <div
-                                                key={c.id}
-                                                onMouseEnter={() => setHoveredCoin(c.id)}
-                                                onMouseLeave={() => setHoveredCoin(null)}
-                                                style={{ display: "flex", flexDirection: "column", padding: "6px 8px", borderRadius: "10px", background: hoveredCoin === c.id ? "rgba(255,255,255,0.12)" : "rgba(255,255,255,0.06)", cursor: "default", transition: "background 0.2s ease", position: "relative", overflow: "hidden" }}
-                                            >
-                                                {/* Sparkline Background */}
-                                                {sparkPath && (
-                                                    <svg viewBox="0 0 100 100" preserveAspectRatio="none" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", opacity: 0.12, pointerEvents: "none" }}>
-                                                        <path d={sparkPath} fill="none" stroke={c.change24h >= 0 ? "#4ade80" : "#f87171"} strokeWidth="2" vectorEffect="non-scaling-stroke" />
-                                                    </svg>
-                                                )}
-                                                <div style={{ display: "flex", alignItems: "center", justifyItems: "center", justifyContent: "space-between", position: "relative", zIndex: 1 }}>
-                                                    <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                                                        <span style={{ fontSize: "1.1rem" }}>{c.emoji}</span>
-                                                        <div>
-                                                            <div style={{ fontSize: "0.72rem", fontWeight: 700, color: "rgba(255,255,255,0.95)" }}>{c.symbol}</div>
-                                                            <div style={{ fontSize: "0.52rem", color: "rgba(255,255,255,0.45)" }}>{c.name}</div>
-                                                        </div>
-                                                    </div>
-                                                    <div style={{ textAlign: "right" as const }}>
-                                                        <div style={{ fontSize: "0.75rem", fontWeight: 700, color: "rgba(255,255,255,0.95)", fontVariantNumeric: "tabular-nums" }}>
-                                                            ${c.usd >= 1000 ? c.usd.toLocaleString('en-US', { maximumFractionDigits: 0 }) : c.usd.toFixed(2)}
-                                                        </div>
-                                                        <div style={{ fontSize: "0.55rem", fontWeight: 600, color: c.change24h >= 0 ? "#4ade80" : "#f87171" }}>
-                                                            {c.change24h >= 0 ? "▲" : "▼"} {Math.abs(c.change24h).toFixed(1)}%
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <AnimatePresence>
-                                                    {hoveredCoin === c.id && (
-                                                        <motion.div
-                                                            initial={{ height: 0, opacity: 0, marginTop: 0 }}
-                                                            animate={{ height: "auto", opacity: 1, marginTop: "4px" }}
-                                                            exit={{ height: 0, opacity: 0, marginTop: 0 }}
-                                                            transition={{ duration: 0.2 }}
-                                                            style={{ overflow: "hidden", display: "flex", justifyContent: "space-between", fontSize: "0.55rem", color: "rgba(255,255,255,0.55)", borderTop: "1px solid rgba(255,255,255,0.1)", paddingTop: "4px" }}
-                                                        >
-                                                            <span>Vol: ${(c.vol24h / 1e9).toFixed(1)}B</span>
-                                                            <span>Cap: ${(c.marketCap / 1e9).toFixed(1)}B</span>
-                                                        </motion.div>
-                                                    )}
-                                                </AnimatePresence>
-                                            </div>
-                                        )
-                                    })}
-                                </div>
-                            ) : (
-                                <div style={{ fontSize: "0.72rem", color: "rgba(255,255,255,0.55)", textAlign: "center", padding: "1.5rem 0" }}>Loading markets···</div>
-                            )}
-                        </motion.div>
-                    ) : WIDGETS[widgetIndex] === 'pulse' ? (
-                        <motion.div
-                            key="pulse"
-                            custom={swipeDirection}
-                            variants={{
-                                initial: (d: number) => ({ opacity: 0, x: d * 60 }),
-                                animate: { opacity: 1, x: 0 },
-                                exit: (d: number) => ({ opacity: 0, x: d * -60 })
-                            }}
-                            initial="initial"
-                            animate="animate"
-                            exit="exit"
-                            transition={{ duration: 0.3, ease: [0.25, 0.46, 0.45, 0.94] }}
-                            style={{ position: "relative", zIndex: 1 }}
-                        >
-                            <div style={{ display: "flex", alignItems: "center", gap: "0.3rem", fontSize: "0.7rem", fontWeight: 700, color: "rgba(255,255,255,0.95)", marginBottom: "0.5rem", textTransform: "uppercase" as const, letterSpacing: "0.03em" }}>
-                                📋 Pulse
-                            </div>
-                            {pulse ? (
-                                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px", height: "180px" }}>
-                                    {/* Left Panel: Latest Post (Full Height, Cover Background) */}
-                                    <Link href={pulse.post?.slug ? `/blog/${pulse.post.slug}` : "/blog"} style={{ textDecoration: "none", display: "block", height: "100%" }}>
-                                        <div style={{
-                                            position: "relative",
-                                            height: "100%",
-                                            borderRadius: "14px",
-                                            background: pulse.post?.coverImage ? `url(${pulse.post.coverImage}) center/cover no-repeat` : "linear-gradient(145deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.02) 100%)",
-                                            border: "1px solid rgba(255,255,255,0.08)",
-                                            boxShadow: "inset 0 1px 0 rgba(255,255,255,0.1), 0 4px 12px rgba(0,0,0,0.15)",
-                                            transition: "all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)",
-                                            cursor: "pointer",
-                                            overflow: "hidden"
-                                        }}
-                                            onMouseEnter={(e) => { e.currentTarget.style.transform = "translateY(-2px)"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.2)"; e.currentTarget.style.boxShadow = "inset 0 1px 0 rgba(255,255,255,0.2), 0 8px 16px rgba(0,0,0,0.3)"; }}
-                                            onMouseLeave={(e) => { e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.08)"; e.currentTarget.style.boxShadow = "inset 0 1px 0 rgba(255,255,255,0.1), 0 4px 12px rgba(0,0,0,0.15)"; }}
-                                        >
-                                            {/* Gradient Overlay for Legibility */}
-                                            <div style={{ position: "absolute", inset: 0, background: pulse.post?.coverImage ? "linear-gradient(to top, rgba(15,20,30,0.95) 0%, rgba(15,20,30,0.4) 50%, rgba(15,20,30,0.1) 100%)" : "transparent" }} />
-
-                                            <div style={{ position: "absolute", top: "10px", right: "10px", background: "linear-gradient(135deg, rgba(167,139,250,0.5) 0%, rgba(147,51,234,0.4) 100%)", backdropFilter: "blur(8px)", padding: "4px 8px", borderRadius: "20px", fontSize: "0.5rem", fontWeight: 700, color: "rgba(255,255,255,0.95)", letterSpacing: "0.05em", border: "1px solid rgba(167,139,250,0.3)", boxShadow: "0 2px 8px rgba(147,51,234,0.2)" }}>NEWEST POST</div>
-
-                                            <div style={{ position: "absolute", bottom: "12px", left: "12px", right: "12px", display: "flex", flexDirection: "column", gap: "4px" }}>
-                                                <div style={{ fontSize: "0.95rem", fontWeight: 800, color: "#fff", lineHeight: 1.2, letterSpacing: "-0.02em", display: "-webkit-box", WebkitLineClamp: 3, WebkitBoxOrient: "vertical", overflow: "hidden" }}>
-                                                    {pulse.post?.title || "No posts yet"}
-                                                </div>
-                                                <div style={{ fontSize: "0.55rem", color: "rgba(255,255,255,0.6)", fontWeight: 500 }}>Read Article →</div>
-                                            </div>
-                                        </div>
-                                    </Link>
-
-                                    {/* Right Panel: Split into Two Rows */}
-                                    <div style={{ display: "grid", gridTemplateRows: "1fr 1fr", gap: "8px", height: "100%" }}>
-
-                                        {/* Top Right: Latest Book */}
-                                        <Link href="/bookshelf" style={{ textDecoration: "none" }}>
-                                            <div style={{
-                                                position: "relative", height: "100%", padding: "10px", borderRadius: "14px",
-                                                background: "linear-gradient(145deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.01) 100%)",
-                                                border: "1px solid rgba(255,255,255,0.06)", boxShadow: "inset 0 1px 0 rgba(255,255,255,0.05)",
-                                                transition: "all 0.3s ease", cursor: "pointer", display: "flex", alignItems: "center", gap: "10px"
-                                            }}
-                                                onMouseEnter={(e) => { e.currentTarget.style.background = "linear-gradient(145deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.02) 100%)"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.12)"; }}
-                                                onMouseLeave={(e) => { e.currentTarget.style.background = "linear-gradient(145deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.01) 100%)"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.06)"; }}
-                                            >
-                                                {pulse.book?.coverImage ? (
-                                                    <img src={pulse.book.coverImage} alt="Cover" style={{ width: "45px", height: "65px", borderRadius: "6px", objectFit: "cover", boxShadow: "0 2px 8px rgba(0,0,0,0.3)", flexShrink: 0 }} />
-                                                ) : (
-                                                    <div style={{ width: "45px", height: "65px", borderRadius: "6px", background: "rgba(255,255,255,0.1)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "1.2rem", flexShrink: 0 }}>📘</div>
-                                                )}
-                                                <div style={{ display: "flex", flexDirection: "column", gap: "2px", overflow: "hidden" }}>
-                                                    <div style={{ fontSize: "0.5rem", color: "rgba(255,255,255,0.5)", fontWeight: 700, letterSpacing: "0.05em", textTransform: "uppercase" }}>CURRENT READ</div>
-                                                    <div style={{ fontSize: "0.75rem", fontWeight: 800, color: "rgba(255,255,255,0.95)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", lineHeight: 1.2 }}>{pulse.book?.title || "No logs"}</div>
-                                                    <div style={{ fontSize: "0.55rem", color: "rgba(255,255,255,0.5)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{pulse.book?.author || "—"}</div>
-                                                    {pulse.book?.rating > 0 && (
-                                                        <div style={{ fontSize: "0.5rem", color: "#fbbf24", marginTop: "2px" }}>{"★".repeat(pulse.book.rating)}{"☆".repeat(5 - pulse.book.rating)}</div>
-                                                    )}
-                                                </div>
-                                            </div>
-                                        </Link>
-
-                                        {/* Bottom Right: Latest Curation */}
-                                        <Link href="/curation" style={{ textDecoration: "none" }}>
-                                            <div style={{
-                                                position: "relative", height: "100%", padding: "10px", borderRadius: "14px",
-                                                background: "linear-gradient(145deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.01) 100%)",
-                                                border: "1px solid rgba(255,255,255,0.06)", boxShadow: "inset 0 1px 0 rgba(255,255,255,0.05)",
-                                                transition: "all 0.3s ease", cursor: "pointer", display: "flex", flexDirection: "column", justifyContent: "center", overflow: "hidden"
-                                            }}
-                                                onMouseEnter={(e) => { e.currentTarget.style.background = "linear-gradient(145deg, rgba(52, 211, 153, 0.1) 0%, rgba(255,255,255,0.02) 100%)"; e.currentTarget.style.borderColor = "rgba(52, 211, 153, 0.3)"; }}
-                                                onMouseLeave={(e) => { e.currentTarget.style.background = "linear-gradient(145deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.01) 100%)"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.06)"; }}
-                                            >
-                                                <div style={{ position: "absolute", bottom: "-10px", right: "-10px", width: "40px", height: "40px", background: "rgba(52, 211, 153, 0.2)", filter: "blur(15px)", borderRadius: "50%" }} />
-                                                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "4px", position: "relative", zIndex: 1 }}>
-                                                    <div style={{ fontSize: "0.5rem", color: "rgba(255,255,255,0.5)", fontWeight: 700, letterSpacing: "0.05em", textTransform: "uppercase" }}>SAVED ARTICLE</div>
-                                                    {pulse.article?.isRead === false && (
-                                                        <div style={{ fontSize: "0.45rem", fontWeight: 800, color: "#ef4444", background: "rgba(239, 68, 68, 0.15)", padding: "2px 5px", borderRadius: "4px", border: "1px solid rgba(239, 68, 68, 0.2)" }}>UNREAD</div>
-                                                    )}
-                                                </div>
-                                                <div style={{ fontSize: "0.75rem", fontWeight: 700, color: "rgba(255,255,255,0.9)", lineHeight: 1.3, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden", position: "relative", zIndex: 1 }}>
-                                                    {pulse.article?.title ? `"${pulse.article.title}"` : "No saves yet"}
-                                                </div>
-                                            </div>
-                                        </Link>
-
-                                    </div>
-                                </div>
-                            ) : (
-                                <div style={{ fontSize: "0.72rem", color: "rgba(255,255,255,0.55)", textAlign: "center", padding: "1.5rem 0" }}>Loading pulse···</div>
-                            )}
-                        </motion.div>
-                    ) : (
-                        <motion.div
-                            key="calendar-stats"
-                            custom={swipeDirection}
-                            variants={{
-                                initial: (d: number) => ({ opacity: 0, x: d * 60 }),
-                                animate: { opacity: 1, x: 0 },
-                                exit: (d: number) => ({ opacity: 0, x: d * -60 })
-                            }}
-                            initial="initial"
-                            animate="animate"
-                            exit="exit"
-                            transition={{ duration: 0.3, ease: [0.25, 0.46, 0.45, 0.94] }}
-                            style={{
-                                display: "grid",
-                                gridTemplateColumns: "auto 1fr",
-                                gap: "1rem",
-                                alignItems: "start",
-                                position: "relative",
-                                zIndex: 1,
-                            }}
-                        >
-                            {/* ── Calendar Card (inset within glass) ── */}
-                            <div style={{
-                                display: "flex",
-                                flexDirection: "column",
-                                background: "rgba(0, 0, 0, 0.12)",
-                                borderRadius: "18px",
-                                padding: "0.9rem 0.85rem",
-                                boxShadow: "inset 0 2px 6px rgba(0,0,0,0.08), 0 1px 0 rgba(255,255,255,0.06)",
-                                border: "1px solid rgba(255,255,255,0.08)",
-                                width: "170px",
-                            }}>
-                                {/* Month header */}
-                                <div
-                                    title={prayer?.hijriDate || undefined}
-                                    style={{
-                                        display: "flex",
-                                        alignItems: "center",
-                                        gap: "0.35rem",
-                                        fontSize: "0.82rem",
-                                        fontWeight: 600,
-                                        color: "rgba(255,255,255,0.85)",
-                                        marginBottom: "0.5rem",
-                                        cursor: prayer?.hijriDate ? "help" : "default"
+                                        width: "48px", height: "48px", borderRadius: "50%",
+                                        background: "linear-gradient(135deg, #FFD60A 0%, #FF9F0A 100%)",
+                                        display: "flex", alignItems: "center", justifyContent: "center",
+                                        flexShrink: 0,
+                                        boxShadow: isPlaying ? "0 0 20px rgba(255,214,10,0.35)" : "none",
                                     }}>
-                                    <CalIcon size={13} strokeWidth={2} />
-                                    {MONTHS_FULL[now.getMonth()]}
+                                        <motion.div
+                                            animate={{ rotate: isPlaying ? 360 : 0 }}
+                                            transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
+                                            style={{ display: "flex", alignItems: "center", justifyContent: "center" }}
+                                        >
+                                            <Disc size={22} color="rgba(0,0,0,0.6)" />
+                                        </motion.div>
+                                    </div>
+
+                                    {/* Song Info */}
+                                    <div style={{ flex: 1, minWidth: 0 }}>
+                                        <div style={{
+                                            fontSize: "0.9rem", fontWeight: 700,
+                                            color: "rgba(255,255,255,0.95)",
+                                            whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
+                                            marginBottom: "2px",
+                                        }}>{song}</div>
+                                        <div style={{
+                                            fontSize: "0.75rem", fontWeight: 500,
+                                            color: "rgba(255,255,255,0.55)",
+                                            whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
+                                            display: "flex", alignItems: "center", gap: "6px",
+                                        }}>
+                                            {artist}
+                                            {isPlaying && (
+                                                <span style={{ display: "flex", alignItems: "flex-end", gap: "1.5px", height: "12px" }}>
+                                                    {[0, 1, 2].map(b => (
+                                                        <motion.span
+                                                            key={b}
+                                                            style={{ width: "2px", borderRadius: "1px", background: "#FFD60A" }}
+                                                            animate={{ height: ["3px", `${8 + b * 3}px`, "4px", `${10 - b * 2}px`, "3px"] }}
+                                                            transition={{ duration: 0.8 + b * 0.15, repeat: Infinity, ease: "easeInOut", delay: b * 0.12 }}
+                                                        />
+                                                    ))}
+                                                </span>
+                                            )}
+                                        </div>
+                                    </div>
+
+                                    {/* Controls */}
+                                    <div style={{ display: "flex", alignItems: "center", gap: "2px", flexShrink: 0 }}>
+                                        <div onClick={prevSong} style={{ padding: "6px", cursor: "pointer", display: "flex" }}>
+                                            <SkipBack size={15} fill="rgba(255,255,255,0.95)" color="rgba(255,255,255,0.95)" />
+                                        </div>
+                                        <div onClick={togglePlay} style={{
+                                            width: "34px", height: "34px", borderRadius: "50%",
+                                            background: "rgba(0,0,0,0.08)",
+                                            display: "flex", alignItems: "center", justifyContent: "center",
+                                            cursor: "pointer",
+                                        }}>
+                                            {isPlaying
+                                                ? <Pause size={15} fill="rgba(255,255,255,0.95)" color="rgba(255,255,255,0.95)" />
+                                                : <Play size={15} fill="rgba(255,255,255,0.95)" color="rgba(255,255,255,0.95)" style={{ marginLeft: "2px" }} />
+                                            }
+                                        </div>
+                                        <div onClick={() => nextSong()} style={{ padding: "6px", cursor: "pointer", display: "flex" }}>
+                                            <SkipForward size={15} fill="rgba(255,255,255,0.95)" color="rgba(255,255,255,0.95)" />
+                                        </div>
+                                    </div>
                                 </div>
 
-                                {/* Weekday Headers */}
+                                {/* Progress Bar */}
                                 <div style={{
-                                    display: "grid",
-                                    gridTemplateColumns: "repeat(7, 1fr)",
-                                    textAlign: "center",
-                                    fontSize: "0.55rem",
-                                    fontWeight: 600,
-                                    color: "rgba(255,255,255,0.4)",
-                                    marginBottom: "3px",
-                                    letterSpacing: "0.02em",
+                                    width: "100%", height: "3px", borderRadius: "2px",
+                                    background: "rgba(0,0,0,0.08)", marginBottom: "0.65rem",
+                                    overflow: "hidden",
                                 }}>
-                                    {["S", "M", "T", "W", "T", "F", "S"].map((d, i) => (
-                                        <div key={i}>{d}</div>
-                                    ))}
+                                    <div style={{
+                                        width: duration > 0 ? `${(currentTime / duration) * 100}%` : "0%",
+                                        height: "100%", borderRadius: "2px",
+                                        background: "linear-gradient(90deg, #FFD60A, #FF9F0A)",
+                                        transition: "width 0.3s linear",
+                                    }} />
                                 </div>
 
-                                {/* Calendar Grid */}
-                                <div style={{
-                                    display: "grid",
-                                    gridTemplateColumns: "repeat(7, 1fr)",
-                                    gap: "1px",
-                                    fontSize: "0.68rem",
-                                    fontWeight: 500,
-                                    color: "rgba(255,255,255,0.8)",
-                                    textAlign: "center",
-                                }}>
-                                    {calendarGrid.map((d, i) => {
-                                        const isToday = d === now.getDate();
-                                        const isHoliday = d ? holidayMap.has(d) : false;
-                                        const isGithubDay = d ? githubPushDays.has(d) : false;
-                                        const hasDots = isHoliday || isGithubDay;
-                                        const holidayName = d ? holidayMap.get(d) : undefined;
-
-                                        // Build tooltip text
-                                        const tooltipParts: string[] = [];
-                                        if (holidayName) tooltipParts.push(`🔴 ${holidayName}`);
-                                        if (isGithubDay) tooltipParts.push('🟢 GitHub push');
-                                        const tooltipText = tooltipParts.join(' · ');
-
-                                        return (
-                                            <div
-                                                key={i}
-                                                onClick={() => d && hasDots ? setTooltipInfo(tooltipInfo?.day === d ? null : { day: d, text: tooltipText }) : setTooltipInfo(null)}
+                                {/* Lyrics Area */}
+                                <div
+                                    ref={lyricsContainerRef}
+                                    style={{
+                                        height: "120px",
+                                        overflowY: "auto",
+                                        scrollbarWidth: "none",
+                                        WebkitMaskImage: "linear-gradient(transparent 0%, black 15%, black 85%, transparent 100%)",
+                                        maskImage: "linear-gradient(transparent 0%, black 15%, black 85%, transparent 100%)",
+                                    }}
+                                >
+                                    {lyrics && lyrics.length > 0 ? (
+                                        lyrics.map((line, i) => (
+                                            <div key={i} style={{
+                                                padding: "3px 0",
+                                                minHeight: "1.6em",
+                                                fontSize: "0.75rem",
+                                                fontWeight: i === activeLyricIndex ? 700 : 400,
+                                                color: i === activeLyricIndex
+                                                    ? "rgba(255,255,255,0.95)"
+                                                    : "rgba(255,255,255,0.55)",
+                                                opacity: i === activeLyricIndex ? 1 : 0.5,
+                                                transform: i === activeLyricIndex ? "scale(1.08)" : "scale(1)",
+                                                transition: "all 0.3s ease",
+                                                textAlign: "center",
+                                                lineHeight: 1.5,
+                                            }}>
+                                                {line.text || "♪"}
+                                            </div>
+                                        ))
+                                    ) : (
+                                        <div style={{
+                                            textAlign: "center", padding: "1.5rem 0",
+                                            fontSize: "0.78rem", color: "rgba(255,255,255,0.55)",
+                                            fontStyle: "italic",
+                                        }}>♪ No lyrics available ♪</div>
+                                    )}
+                                </div>
+                            </motion.div>
+                        ) : WIDGETS[widgetIndex] === 'news' ? (
+                            <motion.div
+                                key="news"
+                                custom={swipeDirection}
+                                variants={{
+                                    initial: (d: number) => ({ opacity: 0, x: d * 60 }),
+                                    animate: { opacity: 1, x: 0 },
+                                    exit: (d: number) => ({ opacity: 0, x: d * -60 })
+                                }}
+                                initial="initial"
+                                animate="animate"
+                                exit="exit"
+                                transition={{ duration: 0.3, ease: [0.25, 0.46, 0.45, 0.94] }}
+                                style={{ position: "relative", zIndex: 1 }}
+                            >
+                                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "0.5rem" }}>
+                                    <div style={{ display: "flex", alignItems: "center", gap: "0.3rem", fontSize: "0.7rem", fontWeight: 700, color: "rgba(255,255,255,0.95)", textTransform: "uppercase" as const, letterSpacing: "0.03em" }}>
+                                        📰 Headlines
+                                    </div>
+                                    {news && news.articles.length > 3 && (
+                                        <div style={{ display: "flex", gap: "3px", alignItems: "center" }}>
+                                            {Array.from({ length: Math.ceil(news.articles.length / 3) }).map((_, idx) => (
+                                                <div key={idx} style={{
+                                                    width: idx === newsPage ? "14px" : "4px",
+                                                    height: "3px",
+                                                    borderRadius: "2px",
+                                                    background: idx === newsPage ? "rgba(255,255,255,0.8)" : "rgba(255,255,255,0.2)",
+                                                    transition: "all 0.4s ease",
+                                                }} />
+                                            ))}
+                                        </div>
+                                    )}
+                                </div>
+                                {news && news.articles.length > 0 ? (
+                                    <div style={{ position: "relative", minHeight: "220px" }}>
+                                        <AnimatePresence mode="wait">
+                                            <motion.div
+                                                key={`newspage-${newsPage}`}
+                                                initial={{ opacity: 0, y: 10 }}
+                                                animate={{ opacity: 1, y: 0 }}
+                                                exit={{ opacity: 0, y: -10 }}
+                                                transition={{ duration: 0.3 }}
                                                 style={{
                                                     display: "flex",
                                                     flexDirection: "column",
-                                                    alignItems: "center",
-                                                    justifyContent: "center",
-                                                    padding: "2px 0",
-                                                    borderRadius: "6px",
-                                                    color: isToday ? "white" : isHoliday ? "#ff6b6b" : (d ? "rgba(255,255,255,0.85)" : "transparent"),
-                                                    background: isToday ? "linear-gradient(135deg, #ff3b30 0%, #ff6b4a 50%, #ff9500 100%)" : "transparent",
-                                                    boxShadow: isToday ? "0 0 10px rgba(255,59,48,0.5), 0 0 20px rgba(255,149,0,0.2)" : "none",
-                                                    animation: isToday ? "today-pulse 2.5s ease-in-out infinite" : "none",
-                                                    fontWeight: isToday ? 700 : isHoliday ? 600 : 400,
-                                                    fontSize: "0.65rem",
-                                                    cursor: hasDots ? "pointer" : "default",
-                                                    lineHeight: 1.2,
-                                                }}>
-                                                <span>{d}</span>
-                                                {d && hasDots && (
-                                                    <div style={{
-                                                        display: "flex",
-                                                        gap: "1.5px",
-                                                        marginTop: "1px",
-                                                    }}>
-                                                        {isHoliday && <div style={{ width: "3px", height: "3px", borderRadius: "50%", background: "#ff6b6b" }} />}
-                                                        {isGithubDay && <div style={{ width: "3px", height: "3px", borderRadius: "50%", background: "#4ade80" }} />}
-                                                    </div>
-                                                )}
-                                            </div>
-                                        );
-                                    })}
-                                </div>
-
-                                {/* Tooltip overlay */}
-                                {tooltipInfo && (
-                                    <div style={{
-                                        marginTop: "0.3rem",
-                                        padding: "4px 8px",
-                                        background: "rgba(0,0,0,0.6)",
-                                        borderRadius: "8px",
-                                        fontSize: "0.6rem",
-                                        color: "white",
-                                        textAlign: "center",
-                                        fontWeight: 500,
-                                        backdropFilter: "blur(10px)",
-                                    }}>
-                                        {tooltipInfo.text}
-                                    </div>
-                                )}
-
-                                {/* Upcoming Matches */}
-                                {football && football.matches.length > 0 && (
-                                    <div style={{ marginTop: "0.8rem" }}>
-                                        <div
-                                            onClick={() => setShowMatchesPopup(true)}
-                                            style={{
-                                                fontSize: "0.58rem", fontWeight: 700, textTransform: "uppercase" as const,
-                                                letterSpacing: "0.04em", color: "rgba(255,255,255,0.5)",
-                                                marginBottom: "0.25rem",
-                                                display: "flex", alignItems: "center", gap: "0.3rem",
-                                                cursor: "pointer",
-                                                justifyContent: "space-between",
-                                            }}>
-                                            <span>⚽ Upcoming</span>
-                                            <span style={{ fontSize: "0.5rem", opacity: 0.6 }}>See all →</span>
-                                        </div>
-                                        <AnimatePresence mode="wait">
-                                            <motion.div
-                                                key={matchPage}
-                                                initial={{ opacity: 0, y: 6 }}
-                                                animate={{ opacity: 1, y: 0 }}
-                                                exit={{ opacity: 0, y: -6 }}
-                                                transition={{ duration: 0.35 }}
-                                                style={{ display: "flex", flexDirection: "column", gap: "3px" }}
+                                                    gap: "6px",
+                                                    minHeight: "220px",
+                                                }}
                                             >
-                                                {visibleMatches.map((m: any, i: number) => (
-                                                    <div key={`${matchPage}-${i}`} style={{
-                                                        display: "flex", alignItems: "center", justifyContent: "space-between",
-                                                        fontSize: "0.58rem",
-                                                        padding: "3px 5px",
-                                                        borderRadius: "6px",
-                                                        background: "rgba(255,255,255,0.06)",
-                                                    }}>
-                                                        <div style={{ display: "flex", alignItems: "center", gap: "3px", color: "rgba(255,255,255,0.9)", fontWeight: 600 }}>
-                                                            <span style={{ fontSize: "0.52rem" }}>{m.leagueEmoji}</span>
-                                                            <span>{m.homeAbbr}</span>
-                                                            <span style={{ color: "rgba(255,255,255,0.35)", fontWeight: 400, fontSize: "0.5rem" }}>vs</span>
-                                                            <span>{m.awayAbbr}</span>
+                                                {visibleNews.map((a: { url: string; title: string; source: string; timeAgo: string; excerpt: string }, i: number) => (
+                                                    <a
+                                                        key={`news-${i}`}
+                                                        href={a.url}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        style={{ textDecoration: "none", display: "flex", flexDirection: "column", gap: "3px", padding: "8px 10px", borderRadius: "10px", background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.06)", transition: "all 0.2s ease", flex: 1 }}
+                                                        onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(255,255,255,0.14)"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.12)"; }}
+                                                        onMouseLeave={(e) => { e.currentTarget.style.background = "rgba(255,255,255,0.08)"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.06)"; }}
+                                                    >
+                                                        <div style={{ fontSize: "0.7rem", fontWeight: 700, color: "rgba(255,255,255,0.98)", lineHeight: 1.3, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical" as const, overflow: "hidden" }}>
+                                                            {a.title}
                                                         </div>
-                                                        <div style={{
-                                                            color: "rgba(255,255,255,0.5)",
-                                                            fontSize: "0.52rem",
-                                                            fontWeight: 500,
-                                                            textAlign: "right",
-                                                            display: "flex",
-                                                            flexDirection: "column",
-                                                            alignItems: "flex-end",
-                                                            lineHeight: 1.1,
-                                                            minWidth: "40px",
-                                                        }}>
-                                                            {m.state === "in" ? (
-                                                                <span style={{ color: "#4ade80", fontWeight: 700, whiteSpace: "nowrap" }}>{m.liveMinute || "LIVE"}<br />{m.homeScore}-{m.awayScore}</span>
-                                                            ) : m.state === "post" ? (
-                                                                <span>{m.homeScore}-{m.awayScore}<br /><span style={{ fontSize: "0.45rem", opacity: 0.8 }}>FT</span></span>
-                                                            ) : (
-                                                                <>
-                                                                    <span style={{ whiteSpace: "nowrap" }}>{m.date}</span>
-                                                                    <span style={{ whiteSpace: "nowrap" }}>{m.time}</span>
-                                                                </>
-                                                            )}
+                                                        {a.excerpt && (
+                                                            <div style={{ fontSize: "0.58rem", color: "rgba(255,255,255,0.6)", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical" as const, overflow: "hidden", lineHeight: 1.35 }}>
+                                                                {a.excerpt}
+                                                            </div>
+                                                        )}
+                                                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: "0.5rem", color: "rgba(255,255,255,0.5)", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.02em", marginTop: "auto" }}>
+                                                            <span>{a.source}</span>
+                                                            <span style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+                                                                <span style={{
+                                                                    width: "5px", height: "5px", borderRadius: "50%", display: "inline-block",
+                                                                    background: a.timeAgo?.includes("Startup") ? "#a78bfa" :
+                                                                        a.timeAgo?.includes("Deep Dive") ? "#fb923c" :
+                                                                            a.timeAgo?.includes("Frontend") ? "#60a5fa" :
+                                                                                a.timeAgo?.includes("Mental") ? "#34d399" :
+                                                                                    a.timeAgo?.includes("Engineering") ? "#f472b6" :
+                                                                                        "#94a3b8"
+                                                                }} />
+                                                                {a.timeAgo}
+                                                            </span>
                                                         </div>
-                                                    </div>
+                                                    </a>
                                                 ))}
                                             </motion.div>
                                         </AnimatePresence>
                                     </div>
+                                ) : (
+                                    <div style={{ fontSize: "0.72rem", color: "rgba(255,255,255,0.55)", textAlign: "center", padding: "1.5rem 0" }}>Loading news···</div>
                                 )}
-                            </div>
-
-                            {/* ── Live Stats (Right — API-powered) ── */}
-                            <div style={{
-                                display: "flex",
-                                flexDirection: "column",
-                                gap: "0.45rem",
-                                paddingTop: "0.15rem",
-                                minWidth: 0,
-                            }}>
-                                {/* Weather details */}
-                                <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                                    <Droplets size={15} strokeWidth={2.5} color="rgba(255,255,255,0.95)" style={{ opacity: 0.7, flexShrink: 0 }} />
-                                    <span style={{ fontSize: "0.82rem", fontWeight: 600, color: "rgba(255,255,255,0.75)", whiteSpace: "nowrap" }}>
-                                        {weather ? `${weather.humidity}%` : '··'}
-                                    </span>
-                                    <Wind size={15} strokeWidth={2.5} color="rgba(255,255,255,0.95)" style={{ opacity: 0.7, flexShrink: 0, marginLeft: "0.3rem" }} />
-                                    <span style={{ fontSize: "0.82rem", fontWeight: 600, color: "rgba(255,255,255,0.75)", whiteSpace: "nowrap" }}>
-                                        {weather ? `${weather.wind} km/h` : '··'}
-                                    </span>
+                            </motion.div>
+                        ) : WIDGETS[widgetIndex] === 'crypto' ? (
+                            <motion.div
+                                key="crypto"
+                                custom={swipeDirection}
+                                variants={{
+                                    initial: (d: number) => ({ opacity: 0, x: d * 60 }),
+                                    animate: { opacity: 1, x: 0 },
+                                    exit: (d: number) => ({ opacity: 0, x: d * -60 })
+                                }}
+                                initial="initial"
+                                animate="animate"
+                                exit="exit"
+                                transition={{ duration: 0.3, ease: [0.25, 0.46, 0.45, 0.94] }}
+                                style={{ position: "relative", zIndex: 1 }}
+                            >
+                                <div style={{ display: "flex", alignItems: "center", gap: "0.3rem", fontSize: "0.7rem", fontWeight: 700, color: "rgba(255,255,255,0.95)", marginBottom: "0.5rem", textTransform: "uppercase" as const, letterSpacing: "0.03em" }}>
+                                    📊 Markets
                                 </div>
-                                {weather && (
-                                    <div style={{ display: "flex", alignItems: "center", gap: "0.6rem", fontSize: "0.62rem", fontWeight: 600, color: "rgba(255,255,255,0.5)", marginTop: "-0.2rem" }}>
-                                        <span>Feels like {weather.feelsLike}°</span>
-                                        <span>UV: {weather.uv}</span>
-                                        <span>Rain: {weather.precip}%</span>
-                                    </div>
-                                )}
+                                {cryptoData && cryptoData.crypto.length > 0 ? (
+                                    <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
 
-                                {/* GitHub Benchmark */}
-                                <Link href="https://github.com/muhammadfaza16" target="_blank">
-                                    <div style={{
-                                        background: "rgba(0,0,0,0.08)",
-                                        borderRadius: "12px",
-                                        padding: "0.55rem 0.7rem",
-                                        transition: "background 0.2s ease",
-                                        cursor: "pointer",
-                                    }}>
-                                        <div style={{
-                                            display: "flex", alignItems: "center", gap: "0.35rem",
-                                            fontSize: "0.68rem", fontWeight: 700, textTransform: "uppercase" as const,
-                                            letterSpacing: "0.03em", color: "rgba(255,255,255,0.95)",
-                                            marginBottom: "0.3rem",
-                                        }}>
-                                            <GitBranch size={13} strokeWidth={2.5} />
-                                            GitHub
+                                        {/* Macro Dashboard */}
+                                        <div style={{ display: "flex", justifyContent: "space-between", padding: "8px 10px", borderRadius: "10px", background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.08)", marginBottom: "2px" }}>
+                                            <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+                                                <div style={{ fontSize: "0.5rem", color: "rgba(255,255,255,0.5)", textTransform: "uppercase", letterSpacing: "0.05em", fontWeight: 600 }}>Forex / USD</div>
+                                                <div style={{ fontSize: "0.7rem", fontWeight: 700, color: "rgba(255,255,255,0.95)", fontVariantNumeric: "tabular-nums" }}>
+                                                    Rp {(cryptoData.forex.IDR || 0).toLocaleString('id-ID')}
+                                                    <span style={{ fontSize: "0.5rem", color: "rgba(255,255,255,0.4)", marginLeft: "4px", fontWeight: 500 }}>IDR</span>
+                                                </div>
+                                                <div style={{ fontSize: "0.7rem", fontWeight: 700, color: "rgba(255,255,255,0.95)", fontVariantNumeric: "tabular-nums" }}>
+                                                    € {(cryptoData.forex.EUR || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                                    <span style={{ fontSize: "0.5rem", color: "rgba(255,255,255,0.4)", marginLeft: "4px", fontWeight: 500 }}>EUR</span>
+                                                </div>
+                                            </div>
+
+                                            <div style={{ width: "1px", background: "linear-gradient(180deg, transparent 0%, rgba(147,197,253,0.4) 30%, rgba(167,139,250,0.4) 70%, transparent 100%)", margin: "0 4px" }} />
+
+                                            <div style={{ display: "flex", flexDirection: "column", gap: "4px", textAlign: "right" }}>
+                                                <div style={{ fontSize: "0.5rem", color: "rgba(255,255,255,0.5)", textTransform: "uppercase", letterSpacing: "0.05em", fontWeight: 600 }}>Crypto Macro</div>
+                                                <div style={{ fontSize: "0.7rem", fontWeight: 700, color: "rgba(255,255,255,0.95)", fontVariantNumeric: "tabular-nums" }}>
+                                                    ${((cryptoData.global.totalMarketCap || 0) / 1e12).toFixed(2)}T
+                                                    <span style={{ fontSize: "0.5rem", color: "rgba(255,255,255,0.4)", marginLeft: "4px", fontWeight: 500 }}>Global Cap</span>
+                                                </div>
+                                                <div style={{ fontSize: "0.7rem", fontWeight: 700, color: "rgba(255,255,255,0.95)", fontVariantNumeric: "tabular-nums" }}>
+                                                    {(cryptoData.global.btcDominance || 0).toFixed(1)}%
+                                                    <span style={{ fontSize: "0.5rem", color: "rgba(255,255,255,0.4)", marginLeft: "4px", fontWeight: 500 }}>BTC Dom</span>
+                                                </div>
+                                            </div>
                                         </div>
-                                        {github ? (
-                                            <>
-                                                <div style={{ display: "flex", alignItems: "baseline", gap: "0.3rem" }}>
-                                                    <span style={{ fontSize: "1.2rem", fontWeight: 800, color: "rgba(255,255,255,0.95)", lineHeight: 1 }}>
-                                                        {github.currentMonthActiveDays}<span style={{ fontSize: "0.8rem", color: "rgba(255,255,255,0.5)" }}>/{github.currentMonthTotalDays}</span>
-                                                    </span>
-                                                    <span style={{ fontSize: "0.65rem", fontWeight: 500, color: "rgba(255,255,255,0.65)" }}>
-                                                        days active
-                                                    </span>
-                                                </div>
-                                                <div style={{ fontSize: "0.62rem", color: "rgba(255,255,255,0.55)", marginTop: "0.2rem", display: "flex", alignItems: "center", gap: "4px" }}>
-                                                    <span style={{ color: "#4ade80", fontWeight: 700 }}>{github.currentMonthPushCount}</span> commits/pushes
-                                                </div>
-                                                {github.recentRepo && (
-                                                    <div style={{ fontSize: "0.58rem", color: "rgba(255,255,255,0.45)", marginTop: "0.3rem", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", fontStyle: "italic" }}>
-                                                        <span style={{ fontWeight: 600 }}>Last touched:</span> {github.recentRepo}
-                                                    </div>
-                                                )}
-                                            </>
-                                        ) : (
-                                            <div style={{ fontSize: "0.75rem", color: "rgba(255,255,255,0.55)" }}>Loading···</div>
-                                        )}
-                                    </div>
-                                </Link>
 
-                                {/* Daily Quote */}
-                                <div style={{ marginTop: "0.1rem" }}>
-                                    <div style={{
-                                        fontSize: "0.68rem", fontWeight: 700, textTransform: "uppercase" as const,
-                                        letterSpacing: "0.03em", color: "rgba(255,255,255,0.95)",
-                                        marginBottom: "0.2rem",
-                                        display: "flex", alignItems: "center", gap: "0.3rem",
-                                    }}>
-                                        <Quote size={12} strokeWidth={2.5} />
-                                        Today
+                                        {/* Top Assets */}
+                                        {cryptoData.crypto.map((c: { id: string; symbol: string; name: string; emoji: string; usd: number; change24h: number; vol24h: number; marketCap: number; sparkline?: number[] }) => {
+                                            // Generate sparkline SVG path
+                                            const spark = c.sparkline || [];
+                                            let sparkPath = "";
+                                            if (spark.length > 1) {
+                                                const min = Math.min(...spark);
+                                                const max = Math.max(...spark);
+                                                const range = max - min || 1;
+                                                sparkPath = spark.map((v, idx) => {
+                                                    const x = (idx / (spark.length - 1)) * 100;
+                                                    const y = 100 - ((v - min) / range) * 100;
+                                                    return `${idx === 0 ? "M" : "L"}${x},${y}`;
+                                                }).join(" ");
+                                            }
+                                            return (
+                                                <div
+                                                    key={c.id}
+                                                    onMouseEnter={() => setHoveredCoin(c.id)}
+                                                    onMouseLeave={() => setHoveredCoin(null)}
+                                                    style={{ display: "flex", flexDirection: "column", padding: "8px 10px", borderRadius: "10px", background: hoveredCoin === c.id ? "rgba(255,255,255,0.14)" : "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.06)", cursor: "default", transition: "all 0.2s ease", position: "relative", overflow: "hidden" }}
+                                                >
+                                                    {/* Sparkline Background */}
+                                                    {sparkPath && (
+                                                        <svg viewBox="0 0 100 100" preserveAspectRatio="none" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", opacity: 0.12, pointerEvents: "none" }}>
+                                                            <path d={sparkPath} fill="none" stroke={c.change24h >= 0 ? "#4ade80" : "#f87171"} strokeWidth="2" vectorEffect="non-scaling-stroke" />
+                                                        </svg>
+                                                    )}
+                                                    <div style={{ display: "flex", alignItems: "center", justifyItems: "center", justifyContent: "space-between", position: "relative", zIndex: 1 }}>
+                                                        <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                                                            <span style={{ fontSize: "1.1rem" }}>{c.emoji}</span>
+                                                            <div>
+                                                                <div style={{ fontSize: "0.72rem", fontWeight: 700, color: "rgba(255,255,255,0.95)" }}>{c.symbol}</div>
+                                                                <div style={{ fontSize: "0.52rem", color: "rgba(255,255,255,0.45)" }}>{c.name}</div>
+                                                            </div>
+                                                        </div>
+                                                        <div style={{ textAlign: "right" as const }}>
+                                                            <div style={{ fontSize: "0.75rem", fontWeight: 700, color: "rgba(255,255,255,0.95)", fontVariantNumeric: "tabular-nums" }}>
+                                                                ${c.usd >= 1000 ? c.usd.toLocaleString('en-US', { maximumFractionDigits: 0 }) : c.usd.toFixed(2)}
+                                                            </div>
+                                                            <div style={{ fontSize: "0.55rem", fontWeight: 600, color: c.change24h >= 0 ? "#4ade80" : "#f87171" }}>
+                                                                {c.change24h >= 0 ? "▲" : "▼"} {Math.abs(c.change24h).toFixed(1)}%
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <AnimatePresence>
+                                                        {hoveredCoin === c.id && (
+                                                            <motion.div
+                                                                initial={{ height: 0, opacity: 0, marginTop: 0 }}
+                                                                animate={{ height: "auto", opacity: 1, marginTop: "4px" }}
+                                                                exit={{ height: 0, opacity: 0, marginTop: 0 }}
+                                                                transition={{ duration: 0.2 }}
+                                                                style={{ overflow: "hidden", display: "flex", justifyContent: "space-between", fontSize: "0.55rem", color: "rgba(255,255,255,0.55)", borderTop: "1px solid rgba(255,255,255,0.1)", paddingTop: "4px" }}
+                                                            >
+                                                                <span>Vol: ${(c.vol24h / 1e9).toFixed(1)}B</span>
+                                                                <span>Cap: ${(c.marketCap / 1e9).toFixed(1)}B</span>
+                                                            </motion.div>
+                                                        )}
+                                                    </AnimatePresence>
+                                                </div>
+                                            )
+                                        })}
                                     </div>
-                                    {quote ? (
-                                        <>
+                                ) : (
+                                    <div style={{ fontSize: "0.72rem", color: "rgba(255,255,255,0.55)", textAlign: "center", padding: "1.5rem 0" }}>Loading markets···</div>
+                                )}
+                            </motion.div>
+                        ) : WIDGETS[widgetIndex] === 'pulse' ? (
+                            <motion.div
+                                key="pulse"
+                                custom={swipeDirection}
+                                variants={{
+                                    initial: (d: number) => ({ opacity: 0, x: d * 60 }),
+                                    animate: { opacity: 1, x: 0 },
+                                    exit: (d: number) => ({ opacity: 0, x: d * -60 })
+                                }}
+                                initial="initial"
+                                animate="animate"
+                                exit="exit"
+                                transition={{ duration: 0.3, ease: [0.25, 0.46, 0.45, 0.94] }}
+                                style={{ position: "relative", zIndex: 1 }}
+                            >
+                                <div style={{ display: "flex", alignItems: "center", gap: "0.3rem", fontSize: "0.7rem", fontWeight: 700, color: "rgba(255,255,255,0.95)", marginBottom: "0.5rem", textTransform: "uppercase" as const, letterSpacing: "0.03em" }}>
+                                    📋 Pulse
+                                </div>
+                                {pulse ? (
+                                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px", height: "180px" }}>
+                                        {/* Left Panel: Latest Post (Full Height, Cover Background) */}
+                                        <Link href={pulse.post?.slug ? `/blog/${pulse.post.slug}` : "/blog"} style={{ textDecoration: "none", display: "block", height: "100%" }}>
                                             <div style={{
-                                                fontSize: "0.72rem", fontWeight: 500, fontStyle: "italic",
-                                                color: "rgba(255,255,255,0.75)", lineHeight: 1.4,
-                                            }}>
-                                                &quot;{quote.text}&quot;
+                                                position: "relative",
+                                                height: "100%",
+                                                borderRadius: "14px",
+                                                background: pulse.post?.coverImage ? `url(${pulse.post.coverImage}) center/cover no-repeat` : "linear-gradient(145deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.02) 100%)",
+                                                border: "1px solid rgba(255,255,255,0.08)",
+                                                boxShadow: "inset 0 1px 0 rgba(255,255,255,0.1), 0 4px 12px rgba(0,0,0,0.15)",
+                                                transition: "all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)",
+                                                cursor: "pointer",
+                                                overflow: "hidden"
+                                            }}
+                                                onMouseEnter={(e) => { e.currentTarget.style.transform = "translateY(-2px)"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.2)"; e.currentTarget.style.boxShadow = "inset 0 1px 0 rgba(255,255,255,0.2), 0 8px 16px rgba(0,0,0,0.3)"; }}
+                                                onMouseLeave={(e) => { e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.08)"; e.currentTarget.style.boxShadow = "inset 0 1px 0 rgba(255,255,255,0.1), 0 4px 12px rgba(0,0,0,0.15)"; }}
+                                            >
+                                                {/* Gradient Overlay for Legibility */}
+                                                <div style={{ position: "absolute", inset: 0, background: pulse.post?.coverImage ? "linear-gradient(to top, rgba(15,20,30,0.95) 0%, rgba(15,20,30,0.4) 50%, rgba(15,20,30,0.1) 100%)" : "transparent" }} />
+
+                                                <div style={{ position: "absolute", top: "10px", right: "10px", background: "linear-gradient(135deg, rgba(167,139,250,0.5) 0%, rgba(147,51,234,0.4) 100%)", backdropFilter: "blur(8px)", padding: "4px 8px", borderRadius: "20px", fontSize: "0.5rem", fontWeight: 700, color: "rgba(255,255,255,0.95)", letterSpacing: "0.05em", border: "1px solid rgba(167,139,250,0.3)", boxShadow: "0 2px 8px rgba(147,51,234,0.2)" }}>NEWEST POST</div>
+
+                                                <div style={{ position: "absolute", bottom: "12px", left: "12px", right: "12px", display: "flex", flexDirection: "column", gap: "4px" }}>
+                                                    <div style={{ fontSize: "0.95rem", fontWeight: 800, color: "#fff", lineHeight: 1.2, letterSpacing: "-0.02em", display: "-webkit-box", WebkitLineClamp: 3, WebkitBoxOrient: "vertical", overflow: "hidden" }}>
+                                                        {pulse.post?.title || "No posts yet"}
+                                                    </div>
+                                                    <div style={{ fontSize: "0.55rem", color: "rgba(255,255,255,0.6)", fontWeight: 500 }}>Read Article →</div>
+                                                </div>
                                             </div>
-                                            <div style={{ fontSize: "0.62rem", color: "rgba(255,255,255,0.55)", marginTop: "0.15rem" }}>
-                                                — {quote.author}
+                                        </Link>
+
+                                        {/* Right Panel: Split into Two Rows */}
+                                        <div style={{ display: "grid", gridTemplateRows: "1fr 1fr", gap: "8px", height: "100%" }}>
+
+                                            {/* Top Right: Latest Book */}
+                                            <Link href="/bookshelf" style={{ textDecoration: "none" }}>
+                                                <div style={{
+                                                    position: "relative", height: "100%", padding: "10px", borderRadius: "14px",
+                                                    background: "linear-gradient(145deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.01) 100%)",
+                                                    border: "1px solid rgba(255,255,255,0.06)", boxShadow: "inset 0 1px 0 rgba(255,255,255,0.05)",
+                                                    transition: "all 0.3s ease", cursor: "pointer", display: "flex", alignItems: "center", gap: "10px"
+                                                }}
+                                                    onMouseEnter={(e) => { e.currentTarget.style.background = "linear-gradient(145deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.02) 100%)"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.12)"; }}
+                                                    onMouseLeave={(e) => { e.currentTarget.style.background = "linear-gradient(145deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.01) 100%)"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.06)"; }}
+                                                >
+                                                    {pulse.book?.coverImage ? (
+                                                        <img src={pulse.book.coverImage} alt="Cover" style={{ width: "45px", height: "65px", borderRadius: "6px", objectFit: "cover", boxShadow: "0 2px 8px rgba(0,0,0,0.3)", flexShrink: 0 }} />
+                                                    ) : (
+                                                        <div style={{ width: "45px", height: "65px", borderRadius: "6px", background: "rgba(255,255,255,0.1)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "1.2rem", flexShrink: 0 }}>📘</div>
+                                                    )}
+                                                    <div style={{ display: "flex", flexDirection: "column", gap: "2px", overflow: "hidden" }}>
+                                                        <div style={{ fontSize: "0.5rem", color: "rgba(255,255,255,0.5)", fontWeight: 700, letterSpacing: "0.05em", textTransform: "uppercase" }}>CURRENT READ</div>
+                                                        <div style={{ fontSize: "0.75rem", fontWeight: 800, color: "rgba(255,255,255,0.95)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", lineHeight: 1.2 }}>{pulse.book?.title || "No logs"}</div>
+                                                        <div style={{ fontSize: "0.55rem", color: "rgba(255,255,255,0.5)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{pulse.book?.author || "—"}</div>
+                                                        {pulse.book?.rating > 0 && (
+                                                            <div style={{ fontSize: "0.5rem", color: "#fbbf24", marginTop: "2px" }}>{"★".repeat(pulse.book.rating)}{"☆".repeat(5 - pulse.book.rating)}</div>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            </Link>
+
+                                            {/* Bottom Right: Latest Curation */}
+                                            <Link href="/curation" style={{ textDecoration: "none" }}>
+                                                <div style={{
+                                                    position: "relative", height: "100%", padding: "10px", borderRadius: "14px",
+                                                    background: "linear-gradient(145deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.01) 100%)",
+                                                    border: "1px solid rgba(255,255,255,0.06)", boxShadow: "inset 0 1px 0 rgba(255,255,255,0.05)",
+                                                    transition: "all 0.3s ease", cursor: "pointer", display: "flex", flexDirection: "column", justifyContent: "center", overflow: "hidden"
+                                                }}
+                                                    onMouseEnter={(e) => { e.currentTarget.style.background = "linear-gradient(145deg, rgba(52, 211, 153, 0.1) 0%, rgba(255,255,255,0.02) 100%)"; e.currentTarget.style.borderColor = "rgba(52, 211, 153, 0.3)"; }}
+                                                    onMouseLeave={(e) => { e.currentTarget.style.background = "linear-gradient(145deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.01) 100%)"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.06)"; }}
+                                                >
+                                                    <div style={{ position: "absolute", bottom: "-10px", right: "-10px", width: "40px", height: "40px", background: "rgba(52, 211, 153, 0.2)", filter: "blur(15px)", borderRadius: "50%" }} />
+                                                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "4px", position: "relative", zIndex: 1 }}>
+                                                        <div style={{ fontSize: "0.5rem", color: "rgba(255,255,255,0.5)", fontWeight: 700, letterSpacing: "0.05em", textTransform: "uppercase" }}>SAVED ARTICLE</div>
+                                                        {pulse.article?.isRead === false && (
+                                                            <div style={{ fontSize: "0.45rem", fontWeight: 800, color: "#ef4444", background: "rgba(239, 68, 68, 0.15)", padding: "2px 5px", borderRadius: "4px", border: "1px solid rgba(239, 68, 68, 0.2)" }}>UNREAD</div>
+                                                        )}
+                                                    </div>
+                                                    <div style={{ fontSize: "0.75rem", fontWeight: 700, color: "rgba(255,255,255,0.9)", lineHeight: 1.3, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden", position: "relative", zIndex: 1 }}>
+                                                        {pulse.article?.title ? `"${pulse.article.title}"` : "No saves yet"}
+                                                    </div>
+                                                </div>
+                                            </Link>
+
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <div style={{ fontSize: "0.72rem", color: "rgba(255,255,255,0.55)", textAlign: "center", padding: "1.5rem 0" }}>Loading pulse···</div>
+                                )}
+                            </motion.div>
+                        ) : (
+                            <motion.div
+                                key="calendar-stats"
+                                custom={swipeDirection}
+                                variants={{
+                                    initial: (d: number) => ({ opacity: 0, x: d * 60 }),
+                                    animate: { opacity: 1, x: 0 },
+                                    exit: (d: number) => ({ opacity: 0, x: d * -60 })
+                                }}
+                                initial="initial"
+                                animate="animate"
+                                exit="exit"
+                                transition={{ duration: 0.3, ease: [0.25, 0.46, 0.45, 0.94] }}
+                                style={{
+                                    display: "grid",
+                                    gridTemplateColumns: "auto 1fr",
+                                    gap: "1rem",
+                                    alignItems: "start",
+                                    position: "relative",
+                                    zIndex: 1,
+                                }}
+                            >
+                                {/* ── Calendar Card (inset within glass) ── */}
+                                <div style={{
+                                    display: "flex",
+                                    flexDirection: "column",
+                                    background: "rgba(0, 0, 0, 0.12)",
+                                    borderRadius: "18px",
+                                    padding: "0.9rem 0.85rem",
+                                    boxShadow: "inset 0 2px 6px rgba(0,0,0,0.08), 0 1px 0 rgba(255,255,255,0.06)",
+                                    border: "1px solid rgba(255,255,255,0.08)",
+                                    width: "170px",
+                                }}>
+                                    {/* Month header */}
+                                    <div
+                                        title={prayer?.hijriDate || undefined}
+                                        style={{
+                                            display: "flex",
+                                            alignItems: "center",
+                                            gap: "0.35rem",
+                                            fontSize: "0.82rem",
+                                            fontWeight: 600,
+                                            color: "rgba(255,255,255,0.85)",
+                                            marginBottom: "0.5rem",
+                                            cursor: prayer?.hijriDate ? "help" : "default"
+                                        }}>
+                                        <CalIcon size={13} strokeWidth={2} />
+                                        {MONTHS_FULL[now.getMonth()]}
+                                    </div>
+
+                                    {/* Weekday Headers */}
+                                    <div style={{
+                                        display: "grid",
+                                        gridTemplateColumns: "repeat(7, 1fr)",
+                                        textAlign: "center",
+                                        fontSize: "0.55rem",
+                                        fontWeight: 600,
+                                        color: "rgba(255,255,255,0.4)",
+                                        marginBottom: "3px",
+                                        letterSpacing: "0.02em",
+                                    }}>
+                                        {["S", "M", "T", "W", "T", "F", "S"].map((d, i) => (
+                                            <div key={i}>{d}</div>
+                                        ))}
+                                    </div>
+
+                                    {/* Calendar Grid */}
+                                    <div style={{
+                                        display: "grid",
+                                        gridTemplateColumns: "repeat(7, 1fr)",
+                                        gap: "1px",
+                                        fontSize: "0.68rem",
+                                        fontWeight: 500,
+                                        color: "rgba(255,255,255,0.8)",
+                                        textAlign: "center",
+                                    }}>
+                                        {calendarGrid.map((d, i) => {
+                                            const isToday = d === now.getDate();
+                                            const isHoliday = d ? holidayMap.has(d) : false;
+                                            const isGithubDay = d ? githubPushDays.has(d) : false;
+                                            const hasDots = isHoliday || isGithubDay;
+                                            const holidayName = d ? holidayMap.get(d) : undefined;
+
+                                            // Build tooltip text
+                                            const tooltipParts: string[] = [];
+                                            if (holidayName) tooltipParts.push(`🔴 ${holidayName}`);
+                                            if (isGithubDay) tooltipParts.push('🟢 GitHub push');
+                                            const tooltipText = tooltipParts.join(' · ');
+
+                                            return (
+                                                <div
+                                                    key={i}
+                                                    onClick={() => d && hasDots ? setTooltipInfo(tooltipInfo?.day === d ? null : { day: d, text: tooltipText }) : setTooltipInfo(null)}
+                                                    style={{
+                                                        display: "flex",
+                                                        flexDirection: "column",
+                                                        alignItems: "center",
+                                                        justifyContent: "center",
+                                                        padding: "2px 0",
+                                                        borderRadius: "6px",
+                                                        color: isToday ? "white" : isHoliday ? "#ff6b6b" : (d ? "rgba(255,255,255,0.85)" : "transparent"),
+                                                        background: isToday ? "linear-gradient(135deg, #ff3b30 0%, #ff6b4a 50%, #ff9500 100%)" : "transparent",
+                                                        boxShadow: isToday ? "0 0 10px rgba(255,59,48,0.5), 0 0 20px rgba(255,149,0,0.2)" : "none",
+                                                        animation: isToday ? "today-pulse 2.5s ease-in-out infinite" : "none",
+                                                        fontWeight: isToday ? 700 : isHoliday ? 600 : 400,
+                                                        fontSize: "0.65rem",
+                                                        cursor: hasDots ? "pointer" : "default",
+                                                        lineHeight: 1.2,
+                                                    }}>
+                                                    <span>{d}</span>
+                                                    {d && hasDots && (
+                                                        <div style={{
+                                                            display: "flex",
+                                                            gap: "1.5px",
+                                                            marginTop: "1px",
+                                                        }}>
+                                                            {isHoliday && <div style={{ width: "3px", height: "3px", borderRadius: "50%", background: "#ff6b6b" }} />}
+                                                            {isGithubDay && <div style={{ width: "3px", height: "3px", borderRadius: "50%", background: "#4ade80" }} />}
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+
+                                    {/* Tooltip overlay */}
+                                    {tooltipInfo && (
+                                        <div style={{
+                                            marginTop: "0.3rem",
+                                            padding: "4px 8px",
+                                            background: "rgba(0,0,0,0.6)",
+                                            borderRadius: "8px",
+                                            fontSize: "0.6rem",
+                                            color: "white",
+                                            textAlign: "center",
+                                            fontWeight: 500,
+                                            backdropFilter: "blur(10px)",
+                                        }}>
+                                            {tooltipInfo.text}
+                                        </div>
+                                    )}
+
+                                    {/* Upcoming Matches */}
+                                    {football && football.matches.length > 0 && (
+                                        <div style={{ marginTop: "0.8rem" }}>
+                                            <div
+                                                onClick={() => setShowMatchesPopup(true)}
+                                                style={{
+                                                    fontSize: "0.58rem", fontWeight: 700, textTransform: "uppercase" as const,
+                                                    letterSpacing: "0.04em", color: "rgba(255,255,255,0.5)",
+                                                    marginBottom: "0.25rem",
+                                                    display: "flex", alignItems: "center", gap: "0.3rem",
+                                                    cursor: "pointer",
+                                                    justifyContent: "space-between",
+                                                }}>
+                                                <span>⚽ Upcoming</span>
+                                                <span style={{ fontSize: "0.5rem", opacity: 0.6 }}>See all →</span>
                                             </div>
-                                        </>
-                                    ) : (
-                                        <div style={{ fontSize: "0.72rem", fontStyle: "italic", color: "rgba(255,255,255,0.55)" }}>Loading···</div>
+                                            <AnimatePresence mode="wait">
+                                                <motion.div
+                                                    key={matchPage}
+                                                    initial={{ opacity: 0, y: 6 }}
+                                                    animate={{ opacity: 1, y: 0 }}
+                                                    exit={{ opacity: 0, y: -6 }}
+                                                    transition={{ duration: 0.35 }}
+                                                    style={{ display: "flex", flexDirection: "column", gap: "3px" }}
+                                                >
+                                                    {visibleMatches.map((m: any, i: number) => (
+                                                        <div key={`${matchPage}-${i}`} style={{
+                                                            display: "flex", alignItems: "center", justifyContent: "space-between",
+                                                            fontSize: "0.58rem",
+                                                            padding: "3px 5px",
+                                                            borderRadius: "6px",
+                                                            background: "rgba(255,255,255,0.06)",
+                                                        }}>
+                                                            <div style={{ display: "flex", alignItems: "center", gap: "3px", color: "rgba(255,255,255,0.9)", fontWeight: 600 }}>
+                                                                <span style={{ fontSize: "0.52rem" }}>{m.leagueEmoji}</span>
+                                                                <span>{m.homeAbbr}</span>
+                                                                <span style={{ color: "rgba(255,255,255,0.35)", fontWeight: 400, fontSize: "0.5rem" }}>vs</span>
+                                                                <span>{m.awayAbbr}</span>
+                                                            </div>
+                                                            <div style={{
+                                                                color: "rgba(255,255,255,0.5)",
+                                                                fontSize: "0.52rem",
+                                                                fontWeight: 500,
+                                                                textAlign: "right",
+                                                                display: "flex",
+                                                                flexDirection: "column",
+                                                                alignItems: "flex-end",
+                                                                lineHeight: 1.1,
+                                                                minWidth: "40px",
+                                                            }}>
+                                                                {m.state === "in" ? (
+                                                                    <span style={{ color: "#4ade80", fontWeight: 700, whiteSpace: "nowrap" }}>{m.liveMinute || "LIVE"}<br />{m.homeScore}-{m.awayScore}</span>
+                                                                ) : m.state === "post" ? (
+                                                                    <span>{m.homeScore}-{m.awayScore}<br /><span style={{ fontSize: "0.45rem", opacity: 0.8 }}>FT</span></span>
+                                                                ) : (
+                                                                    <>
+                                                                        <span style={{ whiteSpace: "nowrap" }}>{m.date}</span>
+                                                                        <span style={{ whiteSpace: "nowrap" }}>{m.time}</span>
+                                                                    </>
+                                                                )}
+                                                            </div>
+                                                        </div>
+                                                    ))}
+                                                </motion.div>
+                                            </AnimatePresence>
+                                        </div>
                                     )}
                                 </div>
-                            </div>
-                        </motion.div>
-                    )}
-                </AnimatePresence>
+
+                                {/* ── Live Stats (Right — API-powered) ── */}
+                                <div style={{
+                                    display: "flex",
+                                    flexDirection: "column",
+                                    gap: "0.45rem",
+                                    paddingTop: "0.15rem",
+                                    minWidth: 0,
+                                }}>
+                                    {/* Weather details */}
+                                    <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                                        <Droplets size={15} strokeWidth={2.5} color="rgba(255,255,255,0.95)" style={{ opacity: 0.7, flexShrink: 0 }} />
+                                        <span style={{ fontSize: "0.82rem", fontWeight: 600, color: "rgba(255,255,255,0.75)", whiteSpace: "nowrap" }}>
+                                            {weather ? `${weather.humidity}%` : '··'}
+                                        </span>
+                                        <Wind size={15} strokeWidth={2.5} color="rgba(255,255,255,0.95)" style={{ opacity: 0.7, flexShrink: 0, marginLeft: "0.3rem" }} />
+                                        <span style={{ fontSize: "0.82rem", fontWeight: 600, color: "rgba(255,255,255,0.75)", whiteSpace: "nowrap" }}>
+                                            {weather ? `${weather.wind} km/h` : '··'}
+                                        </span>
+                                    </div>
+                                    {weather && (
+                                        <div style={{ display: "flex", alignItems: "center", gap: "0.6rem", fontSize: "0.62rem", fontWeight: 600, color: "rgba(255,255,255,0.5)", marginTop: "-0.2rem" }}>
+                                            <span>Feels like {weather.feelsLike}°</span>
+                                            <span>UV: {weather.uv}</span>
+                                            <span>Rain: {weather.precip}%</span>
+                                        </div>
+                                    )}
+
+                                    {/* GitHub Benchmark */}
+                                    <Link href="https://github.com/muhammadfaza16" target="_blank">
+                                        <div style={{
+                                            background: "rgba(0,0,0,0.08)",
+                                            borderRadius: "12px",
+                                            padding: "0.55rem 0.7rem",
+                                            transition: "background 0.2s ease",
+                                            cursor: "pointer",
+                                        }}>
+                                            <div style={{
+                                                display: "flex", alignItems: "center", gap: "0.35rem",
+                                                fontSize: "0.68rem", fontWeight: 700, textTransform: "uppercase" as const,
+                                                letterSpacing: "0.03em", color: "rgba(255,255,255,0.95)",
+                                                marginBottom: "0.3rem",
+                                            }}>
+                                                <GitBranch size={13} strokeWidth={2.5} />
+                                                GitHub
+                                            </div>
+                                            {github ? (
+                                                <>
+                                                    <div style={{ display: "flex", alignItems: "baseline", gap: "0.3rem" }}>
+                                                        <span style={{ fontSize: "1.2rem", fontWeight: 800, color: "rgba(255,255,255,0.95)", lineHeight: 1 }}>
+                                                            {github.currentMonthActiveDays}<span style={{ fontSize: "0.8rem", color: "rgba(255,255,255,0.5)" }}>/{github.currentMonthTotalDays}</span>
+                                                        </span>
+                                                        <span style={{ fontSize: "0.65rem", fontWeight: 500, color: "rgba(255,255,255,0.65)" }}>
+                                                            days active
+                                                        </span>
+                                                    </div>
+                                                    <div style={{ fontSize: "0.62rem", color: "rgba(255,255,255,0.55)", marginTop: "0.2rem", display: "flex", alignItems: "center", gap: "4px" }}>
+                                                        <span style={{ color: "#4ade80", fontWeight: 700 }}>{github.currentMonthPushCount}</span> commits/pushes
+                                                    </div>
+                                                    {github.recentRepo && (
+                                                        <div style={{ fontSize: "0.58rem", color: "rgba(255,255,255,0.45)", marginTop: "0.3rem", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", fontStyle: "italic" }}>
+                                                            <span style={{ fontWeight: 600 }}>Last touched:</span> {github.recentRepo}
+                                                        </div>
+                                                    )}
+                                                </>
+                                            ) : (
+                                                <div style={{ fontSize: "0.75rem", color: "rgba(255,255,255,0.55)" }}>Loading···</div>
+                                            )}
+                                        </div>
+                                    </Link>
+
+                                    {/* Daily Quote */}
+                                    <div style={{ marginTop: "0.1rem" }}>
+                                        <div style={{
+                                            fontSize: "0.68rem", fontWeight: 700, textTransform: "uppercase" as const,
+                                            letterSpacing: "0.03em", color: "rgba(255,255,255,0.95)",
+                                            marginBottom: "0.2rem",
+                                            display: "flex", alignItems: "center", gap: "0.3rem",
+                                        }}>
+                                            <Quote size={12} strokeWidth={2.5} />
+                                            Today
+                                        </div>
+                                        {quote ? (
+                                            <>
+                                                <div style={{
+                                                    fontSize: "0.72rem", fontWeight: 500, fontStyle: "italic",
+                                                    color: "rgba(255,255,255,0.75)", lineHeight: 1.4,
+                                                }}>
+                                                    &quot;{quote.text}&quot;
+                                                </div>
+                                                <div style={{ fontSize: "0.62rem", color: "rgba(255,255,255,0.55)", marginTop: "0.15rem" }}>
+                                                    — {quote.author}
+                                                </div>
+                                            </>
+                                        ) : (
+                                            <div style={{ fontSize: "0.72rem", fontStyle: "italic", color: "rgba(255,255,255,0.55)" }}>Loading···</div>
+                                        )}
+                                    </div>
+                                </div>
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
+                </motion.div>
 
                 {/* Widget Toggle — iOS page dots */}
                 <div style={{
