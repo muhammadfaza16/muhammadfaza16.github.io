@@ -250,7 +250,7 @@ export function CleanHomeHero() {
         return bigMatches.slice(start, start + 3);
     }, [bigMatches, matchPage]);
 
-    // Auto-rolling news - 3 articles per page, changing every 15s
+    // Auto-rolling news - 3 articles per page, changing every 25s
     useEffect(() => {
         if (!news?.articles || news.articles.length <= 3) return;
         const id = setInterval(() => {
@@ -258,7 +258,7 @@ export function CleanHomeHero() {
                 const totalPages = Math.ceil(news.articles.length / 3);
                 return (prev + 1) % totalPages;
             });
-        }, 15000);
+        }, 25000);
         return () => clearInterval(id);
     }, [news]);
 
