@@ -12,7 +12,7 @@ const parser = new Parser({
 
 const CURATED_FEEDS = [
     { url: "https://waitbutwhy.com/feed", name: "Wait But Why" },
-    { url: "https://hackernoon.com/feed", name: "HackerNoon" },
+    { url: "https://filipesilva.github.io/paulgraham-rss/feed.rss", name: "Paul Graham" },
     { url: "https://fs.blog/feed/", name: "Farnam Street" },
     { url: "https://overreacted.io/rss.xml", name: "Dan Abramov" },
     { url: "https://scotthyoung.com/blog/feed/", name: "Scott H. Young" },
