@@ -400,6 +400,9 @@ export function CleanHomeHero() {
                             <>
                                 <span style={{ fontSize: "1rem" }}>{weather.icon}</span>
                                 <span>{weather.temp}°C</span>
+                                <span style={{ fontSize: "0.68rem", fontWeight: 500, color: "rgba(255,255,255,0.6)", marginLeft: "0.15rem" }}>
+                                    {weather.humidity}% · {weather.wind}km/h
+                                </span>
                             </>
                         ) : (
                             <>
@@ -450,50 +453,23 @@ export function CleanHomeHero() {
                     )}
                 </div>
 
-                {/* AI Generated Greeting — Typewriter */}
-                {greeting && (
-                    <div
-                        style={{
-                            fontSize: "0.78rem",
-                            fontStyle: "italic",
-                            fontWeight: 500,
-                            color: "rgba(255,255,255,0.7)",
-                            marginTop: "0.2rem",
-                            textShadow: "0 1px 4px rgba(0,0,0,0.5)",
-                            lineHeight: 1.4,
-                        }}
-                    >
-                        "{displayedGreeting}"
-                        {!greetingDone && (
-                            <span style={{
-                                display: 'inline-block',
-                                width: '2px',
-                                height: '0.85em',
-                                background: 'rgba(255,255,255,0.7)',
-                                marginLeft: '2px',
-                                verticalAlign: 'text-bottom',
-                                animation: 'blink-cursor 0.8s steps(2) infinite',
-                            }} />
-                        )}
-                        <style>{`
-                            @keyframes blink-cursor { 0%,100%{opacity:1} 50%{opacity:0} } 
-                            @keyframes today-pulse { 0%,100%{box-shadow:0 0 6px rgba(255,59,48,0.4)} 50%{box-shadow:0 0 14px rgba(255,59,48,0.7)} }
-                            .custom-scrollbar::-webkit-scrollbar {
-                                width: 4px;
-                            }
-                            .custom-scrollbar::-webkit-scrollbar-track {
-                                background: transparent;
-                            }
-                            .custom-scrollbar::-webkit-scrollbar-thumb {
-                                background: rgba(255, 255, 255, 0.15);
-                                borderRadius: 10px;
-                            }
-                            .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-                                background: rgba(255, 255, 255, 0.25);
-                            }
-                        `}</style>
-                    </div>
-                )}
+                <style>{`
+                    @keyframes blink-cursor { 0%,100%{opacity:1} 50%{opacity:0} } 
+                    @keyframes today-pulse { 0%,100%{box-shadow:0 0 6px rgba(255,59,48,0.4)} 50%{box-shadow:0 0 14px rgba(255,59,48,0.7)} }
+                    .custom-scrollbar::-webkit-scrollbar {
+                        width: 4px;
+                    }
+                    .custom-scrollbar::-webkit-scrollbar-track {
+                        background: transparent;
+                    }
+                    .custom-scrollbar::-webkit-scrollbar-thumb {
+                        background: rgba(255, 255, 255, 0.15);
+                        borderRadius: 10px;
+                    }
+                    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+                        background: rgba(255, 255, 255, 0.25);
+                    }
+                `}</style>
 
                 {curationReminder && (
                     <Link href={`/curation/${curationReminder.article.id}`} style={{ display: "block", width: "fit-content", marginBottom: "0.8rem", marginTop: "0.8rem" }}>
@@ -1269,24 +1245,34 @@ export function CleanHomeHero() {
                                 paddingTop: "0.15rem",
                                 minWidth: 0,
                             }}>
-                                {/* Weather details */}
-                                <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                                    <Droplets size={15} strokeWidth={2.5} color="rgba(255,255,255,0.95)" style={{ opacity: 0.7, flexShrink: 0 }} />
-                                    <span style={{ fontSize: "0.82rem", fontWeight: 600, color: "rgba(255,255,255,0.75)", whiteSpace: "nowrap" }}>
-                                        {weather ? `${weather.humidity}%` : '··'}
-                                    </span>
-                                    <Wind size={15} strokeWidth={2.5} color="rgba(255,255,255,0.95)" style={{ opacity: 0.7, flexShrink: 0, marginLeft: "0.3rem" }} />
-                                    <span style={{ fontSize: "0.82rem", fontWeight: 600, color: "rgba(255,255,255,0.75)", whiteSpace: "nowrap" }}>
-                                        {weather ? `${weather.wind} km/h` : '··'}
-                                    </span>
-                                </div>
-                                {weather && (
-                                    <div style={{ display: "flex", alignItems: "center", gap: "0.6rem", fontSize: "0.62rem", fontWeight: 600, color: "rgba(255,255,255,0.5)", marginTop: "-0.2rem" }}>
-                                        <span>Feels like {weather.feelsLike}°</span>
-                                        <span>UV: {weather.uv}</span>
-                                        <span>Rain: {weather.precip}%</span>
-                                    </div>
-                                )}
+                                {/* Time Progress Stats */}
+                                {(() => {
+                                    const dayProgress = Math.round(((now.getHours() * 60 + now.getMinutes()) / 1440) * 100);
+                                    const monthProgress = Math.round((now.getDate() / new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate()) * 100);
+                                    const startOfYear = new Date(now.getFullYear(), 0, 1).getTime();
+                                    const endOfYear = new Date(now.getFullYear() + 1, 0, 1).getTime();
+                                    const yearProgress = Math.round(((now.getTime() - startOfYear) / (endOfYear - startOfYear)) * 100);
+                                    const items = [
+                                        { label: "Day", pct: dayProgress },
+                                        { label: "Month", pct: monthProgress },
+                                        { label: "Year", pct: yearProgress },
+                                    ];
+                                    return (
+                                        <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+                                            {items.map(item => (
+                                                <div key={item.label}>
+                                                    <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.6rem", fontWeight: 600, color: "rgba(255,255,255,0.6)", marginBottom: "3px" }}>
+                                                        <span>{item.label}</span>
+                                                        <span style={{ color: "rgba(255,255,255,0.85)", fontVariantNumeric: "tabular-nums" }}>{item.pct}%</span>
+                                                    </div>
+                                                    <div style={{ height: "4px", borderRadius: "2px", background: "rgba(255,255,255,0.08)", overflow: "hidden" }}>
+                                                        <div style={{ width: `${item.pct}%`, height: "100%", borderRadius: "2px", background: "linear-gradient(90deg, rgba(147,197,253,0.7), rgba(167,139,250,0.7))", transition: "width 1s ease" }} />
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    );
+                                })()}
 
                                 {/* GitHub Benchmark */}
                                 <Link href="https://github.com/muhammadfaza16" target="_blank">
