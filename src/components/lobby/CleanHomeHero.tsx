@@ -707,7 +707,7 @@ export function CleanHomeHero() {
                                 📰 Headlines
                             </div>
                             {news && news.articles.length > 0 ? (
-                                <div style={{ position: "relative", height: "185px", overflow: "hidden" }}>
+                                <div style={{ position: "relative", height: "260px", overflow: "hidden" }}>
                                     <motion.div
                                         initial={{ opacity: 0, y: 10 }}
                                         animate={{ opacity: 1, y: 0 }}
