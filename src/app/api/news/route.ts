@@ -1,10 +1,11 @@
 import { NextResponse } from "next/server";
 
-const RSS_TECH = 'https://news.google.com/rss/search?q=programming+OR+"software+engineering"+OR+"artificial+intelligence"&hl=en-US&gl=US&ceid=US:en';
-const RSS_FOOTBALL = 'https://news.google.com/rss/search?q="premier+league"+OR+"champions+league"+OR+"la+liga"&hl=en-US&gl=US&ceid=US:en';
+// We use two queries to grab a wider net of pure technical topics
+const RSS_SWE = 'https://news.google.com/rss/search?q="software+engineering"+OR+"web+development"+OR+"programming"+-smartphone+-gadget&hl=en-US&gl=US&ceid=US:en';
+const RSS_AI = 'https://news.google.com/rss/search?q="artificial+intelligence"+OR+"machine+learning"+OR+"cloud+computing"+-smartphone+-gadget&hl=en-US&gl=US&ceid=US:en';
 
-const API_TECH = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(RSS_TECH)}`;
-const API_FOOTBALL = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(RSS_FOOTBALL)}`;
+const API_SWE = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(RSS_SWE)}`;
+const API_AI = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(RSS_AI)}`;
 
 interface RSSItem {
     title: string;
@@ -28,25 +29,35 @@ function timeAgo(dateStr: string): string {
 
 export async function GET() {
     try {
-        const [resTech, resFootball] = await Promise.all([
-            fetch(API_TECH, { next: { revalidate: 600 } }),
-            fetch(API_FOOTBALL, { next: { revalidate: 600 } })
+        const [resSwe, resAi] = await Promise.all([
+            fetch(API_SWE, { next: { revalidate: 600 } }),
+            fetch(API_AI, { next: { revalidate: 600 } })
         ]);
 
-        if (!resTech.ok || !resFootball.ok) throw new Error("RSS fetch failed");
+        if (!resSwe.ok || !resAi.ok) throw new Error("RSS fetch failed");
 
-        const dataTech = await resTech.json();
-        const dataFootball = await resFootball.json();
+        const dataSwe = await resSwe.json();
+        const dataAi = await resAi.json();
 
-        const itemsTech = (dataTech.items || []) as RSSItem[];
-        const itemsFootball = (dataFootball.items || []) as RSSItem[];
+        const itemsSwe = (dataSwe.items || []) as RSSItem[];
+        const itemsAi = (dataAi.items || []) as RSSItem[];
 
         // Merge and sort descending by pubDate
-        const mergedItems = [...itemsTech, ...itemsFootball].sort((a, b) => {
+        const mergedItems = [...itemsSwe, ...itemsAi].sort((a, b) => {
             return new Date(b.pubDate).getTime() - new Date(a.pubDate).getTime();
         });
 
-        const articles = mergedItems.slice(0, 12).map((item) => {
+        // Filter out obvious non-technical fluff if any slipped through the RSS query
+        const techKeywords = ['code', 'software', 'developer', 'ai', 'cloud', 'architecture', 'programming', 'model', 'api', 'framework'];
+        const filteredItems = mergedItems.filter(item => {
+            const lowerTitle = item.title.toLowerCase();
+            return techKeywords.some(keyword => lowerTitle.includes(keyword));
+        });
+
+        // Fallback to mergedItems if filter is too aggressive
+        const finalItems = filteredItems.length >= 6 ? filteredItems : mergedItems;
+
+        const articles = finalItems.slice(0, 12).map((item) => {
             const parts = item.title.split(" - ");
             const source = parts.length > 1 ? parts.pop()! : "News";
             const title = parts.join(" - ");
