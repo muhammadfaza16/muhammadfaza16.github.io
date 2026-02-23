@@ -61,6 +61,8 @@ export async function GET() {
             next: nextPrayer,
             imsak: timings.Imsak ? timings.Imsak.replace(/\s*\(.*\)/, "") : null,
             midnight: timings.Midnight ? timings.Midnight.replace(/\s*\(.*\)/, "") : null,
+            tahajjud: timings.Lastthird ? timings.Lastthird.replace(/\s*\(.*\)/, "") : null,
+            firstThird: timings.Firstthird ? timings.Firstthird.replace(/\s*\(.*\)/, "") : null,
             hijriDate: data.data.date?.hijri
                 ? `${data.data.date.hijri.day} ${data.data.date.hijri.month?.en} ${data.data.date.hijri.year}`
                 : null,
@@ -71,6 +73,8 @@ export async function GET() {
             next: null,
             imsak: null,
             midnight: null,
+            tahajjud: null,
+            firstThird: null,
             hijriDate: null,
         });
     }

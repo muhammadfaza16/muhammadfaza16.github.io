@@ -78,7 +78,7 @@ export function CleanHomeHero() {
     const [holidays, setHolidays] = useState<{ date: string; name: string; localName: string }[]>([]);
     const [tooltipInfo, setTooltipInfo] = useState<{ day: number; text: string } | null>(null);
     const [greeting, setGreeting] = useState<string>('');
-    const [prayer, setPrayer] = useState<{ prayers: { name: string; time: string }[]; next: { name: string; time: string } | null; hijriDate: string | null; imsak: string | null; midnight: string | null; } | null>(null);
+    const [prayer, setPrayer] = useState<{ prayers: { name: string; time: string }[]; next: { name: string; time: string } | null; hijriDate: string | null; imsak: string | null; midnight: string | null; tahajjud: string | null; firstThird: string | null; } | null>(null);
     const [football, setFootball] = useState<{ matches: { home: string; homeAbbr: string; away: string; awayAbbr: string; date: string; time: string; league: string; leagueEmoji: string; status: string; state: string; homeScore?: string; awayScore?: string; homeScorers: { name: string; time: string }[]; awayScorers: { name: string; time: string }[]; isBigMatch: boolean }[] } | null>(null);
     const [showMatchesPopup, setShowMatchesPopup] = useState(false);
     const [matchTab, setMatchTab] = useState<"upcoming" | "completed">("upcoming");
@@ -187,20 +187,23 @@ export function CleanHomeHero() {
         if (!prayer?.prayers || prayer.prayers.length === 0) return prayer?.next || null;
         const nowMinutes = now.getHours() * 60 + now.getMinutes();
 
-        // Inject Imsak and Midnight
+        // Inject helper times
         const fullBreakdown = [...prayer.prayers];
         if (prayer.imsak) fullBreakdown.push({ name: "Imsak", time: prayer.imsak });
+        if (prayer.tahajjud) fullBreakdown.push({ name: "Tahajjud", time: prayer.tahajjud });
         if (prayer.midnight) fullBreakdown.push({ name: "Midnight", time: prayer.midnight });
+        if (prayer.firstThird) fullBreakdown.push({ name: "First Third", time: prayer.firstThird });
 
+        // Sort literally by minutes from start of day (0-1439)
         fullBreakdown.sort((a, b) => {
             const [hA, mA] = a.time.split(':').map(Number);
             const [hB, mB] = b.time.split(':').map(Number);
             return (hA * 60 + mA) - (hB * 60 + mB);
         });
 
+        // Find the very first event that is > now
         for (const p of fullBreakdown) {
-            let [h, m] = p.time.split(':').map(Number);
-            if (p.name === "Midnight" && h < 12) h += 24; // Handle Midnight wrapping to next day
+            const [h, m] = p.time.split(':').map(Number);
             if (h * 60 + m > nowMinutes) return p;
         }
 
