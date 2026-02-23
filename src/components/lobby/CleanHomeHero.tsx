@@ -87,7 +87,6 @@ export function CleanHomeHero() {
     const [curationReminder, setCurationReminder] = useState<any>(null);
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const [news, setNews] = useState<{ articles: any[] } | null>(null);
-    const [newsPage, setNewsPage] = useState(0);
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const [movies, setMovies] = useState<{ movies: any[] } | null>(null);
     const [showMoviesPopup, setShowMoviesPopup] = useState(false);
@@ -218,8 +217,8 @@ export function CleanHomeHero() {
         const targetMins = h * 60 + m;
         let diffMin = targetMins - (now.getHours() * 60 + now.getMinutes());
 
-        // Handle next-day wrapping
-        if (diffMin < 0 || (dynamicNextPrayer.name === "Midnight" && targetMins < 12 * 60)) {
+        // Handle next-day wrapping (all events have passed for today)
+        if (diffMin < 0) {
             diffMin += 24 * 60;
         }
 
@@ -728,7 +727,7 @@ export function CleanHomeHero() {
                                     >
                                         {visibleNews.map((a: { url: string; title: string; source: string; timeAgo: string; excerpt: string }, i: number) => (
                                             <a
-                                                key={`${newsPage}-${i}`}
+                                                key={`news-${i}`}
                                                 href={a.url}
                                                 target="_blank"
                                                 rel="noopener noreferrer"
@@ -740,7 +739,9 @@ export function CleanHomeHero() {
                                                     {a.title}
                                                 </div>
                                                 {a.excerpt && (
-                                                    <div style={{ fontSize: "0.55rem", color: "rgba(255,255,255,0.55)", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical" as const, overflow: "hidden", lineHeight: 1.35, marginBottom: "2px" }} dangerouslySetInnerHTML={{ __html: a.excerpt }} />
+                                                    <div style={{ fontSize: "0.55rem", color: "rgba(255,255,255,0.55)", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical" as const, overflow: "hidden", lineHeight: 1.35, marginBottom: "2px" }}>
+                                                        {a.excerpt}
+                                                    </div>
                                                 )}
                                                 <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.5rem", color: "rgba(255,255,255,0.4)", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.02em" }}>
                                                     <span>{a.source}</span>
