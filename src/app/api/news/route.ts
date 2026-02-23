@@ -11,28 +11,26 @@ const parser = new Parser({
 });
 
 const CURATED_FEEDS = [
-    { url: "https://waitbutwhy.com/feed", name: "Wait But Why" },
-    { url: "https://filipesilva.github.io/paulgraham-rss/feed.rss", name: "Paul Graham" },
-    { url: "https://fs.blog/feed/", name: "Farnam Street" },
-    { url: "https://overreacted.io/rss.xml", name: "Dan Abramov" },
-    { url: "https://scotthyoung.com/blog/feed/", name: "Scott H. Young" },
-    { url: "https://blog.pragmaticengineer.com/rss/", name: "Pragmatic Engineer" }
+    { url: "https://waitbutwhy.com/feed", name: "Wait But Why", tag: "Deep Dive" },
+    { url: "https://filipesilva.github.io/paulgraham-rss/feed.rss", name: "Paul Graham", tag: "Startup Essay" },
+    { url: "https://fs.blog/feed/", name: "Farnam Street", tag: "Mental Models" },
+    { url: "https://overreacted.io/rss.xml", name: "Dan Abramov", tag: "Frontend" },
+    { url: "https://scotthyoung.com/blog/feed/", name: "Scott H. Young", tag: "Self-Improvement" },
+    { url: "https://blog.pragmaticengineer.com/rss/", name: "Pragmatic Engineer", tag: "Engineering" }
 ];
 
-function timeAgo(dateOrTimestamp: number | string): string {
-    const now = new Date();
-    // HN provides unix timestamp (seconds), Dev.to provides ISO string
+function formatEvergreenMeta(dateOrTimestamp: number | string | undefined, tag: string): string {
+    if (!dateOrTimestamp) return tag;
+
     const date = typeof dateOrTimestamp === 'number'
         ? new Date(dateOrTimestamp * 1000)
         : new Date(dateOrTimestamp);
 
-    const diffMs = now.getTime() - date.getTime();
-    const mins = Math.floor(diffMs / 60000);
-    if (mins < 60) return `${mins}m ago`;
-    const hours = Math.floor(mins / 60);
-    if (hours < 24) return `${hours}h ago`;
-    const days = Math.floor(hours / 24);
-    return `${days}d ago`;
+    // Format to "Oct 2023"
+    const month = date.toLocaleString('default', { month: 'short' });
+    const year = date.getFullYear();
+
+    return `${tag} · ${month} ${year}`;
 }
 
 function stripHtml(html: string): string {
@@ -70,7 +68,7 @@ export async function GET() {
                     title: item.title || "Untitled",
                     source: feedNode.name,
                     url: item.link || item.guid || "",
-                    timeAgo: item.isoDate ? timeAgo(item.isoDate) : item.pubDate ? timeAgo(item.pubDate) : "Recent",
+                    timeAgo: formatEvergreenMeta(item.isoDate || item.pubDate, feedNode.tag),
                     excerpt: stripHtml(item.contentSnippet || item.description || item.contentEncoded || "").substring(0, 150) + "..."
                 }));
 
