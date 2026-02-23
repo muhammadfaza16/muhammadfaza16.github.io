@@ -868,68 +868,94 @@ export function CleanHomeHero() {
                                 📋 Pulse
                             </div>
                             {pulse ? (
-                                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "6px" }}>
+                                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px" }}>
                                     {/* Books */}
                                     <Link href="/bookshelf" style={{ textDecoration: "none" }}>
-                                        <div style={{ padding: "10px", borderRadius: "12px", background: "rgba(255,255,255,0.06)", transition: "background 0.2s ease", cursor: "pointer" }}
-                                            onMouseEnter={(e) => e.currentTarget.style.background = "rgba(255,255,255,0.12)"}
-                                            onMouseLeave={(e) => e.currentTarget.style.background = "rgba(255,255,255,0.06)"}
+                                        <div style={{ position: "relative", padding: "12px", borderRadius: "14px", background: "linear-gradient(145deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.01) 100%)", border: "1px solid rgba(255,255,255,0.06)", boxShadow: "inset 0 1px 0 rgba(255,255,255,0.08)", transition: "all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)", cursor: "pointer", overflow: "hidden" }}
+                                            onMouseEnter={(e) => { e.currentTarget.style.transform = "translateY(-2px)"; e.currentTarget.style.background = "linear-gradient(145deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.02) 100%)"; e.currentTarget.style.borderColor = "rgba(96, 165, 250, 0.3)"; e.currentTarget.style.boxShadow = "inset 0 1px 0 rgba(255,255,255,0.15), 0 8px 16px rgba(0,0,0,0.2)"; }}
+                                            onMouseLeave={(e) => { e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.background = "linear-gradient(145deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.01) 100%)"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.06)"; e.currentTarget.style.boxShadow = "inset 0 1px 0 rgba(255,255,255,0.08)"; }}
                                         >
-                                            <div style={{ fontSize: "0.55rem", color: "rgba(255,255,255,0.5)", textTransform: "uppercase", letterSpacing: "0.05em", fontWeight: 600, marginBottom: "4px" }}>📚 Books</div>
-                                            <div style={{ fontSize: "1.1rem", fontWeight: 800, color: "rgba(255,255,255,0.95)", lineHeight: 1 }}>{pulse.books.total}</div>
-                                            <div style={{ fontSize: "0.5rem", color: "rgba(255,255,255,0.45)", marginTop: "3px" }}>logged</div>
-                                            {pulse.books.latest && (
-                                                <div style={{ fontSize: "0.48rem", color: "rgba(255,255,255,0.35)", marginTop: "4px", fontStyle: "italic", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{pulse.books.latest}</div>
-                                            )}
+                                            <div style={{ position: "absolute", top: "-15px", right: "-15px", width: "50px", height: "50px", background: "rgba(96, 165, 250, 0.2)", filter: "blur(20px)", borderRadius: "50%" }} />
+                                            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "8px", position: "relative", zIndex: 1 }}>
+                                                <div style={{ width: "26px", height: "26px", borderRadius: "8px", background: "rgba(255,255,255,0.05)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "0.85rem", border: "1px solid rgba(255,255,255,0.08)", boxShadow: "0 2px 4px rgba(0,0,0,0.2)" }}>📘</div>
+                                                <div style={{ fontSize: "1.2rem", fontWeight: 800, color: "rgba(255,255,255,0.95)", lineHeight: 1, letterSpacing: "-0.02em" }}>{pulse.books.total}</div>
+                                            </div>
+                                            <div style={{ display: "flex", flexDirection: "column", gap: "2px", position: "relative", zIndex: 1 }}>
+                                                <div style={{ fontSize: "0.55rem", color: "rgba(255,255,255,0.75)", textTransform: "uppercase", letterSpacing: "0.06em", fontWeight: 700 }}>Books</div>
+                                                <div style={{ fontSize: "0.48rem", color: "rgba(255,255,255,0.45)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                                                    {pulse.books.latest ? <span style={{ fontStyle: "italic" }}>"{pulse.books.latest}"</span> : "No logs yet"}
+                                                </div>
+                                            </div>
                                         </div>
                                     </Link>
 
                                     {/* Writings */}
                                     <Link href="/blog" style={{ textDecoration: "none" }}>
-                                        <div style={{ padding: "10px", borderRadius: "12px", background: "rgba(255,255,255,0.06)", transition: "background 0.2s ease", cursor: "pointer" }}
-                                            onMouseEnter={(e) => e.currentTarget.style.background = "rgba(255,255,255,0.12)"}
-                                            onMouseLeave={(e) => e.currentTarget.style.background = "rgba(255,255,255,0.06)"}
+                                        <div style={{ position: "relative", padding: "12px", borderRadius: "14px", background: "linear-gradient(145deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.01) 100%)", border: "1px solid rgba(255,255,255,0.06)", boxShadow: "inset 0 1px 0 rgba(255,255,255,0.08)", transition: "all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)", cursor: "pointer", overflow: "hidden" }}
+                                            onMouseEnter={(e) => { e.currentTarget.style.transform = "translateY(-2px)"; e.currentTarget.style.background = "linear-gradient(145deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.02) 100%)"; e.currentTarget.style.borderColor = "rgba(167, 139, 250, 0.3)"; e.currentTarget.style.boxShadow = "inset 0 1px 0 rgba(255,255,255,0.15), 0 8px 16px rgba(0,0,0,0.2)"; }}
+                                            onMouseLeave={(e) => { e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.background = "linear-gradient(145deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.01) 100%)"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.06)"; e.currentTarget.style.boxShadow = "inset 0 1px 0 rgba(255,255,255,0.08)"; }}
                                         >
-                                            <div style={{ fontSize: "0.55rem", color: "rgba(255,255,255,0.5)", textTransform: "uppercase", letterSpacing: "0.05em", fontWeight: 600, marginBottom: "4px" }}>✍️ Writings</div>
-                                            <div style={{ fontSize: "1.1rem", fontWeight: 800, color: "rgba(255,255,255,0.95)", lineHeight: 1 }}>{pulse.writings.total}</div>
-                                            <div style={{ fontSize: "0.5rem", color: "rgba(255,255,255,0.45)", marginTop: "3px" }}>published</div>
-                                            {pulse.writings.latest && (
-                                                <div style={{ fontSize: "0.48rem", color: "rgba(255,255,255,0.35)", marginTop: "4px", fontStyle: "italic", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{pulse.writings.latest}</div>
-                                            )}
+                                            <div style={{ position: "absolute", top: "-15px", right: "-15px", width: "50px", height: "50px", background: "rgba(167, 139, 250, 0.2)", filter: "blur(20px)", borderRadius: "50%" }} />
+                                            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "8px", position: "relative", zIndex: 1 }}>
+                                                <div style={{ width: "26px", height: "26px", borderRadius: "8px", background: "rgba(255,255,255,0.05)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "0.85rem", border: "1px solid rgba(255,255,255,0.08)", boxShadow: "0 2px 4px rgba(0,0,0,0.2)" }}>🖋️</div>
+                                                <div style={{ fontSize: "1.2rem", fontWeight: 800, color: "rgba(255,255,255,0.95)", lineHeight: 1, letterSpacing: "-0.02em" }}>{pulse.writings.total}</div>
+                                            </div>
+                                            <div style={{ display: "flex", flexDirection: "column", gap: "2px", position: "relative", zIndex: 1 }}>
+                                                <div style={{ fontSize: "0.55rem", color: "rgba(255,255,255,0.75)", textTransform: "uppercase", letterSpacing: "0.06em", fontWeight: 700 }}>Writings</div>
+                                                <div style={{ fontSize: "0.48rem", color: "rgba(255,255,255,0.45)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                                                    {pulse.writings.latest ? <span style={{ fontStyle: "italic" }}>"{pulse.writings.latest}"</span> : "No posts yet"}
+                                                </div>
+                                            </div>
                                         </div>
                                     </Link>
 
                                     {/* Curations */}
                                     <Link href="/curation" style={{ textDecoration: "none" }}>
-                                        <div style={{ padding: "10px", borderRadius: "12px", background: "rgba(255,255,255,0.06)", transition: "background 0.2s ease", cursor: "pointer" }}
-                                            onMouseEnter={(e) => e.currentTarget.style.background = "rgba(255,255,255,0.12)"}
-                                            onMouseLeave={(e) => e.currentTarget.style.background = "rgba(255,255,255,0.06)"}
+                                        <div style={{ position: "relative", padding: "12px", borderRadius: "14px", background: "linear-gradient(145deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.01) 100%)", border: "1px solid rgba(255,255,255,0.06)", boxShadow: "inset 0 1px 0 rgba(255,255,255,0.08)", transition: "all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)", cursor: "pointer", overflow: "hidden" }}
+                                            onMouseEnter={(e) => { e.currentTarget.style.transform = "translateY(-2px)"; e.currentTarget.style.background = "linear-gradient(145deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.02) 100%)"; e.currentTarget.style.borderColor = "rgba(52, 211, 153, 0.3)"; e.currentTarget.style.boxShadow = "inset 0 1px 0 rgba(255,255,255,0.15), 0 8px 16px rgba(0,0,0,0.2)"; }}
+                                            onMouseLeave={(e) => { e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.background = "linear-gradient(145deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.01) 100%)"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.06)"; e.currentTarget.style.boxShadow = "inset 0 1px 0 rgba(255,255,255,0.08)"; }}
                                         >
-                                            <div style={{ fontSize: "0.55rem", color: "rgba(255,255,255,0.5)", textTransform: "uppercase", letterSpacing: "0.05em", fontWeight: 600, marginBottom: "4px" }}>📰 Curations</div>
-                                            <div style={{ display: "flex", alignItems: "baseline", gap: "4px" }}>
-                                                <span style={{ fontSize: "1.1rem", fontWeight: 800, color: "rgba(255,255,255,0.95)", lineHeight: 1 }}>{pulse.curations.total}</span>
-                                                {pulse.curations.unread > 0 && (
-                                                    <span style={{ fontSize: "0.5rem", fontWeight: 700, color: "#f87171", background: "rgba(248,113,113,0.15)", padding: "1px 5px", borderRadius: "6px" }}>{pulse.curations.unread} unread</span>
-                                                )}
+                                            <div style={{ position: "absolute", top: "-15px", right: "-15px", width: "50px", height: "50px", background: "rgba(52, 211, 153, 0.15)", filter: "blur(20px)", borderRadius: "50%" }} />
+                                            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "8px", position: "relative", zIndex: 1 }}>
+                                                <div style={{ width: "26px", height: "26px", borderRadius: "8px", background: "rgba(255,255,255,0.05)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "0.85rem", border: "1px solid rgba(255,255,255,0.08)", boxShadow: "0 2px 4px rgba(0,0,0,0.2)" }}>📰</div>
+                                                <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                                                    {pulse.curations.unread > 0 && (
+                                                        <div style={{ fontSize: "0.45rem", fontWeight: 800, color: "#ef4444", background: "rgba(239, 68, 68, 0.15)", padding: "2px 5px", borderRadius: "4px", border: "1px solid rgba(239, 68, 68, 0.2)" }}>{pulse.curations.unread} NEW</div>
+                                                    )}
+                                                    <div style={{ fontSize: "1.2rem", fontWeight: 800, color: "rgba(255,255,255,0.95)", lineHeight: 1, letterSpacing: "-0.02em" }}>{pulse.curations.total}</div>
+                                                </div>
                                             </div>
-                                            <div style={{ fontSize: "0.5rem", color: "rgba(255,255,255,0.45)", marginTop: "3px" }}>saved</div>
+                                            <div style={{ display: "flex", flexDirection: "column", gap: "2px", position: "relative", zIndex: 1 }}>
+                                                <div style={{ fontSize: "0.55rem", color: "rgba(255,255,255,0.75)", textTransform: "uppercase", letterSpacing: "0.06em", fontWeight: 700 }}>Curations</div>
+                                                <div style={{ fontSize: "0.48rem", color: "rgba(255,255,255,0.45)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                                                    {pulse.curations.latest ? <span style={{ fontStyle: "italic" }}>"{pulse.curations.latest}"</span> : "No saves yet"}
+                                                </div>
+                                            </div>
                                         </div>
                                     </Link>
 
                                     {/* Wishlist */}
                                     <Link href="/wishlist" style={{ textDecoration: "none" }}>
-                                        <div style={{ padding: "10px", borderRadius: "12px", background: "rgba(255,255,255,0.06)", transition: "background 0.2s ease", cursor: "pointer" }}
-                                            onMouseEnter={(e) => e.currentTarget.style.background = "rgba(255,255,255,0.12)"}
-                                            onMouseLeave={(e) => e.currentTarget.style.background = "rgba(255,255,255,0.06)"}
+                                        <div style={{ position: "relative", padding: "12px", borderRadius: "14px", background: "linear-gradient(145deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.01) 100%)", border: "1px solid rgba(255,255,255,0.06)", boxShadow: "inset 0 1px 0 rgba(255,255,255,0.08)", transition: "all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)", cursor: "pointer", overflow: "hidden" }}
+                                            onMouseEnter={(e) => { e.currentTarget.style.transform = "translateY(-2px)"; e.currentTarget.style.background = "linear-gradient(145deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.02) 100%)"; e.currentTarget.style.borderColor = "rgba(251, 191, 36, 0.3)"; e.currentTarget.style.boxShadow = "inset 0 1px 0 rgba(255,255,255,0.15), 0 8px 16px rgba(0,0,0,0.2)"; }}
+                                            onMouseLeave={(e) => { e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.background = "linear-gradient(145deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.01) 100%)"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.06)"; e.currentTarget.style.boxShadow = "inset 0 1px 0 rgba(255,255,255,0.08)"; }}
                                         >
-                                            <div style={{ fontSize: "0.55rem", color: "rgba(255,255,255,0.5)", textTransform: "uppercase", letterSpacing: "0.05em", fontWeight: 600, marginBottom: "4px" }}>🎁 Wishlist</div>
-                                            <div style={{ display: "flex", alignItems: "baseline", gap: "4px" }}>
-                                                <span style={{ fontSize: "1.1rem", fontWeight: 800, color: "rgba(255,255,255,0.95)", lineHeight: 1 }}>{pulse.wishlist.total}</span>
-                                                {pulse.wishlist.highPriority > 0 && (
-                                                    <span style={{ fontSize: "0.5rem", fontWeight: 700, color: "#fbbf24", background: "rgba(251,191,36,0.15)", padding: "1px 5px", borderRadius: "6px" }}>{pulse.wishlist.highPriority} high</span>
-                                                )}
+                                            <div style={{ position: "absolute", top: "-15px", right: "-15px", width: "50px", height: "50px", background: "rgba(251, 191, 36, 0.15)", filter: "blur(20px)", borderRadius: "50%" }} />
+                                            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "8px", position: "relative", zIndex: 1 }}>
+                                                <div style={{ width: "26px", height: "26px", borderRadius: "8px", background: "rgba(255,255,255,0.05)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "0.85rem", border: "1px solid rgba(255,255,255,0.08)", boxShadow: "0 2px 4px rgba(0,0,0,0.2)" }}>🎁</div>
+                                                <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                                                    {pulse.wishlist.highPriority > 0 && (
+                                                        <div style={{ fontSize: "0.45rem", fontWeight: 800, color: "#fbbf24", background: "rgba(251, 191, 36, 0.15)", padding: "2px 5px", borderRadius: "4px", border: "1px solid rgba(251, 191, 36, 0.2)" }}>{pulse.wishlist.highPriority} HIGH</div>
+                                                    )}
+                                                    <div style={{ fontSize: "1.2rem", fontWeight: 800, color: "rgba(255,255,255,0.95)", lineHeight: 1, letterSpacing: "-0.02em" }}>{pulse.wishlist.total}</div>
+                                                </div>
                                             </div>
-                                            <div style={{ fontSize: "0.5rem", color: "rgba(255,255,255,0.45)", marginTop: "3px" }}>items</div>
+                                            <div style={{ display: "flex", flexDirection: "column", gap: "2px", position: "relative", zIndex: 1 }}>
+                                                <div style={{ fontSize: "0.55rem", color: "rgba(255,255,255,0.75)", textTransform: "uppercase", letterSpacing: "0.06em", fontWeight: 700 }}>Wishlist</div>
+                                                <div style={{ fontSize: "0.48rem", color: "rgba(255,255,255,0.45)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                                                    Tracked & Prioritized
+                                                </div>
+                                            </div>
                                         </div>
                                     </Link>
                                 </div>
