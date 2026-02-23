@@ -1,15 +1,23 @@
 import { NextResponse } from "next/server";
+import Parser from "rss-parser";
 
-// We use two primary sources for pure technical content: Hacker News and Dev.to
-const HN_TOP_URL = "https://hacker-news.firebaseio.com/v0/topstories.json?print=pretty";
-const DEV_TO_URL = "https://dev.to/api/articles?tag=ai,programming&top=1&per_page=10";
+const parser = new Parser({
+    customFields: {
+        item: [
+            ['content:encoded', 'contentEncoded'],
+            ['description', 'description']
+        ]
+    }
+});
 
-// Helper to fetch details for a specific HN item
-async function fetchHNItem(id: number) {
-    const res = await fetch(`https://hacker-news.firebaseio.com/v0/item/${id}.json`);
-    if (!res.ok) return null;
-    return await res.json();
-}
+const CURATED_FEEDS = [
+    { url: "https://waitbutwhy.com/feed", name: "Wait But Why" },
+    { url: "https://hackernoon.com/feed", name: "HackerNoon" },
+    { url: "https://fs.blog/feed/", name: "Farnam Street" },
+    { url: "https://overreacted.io/rss.xml", name: "Dan Abramov" },
+    { url: "https://scotthyoung.com/blog/feed/", name: "Scott H. Young" },
+    { url: "https://blog.pragmaticengineer.com/rss/", name: "Pragmatic Engineer" }
+];
 
 function timeAgo(dateOrTimestamp: number | string): string {
     const now = new Date();
@@ -27,49 +35,43 @@ function timeAgo(dateOrTimestamp: number | string): string {
     return `${days}d ago`;
 }
 
+function stripHtml(html: string): string {
+    if (!html) return "";
+    return html.replace(/<[^>]*>?/gm, '').trim();
+}
+
 export async function GET() {
     try {
-        // 1. Fetch HN Top IDs and Dev.to Articles concurrently
-        const [hnRes, devRes] = await Promise.all([
-            fetch(HN_TOP_URL, { next: { revalidate: 600 } }),
-            fetch(DEV_TO_URL, { next: { revalidate: 600 } })
-        ]);
+        const feedPromises = CURATED_FEEDS.map(async (feedNode) => {
+            try {
+                // We use fetch with user-agent to bypass basic anti-bot blockers (e.g., Farnam Street)
+                const response = await fetch(feedNode.url, {
+                    next: { revalidate: 3600 },
+                    headers: {
+                        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120.0.0.0 Safari/537.36',
+                        'Accept': 'application/rss+xml, application/xml, text/xml, */*'
+                    }
+                });
+                const xml = await response.text();
+                const feed = await parser.parseString(xml);
 
-        if (!hnRes.ok || !devRes.ok) throw new Error("API fetch failed");
+                return feed.items.slice(0, 5).map(item => ({
+                    title: item.title || "Untitled",
+                    source: feedNode.name,
+                    url: item.link || item.guid || "",
+                    timeAgo: item.isoDate ? timeAgo(item.isoDate) : item.pubDate ? timeAgo(item.pubDate) : "Recent",
+                    pubDateMs: item.isoDate ? new Date(item.isoDate).getTime() : item.pubDate ? new Date(item.pubDate).getTime() : 0,
+                    excerpt: stripHtml(item.contentSnippet || item.description || item.contentEncoded || "").substring(0, 150) + "..."
+                }));
+            } catch (err) {
+                console.error(`Failed to parse feed ${feedNode.name}:`, err);
+                return [];
+            }
+        });
 
-        const hnIds = await hnRes.json();
-        const devArticlesRaw = await devRes.json();
+        const nestedItems = await Promise.all(feedPromises);
+        const mergedItems = nestedItems.flat().sort((a, b) => b.pubDateMs - a.pubDateMs);
 
-        // 2. Fetch top 8 Hacker News items explicitly (since we only have IDs initially)
-        const hnTopIds = hnIds.slice(0, 8);
-        const hnItemsPromises = hnTopIds.map((id: number) => fetchHNItem(id));
-        const hnItemsRaw = await Promise.all(hnItemsPromises);
-
-        // 3. Format Hacker News Items
-        const hnFormatted = hnItemsRaw.filter(item => item && item.title && item.url).map(item => ({
-            title: item.title,
-            source: "Hacker News",
-            url: item.url,
-            timeAgo: timeAgo(item.time), // Unix seconds
-            pubDateMs: item.time * 1000,
-            excerpt: `Score: ${item.score} | by ${item.by} | ${item.descendants} comments`,
-        }));
-
-        // 4. Format Dev.to Items
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const devFormatted = devArticlesRaw.filter((a: any) => a.title && a.url).slice(0, 8).map((item: any) => ({
-            title: item.title,
-            source: "Dev.to",
-            url: item.url,
-            timeAgo: timeAgo(item.published_at), // ISO string
-            pubDateMs: new Date(item.published_at).getTime(),
-            excerpt: item.description ? item.description.substring(0, 120) + "..." : `Tags: ${item.tag_list.join(', ')}`,
-        }));
-
-        // 5. Merge and sort descending by absolute time
-        const mergedItems = [...hnFormatted, ...devFormatted].sort((a, b) => b.pubDateMs - a.pubDateMs);
-
-        // Map cleanly for the frontend, removing the temporary pubDateMs sorting key
         const articles = mergedItems.slice(0, 12).map((item) => ({
             title: item.title,
             source: item.source,
@@ -78,8 +80,13 @@ export async function GET() {
             excerpt: item.excerpt,
         }));
 
-        return NextResponse.json({ articles });
-    } catch {
+        return NextResponse.json({ articles }, {
+            headers: {
+                "Cache-Control": "s-maxage=3600, stale-while-revalidate=1800"
+            }
+        });
+    } catch (error) {
+        console.error("Global RSS Fetch Error:", error);
         return NextResponse.json({ articles: [] });
     }
 }
