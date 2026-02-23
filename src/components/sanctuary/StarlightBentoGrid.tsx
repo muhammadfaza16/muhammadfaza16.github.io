@@ -44,9 +44,8 @@ const AppIcon = ({ title, href, icon, iconColor, delay = 0 }: AppIconProps) => {
                     width: "clamp(58px, 16vw, 72px)",
                     height: "clamp(58px, 16vw, 72px)",
                     borderRadius: "22.5%",
-                    background: "rgba(0, 0, 0, 0.15)", // Lighter built-in dark opacity
-                    backdropFilter: "blur(32px) saturate(180%) brightness(110%)",
-                    WebkitBackdropFilter: "blur(32px) saturate(180%) brightness(110%)",
+                    background: "rgba(0, 0, 0, 0.25)", // Darker glass tint instead of blur for performance
+                    willChange: "transform, opacity", // Prevent Safari rendering bugs
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",

@@ -336,8 +336,7 @@ export default function JournalPage() {
                         initial={{ scale: 0.95, opacity: 0 }}
                         animate={{ scale: 1, opacity: 1 }}
                         onClick={() => openModal(today)}
-                        whileHover={{ scale: 1.01 }}
-                        whileTap={{ scale: 0.99 }}
+                        className="hover:scale-[1.01] active:scale-[0.99] transition-transform duration-300"
                         style={{
                             background: "#fff",
                             borderRadius: "2px", // Sharp corners for card feel
@@ -674,9 +673,9 @@ export default function JournalPage() {
                                 {/* Save & Delete Buttons */}
                                 <div style={{ display: "flex", gap: "10px" }}>
                                     {entries[selectedDate?.toISOString().split('T')[0] || ""] && (
-                                        <motion.button
-                                            whileTap={{ scale: 0.95 }}
+                                        <button
                                             onClick={handleDelete}
+                                            className="active:scale-95 transition-transform duration-200"
                                             style={{
                                                 padding: "1.2rem",
                                                 background: "#f8d7da",
@@ -688,12 +687,12 @@ export default function JournalPage() {
                                             }}
                                         >
                                             <Trash2 size={20} />
-                                        </motion.button>
+                                        </button>
                                     )}
-                                    <motion.button
-                                        whileTap={{ scale: 0.98 }}
+                                    <button
                                         onClick={handleSave}
                                         disabled={!selectedMood}
+                                        className="active:scale-[0.98]"
                                         style={{
                                             flex: 1,
                                             padding: "1.2rem",
@@ -711,7 +710,7 @@ export default function JournalPage() {
                                     >
                                         <Save size={20} />
                                         Simpan Cerita
-                                    </motion.button>
+                                    </button>
                                 </div>
                             </div>
                         </motion.div>

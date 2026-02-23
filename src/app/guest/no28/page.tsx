@@ -63,8 +63,11 @@ const FloatingParticles = () => {
     return (
         <div style={{ position: "fixed", inset: 0, zIndex: 0, pointerEvents: "none" }}>
             {particles.map((p: any) => (
-                <motion.div key={p.id} animate={{ y: [0, -100, 0], opacity: [0, 0.4, 0], scale: [0.8, 1.2, 0.8] }} transition={{ duration: p.duration, repeat: Infinity, ease: "linear", delay: p.delay }}
-                    style={{ position: "absolute", left: p.left, top: p.top, width: p.size, height: p.size, borderRadius: "50%", background: "#d2691e", filter: "blur(1px)" }} />
+                <div key={p.id}
+                    style={{
+                        position: "absolute", left: p.left, top: p.top, width: p.size, height: p.size, borderRadius: "50%", background: "#d2691e", filter: "blur(1px)",
+                        animation: `floatParticle ${p.duration}s linear ${p.delay}s infinite`
+                    }} />
             ))}
         </div>
     );
@@ -93,20 +96,8 @@ const FallingPetals = () => {
     return (
         <div style={{ position: "fixed", inset: 0, zIndex: 2, pointerEvents: "none", overflow: "hidden" }}>
             {petals.map(petal => (
-                <motion.div
+                <div
                     key={petal.id}
-                    initial={{ y: "-5%", opacity: 0 }}
-                    animate={{
-                        y: "105vh",
-                        x: [0, 20, -15, 25, 0],
-                        opacity: [0, 0.6, 0.6, 0.4, 0]
-                    }}
-                    transition={{
-                        duration: petal.duration,
-                        delay: petal.delay,
-                        repeat: Infinity,
-                        ease: "linear"
-                    }}
                     style={{
                         position: "absolute",
                         left: petal.left,
@@ -114,7 +105,8 @@ const FallingPetals = () => {
                         height: petal.size,
                         borderRadius: "50% 0 50% 50%",
                         background: "linear-gradient(135deg, #ffb7c5 0%, #ffc0cb 100%)",
-                        willChange: "transform, opacity"
+                        willChange: "transform, opacity",
+                        animation: `fallPetal ${petal.duration}s linear ${petal.delay}s infinite`,
                     }}
                 />
             ))}
@@ -130,31 +122,40 @@ const Butterflies = () => {
     ], []);
 
     return (
-        <div style={{ position: "fixed", inset: 0, zIndex: 3, pointerEvents: "none" }}>
-            {butterflies.map(butterfly => (
-                <motion.div
-                    key={butterfly.id}
-                    animate={{
-                        x: [0, 60, -30, 80, 0],
-                        y: [0, -50, 20, -60, 0],
-                    }}
-                    transition={{
-                        duration: 25 + butterfly.id * 8,
-                        repeat: Infinity,
-                        ease: "easeInOut"
-                    }}
-                    style={{
-                        position: "absolute",
-                        left: butterfly.startX,
-                        top: butterfly.startY,
-                        fontSize: "1.3rem",
-                        willChange: "transform"
-                    }}
-                >
-                    🦋
-                </motion.div>
-            ))}
-        </div>
+        <>
+            <style dangerouslySetInnerHTML={{
+                __html: `
+                @keyframes flyButterfly1 {
+                    0%, 100% { transform: translate(0, 0); }
+                    25% { transform: translate(60px, -50px); }
+                    50% { transform: translate(-30px, 20px); }
+                    75% { transform: translate(80px, -60px); }
+                }
+                @keyframes flyButterfly2 {
+                    0%, 100% { transform: translate(0, 0); }
+                    25% { transform: translate(-40px, -60px); }
+                    50% { transform: translate(30px, -20px); }
+                    75% { transform: translate(-70px, -40px); }
+                }
+            `}} />
+            <div style={{ position: "fixed", inset: 0, zIndex: 3, pointerEvents: "none" }}>
+                {butterflies.map((butterfly, idx) => (
+                    <div
+                        key={butterfly.id}
+                        style={{
+                            position: "absolute",
+                            left: butterfly.startX,
+                            top: butterfly.startY,
+                            fontSize: "1.3rem",
+                            willChange: "transform",
+                            animation: `flyButterfly${idx + 1} ${25 + butterfly.id * 8}s ease-in-out infinite`
+                        }}
+                    >
+                        🦋
+                    </div>
+                ))}
+            </div>
+        </>
     );
 };
 
@@ -557,7 +558,7 @@ export default function GuestNo28Dashboard() {
             <AnimatePresence>
                 {showSecretMessage && (
                     <motion.div
-                        initial={{ opacity: 1,}}
+                        initial={{ opacity: 1, }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
                         style={{
@@ -728,8 +729,7 @@ export default function GuestNo28Dashboard() {
                         <Link href="/guest/no28/letter" scroll={false} style={{ textDecoration: "none", width: isMobile ? "92%" : "auto", alignSelf: isMobile ? "flex-start" : "auto", display: "block" }}>
                             <motion.div
                                 variants={itemVariants}
-                                whileHover={{ scale: 1.02, y: -5, rotate: -1, boxShadow: "0 15px 30px rgba(0,0,0,0.12)" }}
-                                whileTap={{ scale: 0.97 }}
+                                className="hover:scale-[1.02] hover:-translate-y-1 hover:-rotate-1 active:scale-95 transition-all duration-300 hover:shadow-2xl"
                                 style={{
                                     ...baseCardStyle,
                                     height: "320px",
@@ -762,8 +762,7 @@ export default function GuestNo28Dashboard() {
                         <Link href="/guest/no28/special_day" scroll={false} style={{ textDecoration: "none", width: isMobile ? "92%" : "auto", alignSelf: isMobile ? "flex-end" : "auto", display: "block" }}>
                             <motion.div
                                 variants={itemVariants}
-                                whileHover={{ scale: 1.02, y: -5, rotate: 2, boxShadow: "0 15px 30px rgba(0,0,0,0.12)" }}
-                                whileTap={{ scale: 0.97 }}
+                                className="hover:scale-[1.02] hover:-translate-y-1 hover:rotate-2 active:scale-95 transition-all duration-300 hover:shadow-2xl"
                                 style={{
                                     ...baseCardStyle,
                                     height: "320px",
@@ -795,7 +794,7 @@ export default function GuestNo28Dashboard() {
 
                         <motion.div
                             variants={itemVariants}
-                            whileHover={{ y: -5, rotate: -0.5, boxShadow: "0 15px 30px rgba(0,0,0,0.12)" }}
+                            className="hover:-translate-y-1 hover:-rotate-1 active:scale-95 transition-all duration-300 hover:shadow-2xl"
                             onTouchStart={handleLongPressStart}
                             onTouchEnd={handleLongPressEnd}
                             onDoubleClick={handleDoubleTap}
@@ -900,7 +899,7 @@ export default function GuestNo28Dashboard() {
                     </motion.div>
 
                     <motion.div
-                        initial={{ opacity: 1,}}
+                        initial={{ opacity: 1, }}
                         animate={{ opacity: 0.8 }}
                         transition={{ delay: 1.5, duration: 2 }}
                         style={{ textAlign: "center", marginTop: "5rem", marginBottom: "1rem" }}

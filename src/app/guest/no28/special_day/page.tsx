@@ -286,8 +286,7 @@ export default function SpecialDayHub() {
                             <motion.div variants={fadeUp}>
                                 <Link href="/guest/no28/special_day/history" style={{ textDecoration: "none", color: "inherit", display: "block" }}>
                                     <motion.div
-                                        whileHover={{ scale: 1.015, y: -6 }}
-                                        whileTap={{ scale: 0.99 }}
+                                        className="hover:scale-[1.015] hover:-translate-y-1.5 active:scale-[0.99] transition-transform duration-300"
                                         style={{
                                             position: "relative", backgroundColor: T.cardBg,
                                             backgroundImage: T.paperTexture, borderRadius: "8px",
@@ -325,7 +324,7 @@ export default function SpecialDayHub() {
                                                     { src: "/portrait_2.webp", rotate: -3, left: isMobile ? 85 : 105, zIndex: 3 },
                                                 ].map((photo, i) => (
                                                     <motion.div key={i}
-                                                        whileHover={{ y: -8, rotate: 0, scale: 1.05 }}
+                                                        className="hover:-translate-y-2 hover:rotate-0 hover:scale-105 transition-all duration-300"
                                                         style={{
                                                             position: "absolute", top: 0, left: photo.left,
                                                             width: isMobile ? "55px" : "70px", height: isMobile ? "70px" : "85px",
@@ -395,8 +394,7 @@ export default function SpecialDayHub() {
                                 <motion.div variants={fadeUp}>
                                     <Link href="/guest/no28/special_day/confessions" style={{ textDecoration: "none", color: "inherit", display: "block", height: "100%" }}>
                                         <motion.div
-                                            whileHover={{ scale: 1.02, y: -6 }}
-                                            whileTap={{ scale: 0.98 }}
+                                            className="hover:scale-[1.02] hover:-translate-y-1.5 active:scale-[0.98] transition-transform duration-300"
                                             style={{
                                                 position: "relative",
                                                 background: "linear-gradient(145deg, #0f0e1a 0%, #1a1a2e 40%, #16213e 100%)",
@@ -457,8 +455,7 @@ export default function SpecialDayHub() {
                                 <motion.div variants={fadeUp}>
                                     <Link href="/guest/no28/special_day/year" style={{ textDecoration: "none", color: "inherit", display: "block", height: "100%" }}>
                                         <motion.div
-                                            whileHover={{ scale: 1.02, y: -6 }}
-                                            whileTap={{ scale: 0.98 }}
+                                            className="hover:scale-[1.02] hover:-translate-y-1.5 active:scale-[0.98] transition-transform duration-300"
                                             style={{
                                                 position: "relative", backgroundColor: T.cardBg,
                                                 backgroundImage: T.paperTexture, borderRadius: "8px",
@@ -545,8 +542,7 @@ export default function SpecialDayHub() {
                             <motion.div variants={fadeUp}>
                                 <Link href="/guest/no28/special_day/melody" style={{ textDecoration: "none", color: "inherit", display: "block" }}>
                                     <motion.div
-                                        whileHover={{ scale: 1.015, y: -6 }}
-                                        whileTap={{ scale: 0.99 }}
+                                        className="hover:scale-[1.015] hover:-translate-y-1.5 active:scale-[0.99] transition-transform duration-300"
                                         style={{
                                             position: "relative", backgroundColor: T.cardBg,
                                             backgroundImage: T.paperTexture, borderRadius: "8px",
