@@ -42,7 +42,7 @@ export function CleanHomeHero() {
     }, [activeLyricIndex]);
 
     // Widget system: N-widget slider
-    const WIDGETS = ['calendar', 'music', 'news', 'crypto', 'movies'] as const;
+    const WIDGETS = ['calendar', 'music', 'news', 'crypto', 'pulse'] as const;
     const [widgetIndex, setWidgetIndex] = useState(0);
     const touchStartRef = useRef<{ x: number; y: number } | null>(null);
     const [swipeDirection, setSwipeDirection] = useState<1 | -1>(1);
@@ -88,9 +88,7 @@ export function CleanHomeHero() {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const [news, setNews] = useState<{ articles: any[] } | null>(null);
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const [movies, setMovies] = useState<{ movies: any[] } | null>(null);
-    const [showMoviesPopup, setShowMoviesPopup] = useState(false);
-    const [selectedMovieIndex, setSelectedMovieIndex] = useState<number | null>(null);
+    const [pulse, setPulse] = useState<{ books: any; writings: any; curations: any; wishlist: any } | null>(null);
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const [cryptoData, setCryptoData] = useState<{ crypto: any[]; global: any; forex: any } | null>(null);
     const [hoveredCoin, setHoveredCoin] = useState<string | null>(null);
@@ -127,7 +125,7 @@ export function CleanHomeHero() {
         fetch('/api/football').then(r => r.json()).then(setFootball).catch(() => { });
         fetch('/api/news').then(r => r.json()).then(setNews).catch(() => { });
         fetch('/api/crypto').then(r => r.json()).then(d => setCryptoData(d)).catch(() => { });
-        fetch('/api/movies').then(r => r.json()).then(setMovies).catch(() => { });
+        fetch('/api/pulse').then(r => r.json()).then(setPulse).catch(() => { });
     }, []);
 
     // Fetch AI greeting after weather loads (to pass weather context)
@@ -851,9 +849,9 @@ export function CleanHomeHero() {
                                 <div style={{ fontSize: "0.72rem", color: "rgba(255,255,255,0.55)", textAlign: "center", padding: "1.5rem 0" }}>Loading markets···</div>
                             )}
                         </motion.div>
-                    ) : WIDGETS[widgetIndex] === 'movies' ? (
+                    ) : WIDGETS[widgetIndex] === 'pulse' ? (
                         <motion.div
-                            key="movies"
+                            key="pulse"
                             custom={swipeDirection}
                             variants={{
                                 initial: (d: number) => ({ opacity: 0, x: d * 60 }),
@@ -867,36 +865,76 @@ export function CleanHomeHero() {
                             style={{ position: "relative", zIndex: 1 }}
                         >
                             <div style={{ display: "flex", alignItems: "center", gap: "0.3rem", fontSize: "0.7rem", fontWeight: 700, color: "rgba(255,255,255,0.95)", marginBottom: "0.5rem", textTransform: "uppercase" as const, letterSpacing: "0.03em" }}>
-                                🎬 Trending
+                                📋 Pulse
                             </div>
-                            {movies && movies.movies.length > 0 ? (
-                                <div style={{ display: "flex", flexDirection: "column", gap: "5px" }}>
-                                    {movies.movies.slice(0, 4).map((m: { id: number; title: string; poster: string | null; rating: number; year: string; overview: string; language: string; genres: number[] }, i: number) => (
-                                        <div
-                                            key={m.id}
-                                            onClick={() => { setSelectedMovieIndex(i); setShowMoviesPopup(true); }}
-                                            style={{ display: "flex", alignItems: "center", gap: "8px", padding: "4px 6px", borderRadius: "8px", background: "rgba(255,255,255,0.06)", cursor: "pointer", transition: "background 0.2s ease" }}
+                            {pulse ? (
+                                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "6px" }}>
+                                    {/* Books */}
+                                    <Link href="/bookshelf" style={{ textDecoration: "none" }}>
+                                        <div style={{ padding: "10px", borderRadius: "12px", background: "rgba(255,255,255,0.06)", transition: "background 0.2s ease", cursor: "pointer" }}
                                             onMouseEnter={(e) => e.currentTarget.style.background = "rgba(255,255,255,0.12)"}
                                             onMouseLeave={(e) => e.currentTarget.style.background = "rgba(255,255,255,0.06)"}
                                         >
-                                            {m.poster ? (
-                                                <img src={m.poster} alt={m.title} style={{ width: "28px", height: "40px", borderRadius: "4px", objectFit: "cover" as const, flexShrink: 0 }} />
-                                            ) : (
-                                                <div style={{ width: "28px", height: "40px", borderRadius: "4px", background: "rgba(255,255,255,0.1)", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", fontSize: "0.8rem" }}>🎬</div>
+                                            <div style={{ fontSize: "0.55rem", color: "rgba(255,255,255,0.5)", textTransform: "uppercase", letterSpacing: "0.05em", fontWeight: 600, marginBottom: "4px" }}>📚 Books</div>
+                                            <div style={{ fontSize: "1.1rem", fontWeight: 800, color: "rgba(255,255,255,0.95)", lineHeight: 1 }}>{pulse.books.total}</div>
+                                            <div style={{ fontSize: "0.5rem", color: "rgba(255,255,255,0.45)", marginTop: "3px" }}>logged</div>
+                                            {pulse.books.latest && (
+                                                <div style={{ fontSize: "0.48rem", color: "rgba(255,255,255,0.35)", marginTop: "4px", fontStyle: "italic", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{pulse.books.latest}</div>
                                             )}
-                                            <div style={{ flex: 1, minWidth: 0 }}>
-                                                <div style={{ fontSize: "0.68rem", fontWeight: 600, color: "rgba(255,255,255,0.9)", whiteSpace: "nowrap" as const, overflow: "hidden", textOverflow: "ellipsis" }}>
-                                                    {m.title}
-                                                </div>
-                                                <div style={{ fontSize: "0.52rem", color: "rgba(255,255,255,0.5)" }}>
-                                                    ⭐ {m.rating} · {m.year}
-                                                </div>
-                                            </div>
                                         </div>
-                                    ))}
+                                    </Link>
+
+                                    {/* Writings */}
+                                    <Link href="/blog" style={{ textDecoration: "none" }}>
+                                        <div style={{ padding: "10px", borderRadius: "12px", background: "rgba(255,255,255,0.06)", transition: "background 0.2s ease", cursor: "pointer" }}
+                                            onMouseEnter={(e) => e.currentTarget.style.background = "rgba(255,255,255,0.12)"}
+                                            onMouseLeave={(e) => e.currentTarget.style.background = "rgba(255,255,255,0.06)"}
+                                        >
+                                            <div style={{ fontSize: "0.55rem", color: "rgba(255,255,255,0.5)", textTransform: "uppercase", letterSpacing: "0.05em", fontWeight: 600, marginBottom: "4px" }}>✍️ Writings</div>
+                                            <div style={{ fontSize: "1.1rem", fontWeight: 800, color: "rgba(255,255,255,0.95)", lineHeight: 1 }}>{pulse.writings.total}</div>
+                                            <div style={{ fontSize: "0.5rem", color: "rgba(255,255,255,0.45)", marginTop: "3px" }}>published</div>
+                                            {pulse.writings.latest && (
+                                                <div style={{ fontSize: "0.48rem", color: "rgba(255,255,255,0.35)", marginTop: "4px", fontStyle: "italic", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{pulse.writings.latest}</div>
+                                            )}
+                                        </div>
+                                    </Link>
+
+                                    {/* Curations */}
+                                    <Link href="/curation" style={{ textDecoration: "none" }}>
+                                        <div style={{ padding: "10px", borderRadius: "12px", background: "rgba(255,255,255,0.06)", transition: "background 0.2s ease", cursor: "pointer" }}
+                                            onMouseEnter={(e) => e.currentTarget.style.background = "rgba(255,255,255,0.12)"}
+                                            onMouseLeave={(e) => e.currentTarget.style.background = "rgba(255,255,255,0.06)"}
+                                        >
+                                            <div style={{ fontSize: "0.55rem", color: "rgba(255,255,255,0.5)", textTransform: "uppercase", letterSpacing: "0.05em", fontWeight: 600, marginBottom: "4px" }}>📰 Curations</div>
+                                            <div style={{ display: "flex", alignItems: "baseline", gap: "4px" }}>
+                                                <span style={{ fontSize: "1.1rem", fontWeight: 800, color: "rgba(255,255,255,0.95)", lineHeight: 1 }}>{pulse.curations.total}</span>
+                                                {pulse.curations.unread > 0 && (
+                                                    <span style={{ fontSize: "0.5rem", fontWeight: 700, color: "#f87171", background: "rgba(248,113,113,0.15)", padding: "1px 5px", borderRadius: "6px" }}>{pulse.curations.unread} unread</span>
+                                                )}
+                                            </div>
+                                            <div style={{ fontSize: "0.5rem", color: "rgba(255,255,255,0.45)", marginTop: "3px" }}>saved</div>
+                                        </div>
+                                    </Link>
+
+                                    {/* Wishlist */}
+                                    <Link href="/wishlist" style={{ textDecoration: "none" }}>
+                                        <div style={{ padding: "10px", borderRadius: "12px", background: "rgba(255,255,255,0.06)", transition: "background 0.2s ease", cursor: "pointer" }}
+                                            onMouseEnter={(e) => e.currentTarget.style.background = "rgba(255,255,255,0.12)"}
+                                            onMouseLeave={(e) => e.currentTarget.style.background = "rgba(255,255,255,0.06)"}
+                                        >
+                                            <div style={{ fontSize: "0.55rem", color: "rgba(255,255,255,0.5)", textTransform: "uppercase", letterSpacing: "0.05em", fontWeight: 600, marginBottom: "4px" }}>🎁 Wishlist</div>
+                                            <div style={{ display: "flex", alignItems: "baseline", gap: "4px" }}>
+                                                <span style={{ fontSize: "1.1rem", fontWeight: 800, color: "rgba(255,255,255,0.95)", lineHeight: 1 }}>{pulse.wishlist.total}</span>
+                                                {pulse.wishlist.highPriority > 0 && (
+                                                    <span style={{ fontSize: "0.5rem", fontWeight: 700, color: "#fbbf24", background: "rgba(251,191,36,0.15)", padding: "1px 5px", borderRadius: "6px" }}>{pulse.wishlist.highPriority} high</span>
+                                                )}
+                                            </div>
+                                            <div style={{ fontSize: "0.5rem", color: "rgba(255,255,255,0.45)", marginTop: "3px" }}>items</div>
+                                        </div>
+                                    </Link>
                                 </div>
                             ) : (
-                                <div style={{ fontSize: "0.72rem", color: "rgba(255,255,255,0.55)", textAlign: "center", padding: "1.5rem 0" }}>No movies data</div>
+                                <div style={{ fontSize: "0.72rem", color: "rgba(255,255,255,0.55)", textAlign: "center", padding: "1.5rem 0" }}>Loading pulse···</div>
                             )}
                         </motion.div>
                     ) : (
@@ -1408,73 +1446,7 @@ export function CleanHomeHero() {
                 )}
             </AnimatePresence>
 
-            {/* ── Movies Popup ── */}
-            <AnimatePresence>
-                {showMoviesPopup && movies && selectedMovieIndex !== null && (
-                    <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        onClick={() => setShowMoviesPopup(false)}
-                        style={{
-                            position: "fixed",
-                            inset: 0,
-                            zIndex: 9999,
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                            background: "rgba(0,0,0,0.35)",
-                            backdropFilter: "blur(6px)",
-                            padding: "1rem",
-                        }}
-                    >
-                        <motion.div
-                            initial={{ scale: 0.9, opacity: 0, y: 20 }}
-                            animate={{ scale: 1, opacity: 1, y: 0 }}
-                            exit={{ scale: 0.9, opacity: 0, y: 20 }}
-                            transition={{ type: "spring", damping: 25, stiffness: 300 }}
-                            onClick={(e) => e.stopPropagation()}
-                            style={{
-                                background: "linear-gradient(135deg, rgba(30,35,50,0.92) 0%, rgba(20,25,40,0.95) 100%)",
-                                backdropFilter: "blur(40px)",
-                                border: "1px solid rgba(255,255,255,0.15)",
-                                borderRadius: "24px",
-                                padding: "1.5rem",
-                                maxWidth: "340px",
-                                width: "100%",
-                                color: "rgba(255,255,255,0.95)",
-                                display: "flex",
-                                flexDirection: "column",
-                                gap: "1rem",
-                            }}
-                        >
-                            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
-                                <div style={{ display: "flex", gap: "1rem" }}>
-                                    {movies.movies[selectedMovieIndex].poster ? (
-                                        <img src={movies.movies[selectedMovieIndex].poster.replace("w92", "w154")} alt="poster" style={{ width: "80px", borderRadius: "8px", objectFit: "cover", boxShadow: "0 4px 12px rgba(0,0,0,0.3)" }} />
-                                    ) : (
-                                        <div style={{ width: "80px", height: "120px", borderRadius: "8px", background: "rgba(255,255,255,0.1)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "2rem" }}>🎬</div>
-                                    )}
-                                    <div style={{ display: "flex", flexDirection: "column", gap: "0.4rem" }}>
-                                        <div style={{ fontSize: "1.1rem", fontWeight: 800, lineHeight: 1.2 }}>{movies.movies[selectedMovieIndex].title}</div>
-                                        <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "0.4rem", fontSize: "0.7rem", color: "rgba(255,255,255,0.6)", fontWeight: 600 }}>
-                                            <span>⭐ {movies.movies[selectedMovieIndex].rating}</span>
-                                            <span>•</span>
-                                            <span>{movies.movies[selectedMovieIndex].year}</span>
-                                            <span>•</span>
-                                            <span style={{ textTransform: "uppercase" }}>{movies.movies[selectedMovieIndex].language}</span>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div onClick={() => setShowMoviesPopup(false)} style={{ width: "26px", height: "26px", borderRadius: "50%", background: "rgba(255,255,255,0.1)", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", fontSize: "0.7rem", color: "rgba(255,255,255,0.55)", flexShrink: 0 }}>✕</div>
-                            </div>
-                            <div style={{ fontSize: "0.8rem", color: "rgba(255,255,255,0.8)", lineHeight: 1.5, maxHeight: "200px", overflowY: "auto" }}>
-                                {movies.movies[selectedMovieIndex].overview}
-                            </div>
-                        </motion.div>
-                    </motion.div>
-                )}
-            </AnimatePresence>
+
         </section >
     );
 }
