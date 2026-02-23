@@ -250,17 +250,22 @@ export function CleanHomeHero() {
         return bigMatches.slice(start, start + 3);
     }, [bigMatches, matchPage]);
 
-    // Auto-rolling news - 3 articles per page, changing every 25s
+    // Auto-rolling news - 3 articles per page, changing every 12s
     useEffect(() => {
         if (!news?.articles || news.articles.length <= 3) return;
+        if (WIDGETS[widgetIndex] !== 'news') return;
+        setNewsPage(prev => {
+            const totalPages = Math.ceil(news.articles.length / 3);
+            return prev % totalPages;
+        });
         const id = setInterval(() => {
             setNewsPage(prev => {
                 const totalPages = Math.ceil(news.articles.length / 3);
                 return (prev + 1) % totalPages;
             });
-        }, 25000);
+        }, 15000);
         return () => clearInterval(id);
-    }, [news]);
+    }, [news, widgetIndex]);
 
     const visibleNews = useMemo(() => {
         if (!news?.articles) return [];
@@ -747,7 +752,7 @@ export function CleanHomeHero() {
                             style={{ position: "relative", zIndex: 1 }}
                         >
                             <div style={{ display: "flex", alignItems: "center", gap: "0.3rem", fontSize: "0.7rem", fontWeight: 700, color: "rgba(255,255,255,0.95)", marginBottom: "0.5rem", textTransform: "uppercase" as const, letterSpacing: "0.03em" }}>
-                                📰 Headlines
+                                📰 Today&apos;s Articles
                             </div>
                             {news && news.articles.length > 0 ? (
                                 <div style={{ position: "relative", minHeight: "220px" }}>
@@ -758,7 +763,7 @@ export function CleanHomeHero() {
                                                 key={`progress-${newsPage}`}
                                                 initial={{ width: "0%" }}
                                                 animate={{ width: "100%" }}
-                                                transition={{ duration: 25, ease: "linear" }}
+                                                transition={{ duration: 15, ease: "linear" }}
                                                 style={{ height: "100%", borderRadius: "1px", background: "linear-gradient(90deg, rgba(147,197,253,0.6), rgba(167,139,250,0.6))" }}
                                             />
                                         </div>
