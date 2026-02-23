@@ -249,23 +249,11 @@ export function CleanHomeHero() {
         return bigMatches.slice(start, start + 3);
     }, [bigMatches, matchPage]);
 
-    // Rolling news page — cycle every 20s
-    useEffect(() => {
-        if (!news || news.articles.length <= 5) return;
-        const id = setInterval(() => {
-            setNewsPage(prev => {
-                const totalPages = Math.ceil(news.articles.length / 5);
-                return (prev + 1) % totalPages;
-            });
-        }, 20000);
-        return () => clearInterval(id);
-    }, [news]);
-
+    // Rolling news - deprecated in favor of manual scroll
     const visibleNews = useMemo(() => {
         if (!news?.articles) return [];
-        const start = (newsPage * 5) % news.articles.length;
-        return news.articles.slice(start, start + 5);
-    }, [news, newsPage]);
+        return news.articles; // Show all for scrolling
+    }, [news]);
 
     const dayName = DAYS_FULL[now.getDay()];
     const timeStr = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
@@ -469,7 +457,23 @@ export function CleanHomeHero() {
                                 animation: 'blink-cursor 0.8s steps(2) infinite',
                             }} />
                         )}
-                        <style>{`@keyframes blink-cursor { 0%,100%{opacity:1} 50%{opacity:0} } @keyframes today-pulse { 0%,100%{box-shadow:0 0 6px rgba(255,59,48,0.4)} 50%{box-shadow:0 0 14px rgba(255,59,48,0.7)} }`}</style>
+                        <style>{`
+                            @keyframes blink-cursor { 0%,100%{opacity:1} 50%{opacity:0} } 
+                            @keyframes today-pulse { 0%,100%{box-shadow:0 0 6px rgba(255,59,48,0.4)} 50%{box-shadow:0 0 14px rgba(255,59,48,0.7)} }
+                            .custom-scrollbar::-webkit-scrollbar {
+                                width: 4px;
+                            }
+                            .custom-scrollbar::-webkit-scrollbar-track {
+                                background: transparent;
+                            }
+                            .custom-scrollbar::-webkit-scrollbar-thumb {
+                                background: rgba(255, 255, 255, 0.15);
+                                borderRadius: 10px;
+                            }
+                            .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+                                background: rgba(255, 255, 255, 0.25);
+                            }
+                        `}</style>
                     </div>
                 )}
 
@@ -703,53 +707,45 @@ export function CleanHomeHero() {
                                 📰 Headlines
                             </div>
                             {news && news.articles.length > 0 ? (
-                                <div style={{ position: "relative", minHeight: "180px" }}>
-                                    <AnimatePresence mode="wait">
-                                        <motion.div
-                                            key={newsPage}
-                                            initial={{ opacity: 0, y: 10 }}
-                                            animate={{ opacity: 1, y: 0 }}
-                                            exit={{ opacity: 0, y: -10 }}
-                                            transition={{ duration: 0.4 }}
-                                            style={{
-                                                display: "flex",
-                                                flexDirection: "column",
-                                                gap: "6px",
-                                                position: "absolute",
-                                                top: 0,
-                                                left: 0,
-                                                width: "100%",
-                                                maxHeight: "230px",
-                                                overflowY: "auto",
-                                                paddingRight: "4px",
-                                                scrollbarWidth: "thin",
-                                                scrollbarColor: "rgba(255,255,255,0.2) transparent"
-                                            }}
-                                        >
-                                            {visibleNews.map((a: { url: string; title: string; source: string; timeAgo: string; excerpt: string }, i: number) => (
-                                                <a
-                                                    key={`${newsPage}-${i}`}
-                                                    href={a.url}
-                                                    target="_blank"
-                                                    rel="noopener noreferrer"
-                                                    style={{ textDecoration: "none", display: "flex", flexDirection: "column", gap: "2px", padding: "6px 8px", borderRadius: "8px", background: "rgba(255,255,255,0.06)", transition: "background 0.2s ease" }}
-                                                    onMouseEnter={(e) => e.currentTarget.style.background = "rgba(255,255,255,0.12)"}
-                                                    onMouseLeave={(e) => e.currentTarget.style.background = "rgba(255,255,255,0.06)"}
-                                                >
-                                                    <div style={{ fontSize: "0.68rem", fontWeight: 700, color: "rgba(255,255,255,0.95)", lineHeight: 1.25, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical" as const, overflow: "hidden" }}>
-                                                        {a.title}
-                                                    </div>
-                                                    {a.excerpt && (
-                                                        <div style={{ fontSize: "0.55rem", color: "rgba(255,255,255,0.55)", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical" as const, overflow: "hidden", lineHeight: 1.35, marginBottom: "2px" }} dangerouslySetInnerHTML={{ __html: a.excerpt }} />
-                                                    )}
-                                                    <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.5rem", color: "rgba(255,255,255,0.4)", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.02em" }}>
-                                                        <span>{a.source}</span>
-                                                        <span>{a.timeAgo}</span>
-                                                    </div>
-                                                </a>
-                                            ))}
-                                        </motion.div>
-                                    </AnimatePresence>
+                                <div style={{ position: "relative", height: "185px", overflow: "hidden" }}>
+                                    <motion.div
+                                        initial={{ opacity: 0, y: 10 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        style={{
+                                            display: "flex",
+                                            flexDirection: "column",
+                                            gap: "8px",
+                                            height: "100%",
+                                            overflowY: "auto",
+                                            paddingRight: "8px",
+                                            scrollbarWidth: "thin",
+                                            scrollbarColor: "rgba(255,255,255,0.2) transparent"
+                                        }}
+                                        className="custom-scrollbar"
+                                    >
+                                        {visibleNews.map((a: { url: string; title: string; source: string; timeAgo: string; excerpt: string }, i: number) => (
+                                            <a
+                                                key={`${newsPage}-${i}`}
+                                                href={a.url}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                style={{ textDecoration: "none", display: "flex", flexDirection: "column", gap: "2px", padding: "6px 8px", borderRadius: "8px", background: "rgba(255,255,255,0.06)", transition: "background 0.2s ease" }}
+                                                onMouseEnter={(e) => e.currentTarget.style.background = "rgba(255,255,255,0.12)"}
+                                                onMouseLeave={(e) => e.currentTarget.style.background = "rgba(255,255,255,0.06)"}
+                                            >
+                                                <div style={{ fontSize: "0.68rem", fontWeight: 700, color: "rgba(255,255,255,0.95)", lineHeight: 1.25, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical" as const, overflow: "hidden" }}>
+                                                    {a.title}
+                                                </div>
+                                                {a.excerpt && (
+                                                    <div style={{ fontSize: "0.55rem", color: "rgba(255,255,255,0.55)", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical" as const, overflow: "hidden", lineHeight: 1.35, marginBottom: "2px" }} dangerouslySetInnerHTML={{ __html: a.excerpt }} />
+                                                )}
+                                                <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.5rem", color: "rgba(255,255,255,0.4)", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.02em" }}>
+                                                    <span>{a.source}</span>
+                                                    <span>{a.timeAgo}</span>
+                                                </div>
+                                            </a>
+                                        ))}
+                                    </motion.div>
                                 </div>
                             ) : (
                                 <div style={{ fontSize: "0.72rem", color: "rgba(255,255,255,0.55)", textAlign: "center", padding: "1.5rem 0" }}>Loading news···</div>
