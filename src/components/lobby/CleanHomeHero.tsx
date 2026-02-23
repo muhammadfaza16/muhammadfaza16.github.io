@@ -751,6 +751,18 @@ export function CleanHomeHero() {
                             </div>
                             {news && news.articles.length > 0 ? (
                                 <div style={{ position: "relative", minHeight: "220px" }}>
+                                    {/* Auto-roll progress bar */}
+                                    {news.articles.length > 3 && (
+                                        <div style={{ width: "100%", height: "2px", borderRadius: "1px", background: "rgba(255,255,255,0.08)", marginBottom: "6px", overflow: "hidden" }}>
+                                            <motion.div
+                                                key={`progress-${newsPage}`}
+                                                initial={{ width: "0%" }}
+                                                animate={{ width: "100%" }}
+                                                transition={{ duration: 25, ease: "linear" }}
+                                                style={{ height: "100%", borderRadius: "1px", background: "linear-gradient(90deg, rgba(147,197,253,0.6), rgba(167,139,250,0.6))" }}
+                                            />
+                                        </div>
+                                    )}
                                     <AnimatePresence mode="wait">
                                         <motion.div
                                             key={`newspage-${newsPage}`}
@@ -770,9 +782,9 @@ export function CleanHomeHero() {
                                                     href={a.url}
                                                     target="_blank"
                                                     rel="noopener noreferrer"
-                                                    style={{ textDecoration: "none", display: "flex", flexDirection: "column", gap: "2px", padding: "6px 8px", borderRadius: "8px", background: "rgba(255,255,255,0.06)", transition: "background 0.2s ease" }}
-                                                    onMouseEnter={(e) => e.currentTarget.style.background = "rgba(255,255,255,0.12)"}
-                                                    onMouseLeave={(e) => e.currentTarget.style.background = "rgba(255,255,255,0.06)"}
+                                                    style={{ textDecoration: "none", display: "flex", flexDirection: "column", gap: "2px", padding: "6px 8px", borderRadius: "8px", background: "rgba(0,0,0,0.12)", transition: "background 0.2s ease" }}
+                                                    onMouseEnter={(e) => e.currentTarget.style.background = "rgba(0,0,0,0.22)"}
+                                                    onMouseLeave={(e) => e.currentTarget.style.background = "rgba(0,0,0,0.12)"}
                                                 >
                                                     <div style={{ fontSize: "0.68rem", fontWeight: 700, color: "rgba(255,255,255,0.95)", lineHeight: 1.25, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical" as const, overflow: "hidden" }}>
                                                         {a.title}
@@ -828,7 +840,7 @@ export function CleanHomeHero() {
                                 <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
 
                                     {/* Macro Dashboard */}
-                                    <div style={{ display: "flex", justifyContent: "space-between", padding: "8px", borderRadius: "10px", background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.05)", marginBottom: "2px" }}>
+                                    <div style={{ display: "flex", justifyContent: "space-between", padding: "8px", borderRadius: "10px", background: "rgba(0,0,0,0.12)", border: "1px solid rgba(0,0,0,0.08)", marginBottom: "2px" }}>
                                         <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
                                             <div style={{ fontSize: "0.5rem", color: "rgba(255,255,255,0.5)", textTransform: "uppercase", letterSpacing: "0.05em", fontWeight: 600 }}>Forex / USD</div>
                                             <div style={{ fontSize: "0.7rem", fontWeight: 700, color: "rgba(255,255,255,0.9)", fontVariantNumeric: "tabular-nums" }}>
@@ -876,7 +888,7 @@ export function CleanHomeHero() {
                                                 key={c.id}
                                                 onMouseEnter={() => setHoveredCoin(c.id)}
                                                 onMouseLeave={() => setHoveredCoin(null)}
-                                                style={{ display: "flex", flexDirection: "column", padding: "6px 8px", borderRadius: "10px", background: hoveredCoin === c.id ? "rgba(255,255,255,0.12)" : "rgba(255,255,255,0.06)", cursor: "default", transition: "background 0.2s ease", position: "relative", overflow: "hidden" }}
+                                                style={{ display: "flex", flexDirection: "column", padding: "6px 8px", borderRadius: "10px", background: hoveredCoin === c.id ? "rgba(0,0,0,0.22)" : "rgba(0,0,0,0.12)", cursor: "default", transition: "background 0.2s ease", position: "relative", overflow: "hidden" }}
                                             >
                                                 {/* Sparkline Background */}
                                                 {sparkPath && (
@@ -908,7 +920,7 @@ export function CleanHomeHero() {
                                                             animate={{ height: "auto", opacity: 1, marginTop: "4px" }}
                                                             exit={{ height: 0, opacity: 0, marginTop: 0 }}
                                                             transition={{ duration: 0.2 }}
-                                                            style={{ overflow: "hidden", display: "flex", justifyContent: "space-between", fontSize: "0.55rem", color: "rgba(255,255,255,0.55)", borderTop: "1px solid rgba(255,255,255,0.1)", paddingTop: "4px" }}
+                                                            style={{ overflow: "hidden", display: "flex", justifyContent: "space-between", fontSize: "0.55rem", color: "rgba(255,255,255,0.65)", borderTop: "1px solid rgba(255,255,255,0.15)", paddingTop: "4px" }}
                                                         >
                                                             <span>Vol: ${(c.vol24h / 1e9).toFixed(1)}B</span>
                                                             <span>Cap: ${(c.marketCap / 1e9).toFixed(1)}B</span>
@@ -980,12 +992,12 @@ export function CleanHomeHero() {
                                         <Link href="/bookshelf" style={{ textDecoration: "none" }}>
                                             <div style={{
                                                 position: "relative", height: "100%", padding: "10px", borderRadius: "14px",
-                                                background: "linear-gradient(145deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.01) 100%)",
-                                                border: "1px solid rgba(255,255,255,0.06)", boxShadow: "inset 0 1px 0 rgba(255,255,255,0.05)",
+                                                background: "linear-gradient(145deg, rgba(0,0,0,0.12) 0%, rgba(0,0,0,0.06) 100%)",
+                                                border: "1px solid rgba(0,0,0,0.08)", boxShadow: "inset 0 1px 0 rgba(255,255,255,0.05)",
                                                 transition: "all 0.3s ease", cursor: "pointer", display: "flex", alignItems: "center", gap: "10px"
                                             }}
-                                                onMouseEnter={(e) => { e.currentTarget.style.background = "linear-gradient(145deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.02) 100%)"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.12)"; }}
-                                                onMouseLeave={(e) => { e.currentTarget.style.background = "linear-gradient(145deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.01) 100%)"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.06)"; }}
+                                                onMouseEnter={(e) => { e.currentTarget.style.background = "linear-gradient(145deg, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.1) 100%)"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.12)"; }}
+                                                onMouseLeave={(e) => { e.currentTarget.style.background = "linear-gradient(145deg, rgba(0,0,0,0.12) 0%, rgba(0,0,0,0.06) 100%)"; e.currentTarget.style.borderColor = "rgba(0,0,0,0.08)"; }}
                                             >
                                                 {pulse.book?.coverImage ? (
                                                     <img src={pulse.book.coverImage} alt="Cover" style={{ width: "45px", height: "65px", borderRadius: "6px", objectFit: "cover", boxShadow: "0 2px 8px rgba(0,0,0,0.3)", flexShrink: 0 }} />
@@ -1007,12 +1019,12 @@ export function CleanHomeHero() {
                                         <Link href="/curation" style={{ textDecoration: "none" }}>
                                             <div style={{
                                                 position: "relative", height: "100%", padding: "10px", borderRadius: "14px",
-                                                background: "linear-gradient(145deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.01) 100%)",
-                                                border: "1px solid rgba(255,255,255,0.06)", boxShadow: "inset 0 1px 0 rgba(255,255,255,0.05)",
+                                                background: "linear-gradient(145deg, rgba(0,0,0,0.12) 0%, rgba(0,0,0,0.06) 100%)",
+                                                border: "1px solid rgba(0,0,0,0.08)", boxShadow: "inset 0 1px 0 rgba(255,255,255,0.05)",
                                                 transition: "all 0.3s ease", cursor: "pointer", display: "flex", flexDirection: "column", justifyContent: "center", overflow: "hidden"
                                             }}
-                                                onMouseEnter={(e) => { e.currentTarget.style.background = "linear-gradient(145deg, rgba(52, 211, 153, 0.1) 0%, rgba(255,255,255,0.02) 100%)"; e.currentTarget.style.borderColor = "rgba(52, 211, 153, 0.3)"; }}
-                                                onMouseLeave={(e) => { e.currentTarget.style.background = "linear-gradient(145deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.01) 100%)"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.06)"; }}
+                                                onMouseEnter={(e) => { e.currentTarget.style.background = "linear-gradient(145deg, rgba(52, 211, 153, 0.15) 0%, rgba(0,0,0,0.1) 100%)"; e.currentTarget.style.borderColor = "rgba(52, 211, 153, 0.3)"; }}
+                                                onMouseLeave={(e) => { e.currentTarget.style.background = "linear-gradient(145deg, rgba(0,0,0,0.12) 0%, rgba(0,0,0,0.06) 100%)"; e.currentTarget.style.borderColor = "rgba(0,0,0,0.08)"; }}
                                             >
                                                 <div style={{ position: "absolute", bottom: "-10px", right: "-10px", width: "40px", height: "40px", background: "rgba(52, 211, 153, 0.2)", filter: "blur(15px)", borderRadius: "50%" }} />
                                                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "4px", position: "relative", zIndex: 1 }}>
