@@ -375,7 +375,7 @@ export function CleanHomeHero() {
                 initial={{ opacity: 0, scale: 0.96, y: 15 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 transition={{ duration: 0.8, type: "spring", bounce: 0.3 }}
-                style={{ marginBottom: "0.5rem" }}
+                style={{ marginBottom: "1rem" }}
             >
                 {/* Top: Date left, Weather right */}
                 <div style={{
@@ -734,7 +734,7 @@ export function CleanHomeHero() {
                                 <div style={{ position: "relative", minHeight: "220px" }}>
                                     {/* Auto-roll progress bar */}
                                     {news.articles.length > 3 && (
-                                        <div style={{ width: "100%", height: "2px", borderRadius: "1px", background: "rgba(255,255,255,0.08)", marginBottom: "6px", overflow: "hidden" }}>
+                                        <div style={{ width: "100%", height: "2px", borderRadius: "1px", background: "rgba(255,255,255,0.08)", marginBottom: "12px", overflow: "hidden" }}>
                                             <motion.div
                                                 key={`progress-${newsPage}`}
                                                 initial={{ width: "0%" }}
@@ -1275,7 +1275,7 @@ export function CleanHomeHero() {
                                 })()}
 
                                 {/* GitHub Benchmark */}
-                                <Link href="https://github.com/muhammadfaza16" target="_blank">
+                                <Link href="https://github.com/muhammadfaza16" target="_blank" style={{ marginTop: "0.3rem" }}>
                                     <div style={{
                                         background: "rgba(0,0,0,0.08)",
                                         borderRadius: "12px",
