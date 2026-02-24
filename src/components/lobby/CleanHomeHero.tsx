@@ -761,41 +761,81 @@ export function CleanHomeHero() {
                                                 gap: "8px",
                                             }}
                                         >
-                                            {visibleNews.map((a: { url: string; title: string; source: string; timeAgo: string; excerpt: string }, i: number) => (
+                                            {/* Feature Article (Index 0) */}
+                                            {visibleNews.length > 0 && (
                                                 <a
-                                                    key={`news-${i}`}
-                                                    href={a.url}
+                                                    href={visibleNews[0].url}
                                                     target="_blank"
                                                     rel="noopener noreferrer"
-                                                    style={{ textDecoration: "none", display: "flex", flexDirection: "column", gap: "2px", padding: "6px 8px", borderRadius: "8px", background: "rgba(0,0,0,0.12)", transition: "background 0.2s ease" }}
-                                                    onMouseEnter={(e) => e.currentTarget.style.background = "rgba(0,0,0,0.22)"}
-                                                    onMouseLeave={(e) => e.currentTarget.style.background = "rgba(0,0,0,0.12)"}
+                                                    style={{
+                                                        textDecoration: "none",
+                                                        display: "flex",
+                                                        flexDirection: "column",
+                                                        gap: "4px",
+                                                        padding: "10px",
+                                                        borderRadius: "14px",
+                                                        background: "linear-gradient(145deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.02) 100%)",
+                                                        border: "1px solid rgba(255,255,255,0.1)",
+                                                        boxShadow: "inset 0 1px 0 rgba(255,255,255,0.1), 0 4px 12px rgba(0,0,0,0.15)",
+                                                        transition: "all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)",
+                                                        position: "relative"
+                                                    }}
+                                                    onMouseEnter={(e) => { e.currentTarget.style.transform = "translateY(-2px)"; e.currentTarget.style.background = "linear-gradient(145deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.03) 100%)"; }}
+                                                    onMouseLeave={(e) => { e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.background = "linear-gradient(145deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.02) 100%)"; }}
                                                 >
-                                                    <div style={{ fontSize: "0.68rem", fontWeight: 700, color: "rgba(255,255,255,0.95)", lineHeight: 1.25, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical" as const, overflow: "hidden" }}>
-                                                        {a.title}
+                                                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "2px" }}>
+                                                        <span style={{ fontSize: "0.45rem", fontWeight: 800, color: "#93c5fd", background: "rgba(147,197,253,0.15)", padding: "2px 5px", borderRadius: "4px", border: "1px solid rgba(147,197,253,0.2)", letterSpacing: "0.05em" }}>HEADLINE</span>
+                                                        <span style={{ fontSize: "0.5rem", color: "rgba(255,255,255,0.4)", fontWeight: 600, textTransform: "uppercase" }}>{visibleNews[0].source}</span>
                                                     </div>
-                                                    {a.excerpt && (
-                                                        <div style={{ fontSize: "0.55rem", color: "rgba(255,255,255,0.55)", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical" as const, overflow: "hidden", lineHeight: 1.35, marginBottom: "2px" }}>
-                                                            {a.excerpt}
+                                                    <div style={{ fontSize: "0.85rem", fontWeight: 800, color: "rgba(255,255,255,0.95)", lineHeight: 1.25, letterSpacing: "-0.01em", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical" as const, overflow: "hidden" }}>
+                                                        {visibleNews[0].title}
+                                                    </div>
+                                                    {visibleNews[0].excerpt && (
+                                                        <div style={{ fontSize: "0.55rem", color: "rgba(255,255,255,0.6)", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical" as const, overflow: "hidden", lineHeight: 1.4, marginTop: "2px" }}>
+                                                            {visibleNews[0].excerpt}
                                                         </div>
                                                     )}
-                                                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: "0.5rem", color: "rgba(255,255,255,0.4)", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.02em" }}>
-                                                        <span>{a.source}</span>
-                                                        <span style={{ display: "flex", alignItems: "center", gap: "4px" }}>
-                                                            <span style={{
-                                                                width: "5px", height: "5px", borderRadius: "50%", display: "inline-block",
-                                                                background: a.timeAgo?.includes("Startup") ? "#a78bfa" :
-                                                                    a.timeAgo?.includes("Deep Dive") ? "#fb923c" :
-                                                                        a.timeAgo?.includes("Frontend") ? "#60a5fa" :
-                                                                            a.timeAgo?.includes("Mental") ? "#34d399" :
-                                                                                a.timeAgo?.includes("Engineering") ? "#f472b6" :
-                                                                                    "#94a3b8"
-                                                            }} />
-                                                            {a.timeAgo}
-                                                        </span>
-                                                    </div>
                                                 </a>
-                                            ))}
+                                            )}
+
+                                            {/* Secondary Articles Grid (Index 1 & 2) */}
+                                            {visibleNews.length > 1 && (
+                                                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px" }}>
+                                                    {visibleNews.slice(1, 3).map((a: { url: string; title: string; source: string; timeAgo: string }, i: number) => (
+                                                        <a
+                                                            key={`news-sub-${i}`}
+                                                            href={a.url}
+                                                            target="_blank"
+                                                            rel="noopener noreferrer"
+                                                            style={{
+                                                                textDecoration: "none",
+                                                                display: "flex",
+                                                                flexDirection: "column",
+                                                                justifyContent: "space-between",
+                                                                padding: "8px",
+                                                                borderRadius: "12px",
+                                                                background: "rgba(0,0,0,0.12)",
+                                                                border: "1px solid rgba(0,0,0,0.05)",
+                                                                transition: "all 0.2s ease",
+                                                                minHeight: "75px"
+                                                            }}
+                                                            onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(0,0,0,0.25)"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.08)"; }}
+                                                            onMouseLeave={(e) => { e.currentTarget.style.background = "rgba(0,0,0,0.12)"; e.currentTarget.style.borderColor = "rgba(0,0,0,0.05)"; }}
+                                                        >
+                                                            <div style={{ fontSize: "0.6rem", fontWeight: 600, color: "rgba(255,255,255,0.85)", lineHeight: 1.3, display: "-webkit-box", WebkitLineClamp: 3, WebkitBoxOrient: "vertical" as const, overflow: "hidden" }}>
+                                                                {a.title}
+                                                            </div>
+                                                            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: "0.45rem", color: "rgba(255,255,255,0.4)", fontWeight: 700, textTransform: "uppercase", marginTop: "6px" }}>
+                                                                <span>{a.source}</span>
+                                                                <span style={{
+                                                                    width: "4px", height: "4px", borderRadius: "50%",
+                                                                    background: a.timeAgo?.includes("Startup") ? "#a78bfa" : a.timeAgo?.includes("Deep Dive") ? "#fb923c" : "#60a5fa"
+                                                                }} />
+                                                            </div>
+                                                        </a>
+                                                    ))}
+                                                </div>
+                                            )}
                                         </motion.div>
                                     </AnimatePresence>
                                 </div>
@@ -825,30 +865,63 @@ export function CleanHomeHero() {
                                 <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
 
                                     {/* Macro Dashboard */}
-                                    <div style={{ display: "flex", justifyContent: "space-between", padding: "8px", borderRadius: "10px", background: "rgba(0,0,0,0.12)", border: "1px solid rgba(0,0,0,0.08)", marginBottom: "2px" }}>
-                                        <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-                                            <div style={{ fontSize: "0.5rem", color: "rgba(255,255,255,0.5)", textTransform: "uppercase", letterSpacing: "0.05em", fontWeight: 600 }}>Forex / USD</div>
-                                            <div style={{ fontSize: "0.7rem", fontWeight: 700, color: "rgba(255,255,255,0.9)", fontVariantNumeric: "tabular-nums" }}>
-                                                Rp {(cryptoData.forex.IDR || 0).toLocaleString('id-ID')}
-                                                <span style={{ fontSize: "0.5rem", color: "rgba(255,255,255,0.4)", marginLeft: "4px", fontWeight: 500 }}>IDR</span>
+                                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "10px", borderRadius: "14px", background: "linear-gradient(145deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.02) 100%)", border: "1px solid rgba(255,255,255,0.1)", marginBottom: "4px", boxShadow: "inset 0 1px 0 rgba(255,255,255,0.1), 0 4px 12px rgba(0,0,0,0.15)" }}>
+
+                                        {/* Fear & Greed Gauge */}
+                                        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", width: "80px" }}>
+                                            <div style={{ position: "relative", width: "60px", height: "30px", overflow: "hidden" }}>
+                                                {/* Gauge Background */}
+                                                <svg width="60" height="60" viewBox="0 0 100 100" style={{ position: "absolute", top: 0, left: 0 }}>
+                                                    <path d="M 10 50 A 40 40 0 0 1 90 50" fill="none" stroke="url(#gaugeGradient)" strokeWidth="12" strokeLinecap="round" />
+                                                    <defs>
+                                                        <linearGradient id="gaugeGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                                                            <stop offset="0%" stopColor="#ef4444" />
+                                                            <stop offset="40%" stopColor="#f59e0b" />
+                                                            <stop offset="60%" stopColor="#f59e0b" />
+                                                            <stop offset="100%" stopColor="#22c55e" />
+                                                        </linearGradient>
+                                                    </defs>
+                                                </svg>
+
+                                                {/* Needle */}
+                                                {(() => {
+                                                    const fng = cryptoData.global.fng || 50;
+                                                    // Map 0-100 to angle -90 to 90
+                                                    const angle = (fng / 100) * 180 - 90;
+                                                    return (
+                                                        <motion.div
+                                                            style={{ position: "absolute", bottom: 0, left: "27px", width: "6px", height: "26px", transformOrigin: "bottom center", zIndex: 10 }}
+                                                            initial={{ rotate: -90 }}
+                                                            animate={{ rotate: angle }}
+                                                            transition={{ type: "spring", stiffness: 60, damping: 12, delay: 0.2 }}
+                                                        >
+                                                            <div style={{ width: "100%", height: "100%", background: "#fff", borderRadius: "3px 3px 0 0", boxShadow: "0 0 4px rgba(0,0,0,0.5)" }} />
+                                                            <div style={{ position: "absolute", bottom: "-3px", left: "0", width: "6px", height: "6px", borderRadius: "50%", background: "#fff", boxShadow: "0 0 4px rgba(0,0,0,0.5)" }} />
+                                                        </motion.div>
+                                                    );
+                                                })()}
                                             </div>
-                                            <div style={{ fontSize: "0.7rem", fontWeight: 700, color: "rgba(255,255,255,0.9)", fontVariantNumeric: "tabular-nums" }}>
-                                                € {(cryptoData.forex.EUR || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                                                <span style={{ fontSize: "0.5rem", color: "rgba(255,255,255,0.4)", marginLeft: "4px", fontWeight: 500 }}>EUR</span>
+                                            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", marginTop: "4px" }}>
+                                                <div style={{ fontSize: "0.85rem", fontWeight: 800, color: "#fff", lineHeight: 1 }}>{cryptoData.global.fng || 50}</div>
+                                                <div style={{ fontSize: "0.45rem", fontWeight: 700, color: "rgba(255,255,255,0.5)", textTransform: "uppercase", letterSpacing: "0.05em" }}>Sentiment</div>
                                             </div>
                                         </div>
 
-                                        <div style={{ width: "1px", background: "linear-gradient(180deg, transparent 0%, rgba(147,197,253,0.4) 30%, rgba(167,139,250,0.4) 70%, transparent 100%)", margin: "0 4px" }} />
+                                        <div style={{ width: "1px", height: "40px", background: "linear-gradient(180deg, transparent 0%, rgba(255,255,255,0.15) 50%, transparent 100%)", margin: "0 8px" }} />
 
-                                        <div style={{ display: "flex", flexDirection: "column", gap: "4px", textAlign: "right" }}>
-                                            <div style={{ fontSize: "0.5rem", color: "rgba(255,255,255,0.5)", textTransform: "uppercase", letterSpacing: "0.05em", fontWeight: 600 }}>Crypto Macro</div>
-                                            <div style={{ fontSize: "0.7rem", fontWeight: 700, color: "rgba(255,255,255,0.9)", fontVariantNumeric: "tabular-nums" }}>
-                                                ${((cryptoData.global.totalMarketCap || 0) / 1e12).toFixed(2)}T
-                                                <span style={{ fontSize: "0.5rem", color: "rgba(255,255,255,0.4)", marginLeft: "4px", fontWeight: 500 }}>Global Cap</span>
+                                        {/* Market Stats */}
+                                        <div style={{ display: "flex", flexDirection: "column", gap: "6px", flex: 1 }}>
+                                            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
+                                                <span style={{ fontSize: "0.5rem", color: "rgba(255,255,255,0.5)", textTransform: "uppercase", letterSpacing: "0.05em", fontWeight: 700 }}>Global Cap</span>
+                                                <span style={{ fontSize: "0.75rem", fontWeight: 800, color: "rgba(255,255,255,0.95)", fontVariantNumeric: "tabular-nums" }}>${((cryptoData.global.totalMarketCap || 0) / 1e12).toFixed(2)}T</span>
                                             </div>
-                                            <div style={{ fontSize: "0.7rem", fontWeight: 700, color: "rgba(255,255,255,0.9)", fontVariantNumeric: "tabular-nums" }}>
-                                                {(cryptoData.global.btcDominance || 0).toFixed(1)}%
-                                                <span style={{ fontSize: "0.5rem", color: "rgba(255,255,255,0.4)", marginLeft: "4px", fontWeight: 500 }}>BTC Dom</span>
+                                            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
+                                                <span style={{ fontSize: "0.5rem", color: "rgba(255,255,255,0.5)", textTransform: "uppercase", letterSpacing: "0.05em", fontWeight: 700 }}>BTC Dom</span>
+                                                <span style={{ fontSize: "0.75rem", fontWeight: 800, color: "rgba(255,255,255,0.95)", fontVariantNumeric: "tabular-nums" }}>{(cryptoData.global.btcDominance || 0).toFixed(1)}%</span>
+                                            </div>
+                                            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
+                                                <span style={{ fontSize: "0.5rem", color: "rgba(255,255,255,0.5)", textTransform: "uppercase", letterSpacing: "0.05em", fontWeight: 700 }}>USD/IDR</span>
+                                                <span style={{ fontSize: "0.75rem", fontWeight: 800, color: "rgba(255,255,255,0.95)", fontVariantNumeric: "tabular-nums" }}>Rp {(cryptoData.forex.IDR || 0).toLocaleString('id-ID')}</span>
                                             </div>
                                         </div>
                                     </div>
@@ -1256,24 +1329,62 @@ export function CleanHomeHero() {
                                     const startOfYear = new Date(now.getFullYear(), 0, 1).getTime();
                                     const endOfYear = new Date(now.getFullYear() + 1, 0, 1).getTime();
                                     const yearProgress = Math.round(((now.getTime() - startOfYear) / (endOfYear - startOfYear)) * 100);
-                                    const items = [
-                                        { label: "Day", pct: dayProgress },
-                                        { label: "Month", pct: monthProgress },
-                                        { label: "Year", pct: yearProgress },
-                                    ];
+
+                                    const radiusYear = 38;
+                                    const radiusMonth = 28;
+                                    const radiusDay = 18;
+                                    const circYear = 2 * Math.PI * radiusYear;
+                                    const circMonth = 2 * Math.PI * radiusMonth;
+                                    const circDay = 2 * Math.PI * radiusDay;
+
                                     return (
-                                        <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-                                            {items.map(item => (
-                                                <div key={item.label}>
-                                                    <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.6rem", fontWeight: 600, color: "rgba(255,255,255,0.6)", marginBottom: "3px" }}>
-                                                        <span>{item.label}</span>
-                                                        <span style={{ color: "rgba(255,255,255,0.85)", fontVariantNumeric: "tabular-nums" }}>{item.pct}%</span>
-                                                    </div>
-                                                    <div style={{ height: "4px", borderRadius: "2px", background: "rgba(255,255,255,0.08)", overflow: "hidden" }}>
-                                                        <div style={{ transform: `scaleX(${item.pct / 100})`, transformOrigin: "left", height: "100%", borderRadius: "2px", background: "linear-gradient(90deg, rgba(147,197,253,0.7), rgba(167,139,250,0.7))", transition: "transform 1s ease", willChange: "transform" }} />
-                                                    </div>
+                                        <div style={{ display: "flex", alignItems: "center", gap: "12px", background: "rgba(0,0,0,0.12)", padding: "10px", borderRadius: "14px", border: "1px solid rgba(0,0,0,0.05)" }}>
+
+                                            {/* Concentric SVG Rings */}
+                                            <div style={{ position: "relative", width: "86px", height: "86px", flexShrink: 0 }}>
+                                                <svg width="86" height="86" viewBox="0 0 86 86" style={{ transform: "rotate(-90deg)" }}>
+                                                    {/* Background Rings */}
+                                                    <circle cx="43" cy="43" r={radiusYear} fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth="8" />
+                                                    <circle cx="43" cy="43" r={radiusMonth} fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth="8" />
+                                                    <circle cx="43" cy="43" r={radiusDay} fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth="8" />
+
+                                                    {/* Foreground Rings (Animated via CSS) */}
+                                                    <motion.circle
+                                                        cx="43" cy="43" r={radiusYear} fill="none" stroke="#a78bfa" strokeWidth="8" strokeLinecap="round"
+                                                        initial={{ strokeDasharray: circYear, strokeDashoffset: circYear }}
+                                                        animate={{ strokeDashoffset: circYear - ((yearProgress / 100) * circYear) }}
+                                                        transition={{ duration: 1.5, ease: "easeOut" }}
+                                                    />
+                                                    <motion.circle
+                                                        cx="43" cy="43" r={radiusMonth} fill="none" stroke="#60a5fa" strokeWidth="8" strokeLinecap="round"
+                                                        initial={{ strokeDasharray: circMonth, strokeDashoffset: circMonth }}
+                                                        animate={{ strokeDashoffset: circMonth - ((monthProgress / 100) * circMonth) }}
+                                                        transition={{ duration: 1.5, ease: "easeOut", delay: 0.1 }}
+                                                    />
+                                                    <motion.circle
+                                                        cx="43" cy="43" r={radiusDay} fill="none" stroke="#34d399" strokeWidth="8" strokeLinecap="round"
+                                                        initial={{ strokeDasharray: circDay, strokeDashoffset: circDay }}
+                                                        animate={{ strokeDashoffset: circDay - ((dayProgress / 100) * circDay) }}
+                                                        transition={{ duration: 1.5, ease: "easeOut", delay: 0.2 }}
+                                                    />
+                                                </svg>
+                                            </div>
+
+                                            {/* Legend & Percentages */}
+                                            <div style={{ display: "flex", flexDirection: "column", gap: "6px", flex: 1 }}>
+                                                <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.55rem", fontWeight: 700, alignItems: "center" }}>
+                                                    <div style={{ display: "flex", alignItems: "center", gap: "4px" }}><span style={{ width: "6px", height: "6px", borderRadius: "50%", background: "#a78bfa" }} /> <span style={{ color: "rgba(255,255,255,0.6)", textTransform: "uppercase" }}>Year</span></div>
+                                                    <span style={{ color: "rgba(255,255,255,0.9)", fontVariantNumeric: "tabular-nums" }}>{yearProgress}%</span>
                                                 </div>
-                                            ))}
+                                                <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.55rem", fontWeight: 700, alignItems: "center" }}>
+                                                    <div style={{ display: "flex", alignItems: "center", gap: "4px" }}><span style={{ width: "6px", height: "6px", borderRadius: "50%", background: "#60a5fa" }} /> <span style={{ color: "rgba(255,255,255,0.6)", textTransform: "uppercase" }}>Month</span></div>
+                                                    <span style={{ color: "rgba(255,255,255,0.9)", fontVariantNumeric: "tabular-nums" }}>{monthProgress}%</span>
+                                                </div>
+                                                <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.55rem", fontWeight: 700, alignItems: "center" }}>
+                                                    <div style={{ display: "flex", alignItems: "center", gap: "4px" }}><span style={{ width: "6px", height: "6px", borderRadius: "50%", background: "#34d399" }} /> <span style={{ color: "rgba(255,255,255,0.6)", textTransform: "uppercase" }}>Day</span></div>
+                                                    <span style={{ color: "rgba(255,255,255,0.9)", fontVariantNumeric: "tabular-nums" }}>{dayProgress}%</span>
+                                                </div>
+                                            </div>
                                         </div>
                                     );
                                 })()}
