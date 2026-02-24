@@ -493,12 +493,12 @@ export function CleanHomeHero() {
                 onTouchStart={handleTouchStart}
                 onTouchEnd={handleTouchEnd}
                 style={{
-                    background: "rgba(255, 255, 255, 0.02)", // Extremely thin, clear glass
-                    backdropFilter: "blur(24px) saturate(150%) brightness(105%)",
-                    WebkitBackdropFilter: "blur(24px) saturate(150%) brightness(105%)",
-                    borderRadius: "28px", // Refined iOS curve
-                    border: "1px solid rgba(255,255,255,0.08)", // Subtle white stroke
-                    boxShadow: "0 20px 40px -10px rgba(0,0,0,0.15), inset 0 1px 0.5px rgba(255,255,255,0.2)", // Crisp shadow + thin specular highlight
+                    background: "linear-gradient(145deg, rgba(255,255,255,0.03) 0%, rgba(200,220,255,0.02) 50%, rgba(255,255,255,0.01) 100%)",
+                    backdropFilter: "blur(14px) saturate(130%)",
+                    WebkitBackdropFilter: "blur(14px) saturate(130%)",
+                    borderRadius: "28px",
+                    border: "1px solid rgba(255,255,255,0.1)",
+                    boxShadow: "0 20px 40px -10px rgba(0,0,0,0.12), inset 0 1px 0 rgba(255,255,255,0.15), inset 0 -1px 0 rgba(255,255,255,0.05)",
                     padding: "1rem",
                     position: "relative",
                     overflow: "hidden",
@@ -574,7 +574,7 @@ export function CleanHomeHero() {
                     zIndex: 2,
                 }} />
 
-                <AnimatePresence mode="wait" initial={false} custom={swipeDirection}>
+                <AnimatePresence mode="popLayout" initial={false} custom={swipeDirection}>
                     {WIDGETS[widgetIndex] === 'music' ? (
                         <motion.div
                             key="now-playing"
@@ -587,8 +587,8 @@ export function CleanHomeHero() {
                             initial="initial"
                             animate="animate"
                             exit="exit"
-                            transition={{ duration: 0.3, ease: [0.25, 0.46, 0.45, 0.94] }}
-                            style={{ position: "relative", zIndex: 1 }}
+                            transition={{ duration: 0.2, ease: [0.25, 0.46, 0.45, 0.94] }}
+                            style={{ position: "relative", zIndex: 1, willChange: "transform, opacity" }}
                         >
                             {/* Now Playing Header */}
                             <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", marginBottom: "0.75rem" }}>
@@ -724,8 +724,8 @@ export function CleanHomeHero() {
                             initial="initial"
                             animate="animate"
                             exit="exit"
-                            transition={{ duration: 0.3, ease: [0.25, 0.46, 0.45, 0.94] }}
-                            style={{ position: "relative", zIndex: 1 }}
+                            transition={{ duration: 0.2, ease: [0.25, 0.46, 0.45, 0.94] }}
+                            style={{ position: "relative", zIndex: 1, willChange: "transform, opacity" }}
                         >
                             <div style={{ display: "flex", alignItems: "center", gap: "0.3rem", fontSize: "0.7rem", fontWeight: 700, color: "rgba(255,255,255,0.95)", marginBottom: "0.5rem", textTransform: "uppercase" as const, letterSpacing: "0.03em" }}>
                                 📰 Today&apos;s Articles
@@ -737,10 +737,10 @@ export function CleanHomeHero() {
                                         <div style={{ width: "100%", height: "2px", borderRadius: "1px", background: "rgba(255,255,255,0.08)", marginBottom: "12px", overflow: "hidden" }}>
                                             <motion.div
                                                 key={`progress-${newsPage}`}
-                                                initial={{ width: "0%" }}
-                                                animate={{ width: "100%" }}
+                                                initial={{ scaleX: 0 }}
+                                                animate={{ scaleX: 1 }}
                                                 transition={{ duration: 15, ease: "linear" }}
-                                                style={{ height: "100%", borderRadius: "1px", background: "linear-gradient(90deg, rgba(147,197,253,0.6), rgba(167,139,250,0.6))" }}
+                                                style={{ height: "100%", transformOrigin: "left", borderRadius: "1px", background: "linear-gradient(90deg, rgba(147,197,253,0.6), rgba(167,139,250,0.6))", willChange: "transform" }}
                                             />
                                         </div>
                                     )}
@@ -811,8 +811,8 @@ export function CleanHomeHero() {
                             initial="initial"
                             animate="animate"
                             exit="exit"
-                            transition={{ duration: 0.3, ease: [0.25, 0.46, 0.45, 0.94] }}
-                            style={{ position: "relative", zIndex: 1 }}
+                            transition={{ duration: 0.2, ease: [0.25, 0.46, 0.45, 0.94] }}
+                            style={{ position: "relative", zIndex: 1, willChange: "transform, opacity" }}
                         >
                             <div style={{ display: "flex", alignItems: "center", gap: "0.3rem", fontSize: "0.7rem", fontWeight: 700, color: "rgba(255,255,255,0.95)", marginBottom: "0.5rem", textTransform: "uppercase" as const, letterSpacing: "0.03em" }}>
                                 📊 Markets
@@ -928,8 +928,8 @@ export function CleanHomeHero() {
                             initial="initial"
                             animate="animate"
                             exit="exit"
-                            transition={{ duration: 0.3, ease: [0.25, 0.46, 0.45, 0.94] }}
-                            style={{ position: "relative", zIndex: 1 }}
+                            transition={{ duration: 0.2, ease: [0.25, 0.46, 0.45, 0.94] }}
+                            style={{ position: "relative", zIndex: 1, willChange: "transform, opacity" }}
                         >
                             <div style={{ display: "flex", alignItems: "center", gap: "0.3rem", fontSize: "0.7rem", fontWeight: 700, color: "rgba(255,255,255,0.95)", marginBottom: "0.5rem", textTransform: "uppercase" as const, letterSpacing: "0.03em" }}>
                                 📋 Pulse
@@ -1266,7 +1266,7 @@ export function CleanHomeHero() {
                                                         <span style={{ color: "rgba(255,255,255,0.85)", fontVariantNumeric: "tabular-nums" }}>{item.pct}%</span>
                                                     </div>
                                                     <div style={{ height: "4px", borderRadius: "2px", background: "rgba(255,255,255,0.08)", overflow: "hidden" }}>
-                                                        <div style={{ width: `${item.pct}%`, height: "100%", borderRadius: "2px", background: "linear-gradient(90deg, rgba(147,197,253,0.7), rgba(167,139,250,0.7))", transition: "width 1s ease" }} />
+                                                        <div style={{ transform: `scaleX(${item.pct / 100})`, transformOrigin: "left", height: "100%", borderRadius: "2px", background: "linear-gradient(90deg, rgba(147,197,253,0.7), rgba(167,139,250,0.7))", transition: "transform 1s ease", willChange: "transform" }} />
                                                     </div>
                                                 </div>
                                             ))}
