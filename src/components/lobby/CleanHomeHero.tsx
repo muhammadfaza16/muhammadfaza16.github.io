@@ -574,21 +574,21 @@ export function CleanHomeHero() {
                     zIndex: 2,
                 }} />
 
-                <AnimatePresence mode="popLayout" initial={false} custom={swipeDirection}>
+                <AnimatePresence mode="wait" initial={false} custom={swipeDirection}>
                     {WIDGETS[widgetIndex] === 'music' ? (
                         <motion.div
                             key="now-playing"
                             custom={swipeDirection}
                             variants={{
-                                initial: (d: number) => ({ opacity: 0, x: d * 60 }),
+                                initial: (d: number) => ({ opacity: 0, x: d * 15 }),
                                 animate: { opacity: 1, x: 0 },
-                                exit: (d: number) => ({ opacity: 0, x: d * -60 })
+                                exit: (d: number) => ({ opacity: 0, x: d * -15 })
                             }}
                             initial="initial"
                             animate="animate"
                             exit="exit"
-                            transition={{ duration: 0.2, ease: [0.25, 0.46, 0.45, 0.94] }}
-                            style={{ position: "relative", zIndex: 1, willChange: "transform, opacity" }}
+                            transition={{ duration: 0.25, ease: [0.25, 0.46, 0.45, 0.94] }}
+                            style={{ position: "relative", zIndex: 1 }}
                         >
                             {/* Now Playing Header */}
                             <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", marginBottom: "0.75rem" }}>
@@ -717,15 +717,15 @@ export function CleanHomeHero() {
                             key="news"
                             custom={swipeDirection}
                             variants={{
-                                initial: (d: number) => ({ opacity: 0, x: d * 60 }),
+                                initial: (d: number) => ({ opacity: 0, x: d * 15 }),
                                 animate: { opacity: 1, x: 0 },
-                                exit: (d: number) => ({ opacity: 0, x: d * -60 })
+                                exit: (d: number) => ({ opacity: 0, x: d * -15 })
                             }}
                             initial="initial"
                             animate="animate"
                             exit="exit"
-                            transition={{ duration: 0.2, ease: [0.25, 0.46, 0.45, 0.94] }}
-                            style={{ position: "relative", zIndex: 1, willChange: "transform, opacity" }}
+                            transition={{ duration: 0.25, ease: [0.25, 0.46, 0.45, 0.94] }}
+                            style={{ position: "relative", zIndex: 1 }}
                         >
                             <div style={{ display: "flex", alignItems: "center", gap: "0.3rem", fontSize: "0.7rem", fontWeight: 700, color: "rgba(255,255,255,0.95)", marginBottom: "0.5rem", textTransform: "uppercase" as const, letterSpacing: "0.03em" }}>
                                 📰 Today&apos;s Articles
@@ -804,15 +804,15 @@ export function CleanHomeHero() {
                             key="crypto"
                             custom={swipeDirection}
                             variants={{
-                                initial: (d: number) => ({ opacity: 0, x: d * 60 }),
+                                initial: (d: number) => ({ opacity: 0, x: d * 15 }),
                                 animate: { opacity: 1, x: 0 },
-                                exit: (d: number) => ({ opacity: 0, x: d * -60 })
+                                exit: (d: number) => ({ opacity: 0, x: d * -15 })
                             }}
                             initial="initial"
                             animate="animate"
                             exit="exit"
-                            transition={{ duration: 0.2, ease: [0.25, 0.46, 0.45, 0.94] }}
-                            style={{ position: "relative", zIndex: 1, willChange: "transform, opacity" }}
+                            transition={{ duration: 0.25, ease: [0.25, 0.46, 0.45, 0.94] }}
+                            style={{ position: "relative", zIndex: 1 }}
                         >
                             <div style={{ display: "flex", alignItems: "center", gap: "0.3rem", fontSize: "0.7rem", fontWeight: 700, color: "rgba(255,255,255,0.95)", marginBottom: "0.5rem", textTransform: "uppercase" as const, letterSpacing: "0.03em" }}>
                                 📊 Markets
@@ -921,15 +921,15 @@ export function CleanHomeHero() {
                             key="pulse"
                             custom={swipeDirection}
                             variants={{
-                                initial: (d: number) => ({ opacity: 0, x: d * 60 }),
+                                initial: (d: number) => ({ opacity: 0, x: d * 15 }),
                                 animate: { opacity: 1, x: 0 },
-                                exit: (d: number) => ({ opacity: 0, x: d * -60 })
+                                exit: (d: number) => ({ opacity: 0, x: d * -15 })
                             }}
                             initial="initial"
                             animate="animate"
                             exit="exit"
-                            transition={{ duration: 0.2, ease: [0.25, 0.46, 0.45, 0.94] }}
-                            style={{ position: "relative", zIndex: 1, willChange: "transform, opacity" }}
+                            transition={{ duration: 0.25, ease: [0.25, 0.46, 0.45, 0.94] }}
+                            style={{ position: "relative", zIndex: 1 }}
                         >
                             <div style={{ display: "flex", alignItems: "center", gap: "0.3rem", fontSize: "0.7rem", fontWeight: 700, color: "rgba(255,255,255,0.95)", marginBottom: "0.5rem", textTransform: "uppercase" as const, letterSpacing: "0.03em" }}>
                                 📋 Pulse
@@ -1031,14 +1031,14 @@ export function CleanHomeHero() {
                             key="calendar-stats"
                             custom={swipeDirection}
                             variants={{
-                                initial: (d: number) => ({ opacity: 0, x: d * 60 }),
+                                initial: (d: number) => ({ opacity: 0, x: d * 15 }),
                                 animate: { opacity: 1, x: 0 },
-                                exit: (d: number) => ({ opacity: 0, x: d * -60 })
+                                exit: (d: number) => ({ opacity: 0, x: d * -15 })
                             }}
                             initial="initial"
                             animate="animate"
                             exit="exit"
-                            transition={{ duration: 0.3, ease: [0.25, 0.46, 0.45, 0.94] }}
+                            transition={{ duration: 0.25, ease: [0.25, 0.46, 0.45, 0.94] }}
                             style={{
                                 display: "grid",
                                 gridTemplateColumns: "auto 1fr",
