@@ -486,9 +486,13 @@ export function CleanHomeHero() {
 
             {/* ── Main Widget Area — Premium Frosted Glass ── */}
             <motion.div
+                layout
                 initial={{ opacity: 0, y: 25 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8, delay: 0.15, type: "spring", bounce: 0.35 }}
+                transition={{
+                    duration: 0.8, delay: 0.15, type: "spring", bounce: 0.35,
+                    layout: { duration: 0.35, ease: [0.25, 0.46, 0.45, 0.94] }
+                }}
                 whileHover={{ y: -4, transition: { duration: 0.2 } }}
                 onTouchStart={handleTouchStart}
                 onTouchEnd={handleTouchEnd}
@@ -574,7 +578,7 @@ export function CleanHomeHero() {
                     zIndex: 2,
                 }} />
 
-                <AnimatePresence mode="wait" initial={false} custom={swipeDirection}>
+                <AnimatePresence mode="popLayout" initial={false} custom={swipeDirection}>
                     {WIDGETS[widgetIndex] === 'music' ? (
                         <motion.div
                             key="now-playing"
