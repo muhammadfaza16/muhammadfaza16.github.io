@@ -1,12 +1,12 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Home, ChevronLeft, ChevronRight } from "lucide-react";
+import { Home, ChevronLeft, ChevronRight, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Container } from "@/components/Container";
-import "../../../globals.css";
+import { useTheme } from "@/components/guest/no28/ThemeContext";
 
 const sheets = [
     {
@@ -54,7 +54,6 @@ const sheets = [
         ],
         signature: "Muhammad Faza"
     },
-
     {
         title: "Catatan Kecil",
         content: [
@@ -66,10 +65,36 @@ const sheets = [
     }
 ];
 
+const AmbientPaintDrops = () => {
+    const drops = useMemo(() => Array.from({ length: 15 }).map((_, i) => ({
+        id: i,
+        left: `${Math.random() * 100}%`,
+        delay: Math.random() * 15,
+        duration: 15 + Math.random() * 10,
+        size: 8 + Math.random() * 12,
+        color: ["var(--wc-wash-blue-light)", "var(--wc-wash-sage-light)", "var(--wc-wash-rose-light)", "var(--wc-wash-ochre-light)"][Math.floor(Math.random() * 4)],
+        blur: 1 + Math.random() * 3
+    })), []);
 
+    return (
+        <div style={{ position: "fixed", inset: 0, zIndex: 1, pointerEvents: "none", overflow: "hidden" }}>
+            {drops.map(drop => (
+                <div
+                    key={drop.id}
+                    style={{
+                        position: "absolute", left: drop.left, top: "-20px", width: drop.size, height: drop.size,
+                        borderRadius: "50%", background: drop.color, filter: `blur(${drop.blur}px)`, opacity: 0.3,
+                        animation: `wc-paint-drop ${drop.duration}s linear ${drop.delay}s infinite`,
+                    }}
+                />
+            ))}
+        </div>
+    );
+};
 
 export default function LetterPage() {
     const router = useRouter();
+    const { tokens, mode } = useTheme();
     const [currentPage, setCurrentPage] = useState(0);
 
     const nextPage = () => {
@@ -86,220 +111,154 @@ export default function LetterPage() {
     };
 
     return (
-        <div style={{
-            background: "#fdf8f1",
-            backgroundImage: "radial-gradient(#e5e0d8 1.5px, transparent 0)",
-            backgroundSize: "30px 30px",
+        <div className="bg-wc-canvas wc-scrollbar" style={{
             minHeight: "100svh",
-            color: "#444",
-            fontFamily: "'Crimson Pro', serif, -apple-system",
+            backgroundImage: tokens.pageBgDots,
+            backgroundSize: tokens.pageBgSize,
+            color: tokens.textPrimary,
             position: "relative",
             overflowX: "hidden"
         }}>
-            {/* Texture Overlay */}
-            <div style={{
-                position: "fixed",
-                inset: 0,
-                opacity: 0.4,
-                pointerEvents: "none",
-                backgroundImage: "url('https://www.transparenttextures.com/patterns/natural-paper.png')",
-                zIndex: 1
-            }} />
+            {/* Ambient Background */}
+            <div style={{ position: "fixed", inset: 0, zIndex: 0, pointerEvents: "none" }}>
+                <motion.div
+                    animate={{ scale: [1, 1.1, 1], opacity: [0.2, 0.3, 0.2] }}
+                    transition={{ duration: 25, repeat: Infinity, ease: "easeInOut" }}
+                    style={{ position: "absolute", top: "10%", right: "-5%", width: "500px", height: "500px", background: "radial-gradient(circle, var(--wc-wash-blue-light) 0%, transparent 70%)", filter: "blur(80px)" }}
+                />
+                <motion.div
+                    animate={{ scale: [1, 1.15, 1], opacity: [0.25, 0.35, 0.25] }}
+                    transition={{ duration: 28, repeat: Infinity, ease: "easeInOut", delay: 2 }}
+                    style={{ position: "absolute", bottom: "5%", left: "-5%", width: "600px", height: "600px", background: "radial-gradient(circle, var(--wc-wash-rose-light) 0%, transparent 70%)", filter: "blur(90px)" }}
+                />
+            </div>
+            <AmbientPaintDrops />
 
             <main style={{ position: "relative", zIndex: 10, padding: "2rem 0 10rem" }}>
                 <Container>
                     {/* Top Navigation */}
                     <div style={{ marginBottom: "3rem" }}>
-                        <Link href="/guest/no28" style={{
-                            display: "inline-flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                            width: "44px",
-                            height: "44px",
-                            background: "#fff",
-                            border: "2px solid #5a5a5a",
-                            boxShadow: "2px 2px 0px #5a5a5a",
-                            borderRadius: "12px",
-                            color: "#5a5a5a",
-                            transition: "all 0.2s ease"
-                        }}
-                            onMouseOver={(e) => {
-                                e.currentTarget.style.transform = "translate(-1px, -1px)";
-                                e.currentTarget.style.boxShadow = "4px 4px 0px #5a5a5a";
-                            }}
-                            onMouseOut={(e) => {
-                                e.currentTarget.style.transform = "translate(0, 0)";
-                                e.currentTarget.style.boxShadow = "2px 2px 0px #5a5a5a";
-                            }}
-                        >
-                            <Home size={22} strokeWidth={2} />
+                        <Link href="/guest/no28" className="wc-card hover-ink-bleed" style={{
+                            display: "inline-flex", alignItems: "center", justifyContent: "center",
+                            width: "48px", height: "48px", background: tokens.cardBg,
+                            borderRadius: "14px", color: tokens.textPrimary
+                        }}>
+                            <ArrowLeft size={24} />
                         </Link>
                     </div>
 
                     {/* The Letter Sheets */}
                     <div style={{ position: "relative", minHeight: "500px", display: "flex", justifyContent: "center" }}>
+                        {/* Stack background papers for effect */}
+                        <div style={{
+                            position: "absolute", top: "10px", left: "12px", right: "-12px", bottom: "-10px",
+                            background: tokens.cardBg, border: `1px solid ${tokens.cardBorder}`, borderRadius: "var(--wc-radius-organic)",
+                            zIndex: 1, transform: "rotate(1.5deg)", opacity: 0.4, mixBlendMode: mode === "default" ? "multiply" : "screen"
+                        }} />
+                        <div style={{
+                            position: "absolute", top: "-6px", left: "-8px", right: "8px", bottom: "6px",
+                            background: tokens.cardBg, border: `1px solid ${tokens.cardBorder}`, borderRadius: "var(--wc-radius-organic)",
+                            zIndex: 0, transform: "rotate(-2deg)", opacity: 0.2, mixBlendMode: mode === "default" ? "multiply" : "screen"
+                        }} />
+
                         <AnimatePresence mode="wait">
                             <motion.div
                                 key={currentPage}
-                                initial={{ opacity: 1, x: 50, rotate: 2 }}
+                                initial={{ opacity: 0, x: 30, rotate: 1 }}
                                 animate={{ opacity: 1, x: 0, rotate: currentPage % 2 === 0 ? -0.5 : 0.5 }}
-                                exit={{ opacity: 0, x: -50, rotate: -2 }}
+                                exit={{ opacity: 0, x: -30, rotate: -1 }}
                                 transition={{ type: "spring", stiffness: 100, damping: 20 }}
+                                className="wc-card"
                                 style={{
-                                    background: "#fff",
-                                    border: "2px solid #5a5a5a",
-                                    boxShadow: "0px 10px 30px rgba(0,0,0,0.05), 8px 8px 0px #5a5a5a",
-                                    padding: "clamp(2rem, 8vw, 4rem)",
-                                    maxWidth: "650px",
+                                    padding: "clamp(2rem, 8vw, 4.5rem)",
+                                    maxWidth: "680px",
                                     width: "100%",
                                     position: "relative",
-                                    zIndex: 10
+                                    zIndex: 10,
+                                    border: `1px solid ${tokens.cardBorder}`,
+                                    boxShadow: tokens.cardShadow
                                 }}
                             >
-                                {/* Paper Decoration */}
+                                <div className={`wc-wash-stripe wc-wash-stripe--${currentPage % 2 === 0 ? "blue" : "sage"}`} />
+
+                                {/* Subtle vertical line like notebook paper */}
                                 <div style={{
-                                    position: "absolute",
-                                    left: "2rem", top: 0, bottom: 0,
-                                    width: "1px", background: "rgba(200, 0, 0, 0.08)",
+                                    position: "absolute", left: "2.5rem", top: 0, bottom: 0,
+                                    width: "1px", background: tokens.dividerColor, opacity: 0.6,
                                     zIndex: 2
                                 }} />
 
                                 {sheets[currentPage].isFootnote ? (
-                                    <h2 style={{
-                                        fontFamily: "'Crimson Pro', serif",
-                                        fontSize: "1.2rem",
-                                        fontWeight: 600,
-                                        color: "#a0907d",
-                                        marginBottom: "2rem",
-                                        letterSpacing: "0.1em",
-                                        textTransform: "uppercase"
+                                    <h2 className="font-serif-display" style={{
+                                        fontSize: "0.85rem", fontWeight: 700, color: tokens.textMuted,
+                                        marginBottom: "2.5rem", letterSpacing: "3px", textTransform: "uppercase"
                                     }}>
                                         {sheets[currentPage].title}
                                     </h2>
                                 ) : (
-                                    <h2 style={{
-                                        fontFamily: "'Crimson Pro', serif",
-                                        fontSize: "1.75rem",
-                                        fontWeight: 700,
-                                        color: "#d2691e",
-                                        marginBottom: "2.5rem",
-                                        fontStyle: "italic"
+                                    <h2 className="font-serif-display" style={{
+                                        fontSize: "2.2rem", fontWeight: 400, color: tokens.textPrimary,
+                                        marginBottom: "3rem", fontStyle: "italic", opacity: 0.95
                                     }}>
                                         {sheets[currentPage].title}
                                     </h2>
                                 )}
 
                                 {sheets[currentPage].content.map((p, i) => (
-                                    <p key={i} style={{
-                                        marginBottom: "1.5rem",
+                                    <p key={i} className={sheets[currentPage].isFootnote ? "font-handwriting" : "font-serif"} style={{
+                                        marginBottom: "1.8rem",
                                         lineHeight: "1.8",
-                                        fontSize: sheets[currentPage].isFootnote ? "1.05rem" : "1.15rem",
-                                        color: sheets[currentPage].isFootnote ? "#777" : "#333",
+                                        fontSize: sheets[currentPage].isFootnote ? "1.2rem" : "1.25rem",
+                                        color: sheets[currentPage].isFootnote ? tokens.textMuted : tokens.textSecondary,
                                         textAlign: "justify",
-                                        fontStyle: sheets[currentPage].isFootnote ? "italic" : "normal"
+                                        opacity: sheets[currentPage].isFootnote ? 0.8 : 1
                                     }}>
                                         {p}
                                     </p>
                                 ))}
 
                                 {sheets[currentPage].signature && (
-                                    <div style={{ marginTop: "4rem", textAlign: "right", display: "flex", flexDirection: "column", alignItems: "flex-end" }}>
-                                        <motion.div
-                                            initial={{ opacity: 1, }}
-                                            animate={{ opacity: 1 }}
-                                            transition={{ delay: 0.5 }}
-                                            style={{
-                                                fontFamily: "'Crimson Pro', serif",
-                                                fontSize: "1.1rem",
-                                                color: "#8a7058",
-                                                fontStyle: "italic",
-                                                marginBottom: "0.5rem",
-                                                marginRight: "10px"
-                                            }}
-                                        >
+                                    <div style={{ marginTop: "5rem", textAlign: "right", display: "flex", flexDirection: "column", alignItems: "flex-end" }}>
+                                        <div className="font-handwriting" style={{
+                                            fontSize: "1.3rem", color: tokens.textMuted,
+                                            marginBottom: "0.5rem", marginRight: "1rem"
+                                        }}>
                                             Tertanda,
-                                        </motion.div>
-                                        <motion.div
-                                            style={{
-                                                fontFamily: "'Courier New', Courier, monospace",
-                                                fontSize: "1.4rem",
-                                                fontWeight: "bold",
-                                                color: "#444",
-                                                letterSpacing: "0.05em",
-                                                padding: "0.5rem 1rem",
-                                                borderBottom: "2px solid #5a5a5a",
-                                                display: "inline-block",
-                                                minWidth: "200px", // Reserve space to prevent layout jump
-                                                textAlign: "center"
-                                            }}
-                                        >
+                                        </div>
+                                        <div className="font-handwriting" style={{
+                                            fontSize: "2.2rem", color: tokens.textPrimary,
+                                            padding: "0 1.5rem 0.5rem", borderBottom: `2px solid ${tokens.dividerColor}`,
+                                            display: "inline-block", minWidth: "180px", textAlign: "center", fontStyle: "normal"
+                                        }}>
                                             {sheets[currentPage].signature}
-                                        </motion.div>
+                                        </div>
                                     </div>
                                 )}
                             </motion.div>
                         </AnimatePresence>
-
-                        {/* Stack background papers for effect */}
-                        <div style={{
-                            position: "absolute",
-                            top: "10px", left: "10px", right: "-10px", bottom: "-10px",
-                            background: "#fff", border: "2px solid #5a5a5a",
-                            zIndex: 1, transform: "rotate(1deg)", opacity: 0.5
-                        }} />
-                        <div style={{
-                            position: "absolute",
-                            top: "-5px", left: "-5px", right: "5px", bottom: "5px",
-                            background: "#fff", border: "2px solid #5a5a5a",
-                            zIndex: 0, transform: "rotate(-1.5deg)", opacity: 0.3
-                        }} />
                     </div>
 
-                    {/* Bottom Navigation Buttons */}
-                    <div style={{
-                        marginTop: "3rem",
-                        display: "flex",
-                        justifyContent: "center",
-                        alignItems: "center",
-                        gap: "1.5rem"
-                    }}>
+                    {/* Navigation Controls */}
+                    <div style={{ marginTop: "4rem", display: "flex", justifyContent: "center", alignItems: "center", gap: "2rem" }}>
                         <button
                             onClick={prevPage}
                             disabled={currentPage === 0}
+                            className="wc-card hover-ink-bleed"
                             style={{
-                                width: "50px", height: "50px",
-                                borderRadius: "15px", border: "2px solid #5a5a5a",
-                                background: "#fff", color: "#5a5a5a",
+                                width: "56px", height: "56px", borderRadius: "16px",
+                                background: tokens.cardBg, color: tokens.textPrimary,
                                 cursor: currentPage === 0 ? "not-allowed" : "pointer",
                                 opacity: currentPage === 0 ? 0.3 : 1,
                                 display: "flex", alignItems: "center", justifyContent: "center",
-                                boxShadow: "3px 3px 0px #5a5a5a",
-                                transition: "all 0.2s ease"
-                            }}
-                            onMouseOver={(e) => {
-                                if (currentPage !== 0) {
-                                    e.currentTarget.style.transform = "translate(-1px, -1px)";
-                                    e.currentTarget.style.boxShadow = "5px 5px 0px #5a5a5a";
-                                }
-                            }}
-                            onMouseOut={(e) => {
-                                if (currentPage !== 0) {
-                                    e.currentTarget.style.transform = "translate(0, 0)";
-                                    e.currentTarget.style.boxShadow = "3px 3px 0px #5a5a5a";
-                                }
+                                border: `1px solid ${tokens.cardBorder}`, transition: "all 0.3s ease"
                             }}
                         >
-                            <ChevronLeft size={24} />
+                            <ChevronLeft size={28} />
                         </button>
 
-                        <div style={{
-                            fontSize: "1rem",
-                            fontWeight: 700,
-                            color: "#d2691e",
-                            fontFamily: "'Crimson Pro', serif",
-                            fontStyle: "italic",
-                            minWidth: "60px",
-                            textAlign: "center"
+                        <div className="font-serif-display" style={{
+                            fontSize: "1.1rem", fontWeight: 700, color: tokens.textAccent,
+                            fontStyle: "italic", minWidth: "80px", textAlign: "center", opacity: 0.8
                         }}>
                             {currentPage + 1} / {sheets.length}
                         </div>
@@ -312,43 +271,32 @@ export default function LetterPage() {
                                     nextPage();
                                 }
                             }}
+                            className="wc-card hover-ink-bleed"
                             style={{
-                                width: "50px", height: "50px",
-                                borderRadius: "15px", border: "2px solid #5a5a5a",
-                                background: currentPage === sheets.length - 1 ? "#d2691e" : "#fff",
-                                color: currentPage === sheets.length - 1 ? "#fff" : "#5a5a5a",
-                                cursor: "pointer",
-                                opacity: 1,
-                                display: "flex", alignItems: "center", justifyContent: "center",
-                                boxShadow: "3px 3px 0px #5a5a5a",
-                                transition: "all 0.2s ease"
-                            }}
-                            onMouseOver={(e) => {
-                                e.currentTarget.style.transform = "translate(-1px, -1px)";
-                                e.currentTarget.style.boxShadow = "5px 5px 0px #5a5a5a";
-                            }}
-                            onMouseOut={(e) => {
-                                e.currentTarget.style.transform = "translate(0, 0)";
-                                e.currentTarget.style.boxShadow = "3px 3px 0px #5a5a5a";
+                                width: "56px", height: "56px", borderRadius: "16px",
+                                background: currentPage === sheets.length - 1 ? tokens.accent : tokens.cardBg,
+                                color: currentPage === sheets.length - 1 ? "#fff" : tokens.textPrimary,
+                                cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center",
+                                border: `1px solid ${tokens.cardBorder}`, transition: "all 0.3s ease"
                             }}
                         >
-                            {currentPage === sheets.length - 1 ? <Home size={24} /> : <ChevronRight size={24} />}
+                            {currentPage === sheets.length - 1 ? <Home size={28} /> : <ChevronRight size={28} />}
                         </button>
                     </div>
 
-                    {/* Progress Indicator */}
-                    <div style={{ marginTop: "4rem", textAlign: "center", opacity: 0.5 }}>
-                        <div style={{ display: "inline-flex", gap: "0.5rem" }}>
+                    {/* Page Progress Dots */}
+                    <div style={{ marginTop: "5rem", textAlign: "center" }}>
+                        <div style={{ display: "inline-flex", gap: "0.8rem", alignItems: "center" }}>
                             {sheets.map((_, i) => (
-                                <div
+                                <motion.div
                                     key={i}
-                                    style={{
-                                        width: i === currentPage ? "12px" : "8px",
-                                        height: i === currentPage ? "12px" : "8px",
-                                        borderRadius: "50%",
-                                        background: i === currentPage ? "#d2691e" : "#5a5a5a",
-                                        transition: "all 0.3s ease"
+                                    animate={{
+                                        width: i === currentPage ? "14px" : "8px",
+                                        height: i === currentPage ? "14px" : "8px",
+                                        backgroundColor: i === currentPage ? tokens.accent : tokens.dividerColor,
+                                        opacity: i === currentPage ? 1 : 0.4
                                     }}
+                                    style={{ borderRadius: "50%", transition: "all 0.3s ease" }}
                                 />
                             ))}
                         </div>

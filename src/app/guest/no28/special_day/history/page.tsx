@@ -2,51 +2,54 @@
 
 import React, { useState, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import {
-    ArrowLeft, Sparkles, Star, Heart, BookOpen, Wind, Quote, Moon
-} from "lucide-react";
+import { ArrowLeft, Sparkles, Star, Heart, BookOpen, Wind, Quote, Moon } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import { Container } from "@/components/Container";
 import { useTheme } from "@/components/guest/no28/ThemeContext";
-import { ThemeToggle } from "@/components/guest/no28/ThemeToggle";
-import "../../../../globals.css";
 
-// --- Shared UI Primitives ---
+// --- Watercolor Components ---
 
-const HandwrittenNote = ({ children, style = {} }: { children: React.ReactNode, style?: React.CSSProperties }) => (
-    <span style={{
-        fontFamily: "'Caveat', cursive, 'Brush Script MT'", color: "#a0907d",
-        fontSize: "1.2rem", display: "inline-block", lineHeight: 1.2, ...style
-    }}>{children}</span>
+const HandwrittenText = ({ children, style = {}, className = "" }: { children: React.ReactNode, style?: React.CSSProperties, className?: string }) => (
+    <span className={`font-handwriting ${className}`} style={{ fontSize: "1.25rem", display: "inline-block", lineHeight: 1.2, ...style }}>
+        {children}
+    </span>
 );
 
-const SectionDivider = ({ label }: { label?: string }) => (
-    <div style={{ display: "flex", alignItems: "center", gap: "1rem", margin: "4rem 0 2rem" }}>
-        <div style={{ flex: 1, height: "1px", background: "#e8e2d9" }} />
-        {label && <HandwrittenNote style={{ fontSize: "1rem", opacity: 0.6 }}>{label}</HandwrittenNote>}
-        <div style={{ flex: 1, height: "1px", background: "#e8e2d9" }} />
-    </div>
+const WashStripe = ({ type = "blue" as "blue" | "sage" | "rose" | "ochre" | "lavender" }) => (
+    <div className={`wc-wash-stripe wc-wash-stripe--${type}`} />
 );
 
-const NoiseOverlay = () => (
-    <div style={{
-        position: "fixed", inset: 0, pointerEvents: "none", zIndex: 50, opacity: 0.07,
-        background: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
-        mixBlendMode: "overlay"
-    }} />
-);
+const AmbientPaintDrops = () => {
+    const drops = useMemo(() => Array.from({ length: 12 }).map((_, i) => ({
+        id: i,
+        left: `${Math.random() * 100}%`,
+        delay: Math.random() * 15,
+        duration: 15 + Math.random() * 10,
+        size: 8 + Math.random() * 12,
+        color: ["var(--wc-wash-blue-light)", "var(--wc-wash-sage-light)", "var(--wc-wash-rose-light)", "var(--wc-wash-ochre-light)"][Math.floor(Math.random() * 4)],
+        blur: 1 + Math.random() * 3
+    })), []);
 
-// --- Animation Variants ---
-const sectionVariants = {
-    hidden: { opacity: 1, y: 30 },
-    show: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" as const } }
+    return (
+        <div style={{ position: "fixed", inset: 0, zIndex: 1, pointerEvents: "none", overflow: "hidden" }}>
+            {drops.map(drop => (
+                <div
+                    key={drop.id}
+                    style={{
+                        position: "absolute", left: drop.left, top: "-20px", width: drop.size, height: drop.size,
+                        borderRadius: "50%", background: drop.color, filter: `blur(${drop.blur}px)`, opacity: 0.3,
+                        animation: `wc-paint-drop ${drop.duration}s linear ${drop.delay}s infinite`,
+                    }}
+                />
+            ))}
+        </div>
+    );
 };
 
-// --- Moon Phase Calculator ---
-function getMoonPhaseOnDate(date: Date): { phase: string; emoji: string; illumination: number } {
-    // Simplified synodic month calculation
-    const known = new Date(2000, 0, 6, 18, 14); // Known new moon
+// --- Moon Phase Logic ---
+function getMoonPhaseOnDate(date: Date) {
+    const known = new Date(2000, 0, 6, 18, 14);
     const msPerDay = 86400000;
     const synodicMonth = 29.53059;
     const daysSinceKnown = (date.getTime() - known.getTime()) / msPerDay;
@@ -64,15 +67,12 @@ function getMoonPhaseOnDate(date: Date): { phase: string; emoji: string; illumin
     return { phase: "Bulan Baru", emoji: "🌑", illumination: 0 };
 }
 
-
-// --- Page ---
-
 export default function HistoryPage() {
     const [mounted, setMounted] = useState(false);
     const [isMobile, setIsMobile] = useState(false);
     const [portraitIndex, setPortraitIndex] = useState(0);
     const [selectedPortrait, setSelectedPortrait] = useState<{ src: string, label: string } | null>(null);
-    const { tokens: T } = useTheme();
+    const { tokens: T, mode } = useTheme();
 
     const portraits = [
         { src: "/portrait_4.webp", label: "Ada banyak hal baik yang bermula dari keramahanmu" },
@@ -98,8 +98,8 @@ export default function HistoryPage() {
         check();
         window.addEventListener('resize', check);
 
-        const kamusTimer = setInterval(() => setKamusIndex(prev => (prev + 1) % kamusMeanings.length), 20000);
-        const portraitTimer = setInterval(() => setPortraitIndex(prev => (prev + 1) % portraits.length), 12000);
+        const kamusTimer = setInterval(() => setKamusIndex(prev => (prev + 1) % kamusMeanings.length), 15000);
+        const portraitTimer = setInterval(() => setPortraitIndex(prev => (prev + 1) % portraits.length), 10000);
 
         return () => {
             window.removeEventListener('resize', check);
@@ -111,379 +111,211 @@ export default function HistoryPage() {
     if (!mounted) return null;
 
     return (
-        <div style={{
-            backgroundColor: T.pageBg,
-            backgroundImage: T.pageBgDots,
-            backgroundSize: T.pageBgSize,
-            minHeight: "100svh",
-            color: T.textPrimary,
-            fontFamily: "'Crimson Pro', serif, -apple-system",
-            position: "relative",
-            overflowX: "hidden",
-            paddingBottom: "5rem",
-            transition: "background-color 0.5s ease, color 0.5s ease"
+        <div className="bg-wc-canvas wc-scrollbar" style={{
+            minHeight: "100svh", color: T.textPrimary, position: "relative", overflowX: "hidden", paddingBottom: "8rem",
+            backgroundImage: T.pageBgDots, backgroundSize: T.pageBgSize, transition: "background-color 0.5s ease"
         }}>
-            <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;700&display=swap" rel="stylesheet" />
-            <NoiseOverlay />
-            <div style={{ position: "fixed", inset: 0, opacity: 0.4, pointerEvents: "none", backgroundImage: T.paperTexture, zIndex: 5 }} />
+            {/* Ambient Background */}
+            <div style={{ position: "fixed", inset: 0, zIndex: 0, pointerEvents: "none" }}>
+                <motion.div
+                    animate={{ scale: [1, 1.1, 1], opacity: [0.2, 0.3, 0.2] }}
+                    transition={{ duration: 30, repeat: Infinity, ease: "easeInOut" }}
+                    style={{ position: "absolute", top: "5%", right: "-5%", width: "500px", height: "500px", background: "radial-gradient(circle, var(--wc-wash-blue-light) 0%, transparent 70%)", filter: "blur(80px)" }}
+                />
+            </div>
+            <AmbientPaintDrops />
 
-            <main style={{ position: "relative", zIndex: 10, padding: isMobile ? "4rem 0" : "6rem 0" }}>
+            <main style={{ position: "relative", zIndex: 10, padding: isMobile ? "2rem 0" : "4rem 0" }}>
                 <Container>
-                    {/* Header */}
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "3rem" }}>
-                        <div style={{ display: "flex", alignItems: "center", gap: "14px" }}>
-                            <Link href="/guest/no28/special_day" style={{
+                    {/* Top Navigation */}
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "4rem" }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: "18px" }}>
+                            <Link href="/guest/no28/special_day" className="wc-card hover-ink-bleed" style={{
                                 display: "inline-flex", alignItems: "center", justifyContent: "center",
-                                width: "44px", height: "44px", background: T.buttonBg, border: `2px solid ${T.buttonBorder}`,
-                                borderRadius: "12px", color: T.buttonText, boxShadow: T.buttonShadow, transition: "all 0.3s ease"
+                                width: "48px", height: "48px", backgroundColor: T.cardBg,
+                                borderRadius: "14px", color: T.textPrimary, border: `1px solid ${T.cardBorder}`
                             }}>
-                                <ArrowLeft size={22} strokeWidth={2} />
+                                <ArrowLeft size={24} />
                             </Link>
-                            <div>
-                                <div style={{ fontSize: "0.65rem", color: T.textSecondary, textTransform: "uppercase", letterSpacing: "2.5px", fontWeight: 700 }}>Brief History of You</div>
-                                <HandwrittenNote style={{ fontSize: "1.1rem", color: T.textAccent }}>Jejak-jejak yang membentuk dirimu</HandwrittenNote>
+                            <div style={{ textAlign: "left" }}>
+                                <div className="font-serif-display" style={{ fontSize: "0.7rem", color: T.textSecondary, textTransform: "uppercase", letterSpacing: "3px", fontWeight: 700, opacity: 0.8 }}>Brief History of You</div>
+                                <HandwrittenText style={{ fontSize: "1rem", color: T.textAccent }}>Jejak-jejak yang membentuk dirimu</HandwrittenText>
                             </div>
                         </div>
-                        <ThemeToggle />
                     </div>
 
+                    {/* PORTRAIT SECTION */}
+                    <motion.section initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
+                        <div className="wc-card" style={{ padding: isMobile ? "2.5rem 1.5rem" : "4rem 3.5rem", border: `1px solid ${T.cardBorder}` }}>
+                            <WashStripe type="blue" />
+                            <div style={{ display: "flex", flexDirection: isMobile ? "column" : "row", alignItems: "center", gap: isMobile ? "3rem" : "5rem" }}>
 
-                    {/* =============================== */}
-                    {/* SECTION 1: Polaroid Portrait    */}
-                    {/* =============================== */}
-                    <motion.section variants={sectionVariants} initial="hidden" whileInView="show" viewport={{ once: true }}>
-                        <div style={{
-                            background: "#fff",
-                            backgroundImage: "url('https://www.transparenttextures.com/patterns/natural-paper.png')",
-                            borderRadius: "6px", border: "1px solid #e8e2d9",
-                            boxShadow: "0 8px 24px rgba(0,0,0,0.08)",
-                            padding: isMobile ? "2rem 1.5rem" : "3rem 2.5rem",
-                        }}>
-                            <div style={{
-                                display: "flex", flexDirection: isMobile ? "column" : "row",
-                                alignItems: "center", gap: isMobile ? "2rem" : "4rem",
-                            }}>
-                                {/* Stacked Polaroid Frame */}
-                                <div style={{ position: "relative", width: isMobile ? "220px" : "280px", height: isMobile ? "280px" : "360px", cursor: "pointer" }}
+                                {/* Photo Stack Interactivity */}
+                                <div style={{ position: "relative", width: isMobile ? "200px" : "280px", height: isMobile ? "260px" : "360px", cursor: "pointer", flexShrink: 0 }}
                                     onClick={() => setPortraitIndex(prev => (prev + 1) % portraits.length)}>
 
-                                    {/* Back Layer */}
-                                    <div style={{ position: "absolute", top: "16px", left: "16px", width: "100%", height: "100%", background: "#fff", padding: "10px 10px 35px", boxShadow: "0 4px 15px rgba(0,0,0,0.08)", transform: "rotate(6deg)", zIndex: 1 }}>
+                                    {/* Layers for realistic stack effect */}
+                                    <div className="wc-card" style={{ position: "absolute", top: "12px", left: "12px", width: "100%", height: "100%", background: "#fff", padding: "8px 8px 30px", border: "none", transform: "rotate(5deg)", zIndex: 1, opacity: 0.4 }}>
                                         <div style={{ width: "100%", height: "calc(100% - 25px)", background: "#f5f3f0", position: "relative", overflow: "hidden" }}>
-                                            <Image src={portraits[(portraitIndex + 2) % portraits.length].src} alt="" fill style={{ objectFit: "cover", objectPosition: "center top", opacity: 0.7 }} />
+                                            <Image src={portraits[(portraitIndex + 1) % portraits.length].src} alt="" fill style={{ objectFit: "cover", opacity: 0.5 }} />
                                         </div>
                                     </div>
 
-                                    {/* Middle Layer */}
-                                    <div style={{ position: "absolute", top: "8px", left: "8px", width: "100%", height: "100%", background: "#fff", padding: "10px 10px 35px", boxShadow: "0 6px 20px rgba(0,0,0,0.1)", transform: "rotate(-4deg)", zIndex: 2 }}>
-                                        <div style={{ width: "100%", height: "calc(100% - 25px)", background: "#f5f3f0", position: "relative", overflow: "hidden" }}>
-                                            <Image src={portraits[portraitIndex].src} alt="" fill style={{ objectFit: "cover", objectPosition: "center top", opacity: 0.85 }} />
-                                        </div>
-                                    </div>
-
-                                    {/* Top Layer */}
                                     <motion.div
-                                        animate={{ rotate: [-2, 0, -2] }}
-                                        transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+                                        animate={{ rotate: [-1.5, 0.5, -1.5], y: [0, -5, 0] }}
+                                        transition={{ duration: 7, repeat: Infinity, ease: "easeInOut" }}
                                         whileHover={{ scale: 1.02 }}
-                                        whileTap={{ scale: 0.98 }}
                                         onClick={(e) => { e.stopPropagation(); setSelectedPortrait(portraits[portraitIndex]); }}
-                                        style={{
-                                            position: "absolute", top: 0, left: 0, width: "100%", height: "100%",
-                                            background: "#fff", padding: "12px 12px 40px", boxShadow: "0 10px 40px rgba(0,0,0,0.15)", zIndex: 3
-                                        }}
+                                        className="wc-card"
+                                        style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", background: "#fff", padding: "12px 12px 42px", border: "none", boxShadow: "var(--wc-shadow-sm)", zIndex: 3 }}
                                     >
-                                        <div style={{ width: "100%", height: "calc(100% - 28px)", position: "relative", overflow: "hidden", background: "#faf8f5" }}>
+                                        <div style={{ width: "100%", height: "calc(100% - 28px)", position: "relative", overflow: "hidden", background: "#fdf8f4" }}>
                                             <AnimatePresence mode="wait">
-                                                <motion.div key={portraitIndex} initial={{ opacity: 1, }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.5 }} style={{ position: "absolute", inset: 0 }}>
-                                                    <Image src={portraits[portraitIndex].src} alt={portraits[portraitIndex].label} fill style={{ objectFit: "cover", objectPosition: "center top" }} />
+                                                <motion.div key={portraitIndex} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.5 }} style={{ position: "absolute", inset: 0 }}>
+                                                    <Image src={portraits[portraitIndex].src} alt="" fill style={{ objectFit: "cover", objectPosition: "center top" }} />
                                                 </motion.div>
                                             </AnimatePresence>
                                         </div>
-                                        <div style={{ position: "absolute", bottom: "10px", left: 0, right: 0, textAlign: "center" }}>
+                                        <div style={{ position: "absolute", bottom: "10px", left: 0, right: 0, textAlign: "center", padding: "0 10px" }}>
                                             <AnimatePresence mode="wait">
-                                                <motion.div key={portraitIndex} initial={{ opacity: 1, y: 5 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -5 }} transition={{ duration: 0.4 }}>
-                                                    <HandwrittenNote style={{ color: "#8a7058", fontSize: "0.95rem", lineHeight: 1.1 }}>
-                                                        {portraits[portraitIndex].label}
-                                                    </HandwrittenNote>
+                                                <motion.div key={portraitIndex} initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -5 }}>
+                                                    <HandwrittenText style={{ fontSize: "0.9rem", color: T.textSecondary, opacity: 0.8, lineHeight: 1.1 }}>{portraits[portraitIndex].label}</HandwrittenText>
                                                 </motion.div>
                                             </AnimatePresence>
                                         </div>
                                     </motion.div>
                                 </div>
 
-                                {/* Text Content */}
-                                <div style={{ textAlign: isMobile ? "center" : "left", maxWidth: "400px" }}>
-                                    <div style={{ fontSize: "0.7rem", color: "#a0907d", textTransform: "uppercase", letterSpacing: "2px", marginBottom: "0.5rem" }}>Untukmu</div>
-                                    <h3 style={{ fontSize: isMobile ? "1.8rem" : "2.2rem", fontWeight: 300, color: "#4e4439", fontFamily: "'Crimson Pro', serif", lineHeight: 1.3, marginBottom: "1rem" }}>
-                                        Jiwa yang lahir di hari yang istimewa
-                                    </h3>
-                                    <HandwrittenNote style={{ fontSize: "1.1rem", lineHeight: 1.6, opacity: 0.8 }}>
-                                        Setiap garis di sketsa ini adalah pengingat bahwa keberadaanmu layak untuk diabadikan.
-                                    </HandwrittenNote>
+                                <div style={{ flex: 1, textAlign: isMobile ? "center" : "left" }}>
+                                    <SectionHeading icon={Sparkles}>A Glance into the Past</SectionHeading>
+                                    <h2 className="font-serif-display" style={{ fontSize: isMobile ? "2rem" : "2.6rem", color: T.textPrimary, marginBottom: "1.5rem", fontStyle: "italic", lineHeight: 1.2 }}>Jiwa yang lahir di hari yang istimewa</h2>
+                                    <p className="font-serif" style={{ fontSize: "1.15rem", color: T.textSecondary, lineHeight: 1.8, fontWeight: 300 }}>"Setiap garis di sketsa ini adalah pengingat bahwa keberadaanmu selalu layak untuk diabadikan."</p>
+                                    <div style={{ marginTop: "2rem", opacity: 0.6 }}>
+                                        <HandwrittenText style={{ fontSize: "1rem" }}>(ketuk foto untuk memperbesar...)</HandwrittenText>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </motion.section>
 
-
-                    {/* =============================== */}
-                    {/* SECTION 2: Moon on Her Birthday  */}
-                    {/* =============================== */}
+                    {/* MOON SECTION */}
                     <SectionDivider label="Langit Malam Kelahiranmu" />
-
-                    <motion.section variants={sectionVariants} initial="hidden" whileInView="show" viewport={{ once: true }}>
-                        <div style={{
-                            background: "linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)",
-                            borderRadius: "6px", border: "1px solid #2a2a4a",
-                            boxShadow: "0 12px 32px rgba(0,0,0,0.2)",
-                            padding: isMobile ? "3rem 1.5rem" : "4rem 3rem",
-                            textAlign: "center", position: "relative", overflow: "hidden"
-                        }}>
-                            {/* Stars Background using CSS Keyframes for performance */}
-                            {Array.from({ length: 30 }).map((_, i) => (
-                                <div key={i}
-                                    style={{
-                                        position: "absolute",
-                                        left: `${Math.random() * 100}%`, top: `${Math.random() * 100}%`,
-                                        width: "2px", height: "2px", borderRadius: "50%",
-                                        background: "#fff",
-                                        animation: `twinkleStar ${2 + Math.random() * 3}s ease-in-out ${Math.random() * 2}s infinite`
-                                    }}
-                                />
-                            ))}
-
-                            <Moon size={20} color="rgba(255,255,255,0.3)" style={{ margin: "0 auto 1rem" }} />
-                            <div style={{ fontSize: "0.65rem", color: "rgba(255,255,255,0.5)", textTransform: "uppercase", letterSpacing: "3px", marginBottom: "1.5rem" }}>
-                                28 November 2000
+                    <motion.section initial={{ opacity: 0, scale: 0.98 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }}>
+                        <div className="wc-card" style={{ background: "linear-gradient(145deg, #121620 0%, #1a202c 100%)", padding: "4rem 2rem", textAlign: "center", position: "relative", overflow: "hidden", border: "1px solid rgba(255,255,255,0.05)" }}>
+                            <WashStripe type="lavender" />
+                            {/* Stars background inside card */}
+                            <div style={{ position: "absolute", inset: 0, pointerEvents: "none", zIndex: 0, opacity: 0.35 }}>
+                                {Array.from({ length: 40 }).map((_, i) => (
+                                    <div key={i} style={{ position: "absolute", left: `${Math.random() * 100}%`, top: `${Math.random() * 100}%`, width: "2px", height: "2px", background: "#fff", borderRadius: "50%", animation: `twinkleStar ${2 + Math.random() * 3}s infinite` }} />
+                                ))}
                             </div>
 
-                            <motion.div
-                                animate={{ scale: [1, 1.05, 1] }}
-                                transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-                                style={{ fontSize: "5rem", marginBottom: "1rem", filter: "drop-shadow(0 0 20px rgba(255,255,255,0.2))" }}
-                            >
-                                {moonOnBirthday.emoji}
-                            </motion.div>
+                            <div style={{ position: "relative", zIndex: 2 }}>
+                                <Moon size={24} color="#8fa0c4" style={{ margin: "0 auto 1.5rem", opacity: 0.6 }} />
+                                <div className="font-serif-display" style={{ fontSize: "0.75rem", color: "rgba(255,248,220,0.5)", textTransform: "uppercase", letterSpacing: "4px", marginBottom: "2rem" }}>28 November 2000</div>
+                                <motion.div animate={{ scale: [1, 1.04, 1], filter: ["blur(0px)", "blur(1px)", "blur(0px)"] }} transition={{ duration: 5, repeat: Infinity }} style={{ fontSize: "6rem", marginBottom: "1rem" }}>{moonOnBirthday.emoji}</motion.div>
+                                <h3 className="font-serif-display" style={{ fontSize: "1.8rem", color: "#e8d5b7", fontStyle: "italic", marginBottom: "0.8rem" }}>{moonOnBirthday.phase}</h3>
+                                <p style={{ fontSize: "1.1rem", color: "rgba(255,255,255,0.6)", fontStyle: "italic", maxWidth: "520px", margin: "0 auto 3rem", lineHeight: 1.7 }}>"Di malam kamu lahir, cahaya bulan menerangi {moonOnBirthday.illumination}% langit — seolah semesta sedang bersiap menyambut kehadiranmu."</p>
 
-                            <h3 style={{ fontSize: "1.6rem", color: "#e8d5b7", fontFamily: "'Crimson Pro', serif", fontWeight: 300, marginBottom: "0.5rem" }}>
-                                {moonOnBirthday.phase}
-                            </h3>
-
-                            <p style={{ fontSize: "1rem", color: "rgba(255,255,255,0.5)", fontStyle: "italic", maxWidth: "500px", margin: "0 auto 2rem", lineHeight: 1.6 }}>
-                                Di malam kamu lahir, cahaya bulan menerangi {moonOnBirthday.illumination}% langit — seolah semesta sedang bersiap menyambut kehadiranmu.
-                            </p>
-
-                            <div style={{ display: "flex", justifyContent: "center", gap: "4px" }}>
-                                {["🌑", "🌒", "🌓", "🌔", "🌕", "🌖", "🌗", "🌘"].map((emoji, i) => (
-                                    <div key={i} style={{ fontSize: "1.2rem", opacity: emoji === moonOnBirthday.emoji ? 1 : 0.2, transition: "opacity 0.3s" }}>
-                                        {emoji}
-                                    </div>
-                                ))}
+                                <div style={{ display: "flex", justifyContent: "center", gap: "6px" }}>
+                                    {["🌑", "🌒", "🌓", "🌔", "🌕", "🌖", "🌗", "🌘"].map((emoji, i) => (
+                                        <div key={i} style={{ fontSize: "1.4rem", opacity: emoji === moonOnBirthday.emoji ? 1 : 0.15, transform: emoji === moonOnBirthday.emoji ? "scale(1.2)" : "none", transition: "all 0.4s ease" }}>{emoji}</div>
+                                    ))}
+                                </div>
                             </div>
                         </div>
                     </motion.section>
 
-
-                    {/* =============================== */}
-                    {/* SECTION 3: Musim Kehidupan       */}
-                    {/* =============================== */}
+                    {/* MUSIM KEHIDUPAN SECTION */}
                     <SectionDivider label="Musim-musim yang membentukmu" />
-
-                    <motion.section variants={sectionVariants} initial="hidden" whileInView="show" viewport={{ once: true }}>
-                        <div style={{
-                            background: "#fff",
-                            backgroundImage: "url('https://www.transparenttextures.com/patterns/natural-paper.png')",
-                            borderRadius: "6px", border: "1px solid #e8e2d9",
-                            boxShadow: "0 8px 24px rgba(0,0,0,0.08)",
-                            padding: isMobile ? "2rem 1.5rem" : "3rem 2.5rem",
-                            position: "relative", overflow: "hidden"
-                        }}>
-                            <div style={{ position: "absolute", bottom: isMobile ? "-30px" : "-50px", right: isMobile ? "-30px" : "-20px", width: isMobile ? "180px" : "320px", height: isMobile ? "180px" : "320px", opacity: 0.2, transform: "rotate(-3deg)", pointerEvents: "none", zIndex: 0 }}>
-                                <Image src="/special_hijabi_main.webp" alt="" fill style={{ objectFit: "contain" }} />
-                            </div>
-
-                            <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "1.5rem" }}>
-                                <BookOpen size={14} color="#a0907d" style={{ opacity: 0.8 }} />
-                                <h3 style={{ fontSize: "0.7rem", fontWeight: 700, color: "#a0907d", textTransform: "uppercase", letterSpacing: "2.5px" }}>Musim-Musim Kehidupanmu</h3>
-                            </div>
-
-                            <div style={{ display: "flex", flexDirection: isMobile ? "column" : "row", gap: isMobile ? "1.5rem" : "3rem", position: "relative" }}>
-                                {!isMobile && (
-                                    <div style={{ position: "absolute", top: "24px", left: "1.5rem", right: "2rem", height: "2px", borderTop: "2px dashed #e8e2d9", zIndex: 0 }} />
-                                )}
+                    <motion.section initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
+                        <div className="wc-card" style={{ padding: isMobile ? "2.5rem 1.5rem" : "3.5rem 3rem", position: "relative", overflow: "hidden", border: `1px solid ${T.cardBorder}` }}>
+                            <WashStripe type="sage" />
+                            <div style={{ display: "flex", flexDirection: isMobile ? "column" : "row", gap: "4rem", position: "relative" }}>
                                 {[
                                     { year: "2000 - 2006", title: "Fajar yang Lembut", desc: "Awal dari segalanya. Waktu yang membentuk siapa kamu.", icon: Sparkles },
                                     { year: "2006 - 2018", title: "Musim Bertumbuh", desc: "Tahun-tahun penuh warna, belajar, dan menemukan diri.", icon: Star },
                                     { year: "2018 - Kini", title: "Langkah Mendewasa", desc: "Perjalanan menjadi versi terbaik dari diri sendiri.", icon: Heart }
                                 ].map((chapter, i) => (
-                                    <div key={i} style={{ flex: 1, position: "relative", paddingLeft: isMobile ? "1.5rem" : "0", borderLeft: isMobile ? "1px dashed #e5e0d8" : "none", zIndex: 1 }}>
-                                        <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "8px" }}>
-                                            <div style={{ width: "32px", height: "32px", borderRadius: "50%", background: "#fff", border: "1px solid #e8e2d9", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 0 12px rgba(176, 125, 98, 0.12)" }}>
-                                                <chapter.icon size={14} color="#b07d62" />
+                                    <div key={i} style={{ flex: 1, position: "relative" }}>
+                                        <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "1rem" }}>
+                                            <div className="wc-card" style={{ width: "36px", height: "36px", borderRadius: "50%", background: "#fff", display: "flex", alignItems: "center", justifyContent: "center", border: "none" }}>
+                                                <chapter.icon size={16} color={T.accent} />
                                             </div>
-                                            <span style={{ fontSize: "0.65rem", fontWeight: 700, color: "#aaa" }}>{chapter.year}</span>
+                                            <span style={{ fontSize: "0.7rem", fontWeight: 700, color: T.textMuted, opacity: 0.6, letterSpacing: "1px" }}>{chapter.year}</span>
                                         </div>
-                                        <h4 style={{ fontSize: "1rem", fontWeight: 700, color: "#4e4439" }}>{chapter.title}</h4>
-                                        <HandwrittenNote style={{ fontSize: "0.9rem", marginTop: "4px" }}>{chapter.desc}</HandwrittenNote>
+                                        <h4 className="font-serif-display" style={{ fontSize: "1.3rem", color: T.textPrimary, marginBottom: "0.6rem" }}>{chapter.title}</h4>
+                                        <p className="font-handwriting" style={{ fontSize: "1.1rem", color: T.textSecondary, lineHeight: 1.5 }}>{chapter.desc}</p>
                                     </div>
                                 ))}
                             </div>
                         </div>
                     </motion.section>
 
-
-                    {/* =============================== */}
-                    {/* SECTION 4: Quarter Life          */}
-                    {/* =============================== */}
+                    {/* QUARTER CENTURY SECTION */}
                     <SectionDivider label="Titik keseimbangan" />
-
-                    <motion.section variants={sectionVariants} initial="hidden" whileInView="show" viewport={{ once: true }}>
-                        <div style={{
-                            background: "#fff",
-                            backgroundImage: "url('https://www.transparenttextures.com/patterns/natural-paper.png')",
-                            borderRadius: "6px", border: "1px solid #e8e2d9",
-                            boxShadow: "0 8px 24px rgba(0,0,0,0.08)",
-                            padding: isMobile ? "2rem 1.5rem" : "3rem 2.5rem",
-                        }}>
-                            <div style={{ display: "flex", flexDirection: isMobile ? "column" : "row", gap: isMobile ? "2rem" : "4rem", alignItems: "center" }}>
-                                {/* Animated Compass */}
+                    <motion.section initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
+                        <div className="wc-card" style={{ padding: isMobile ? "3rem 1.5rem" : "4.5rem 4rem", border: `1px solid ${T.cardBorder}` }}>
+                            <WashStripe type="ochre" />
+                            <div style={{ display: "flex", flexDirection: isMobile ? "column" : "row", gap: "4rem", alignItems: "center" }}>
                                 <div style={{ flex: isMobile ? "none" : "0 0 35%", display: "flex", justifyContent: "center" }}>
                                     <div style={{ position: "relative", width: "180px", height: "180px" }}>
-                                        {[0, 1, 2].map(i => (
-                                            <motion.div key={i}
-                                                animate={{ scale: [1, 1.1, 1], opacity: [0.3, 0.6, 0.3], rotate: [0, 90, 180] }}
-                                                transition={{ duration: 10 + i * 5, repeat: Infinity, ease: "linear" }}
-                                                style={{ position: "absolute", inset: i * 20, border: "1px dashed #aebdca", borderRadius: "50%" }}
-                                            />
+                                        {[0, 1].map(i => (
+                                            <motion.div key={i} animate={{ scale: [1, 1.1, 1], rotate: [0, 90 + i * 90, 180 + i * 180] }} transition={{ duration: 15 + i * 5, repeat: Infinity, ease: "linear" }} style={{ position: "absolute", inset: i * 25, border: `1px dashed ${T.dividerColor}`, borderRadius: "50%", opacity: 0.5 }} />
                                         ))}
-                                        <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", flexDirection: "column", zIndex: 10 }}>
-                                            <span style={{ fontSize: "5rem", fontFamily: "'Crimson Pro', serif", fontWeight: 400, color: "#4e4439", lineHeight: 0.8 }}>25</span>
-                                            <HandwrittenNote style={{ fontSize: "1.2rem", marginTop: "5px" }}>Tahun</HandwrittenNote>
+                                        <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", flexDirection: "column" }}>
+                                            <span className="font-serif-display" style={{ fontSize: "5rem", color: T.textPrimary, lineHeight: 0.8 }}>25</span>
+                                            <HandwrittenText style={{ fontSize: "1.2rem" }}>Tahun</HandwrittenText>
                                         </div>
-                                        <motion.div animate={{ rotate: 360 }} transition={{ duration: 30, repeat: Infinity, ease: "linear" }} style={{ position: "absolute", inset: 0 }}>
-                                            <div style={{ position: "absolute", top: -15, left: "50%", transform: "translateX(-50%)", background: "#fdf8f4", padding: "5px" }}>
-                                                <Star size={16} color="#aebdca" fill="#aebdca" fillOpacity={0.5} />
-                                            </div>
-                                            <div style={{ position: "absolute", bottom: -15, left: "50%", transform: "translateX(-50%) rotate(180deg)", background: "#fdf8f4", padding: "5px" }}>
-                                                <Wind size={16} color="#aebdca" />
-                                            </div>
-                                        </motion.div>
                                     </div>
                                 </div>
-
-                                {/* Message */}
                                 <div style={{ flex: 1, position: "relative" }}>
-                                    <div style={{ position: "absolute", top: "-20px", left: "-20px", opacity: 0.1 }}>
-                                        <Quote size={60} color="#aebdca" />
-                                    </div>
-                                    <h3 style={{ fontSize: "1.6rem", fontWeight: 400, color: "#b07d62", fontFamily: "'Crimson Pro', serif", marginBottom: "1rem", fontStyle: "italic" }}>
-                                        &ldquo;Titik Keseimbangan Emas&rdquo;
-                                    </h3>
-                                    <p style={{ fontFamily: "'Crimson Pro', serif", fontSize: "1.1rem", lineHeight: 1.8, color: "#4e4439", marginBottom: "1.5rem" }}>
-                                        Banyak yang bilang usia 25 adalah fase yang membingungkan. Seolah kamu harus memilih satu jalan pasti saat hatimu masih ingin menjelajah segalanya.
-                                        <br /><br />
-                                        Tapi percayalah, ini adalah <strong>usia terindah</strong>. Kakimu sudah cukup kuat untuk berdiri sendiri, tapi hatimu masih cukup lembut untuk memimpikan banyak hal. Kamu tidak terlambat. Kamu tidak tertinggal. Kamu sedang bertumbuh di waktu yang tepat.
-                                    </p>
-                                    <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                                        <div style={{ height: "1px", width: "40px", background: "#aebdca" }} />
-                                        <HandwrittenNote style={{ color: "#aebdca", fontSize: "1rem" }}>Quarter Century Bloom</HandwrittenNote>
-                                    </div>
+                                    <div style={{ position: "absolute", top: "-30px", left: "-30px", opacity: 0.05 }}><Quote size={80} color={T.accent} /></div>
+                                    <h3 className="font-serif-display" style={{ fontSize: "1.8rem", color: T.textAccent, marginBottom: "1.5rem", fontStyle: "italic" }}>"Titik Keseimbangan Emas"</h3>
+                                    <p className="font-serif" style={{ fontSize: "1.2rem", lineHeight: 1.8, color: T.textSecondary }}>Banyak yang bilang usia 25 adalah fase yang membingungkan. Seolah kamu harus memilih satu jalan pasti saat hatimu masih ingin menjelajah segalanya. <br /><br />Tapi percayalah, ini adalah <strong>usia terindah</strong>. Kakimu sudah cukup kuat untuk berdiri sendiri, tapi hatimu masih cukup lembut untuk memimpikan banyak hal. Kamu tidak terlambat. Kamu tidak tertinggal. Kamu sedang bertumbuh di waktu yang tepat.</p>
                                 </div>
                             </div>
                         </div>
                     </motion.section>
 
-
-                    {/* =============================== */}
-                    {/* SECTION 5: Kamus Angka 28        */}
-                    {/* =============================== */}
+                    {/* KAMUS 28 SECTION */}
                     <SectionDivider label="Makna di balik angka" />
-
-                    <motion.section variants={sectionVariants} initial="hidden" whileInView="show" viewport={{ once: true }}>
-                        <div style={{
-                            background: "linear-gradient(to bottom, #fff, #fdfbf7)",
-                            backgroundImage: "url('https://www.transparenttextures.com/patterns/natural-paper.png')",
-                            borderRadius: "6px", border: "1px solid #e8e2d9",
-                            boxShadow: "0 8px 24px rgba(0,0,0,0.08)",
-                            padding: isMobile ? "3rem 1.5rem" : "4rem 3rem",
-                            textAlign: "center"
-                        }}>
-                            <div style={{ display: "flex", alignItems: "center", gap: "10px", justifyContent: "center", marginBottom: "2rem" }}>
-                                <Sparkles size={14} color="#a0907d" />
-                                <h3 style={{ fontSize: "0.7rem", fontWeight: 700, color: "#a0907d", textTransform: "uppercase", letterSpacing: "2.5px" }}>Kamus Angka 28</h3>
-                            </div>
-
-                            <div style={{
-                                fontSize: "6rem", fontWeight: 900, lineHeight: 0.8, fontFamily: "'Crimson Pro', serif",
-                                position: "relative", display: "inline-block",
-                                backgroundImage: "linear-gradient(45deg, #b07d62, #d2691e, #8b4513)",
-                                backgroundClip: "text", WebkitBackgroundClip: "text", color: "transparent",
-                                textShadow: "2px 2px 4px rgba(0,0,0,0.1)"
-                            }}>
+                    <motion.section initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
+                        <div className="wc-card" style={{ padding: "4rem 2rem", textAlign: "center", border: `1px solid ${T.cardBorder}` }}>
+                            <WashStripe type="ochre" />
+                            <div className="font-serif-display" style={{ fontSize: "0.75rem", color: T.textSecondary, textTransform: "uppercase", letterSpacing: "4px", marginBottom: "2.5rem", opacity: 0.8 }}>Kamus Angka Dua Puluh Delapan</div>
+                            <div className="font-serif-display" style={{ fontSize: "7rem", fontWeight: 400, fontStyle: "italic", position: "relative", display: "inline-block", color: T.textPrimary }}>
                                 28
-                                <motion.div animate={{ rotate: [0, 10, 0], scale: [1, 1.1, 1] }} transition={{ duration: 4, repeat: Infinity }} style={{ position: "absolute", top: "-10px", right: "-20px" }}>
-                                    <Sparkles size={24} color="#d2691e" opacity={0.6} />
-                                </motion.div>
+                                <motion.div animate={{ rotate: [0, 15, 0], scale: [1, 1.2, 1] }} transition={{ duration: 4, repeat: Infinity }} style={{ position: "absolute", top: "-10px", right: "-30px", opacity: 0.6 }}><Sparkles size={28} color={T.accent} /></motion.div>
                             </div>
-
-                            <div style={{ marginTop: "2rem", textAlign: "left", height: "140px", position: "relative" }}>
+                            <div style={{ marginTop: "3rem", textAlign: "left", maxWidth: "480px", marginInline: "auto", minHeight: "120px", position: "relative" }}>
                                 <AnimatePresence mode="wait">
-                                    <motion.div key={kamusIndex}
-                                        initial={{ opacity: 1, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}
-                                        transition={{ duration: 0.5 }}
-                                        style={{ position: "absolute", top: 0, left: 0, width: "100%" }}
-                                    >
-                                        <div style={{ marginBottom: "0.5rem", borderBottom: "1px dashed #e8e2d9", paddingBottom: "5px" }}>
-                                            <HandwrittenNote style={{ color: "#4e4439", fontSize: "1.1rem" }}>&ldquo;{kamusMeanings[kamusIndex].title}&rdquo;</HandwrittenNote>
-                                        </div>
-                                        <div style={{ fontSize: "0.85rem", color: "#a0907d", fontStyle: "italic", lineHeight: 1.6 }}>
-                                            {kamusMeanings[kamusIndex].desc}
-                                        </div>
+                                    <motion.div key={kamusIndex} initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ duration: 0.6 }}>
+                                        <div className="font-handwriting" style={{ fontSize: "1.3rem", color: T.textAccent, marginBottom: "0.8rem", borderBottom: `1px dashed ${T.dividerColor}`, paddingBottom: "8px" }}>"{kamusMeanings[kamusIndex].title}"</div>
+                                        <p className="font-serif" style={{ fontSize: "1rem", color: T.textSecondary, fontStyle: "italic", lineHeight: 1.6 }}>{kamusMeanings[kamusIndex].desc}</p>
                                     </motion.div>
                                 </AnimatePresence>
                             </div>
                         </div>
                     </motion.section>
 
-                    {/* Footer */}
-                    <div style={{ marginTop: "5rem", textAlign: "center" }}>
-                        <div style={{ width: "40px", height: "1px", background: "#b07d62", margin: "0 auto 1.5rem", opacity: 0.3 }} />
-                        <HandwrittenNote style={{ fontSize: "1.2rem", color: "#b07d62" }}>
-                            ...karena setiap detailmu layak untuk diceritakan.
-                        </HandwrittenNote>
-                    </div>
-
+                    {/* FOOTER */}
+                    <footer style={{ marginTop: "8rem", textAlign: "center" }}>
+                        <HandwrittenText style={{ fontSize: "1.4rem", color: T.textAccent, maxWidth: "400px", opacity: 0.8 }}>...karena setiap detailmu layak untuk diceritakan.</HandwrittenText>
+                    </footer>
                 </Container>
             </main>
 
-            {/* Portrait Popup */}
+            {/* PORTRAIT POPUP */}
             <AnimatePresence>
                 {selectedPortrait && (
-                    <motion.div initial={{ opacity: 1, }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-                        onClick={() => setSelectedPortrait(null)}
-                        style={{
-                            position: "fixed", inset: 0, background: "rgba(0,0,0,0.6)",
-                            backdropFilter: "blur(4px)", zIndex: 99999,
-                            display: "flex", alignItems: "center", justifyContent: "center", padding: "2rem"
-                        }}
-                    >
-                        <motion.div
-                            initial={{ scale: 0.9, opacity: 0, y: 20 }} animate={{ scale: 1, opacity: 1, y: 0 }} exit={{ scale: 0.9, opacity: 0, y: 20 }}
-                            onClick={e => e.stopPropagation()}
-                            style={{ background: "#fff", padding: "1.5rem", borderRadius: "2px", maxWidth: "400px", textAlign: "center", boxShadow: "0 20px 60px rgba(0,0,0,0.3)" }}
-                        >
-                            <div style={{ width: "100%", height: "250px", position: "relative", marginBottom: "1.5rem", background: "#f0f0f0" }}>
+                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setSelectedPortrait(null)} style={{ position: "fixed", inset: 0, background: T.overlayBg, backdropFilter: "blur(5px)", zIndex: 9999, display: "flex", alignItems: "center", justifyContent: "center", padding: "2rem" }}>
+                        <motion.div initial={{ scale: 0.9, y: 30 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.9, y: 30 }} onClick={e => e.stopPropagation()} className="wc-card" style={{ padding: "1.5rem", maxWidth: "420px", border: "none", boxShadow: "0 30px 60px rgba(0,0,0,0.2)" }}>
+                            <div style={{ width: "100%", height: "300px", position: "relative", marginBottom: "2rem", overflow: "hidden", borderRadius: "4px" }}>
                                 <Image src={selectedPortrait.src} alt="" fill style={{ objectFit: "cover" }} />
                             </div>
-                            <HandwrittenNote style={{ fontSize: "1.2rem", color: "#4e4439", marginBottom: "1rem", lineHeight: 1.6 }}>
-                                &ldquo;Izin simpan foto ini sebagai kenang-kenangan.
-                                <br /><br />
-                                Sayang kalau momen sebagus ini terlewat begitu saja.
-                                <br /><br />
-                                Tetaplah bersinar, dengan caramu sendiri.&rdquo;
-                            </HandwrittenNote>
-                            <div style={{ fontSize: "0.8rem", color: "#aaa", marginTop: "1.5rem", cursor: "pointer" }}>(ketuk di luar untuk menutup)</div>
+                            <HandwrittenText style={{ fontSize: "1.3rem", color: T.textPrimary, lineHeight: 1.6 }}>"Izin simpan foto ini sebagai kenang-kenangan. <br /><br /> Sayang kalau momen sebagus ini terlewat begitu saja.<br /><br />Tetaplah bersinar, dengan caramu sendiri."</HandwrittenText>
+                            <p style={{ marginTop: "2rem", fontSize: "0.8rem", color: T.textMuted, letterSpacing: "2px", opacity: 0.6 }}>(KETUK UNTUK TUTUP)</p>
                         </motion.div>
                     </motion.div>
                 )}
@@ -491,3 +323,24 @@ export default function HistoryPage() {
         </div>
     );
 }
+
+const SectionHeading = ({ children, icon: Icon }: { children: React.ReactNode, icon?: any }) => {
+    const { tokens } = useTheme();
+    return (
+        <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "1rem" }}>
+            {Icon && <Icon size={16} color={tokens.textAccent} style={{ opacity: 0.7 }} />}
+            <h3 className="font-serif-display" style={{ fontSize: "0.7rem", fontWeight: 700, color: tokens.textSecondary, textTransform: "uppercase", letterSpacing: "3.5px" }}>{children}</h3>
+        </div>
+    );
+};
+
+const SectionDivider = ({ label }: { label?: string }) => {
+    const { tokens } = useTheme();
+    return (
+        <div style={{ display: "flex", alignItems: "center", gap: "1.5rem", margin: "6rem 0 4rem" }}>
+            <div style={{ flex: 1, height: "1px", background: tokens.dividerColor, opacity: 0.5 }} />
+            {label && <HandwrittenText style={{ fontSize: "1rem", color: tokens.textAccent, opacity: 0.6 }}>{label}</HandwrittenText>}
+            <div style={{ flex: 1, height: "1px", background: tokens.dividerColor, opacity: 0.5 }} />
+        </div>
+    );
+};

@@ -2,90 +2,44 @@
 
 import { useState, useEffect, useMemo, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowLeft, Save, X, Calendar, PenLine, Sparkles, ChevronLeft, ChevronRight, Quote, Trash2 } from "lucide-react";
+import { ArrowLeft, Save, X, Calendar, PenLine, Sparkles, Quote, Trash2, Palette, Heart } from "lucide-react";
 import Link from "next/link";
-import { Container } from "@/components/Container"; // Adjust path if needed
+import { Container } from "@/components/Container";
 import { MOOD_CONFIG, JournalEntry, MoodCategory } from "@/types/journal";
-import "../../../globals.css";
+import { useTheme } from "@/components/guest/no28/ThemeContext";
 
-// --- Components ---
+// --- Watercolor Components ---
 
-const WashiTape = ({ color, rotate = "0deg", width = "90px" }: { color: string, rotate?: string, width?: string }) => (
-    <div style={{
-        position: "absolute",
-        top: "-12px",
-        left: "50%",
-        transform: `translateX(-50%) rotate(${rotate})`,
-        width: width,
-        height: "24px",
-        backgroundColor: color,
-        opacity: 0.9,
-        zIndex: 10,
-        boxShadow: "0 2px 4px rgba(0,0,0,0.15)",
-        borderRadius: "2px",
-    }}>
-        <div style={{ width: "100%", height: "100%", opacity: 0.1, background: "url('https://www.transparenttextures.com/patterns/natural-paper.png')" }} />
-    </div>
-);
-
-const HandwrittenNote = ({ children, style = {} }: { children: React.ReactNode, style?: React.CSSProperties }) => (
-    <span style={{
-        fontFamily: "'Caveat', cursive, 'Brush Script MT'",
-        color: "#8a7058",
-        fontSize: "1.2rem",
-        display: "inline-block",
-        lineHeight: 1.2,
-        ...style
-    }}>
+const HandwrittenText = ({ children, style = {}, className = "" }: { children: React.ReactNode, style?: React.CSSProperties, className?: string }) => (
+    <span className={`font-handwriting ${className}`} style={{ fontSize: "1.25rem", display: "inline-block", lineHeight: 1.2, ...style }}>
         {children}
     </span>
 );
 
-// --- Ambient Components ---
-
-const NoiseOverlay = () => (
-    <div style={{
-        position: "fixed", inset: 0, zIndex: 0, pointerEvents: "none", opacity: 0.05,
-        backgroundImage: "url('https://www.transparenttextures.com/patterns/stardust.png')",
-        backgroundSize: "200px 200px"
-    }} />
+const WashStripe = ({ type = "blue" as "blue" | "sage" | "rose" | "ochre" | "lavender" }) => (
+    <div className={`wc-wash-stripe wc-wash-stripe--${type}`} />
 );
 
-const FloatingParticles = () => (
-    <div style={{ position: "fixed", inset: 0, zIndex: 1, pointerEvents: "none", overflow: "hidden" }}>
-        {[...Array(8)].map((_, i) => (
-            <div
-                key={i}
-                style={{
-                    position: "absolute",
-                    left: `${Math.random() * 100}%`,
-                    top: `${80 + Math.random() * 20}%`,
-                    width: "3px", height: "3px",
-                    background: "#b07d62",
-                    borderRadius: "50%",
-                    filter: "blur(1px)",
-                    animation: `floatParticle ${12 + Math.random() * 10}s linear ${i * 2}s infinite`
-                }}
-            />
-        ))}
-    </div>
-);
+const AmbientPaintDrops = () => {
+    const drops = useMemo(() => Array.from({ length: 12 }).map((_, i) => ({
+        id: i,
+        left: `${Math.random() * 100}%`,
+        delay: Math.random() * 15,
+        duration: 20 + Math.random() * 10,
+        size: 8 + Math.random() * 12,
+        color: ["var(--wc-wash-blue-light)", "var(--wc-wash-sage-light)", "var(--wc-wash-rose-light)", "var(--wc-wash-ochre-light)"][Math.floor(Math.random() * 4)],
+        blur: 2 + Math.random() * 4
+    })), []);
 
-const FallingPetals = () => {
     return (
         <div style={{ position: "fixed", inset: 0, zIndex: 1, pointerEvents: "none", overflow: "hidden" }}>
-            {Array.from({ length: 6 }).map((_, i) => (
+            {drops.map(drop => (
                 <div
-                    key={i}
+                    key={drop.id}
                     style={{
-                        position: "absolute",
-                        left: `${Math.random() * 100}%`,
-                        width: 8 + Math.random() * 6,
-                        height: 8 + Math.random() * 6,
-                        borderRadius: "50% 0 50% 50%",
-                        background: "linear-gradient(135deg, #f0d0d0 0%, #e6ccb2 100%)", // Warmer/Earthier tone for Journal
-                        willChange: "transform, opacity",
-                        animation: `fallPetal ${12 + Math.random() * 5}s linear ${Math.random() * 8}s infinite`
+                        position: "absolute", left: drop.left, top: "-20px", width: drop.size, height: drop.size,
+                        borderRadius: "50%", background: drop.color, filter: `blur(${drop.blur}px)`, opacity: 0.35,
+                        animation: `wc-paint-drop ${drop.duration}s linear ${drop.delay}s infinite`,
                     }}
                 />
             ))}
@@ -93,24 +47,18 @@ const FallingPetals = () => {
     );
 };
 
-// Butterflies removed to clean up UI as per premium editorial goal.
-// SVG filters (watercolors/rough-paper) removed to optimize render pipeline and remove visual clutter.
-
-// --- Main Page ---
-
 export default function JournalPage() {
     const [entries, setEntries] = useState<Record<string, JournalEntry>>({});
     const [mounted, setMounted] = useState(false);
     const [selectedDate, setSelectedDate] = useState<Date | null>(null);
     const [isMobile, setIsMobile] = useState(false);
-    const [showFullHistory, setShowFullHistory] = useState(false);
     const [usePaletteColors, setUsePaletteColors] = useState(false);
+    const { tokens: T, mode } = useTheme();
 
     // Modal State
     const [noteInput, setNoteInput] = useState("");
     const [selectedMood, setSelectedMood] = useState<MoodCategory | null>(null);
 
-    // Initial Data Fetch & Simulation
     useEffect(() => {
         setMounted(true);
         const checkMobile = () => setIsMobile(window.innerWidth < 768);
@@ -120,16 +68,10 @@ export default function JournalPage() {
         const saved = localStorage.getItem("journal_entries_25");
         let parsed = {};
         if (saved) {
-            try {
-                parsed = JSON.parse(saved);
-            } catch (e) {
-                console.error("Failed to parse journal entries", e);
-            }
+            try { parsed = JSON.parse(saved); } catch (e) { console.error("Failed to parse journal entries", e); }
         }
 
-        const isInitialized = localStorage.getItem("journal_initialized_25"); // Check initialization flag
-
-        // Force Simulation ONLY if not initialized (First visit)
+        const isInitialized = localStorage.getItem("journal_initialized_25");
         if (!isInitialized) {
             seedSimulationData(parsed);
         } else {
@@ -137,9 +79,7 @@ export default function JournalPage() {
         }
 
         const savedPalettePref = localStorage.getItem("journal_use_palette");
-        if (savedPalettePref === "true") {
-            setUsePaletteColors(true);
-        }
+        if (savedPalettePref === "true") setUsePaletteColors(true);
 
         return () => window.removeEventListener('resize', checkMobile);
     }, []);
@@ -153,563 +93,290 @@ export default function JournalPage() {
     const seedSimulationData = (existing: Record<string, JournalEntry> = {}) => {
         const demoEntries: Record<string, JournalEntry> = { ...existing };
         const today = new Date();
-
         const moods: MoodCategory[] = ['grateful', 'energetic', 'mixed', 'peaceful', 'grateful'];
         const notes = [
             "Akhirnya ngerjain fitur ini selesai juga. ✨",
-            "Mencoba rute pulang yang beda, ternyata nemu spot sunset yang bagus banget di jembatan layang.",
-            "Hari yang lumayan berat. Banyak deadline numpuk dan rasanya overwhelm. But I survived.",
-            "Hujan seharian. Cuma menghabiskan waktu di kasur sambil baca novel lama. Suasananya tenang banget.",
-            "Video call sama keluarga di rumah. Selalu seneng denger kabar mereka sehat semua."
+            "Mencoba rute pulang yang beda, ternyata nemu spot sunset yang bagus banget.",
+            "Hari yang lumayan berat. Banyak deadline numpuk. But I survived.",
+            "Hujan seharian. Cuma menghabiskan waktu di kasur. Suasananya tenang banget.",
+            "Video call sama keluarga. Selalu seneng denger kabar mereka sehat semua."
         ];
 
-        // Generate 5 days back
         for (let i = 0; i < 5; i++) {
             const d = new Date(today);
             d.setDate(d.getDate() - i);
             const dateKey = d.toISOString().split('T')[0];
-
-            // Only overwrite if not exists to preserve user's real today entry if any
             if (!demoEntries[dateKey]) {
                 demoEntries[dateKey] = {
                     date: dateKey,
                     note: notes[i],
                     category: moods[i],
                     timestamp: Date.now() - i * 86400000,
-                    isTemplate: true // Mark as template
+                    isTemplate: true
                 };
             }
         }
-
         setEntries(demoEntries);
         localStorage.setItem("journal_entries_25", JSON.stringify(demoEntries));
-        localStorage.setItem("journal_initialized_25", "true"); // Mark as initialized
+        localStorage.setItem("journal_initialized_25", "true");
     };
 
-    // Save Entry
     const handleSave = () => {
         if (!selectedDate || !selectedMood) return;
         const dateKey = selectedDate.toISOString().split('T')[0];
-
-        const newEntry: JournalEntry = {
-            date: dateKey,
-            note: noteInput,
-            category: selectedMood,
-            timestamp: Date.now()
-        };
-
+        const newEntry: JournalEntry = { date: dateKey, note: noteInput, category: selectedMood, timestamp: Date.now() };
         const updatedEntries = { ...entries, [dateKey]: newEntry };
         setEntries(updatedEntries);
         localStorage.setItem("journal_entries_25", JSON.stringify(updatedEntries));
-        setSelectedDate(null); // Close modal
-    };
-
-    // Date Logic
-    const today = new Date();
-    const todayKey = today.toISOString().split('T')[0];
-    const todayEntry = entries[todayKey];
-
-    // Group Days by Month
-    const months = useMemo(() => {
-        const groups: { title: string, days: Date[] }[] = [];
-        // Show context: Start a bit before today if needed, or just the personal year
-        const start = new Date("2025-11-28");
-        const end = new Date("2026-11-28");
-        let current = new Date(start);
-
-        while (current < end) {
-            const monthName = current.toLocaleDateString('id-ID', { month: 'long', year: 'numeric' });
-            let lastGroup = groups[groups.length - 1];
-
-            if (!lastGroup || lastGroup.title !== monthName) {
-                lastGroup = { title: monthName, days: [] };
-                groups.push(lastGroup);
-            }
-
-            lastGroup.days.push(new Date(current));
-            current.setDate(current.getDate() + 1);
-        }
-        return groups;
-    }, []);
-
-    // Filter months to show initially (Current Month only)
-    const currentMonthTitle = today.toLocaleDateString('id-ID', { month: 'long', year: 'numeric' });
-    const visibleMonths = showFullHistory ? months : months.filter(m => m.title === currentMonthTitle);
-
-    const openModal = (date: Date) => {
-        const dateKey = date.toISOString().split('T')[0];
-        const entry = entries[dateKey];
-
-        setSelectedDate(date);
-        setNoteInput(entry ? entry.note : "");
-        setSelectedMood(entry ? entry.category : null);
+        setSelectedDate(null);
     };
 
     const handleDelete = () => {
         if (!selectedDate) return;
         if (!confirm("Yakin ingin menghapus lembaran ini? Kenangan ini akan hilang selamanya.")) return;
-
         const dateKey = selectedDate.toISOString().split('T')[0];
         const newEntries = { ...entries };
         delete newEntries[dateKey];
-
         setEntries(newEntries);
         localStorage.setItem("journal_entries_25", JSON.stringify(newEntries));
         setSelectedDate(null);
     };
 
+    const today = new Date();
+    const todayKey = today.toISOString().split('T')[0];
+    const todayEntry = entries[todayKey];
+
+    const openModal = (date: Date) => {
+        const dateKey = date.toISOString().split('T')[0];
+        const entry = entries[dateKey];
+        setSelectedDate(date);
+        setNoteInput(entry ? entry.note : "");
+        setSelectedMood(entry ? entry.category : null);
+    };
+
     if (!mounted) return null;
 
     return (
-        <div style={{
-            minHeight: "100svh",
-            background: "#fbf9f6",
-            backgroundImage: "radial-gradient(#e5e0d8 0.7px, transparent 0)",
-            backgroundSize: "24px 24px",
-            color: "#4e4439",
-            fontFamily: "'Crimson Pro', serif",
-            paddingBottom: "80px",
-            position: "relative",
-            overflowX: "hidden"
+        <div className="bg-wc-canvas wc-scrollbar" style={{
+            minHeight: "100svh", color: T.textPrimary, position: "relative", overflowX: "hidden", paddingBottom: "10rem",
+            backgroundImage: T.pageBgDots, backgroundSize: T.pageBgSize, transition: "background-color 0.5s ease"
         }}>
-            <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;700&display=swap" rel="stylesheet" />
+            <AmbientPaintDrops />
 
-            <NoiseOverlay />
-            <FloatingParticles />
-            <FallingPetals />
-
-            {/* Header */}
+            {/* Sticky Header */}
             <div style={{
-                position: "sticky", top: 0, zIndex: 40,
-                background: "rgba(251, 249, 246, 0.9)",
+                position: "sticky", top: 0, zIndex: 100,
+                background: mode === "default" ? "rgba(253, 248, 244, 0.85)" : "rgba(18, 22, 32, 0.85)",
                 backdropFilter: "blur(12px)",
-                borderBottom: "1px solid rgba(176, 125, 98, 0.05)",
-                padding: "2rem 1rem" // Increased top/bottom padding
+                borderBottom: `1px solid ${T.cardBorder}`,
+                padding: "1.5rem 0"
             }}>
                 <Container>
                     <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                        <Link href="/guest/no28/special_day" style={{
-                            display: "inline-flex", alignItems: "center", justifyContent: "center",
-                            width: "44px", height: "44px", background: "#fff", border: "2px solid #5a5a5a",
-                            boxShadow: "2px 2px 0px #5a5a5a", borderRadius: "12px", color: "#5a5a5a", transition: "all 0.2s ease"
-                        }}
-                            onMouseOver={(e) => {
-                                e.currentTarget.style.transform = "translate(-1px, -1px)";
-                                e.currentTarget.style.boxShadow = "4px 4px 0px #5a5a5a";
-                            }}
-                            onMouseOut={(e) => {
-                                e.currentTarget.style.transform = "translate(0, 0)";
-                                e.currentTarget.style.boxShadow = "2px 2px 0px #5a5a5a";
-                            }}
-                        >
-                            <ArrowLeft size={22} strokeWidth={2} />
-                        </Link>
-                        <h1 style={{ fontSize: "1.4rem", fontWeight: 700, color: "#b07d62", fontFamily: "'Caveat', cursive", marginRight: "auto", marginLeft: "1rem" }}>Palet Perasaan</h1>
-
-                        <div
-                            onClick={togglePalette}
-                            style={{
-                                cursor: "pointer",
-                                padding: "6px 12px",
-                                background: usePaletteColors ? "#f0e6d2" : "#fff",
-                                borderRadius: "20px",
-                                border: "1px solid #e8e2d9",
-                                display: "flex",
-                                alignItems: "center",
-                                gap: "6px",
-                                fontSize: "0.85rem",
-                                transition: "all 0.2s",
-                                boxShadow: "0 2px 5px rgba(0,0,0,0.05)"
-                            }}
-                        >
-                            <span>{usePaletteColors ? "🎨 Palet" : "🟤 Default"}</span>
+                        <div style={{ display: "flex", alignItems: "center", gap: "18px" }}>
+                            <Link href="/guest/no28/special_day" className="wc-card hover-ink-bleed" style={{
+                                display: "inline-flex", alignItems: "center", justifyContent: "center",
+                                width: "42px", height: "42px", backgroundColor: T.cardBg,
+                                borderRadius: "12px", color: T.textPrimary, border: `1px solid ${T.cardBorder}`
+                            }}>
+                                <ArrowLeft size={22} />
+                            </Link>
+                            <div style={{ textAlign: "left" }}>
+                                <div className="font-serif-display" style={{ fontSize: "0.7rem", color: T.textSecondary, textTransform: "uppercase", letterSpacing: "3px", fontWeight: 700, opacity: 0.8 }}>Daily Narrative</div>
+                                <HandwrittenText style={{ fontSize: "1rem", color: T.textAccent }}>Palet Perasaan & Cerita</HandwrittenText>
+                            </div>
                         </div>
+
+                        <button onClick={togglePalette} className="wc-card hover-ink-bleed" style={{
+                            padding: "8px 16px", background: usePaletteColors ? "var(--wc-wash-ochre-light)" : T.cardBg,
+                            border: `1px solid ${T.cardBorder}`, borderRadius: "20px", display: "flex", alignItems: "center", gap: "8px"
+                        }}>
+                            <Palette size={16} color={usePaletteColors ? "var(--wc-accent)" : T.textMuted} />
+                            <span className="font-serif-display" style={{ fontSize: "0.75rem", fontWeight: 700, color: usePaletteColors ? "var(--wc-accent)" : T.textSecondary, letterSpacing: "1px" }}>
+                                {usePaletteColors ? "PALET" : "DEFAULT"}
+                            </span>
+                        </button>
                     </div>
                 </Container>
             </div>
 
-            <Container>
+            <main style={{ position: "relative", zIndex: 10, padding: isMobile ? "2rem 0" : "4rem 0" }}>
+                <Container>
 
-                {/* HERO: Today's Focus */}
-                <div style={{ padding: "0 1rem", maxWidth: "500px", margin: "0 auto 4rem" }}>
-                    <motion.div
-                        initial={{ scale: 0.95, opacity: 0 }}
-                        animate={{ scale: 1, opacity: 1 }}
-                        onClick={() => openModal(today)}
-                        className="hover:scale-[1.01] active:scale-[0.99] transition-transform duration-300"
-                        style={{
-                            background: "#fff",
-                            borderRadius: "2px", // Sharp corners for card feel
-                            padding: "3rem 2rem",
-                            boxShadow: "0 20px 50px -10px rgba(176, 125, 98, 0.2), 0 0 0 1px rgba(0,0,0,0.02)",
-                            position: "relative",
-                            cursor: "pointer",
-                            textAlign: "center",
-                            display: "flex",
-                            flexDirection: "column",
-                            alignItems: "center"
-                        }}
-                    >
-                        {/* Realistic Paper Texture */}
-                        <div style={{ position: "absolute", inset: 0, opacity: 0.8, backgroundImage: "url('https://www.transparenttextures.com/patterns/natural-paper.png')", pointerEvents: "none", mixBlendMode: "multiply" }} />
-                        {/* Top Accent Bar */}
-                        <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: "6px", background: "#d2b48c", opacity: 0.6 }} />
-
-                        {/* Date - Minimal Aesthetic */}
-                        <div style={{
-                            fontFamily: "'Crimson Pro', serif",
-                            fontSize: "1.2rem",
-                            fontStyle: "italic",
-                            color: "#b07d62",
-                            marginBottom: "1.5rem",
-                            marginTop: "1rem",
-                            display: "flex",
-                            alignItems: "center",
-                            gap: "10px",
-                            opacity: 0.9
-                        }}>
-                            <span style={{ height: "1px", width: "20px", background: "#b07d62", opacity: 0.4 }} />
-                            {today.toLocaleDateString("id-ID", { day: '2-digit', month: 'long', year: 'numeric' })}
-                            <span style={{ height: "1px", width: "20px", background: "#b07d62", opacity: 0.4 }} />
-                        </div>
-
-                        <h2 style={{ fontFamily: "'Caveat', cursive", fontSize: "2.8rem", color: "#4e4439", margin: "0 0 0.5rem", lineHeight: 1 }}>
-                            Cerita Hari Ini
-                        </h2>
-                        <p style={{ fontSize: "0.95rem", color: "#8a7058", fontStyle: "italic", marginBottom: "2rem", opacity: 0.8, maxWidth: "380px" }}>
-                            "Apapun warna harimu ini, ia adalah bagian dari lukisan utuh perjalananmu."
-                        </p>
-
-                        {todayEntry ? (
-                            <div style={{ width: "100%", position: "relative", zIndex: 1 }}>
-                                {todayEntry.isTemplate && (
-                                    <div style={{
-                                        position: "absolute", top: "0", right: "0",
-                                        fontSize: "0.65rem", fontWeight: 700, color: "#aaa",
-                                        border: "1px solid #ccc", padding: "2px 6px", borderRadius: "4px",
-                                        letterSpacing: "1px", textTransform: "uppercase"
-                                    }}>
-                                        CONTOH
-                                    </div>
-                                )}
-                                <div style={{
-                                    display: "inline-flex", alignItems: "center", gap: "8px",
-                                    background: MOOD_CONFIG[todayEntry.category].color,
-                                    padding: "6px 16px", borderRadius: "20px",
-                                    marginBottom: "1.5rem", color: "#fff",
-                                    boxShadow: "0 2px 5px rgba(0,0,0,0.1)"
-                                }}>
-                                    <span style={{ fontSize: "0.9rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "1px" }}>{MOOD_CONFIG[todayEntry.category].label}</span>
-                                </div>
-                                <div style={{ position: "relative", padding: "0 10px" }}>
-                                    <Quote size={24} color="#e0d0c0" style={{ position: "absolute", top: -15, left: -10 }} />
-                                    <p style={{ fontStyle: "italic", color: "#5d5448", fontSize: "1.25rem", lineHeight: 1.6, margin: "0", fontFamily: "'Crimson Pro', serif" }}>
-                                        {todayEntry.note || "Halaman kosong..."}
-                                    </p>
-                                    <Quote size={24} color="#e0d0c0" style={{ position: "absolute", bottom: -15, right: -10, transform: "scaleX(-1)" }} />
-                                </div>
-                                <div style={{ marginTop: "2.5rem", fontSize: "0.75rem", color: "#b07d62", fontWeight: 700, letterSpacing: "2px", textTransform: "uppercase", opacity: 0.6 }}>Ketuk untuk menyunting</div>
-                            </div>
-                        ) : (
-                            <div style={{ width: "100%", position: "relative", zIndex: 1 }}>
-                                <motion.div
-                                    animate={{ y: [0, -5, 0] }}
-                                    transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
-                                    style={{ margin: "1rem auto 2rem" }}
-                                >
-                                    <PenLine size={40} color="#d2b48c" strokeWidth={1} />
-                                </motion.div>
-                                <p style={{ fontSize: "1.1rem", color: "#8a7058", fontStyle: "italic", marginBottom: "2rem" }}>
-                                    "Apa warna langitmu hari ini?"
-                                </p>
-                                <div style={{
-                                    display: "inline-block",
-                                    padding: "12px 30px",
-                                    background: "#4e4439",
-                                    color: "#fff",
-                                    borderRadius: "4px",
-                                    fontWeight: 700,
-                                    fontSize: "0.9rem",
-                                    letterSpacing: "1px",
-                                    textTransform: "uppercase",
-                                    boxShadow: "0 4px 15px rgba(0,0,0,0.1)"
-                                }}>
-                                    Mulai Menulis
-                                </div>
-                            </div>
-                        )}
-                    </motion.div>
-                </div>
-
-                {/* VISIBLE HISTORY (Filled Entries Only) */}
-                <div style={{ maxWidth: "600px", margin: "0 auto", padding: "0 1rem" }}>
-                    {Object.values(entries).filter(e => e.date !== todayKey).length > 0 && (
-                        <div style={{ padding: "0 0 2rem", textAlign: "center" }}>
-                            <h3 style={{ fontSize: "1.4rem", fontWeight: 700, color: "#b07d62", fontFamily: "'Caveat', cursive", margin: 0, letterSpacing: "1px" }}>
-                                Lembaran Lalu
-                            </h3>
-                            <div style={{ width: "40px", height: "3px", background: "#e8e2d9", margin: "8px auto 0", borderRadius: "2px" }} />
-                        </div>
-                    )}
-
-                    <div style={{ display: "flex", flexDirection: "column", gap: "2rem" }}>
-                        {Object.values(entries)
-                            .filter(e => e.date !== todayKey) // Exclude today
-                            .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()) // Newest first
-                            .map((entry, i) => (
-                                <motion.div
-                                    key={entry.date}
-                                    initial={{ opacity: 1, y: 30 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    onClick={() => openModal(new Date(entry.date))}
-                                    transition={{ duration: 0.4, delay: i * 0.1 }}
-                                    style={{
-                                        position: "relative",
-                                        cursor: "pointer"
-                                    }}
-                                >
-                                    {/* The Card Itself */}
-                                    <div style={{
-                                        background: "#fffbf7", // Warm antique white
-                                        padding: "1.5rem 1.5rem 1.5rem 5rem", // Extra left padding for date
-                                        minHeight: "120px",
-                                        boxShadow: "1px 4px 15px rgba(0,0,0,0.08), 0 1px 3px rgba(0,0,0,0.02)", // Deep soft shadow
-                                        position: "relative",
-                                        border: "1px solid rgba(0,0,0,0.03)",
-                                        clipPath: "polygon(0 0, 100% 0, 100% 100%, 0 100%)", // Straight edges for clean feel, or varying? Keep straight for "Premium"
-                                        display: "flex", alignItems: "center"
-                                    }}>
-                                        {/* Paper Texture Overlay */}
-                                        <div style={{ position: "absolute", inset: 0, opacity: 0.6, backgroundImage: "url('https://www.transparenttextures.com/patterns/natural-paper.png')", pointerEvents: "none", mixBlendMode: "multiply" }} />
-
-                                        {/* Template Badge */}
-                                        {entry.isTemplate && (
-                                            <div style={{
-                                                position: "absolute", top: "8px", right: "8px",
-                                                fontSize: "0.6rem", fontWeight: 700, color: "#aaa",
-                                                border: "1px solid #ccc", padding: "1px 5px", borderRadius: "4px",
-                                                opacity: 0.8, letterSpacing: "1px", pointerEvents: "none"
-                                            }}>
-                                                CONTOH
-                                            </div>
-                                        )}
-
-                                        {/* Date Tag - Hanging/Attached style */}
-                                        <div style={{
-                                            position: "absolute", left: "-6px", top: "15px",
-                                            width: "60px",
-                                            background: MOOD_CONFIG[entry.category].color,
-                                            color: "#fff",
-                                            padding: "8px 0",
-                                            textAlign: "center",
-                                            boxShadow: "2px 2px 5px rgba(0,0,0,0.15)",
-                                            zIndex: 2,
-                                            borderRadius: "0 4px 4px 0"
-                                        }}>
-                                            <div style={{ fontSize: "1.4rem", fontWeight: 700, fontFamily: "'Caveat', cursive", lineHeight: 0.9 }}>
-                                                {new Date(entry.date).getDate()}
-                                            </div>
-                                            <div style={{ fontSize: "0.6rem", fontWeight: 700, textTransform: "uppercase", opacity: 0.9 }}>
-                                                {new Date(entry.date).toLocaleDateString('id-ID', { month: 'short' })}
-                                            </div>
-                                            {/* Fold effect */}
-                                            <div style={{ position: "absolute", left: 0, bottom: -6, width: 0, height: 0, borderTop: "6px solid #888", borderLeft: "6px solid transparent", filter: "brightness(0.5)" }} />
-                                        </div>
-
-                                        {/* Content Area */}
-                                        <div style={{ width: "100%", zIndex: 1, paddingLeft: "10px" }}>
-                                            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "8px", borderBottom: "1px dashed #e0d0c0", paddingBottom: "6px" }}>
-                                                <span style={{ fontSize: "0.9rem", color: MOOD_CONFIG[entry.category].color, fontWeight: 700, textTransform: "uppercase", letterSpacing: "1px" }}>
-                                                    {MOOD_CONFIG[entry.category].label}
-                                                </span>
-                                                <span style={{ fontSize: "0.75rem", fontStyle: "italic", color: "#aaa" }}>
-                                                    {new Date(entry.date).toLocaleDateString('id-ID', { weekday: 'long' })}
-                                                </span>
-                                            </div>
-                                            <p style={{
-                                                margin: 0, fontSize: "1.1rem", color: "#4e4439",
-                                                lineHeight: 1.6, fontStyle: "italic",
-                                                display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden"
-                                            }}>
-                                                "{entry.note || "Tanpa catatan..."}"
-                                            </p>
-                                        </div>
-                                    </div>
-                                </motion.div>
-                            ))}
-
-                        {Object.values(entries).filter(e => e.date !== todayKey).length === 0 && (
-                            <div style={{ textAlign: "center", padding: "3rem", opacity: 0.5 }}>
-                                <p style={{ fontStyle: "italic", color: "#a0907d" }}>Belum ada jejak masa lalu...</p>
-                            </div>
-                        )}
-                    </div>
-
-                    {/* Footer Narrative (Styled like Special Day) */}
-                    <div style={{ marginTop: "6rem", textAlign: "center", position: "relative", paddingBottom: "4rem" }}>
-                        <div style={{ width: "40px", height: "1px", background: "#b07d62", margin: "0 auto 2rem", opacity: 0.3 }} />
-
-                        <div style={{ position: "relative", maxWidth: "600px", margin: "0 auto" }}>
-                            <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "12px", marginBottom: "1rem" }}>
-                                <div style={{ width: "3px", height: "3px", borderRadius: "50%", background: "#b07d62", opacity: 0.6 }} />
-                                <HandwrittenNote style={{ fontSize: "1.3rem", color: "#b07d62" }}>Ruang ini milikmu seutuhnya.</HandwrittenNote>
-                                <div style={{ width: "3px", height: "3px", borderRadius: "50%", background: "#b07d62", opacity: 0.6 }} />
+                    {/* TODAY'S FOCUS */}
+                    <div style={{ maxWidth: "560px", margin: "0 auto 6rem" }}>
+                        <motion.div
+                            initial={{ scale: 0.95, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            onClick={() => openModal(today)}
+                            className="wc-card hover-ink-bleed"
+                            style={{ padding: isMobile ? "3rem 2rem" : "4.5rem 3.5rem", border: `1px solid ${T.cardBorder}`, textAlign: "center", cursor: "pointer" }}
+                        >
+                            <WashStripe type="sage" />
+                            <div className="font-serif-display" style={{ fontSize: "1rem", color: T.textAccent, marginBottom: "1.5rem", opacity: 0.8, fontStyle: "italic" }}>
+                                {today.toLocaleDateString("id-ID", { day: '2-digit', month: 'long', year: 'numeric' })}
                             </div>
 
-                            <p style={{ fontSize: "0.9rem", color: "#a0907d", lineHeight: 1.8, fontStyle: "italic", maxWidth: "480px", margin: "0 auto" }}>
-                                Setiap kata yang terukir di sini tersimpan aman dalam memori perangkatmu <i>(local storage)</i>. <br />
-                                Tak ada mata lain yang mengintip. Namun ingat, jika <strong>kamu</strong> membersihkan memori peramban ini, kenangan ini pun akan ikut memudar.
+                            <h2 className="font-handwriting" style={{ fontSize: isMobile ? "2.2rem" : "3rem", color: T.textPrimary, marginBottom: "1rem" }}>Cerita Hari Ini</h2>
+                            <p className="font-serif" style={{ fontSize: "1.1rem", color: T.textSecondary, fontStyle: "italic", marginBottom: "3.5rem", opacity: 0.8 }}>
+                                "Apapun warna harimu ini, ia adalah bagian dari lukisan utuh perjalananmu."
                             </p>
-                        </div>
-                    </div>
-                </div>
-            </Container>
 
-            {/* Input Modal (Bottom Sheet on Mobile) */}
+                            {todayEntry ? (
+                                <div style={{ width: "100%" }}>
+                                    <div style={{
+                                        display: "inline-block", background: `var(--wc-wash-${MOOD_CONFIG[todayEntry.category].color === "#b07d62" ? "ochre" : "rose"}-light)`,
+                                        padding: "6px 20px", borderRadius: "20px", marginBottom: "2.5rem",
+                                        border: `1px solid ${T.cardBorder}`
+                                    }}>
+                                        <span className="font-serif-display" style={{ fontSize: "0.8rem", fontWeight: 700, color: T.textPrimary, letterSpacing: "2px" }}>
+                                            {MOOD_CONFIG[todayEntry.category].label.toUpperCase()}
+                                        </span>
+                                    </div>
+                                    <div style={{ position: "relative", padding: "0 20px" }}>
+                                        <div style={{ position: "absolute", top: "-20px", left: "-10px", opacity: 0.15 }}><Quote size={32} color={T.accent} /></div>
+                                        <p className="font-serif" style={{ fontStyle: "italic", color: T.textPrimary, fontSize: "1.4rem", lineHeight: 1.6 }}>
+                                            {todayEntry.note || "Halaman kosong..."}
+                                        </p>
+                                        <div style={{ position: "absolute", bottom: "-20px", right: "-10px", opacity: 0.15, transform: "scaleX(-1)" }}><Quote size={32} color={T.accent} /></div>
+                                    </div>
+                                    <div style={{ marginTop: "4rem" }}>
+                                        <HandwrittenText style={{ fontSize: "1rem", color: T.textMuted }}>Ketuk untuk menyunting...</HandwrittenText>
+                                    </div>
+                                </div>
+                            ) : (
+                                <div style={{ width: "100%" }}>
+                                    <motion.div animate={{ y: [0, -10, 0] }} transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }} style={{ marginBottom: "2.5rem" }}>
+                                        <PenLine size={48} color={T.accent} strokeWidth={1} style={{ opacity: 0.4 }} />
+                                    </motion.div>
+                                    <p className="font-serif" style={{ fontSize: "1.2rem", color: T.textSecondary, fontStyle: "italic", marginBottom: "3rem" }}>"Apa warna langitmu hari ini?"</p>
+                                    <div className="wc-card" style={{ display: "inline-block", padding: "12px 36px", background: T.accent, color: "#fff", borderRadius: "14px", border: "none", opacity: 0.9 }}>
+                                        <span className="font-serif-display" style={{ fontSize: "0.9rem", fontWeight: 700, letterSpacing: "2px" }}>MULAI MENULIS</span>
+                                    </div>
+                                </div>
+                            )}
+                        </motion.div>
+                    </div>
+
+                    {/* HISTORY SECTION */}
+                    <div style={{ maxWidth: "680px", margin: "0 auto" }}>
+                        <div style={{ textAlign: "center", marginBottom: "4rem" }}>
+                            <div className="font-serif-display" style={{ fontSize: "0.75rem", color: T.textSecondary, textTransform: "uppercase", letterSpacing: "4px", marginBottom: "1rem", opacity: 0.6 }}>Lembaran Lalu</div>
+                            <div style={{ width: "40px", height: "1px", background: T.dividerColor, margin: "0 auto", opacity: 0.5 }} />
+                        </div>
+
+                        <div style={{ display: "flex", flexDirection: "column", gap: "2.5rem" }}>
+                            {Object.values(entries)
+                                .filter(e => e.date !== todayKey)
+                                .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+                                .map((entry, i) => (
+                                    <motion.div key={entry.date} initial={{ opacity: 0, scale: 0.98 }} whileInView={{ opacity: 1, scale: 1 }} onClick={() => openModal(new Date(entry.date))} viewport={{ once: true }}>
+                                        <div className="wc-card hover-ink-bleed" style={{ padding: "1.5rem 1.5rem 1.5rem 5rem", minHeight: "120px", border: `1px solid ${T.cardBorder}`, display: "flex", alignItems: "center", position: "relative", cursor: "pointer" }}>
+                                            <WashStripe type={MOOD_CONFIG[entry.category].color === "#b07d62" ? "ochre" : "rose"} />
+
+                                            {/* Date Tag */}
+                                            <div className="wc-card" style={{
+                                                position: "absolute", left: "-10px", top: "20px", width: "64px",
+                                                background: usePaletteColors ? (MOOD_CONFIG[entry.category].color || "var(--wc-accent)") : "var(--wc-accent)",
+                                                border: "none", color: "#fff", textAlign: "center", padding: "12px 0", borderRadius: "0 12px 12px 0", boxShadow: "var(--wc-shadow-sm)", zIndex: 10
+                                            }}>
+                                                <div className="font-handwriting" style={{ fontSize: "1.8rem", lineHeight: 0.8 }}>{new Date(entry.date).getDate()}</div>
+                                                <div className="font-serif-display" style={{ fontSize: "0.65rem", fontWeight: 700, textTransform: "uppercase", opacity: 0.9 }}>{new Date(entry.date).toLocaleDateString('id-ID', { month: 'short' })}</div>
+                                                <div style={{ position: "absolute", left: 0, bottom: -6, width: 0, height: 0, borderTop: "6px solid rgba(0,0,0,0.3)", borderLeft: "6px solid transparent" }} />
+                                            </div>
+
+                                            <div style={{ width: "100%", paddingLeft: "1.5rem" }}>
+                                                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "12px", borderBottom: `1px dashed ${T.dividerColor}`, paddingBottom: "8px" }}>
+                                                    <span className="font-serif-display" style={{ fontSize: "0.8rem", fontWeight: 700, color: T.textAccent, letterSpacing: "1.5px" }}>{MOOD_CONFIG[entry.category].label.toUpperCase()}</span>
+                                                    <span className="font-serif" style={{ fontSize: "0.8rem", fontStyle: "italic", color: T.textMuted }}>{new Date(entry.date).toLocaleDateString('id-ID', { weekday: 'long' })}</span>
+                                                </div>
+                                                <p className="font-serif" style={{ fontSize: "1.1rem", color: T.textPrimary, fontStyle: "italic", lineHeight: 1.6, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>
+                                                    "{entry.note || "Tanpa catatan..."}"
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </motion.div>
+                                ))}
+                        </div>
+
+                        {/* EMPTY STATE */}
+                        {Object.values(entries).filter(e => e.date !== todayKey).length === 0 && (
+                            <div style={{ textAlign: "center", padding: "6rem 2rem", opacity: 0.4 }}>
+                                <HandwrittenText style={{ fontSize: "1.2rem" }}>Belum ada jejak masa lalu...</HandwrittenText>
+                            </div>
+                        )}
+                    </div>
+
+                    {/* Footer Warning/Info */}
+                    <div style={{ marginTop: "10rem", textAlign: "center" }}>
+                        <HandwrittenText style={{ fontSize: "1.4rem", color: T.textAccent, marginBottom: "1.5rem", opacity: 0.8 }}>Ruang ini milikmu seutuhnya.</HandwrittenText>
+                        <p className="font-serif" style={{ fontSize: "0.9rem", color: T.textSecondary, lineHeight: 1.8, fontStyle: "italic", maxWidth: "480px", margin: "0 auto", opacity: 0.8 }}>
+                            Setiap kata tersimpan aman dalam local storage perangkatmu. <br />
+                            Kenangan ini akan memudar jika kamu membersihkan memori peramban Anda.
+                        </p>
+                    </div>
+
+                </Container>
+            </main>
+
+            {/* INPUT MODAL */}
             <AnimatePresence>
                 {selectedDate && (
                     <>
-                        <motion.div
-                            initial={{ opacity: 1, }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-                            onClick={() => setSelectedDate(null)}
-                            style={{ position: "fixed", inset: 0, background: "rgba(78, 68, 57, 0.4)", zIndex: 50, backdropFilter: "blur(4px)" }}
-                        />
-                        <motion.div
-                            initial={{ y: "100%" }} animate={{ y: 0 }} exit={{ y: "100%" }}
-                            transition={{ type: "spring", damping: 25, stiffness: 300 }}
-                            style={{
-                                position: "fixed",
-                                bottom: 0, left: 0, right: 0,
-                                background: "#fdf8f4",
-                                borderTopLeftRadius: "24px", borderTopRightRadius: "24px",
-                                padding: "2rem 1.5rem",
-                                zIndex: 51,
-                                maxHeight: "90vh",
-                                overflowY: "auto",
-                                boxShadow: "0 -10px 40px rgba(0,0,0,0.15)"
-                            }}
-                        >
-                            <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: "6px", background: "linear-gradient(to right, #b07d62, #d2691e)" }} />
+                        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setSelectedDate(null)} style={{ position: "fixed", inset: 0, background: T.overlayBg, backdropFilter: "blur(6px)", zIndex: 1000 }} />
+                        <motion.div initial={{ y: "100%" }} animate={{ y: 0 }} exit={{ y: "100%" }} transition={{ type: "spring", damping: 30, stiffness: 250 }}
+                            style={{ position: "fixed", bottom: 0, left: 0, right: 0, background: T.cardBg, borderTopLeftRadius: "32px", borderTopRightRadius: "32px", zIndex: 1001, maxHeight: "92vh", overflowY: "auto", boxShadow: "0 -20px 60px rgba(0,0,0,0.15)", padding: "2.5rem 1.5rem" }}>
+
+                            <WashStripe type="blue" />
                             <div style={{ maxWidth: "600px", margin: "0 auto", position: "relative" }}>
 
-                                {/* Header */}
-                                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "start", marginBottom: "1.5rem", marginTop: "1rem" }}>
+                                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "start", marginBottom: "3rem" }}>
                                     <div>
-                                        <h3 style={{ fontSize: "1.8rem", fontFamily: "'Caveat', cursive", color: "#b07d62", lineHeight: 1 }}>
-                                            {selectedDate.toLocaleDateString("id-ID", { day: 'numeric', month: 'long', year: 'numeric' })}
-                                        </h3>
-                                        <p style={{ fontSize: "0.9rem", color: "#a0907d", marginTop: "4px", fontStyle: "italic" }}>
-                                            Bagaimana harimu berjalan?
-                                        </p>
+                                        <h3 className="font-handwriting" style={{ fontSize: "2.4rem", color: T.textPrimary, lineHeight: 1 }}>{selectedDate.toLocaleDateString("id-ID", { day: 'numeric', month: 'long', year: 'numeric' })}</h3>
+                                        <p className="font-serif" style={{ fontSize: "1rem", color: T.textSecondary, fontStyle: "italic", marginTop: "8px" }}>Bagaimana harimu berjalan?</p>
                                     </div>
-                                    <button onClick={() => setSelectedDate(null)} style={{ padding: "8px", background: "#f0ece7", borderRadius: "50%", border: "none", cursor: "pointer" }}>
-                                        <X size={20} color="#8a7058" />
+                                    <button onClick={() => setSelectedDate(null)} className="wc-card" style={{ padding: "10px", background: "none", border: `1px solid ${T.cardBorder}`, borderRadius: "50%" }}>
+                                        <X size={20} color={T.textSecondary} />
                                     </button>
                                 </div>
 
-                                {/* Mood Selector */}
-                                <div style={{ marginBottom: "2rem" }}>
-                                    <label style={{ display: "block", fontSize: "0.85rem", fontWeight: 700, color: "#a0907d", marginBottom: "1rem", textTransform: "uppercase", letterSpacing: "1px" }}>
-                                        Warna Hari Ini
-                                    </label>
-                                    <div style={{ display: "flex", gap: "10px", overflowX: "auto", paddingBottom: "10px", scrollbarWidth: "none", margin: "0 -10px", padding: "0 10px 10px" }}>
+                                {/* Mood Selection */}
+                                <div style={{ marginBottom: "3rem" }}>
+                                    <div className="font-serif-display" style={{ fontSize: "0.75rem", color: T.textSecondary, textTransform: "uppercase", letterSpacing: "3px", marginBottom: "1.5rem", fontWeight: 700 }}>Warna Hari Ini</div>
+                                    <div style={{ display: "flex", gap: "12px", overflowX: "auto", paddingBottom: "15px", margin: "0 -1rem", padding: "0 1rem 1rem" }}>
                                         {(Object.keys(MOOD_CONFIG) as MoodCategory[]).map((cat) => (
-                                            <button
-                                                key={cat}
-                                                onClick={() => setSelectedMood(cat)}
+                                            <button key={cat} onClick={() => setSelectedMood(cat)}
                                                 style={{
-                                                    flex: "0 0 auto",
-                                                    display: "flex", flexDirection: "column", alignItems: "center", gap: "8px",
-                                                    background: selectedMood === cat ? "#fff" : "rgba(255,255,255,0.5)",
-                                                    border: selectedMood === cat ? `1px solid ${MOOD_CONFIG[cat].color}` : "1px solid transparent",
-                                                    padding: "10px",
-                                                    borderRadius: "16px",
-                                                    cursor: "pointer",
-                                                    minWidth: "70px",
-                                                    transition: "all 0.2s",
-                                                    boxShadow: selectedMood === cat ? "0 4px 12px rgba(0,0,0,0.05)" : "none"
-                                                }}
-                                            >
-                                                <div style={{
-                                                    width: "36px", height: "36px", borderRadius: "50%",
-                                                    background: MOOD_CONFIG[cat].color,
-                                                    boxShadow: "inset 0 2px 4px rgba(0,0,0,0.1)"
-                                                }} />
-                                                <span style={{ fontSize: "0.7rem", color: "#666", fontWeight: 600, textAlign: "center" }}>
-                                                    {MOOD_CONFIG[cat].label}
-                                                </span>
+                                                    flex: "0 0 auto", display: "flex", flexDirection: "column", alignItems: "center", gap: "10px", padding: "12px", borderRadius: "18px",
+                                                    background: selectedMood === cat ? "var(--wc-wash-ochre-light)" : "transparent",
+                                                    border: `1px solid ${selectedMood === cat ? T.accent : "transparent"}`, cursor: "pointer", minWidth: "80px", transition: "all 0.3s"
+                                                }}>
+                                                <div style={{ width: "40px", height: "40px", borderRadius: "50%", background: MOOD_CONFIG[cat].color, boxShadow: "var(--wc-shadow-sm)" }} />
+                                                <span className="font-serif-display" style={{ fontSize: "0.7rem", fontWeight: 700, color: T.textPrimary }}>{MOOD_CONFIG[cat].label.toUpperCase()}</span>
                                             </button>
                                         ))}
                                     </div>
                                 </div>
 
-                                {/* Note Input */}
-                                <div style={{ marginBottom: "2rem" }}>
-                                    <label style={{ display: "block", fontSize: "0.85rem", fontWeight: 700, color: "#a0907d", marginBottom: "1rem", textTransform: "uppercase", letterSpacing: "1px" }}>
-                                        Catatan Kecil
-                                    </label>
-                                    <textarea
-                                        value={noteInput}
-                                        onChange={(e) => setNoteInput(e.target.value)}
-                                        placeholder="Tuliskan hal yang paling membekas..."
-                                        rows={5}
-                                        style={{
-                                            width: "100%",
-                                            padding: "1.2rem",
-                                            borderRadius: "16px",
-                                            border: "1px dashed #d2b48c",
-                                            background: "#fff",
-                                            fontFamily: "'Crimson Pro', serif",
-                                            fontSize: "1.1rem",
-                                            lineHeight: 1.6,
-                                            resize: "none",
-                                            outline: "none",
-                                            color: "#4e4439",
-                                            boxShadow: "inset 0 2px 6px rgba(0,0,0,0.02)"
-                                        }}
-                                    />
+                                {/* Editor */}
+                                <div style={{ marginBottom: "3rem" }}>
+                                    <div className="font-serif-display" style={{ fontSize: "0.75rem", color: T.textSecondary, textTransform: "uppercase", letterSpacing: "3px", marginBottom: "1.5rem", fontWeight: 700 }}>Catatan Kecil</div>
+                                    <textarea value={noteInput} onChange={(e) => setNoteInput(e.target.value)} placeholder="Tuliskan hal yang paling membekas..." rows={6}
+                                        style={{ width: "100%", padding: "1.5rem", borderRadius: "20px", border: `1px dashed ${T.cardBorder}`, background: T.pageBg, fontFamily: "'Lora', serif", fontSize: "1.1rem", lineHeight: 1.7, color: T.textPrimary, outline: "none", resize: "none" }} />
                                 </div>
 
-                                {/* Save & Delete Buttons */}
-                                <div style={{ display: "flex", gap: "10px" }}>
-                                    {entries[selectedDate?.toISOString().split('T')[0] || ""] && (
-                                        <button
-                                            onClick={handleDelete}
-                                            className="active:scale-95 transition-transform duration-200"
-                                            style={{
-                                                padding: "1.2rem",
-                                                background: "#f8d7da",
-                                                color: "#721c24",
-                                                border: "none",
-                                                borderRadius: "16px",
-                                                cursor: "pointer",
-                                                display: "flex", alignItems: "center", justifyContent: "center"
-                                            }}
-                                        >
-                                            <Trash2 size={20} />
+                                {/* Actions */}
+                                <div style={{ display: "flex", gap: "15px" }}>
+                                    {entries[selectedDate.toISOString().split('T')[0]] && (
+                                        <button onClick={handleDelete} className="wc-card" style={{ padding: "1.2rem", background: "none", border: `1px solid ${T.cardBorder}`, borderRadius: "18px", color: T.textMuted }}>
+                                            <Trash2 size={24} />
                                         </button>
                                     )}
-                                    <button
-                                        onClick={handleSave}
-                                        disabled={!selectedMood}
-                                        className="active:scale-[0.98]"
-                                        style={{
-                                            flex: 1,
-                                            padding: "1.2rem",
-                                            background: selectedMood ? "#b07d62" : "#e0d0c0",
-                                            color: "#fff",
-                                            border: "none",
-                                            borderRadius: "16px",
-                                            fontSize: "1.1rem",
-                                            fontWeight: 700,
-                                            display: "flex", alignItems: "center", justifyContent: "center", gap: "10px",
-                                            cursor: selectedMood ? "pointer" : "not-allowed",
-                                            transition: "background 0.3s",
-                                            boxShadow: selectedMood ? "0 4px 12px rgba(176, 125, 98, 0.3)" : "none"
-                                        }}
-                                    >
-                                        <Save size={20} />
-                                        Simpan Cerita
+                                    <button onClick={handleSave} disabled={!selectedMood} className="wc-card" style={{ flex: 1, padding: "1.2rem", background: selectedMood ? T.accent : T.cardBorder, color: "#fff", border: "none", borderRadius: "18px", cursor: selectedMood ? "pointer" : "not-allowed", transition: "all 0.3s" }}>
+                                        <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "12px" }}>
+                                            <Save size={20} />
+                                            <span className="font-serif-display" style={{ fontSize: "1rem", fontWeight: 700, letterSpacing: "2px" }}>SIMPAN CERITA</span>
+                                        </div>
                                     </button>
                                 </div>
                             </div>
@@ -718,13 +385,6 @@ export default function JournalPage() {
                 )}
             </AnimatePresence>
 
-            <style jsx global>{`
-                @keyframes pulse {
-                    0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(176, 125, 98, 0.7); }
-                    70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(176, 125, 98, 0); }
-                    100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(176, 125, 98, 0); }
-                }
-            `}</style>
         </div>
     );
 }

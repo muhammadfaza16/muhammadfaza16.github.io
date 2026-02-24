@@ -1,26 +1,55 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import { motion } from "framer-motion";
-import { ArrowLeft, Moon } from "lucide-react";
+import React, { useState, useEffect, useMemo } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { ArrowLeft, Moon, Star, Sparkles, Quote } from "lucide-react";
 import Link from "next/link";
 import { Container } from "@/components/Container";
 import { useTheme } from "@/components/guest/no28/ThemeContext";
-import { ThemeToggle } from "@/components/guest/no28/ThemeToggle";
-import "../../../../globals.css";
 
-// --- Shared UI ---
+// --- Watercolor Components ---
 
-const HandwrittenNote = ({ children, style = {} }: { children: React.ReactNode, style?: React.CSSProperties }) => (
-    <span style={{ fontFamily: "'Caveat', cursive, 'Brush Script MT'", color: "#c8b8a4", fontSize: "1.2rem", display: "inline-block", lineHeight: 1.2, ...style }}>{children}</span>
+const HandwrittenText = ({ children, style = {}, className = "" }: { children: React.ReactNode, style?: React.CSSProperties, className?: string }) => (
+    <span className={`font-handwriting ${className}`} style={{ fontSize: "1.25rem", display: "inline-block", lineHeight: 1.2, ...style }}>
+        {children}
+    </span>
 );
 
-// --- Page ---
+const WashStripe = ({ type = "blue" as "blue" | "sage" | "rose" | "ochre" | "lavender" }) => (
+    <div className={`wc-wash-stripe wc-wash-stripe--${type}`} />
+);
+
+const AmbientPaintDrops = () => {
+    const drops = useMemo(() => Array.from({ length: 15 }).map((_, i) => ({
+        id: i,
+        left: `${Math.random() * 100}%`,
+        delay: Math.random() * 15,
+        duration: 20 + Math.random() * 10,
+        size: 5 + Math.random() * 10,
+        color: ["rgba(143, 160, 196, 0.4)", "rgba(167, 139, 250, 0.3)", "rgba(129, 140, 248, 0.3)"][Math.floor(Math.random() * 3)],
+        blur: 2 + Math.random() * 4
+    })), []);
+
+    return (
+        <div style={{ position: "fixed", inset: 0, zIndex: 1, pointerEvents: "none", overflow: "hidden" }}>
+            {drops.map(drop => (
+                <div
+                    key={drop.id}
+                    style={{
+                        position: "absolute", left: drop.left, top: "-20px", width: drop.size, height: drop.size,
+                        borderRadius: "50%", background: drop.color, filter: `blur(${drop.blur}px)`,
+                        animation: `wc-paint-drop ${drop.duration}s linear ${drop.delay}s infinite`,
+                    }}
+                />
+            ))}
+        </div>
+    );
+};
 
 export default function ConfessionsPage() {
     const [mounted, setMounted] = useState(false);
     const [isMobile, setIsMobile] = useState(false);
-    const { tokens: T } = useTheme();
+    const { tokens: T, mode } = useTheme();
 
     useEffect(() => {
         setMounted(true);
@@ -32,7 +61,6 @@ export default function ConfessionsPage() {
 
     if (!mounted) return null;
 
-    // Placeholder poems — user will provide full drafts
     const poems = [
         {
             title: "Malam Pertama",
@@ -52,107 +80,103 @@ export default function ConfessionsPage() {
     ];
 
     return (
-        <div style={{
-            background: "linear-gradient(180deg, #0d1117 0%, #161b22 30%, #1a1f2e 60%, #0d1117 100%)",
-            minHeight: "100svh",
-            color: "#c8b8a4",
-            fontFamily: "'Crimson Pro', serif, -apple-system",
-            position: "relative",
-            overflowX: "hidden",
-            paddingBottom: "5rem"
+        <div className="bg-wc-canvas wc-scrollbar" style={{
+            minHeight: "100svh", color: T.textPrimary, position: "relative", overflowX: "hidden", paddingBottom: "10rem",
+            // For confessions, we force a slightly moonlit feel if it's default mode
+            background: mode === "default" ? "linear-gradient(180deg, #fdf8f4 0%, #e8e2d9 100%)" : T.pageBg,
+            transition: "background 0.5s ease"
         }}>
-            <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;700&display=swap" rel="stylesheet" />
-
-            {/* Stars */}
-            <div style={{ position: "fixed", inset: 0, pointerEvents: "none", zIndex: 0 }}>
-                {Array.from({ length: 60 }).map((_, i) => (
-                    <div key={i}
+            {/* Stars & Night Overlay (Specific to this page's celestial theme) */}
+            <div style={{ position: "fixed", inset: 0, zIndex: 0, pointerEvents: "none", opacity: mode === "default" ? 0.3 : 0.8 }}>
+                {Array.from({ length: 80 }).map((_, i) => (
+                    <motion.div key={i}
+                        animate={{ opacity: [0.2, 0.8, 0.2] }}
+                        transition={{ duration: 3 + Math.random() * 4, repeat: Infinity, delay: Math.random() * 5 }}
                         style={{
                             position: "absolute", left: `${Math.random() * 100}%`, top: `${Math.random() * 100}%`,
-                            width: `${1 + Math.random() * 2}px`, height: `${1 + Math.random() * 2}px`,
-                            borderRadius: "50%", background: "#fff",
-                            animation: `twinkleStar ${2 + Math.random() * 4}s ease-in-out ${Math.random() * 3}s infinite`
+                            width: "2px", height: "2px", background: mode === "default" ? T.accent : "#fff", borderRadius: "50%"
                         }}
                     />
                 ))}
             </div>
 
-            {/* Moon */}
-            <motion.div
-                animate={{ y: [0, -10, 0], opacity: [0.6, 0.8, 0.6] }}
-                transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" as const }}
-                style={{ position: "fixed", top: isMobile ? "5%" : "8%", right: isMobile ? "10%" : "15%", width: "120px", height: "120px", borderRadius: "50%", background: "radial-gradient(circle at 35% 35%, #ffecd2 0%, #e8d5b7 30%, #c4a67d 60%, transparent 70%)", boxShadow: "0 0 60px rgba(255, 236, 210, 0.15), 0 0 120px rgba(255, 236, 210, 0.05)", zIndex: 1, pointerEvents: "none" }}
-            />
+            <AmbientPaintDrops />
 
-            <main style={{ position: "relative", zIndex: 10, padding: isMobile ? "4rem 0" : "6rem 0" }}>
+            <main style={{ position: "relative", zIndex: 10, padding: isMobile ? "2rem 0" : "4rem 0" }}>
                 <Container>
                     {/* Header */}
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: "14px", marginBottom: isMobile ? "4rem" : "6rem" }}>
-                        <div style={{ display: "flex", alignItems: "center", gap: "14px" }}>
-                            <Link href="/guest/no28/special_day" style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: "44px", height: "44px", background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "12px", color: "#c8b8a4" }}>
-                                <ArrowLeft size={22} strokeWidth={2} />
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "6rem" }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: "18px" }}>
+                            <Link href="/guest/no28/special_day" className="wc-card hover-ink-bleed" style={{
+                                display: "inline-flex", alignItems: "center", justifyContent: "center",
+                                width: "48px", height: "48px", backgroundColor: T.cardBg,
+                                borderRadius: "14px", color: T.textPrimary, border: `1px solid ${T.cardBorder}`
+                            }}>
+                                <ArrowLeft size={24} />
                             </Link>
-                            <div>
-                                <div style={{ fontSize: "0.65rem", color: "rgba(200,184,164,0.5)", textTransform: "uppercase", letterSpacing: "2.5px", fontWeight: 700 }}>Confessions to the Moon</div>
-                                <HandwrittenNote style={{ fontSize: "1.1rem", color: "#e8d5b7" }}>Bisikan malam yang tak terucap</HandwrittenNote>
+                            <div style={{ textAlign: "left" }}>
+                                <div className="font-serif-display" style={{ fontSize: "0.7rem", color: T.textSecondary, textTransform: "uppercase", letterSpacing: "3px", fontWeight: 700, opacity: 0.8 }}>Confessions to the Moon</div>
+                                <HandwrittenText style={{ fontSize: "1rem", color: T.textAccent }}>Bisikan malam yang tak terucap</HandwrittenText>
                             </div>
                         </div>
-                        <ThemeToggle />
                     </div>
 
-                    {/* Intro */}
-                    <div style={{ textAlign: "center", marginBottom: isMobile ? "4rem" : "6rem", maxWidth: "600px", margin: "0 auto" }}>
-                        <Moon size={28} color="#e8d5b7" style={{ margin: "0 auto 1.5rem", opacity: 0.4 }} />
-                        <p style={{ fontSize: isMobile ? "1.1rem" : "1.3rem", fontStyle: "italic", color: "rgba(200,184,164,0.7)", lineHeight: 1.8, fontFamily: "'Crimson Pro', serif" }}>
-                            &ldquo;But what is strange — and what would need a whole book to explain — is that in none of these confessions would there be any real truth.&rdquo;
-                        </p>
-                        <div style={{ marginTop: "1rem", fontSize: "0.8rem", color: "rgba(200,184,164,0.4)" }}>
-                            — Fyodor Dostoevsky, <em>White Nights</em>
+                    {/* Moon Illustration */}
+                    <div style={{ textAlign: "center", marginBottom: "8rem", position: "relative" }}>
+                        <motion.div
+                            animate={{ y: [-15, 0, -15], filter: ["blur(0px)", "blur(2px)", "blur(0px)"] }}
+                            transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
+                            style={{ width: "140px", height: "140px", margin: "0 auto", borderRadius: "50%", background: "radial-gradient(circle at 35% 35%, #fffef0 0%, #fadded 40%, transparent 80%)", boxShadow: "0 0 60px rgba(253, 221, 221, 0.2)", position: "relative" }}
+                        >
+                            <div style={{ position: "absolute", inset: 0, borderRadius: "50%", border: "1px dashed rgba(0,0,0,0.05)", opacity: 0.2 }} />
+                        </motion.div>
+
+                        <div style={{ marginTop: "4rem", maxWidth: "600px", marginInline: "auto" }}>
+                            <Quote size={28} color={T.accent} style={{ margin: "0 auto 2.5rem", opacity: 0.3 }} />
+                            <p className="font-serif" style={{ fontSize: isMobile ? "1.2rem" : "1.5rem", fontStyle: "italic", color: T.textSecondary, lineHeight: 1.8, opacity: 0.9 }}>
+                                &ldquo;But what is strange — and what would need a whole book to explain — is that in none of these confessions would there be any real truth.&rdquo;
+                            </p>
+                            <div className="font-serif-display" style={{ marginTop: "1.5rem", fontSize: "0.85rem", color: T.textMuted, opacity: 0.6, letterSpacing: "2px" }}>
+                                — FYODOR DOSTOEVSKY, WHITE NIGHTS
+                            </div>
                         </div>
                     </div>
 
-                    {/* Poems Series */}
-                    <div style={{ display: "flex", flexDirection: "column", gap: "3rem", maxWidth: "700px", margin: "4rem auto 0" }}>
+                    {/* Poems Collection */}
+                    <div style={{ display: "flex", flexDirection: "column", gap: "4rem", maxWidth: "760px", marginInline: "auto" }}>
                         {poems.map((poem, i) => (
-                            <motion.div key={i}
-                                initial={{ opacity: 1, y: 30 }}
-                                whileInView={{ opacity: 1, y: 0 }}
-                                viewport={{ once: true }}
-                                transition={{ duration: 0.6, delay: i * 0.1 }}
-                            >
-                                <div style={{
-                                    background: "rgba(255,255,255,0.02)",
-                                    border: "1px solid rgba(255,255,255,0.05)",
-                                    borderRadius: "4px",
-                                    padding: isMobile ? "2rem 1.5rem" : "3rem 2.5rem",
-                                    position: "relative"
-                                }}>
-                                    <div style={{ fontSize: "0.6rem", color: "rgba(200,184,164,0.3)", textTransform: "uppercase", letterSpacing: "3px", marginBottom: "1rem" }}>
+                            <motion.div key={i} initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.15 }}>
+                                <div className="wc-card hover-ink-bleed" style={{ padding: isMobile ? "2.5rem 1.8rem" : "4rem 4rem", position: "relative", border: `1px solid ${T.cardBorder}` }}>
+                                    <WashStripe type="lavender" />
+
+                                    <div className="font-serif-display" style={{ fontSize: "0.7rem", color: T.textAccent, textTransform: "uppercase", letterSpacing: "3px", marginBottom: "1.5rem", opacity: 0.7 }}>
                                         {poem.date}
                                     </div>
-                                    <h3 style={{ fontSize: "1.4rem", fontWeight: 400, color: "#e8d5b7", fontFamily: "'Crimson Pro', serif", marginBottom: "1rem", fontStyle: "italic" }}>
+
+                                    <h3 className="font-serif-display" style={{ fontSize: "1.8rem", fontWeight: 400, color: T.textPrimary, fontStyle: "italic", marginBottom: "2rem" }}>
                                         {poem.title}
                                     </h3>
-                                    <p style={{ fontSize: "1rem", color: "rgba(200,184,164,0.7)", lineHeight: 1.8, fontFamily: "'Crimson Pro', serif" }}>
+
+                                    <p className="font-serif" style={{ fontSize: "1.15rem", color: T.textSecondary, lineHeight: 1.9, fontWeight: 300, opacity: 0.95 }}>
                                         {poem.excerpt}
                                     </p>
 
                                     {/* Bottom Ornament */}
-                                    <div style={{ marginTop: "1.5rem", display: "flex", alignItems: "center", gap: "8px" }}>
-                                        <div style={{ width: "30px", height: "1px", background: "rgba(200,184,164,0.15)" }} />
-                                        <HandwrittenNote style={{ fontSize: "0.9rem", opacity: 0.4 }}>✦</HandwrittenNote>
-                                        <div style={{ width: "30px", height: "1px", background: "rgba(200,184,164,0.15)" }} />
+                                    <div style={{ marginTop: "3rem", display: "flex", alignItems: "center", gap: "10px", opacity: 0.4 }}>
+                                        <div style={{ width: "30px", height: "1px", background: T.dividerColor }} />
+                                        <Sparkles size={14} color={T.accent} />
+                                        <div style={{ width: "30px", height: "1px", background: T.dividerColor }} />
                                     </div>
                                 </div>
                             </motion.div>
                         ))}
                     </div>
 
-                    {/* Coming soon hint */}
-                    <div style={{ textAlign: "center", marginTop: "4rem" }}>
-                        <HandwrittenNote style={{ fontSize: "1.2rem", color: "rgba(200,184,164,0.3)" }}>
+                    {/* Footer */}
+                    <div style={{ textAlign: "center", marginTop: "10rem" }}>
+                        <HandwrittenText style={{ fontSize: "1.3rem", color: T.textMuted, opacity: 0.6 }}>
                             ...masih ada malam-malam lain yang menunggu untuk diceritakan.
-                        </HandwrittenNote>
+                        </HandwrittenText>
                     </div>
 
                 </Container>

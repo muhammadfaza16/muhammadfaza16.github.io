@@ -1,72 +1,265 @@
-/* Guest Sketch Theme CSS */
-@import url('https://fonts.googleapis.com/css2?family=Caveat:wght@400;700&family=Crimson+Pro:ital,wght@0,200..900;1,200..900&family=Nothing+You+Could+Do&display=swap');
+/* ============================================
+   Guest No. 28 — Watercolor Illustration Theme
+   ============================================ */
 
-/* Utilities */
+@import url('https://fonts.googleapis.com/css2?family=Caveat:wght@400;500;600;700&family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&display=swap');
+
+/* --- Design Tokens --- */
+:root {
+    /* Canvas & Paper */
+    --wc-canvas: #faf6f0;
+    --wc-canvas-warm: #f5efe5;
+    --wc-paper: #fffdf9;
+
+    /* Ink & Text - Deepened for Editorial feel */
+    --wc-ink: #2c2520;
+    --wc-ink-light: #5d544e;
+    --wc-ink-faint: #8a7e75;
+    --wc-ink-ghost: #b8aea7;
+
+    /* Accent & Earth Tones */
+    --wc-accent: #b07d62;
+    --wc-accent-light: #c9a085;
+    --wc-accent-deep: #8e6248;
+    --wc-ochre-deep: #a67c52;
+
+    /* Watercolor Washes - refined opacity and tones */
+    --wc-wash-blue: #8ea8c3;
+    --wc-wash-blue-light: rgba(142, 168, 195, 0.25);
+    --wc-wash-sage: #a4b8a0;
+    --wc-wash-sage-light: rgba(164, 184, 160, 0.25);
+    --wc-wash-rose: #d4a0a0;
+    --wc-wash-rose-light: rgba(212, 160, 160, 0.25);
+    --wc-wash-ochre: #d4b896;
+    --wc-wash-ochre-light: rgba(212, 184, 150, 0.25);
+    --wc-wash-lavender: #b8a9c9;
+    --wc-wash-lavender-light: rgba(184, 169, 201, 0.25);
+
+    /* Textures */
+    --wc-texture-paper: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.05'/%3E%3C/svg%3E");
+
+    /* Shadows & Overlays */
+    --wc-shadow-soft: 0 4px 20px rgba(44, 37, 32, 0.05);
+    --wc-shadow-card: 0 12px 40px -10px rgba(44, 37, 32, 0.08);
+    --wc-shadow-lifted: 0 20px 60px -15px rgba(44, 37, 32, 0.12);
+
+    /* Border Radius */
+    --wc-radius-organic: 24px 8px 32px 12px;
+    --wc-radius-soft: 20px;
+
+    /* Transitions */
+    --wc-ease: cubic-bezier(0.2, 1, 0.2, 1);
+    --wc-duration: 0.8s;
+}
+
+/* --- Font Utilities --- */
 .font-handwriting {
-    font-family: 'Nothing You Could Do', 'Caveat', cursive;
+    font-family: 'Caveat', cursive;
+    letter-spacing: -0.01em;
 }
 
 .font-serif-display {
-    font-family: 'Crimson Pro', serif;
+    font-family: 'Lora', serif;
+    font-variant-ligatures: common-ligatures;
+    -webkit-font-smoothing: antialiased;
 }
 
-/* Paper Texture Background */
-.bg-sketch-paper {
-    background-color: #fdfbf7;
-    background-image: 
-        url("https://www.transparenttextures.com/patterns/natural-paper.png"),
-        linear-gradient(to right, rgba(0,0,0,0.02) 1px, transparent 1px),
-        linear-gradient(to bottom, rgba(0,0,0,0.02) 1px, transparent 1px);
-    background-size: auto, 40px 40px, 40px 40px;
-    background-blend-mode: multiply;
+/* Editorial Heading Styles */
+.wc-title-main {
+    font-family: 'Lora', serif;
+    font-weight: 400;
+    font-style: italic;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
 }
 
-/* High-Definition Text */
-.text-ink-primary {
-    color: #2c2420; /* Deep charcoal brown/black ink */
+.wc-title-sub {
+    font-family: 'Lora', serif;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.3em;
+    font-size: 0.7rem;
+    color: var(--wc-ink-light);
 }
 
-.text-ink-secondary {
-    color: #5d534a; /* Lighter pencil lead color */
+/* --- Paper / Canvas Background --- */
+.bg-wc-canvas {
+    background-color: var(--wc-canvas);
+    background-image: var(--wc-texture-paper);
+}
+
+.bg-wc-paper {
+    background-color: var(--wc-paper);
+    background-image: var(--wc-texture-paper);
+}
+
+/* --- Watercolor Card - Advanced --- */
+.wc-card {
+    background: var(--wc-paper);
+    border: none;
+    border-radius: var(--wc-radius-organic);
+    box-shadow: var(--wc-shadow-card);
+    position: relative;
+    overflow: hidden;
+    transition: transform 1.2s var(--wc-ease),
+                box-shadow 1.2s var(--wc-ease),
+                filter 1.2s var(--wc-ease);
+    /* Rough Edges via SVG Masking in modern browsers */
+    mask-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='rough'%3E%3CfeTurbulence baseFrequency='0.05' numOctaves='3' type='fractalNoise'/%3E%3CfeDisplacementMap in='SourceGraphic' scale='1'/%3E%3C/filter%3E%3Crect width='100' height='100' rx='10' filter='url(%23rough)'/%3E%3C/svg%3E");
+    mask-size: 100% 100%;
+}
+
+.wc-card::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at top left, rgba(255,255,255,0.4) 0%, transparent 60%);
+    pointer-events: none;
+    z-index: 2;
+}
+
+.wc-card:hover {
+    transform: translateY(-8px) rotate(-0.8deg) scale(1.01);
+    box-shadow: var(--wc-shadow-lifted);
+}
+
+/* --- Watercolor Wash Accent Stripe --- */
+.wc-wash-stripe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 60px;
+    opacity: 0.45;
+    z-index: 0;
+    pointer-events: none;
+    mask-image: linear-gradient(to bottom, black 0%, transparent 100%);
+    filter: blur(20px);
+}
+
+.wc-wash-stripe--blue { background: var(--wc-wash-blue); }
+.wc-wash-stripe--sage { background: var(--wc-wash-sage); }
+.wc-wash-stripe--rose { background: var(--wc-wash-rose); }
+.wc-wash-stripe--ochre { background: var(--wc-wash-ochre); }
+.wc-wash-stripe--lavender { background: var(--wc-wash-lavender); }
+
+/* --- Haiku Card Borders (Organic) --- */
+.wc-border-left {
+    border-left: 1px solid rgba(0,0,0,0.05);
+}
+
+
+/* --- Text Ink Colors --- */
+.text-ink {
+    color: var(--wc-ink);
+}
+
+.text-ink-light {
+    color: var(--wc-ink-light);
+}
+
+.text-ink-faint {
+    color: var(--wc-ink-faint);
 }
 
 .text-ink-accent {
-    color: #b07d62; /* Sepia / terracotta accent */
+    color: var(--wc-accent);
 }
 
-/* Sketch Border */
-.sketch-border {
-    position: relative;
-    border: 2px solid transparent; 
-}
-
-.sketch-border::before {
-    content: '';
-    position: absolute;
-    inset: -4px;
-    border: 2px solid #2c2420;
-    border-radius: 4px 255px 5px 25px / 255px 7px 225px 15px; /* Organic elliptical border */
-    mask-image: url("https://www.transparenttextures.com/patterns/natural-paper.png"); 
-    pointer-events: none;
-    opacity: 0.8;
-}
-
-/* Ink Bleed Hover Effect */
+/* --- Ink Hover Effect (watercolor bleed) --- */
 .hover-ink-bleed {
-    transition: color 0.3s ease, text-shadow 0.3s ease;
+    transition: color 0.4s var(--wc-ease), text-shadow 0.4s var(--wc-ease);
 }
 
 .hover-ink-bleed:hover {
-    color: #000;
-    text-shadow: 0 0 2px rgba(44, 36, 32, 0.3); /* Slight bleed blur */
+    color: var(--wc-ink);
+    text-shadow: 0 0 8px rgba(58, 50, 43, 0.12);
 }
 
-/* Floating Animation */
-@keyframes float-gentle {
-    0%, 100% { transform: translateY(0px) rotate(0deg); }
-    50% { transform: translateY(-8px) rotate(1deg); }
+/* --- Animations --- */
+
+/* Gentle float (like clouds) */
+@keyframes wc-float {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    33% { transform: translateY(-6px) rotate(0.5deg); }
+    66% { transform: translateY(3px) rotate(-0.3deg); }
 }
 
-.animate-float-gentle {
-    animation: float-gentle 6s ease-in-out infinite;
+/* Paint drop falling */
+@keyframes wc-paint-drop {
+    0% {
+        transform: translateY(-20px) scale(0.4);
+        opacity: 0;
+    }
+    15% {
+        opacity: 0.6;
+    }
+    100% {
+        transform: translateY(110vh) scale(1);
+        opacity: 0;
+    }
+}
+
+/* Soft pulsing glow */
+@keyframes wc-glow-pulse {
+    0%, 100% { opacity: 0.3; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(1.05); }
+}
+
+/* Slow ink reveal */
+@keyframes wc-ink-reveal {
+    from {
+        clip-path: inset(0 100% 0 0);
+    }
+    to {
+        clip-path: inset(0 0 0 0);
+    }
+}
+
+/* Canvas grain shimmer */
+@keyframes wc-grain-shift {
+    0% { transform: translate(0, 0); }
+    25% { transform: translate(-1px, 1px); }
+    50% { transform: translate(1px, -1px); }
+    75% { transform: translate(-1px, -1px); }
+    100% { transform: translate(0, 0); }
+}
+
+/* Utility animation classes */
+.animate-wc-float {
+    animation: wc-float 8s var(--wc-ease) infinite;
+}
+
+.animate-wc-glow {
+    animation: wc-glow-pulse 6s ease-in-out infinite;
+}
+
+/* --- Canvas Grain Overlay (subtle) --- */
+.wc-grain-overlay {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 50;
+    opacity: 0.035;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+    mix-blend-mode: multiply;
+    animation: wc-grain-shift 4s steps(4) infinite;
+}
+
+/* --- Scrollbar Styling --- */
+.wc-scrollbar::-webkit-scrollbar {
+    width: 6px;
+}
+
+.wc-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.wc-scrollbar::-webkit-scrollbar-thumb {
+    background: var(--wc-ink-ghost);
+    border-radius: 3px;
+}
+
+.wc-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: var(--wc-ink-faint);
 }
