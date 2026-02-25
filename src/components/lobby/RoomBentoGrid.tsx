@@ -41,8 +41,8 @@ const DockIcon = ({ title, href, icon, iconColor, delay = 0 }: DockIconProps) =>
                 {/* iOS-style dark glass icon */}
                 <div style={{
                     position: "relative",
-                    width: "clamp(52px, 13.5vw, 62px)",
-                    height: "clamp(52px, 13.5vw, 62px)",
+                    width: "clamp(46px, 12vw, 56px)",
+                    height: "clamp(46px, 12vw, 56px)",
                     borderRadius: "26%",
                     background: "rgba(0, 0, 0, 0.15)",
                     backdropFilter: "blur(16px) saturate(150%)",
@@ -69,7 +69,7 @@ const DockIcon = ({ title, href, icon, iconColor, delay = 0 }: DockIconProps) =>
                         justifyContent: "center",
                         filter: "drop-shadow(0 2px 4px rgba(0,0,0,0.3))"
                     }}>
-                        {React.cloneElement(icon as React.ReactElement<{ size?: number; strokeWidth?: number }>, { size: 26, strokeWidth: 2.5 })}
+                        {React.cloneElement(icon as React.ReactElement<{ size?: number; strokeWidth?: number }>, { size: 22, strokeWidth: 2.5 })}
                     </div>
 
                     {/* Specular highlight — top edge shine */}
@@ -140,7 +140,7 @@ export function RoomBentoGrid() {
             padding: "0.4rem 0",
         }}>
             <nav style={{
-                padding: "0 1.5rem", // Increased padding pushes icons toward center
+                padding: "0 1rem", // Reduced padding for mobile scaling
                 width: "100%",
                 maxWidth: "460px",
             }}>

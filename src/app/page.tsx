@@ -86,7 +86,7 @@ export default function HomePage() {
             display: "flex",
             alignItems: "flex-start",
             justifyContent: "center",
-            paddingTop: "clamp(2.5rem, 8vh, 5rem)",
+            paddingTop: "clamp(1.5rem, 6vh, 4rem)",
           }}>
             <CleanHomeHero />
           </div>
@@ -97,7 +97,7 @@ export default function HomePage() {
             flexShrink: 0,
             width: "calc(100% - 3rem)", // Matches the widget padding (1.5rem * 2)
             maxWidth: "460px", // Match the widget max-width
-            margin: "0 auto 1.5rem",
+            margin: "0 auto 1rem",
             background: "rgba(255, 255, 255, 0.002)",
             backdropFilter: "blur(18px) saturate(110%) brightness(101%)",
             WebkitBackdropFilter: "blur(18px) saturate(110%) brightness(101%)",
@@ -134,7 +134,7 @@ export default function HomePage() {
             </div>
           </div>
         </main>
-      </ZenHideable>
+      </ZenHideable >
     </>
   );
 }

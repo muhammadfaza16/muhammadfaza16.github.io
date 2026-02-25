@@ -13,6 +13,7 @@ const MONTHS_SHORT = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "S
 
 export function CleanHomeHero() {
     const [now, setNow] = useState(new Date());
+    const [isMobile, setIsMobile] = useState(false);
     const { isPlaying, togglePlay, currentSong, hasInteracted, currentTime, duration, nextSong, prevSong } = useAudio();
     const songParts = currentSong.title.split("—");
     const artist = songParts[0]?.trim() || "Unknown";
@@ -113,7 +114,15 @@ export function CleanHomeHero() {
     // Update clock every second for live time display
     useEffect(() => {
         const id = setInterval(() => setNow(new Date()), 1000);
-        return () => clearInterval(id);
+
+        const checkMobile = () => setIsMobile(window.innerWidth < 768);
+        checkMobile();
+        window.addEventListener('resize', checkMobile);
+
+        return () => {
+            clearInterval(id);
+            window.removeEventListener('resize', checkMobile);
+        };
     }, []);
 
     // Fetch API data
@@ -1131,10 +1140,10 @@ export function CleanHomeHero() {
                                 flexDirection: "column",
                                 background: "rgba(0, 0, 0, 0.12)",
                                 borderRadius: "18px",
-                                padding: "1rem 0.9rem",
+                                padding: isMobile ? "0.85rem 0.75rem" : "1rem 0.9rem",
                                 boxShadow: "inset 0 2px 6px rgba(0,0,0,0.08), 0 1px 0 rgba(255,255,255,0.06)",
                                 border: "1px solid rgba(255,255,255,0.08)",
-                                width: "190px",
+                                width: isMobile ? "175px" : "190px",
                             }}>
                                 {/* Month header */}
                                 <div
@@ -1143,7 +1152,7 @@ export function CleanHomeHero() {
                                         display: "flex",
                                         alignItems: "center",
                                         gap: "0.35rem",
-                                        fontSize: "0.82rem",
+                                        fontSize: isMobile ? "0.75rem" : "0.82rem",
                                         fontWeight: 600,
                                         color: "rgba(255,255,255,0.85)",
                                         marginBottom: "0.5rem",
@@ -1158,7 +1167,7 @@ export function CleanHomeHero() {
                                     display: "grid",
                                     gridTemplateColumns: "repeat(7, 1fr)",
                                     textAlign: "center",
-                                    fontSize: "0.55rem",
+                                    fontSize: isMobile ? "0.5rem" : "0.55rem",
                                     fontWeight: 600,
                                     color: "rgba(255,255,255,0.4)",
                                     marginBottom: "3px",
@@ -1208,7 +1217,7 @@ export function CleanHomeHero() {
                                                     boxShadow: isToday ? "0 0 10px rgba(255,59,48,0.5), 0 0 20px rgba(255,149,0,0.2)" : "none",
                                                     animation: isToday ? "today-pulse 2.5s ease-in-out infinite" : "none",
                                                     fontWeight: isToday ? 700 : isHoliday ? 600 : 400,
-                                                    fontSize: "0.65rem",
+                                                    fontSize: isMobile ? "0.6rem" : "0.65rem",
                                                     cursor: hasDots ? "pointer" : "default",
                                                     lineHeight: 1.2,
                                                 }}>
@@ -1338,12 +1347,12 @@ export function CleanHomeHero() {
                                     const circDay = 2 * Math.PI * radiusDay;
 
                                     return (
-                                        <div style={{ display: "flex", flexDirection: "column", gap: "12px", background: "rgba(0,0,0,0.12)", padding: "14px 18px", borderRadius: "20px", border: "1px solid rgba(0,0,0,0.05)" }}>
-                                            <div style={{ fontSize: "0.72rem", fontWeight: 700, color: "rgba(255,255,255,0.6)", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: "4px" }}>Time Stats</div>
+                                        <div style={{ display: "flex", flexDirection: "column", gap: "12px", background: "rgba(0,0,0,0.12)", padding: isMobile ? "12px 14px" : "14px 18px", borderRadius: "20px", border: "1px solid rgba(0,0,0,0.05)" }}>
+                                            <div style={{ fontSize: isMobile ? "0.65rem" : "0.72rem", fontWeight: 700, color: "rgba(255,255,255,0.6)", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: "4px" }}>Time Stats</div>
 
                                             {/* Day Progress */}
                                             <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-                                                <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.58rem", fontWeight: 700 }}>
+                                                <div style={{ display: "flex", justifyContent: "space-between", fontSize: isMobile ? "0.52rem" : "0.58rem", fontWeight: 700 }}>
                                                     <span style={{ color: "rgba(255,255,255,0.7)" }}>DAY</span>
                                                     <span style={{ color: "#34d399" }}>{dayProgress}%</span>
                                                 </div>
@@ -1359,7 +1368,7 @@ export function CleanHomeHero() {
 
                                             {/* Month Progress */}
                                             <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-                                                <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.58rem", fontWeight: 700 }}>
+                                                <div style={{ display: "flex", justifyContent: "space-between", fontSize: isMobile ? "0.52rem" : "0.58rem", fontWeight: 700 }}>
                                                     <span style={{ color: "rgba(255,255,255,0.7)" }}>MONTH</span>
                                                     <span style={{ color: "#60a5fa" }}>{monthProgress}%</span>
                                                 </div>
@@ -1375,7 +1384,7 @@ export function CleanHomeHero() {
 
                                             {/* Year Progress */}
                                             <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-                                                <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.58rem", fontWeight: 700 }}>
+                                                <div style={{ display: "flex", justifyContent: "space-between", fontSize: isMobile ? "0.52rem" : "0.58rem", fontWeight: 700 }}>
                                                     <span style={{ color: "rgba(255,255,255,0.7)" }}>YEAR</span>
                                                     <span style={{ color: "#a78bfa" }}>{yearProgress}%</span>
                                                 </div>
@@ -1397,7 +1406,7 @@ export function CleanHomeHero() {
                                     <div style={{
                                         background: "rgba(0,0,0,0.12)",
                                         borderRadius: "18px",
-                                        padding: "0.7rem 0.9rem",
+                                        padding: isMobile ? "0.6rem 0.8rem" : "0.7rem 0.9rem",
                                         transition: "background 0.2s ease",
                                         cursor: "pointer",
                                     }}>
@@ -1413,10 +1422,10 @@ export function CleanHomeHero() {
                                         {github ? (
                                             <>
                                                 <div style={{ display: "flex", alignItems: "baseline", gap: "0.3rem" }}>
-                                                    <span style={{ fontSize: "1.2rem", fontWeight: 800, color: "rgba(255,255,255,0.95)", lineHeight: 1 }}>
+                                                    <span style={{ fontSize: isMobile ? "1rem" : "1.2rem", fontWeight: 800, color: "rgba(255,255,255,0.95)", lineHeight: 1 }}>
                                                         {github.currentMonthActiveDays}<span style={{ fontSize: "0.8rem", color: "rgba(255,255,255,0.5)" }}>/{github.currentMonthTotalDays}</span>
                                                     </span>
-                                                    <span style={{ fontSize: "0.65rem", fontWeight: 500, color: "rgba(255,255,255,0.65)" }}>
+                                                    <span style={{ fontSize: isMobile ? "0.58rem" : "0.65rem", fontWeight: 500, color: "rgba(255,255,255,0.65)" }}>
                                                         days active
                                                     </span>
                                                 </div>
