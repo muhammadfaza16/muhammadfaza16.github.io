@@ -31,7 +31,8 @@ export function MiniPlayerWidget({ style: customStyle }: MiniPlayerProps) {
     }, [currentSong.title]);
 
     // Only show if user has started playing something or interacted
-    if (!hasInteracted || isMiniPlayerDismissed) return null;
+    // HIDE on Radio page to maintain isolation
+    if (!hasInteracted || isMiniPlayerDismissed || pathname === "/starlight/radio") return null;
 
     // Split title for artist/song
     const parts = currentSong.title.split("—");

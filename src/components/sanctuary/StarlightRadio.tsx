@@ -13,8 +13,12 @@ export function StarlightRadio() {
     const [freqData, setFreqData] = useState<Uint8Array | null>(null);
     const [localTunedIn, setLocalTunedIn] = useState(false);
     const [isSyncing, setIsSyncing] = useState(false);
+    const [localBuffering, setLocalBuffering] = useState(false);
 
-    const { playQueue, isPlaying, currentSong, seekTo, analyser, audioRef, isBuffering } = useAudio();
+    const { isPlaying: globalPlaying, togglePlay } = useAudio();
+    const localAudioRef = React.useRef<HTMLAudioElement | null>(null);
+    const localAnalyserRef = React.useRef<AnalyserNode | null>(null);
+    const localAudioContextRef = React.useRef<AudioContext | null>(null);
 
     useEffect(() => {
         setMounted(true);
@@ -24,25 +28,59 @@ export function StarlightRadio() {
         return () => clearInterval(interval);
     }, []);
 
+    // Initialize local audio context for visualizer
+    const initLocalAudio = () => {
+        if (!localAudioRef.current || localAudioContextRef.current) return;
+
+        try {
+            const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
+            const ctx = new AudioContextClass();
+            const analyser = ctx.createAnalyser();
+            const source = ctx.createMediaElementSource(localAudioRef.current);
+
+            source.connect(analyser);
+            analyser.connect(ctx.destination);
+
+            analyser.fftSize = 256;
+            localAudioContextRef.current = ctx;
+            localAnalyserRef.current = analyser;
+        } catch (e) {
+            console.error("Local audio context failed:", e);
+        }
+    };
+
     // Visualizer loop
     useEffect(() => {
-        if (!analyser || !isPlaying) {
+        if (!localTunedIn) {
             setFreqData(null);
             return;
         }
 
-        const dataArray = new Uint8Array(analyser.frequencyBinCount);
         let animationFrameId: number;
-
         const updateVisualizer = () => {
-            analyser.getByteFrequencyData(dataArray);
-            setFreqData(new Uint8Array(dataArray));
+            if (localAnalyserRef.current) {
+                const dataArray = new Uint8Array(localAnalyserRef.current.frequencyBinCount);
+                localAnalyserRef.current.getByteFrequencyData(dataArray);
+                setFreqData(new Uint8Array(dataArray));
+            }
             animationFrameId = requestAnimationFrame(updateVisualizer);
         };
 
         animationFrameId = requestAnimationFrame(updateVisualizer);
         return () => cancelAnimationFrame(animationFrameId);
-    }, [analyser, isPlaying]);
+    }, [localTunedIn]);
+
+    useEffect(() => {
+        return () => {
+            if (localAudioRef.current) {
+                localAudioRef.current.pause();
+                localAudioRef.current.src = "";
+            }
+            if (localAudioContextRef.current) {
+                localAudioContextRef.current.close().catch(e => console.error(e));
+            }
+        };
+    }, []);
 
     const radioState = useMemo(() => {
         if (!mounted) return null;
@@ -62,50 +100,65 @@ export function StarlightRadio() {
     // Handle song transitions automatically if already "tuned in"
     const radioSongUrl = radioState?.song?.audioUrl;
     useEffect(() => {
-        if (localTunedIn && isPlaying && currentSong?.audioUrl !== radioSongUrl) {
-            // Song changed on radio or player, re-sync once
-            const timer = setTimeout(() => {
-                if (radioState) {
-                    playQueue(PLAYLIST, radioState.index);
-                    setTimeout(() => seekTo(radioState.progress), 100);
+        if (localTunedIn && localAudioRef.current && localAudioRef.current.src !== radioSongUrl) {
+            // Radio song changed, update src and re-sync
+            localAudioRef.current.src = radioSongUrl || "";
+            localAudioRef.current.play().catch(e => console.log("Auto play transition failed", e));
+
+            const performTransitionSync = () => {
+                if (localAudioRef.current && radioState) {
+                    localAudioRef.current.currentTime = radioState.progress;
+                    localAudioRef.current.removeEventListener('canplay', performTransitionSync);
                 }
-            }, 500);
-            return () => clearTimeout(timer);
+            };
+            localAudioRef.current.addEventListener('canplay', performTransitionSync);
         }
-    }, [radioSongUrl, localTunedIn, isPlaying, currentSong?.audioUrl, radioState, playQueue, seekTo]);
+    }, [radioSongUrl, localTunedIn, radioState]);
 
     const handleTuneIn = () => {
-        if (!radioState || !audioRef.current) return;
+        if (!radioState || !localAudioRef.current) return;
+
+        if (localTunedIn) {
+            localAudioRef.current.pause();
+            setLocalTunedIn(false);
+            return;
+        }
+
+        // 1. Initialize audio context on user interaction
+        initLocalAudio();
+        if (localAudioContextRef.current?.state === 'suspended') {
+            localAudioContextRef.current.resume();
+        }
+
+        // 2. Pause global music if playing
+        if (globalPlaying) {
+            togglePlay();
+        }
 
         setIsSyncing(true);
         setLocalTunedIn(true);
 
-        // 1. Play the queue
-        playQueue(PLAYLIST, radioState.index);
+        // 3. Set source and play
+        localAudioRef.current.src = radioState.song.audioUrl;
+        localAudioRef.current.play().catch(e => console.error("Radio play failed", e));
 
-        // 2. Define the seeking logic
         const performSync = () => {
-            if (audioRef.current && radioState) {
-                audioRef.current.currentTime = radioState.progress;
+            if (localAudioRef.current && radioState) {
+                localAudioRef.current.currentTime = radioState.progress;
                 setIsSyncing(false);
-                // Cleanup listener
-                audioRef.current.removeEventListener('canplay', performSync);
+                localAudioRef.current.removeEventListener('canplay', performSync);
             }
         };
 
-        // 3. Wait for audio to be ready or seek immediately if already loaded
-        if (audioRef.current.readyState >= 3) {
+        if (localAudioRef.current.readyState >= 3) {
             performSync();
         } else {
-            audioRef.current.addEventListener('canplay', performSync);
-            // Safety timeout
-            setTimeout(() => {
-                if (isSyncing) performSync();
-            }, 3000);
+            localAudioRef.current.addEventListener('canplay', performSync);
+            setTimeout(() => { if (isSyncing) performSync(); }, 3000);
         }
     };
 
-    const isTunedIn = isPlaying && localTunedIn && (currentSong?.audioUrl === radioState?.song?.audioUrl || !currentSong);
+    const isTunedIn = localTunedIn;
 
 
     if (!mounted || !radioState) return null;
@@ -344,7 +397,7 @@ export function StarlightRadio() {
                             border: "1px solid rgba(255,255,255,0.1)"
                         }}
                     >
-                        {isSyncing || isBuffering ? (
+                        {isSyncing || localBuffering ? (
                             <>
                                 <motion.div
                                     animate={{ rotate: 360 }}
@@ -386,6 +439,16 @@ export function StarlightRadio() {
                     background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent)",
                 }} />
             </motion.div>
+
+            {/* Local Radio Audio Engine */}
+            <audio
+                ref={localAudioRef}
+                onWaiting={() => setLocalBuffering(true)}
+                onPlaying={() => setLocalBuffering(false)}
+                onEnded={() => {
+                    // Handled by transition effect, but good to have
+                }}
+            />
 
             {/* Ghosting Shadow for depth */}
             <div style={{
