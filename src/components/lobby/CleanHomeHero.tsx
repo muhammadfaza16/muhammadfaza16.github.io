@@ -1119,7 +1119,7 @@ export function CleanHomeHero() {
                             style={{
                                 display: "grid",
                                 gridTemplateColumns: "auto 1fr",
-                                gap: "1.5rem",
+                                gap: "0.85rem",
                                 alignItems: "start",
                                 position: "relative",
                                 zIndex: 1,
@@ -1338,7 +1338,7 @@ export function CleanHomeHero() {
                                     const circDay = 2 * Math.PI * radiusDay;
 
                                     return (
-                                        <div style={{ display: "flex", flexDirection: "column", gap: "12px", background: "rgba(0,0,0,0.12)", padding: "14px", borderRadius: "20px", border: "1px solid rgba(0,0,0,0.05)" }}>
+                                        <div style={{ display: "flex", flexDirection: "column", gap: "12px", background: "rgba(0,0,0,0.12)", padding: "14px 18px", borderRadius: "20px", border: "1px solid rgba(0,0,0,0.05)" }}>
                                             <div style={{ fontSize: "0.72rem", fontWeight: 700, color: "rgba(255,255,255,0.6)", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: "4px" }}>Time Stats</div>
 
                                             {/* Day Progress */}
@@ -1395,9 +1395,9 @@ export function CleanHomeHero() {
                                 {/* GitHub Benchmark */}
                                 <Link href="https://github.com/muhammadfaza16" target="_blank" style={{ marginTop: "0.3rem" }}>
                                     <div style={{
-                                        background: "rgba(0,0,0,0.08)",
-                                        borderRadius: "12px",
-                                        padding: "0.55rem 0.7rem",
+                                        background: "rgba(0,0,0,0.12)",
+                                        borderRadius: "18px",
+                                        padding: "0.7rem 0.9rem",
                                         transition: "background 0.2s ease",
                                         cursor: "pointer",
                                     }}>
