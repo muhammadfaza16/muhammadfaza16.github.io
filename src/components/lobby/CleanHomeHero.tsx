@@ -1131,10 +1131,10 @@ export function CleanHomeHero() {
                                 flexDirection: "column",
                                 background: "rgba(0, 0, 0, 0.12)",
                                 borderRadius: "18px",
-                                padding: "1.2rem 1.1rem",
+                                padding: "1rem 0.9rem",
                                 boxShadow: "inset 0 2px 6px rgba(0,0,0,0.08), 0 1px 0 rgba(255,255,255,0.06)",
                                 border: "1px solid rgba(255,255,255,0.08)",
-                                width: "195px",
+                                width: "190px",
                             }}>
                                 {/* Month header */}
                                 <div
@@ -1173,7 +1173,7 @@ export function CleanHomeHero() {
                                 <div style={{
                                     display: "grid",
                                     gridTemplateColumns: "repeat(7, 1fr)",
-                                    gap: "3px 1px",
+                                    gap: "2px 1px",
                                     fontSize: "0.68rem",
                                     fontWeight: 500,
                                     color: "rgba(255,255,255,0.8)",
@@ -1201,7 +1201,7 @@ export function CleanHomeHero() {
                                                     flexDirection: "column",
                                                     alignItems: "center",
                                                     justifyContent: "center",
-                                                    padding: "4px 0",
+                                                    padding: "3px 0",
                                                     borderRadius: "6px",
                                                     color: isToday ? "white" : isHoliday ? "#ff6b6b" : (d ? "rgba(255,255,255,0.85)" : "transparent"),
                                                     background: isToday ? "linear-gradient(135deg, #ff3b30 0%, #ff6b4a 50%, #ff9500 100%)" : "transparent",
@@ -1247,7 +1247,7 @@ export function CleanHomeHero() {
 
                                 {/* Upcoming Matches */}
                                 {football && football.matches.length > 0 && (
-                                    <div style={{ marginTop: "1.8rem" }}>
+                                    <div style={{ marginTop: "1.2rem" }}>
                                         <div
                                             onClick={() => setShowMatchesPopup(true)}
                                             style={{
@@ -1435,33 +1435,6 @@ export function CleanHomeHero() {
                                     </div>
                                 </Link>
 
-                                {/* Daily Quote */}
-                                <div style={{ marginTop: "0.1rem" }}>
-                                    <div style={{
-                                        fontSize: "0.68rem", fontWeight: 700, textTransform: "uppercase" as const,
-                                        letterSpacing: "0.03em", color: "rgba(255,255,255,0.95)",
-                                        marginBottom: "0.2rem",
-                                        display: "flex", alignItems: "center", gap: "0.3rem",
-                                    }}>
-                                        <Quote size={12} strokeWidth={2.5} />
-                                        Today
-                                    </div>
-                                    {quote ? (
-                                        <>
-                                            <div style={{
-                                                fontSize: "0.72rem", fontWeight: 500, fontStyle: "italic",
-                                                color: "rgba(255,255,255,0.75)", lineHeight: 1.4,
-                                            }}>
-                                                &quot;{quote.text}&quot;
-                                            </div>
-                                            <div style={{ fontSize: "0.62rem", color: "rgba(255,255,255,0.55)", marginTop: "0.15rem" }}>
-                                                — {quote.author}
-                                            </div>
-                                        </>
-                                    ) : (
-                                        <div style={{ fontSize: "0.72rem", fontStyle: "italic", color: "rgba(255,255,255,0.55)" }}>Loading···</div>
-                                    )}
-                                </div>
                             </div>
                         </motion.div>
                     )}
