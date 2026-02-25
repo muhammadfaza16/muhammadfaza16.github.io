@@ -12,6 +12,7 @@ export function StarlightRadio() {
     const [currentTime, setCurrentTime] = useState(0);
     const [mounted, setMounted] = useState(false);
     const [freqData, setFreqData] = useState<Uint8Array | null>(null);
+    const [localTunedIn, setLocalTunedIn] = useState(false);
 
     useEffect(() => {
         setMounted(true);
@@ -33,7 +34,7 @@ export function StarlightRadio() {
 
         const updateVisualizer = () => {
             analyser.getByteFrequencyData(dataArray);
-            setFreqData(new Uint8Array(dataArray)); // Force re-render
+            setFreqData(new Uint8Array(dataArray));
             animationFrameId = requestAnimationFrame(updateVisualizer);
         };
 
@@ -56,16 +57,32 @@ export function StarlightRadio() {
         };
     }, [currentTime, mounted]);
 
+    // Handle song transitions automatically if already "tuned in"
+    const radioSongUrl = radioState?.song?.audioUrl;
+    useEffect(() => {
+        if (localTunedIn && isPlaying && currentSong?.audioUrl !== radioSongUrl) {
+            // Song changed on radio or player, re-sync once
+            const timer = setTimeout(() => {
+                if (radioState) {
+                    playQueue(PLAYLIST, radioState.index);
+                    setTimeout(() => seekTo(radioState.progress), 100);
+                }
+            }, 500);
+            return () => clearTimeout(timer);
+        }
+    }, [radioSongUrl, localTunedIn, isPlaying, currentSong?.audioUrl, radioState, playQueue, seekTo]);
+
     const handleTuneIn = () => {
         if (!radioState) return;
+        setLocalTunedIn(true);
         playQueue(PLAYLIST, radioState.index);
-        // We need a slight delay to ensure the song starts before seeking
         setTimeout(() => {
             seekTo(radioState.progress);
         }, 300);
     };
 
-    const isTunedIn = isPlaying && currentSong?.audioUrl === radioState?.song?.audioUrl;
+    const isTunedIn = isPlaying && localTunedIn && (currentSong?.audioUrl === radioState?.song?.audioUrl || !currentSong);
+
 
     if (!mounted || !radioState) return null;
 
@@ -75,7 +92,9 @@ export function StarlightRadio() {
             maxWidth: "420px",
             margin: "0 auto 2rem",
             position: "relative",
-            perspective: "1000px"
+            perspective: "1000px",
+            touchAction: "none", // Prevent mobile gestures/shifting
+            userSelect: "none"
         }}>
             {/* Retro Radio Body */}
             <motion.div
@@ -123,9 +142,13 @@ export function StarlightRadio() {
                                     transition={{ duration: 1.5, repeat: Infinity }}
                                     style={{ width: "8px", height: "8px", borderRadius: "50%", background: "#FF3B30", boxShadow: "0 0 8px #FF3B30" }}
                                 />
-                                <span style={{ fontFamily: "monospace", fontSize: "0.65rem", color: "#FF3B30", fontWeight: "bold", letterSpacing: "1px" }}>ON AIR</span>
+                                <span style={{ fontFamily: "monospace", fontSize: "0.65rem", color: "#FF3B30", fontWeight: "bold", letterSpacing: "1px" }}>SIARAN LANGSUNG</span>
                             </div>
                             <span style={{ fontFamily: "monospace", fontSize: "0.8rem", color: "#FFB000", opacity: 0.8 }}>98.5 MHZ</span>
+                        </div>
+
+                        <div style={{ marginTop: "0.2rem", marginBottom: "0.2rem" }}>
+                            <span style={{ fontSize: "0.6rem", color: "rgba(255,255,255,0.3)", fontFamily: "monospace" }}>SINYAL STABIL</span>
                         </div>
 
                         <div style={{ marginTop: "0.5rem", overflow: "hidden" }}>
@@ -224,14 +247,50 @@ export function StarlightRadio() {
 
                 {/* Bottom Section: Controls */}
                 <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                    <div style={{ display: "flex", gap: "1rem" }}>
-                        <div style={{ textAlign: "center" }}>
-                            <div style={{ fontSize: "0.6rem", color: "rgba(255,255,255,0.4)", marginBottom: "4px", fontWeight: "bold" }}>VOLUME</div>
-                            <div style={{ width: "24px", height: "24px", borderRadius: "50%", border: "2px solid #333", background: "conic-gradient(#FFB000 70%, #1a1a1a 0)" }} />
+                    <div style={{ display: "flex", gap: "1.5rem" }}>
+                        <div style={{ textAlign: "center", width: "40px" }}>
+                            <div style={{ fontSize: "0.55rem", color: "rgba(255,255,255,0.4)", marginBottom: "6px", fontWeight: "bold" }}>VOLUME</div>
+                            <div style={{
+                                height: "24px",
+                                background: "#080808",
+                                borderRadius: "4px",
+                                border: "1px solid #333",
+                                position: "relative",
+                                overflow: "hidden",
+                                display: "flex",
+                                alignItems: "flex-end",
+                                padding: "2px"
+                            }}>
+                                <motion.div
+                                    animate={{
+                                        height: isTunedIn ? `${(freqData ? freqData[10] / 2.5 : 0) + 20}%` : "10%"
+                                    }}
+                                    style={{
+                                        width: "100%",
+                                        background: "#FFB000",
+                                        borderRadius: "1px",
+                                        boxShadow: "0 0 5px #FFB000"
+                                    }}
+                                />
+                            </div>
                         </div>
                         <div style={{ textAlign: "center" }}>
-                            <div style={{ fontSize: "0.6rem", color: "rgba(255,255,255,0.4)", marginBottom: "4px", fontWeight: "bold" }}>TUNE</div>
-                            <div style={{ width: "24px", height: "24px", borderRadius: "50%", border: "2px solid #333", background: "conic-gradient(#FFB000 40%, #1a1a1a 0)" }} />
+                            <div style={{ fontSize: "0.55rem", color: "rgba(255,255,255,0.4)", marginBottom: "4px", fontWeight: "bold" }}>TUNE</div>
+                            <motion.div
+                                animate={{ rotate: radioState.index * 45 }}
+                                whileTap={{ scale: 0.9, rotate: radioState.index * 45 + 90 }}
+                                style={{
+                                    width: "24px",
+                                    height: "24px",
+                                    borderRadius: "50%",
+                                    border: "2px solid #333",
+                                    background: `conic-gradient(#FFB000 ${(radioState.progress / TIME_PER_SONG) * 100}%, #1a1a1a 0)`,
+                                    cursor: "pointer",
+                                    position: "relative"
+                                }}
+                            >
+                                <div style={{ position: "absolute", top: "2px", left: "50%", transform: "translateX(-50%)", width: "2px", height: "6px", background: "rgba(255,255,255,0.4)", borderRadius: "1px" }} />
+                            </motion.div>
                         </div>
                     </div>
 
@@ -244,13 +303,13 @@ export function StarlightRadio() {
                             color: "#000",
                             border: "none",
                             borderRadius: "12px",
-                            padding: "0.8rem 1.5rem",
+                            padding: "0.8rem 1.8rem",
                             fontSize: "0.85rem",
                             fontWeight: 800,
                             display: "flex",
                             alignItems: "center",
                             gap: "8px",
-                            boxShadow: "0 4px 15px rgba(255, 176, 0, 0.3)",
+                            boxShadow: isTunedIn ? "0 4px 15px rgba(76, 217, 100, 0.3)" : "0 4px 15px rgba(255, 176, 0, 0.3)",
                             cursor: "pointer",
                             fontFamily: "sans-serif",
                             textTransform: "uppercase",
@@ -269,12 +328,12 @@ export function StarlightRadio() {
                                         />
                                     ))}
                                 </div>
-                                TUNED IN
+                                LAGI LIVE
                             </>
                         ) : (
                             <>
                                 <Play size={16} fill="currentColor" />
-                                TUNE IN
+                                GASKEUN
                             </>
                         )}
                     </motion.button>

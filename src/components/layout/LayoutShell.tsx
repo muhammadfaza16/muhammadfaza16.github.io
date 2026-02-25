@@ -42,6 +42,7 @@ export function LayoutShell({ children }: { children: React.ReactNode }) {
     // Let's keep LobbyHeader logic but remove generic Header/Footer.
 
     const isLobby = pathname === "/";
+    const isRadio = pathname === "/starlight/radio";
 
     if (isLobby) {
         return (
@@ -54,8 +55,8 @@ export function LayoutShell({ children }: { children: React.ReactNode }) {
 
     return (
         <>
-            {/* Global Music Recall for non-lobby pages */}
-            {!isLobby && (
+            {/* Global Music Recall for non-lobby and non-radio pages */}
+            {!isLobby && !isRadio && (
                 <div style={{
                     position: "fixed",
                     top: "24px",
@@ -69,7 +70,7 @@ export function LayoutShell({ children }: { children: React.ReactNode }) {
             <main id="main-content" style={{ flex: 1 }}>
                 {children}
             </main>
-            <MiniPlayerWidget />
+            {!isRadio && <MiniPlayerWidget />}
         </>
     );
 }
