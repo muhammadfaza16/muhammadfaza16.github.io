@@ -132,10 +132,23 @@ export function CleanHomeHero() {
         fetch('/api/github').then(r => r.json()).then(setGithub).catch(() => { });
         fetch(`/api/holidays?year=${new Date().getFullYear()}`).then(r => r.json()).then(d => setHolidays(d.holidays || [])).catch(() => { });
         fetch('/api/prayer').then(r => r.json()).then(setPrayer).catch(() => { });
-        fetch('/api/football').then(r => r.json()).then(setFootball).catch(() => { });
         fetch('/api/news').then(r => r.json()).then(setNews).catch(() => { });
         fetch('/api/crypto').then(r => r.json()).then(d => setCryptoData(d)).catch(() => { });
         fetch('/api/pulse').then(r => r.json()).then(setPulse).catch(() => { });
+    }, []);
+
+    // Live Football Polling - sync every 45s
+    useEffect(() => {
+        const fetchFootball = () => {
+            fetch('/api/football')
+                .then(r => r.json())
+                .then(setFootball)
+                .catch(() => { });
+        };
+
+        fetchFootball(); // Initial load
+        const id = setInterval(fetchFootball, 45000); // Poll every 45s
+        return () => clearInterval(id);
     }, []);
 
     // Fetch AI greeting after weather loads (to pass weather context)

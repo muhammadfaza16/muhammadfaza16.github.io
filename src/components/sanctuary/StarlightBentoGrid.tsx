@@ -28,22 +28,12 @@ interface StarlightBentoGridProps {
 const AppIcon = ({ title, href, icon, iconColor, delay = 0, isMobile = false }: AppIconProps & { isMobile?: boolean }) => {
     return (
         <Link href={href} prefetch={true} style={{ textDecoration: 'none' }} className="group">
-            <motion.div
-                initial={{ opacity: 0, scale: 0.95 }} // Simplified, removed y offset
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{
-                    duration: 0.25,
-                    type: "spring",
-                    stiffness: 300,
-                    damping: 25
-                }}
-                style={{
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "center",
-                    gap: "0.4rem",
-                }}
-            >
+            <div style={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                gap: "0.4rem",
+            }}>
                 {/* Ultra-Thin Premium Glass */}
                 <div style={{
                     position: "relative",
@@ -60,6 +50,8 @@ const AppIcon = ({ title, href, icon, iconColor, delay = 0, isMobile = false }: 
                     transition: "transform 0.15s ease",
                     overflow: "hidden",
                     border: "1px solid rgba(255, 255, 255, 0.08)",
+                    transform: "translateZ(0)", // Force hardware acceleration to prevent Safari flickering
+                    WebkitTransform: "translateZ(0)",
                 }} className="hover:scale-105 active:scale-95">
 
                     {/* Icon symbol (Restored Brand Colors) */}
@@ -115,7 +107,7 @@ const AppIcon = ({ title, href, icon, iconColor, delay = 0, isMobile = false }: 
                 }}>
                     {title}
                 </span>
-            </motion.div>
+            </div>
         </Link>
     );
 };
