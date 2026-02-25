@@ -7,7 +7,7 @@ import {
     PenTool, Book, Compass, Briefcase, Gift, Library,
     ChevronLeft, ChevronRight,
     Terminal, Cpu, Megaphone, Lightbulb, Monitor, FileText,
-    Film, Music, Zap, Lock, Backpack, BookOpen
+    Film, Music, Zap, Lock, Backpack, BookOpen, Radio
 } from "lucide-react";
 
 interface AppIconProps {
@@ -16,6 +16,7 @@ interface AppIconProps {
     icon: React.ReactNode;
     iconColor: string;
     delay?: number;
+    onClick?: () => void;
 }
 
 
@@ -25,87 +26,99 @@ interface StarlightBentoGridProps {
     setActiveDock: React.Dispatch<React.SetStateAction<number>>;
 }
 
-const AppIcon = ({ title, href, icon, iconColor, delay = 0, isMobile = false }: AppIconProps & { isMobile?: boolean }) => {
-    return (
-        <Link href={href} prefetch={true} style={{ textDecoration: 'none' }} className="group">
+const AppIcon = ({ title, href, icon, iconColor, delay = 0, isMobile = false, onClick }: AppIconProps & { isMobile?: boolean }) => {
+    const content = (
+        <div style={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            gap: "0.4rem",
+        }}>
+            {/* Ultra-Thin Premium Glass */}
             <div style={{
+                position: "relative",
+                width: isMobile ? "clamp(50px, 14vw, 62px)" : "clamp(58px, 16vw, 72px)",
+                height: isMobile ? "clamp(50px, 14vw, 62px)" : "clamp(58px, 16vw, 72px)",
+                borderRadius: "26%",
+                background: "rgba(255, 255, 255, 0.12)", // Pseudo-glass: solid yet transparent
                 display: "flex",
-                flexDirection: "column",
                 alignItems: "center",
-                gap: "0.4rem",
-            }}>
-                {/* Ultra-Thin Premium Glass */}
+                justifyContent: "center",
+                boxShadow: "0 6px 15px rgba(0,0,0,0.25), inset 0 1px 0.5px rgba(255,255,255,0.25)",
+                transition: "transform 0.15s ease",
+                overflow: "hidden",
+                border: "1px solid rgba(255, 255, 255, 0.22)", // Sharper edge
+                transform: "translateZ(0)", // Maintain hardware acceleration
+                WebkitTransform: "translateZ(0)",
+            }} className="hover:scale-105 active:scale-95">
+
+                {/* Icon symbol (Restored Brand Colors) */}
                 <div style={{
-                    position: "relative",
-                    width: isMobile ? "clamp(50px, 14vw, 62px)" : "clamp(58px, 16vw, 72px)",
-                    height: isMobile ? "clamp(50px, 14vw, 62px)" : "clamp(58px, 16vw, 72px)",
-                    borderRadius: "26%",
-                    background: "rgba(255, 255, 255, 0.12)", // Pseudo-glass: solid yet transparent
+                    color: iconColor,
+                    zIndex: 2,
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
-                    boxShadow: "0 6px 15px rgba(0,0,0,0.25), inset 0 1px 0.5px rgba(255,255,255,0.25)",
-                    transition: "transform 0.15s ease",
-                    overflow: "hidden",
-                    border: "1px solid rgba(255, 255, 255, 0.22)", // Sharper edge
-                    transform: "translateZ(0)", // Maintain hardware acceleration
-                    WebkitTransform: "translateZ(0)",
-                }} className="hover:scale-105 active:scale-95">
-
-                    {/* Icon symbol (Restored Brand Colors) */}
-                    <div style={{
-                        color: iconColor,
-                        zIndex: 2,
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        filter: "drop-shadow(0 2px 4px rgba(0,0,0,0.3))"
-                    }}>
-                        {React.cloneElement(icon as any, { size: "42%", strokeWidth: 2.5 })}
-                    </div>
-
-                    {/* Specular highlight — top edge shine (Match Home) */}
-                    <div style={{
-                        position: "absolute",
-                        top: 0,
-                        left: "15%",
-                        right: "15%",
-                        height: "1px",
-                        background: "linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.45) 30%, rgba(255,255,255,0.55) 50%, rgba(255,255,255,0.45) 70%, transparent 100%)",
-                        pointerEvents: "none",
-                        zIndex: 4,
-                        filter: "blur(0.3px)",
-                    }} />
-
-                    {/* Glossy sheen (Match Home) */}
-                    <div style={{
-                        position: "absolute",
-                        top: 0,
-                        left: 0,
-                        right: 0,
-                        height: "50%",
-                        background: "linear-gradient(180deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0.03) 60%, transparent 100%)", // Brighter gloss
-                        zIndex: 3,
-                        pointerEvents: "none",
-                        borderRadius: "26% 26% 0 0",
-                    }} />
-
-
+                    filter: "drop-shadow(0 2px 4px rgba(0,0,0,0.3))"
+                }}>
+                    {React.cloneElement(icon as any, { size: "42%", strokeWidth: 2.5 })}
                 </div>
 
-                {/* Label */}
-                <span style={{
-                    fontFamily: "-apple-system, BlinkMacSystemFont, sans-serif",
-                    fontSize: isMobile ? "0.65rem" : "0.7rem",
-                    fontWeight: 600,
-                    color: "rgba(255, 255, 255, 0.9)",
-                    textShadow: "0 1px 4px rgba(0,0,0,0.5)", // Strong shadow to separate from background
-                    textAlign: "center",
-                    letterSpacing: "0.02em",
-                }}>
-                    {title}
-                </span>
+                {/* Specular highlight — top edge shine (Match Home) */}
+                <div style={{
+                    position: "absolute",
+                    top: 0,
+                    left: "15%",
+                    right: "15%",
+                    height: "1px",
+                    background: "linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.45) 30%, rgba(255,255,255,0.55) 50%, rgba(255,255,255,0.45) 70%, transparent 100%)",
+                    pointerEvents: "none",
+                    zIndex: 4,
+                    filter: "blur(0.3px)",
+                }} />
+
+                {/* Glossy sheen (Match Home) */}
+                <div style={{
+                    position: "absolute",
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    height: "50%",
+                    background: "linear-gradient(180deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0.03) 60%, transparent 100%)", // Brighter gloss
+                    zIndex: 3,
+                    pointerEvents: "none",
+                    borderRadius: "26% 26% 0 0",
+                }} />
+
+
             </div>
+
+            {/* Label */}
+            <span style={{
+                fontFamily: "-apple-system, BlinkMacSystemFont, sans-serif",
+                fontSize: isMobile ? "0.65rem" : "0.7rem",
+                fontWeight: 600,
+                color: "rgba(255, 255, 255, 0.9)",
+                textShadow: "0 1px 4px rgba(0,0,0,0.5)", // Strong shadow to separate from background
+                textAlign: "center",
+                letterSpacing: "0.02em",
+            }}>
+                {title}
+            </span>
+        </div>
+    );
+
+    if (onClick) {
+        return (
+            <button onClick={onClick} style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', display: 'block', width: '100%' }} className="group">
+                {content}
+            </button>
+        );
+    }
+
+    return (
+        <Link href={href} prefetch={true} style={{ textDecoration: 'none' }} className="group">
+            {content}
         </Link>
     );
 };
@@ -121,11 +134,12 @@ export function StarlightBentoGrid({ activeDock, setActiveDock }: StarlightBento
     }, []);
 
     const dock1Apps = [
-        { title: "Bookshelf", href: "/bookshelf", icon: <Book />, iconColor: "#FF9F0A" }, // Orange
-        { title: "Curation", href: "/curation", icon: <Library />, iconColor: "#64D2FF" }, // Teal/Blue
-        { title: "Life Compass", href: "/life-compass", icon: <Compass />, iconColor: "#32D74B" }, // Green
-        { title: "Portfolio", href: "/portfolio", icon: <Briefcase />, iconColor: "#5E5CE6" }, // Indigo
-        { title: "Wishlist", href: "/wishlist", icon: <Gift />, iconColor: "#FF375F" }, // Pink
+        { title: "Bookshelf", href: "/bookshelf", icon: <Book />, iconColor: "#FF9F0A" },
+        { title: "Curation", href: "/curation", icon: <Library />, iconColor: "#64D2FF" },
+        { title: "Life Compass", href: "/life-compass", icon: <Compass />, iconColor: "#32D74B" },
+        { title: "Portfolio", href: "/portfolio", icon: <Briefcase />, iconColor: "#5E5CE6" },
+        { title: "Radio", href: "#", icon: <Radio />, iconColor: "#FFB000", onClick: () => handleRadioTeleport() },
+        { title: "Wishlist", href: "/wishlist", icon: <Gift />, iconColor: "#FF375F" },
     ];
 
     const dock2Apps = [
@@ -144,7 +158,9 @@ export function StarlightBentoGrid({ activeDock, setActiveDock }: StarlightBento
         { title: "Master", href: "/master", icon: <BookOpen />, iconColor: "#BF5AF2" }, // Purple
     ];
 
-    const allDocks = [dock1Apps, dock2Apps, dock3Apps];
+    const dock4Apps: any[] = []; // Radio page is rendered by the parent
+
+    const allDocks = [dock1Apps, dock2Apps, dock3Apps, dock4Apps];
 
     const handlePrev = () => {
         setActiveDock((prev) => {
@@ -160,6 +176,11 @@ export function StarlightBentoGrid({ activeDock, setActiveDock }: StarlightBento
             sessionStorage.setItem("starlight_active_dock", next.toString());
             return next;
         });
+    };
+
+    const handleRadioTeleport = () => {
+        setActiveDock(3);
+        sessionStorage.setItem("starlight_active_dock", "3");
     };
 
     return (

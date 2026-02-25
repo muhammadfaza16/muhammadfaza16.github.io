@@ -6,7 +6,7 @@ import { StarlightRadio } from "@/components/sanctuary/StarlightRadio";
 import Link from "next/link";
 import { ChevronLeft } from "lucide-react";
 import { useEffect, useState } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 
 export default function StarlightPage() {
   const [activeDock, setActiveDock] = useState(0);
@@ -149,12 +149,73 @@ export default function StarlightPage() {
               </div>
 
               {/* Window Content */}
-              <div style={{ padding: isMobile ? "1.5rem 1rem 2rem" : "2rem 1.5rem 2.5rem", position: "relative", zIndex: 1 }}>
-                {/* Starlight Radio Autopilot (Retro Widget) */}
-                <StarlightRadio />
+              <div style={{ padding: isMobile ? "1.5rem 1rem 2rem" : "2rem 1.5rem 2.5rem", position: "relative", zIndex: 1, minHeight: isMobile ? "380px" : "440px" }}>
 
-                {/* Springboard App Grid */}
-                <StarlightBentoGrid activeDock={activeDock} setActiveDock={setActiveDock} />
+                <AnimatePresence mode="wait">
+                  {activeDock === 3 ? (
+                    <motion.div
+                      key="radio-view"
+                      initial={{ opacity: 0, scale: 0.95 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.95 }}
+                      transition={{ duration: 0.3 }}
+                      style={{ width: "100%" }}
+                    >
+                      <div style={{ textAlign: "center", marginBottom: "1.5rem" }}>
+                        <h1 style={{ fontSize: isMobile ? "2.2rem" : "2.8rem", fontWeight: 700, letterSpacing: "-0.03em", color: "#ffffff", marginBottom: "0.4rem" }}>
+                          Radio.
+                        </h1>
+                        <p style={{ fontSize: isMobile ? "0.85rem" : "0.95rem", color: "rgba(255, 255, 255, 0.8)", fontWeight: 500 }}>
+                          24/7 Autopilot Broadcast.
+                        </p>
+                      </div>
+                      <StarlightRadio />
+                      {/* Invisible grid anchor for swiping */}
+                      <div style={{ height: "1px", opacity: 0 }}>
+                        <StarlightBentoGrid activeDock={activeDock} setActiveDock={setActiveDock} />
+                      </div>
+                    </motion.div>
+                  ) : (
+                    <motion.div
+                      key="grid-view"
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      style={{ width: "100%" }}
+                    >
+                      {/* Simple Heading */}
+                      <div style={{
+                        width: "100%",
+                        textAlign: "center",
+                        marginBottom: "1.5rem",
+                      }}>
+                        <h1 style={{
+                          fontSize: isMobile ? "2.2rem" : "2.8rem",
+                          fontWeight: 700,
+                          letterSpacing: "-0.03em",
+                          lineHeight: 1.1,
+                          color: "#ffffff",
+                          textShadow: "0 2px 12px rgba(0,0,0,0.2)",
+                          marginBottom: "0.4rem",
+                        }}>
+                          {activeDock === 0 ? "Explore." : activeDock === 1 ? "Work." : "Life."}
+                        </h1>
+                        <p style={{
+                          fontSize: isMobile ? "0.85rem" : "0.95rem",
+                          color: "rgba(255, 255, 255, 0.8)",
+                          lineHeight: 1.5,
+                          fontWeight: 500,
+                          margin: 0,
+                        }}>
+                          {activeDock === 0 ? "Curated sections of my world." : activeDock === 1 ? "Projects, insights, and career." : "Moments, media, and the present."}
+                        </p>
+                      </div>
+
+                      {/* Springboard App Grid */}
+                      <StarlightBentoGrid activeDock={activeDock} setActiveDock={setActiveDock} />
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </div>
             </motion.div>
           </main>
