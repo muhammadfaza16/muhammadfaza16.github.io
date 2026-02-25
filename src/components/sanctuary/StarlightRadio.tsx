@@ -8,11 +8,13 @@ import { useAudio, PLAYLIST } from "@/components/AudioContext";
 const TIME_PER_SONG = 210; // 3.5 minutes per rotation
 
 export function StarlightRadio() {
-    const { playQueue, isPlaying, currentSong, seekTo, analyser } = useAudio();
     const [currentTime, setCurrentTime] = useState(0);
     const [mounted, setMounted] = useState(false);
     const [freqData, setFreqData] = useState<Uint8Array | null>(null);
     const [localTunedIn, setLocalTunedIn] = useState(false);
+    const [isSyncing, setIsSyncing] = useState(false);
+
+    const { playQueue, isPlaying, currentSong, seekTo, analyser, audioRef, isBuffering } = useAudio();
 
     useEffect(() => {
         setMounted(true);
@@ -73,12 +75,34 @@ export function StarlightRadio() {
     }, [radioSongUrl, localTunedIn, isPlaying, currentSong?.audioUrl, radioState, playQueue, seekTo]);
 
     const handleTuneIn = () => {
-        if (!radioState) return;
+        if (!radioState || !audioRef.current) return;
+
+        setIsSyncing(true);
         setLocalTunedIn(true);
+
+        // 1. Play the queue
         playQueue(PLAYLIST, radioState.index);
-        setTimeout(() => {
-            seekTo(radioState.progress);
-        }, 300);
+
+        // 2. Define the seeking logic
+        const performSync = () => {
+            if (audioRef.current && radioState) {
+                audioRef.current.currentTime = radioState.progress;
+                setIsSyncing(false);
+                // Cleanup listener
+                audioRef.current.removeEventListener('canplay', performSync);
+            }
+        };
+
+        // 3. Wait for audio to be ready or seek immediately if already loaded
+        if (audioRef.current.readyState >= 3) {
+            performSync();
+        } else {
+            audioRef.current.addEventListener('canplay', performSync);
+            // Safety timeout
+            setTimeout(() => {
+                if (isSyncing) performSync();
+            }, 3000);
+        }
     };
 
     const isTunedIn = isPlaying && localTunedIn && (currentSong?.audioUrl === radioState?.song?.audioUrl || !currentSong);
@@ -142,13 +166,13 @@ export function StarlightRadio() {
                                     transition={{ duration: 1.5, repeat: Infinity }}
                                     style={{ width: "8px", height: "8px", borderRadius: "50%", background: "#FF3B30", boxShadow: "0 0 8px #FF3B30" }}
                                 />
-                                <span style={{ fontFamily: "monospace", fontSize: "0.65rem", color: "#FF3B30", fontWeight: "bold", letterSpacing: "1px" }}>ON AIR</span>
+                                <span style={{ fontFamily: "monospace", fontSize: "0.75rem", color: "#FF3B30", fontWeight: "900", letterSpacing: "1.5px", textShadow: "0 0 10px rgba(255, 59, 48, 0.5)" }}>ON AIR</span>
                             </div>
-                            <span style={{ fontFamily: "monospace", fontSize: "0.8rem", color: "#FFB000", opacity: 0.8 }}>98.5 MHZ</span>
+                            <span style={{ fontFamily: "monospace", fontSize: "0.85rem", color: "#FFB000", fontWeight: "bold", opacity: 0.9 }}>98.5 MHZ</span>
                         </div>
 
-                        <div style={{ marginTop: "0.2rem", marginBottom: "0.2rem" }}>
-                            <span style={{ fontSize: "0.6rem", color: "rgba(255,255,255,0.3)", fontFamily: "monospace" }}>SINYAL STABIL</span>
+                        <div style={{ marginTop: "0.4rem", marginBottom: "0.2rem" }}>
+                            <span style={{ fontSize: "0.65rem", color: "rgba(255,255,255,0.5)", fontFamily: "monospace", fontWeight: "bold" }}>SINYAL STABIL</span>
                         </div>
 
                         <div style={{ marginTop: "0.5rem", overflow: "hidden" }}>
@@ -173,12 +197,13 @@ export function StarlightRadio() {
                         width: "60px",
                         background: "#080808",
                         borderRadius: "12px",
-                        padding: "0.5rem",
-                        border: "1px solid #333",
+                        border: "1px solid rgba(255,255,255,0.1)",
+                        boxShadow: "inset 0 4px 12px rgba(0,0,0,0.5)",
                         display: "flex",
                         flexDirection: "column",
-                        gap: "3px",
-                        justifyContent: "flex-end"
+                        gap: "2px",
+                        justifyContent: "center",
+                        padding: "4px"
                     }}>
                         {[...Array(12)].map((_, i) => {
                             // Calculate which frequency bin to look at (mapping 12 bars to 128 bins)
@@ -246,10 +271,10 @@ export function StarlightRadio() {
                 </div>
 
                 {/* Bottom Section: Controls */}
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                    <div style={{ display: "flex", gap: "1.5rem" }}>
-                        <div style={{ textAlign: "center", width: "40px" }}>
-                            <div style={{ fontSize: "0.55rem", color: "rgba(255,255,255,0.4)", marginBottom: "6px", fontWeight: "bold" }}>VOLUME</div>
+                <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: "1rem" }}>
+                    <div style={{ display: "flex", gap: "1.2rem", alignItems: "flex-end", paddingBottom: "4px" }}>
+                        <div style={{ textAlign: "center", width: "44px" }}>
+                            <div style={{ fontSize: "0.6rem", color: "rgba(255,255,255,0.4)", marginBottom: "8px", fontWeight: "bold", letterSpacing: "0.5px" }}>VOL</div>
                             <div style={{
                                 height: "24px",
                                 background: "#080808",
@@ -274,8 +299,8 @@ export function StarlightRadio() {
                                 />
                             </div>
                         </div>
-                        <div style={{ textAlign: "center" }}>
-                            <div style={{ fontSize: "0.55rem", color: "rgba(255,255,255,0.4)", marginBottom: "4px", fontWeight: "bold" }}>TUNE</div>
+                        <div style={{ textAlign: "center", width: "44px" }}>
+                            <div style={{ fontSize: "0.6rem", color: "rgba(255,255,255,0.4)", marginBottom: "8px", fontWeight: "bold", letterSpacing: "0.5px" }}>TUNE</div>
                             <motion.div
                                 animate={{ rotate: radioState.index * 45 }}
                                 whileTap={{ scale: 0.9, rotate: radioState.index * 45 + 90 }}
@@ -301,22 +326,34 @@ export function StarlightRadio() {
                         style={{
                             background: isTunedIn ? "#4CD964" : "linear-gradient(180deg, #FFB000 0%, #CC8C00 100%)",
                             color: "#000",
-                            border: "none",
-                            borderRadius: "12px",
-                            padding: "0.8rem 1.8rem",
-                            fontSize: "0.85rem",
-                            fontWeight: 800,
+                            borderRadius: "16px",
+                            padding: "0.7rem 1.4rem",
+                            height: "48px",
+                            minWidth: "150px",
+                            fontSize: "0.9rem",
+                            fontWeight: 900,
                             display: "flex",
                             alignItems: "center",
-                            gap: "8px",
-                            boxShadow: isTunedIn ? "0 4px 15px rgba(76, 217, 100, 0.3)" : "0 4px 15px rgba(255, 176, 0, 0.3)",
+                            justifyContent: "center",
+                            gap: "10px",
+                            boxShadow: isTunedIn ? "0 8px 20px rgba(76, 217, 100, 0.25)" : "0 8px 20px rgba(255, 214, 10, 0.25)",
                             cursor: "pointer",
                             fontFamily: "sans-serif",
                             textTransform: "uppercase",
-                            letterSpacing: "0.5px"
+                            letterSpacing: "1px",
+                            border: "1px solid rgba(255,255,255,0.1)"
                         }}
                     >
-                        {isTunedIn ? (
+                        {isSyncing || isBuffering ? (
+                            <>
+                                <motion.div
+                                    animate={{ rotate: 360 }}
+                                    transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                                    style={{ width: "16px", height: "16px", borderRadius: "50%", border: "2px solid #000", borderTopColor: "transparent" }}
+                                />
+                                SYNCING...
+                            </>
+                        ) : isTunedIn ? (
                             <>
                                 <div style={{ display: "flex", gap: "2px" }}>
                                     {[1, 2, 3].map(i => (

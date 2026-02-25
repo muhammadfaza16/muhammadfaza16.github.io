@@ -128,7 +128,7 @@ export function RoomBentoGrid() {
             title: "Radio",
             href: "/starlight/radio",
             icon: <Radio />,
-            iconColor: "#FFB000" // Retro Amber
+            iconColor: "#FFD60A" // Vivid Yellow (more distinct from Guest Orange)
         }
     ];
 
