@@ -163,10 +163,10 @@ export default function HistoryPage() {
             <NoiseOverlay />
             <div style={{ position: "fixed", inset: 0, opacity: 0.4, pointerEvents: "none", backgroundImage: T.paperTexture, zIndex: 5 }} />
 
-            <main style={{ position: "relative", zIndex: 10, padding: isMobile ? "4rem 0" : "6rem 0" }}>
+            <main style={{ position: "relative", zIndex: 10, padding: isMobile ? "1.5rem 0" : "6rem 0" }}>
                 <Container>
                     {/* Header */}
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "3rem" }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: isMobile ? "1.5rem" : "3rem" }}>
                         <div style={{ display: "flex", alignItems: "center", gap: "14px" }}>
                             <Link href="/guest/no28/special_day" style={{
                                 display: "inline-flex", alignItems: "center", justifyContent: "center",
@@ -193,7 +193,7 @@ export default function HistoryPage() {
                             backgroundImage: "url('https://www.transparenttextures.com/patterns/natural-paper.png')",
                             borderRadius: "6px", border: "1px solid #e8e2d9",
                             boxShadow: "0 8px 24px rgba(0,0,0,0.08)",
-                            padding: isMobile ? "2rem 1.5rem" : "3rem 2.5rem",
+                            padding: isMobile ? "1.5rem" : "3rem 2.5rem",
                             position: "relative"
                         }}>
                             {/* Tiny flower deco */}
@@ -281,7 +281,7 @@ export default function HistoryPage() {
                             background: "linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)",
                             borderRadius: "6px", border: "1px solid #2a2a4a",
                             boxShadow: "0 12px 32px rgba(0,0,0,0.2)",
-                            padding: isMobile ? "3rem 1.5rem" : "4rem 3rem",
+                            padding: isMobile ? "2.5rem 1.25rem" : "4rem 3rem",
                             textAlign: "center", position: "relative", overflow: "hidden"
                         }}>
                             {/* Stars Background using CSS Keyframes for performance */}

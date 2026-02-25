@@ -50,16 +50,17 @@ const AppIcon = ({ title, href, icon, iconColor, delay = 0, isMobile = false }: 
                     position: "relative",
                     width: isMobile ? "clamp(50px, 14vw, 62px)" : "clamp(58px, 16vw, 72px)",
                     height: isMobile ? "clamp(50px, 14vw, 62px)" : "clamp(58px, 16vw, 72px)",
-                    borderRadius: "22.5%",
-                    background: "rgba(0, 0, 0, 0.25)", // Darker glass tint instead of blur for performance
-                    willChange: "transform, opacity", // Prevent Safari rendering bugs
+                    borderRadius: "26%",
+                    background: "rgba(0, 0, 0, 0.35)", // Significantly more solid
+                    backdropFilter: "blur(20px) saturate(160%)", // Higher blur
+                    WebkitBackdropFilter: "blur(20px) saturate(160%)",
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
-                    boxShadow: "0 8px 16px -4px rgba(0,0,0,0.1), inset 0 1px 1px rgba(255,255,255,0.6)", // Delicate lift
+                    boxShadow: "0 6px 15px rgba(0,0,0,0.25), inset 0 1px 0.5px rgba(255,255,255,0.25)",
                     transition: "transform 0.15s ease",
                     overflow: "hidden",
-                    border: "1px solid rgba(255, 255, 255, 0.2)", // Subtle rim highlight
+                    border: "1px solid rgba(255, 255, 255, 0.08)",
                 }} className="hover:scale-105 active:scale-95">
 
                     {/* Icon symbol (Restored Brand Colors) */}
@@ -74,25 +75,41 @@ const AppIcon = ({ title, href, icon, iconColor, delay = 0, isMobile = false }: 
                         {React.cloneElement(icon as any, { size: "42%", strokeWidth: 2.5 })}
                     </div>
 
-                    {/* Gloss top (Subtle glass reflection) */}
+                    {/* Specular highlight — top edge shine (Match Home) */}
+                    <div style={{
+                        position: "absolute",
+                        top: 0,
+                        left: "15%",
+                        right: "15%",
+                        height: "1px",
+                        background: "linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.45) 30%, rgba(255,255,255,0.55) 50%, rgba(255,255,255,0.45) 70%, transparent 100%)",
+                        pointerEvents: "none",
+                        zIndex: 4,
+                        filter: "blur(0.3px)",
+                    }} />
+
+                    {/* Glossy sheen (Match Home) */}
                     <div style={{
                         position: "absolute",
                         top: 0,
                         left: 0,
                         right: 0,
                         height: "50%",
-                        background: "linear-gradient(180deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0) 100%)",
+                        background: "linear-gradient(180deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0.03) 60%, transparent 100%)", // Brighter gloss
                         zIndex: 3,
                         pointerEvents: "none",
+                        borderRadius: "26% 26% 0 0",
                     }} />
+
+
                 </div>
 
                 {/* Label */}
                 <span style={{
                     fontFamily: "-apple-system, BlinkMacSystemFont, sans-serif",
-                    fontSize: isMobile ? "0.68rem" : "0.74rem",
-                    fontWeight: 500,
-                    color: "#ffffff", // Pure white for perfect contrast against dark dock
+                    fontSize: isMobile ? "0.65rem" : "0.7rem",
+                    fontWeight: 600,
+                    color: "rgba(255, 255, 255, 0.9)",
                     textShadow: "0 1px 4px rgba(0,0,0,0.5)", // Strong shadow to separate from background
                     textAlign: "center",
                     letterSpacing: "0.02em",
@@ -164,24 +181,7 @@ export function StarlightBentoGrid({ activeDock, setActiveDock }: StarlightBento
             width: "100%",
             position: "relative", // For absolute positioning the chevrons
         }}>
-            {/* Left Chevron */}
-            <div
-                onClick={handlePrev}
-                style={{
-                    position: "absolute",
-                    left: isMobile ? "-0.5rem" : "-1rem",
-                    top: "calc(50% - 1.5rem)", // Offset by half of the container's paddingBottom
-                    transform: "translateY(-50%)",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    color: "rgba(255, 255, 255, 0.4)", // Softer transparent white
-                    pointerEvents: "auto",
-                    cursor: "pointer",
-                    zIndex: 10,
-                }}>
-                <ChevronLeft size={28} strokeWidth={1.5} className="hover:scale-110 active:scale-95 transition-transform" />
-            </div>
+
 
             <section style={{
                 padding: "0 1.5rem",
@@ -199,34 +199,44 @@ export function StarlightBentoGrid({ activeDock, setActiveDock }: StarlightBento
                         style={{
                             display: "grid",
                             gridTemplateColumns: "repeat(3, 1fr)",
-                            gap: isMobile ? "1.2rem 0.35rem" : "1.5rem 0.5rem", // Reduced gap to match Home Screen dock clustered feel
+                            gap: isMobile ? "1.5rem 0.5rem" : "2rem 1rem",
                         }}
                     >
                         {allDocks[activeDock].map((app, idx) => (
-                            <AppIcon key={idx} {...app} delay={0.05 + idx * 0.04} isMobile={isMobile} />
+                            <AppIcon key={idx} {...app} delay={0.02 + idx * 0.02} isMobile={isMobile} />
                         ))}
                     </motion.div>
                 </AnimatePresence>
+
+                {/* iOS Page Indicators */}
+                <div style={{
+                    display: "flex",
+                    justifyContent: "center",
+                    gap: "8px",
+                    marginTop: "2.5rem"
+                }}>
+                    {allDocks.map((_, i) => (
+                        <div
+                            key={i}
+                            onClick={() => {
+                                setActiveDock(i);
+                                sessionStorage.setItem("starlight_active_dock", i.toString());
+                            }}
+                            style={{
+                                width: "6px",
+                                height: "6px",
+                                borderRadius: "50%",
+                                background: "white",
+                                opacity: activeDock === i ? 1 : 0.3,
+                                transition: "all 0.3s ease",
+                                cursor: "pointer"
+                            }}
+                        />
+                    ))}
+                </div>
             </section>
 
-            {/* Right Chevron */}
-            <div
-                onClick={handleNext}
-                style={{
-                    position: "absolute",
-                    right: isMobile ? "-0.5rem" : "-1rem",
-                    top: "calc(50% - 1.5rem)", // Offset by half of the container's paddingBottom
-                    transform: "translateY(-50%)",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    color: "rgba(255, 255, 255, 0.4)", // Softer transparent white
-                    pointerEvents: "auto",
-                    cursor: "pointer",
-                    zIndex: 10,
-                }}>
-                <ChevronRight size={28} strokeWidth={1.5} className="hover:scale-110 active:scale-95 transition-transform" />
-            </div>
+
         </div>
     );
 }

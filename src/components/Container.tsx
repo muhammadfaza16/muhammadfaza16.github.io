@@ -12,8 +12,8 @@ export function Container({ children, className = "" }: ContainerProps) {
                 maxWidth: "64rem",
                 marginLeft: "auto",
                 marginRight: "auto",
-                paddingLeft: "clamp(1rem, 5vw, 1.5rem)",
-                paddingRight: "clamp(1rem, 5vw, 1.5rem)"
+                paddingLeft: "clamp(0.75rem, 4vw, 1.5rem)",
+                paddingRight: "clamp(0.75rem, 4vw, 1.5rem)"
             }}
             className={className}
         >

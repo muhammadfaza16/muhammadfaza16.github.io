@@ -254,10 +254,10 @@ export default function YearPage() {
 
             <div style={{ position: "fixed", inset: 0, opacity: 0.4, pointerEvents: "none", backgroundImage: T.paperTexture, zIndex: 5 }} />
 
-            <main style={{ position: "relative", zIndex: 10, padding: isMobile ? "4rem 0" : "6rem 0" }}>
+            <main style={{ position: "relative", zIndex: 10, padding: isMobile ? "1.5rem 0" : "6rem 0" }}>
                 <Container>
                     {/* Header */}
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "3rem" }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: isMobile ? "1.5rem" : "3rem" }}>
                         <div style={{ display: "flex", alignItems: "center", gap: "14px" }}>
                             <Link href="/guest/no28/special_day" style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: "44px", height: "44px", background: T.buttonBg, border: `2px solid ${T.buttonBorder}`, borderRadius: "12px", color: T.buttonText, boxShadow: T.buttonShadow, transition: "all 0.3s ease" }}>
                                 <ArrowLeft size={22} strokeWidth={2} />
@@ -275,7 +275,7 @@ export default function YearPage() {
                     {/* ============================== */}
                     <motion.section initial={{ opacity: 1, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
                         <Link href="/guest/no28/journal" style={{ textDecoration: "none", color: "inherit", display: "block" }}>
-                            <div style={{ background: "#fff", backgroundImage: "url('https://www.transparenttextures.com/patterns/natural-paper.png')", borderRadius: "6px", border: "1px solid #e8e2d9", boxShadow: "0 8px 24px rgba(0,0,0,0.08)", padding: isMobile ? "2rem 1.5rem" : "3rem 2.5rem", transition: "transform 0.2s", position: "relative" }}>
+                            <div style={{ background: "#fff", backgroundImage: "url('https://www.transparenttextures.com/patterns/natural-paper.png')", borderRadius: "6px", border: "1px solid #e8e2d9", boxShadow: "0 8px 24px rgba(0,0,0,0.08)", padding: isMobile ? "1.5rem" : "3rem 2.5rem", transition: "transform 0.2s", position: "relative" }}>
                                 <WashiTape color="#d1e3dd" rotate={2} width="110px" />
                                 <TinyObject emoji="🌿" size={15} top="20px" right="20px" rotate={10} delay={0.2} />
 

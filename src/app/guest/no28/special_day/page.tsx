@@ -348,7 +348,7 @@ export default function SpecialDayHub() {
 
                                 <h1 style={{
                                     fontFamily: "'Caveat', cursive",
-                                    fontSize: isMobile ? "2.6rem" : "3.5rem",
+                                    fontSize: isMobile ? "2.2rem" : "3.5rem",
                                     fontWeight: 700, color: T.textAccent,
                                     lineHeight: 1.1, marginTop: "0.5rem", marginBottom: "1.2rem",
                                     transition: "color 0.5s ease"
@@ -403,7 +403,7 @@ export default function SpecialDayHub() {
                         <motion.div
                             initial="hidden" whileInView="show" viewport={{ once: true, margin: "-80px" }}
                             variants={{ show: { transition: { staggerChildren: 0.2, delayChildren: 0.1 } } }}
-                            style={{ display: "flex", flexDirection: "column", gap: isMobile ? "2.5rem" : "2.5rem" }}
+                            style={{ display: "flex", flexDirection: "column", gap: isMobile ? "1.5rem" : "2.5rem" }}
                         >
 
                             {/* ──────────────────────────────────── */}
@@ -499,7 +499,7 @@ export default function SpecialDayHub() {
                             {/* ──────────────────────────────────── */}
                             {/* CARDS 2 & 3: Side by Side            */}
                             {/* ──────────────────────────────────── */}
-                            <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: isMobile ? "2.5rem" : "2rem" }}>
+                            <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: isMobile ? "1.5rem" : "2rem" }}>
 
                                 {/* CARD 2: CONFESSIONS — Dark/Moonlit */}
                                 <motion.div variants={{ hidden: { opacity: 0, y: 35 }, show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 45, damping: 16 } } }}>

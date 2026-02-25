@@ -645,7 +645,7 @@ export default function GuestNo28Dashboard() {
             {/* Hijabi Sketch Removed per user request */}
             <div style={{ position: "fixed", inset: 0, opacity: 0.4, pointerEvents: "none", backgroundImage: "url('https://www.transparenttextures.com/patterns/natural-paper.png')", zIndex: 5 }} />
 
-            <main style={{ position: "relative", zIndex: 10, padding: isMobile ? "2rem 0" : "3rem 0" }}>
+            <main style={{ position: "relative", zIndex: 10, padding: isMobile ? "1.5rem 0" : "3rem 0" }}>
                 <Container>
                     <div style={{ marginBottom: "2.5rem" }}>
                         <Link href="/guest" style={{
@@ -659,7 +659,7 @@ export default function GuestNo28Dashboard() {
 
                     <motion.div style={{ willChange: "transform, opacity" }}>
                         <motion.div
-                            style={{ marginBottom: isMobile ? "4rem" : "15vh", textAlign: "center", position: "relative" }}
+                            style={{ marginBottom: isMobile ? "2.5rem" : "15vh", textAlign: "center", position: "relative" }}
                         >
                             {/* Watercolor Splash Behind Text */}
                             <motion.div
@@ -700,7 +700,7 @@ export default function GuestNo28Dashboard() {
                             <h1 style={{ fontSize: "clamp(3rem, 10vw, 4.5rem)", fontWeight: 500, color: "#2d2d2d", lineHeight: 1.1, fontFamily: "'Playfair Display', serif", fontStyle: "italic", marginBottom: "0.5rem" }}>
                                 {greeting},
                             </h1>
-                            <h2 style={{ fontSize: "2.2rem", fontWeight: 400, color: "#b07d62", fontFamily: "'Caveat', cursive", marginTop: "0" }}>
+                            <h2 style={{ fontSize: "1.8rem", fontWeight: 400, color: "#b07d62", fontFamily: "'Caveat', cursive", marginTop: "0" }}>
                                 untukmu pemilik angka 28
                             </h2>
 
@@ -718,7 +718,7 @@ export default function GuestNo28Dashboard() {
                             display: isMobile ? "flex" : "grid",
                             flexDirection: isMobile ? "column" : undefined,
                             gridTemplateColumns: isMobile ? "none" : "repeat(auto-fit, minmax(260px, 1fr))",
-                            gap: isMobile ? "2rem" : "3.5rem",
+                            gap: isMobile ? "1.5rem" : "3.5rem",
                             marginBottom: "2.5rem",
                             position: "relative",
                             zIndex: 20,

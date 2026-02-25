@@ -305,7 +305,7 @@ export default function JournalPage() {
                 background: "rgba(251, 249, 246, 0.9)",
                 backdropFilter: "blur(12px)",
                 borderBottom: "1px solid rgba(176, 125, 98, 0.05)",
-                padding: "2rem 1rem" // Increased top/bottom padding
+                padding: isMobile ? "1rem" : "2rem 1rem" // Increased top/bottom padding
             }}>
                 <Container>
                     <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
@@ -352,7 +352,7 @@ export default function JournalPage() {
             <Container>
 
                 {/* HERO: Today's Focus */}
-                <div style={{ padding: "0 1rem", maxWidth: "500px", margin: "0 auto 4rem" }}>
+                <div style={{ padding: "0 1rem", maxWidth: "500px", margin: isMobile ? "0 auto 2.5rem" : "0 auto 4rem" }}>
                     <motion.div
                         initial={{ scale: 0.95, opacity: 0 }}
                         animate={{ scale: 1, opacity: 1 }}
@@ -361,7 +361,7 @@ export default function JournalPage() {
                         style={{
                             background: "#fff",
                             borderRadius: "2px", // Sharp corners for card feel
-                            padding: "3rem 2rem",
+                            padding: isMobile ? "2rem 1.5rem" : "3rem 2rem",
                             boxShadow: "0 20px 50px -10px rgba(176, 125, 98, 0.2), 0 0 0 1px rgba(0,0,0,0.02)",
                             position: "relative",
                             cursor: "pointer",
@@ -395,7 +395,7 @@ export default function JournalPage() {
                             <span style={{ height: "1px", width: "20px", background: "#b07d62", opacity: 0.4 }} />
                         </div>
 
-                        <h2 style={{ fontFamily: "'Caveat', cursive", fontSize: "2.8rem", color: "#4e4439", margin: "0 0 0.5rem", lineHeight: 1 }}>
+                        <h2 style={{ fontFamily: "'Caveat', cursive", fontSize: isMobile ? "2.2rem" : "2.8rem", color: "#4e4439", margin: "0 0 0.5rem", lineHeight: 1 }}>
                             Cerita Hari Ini
                         </h2>
                         <p style={{ fontSize: "0.95rem", color: "#8a7058", fontStyle: "italic", marginBottom: "2rem", opacity: 0.8, maxWidth: "380px" }}>

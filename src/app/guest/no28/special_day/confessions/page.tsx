@@ -118,10 +118,10 @@ export default function ConfessionsPage() {
                 style={{ position: "fixed", top: isMobile ? "5%" : "8%", right: isMobile ? "10%" : "15%", width: "120px", height: "120px", borderRadius: "50%", background: "radial-gradient(circle at 35% 35%, #ffecd2 0%, #e8d5b7 30%, #c4a67d 60%, transparent 70%)", boxShadow: "0 0 60px rgba(255, 236, 210, 0.15), 0 0 120px rgba(255, 236, 210, 0.05)", zIndex: 1, pointerEvents: "none" }}
             />
 
-            <main style={{ position: "relative", zIndex: 10, padding: isMobile ? "4rem 0" : "6rem 0" }}>
+            <main style={{ position: "relative", zIndex: 10, padding: isMobile ? "1.5rem 0" : "6rem 0" }}>
                 <Container>
                     {/* Header */}
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: "14px", marginBottom: isMobile ? "4rem" : "6rem" }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: "14px", marginBottom: isMobile ? "2.5rem" : "6rem" }}>
                         <div style={{ display: "flex", alignItems: "center", gap: "14px" }}>
                             <Link href="/guest/no28/special_day" style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: "44px", height: "44px", background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "12px", color: "#c8b8a4" }}>
                                 <ArrowLeft size={22} strokeWidth={2} />
@@ -135,7 +135,7 @@ export default function ConfessionsPage() {
                     </div>
 
                     {/* Intro */}
-                    <div style={{ textAlign: "center", marginBottom: isMobile ? "4rem" : "6rem", maxWidth: "600px", margin: "0 auto" }}>
+                    <div style={{ textAlign: "center", marginBottom: isMobile ? "2.5rem" : "6rem", maxWidth: "600px", margin: "0 auto" }}>
                         <Moon size={28} color="#e8d5b7" style={{ margin: "0 auto 1.5rem", opacity: 0.4 }} />
                         <p style={{ fontSize: isMobile ? "1.1rem" : "1.3rem", fontStyle: "italic", color: "rgba(200,184,164,0.7)", lineHeight: 1.8, fontFamily: "'Crimson Pro', serif" }}>
                             &ldquo;But what is strange — and what would need a whole book to explain — is that in none of these confessions would there be any real truth.&rdquo;

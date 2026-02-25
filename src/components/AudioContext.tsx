@@ -512,7 +512,6 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
         }}>
             <audio
                 ref={audioRef}
-                crossOrigin="anonymous"
                 src={queue[currentIndex]?.audioUrl}
                 preload="auto"
                 onTimeUpdate={handleTimeUpdate}
@@ -555,7 +554,13 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
                 onLoadedData={() => setIsBuffering(false)} // First frame loaded
                 onEnded={() => nextSong(true)}
                 onError={(e) => {
-                    console.error("Audio error:", e);
+                    const audio = audioRef.current;
+                    const error = audio ? audio.error : null;
+                    console.error("Audio error details:", {
+                        code: error?.code,
+                        message: error?.message,
+                        src: audio?.src
+                    });
                     setIsPlaying(false);
                     setIsBuffering(false);
                 }}

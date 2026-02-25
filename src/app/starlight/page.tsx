@@ -50,6 +50,13 @@ export default function StarlightPage() {
         backgroundImage: "url('/wallpapers/wp1-edited.webp')",
         backgroundSize: "cover",
         backgroundPosition: "bottom center",
+        zIndex: -3,
+      }} />
+      {/* Dark overlay for readability (Match Home) */}
+      <div style={{
+        position: "fixed",
+        inset: 0,
+        background: "linear-gradient(180deg, rgba(0,0,0,0.65) 0%, rgba(0,0,0,0.45) 35%, rgba(0,0,0,0.35) 55%, rgba(0,0,0,0.65) 100%)",
         zIndex: -2,
       }} />
       <div>
@@ -107,71 +114,41 @@ export default function StarlightPage() {
                 maxWidth: isMobile ? "460px" : "520px",
                 display: "flex",
                 flexDirection: "column",
-                background: "rgba(0, 0, 0, 0.25)", // Thin premium dark glass
-                backdropFilter: "blur(48px) saturate(180%) brightness(90%)",
-                WebkitBackdropFilter: "blur(48px) saturate(180%) brightness(90%)",
+                background: "linear-gradient(145deg, rgba(255,255,255,0.22) 0%, rgba(200,220,255,0.15) 50%, rgba(255,255,255,0.1) 100%)", // Much more solid
+                backdropFilter: "blur(28px) saturate(160%)", // Stronger blur
+                WebkitBackdropFilter: "blur(28px) saturate(160%)",
                 borderRadius: "32px",
-                border: "1px solid rgba(255, 255, 255, 0.12)", // Delicate bright edge
-                boxShadow: `
-                  0 32px 64px -16px rgba(0,0,0,0.4),
-                  inset 0 1px 1px rgba(255,255,255,0.25)
-                `,
+                border: "1px solid rgba(255, 255, 255, 0.25)", // Thicker edge highlight
+                boxShadow: "0 25px 50px -12px rgba(0,0,0,0.35), inset 0 1px 0.5px rgba(255,255,255,0.2)",
                 overflow: "hidden", // Keep children inside rounded corners
                 position: "relative"
               }}
             >
-              {/* Window Header (VisionOS / macOS style) */}
+
+              {/* Windows Header (Restored Traffic Lights) */}
               <div style={{
-                height: "48px",
+                height: "42px",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "space-between",
-                padding: "0 1.25rem",
-                borderBottom: "1px solid rgba(255, 255, 255, 0.08)",
-                background: "rgba(255, 255, 255, 0.02)",
+                padding: "0 1rem",
+                borderBottom: "1px solid rgba(255, 255, 255, 0.05)",
+                background: "rgba(255, 255, 255, 0.015)",
               }}>
-                {/* Traffic Lights Controls (Swipe Indicators) */}
-                <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
-                  {[0, 1, 2].map((dockIndex) => {
+                <div style={{ display: "flex", gap: "6px", alignItems: "center" }}>
+                  {[0, 1, 2].map((i) => {
                     const colors = ["#FF5F56", "#FFBD2E", "#27C93F"];
-                    const isActive = activeDock === dockIndex;
-                    const color = colors[dockIndex];
-
                     return (
-                      <div key={dockIndex} style={{ position: "relative", width: "12px", height: "12px" }}>
-                        {isActive && (
-                          <motion.div
-                            animate={{ scale: [1, 1.8, 1], opacity: [0.6, 0, 0.6] }}
-                            transition={{ duration: 2, repeat: Infinity, ease: "easeOut" }}
-                            style={{ position: "absolute", inset: "-2px", borderRadius: "50%", background: color, zIndex: 0 }}
-                          />
-                        )}
-                        <div style={{ position: "relative", width: "100%", height: "100%", borderRadius: "50%", background: color, opacity: isActive ? 0.9 : 0.4, zIndex: 1 }} />
-                      </div>
+                      <div key={i} style={{ width: "10px", height: "10px", borderRadius: "50%", background: colors[i], opacity: 0.85 }} />
                     );
                   })}
                 </div>
-
-                {/* Window Title */}
-                <span style={{
-                  position: "absolute",
-                  left: "50%",
-                  transform: "translateX(-50%)",
-                  fontSize: "0.85rem",
-                  fontWeight: 600,
-                  color: "#ffffff",
-                  opacity: 0.9,
-                  letterSpacing: "0.02em"
-                }}>
-                  Muhammad Faza
-                </span>
-
-                {/* Empty right spacer for flex balance */}
-                <div style={{ width: "52px" }} />
+                <span style={{ fontSize: "0.75rem", fontWeight: 600, color: "rgba(255,255,255,0.4)", letterSpacing: "0.03em" }}>Muhammad Faza</span>
+                <div style={{ width: "42px" }} />
               </div>
 
               {/* Window Content */}
-              <div style={{ padding: isMobile ? "1.5rem 1rem 2rem" : "2rem 1.5rem 3rem", position: "relative", zIndex: 1 }}>
+              <div style={{ padding: isMobile ? "2rem 1rem 2.5rem" : "2.5rem 1.5rem 3.5rem", position: "relative", zIndex: 1 }}>
                 {/* Simple Heading */}
                 <div style={{
                   width: "100%",
@@ -179,9 +156,9 @@ export default function StarlightPage() {
                   marginBottom: "2.5rem",
                 }}>
                   <h1 style={{
-                    fontSize: isMobile ? "2rem" : "clamp(2.5rem, 6vw, 2.5rem)",
-                    fontWeight: 800,
-                    letterSpacing: "-0.04em",
+                    fontSize: isMobile ? "2.2rem" : "2.8rem",
+                    fontWeight: 700,
+                    letterSpacing: "-0.03em",
                     lineHeight: 1.1,
                     color: "#ffffff",
                     textShadow: "0 2px 12px rgba(0,0,0,0.2)",

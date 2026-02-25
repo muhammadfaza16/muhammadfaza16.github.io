@@ -119,10 +119,10 @@ export default function MelodyPage() {
 
             <div style={{ position: "fixed", inset: 0, opacity: 0.4, pointerEvents: "none", backgroundImage: T.paperTexture, zIndex: 5 }} />
 
-            <main style={{ position: "relative", zIndex: 10, padding: isMobile ? "4rem 0" : "6rem 0" }}>
+            <main style={{ position: "relative", zIndex: 10, padding: isMobile ? "1.5rem 0" : "6rem 0" }}>
                 <Container>
                     {/* Header */}
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "3rem" }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: isMobile ? "1.5rem" : "3rem" }}>
                         <div style={{ display: "flex", alignItems: "center", gap: "14px" }}>
                             <Link href="/guest/no28/special_day" style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: "44px", height: "44px", background: T.buttonBg, border: `2px solid ${T.buttonBorder}`, borderRadius: "12px", color: T.buttonText, boxShadow: T.buttonShadow, transition: "all 0.3s ease" }}>
                                 <ArrowLeft size={22} strokeWidth={2} />
@@ -136,7 +136,7 @@ export default function MelodyPage() {
                     </div>
 
                     {/* Intro */}
-                    <div style={{ textAlign: "center", marginBottom: "3rem", maxWidth: "500px", margin: "0 auto 3rem", position: "relative" }}>
+                    <div style={{ textAlign: "center", marginBottom: isMobile ? "1.5rem" : "3rem", maxWidth: "500px", margin: isMobile ? "0 auto 1.5rem" : "0 auto 3rem", position: "relative" }}>
                         <TinyObject emoji="🎵" size={16} top="-10px" left="20%" rotate={-15} delay={0.3} />
                         <TinyObject emoji="✨" size={14} bottom="10px" right="15%" rotate={20} delay={0.6} />
 

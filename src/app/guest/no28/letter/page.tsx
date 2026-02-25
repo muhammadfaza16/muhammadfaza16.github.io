@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Home, ChevronLeft, ChevronRight } from "lucide-react";
 import Link from "next/link";
@@ -108,7 +108,19 @@ const sheets = [
 
 export default function LetterPage() {
     const router = useRouter();
+    const [mounted, setMounted] = useState(false);
     const [currentPage, setCurrentPage] = useState(0);
+    const [isMobile, setIsMobile] = useState(false);
+
+    useEffect(() => {
+        setMounted(true);
+        const check = () => setIsMobile(window.innerWidth < 768);
+        check();
+        window.addEventListener('resize', check);
+        return () => window.removeEventListener('resize', check);
+    }, []);
+
+    if (!mounted) return null;
 
     const nextPage = () => {
         if (currentPage < sheets.length - 1) {
@@ -144,7 +156,7 @@ export default function LetterPage() {
                 zIndex: 1
             }} />
 
-            <main style={{ position: "relative", zIndex: 10, padding: "2rem 0 10rem" }}>
+            <main style={{ position: "relative", zIndex: 10, padding: isMobile ? "1rem 0 6rem" : "2rem 0 10rem" }}>
                 <Container>
                     {/* Top Navigation */}
                     <div style={{ marginBottom: "3rem" }}>
@@ -189,7 +201,7 @@ export default function LetterPage() {
                                     border: "1px solid #e8e2d9",
                                     boxShadow: "0px 10px 40px rgba(0,0,0,0.08)",
                                     borderRadius: "4px",
-                                    padding: "clamp(2rem, 8vw, 4rem)",
+                                    padding: isMobile ? "1.5rem" : "clamp(2rem, 8vw, 4rem)",
                                     maxWidth: "650px",
                                     width: "100%",
                                     position: "relative",
