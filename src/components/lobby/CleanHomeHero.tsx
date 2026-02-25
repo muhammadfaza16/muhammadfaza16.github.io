@@ -237,7 +237,7 @@ export function CleanHomeHero() {
         if (bigMatches.length <= 3) return;
         const id = setInterval(() => {
             setMatchPage(prev => {
-                const totalPages = Math.ceil(bigMatches.length / 4);
+                const totalPages = Math.ceil(bigMatches.length / 3);
                 return (prev + 1) % totalPages;
             });
         }, 10000);
@@ -246,8 +246,8 @@ export function CleanHomeHero() {
 
     const visibleMatches = useMemo(() => {
         if (bigMatches.length === 0) return [];
-        const start = (matchPage * 4) % bigMatches.length;
-        return bigMatches.slice(start, start + 4);
+        const start = (matchPage * 3) % bigMatches.length;
+        return bigMatches.slice(start, start + 3);
     }, [bigMatches, matchPage]);
 
     // Auto-rolling news - 3 articles per page, changing every 12s
@@ -301,16 +301,12 @@ export function CleanHomeHero() {
             position: "relative",
             display: "flex",
             flexDirection: "column",
-            paddingLeft: "1.5rem",
-            paddingRight: "1.5rem",
-            paddingTop: "0.2rem",
+            padding: "0 1.5rem",
+            paddingTop: "0.4rem",
             paddingBottom: "1.5rem",
             width: "100%",
             maxWidth: "460px",
-            marginTop: "-0.8rem",
-            marginLeft: "auto",
-            marginRight: "auto",
-            marginBottom: "0",
+            margin: "0 auto",
             fontFamily: "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif",
             color: "#fff",
         }}>
@@ -1024,7 +1020,7 @@ export function CleanHomeHero() {
                                             height: "100%",
                                             borderRadius: "14px",
                                             background: pulse.post?.coverImage ? `url(${pulse.post.coverImage}) center/cover no-repeat` : "linear-gradient(145deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.02) 100%)",
-                                            border: "0.5px solid rgba(255,255,255,0.08)",
+                                            border: "1px solid rgba(255,255,255,0.08)",
                                             boxShadow: "inset 0 1px 0 rgba(255,255,255,0.1), 0 4px 12px rgba(0,0,0,0.15)",
                                             transition: "all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)",
                                             cursor: "pointer",
@@ -1137,7 +1133,7 @@ export function CleanHomeHero() {
                                 borderRadius: "18px",
                                 padding: "1.2rem 1.1rem",
                                 boxShadow: "inset 0 2px 6px rgba(0,0,0,0.08), 0 1px 0 rgba(255,255,255,0.06)",
-                                border: "0.5px solid rgba(255,255,255,0.08)",
+                                border: "1px solid rgba(255,255,255,0.08)",
                                 width: "195px",
                             }}>
                                 {/* Month header */}
@@ -1342,7 +1338,7 @@ export function CleanHomeHero() {
                                     const circDay = 2 * Math.PI * radiusDay;
 
                                     return (
-                                        <div style={{ display: "flex", flexDirection: "column", gap: "12px", background: "rgba(0,0,0,0.12)", padding: "14px", borderRadius: "20px", border: "0.5px solid rgba(255,255,255,0.08)" }}>
+                                        <div style={{ display: "flex", flexDirection: "column", gap: "12px", background: "rgba(0,0,0,0.12)", padding: "14px", borderRadius: "20px", border: "1px solid rgba(0,0,0,0.05)" }}>
                                             <div style={{ fontSize: "0.72rem", fontWeight: 700, color: "rgba(255,255,255,0.6)", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: "4px" }}>Time Stats</div>
 
                                             {/* Day Progress */}
