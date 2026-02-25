@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
 
+export const dynamic = 'force-dynamic';
+
 // ESPN public API — free, no key required
 const LEAGUES = [
     { id: "eng.1", name: "Premier League", emoji: "🏴󠁧󠁢󠁥󠁮󠁧󠁿" },
@@ -77,7 +79,7 @@ export async function GET() {
 
                     const res = await fetch(
                         `https://site.api.espn.com/apis/site/v2/sports/soccer/${league.id}/scoreboard?dates=${dateRange}`,
-                        { next: { revalidate: 1800 } } // cache 30 minutes
+                        { next: { revalidate: 60 } } // Aggressive cache: 60 seconds for live matches
                     );
                     if (!res.ok) return;
                     const data = await res.json();

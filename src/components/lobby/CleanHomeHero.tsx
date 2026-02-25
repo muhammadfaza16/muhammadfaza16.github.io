@@ -140,7 +140,7 @@ export function CleanHomeHero() {
     // Live Football Polling - sync every 45s
     useEffect(() => {
         const fetchFootball = () => {
-            fetch('/api/football')
+            fetch(`/api/football?t=${Date.now()}`)
                 .then(r => r.json())
                 .then(setFootball)
                 .catch(() => { });
