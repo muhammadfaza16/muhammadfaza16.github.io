@@ -192,6 +192,17 @@ export function StarlightBentoGrid({ activeDock, setActiveDock }: StarlightBento
                 <AnimatePresence mode="wait">
                     <motion.div
                         key={activeDock}
+                        drag="x"
+                        dragConstraints={{ left: 0, right: 0 }}
+                        dragElastic={0.4}
+                        onDragEnd={(_, info) => {
+                            const threshold = 50;
+                            if (info.offset.x < -threshold) {
+                                handleNext();
+                            } else if (info.offset.x > threshold) {
+                                handlePrev();
+                            }
+                        }}
                         initial={{ opacity: 0, x: 20 }}
                         animate={{ opacity: 1, x: 0 }}
                         exit={{ opacity: 0, x: -20 }}
@@ -200,7 +211,10 @@ export function StarlightBentoGrid({ activeDock, setActiveDock }: StarlightBento
                             display: "grid",
                             gridTemplateColumns: "repeat(3, 1fr)",
                             gap: isMobile ? "1.5rem 0.5rem" : "2rem 1rem",
+                            cursor: "grab",
+                            touchAction: "none"
                         }}
+                        whileDrag={{ cursor: "grabbing" }}
                     >
                         {allDocks[activeDock].map((app, idx) => (
                             <AppIcon key={idx} {...app} delay={0.02 + idx * 0.02} isMobile={isMobile} />
