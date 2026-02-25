@@ -148,12 +148,12 @@ export default function StarlightPage() {
               </div>
 
               {/* Window Content */}
-              <div style={{ padding: isMobile ? "2rem 1rem 2.5rem" : "2.5rem 1.5rem 3.5rem", position: "relative", zIndex: 1 }}>
+              <div style={{ padding: isMobile ? "1.5rem 1rem 2rem" : "2rem 1.5rem 2.5rem", position: "relative", zIndex: 1 }}>
                 {/* Simple Heading */}
                 <div style={{
                   width: "100%",
                   textAlign: "center",
-                  marginBottom: "2.5rem",
+                  marginBottom: "1.5rem", // Reduced from 2.5rem
                 }}>
                   <h1 style={{
                     fontSize: isMobile ? "2.2rem" : "2.8rem",

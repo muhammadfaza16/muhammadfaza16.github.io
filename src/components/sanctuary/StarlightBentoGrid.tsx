@@ -29,14 +29,13 @@ const AppIcon = ({ title, href, icon, iconColor, delay = 0, isMobile = false }: 
     return (
         <Link href={href} prefetch={true} style={{ textDecoration: 'none' }} className="group">
             <motion.div
-                initial={{ opacity: 0, scale: 0.85, y: 8 }}
-                animate={{ opacity: 1, scale: 1, y: 0 }}
+                initial={{ opacity: 0, scale: 0.95 }} // Simplified, removed y offset
+                animate={{ opacity: 1, scale: 1 }}
                 transition={{
-                    duration: 0.35,
-                    delay,
+                    duration: 0.25,
                     type: "spring",
-                    stiffness: 350,
-                    damping: 22
+                    stiffness: 300,
+                    damping: 25
                 }}
                 style={{
                     display: "flex",
@@ -186,8 +185,8 @@ export function StarlightBentoGrid({ activeDock, setActiveDock }: StarlightBento
             <section style={{
                 padding: "0 1.5rem",
                 width: "100%",
-                maxWidth: isMobile ? "340px" : "380px", // Reduced from 420px for closer clustering
-                paddingBottom: "3rem"
+                maxWidth: isMobile ? "340px" : "380px",
+                paddingBottom: "1.5rem" // Reduced from 3rem
             }}>
                 <AnimatePresence mode="wait">
                     <motion.div
@@ -217,7 +216,7 @@ export function StarlightBentoGrid({ activeDock, setActiveDock }: StarlightBento
                         whileDrag={{ cursor: "grabbing" }}
                     >
                         {allDocks[activeDock].map((app, idx) => (
-                            <AppIcon key={idx} {...app} delay={0.02 + idx * 0.02} isMobile={isMobile} />
+                            <AppIcon key={idx} {...app} isMobile={isMobile} /> // Removed delay
                         ))}
                     </motion.div>
                 </AnimatePresence>
@@ -227,7 +226,7 @@ export function StarlightBentoGrid({ activeDock, setActiveDock }: StarlightBento
                     display: "flex",
                     justifyContent: "center",
                     gap: "8px",
-                    marginTop: "2.5rem"
+                    marginTop: "1.5rem" // Reduced from 2.5rem
                 }}>
                     {allDocks.map((_, i) => (
                         <div
@@ -251,6 +250,6 @@ export function StarlightBentoGrid({ activeDock, setActiveDock }: StarlightBento
             </section>
 
 
-        </div>
+        </div >
     );
 }
