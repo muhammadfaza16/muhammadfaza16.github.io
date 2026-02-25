@@ -142,7 +142,7 @@ export function StarlightRadio() {
                                     transition={{ duration: 1.5, repeat: Infinity }}
                                     style={{ width: "8px", height: "8px", borderRadius: "50%", background: "#FF3B30", boxShadow: "0 0 8px #FF3B30" }}
                                 />
-                                <span style={{ fontFamily: "monospace", fontSize: "0.65rem", color: "#FF3B30", fontWeight: "bold", letterSpacing: "1px" }}>SIARAN LANGSUNG</span>
+                                <span style={{ fontFamily: "monospace", fontSize: "0.65rem", color: "#FF3B30", fontWeight: "bold", letterSpacing: "1px" }}>ON AIR</span>
                             </div>
                             <span style={{ fontFamily: "monospace", fontSize: "0.8rem", color: "#FFB000", opacity: 0.8 }}>98.5 MHZ</span>
                         </div>
@@ -328,12 +328,12 @@ export function StarlightRadio() {
                                         />
                                     ))}
                                 </div>
-                                LAGI LIVE
+                                SEDANG LIVE
                             </>
                         ) : (
                             <>
                                 <Play size={16} fill="currentColor" />
-                                GASKEUN
+                                DENGARKAN
                             </>
                         )}
                     </motion.button>
