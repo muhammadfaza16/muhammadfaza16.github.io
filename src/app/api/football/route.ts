@@ -4,6 +4,7 @@ import { NextResponse } from "next/server";
 const LEAGUES = [
     { id: "eng.1", name: "Premier League", emoji: "🏴󠁧󠁢󠁥󠁮󠁧󠁿" },
     { id: "esp.1", name: "La Liga", emoji: "🇪🇸" },
+    { id: "uefa.champions", name: "Champions League", emoji: "🇪🇺" },
 ];
 
 // Big teams only
@@ -11,9 +12,15 @@ const BIG_TEAMS = new Set([
     // EPL
     "Manchester City", "Man City",
     "Manchester United", "Man United",
-    "Chelsea", "Liverpool", "Arsenal",
+    "Chelsea", "Liverpool", "Arsenal", "Tottenham", "Aston Villa",
     // La Liga
-    "Real Madrid", "Barcelona",
+    "Real Madrid", "Barcelona", "Atletico Madrid", "Atlético Madrid",
+    // Serie A
+    "Juventus", "Inter Milan", "Inter", "AC Milan", "Napoli", "AS Roma",
+    // Bundesliga
+    "Bayern Munich", "Bayern", "Borussia Dortmund", "Dortmund", "Bayer Leverkusen",
+    // Ligue 1
+    "Paris Saint-Germain", "PSG",
 ]);
 
 interface ESPNEvent {
