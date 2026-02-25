@@ -17,35 +17,84 @@ const HandwrittenNote = ({ children, style = {} }: { children: React.ReactNode, 
     <span style={{ fontFamily: "'Caveat', cursive, 'Brush Script MT'", color: "#a0907d", fontSize: "1.2rem", display: "inline-block", lineHeight: 1.2, ...style }}>{children}</span>
 );
 
+// --- Handmade Primitives ---
+
+const TinyObject = ({ emoji, size = 16, top, left, right, bottom, rotate = 0, delay = 0 }: {
+    emoji: string; size?: number;
+    top?: string; left?: string; right?: string; bottom?: string;
+    rotate?: number; delay?: number;
+}) => (
+    <motion.div
+        initial={{ opacity: 0, scale: 0 }}
+        whileInView={{ opacity: 1, scale: 1 }}
+        viewport={{ once: true }}
+        transition={{ delay, duration: 0.6, ease: "backOut" }}
+        style={{
+            position: "absolute", top, left, right, bottom,
+            fontSize: size, lineHeight: 1, zIndex: 3,
+            transform: `rotate(${rotate}deg)`, pointerEvents: "none",
+            filter: "drop-shadow(0 1px 2px rgba(0,0,0,0.1))"
+        }}
+    >
+        {emoji}
+    </motion.div>
+);
+
+const WashiTape = ({ color = "#f5c6d0", rotate = -1, width = "90px" }: { color?: string; rotate?: number; width?: string }) => (
+    <div style={{
+        position: "absolute", top: "-1px", left: "50%",
+        transform: `translateX(-50%) rotate(${rotate}deg)`,
+        width, height: "22px",
+        background: `linear-gradient(135deg, ${color} 0%, ${color}dd 50%, ${color}bb 100%)`,
+        opacity: 0.85, borderRadius: "1px", zIndex: 10,
+        boxShadow: "0 2px 6px rgba(0,0,0,0.12)",
+    }} />
+);
+
 const SectionDivider = ({ label }: { label?: string }) => (
-    <div style={{ display: "flex", alignItems: "center", gap: "1rem", margin: "4rem 0 2rem" }}>
+    <div style={{ display: "flex", alignItems: "center", gap: "1rem", margin: "2.5rem 0 1.5rem" }}>
         <div style={{ flex: 1, height: "1px", background: "#e8e2d9" }} />
-        {label && <HandwrittenNote style={{ fontSize: "1rem", opacity: 0.6 }}>{label}</HandwrittenNote>}
+        <span style={{ fontSize: "12px", opacity: 0.4 }}>🌸</span>
+        {label && <HandwrittenNote style={{ fontSize: "1.1rem" }}>{label}</HandwrittenNote>}
+        <span style={{ fontSize: "12px", opacity: 0.4 }}>🌸</span>
         <div style={{ flex: 1, height: "1px", background: "#e8e2d9" }} />
     </div>
 );
 
-// --- Dot Grid ---
-const DotGrid = React.memo(({ total, filled, columns = 20, color = "#b07d62", size = "6px", customColors = {} }: { total: number, filled: number, columns?: number, color?: string, size?: string, customColors?: Record<number, string> }) => {
-    const dots = useMemo(() => Array.from({ length: total }).map(() => ({ rotation: Math.random() * 6 - 3, scale: 0.8 + Math.random() * 0.4 })), [total]);
+// --- Hand-drawn Dot Grid Tracker ---
+const DotGrid = React.memo(({ total, filled, columns = 20, color = "#b07d62", customColors = {} }: { total: number, filled: number, columns?: number, color?: string, customColors?: Record<number, string> }) => {
+    // Generate slightly irregular properties for a hand-drawn look
+    const dots = useMemo(() => Array.from({ length: total }).map(() => ({
+        rotation: Math.random() * 10 - 5,
+        scaleX: 0.85 + Math.random() * 0.3,
+        scaleY: 0.85 + Math.random() * 0.3,
+        borderRadius: `${40 + Math.random() * 20}% ${40 + Math.random() * 20}% ${40 + Math.random() * 20}% ${40 + Math.random() * 20}%`
+    })), [total]);
 
     return (
-        <div style={{ display: "grid", gridTemplateColumns: `repeat(${columns}, 1fr)`, gap: "5px", marginTop: "10px" }}>
+        <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: "4px", marginTop: "10px" }}>
             {dots.map((dot, i) => {
                 const isToday = i === filled - 1;
                 const isLast = i === total - 1;
                 const customColor = customColors[i];
-                let dotColor = customColor || (i < filled ? color : "#e4dfd7");
-                if (!customColor && isToday) dotColor = "#d2691e";
+                let dotColor = customColor || (i < filled ? color : "transparent");
+                let borderColor = customColor || (i < filled ? color : "#d8d3cj");
+
+                if (!customColor && isToday) { dotColor = "#d2691e"; borderColor = "#d2691e"; }
+
+                const size = isLast ? "12px" : "8px";
 
                 return (
                     <motion.div key={i}
-                        animate={isToday ? { scale: [1, 1.8, 1], opacity: [1, 0.8, 1] } : {}}
+                        animate={isToday ? { scale: [1, 1.3, 1], opacity: [1, 0.8, 1] } : {}}
                         transition={isToday ? { duration: 2, repeat: Infinity, ease: "easeInOut" as const } : {}}
                         style={{
-                            width: size, height: size, borderRadius: isLast ? "0" : "2px", background: dotColor, opacity: 1,
-                            transform: `rotate(${dot.rotation}deg) scale(${isLast ? 1.5 : 1})`,
-                            boxShadow: isToday ? `0 0 4px ${dotColor}` : "none",
+                            width: size, height: size,
+                            borderRadius: isLast ? "2px" : dot.borderRadius,
+                            background: dotColor, opacity: 1,
+                            border: `1.5px solid ${borderColor}`,
+                            transform: `rotate(${dot.rotation}deg) scaleX(${dot.scaleX}) scaleY(${dot.scaleY})`,
+                            boxShadow: isToday ? `0 0 6px ${dotColor}88` : "none",
                             clipPath: isLast ? "polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%)" : "none"
                         }}
                     />
@@ -226,7 +275,10 @@ export default function YearPage() {
                     {/* ============================== */}
                     <motion.section initial={{ opacity: 1, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
                         <Link href="/guest/no28/journal" style={{ textDecoration: "none", color: "inherit", display: "block" }}>
-                            <div style={{ background: "#fff", backgroundImage: "url('https://www.transparenttextures.com/patterns/natural-paper.png')", borderRadius: "6px", border: "1px solid #e8e2d9", boxShadow: "0 8px 24px rgba(0,0,0,0.08)", padding: isMobile ? "2rem 1.5rem" : "3rem 2.5rem", transition: "transform 0.2s" }}>
+                            <div style={{ background: "#fff", backgroundImage: "url('https://www.transparenttextures.com/patterns/natural-paper.png')", borderRadius: "6px", border: "1px solid #e8e2d9", boxShadow: "0 8px 24px rgba(0,0,0,0.08)", padding: isMobile ? "2rem 1.5rem" : "3rem 2.5rem", transition: "transform 0.2s", position: "relative" }}>
+                                <WashiTape color="#d1e3dd" rotate={2} width="110px" />
+                                <TinyObject emoji="🌿" size={15} top="20px" right="20px" rotate={10} delay={0.2} />
+
                                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "1rem" }}>
                                     <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
                                         <Map size={14} color="#a0907d" style={{ opacity: 0.8 }} />
@@ -247,19 +299,19 @@ export default function YearPage() {
                                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: "1.5rem" }}>
                                     <div>
                                         <div style={{ fontSize: "0.8rem", color: "#a0907d", letterSpacing: "1px", fontWeight: 700, textTransform: "uppercase" }}>Halaman Yang Telah Kamu Isi</div>
-                                        <div style={{ fontSize: "3.5rem", fontWeight: 900, color: "#b07d62", lineHeight: 1, fontFamily: "'Crimson Pro', serif" }}>
-                                            {currentDayInPersonalYear} <span style={{ fontSize: "1.2rem", fontWeight: 300, color: "#4e4439", fontStyle: "italic" }}>Hari</span>
+                                        <div style={{ fontSize: "4.5rem", fontWeight: 700, color: "#b07d62", lineHeight: 1, fontFamily: "'Caveat', cursive" }}>
+                                            {currentDayInPersonalYear} <span style={{ fontFamily: "'Crimson Pro', serif", fontSize: "1.2rem", fontWeight: 300, color: "#4e4439", fontStyle: "italic" }}>Hari</span>
                                         </div>
                                     </div>
                                     <div style={{ textAlign: "right" }}>
-                                        <HandwrittenNote style={{ fontSize: "1.2rem" }}>{daysLeftInPersonalYear} hari lagi...</HandwrittenNote>
-                                        <div style={{ fontSize: "0.7rem", color: "#aaa", textTransform: "uppercase" }}>MENUJU 28 NOV</div>
+                                        <HandwrittenNote style={{ fontSize: "1.3rem" }}>{daysLeftInPersonalYear} hari lagi...</HandwrittenNote>
+                                        <div style={{ fontSize: "0.7rem", color: "#aaa", textTransform: "uppercase", fontWeight: 700 }}>MENUJU 28 NOV</div>
                                     </div>
                                 </div>
 
                                 <div style={{ position: "relative", padding: "10px 0" }}>
-                                    <DotGrid total={totalDaysInPersonalYear} filled={currentDayInPersonalYear} columns={isMobile ? 18 : 27} size={isMobile ? "4px" : "6px"} color="#b07d62" customColors={usePaletteColors ? journalColors : {}} />
-                                    <div style={{ display: "flex", justifyContent: "space-between", marginTop: "1rem", fontSize: "0.7rem", fontWeight: 700, color: "#aaa" }}>
+                                    <DotGrid total={totalDaysInPersonalYear} filled={currentDayInPersonalYear} columns={isMobile ? 18 : 25} color="#b07d62" customColors={usePaletteColors ? journalColors : {}} />
+                                    <div style={{ display: "flex", justifyContent: "space-between", marginTop: "1rem", fontSize: "0.7rem", fontWeight: 700, color: "#aaa", fontFamily: "'Crimson Pro', serif" }}>
                                         <span>28 NOV {startOfPersonalYear.getFullYear()}</span>
                                         <span>28 NOV {endOfPersonalYear.getFullYear()}</span>
                                     </div>
@@ -276,16 +328,18 @@ export default function YearPage() {
                     <motion.section initial={{ opacity: 1, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.5 }}>
                         <div
                             onClick={() => setShowTimeCapsuleMessage(true)}
-                            style={{ background: "#fff", backgroundImage: "url('https://www.transparenttextures.com/patterns/natural-paper.png')", borderRadius: "6px", border: "1px solid #e8e2d9", boxShadow: "0 8px 24px rgba(0,0,0,0.08)", padding: isMobile ? "3rem 1.5rem" : "4rem 2.5rem", textAlign: "center", cursor: "pointer" }}
+                            style={{ background: "#fff", backgroundImage: "url('https://www.transparenttextures.com/patterns/natural-paper.png')", borderRadius: "6px", border: "1px solid #e8e2d9", boxShadow: "0 8px 24px rgba(0,0,0,0.08)", padding: isMobile ? "3rem 1.5rem" : "4rem 2.5rem", textAlign: "center", cursor: "pointer", position: "relative" }}
                         >
+                            <TinyObject emoji="🌷" size={15} top="20px" left="20px" rotate={-15} delay={0.4} />
+
                             <div style={{ position: "relative", width: "80px", height: "80px", margin: "0 auto 1.5rem" }}>
                                 <Image src="/time_capsule_icon_clean.webp" alt="Time Capsule" fill style={{ objectFit: "contain" }} />
                             </div>
-                            <div style={{ fontSize: "0.65rem", color: "#a0907d", textTransform: "uppercase", letterSpacing: "3px", marginBottom: "0.5rem" }}>Menuju 28 November</div>
-                            <div style={{ fontSize: isMobile ? "3rem" : "4rem", fontWeight: 900, color: "#b07d62", fontFamily: "'Crimson Pro', serif", lineHeight: 1 }}>
-                                {daysUntil} <span style={{ fontSize: "1.2rem", fontWeight: 300, fontStyle: "italic" }}>hari lagi<span style={{ display: "inline-block", width: "24px", textAlign: "left" }}>{dots}</span></span>
+                            <div style={{ fontSize: "0.65rem", color: "#a0907d", textTransform: "uppercase", letterSpacing: "3px", marginBottom: "0.5rem", fontFamily: "'Crimson Pro', serif", fontWeight: 700 }}>Menuju 28 November</div>
+                            <div style={{ fontSize: isMobile ? "4rem" : "5rem", fontWeight: 700, color: "#b07d62", fontFamily: "'Caveat', cursive", lineHeight: 1 }}>
+                                {daysUntil} <span style={{ fontFamily: "'Crimson Pro', serif", fontSize: "1.2rem", fontWeight: 300, fontStyle: "italic" }}>hari lagi<span style={{ display: "inline-block", width: "24px", textAlign: "left" }}>{dots}</span></span>
                             </div>
-                            <HandwrittenNote style={{ fontSize: "1rem", marginTop: "1rem", opacity: 0.7 }}>
+                            <HandwrittenNote style={{ fontSize: "1.15rem", marginTop: "1rem", opacity: 0.7 }}>
                                 ketuk untuk membuka pesan rahasia
                             </HandwrittenNote>
                         </div>
@@ -309,14 +363,15 @@ export default function YearPage() {
 
                     <motion.section initial={{ opacity: 1, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.5 }}>
                         <div style={{ background: "#fefbfc", backgroundImage: "url('https://www.transparenttextures.com/patterns/natural-paper.png')", borderRadius: "6px", border: "1px solid #e8e2d9", boxShadow: "0 8px 24px rgba(0,0,0,0.08)", padding: isMobile ? "3rem 1.8rem" : "6rem 4rem", position: "relative", overflow: "hidden" }}>
-                            <div style={{ position: "absolute", bottom: "-10px", right: "-10px", width: "140px", height: "140px", opacity: 0.85, transform: "rotate(-15deg)", pointerEvents: "none", zIndex: 0, mixBlendMode: "multiply" as const }}>
+                            <WashiTape color="#f5d5c0" rotate={-1} width="120px" />
+                            <div style={{ position: "absolute", bottom: "-10px", right: "-10px", width: "140px", height: "140px", opacity: 0.7, transform: "rotate(-15deg)", pointerEvents: "none", zIndex: 0, mixBlendMode: "multiply" as const }}>
                                 <Image src="/special_peony.webp" alt="" fill style={{ objectFit: "contain" }} />
                             </div>
                             <div style={{ maxWidth: "800px", margin: "0 auto", textAlign: "center", position: "relative", zIndex: 1 }}>
                                 <Wind size={24} color="#b07d62" style={{ margin: "0 auto 1.5rem", opacity: 0.3 }} />
-                                <p style={{ fontSize: isMobile ? "1.25rem" : "1.7rem", color: "#4e4439", fontStyle: "italic", lineHeight: 1.7, fontWeight: 300 }}>
+                                <h3 style={{ fontFamily: "'Caveat', cursive", fontSize: isMobile ? "2rem" : "2.6rem", fontWeight: 700, color: "#b07d62", marginBottom: "1rem", lineHeight: 1.2 }}>
                                     &ldquo;{wisdom}&rdquo;
-                                </p>
+                                </h3>
                                 <div style={{ marginTop: "3rem", display: "flex", alignItems: "center", justifyContent: "center", gap: "10px" }}>
                                     <div style={{ width: "20px", height: "1px", background: "#b07d62", opacity: 0.2 }} />
                                     <HandwrittenNote style={{ fontSize: "1.4rem" }}>Bait Untukmu</HandwrittenNote>

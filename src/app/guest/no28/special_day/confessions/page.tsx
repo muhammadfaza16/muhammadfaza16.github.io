@@ -15,6 +15,40 @@ const HandwrittenNote = ({ children, style = {} }: { children: React.ReactNode, 
     <span style={{ fontFamily: "'Caveat', cursive, 'Brush Script MT'", color: "#c8b8a4", fontSize: "1.2rem", display: "inline-block", lineHeight: 1.2, ...style }}>{children}</span>
 );
 
+// --- Handmade Primitives ---
+
+const TinyObject = ({ emoji, size = 16, top, left, right, bottom, rotate = 0, delay = 0 }: {
+    emoji: string; size?: number;
+    top?: string; left?: string; right?: string; bottom?: string;
+    rotate?: number; delay?: number;
+}) => (
+    <motion.div
+        initial={{ opacity: 0, scale: 0 }}
+        whileInView={{ opacity: 1, scale: 1 }}
+        viewport={{ once: true }}
+        transition={{ delay, duration: 0.6, ease: "backOut" }}
+        style={{
+            position: "absolute", top, left, right, bottom,
+            fontSize: size, lineHeight: 1, zIndex: 3,
+            transform: `rotate(${rotate}deg)`, pointerEvents: "none",
+            filter: "drop-shadow(0 1px 2px rgba(0,0,0,0.5))"
+        }}
+    >
+        {emoji}
+    </motion.div>
+);
+
+const WashiTape = ({ color = "#2a2a4a", rotate = -1, width = "90px" }: { color?: string; rotate?: number; width?: string }) => (
+    <div style={{
+        position: "absolute", top: "-1px", left: "50%",
+        transform: `translateX(-50%) rotate(${rotate}deg)`,
+        width, height: "22px",
+        background: `linear-gradient(135deg, ${color} 0%, ${color}dd 50%, ${color}bb 100%)`,
+        opacity: 0.85, borderRadius: "1px", zIndex: 10,
+        boxShadow: "0 2px 8px rgba(0,0,0,0.3)",
+    }} />
+);
+
 // --- Page ---
 
 export default function ConfessionsPage() {
@@ -127,20 +161,23 @@ export default function ConfessionsPage() {
                                     padding: isMobile ? "2rem 1.5rem" : "3rem 2.5rem",
                                     position: "relative"
                                 }}>
-                                    <div style={{ fontSize: "0.6rem", color: "rgba(200,184,164,0.3)", textTransform: "uppercase", letterSpacing: "3px", marginBottom: "1rem" }}>
+                                    <WashiTape color={i % 2 === 0 ? "#2a2a4a" : "#302b40"} rotate={i % 2 === 0 ? -1.5 : 2} width="80px" />
+                                    <TinyObject emoji="✨" size={14} top="15px" left="20px" rotate={15} delay={0.2} />
+
+                                    <div style={{ fontSize: "0.6rem", color: "rgba(200,184,164,0.3)", textTransform: "uppercase", letterSpacing: "3px", marginBottom: "1rem", fontFamily: "'Crimson Pro', serif", fontWeight: 700 }}>
                                         {poem.date}
                                     </div>
-                                    <h3 style={{ fontSize: "1.4rem", fontWeight: 400, color: "#e8d5b7", fontFamily: "'Crimson Pro', serif", marginBottom: "1rem", fontStyle: "italic" }}>
+                                    <h3 style={{ fontFamily: "'Caveat', cursive", fontSize: "1.8rem", fontWeight: 700, color: "#e8d5b7", marginBottom: "0.5rem" }}>
                                         {poem.title}
                                     </h3>
-                                    <p style={{ fontSize: "1rem", color: "rgba(200,184,164,0.7)", lineHeight: 1.8, fontFamily: "'Crimson Pro', serif" }}>
-                                        {poem.excerpt}
+                                    <p style={{ fontSize: "1rem", color: "rgba(200,184,164,0.7)", lineHeight: 1.8, fontFamily: "'Crimson Pro', serif", fontStyle: "italic" }}>
+                                        &ldquo;{poem.excerpt}&rdquo;
                                     </p>
 
                                     {/* Bottom Ornament */}
                                     <div style={{ marginTop: "1.5rem", display: "flex", alignItems: "center", gap: "8px" }}>
                                         <div style={{ width: "30px", height: "1px", background: "rgba(200,184,164,0.15)" }} />
-                                        <HandwrittenNote style={{ fontSize: "0.9rem", opacity: 0.4 }}>✦</HandwrittenNote>
+                                        <HandwrittenNote style={{ fontSize: "1rem", opacity: 0.6 }}>★</HandwrittenNote>
                                         <div style={{ width: "30px", height: "1px", background: "rgba(200,184,164,0.15)" }} />
                                     </div>
                                 </div>

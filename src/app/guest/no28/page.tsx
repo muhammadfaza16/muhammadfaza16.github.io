@@ -32,7 +32,7 @@ const SectionTitle = ({ children, icon: Icon }: { children: React.ReactNode, ico
 const WashiTape = ({ color, rotate = "0deg", width = "90px" }: { color: string, rotate?: string, width?: string }) => (
     <div style={{
         position: "absolute",
-        top: "-12px",
+        top: "0px",
         left: "50%",
         transform: `translateX(-50%) rotate(${rotate})`,
         width: width,
@@ -415,10 +415,9 @@ export default function GuestNo28Dashboard() {
                         position: "relative"
                     }}
                 >
-                    {/* Washi Tape */}
                     <div style={{
                         position: "absolute",
-                        top: "-12px",
+                        top: "0px",
                         left: "50%",
                         transform: "translateX(-50%) rotate(-2deg)",
                         width: "80px",

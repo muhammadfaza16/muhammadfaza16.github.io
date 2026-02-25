@@ -44,18 +44,18 @@ const DockIcon = ({ title, href, icon, iconColor, delay = 0 }: DockIconProps) =>
                     width: "clamp(52px, 13.5vw, 62px)",
                     height: "clamp(52px, 13.5vw, 62px)",
                     borderRadius: "26%",
-                    background: "rgba(0, 0, 0, 0.15)",
-                    backdropFilter: "blur(16px) saturate(150%)",
-                    WebkitBackdropFilter: "blur(16px) saturate(150%)",
+                    background: "rgba(255, 255, 255, 0.04)",
+                    backdropFilter: "blur(18px) saturate(200%)",
+                    WebkitBackdropFilter: "blur(18px) saturate(200%)",
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
                     boxShadow: `
-                        0 4px 12px rgba(0,0,0,0.1),
-                        inset 0 1px 0.5px rgba(255,255,255,0.2)
+                        0 4px 16px rgba(0,0,0,0.06),
+                        inset 0 1px 1px rgba(255,255,255,0.3)
                     `,
                     overflow: "hidden",
-                    border: "1px solid rgba(255,255,255,0.05)",
+                    border: "0.5px solid rgba(255,255,255,0.08)",
                     cursor: "pointer",
                     transition: "transform 0.15s ease",
                 }} className="hover:scale-105 active:scale-95">

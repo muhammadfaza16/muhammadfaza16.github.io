@@ -41,6 +41,27 @@ const HandwrittenNote = ({ children, style = {} }: { children: React.ReactNode, 
     </span>
 );
 
+const TinyObject = ({ emoji, size = 16, top, left, right, bottom, rotate = 0, delay = 0 }: {
+    emoji: string; size?: number;
+    top?: string; left?: string; right?: string; bottom?: string;
+    rotate?: number; delay?: number;
+}) => (
+    <motion.div
+        initial={{ opacity: 0, scale: 0 }}
+        whileInView={{ opacity: 1, scale: 1 }}
+        viewport={{ once: true }}
+        transition={{ delay, duration: 0.6, ease: "backOut" }}
+        style={{
+            position: "absolute", top, left, right, bottom,
+            fontSize: size, lineHeight: 1, zIndex: 3,
+            transform: `rotate(${rotate}deg)`, pointerEvents: "none",
+            filter: "drop-shadow(0 1px 2px rgba(0,0,0,0.1))"
+        }}
+    >
+        {emoji}
+    </motion.div>
+);
+
 // --- Ambient Components ---
 
 const NoiseOverlay = () => (
@@ -352,8 +373,9 @@ export default function JournalPage() {
                     >
                         {/* Realistic Paper Texture */}
                         <div style={{ position: "absolute", inset: 0, opacity: 0.8, backgroundImage: "url('https://www.transparenttextures.com/patterns/natural-paper.png')", pointerEvents: "none", mixBlendMode: "multiply" }} />
-                        {/* Top Accent Bar */}
-                        <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: "6px", background: "#d2b48c", opacity: 0.6 }} />
+                        {/* WashiTape Decoration */}
+                        <WashiTape color="#e6ccb2" rotate="-2deg" width="110px" />
+                        <TinyObject emoji="🌷" size={18} top="20px" right="20px" rotate={15} delay={0.2} />
 
                         {/* Date - Minimal Aesthetic */}
                         <div style={{
@@ -481,6 +503,9 @@ export default function JournalPage() {
                                     }}>
                                         {/* Paper Texture Overlay */}
                                         <div style={{ position: "absolute", inset: 0, opacity: 0.6, backgroundImage: "url('https://www.transparenttextures.com/patterns/natural-paper.png')", pointerEvents: "none", mixBlendMode: "multiply" }} />
+
+                                        <WashiTape color={i % 2 === 0 ? "#d1e3dd" : "#f5c6d0"} rotate={i % 2 === 0 ? "1.5deg" : "-2deg"} />
+                                        <TinyObject emoji={i % 2 === 0 ? "🌿" : "🌸"} size={14} top="15px" right="15px" rotate={i % 2 === 0 ? -10 : 15} delay={0.3} />
 
                                         {/* Template Badge */}
                                         {entry.isTemplate && (

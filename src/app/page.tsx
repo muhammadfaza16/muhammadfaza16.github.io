@@ -98,13 +98,12 @@ export default function HomePage() {
             width: "calc(100% - 3rem)", // Matches the widget padding (1.5rem * 2)
             maxWidth: "460px", // Match the widget max-width
             margin: "0 auto 1.5rem",
-            background: "rgba(255, 255, 255, 0.02)",
-            backdropFilter: "blur(24px) saturate(150%) brightness(105%)",
-            WebkitBackdropFilter: "blur(24px) saturate(150%) brightness(105%)",
+            background: "rgba(255, 255, 255, 0.03)",
+            backdropFilter: "blur(6px) saturate(210%) brightness(105%)",
+            WebkitBackdropFilter: "blur(6px) saturate(210%) brightness(105%)",
             borderRadius: "32px",
-            padding: "8px 12px", // Slightly tighter vertical padding, wider horizontal inner space
-            border: "1px solid rgba(255,255,255,0.08)",
-            boxShadow: "0 16px 32px rgba(0,0,0,0.15), inset 0 1px 0.5px rgba(255,255,255,0.2)",
+            padding: "4px 12px", // Slimmer vertical padding, wider horizontal inner space
+            border: "0.5px solid rgba(255,255,255,0.15)",
             position: "relative" as const,
             overflow: "hidden",
           }}>
@@ -120,10 +119,10 @@ export default function HomePage() {
               background: "linear-gradient(180deg, rgba(255,255,255,0.07) 0%, transparent 100%)",
               borderRadius: "32px 32px 0 0", pointerEvents: "none" as const, zIndex: 2,
             }} />
-            {/* Gradient border */}
+            {/* Gradient border — Ultra-Thin Crystal Rim */}
             <div style={{
-              position: "absolute", inset: 0, borderRadius: "32px", padding: "1px",
-              background: "linear-gradient(160deg, rgba(255,255,255,0.25) 0%, rgba(255,255,255,0.05) 40%, transparent 60%)",
+              position: "absolute", inset: 0, borderRadius: "32px", padding: "0.2px",
+              background: "linear-gradient(160deg, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0.05) 50%, rgba(255,255,255,0.12) 100%)",
               WebkitMask: "linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)",
               WebkitMaskComposite: "xor" as any, maskComposite: "exclude" as any,
               pointerEvents: "none" as const, zIndex: 3,

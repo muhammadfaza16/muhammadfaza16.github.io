@@ -15,6 +15,40 @@ const HandwrittenNote = ({ children, style = {} }: { children: React.ReactNode, 
     <span style={{ fontFamily: "'Caveat', cursive, 'Brush Script MT'", color: "#a0907d", fontSize: "1.2rem", display: "inline-block", lineHeight: 1.2, ...style }}>{children}</span>
 );
 
+// --- Handmade Primitives ---
+
+const TinyObject = ({ emoji, size = 16, top, left, right, bottom, rotate = 0, delay = 0 }: {
+    emoji: string; size?: number;
+    top?: string; left?: string; right?: string; bottom?: string;
+    rotate?: number; delay?: number;
+}) => (
+    <motion.div
+        initial={{ opacity: 0, scale: 0 }}
+        whileInView={{ opacity: 1, scale: 1 }}
+        viewport={{ once: true }}
+        transition={{ delay, duration: 0.6, ease: "backOut" }}
+        style={{
+            position: "absolute", top, left, right, bottom,
+            fontSize: size, lineHeight: 1, zIndex: 3,
+            transform: `rotate(${rotate}deg)`, pointerEvents: "none",
+            filter: "drop-shadow(0 1px 2px rgba(0,0,0,0.1))"
+        }}
+    >
+        {emoji}
+    </motion.div>
+);
+
+const WashiTape = ({ color = "#f5c6d0", rotate = -1, width = "90px", top = "-1px", left = "50%" }: { color?: string; rotate?: number; width?: string; top?: string; left?: string; }) => (
+    <div style={{
+        position: "absolute", top, left,
+        transform: `translateX(-50%) rotate(${rotate}deg)`,
+        width, height: "22px",
+        background: `linear-gradient(135deg, ${color} 0%, ${color}dd 50%, ${color}bb 100%)`,
+        opacity: 0.85, borderRadius: "1px", zIndex: 10,
+        boxShadow: "0 2px 6px rgba(0,0,0,0.12)",
+    }} />
+);
+
 // --- Types ---
 interface Song {
     title: string;
@@ -102,9 +136,12 @@ export default function MelodyPage() {
                     </div>
 
                     {/* Intro */}
-                    <div style={{ textAlign: "center", marginBottom: "3rem", maxWidth: "500px", margin: "0 auto 3rem" }}>
-                        <Music size={28} color="#b07d62" style={{ margin: "0 auto 1rem", opacity: 0.4 }} />
-                        <p style={{ fontSize: "1.1rem", color: "#a0907d", fontStyle: "italic", lineHeight: 1.7 }}>
+                    <div style={{ textAlign: "center", marginBottom: "3rem", maxWidth: "500px", margin: "0 auto 3rem", position: "relative" }}>
+                        <TinyObject emoji="🎵" size={16} top="-10px" left="20%" rotate={-15} delay={0.3} />
+                        <TinyObject emoji="✨" size={14} bottom="10px" right="15%" rotate={20} delay={0.6} />
+
+                        <Music size={28} color="#b07d62" style={{ margin: "0 auto 1.5rem", opacity: 0.4 }} />
+                        <p style={{ fontSize: "1.2rem", color: "#a0907d", fontStyle: "italic", lineHeight: 1.7 }}>
                             Setiap lagu di sini dipilih bukan karena kebetulan, tapi karena ada sesuatu di dalamnya yang mengingatkan aku padamu.
                         </p>
                     </div>
@@ -133,17 +170,20 @@ export default function MelodyPage() {
                                         overflow: "hidden"
                                     }}
                                 >
+                                    {/* Decorative Washi Tape */}
+                                    <WashiTape color={`${song.color}33`} rotate={i % 2 === 0 ? -1.5 : 2} width="80px" left={isMobile ? "80%" : "90%"} top="-5px" />
+
                                     {/* Color Accent Bar */}
                                     <div style={{ position: "absolute", top: 0, left: 0, width: "4px", height: "100%", background: song.color, opacity: 0.6 }} />
 
                                     {/* Main Row */}
-                                    <div style={{ display: "flex", alignItems: "center", gap: "1rem", paddingLeft: "1rem" }}>
-                                        <div style={{ fontSize: "2rem", width: "50px", height: "50px", display: "flex", alignItems: "center", justifyContent: "center", background: `${song.color}10`, borderRadius: "12px" }}>
+                                    <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+                                        <div style={{ fontSize: "2rem", width: "55px", height: "55px", display: "flex", alignItems: "center", justifyContent: "center", background: `${song.color}15`, borderRadius: "12px", border: `1px solid ${song.color}33` }}>
                                             {song.emoji}
                                         </div>
                                         <div style={{ flex: 1 }}>
-                                            <h3 style={{ fontSize: "1.1rem", fontWeight: 600, color: "#4e4439", marginBottom: "2px" }}>{song.title}</h3>
-                                            <div style={{ fontSize: "0.85rem", color: "#a0907d" }}>{song.artist}</div>
+                                            <h3 style={{ fontFamily: "'Caveat', cursive", fontSize: "1.5rem", fontWeight: 700, color: "#4e4439", marginBottom: "0px", lineHeight: 1.1 }}>{song.title}</h3>
+                                            <div style={{ fontSize: "0.85rem", color: "#a0907d", fontFamily: "'Crimson Pro', serif", marginTop: "2px" }}>{song.artist}</div>
                                         </div>
                                         <motion.div animate={{ rotate: expandedSong === i ? 90 : 0 }} transition={{ duration: 0.2 }}>
                                             <Play size={18} color={song.color} fill={song.color} fillOpacity={0.2} />
@@ -156,14 +196,15 @@ export default function MelodyPage() {
                                             initial={{ opacity: 1, height: 0 }}
                                             animate={{ opacity: 1, height: "auto" }}
                                             transition={{ duration: 0.3 }}
-                                            style={{ paddingLeft: "1rem", marginTop: "1.5rem", borderTop: "1px dashed #e8e2d9", paddingTop: "1.5rem" }}
+                                            style={{ marginTop: "1.5rem", borderTop: "1px dashed #e8e2d9", paddingTop: "1.5rem", position: "relative" }}
                                         >
+                                            <TinyObject emoji="🌿" size={12} bottom="-10px" right="10px" rotate={10} delay={0.1} />
                                             {song.lyricHighlight && (
-                                                <div style={{ fontSize: "1rem", fontStyle: "italic", color: song.color, marginBottom: "1rem", lineHeight: 1.6, opacity: 0.8 }}>
+                                                <div style={{ fontSize: "1.1rem", fontStyle: "italic", color: song.color, marginBottom: "1rem", lineHeight: 1.6, opacity: 0.9, fontFamily: "'Crimson Pro', serif", fontWeight: 600 }}>
                                                     &ldquo;{song.lyricHighlight}&rdquo;
                                                 </div>
                                             )}
-                                            <HandwrittenNote style={{ fontSize: "1.05rem", lineHeight: 1.6, color: "#4e4439" }}>
+                                            <HandwrittenNote style={{ fontSize: "1.15rem", lineHeight: 1.6, color: "#4e4439" }}>
                                                 {song.note}
                                             </HandwrittenNote>
                                         </motion.div>

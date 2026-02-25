@@ -8,6 +8,44 @@ import { useRouter } from "next/navigation";
 import { Container } from "@/components/Container";
 import "../../../globals.css";
 
+// --- Handmade Primitives ---
+
+const TinyObject = ({ emoji, size = 16, top, left, right, bottom, rotate = 0, delay = 0 }: {
+    emoji: string; size?: number;
+    top?: string; left?: string; right?: string; bottom?: string;
+    rotate?: number; delay?: number;
+}) => (
+    <motion.div
+        initial={{ opacity: 0, scale: 0 }}
+        whileInView={{ opacity: 1, scale: 1 }}
+        viewport={{ once: true }}
+        transition={{ delay, duration: 0.6, ease: "backOut" }}
+        style={{
+            position: "absolute", top, left, right, bottom,
+            fontSize: size, lineHeight: 1, zIndex: 3,
+            transform: `rotate(${rotate}deg)`, pointerEvents: "none",
+            filter: "drop-shadow(0 1px 2px rgba(0,0,0,0.1))"
+        }}
+    >
+        {emoji}
+    </motion.div>
+);
+
+const WashiTape = ({ color = "#f5c6d0", rotate = -1, width = "90px", top = "-1px", left = "50%" }: { color?: string; rotate?: number; width?: string; top?: string; left?: string; }) => (
+    <div style={{
+        position: "absolute", top, left,
+        transform: `translateX(-50%) rotate(${rotate}deg)`,
+        width, height: "22px",
+        background: `linear-gradient(135deg, ${color} 0%, ${color}dd 50%, ${color}bb 100%)`,
+        opacity: 0.85, borderRadius: "1px", zIndex: 10,
+        boxShadow: "0 2px 6px rgba(0,0,0,0.12)",
+    }} />
+);
+
+const HandwrittenNote = ({ children, style = {} }: { children: React.ReactNode, style?: React.CSSProperties }) => (
+    <span style={{ fontFamily: "'Caveat', cursive, 'Brush Script MT'", color: "#a0907d", fontSize: "1.2rem", display: "inline-block", lineHeight: 1.2, ...style }}>{children}</span>
+);
+
 const sheets = [
     {
         title: "Sebuah Awal",
@@ -117,19 +155,19 @@ export default function LetterPage() {
                             width: "44px",
                             height: "44px",
                             background: "#fff",
-                            border: "2px solid #5a5a5a",
-                            boxShadow: "2px 2px 0px #5a5a5a",
+                            border: "1px solid #e8e2d9",
+                            boxShadow: "0 4px 12px rgba(0,0,0,0.05)",
                             borderRadius: "12px",
-                            color: "#5a5a5a",
+                            color: "#a0907d",
                             transition: "all 0.2s ease"
                         }}
                             onMouseOver={(e) => {
-                                e.currentTarget.style.transform = "translate(-1px, -1px)";
-                                e.currentTarget.style.boxShadow = "4px 4px 0px #5a5a5a";
+                                e.currentTarget.style.transform = "translateY(-2px)";
+                                e.currentTarget.style.boxShadow = "0 6px 16px rgba(0,0,0,0.1)";
                             }}
                             onMouseOut={(e) => {
-                                e.currentTarget.style.transform = "translate(0, 0)";
-                                e.currentTarget.style.boxShadow = "2px 2px 0px #5a5a5a";
+                                e.currentTarget.style.transform = "translateY(0)";
+                                e.currentTarget.style.boxShadow = "0 4px 12px rgba(0,0,0,0.05)";
                             }}
                         >
                             <Home size={22} strokeWidth={2} />
@@ -147,8 +185,10 @@ export default function LetterPage() {
                                 transition={{ type: "spring", stiffness: 100, damping: 20 }}
                                 style={{
                                     background: "#fff",
-                                    border: "2px solid #5a5a5a",
-                                    boxShadow: "0px 10px 30px rgba(0,0,0,0.05), 8px 8px 0px #5a5a5a",
+                                    backgroundImage: "url('https://www.transparenttextures.com/patterns/natural-paper.png')",
+                                    border: "1px solid #e8e2d9",
+                                    boxShadow: "0px 10px 40px rgba(0,0,0,0.08)",
+                                    borderRadius: "4px",
                                     padding: "clamp(2rem, 8vw, 4rem)",
                                     maxWidth: "650px",
                                     width: "100%",
@@ -156,6 +196,9 @@ export default function LetterPage() {
                                     zIndex: 10
                                 }}
                             >
+                                <WashiTape color={currentPage % 2 === 0 ? "#e6ccb2" : "#d1e3dd"} rotate={currentPage % 2 === 0 ? 1 : -2} width="100px" top="-10px" />
+                                <TinyObject emoji={currentPage % 2 === 0 ? "🌸" : "🌿"} size={16} top="20px" right="20px" rotate={currentPage % 2 === 0 ? -10 : 15} delay={0.3} />
+
                                 {/* Paper Decoration */}
                                 <div style={{
                                     position: "absolute",
@@ -178,12 +221,12 @@ export default function LetterPage() {
                                     </h2>
                                 ) : (
                                     <h2 style={{
-                                        fontFamily: "'Crimson Pro', serif",
-                                        fontSize: "1.75rem",
+                                        fontFamily: "'Caveat', cursive",
+                                        fontSize: "2.4rem",
                                         fontWeight: 700,
-                                        color: "#d2691e",
+                                        color: "#b07d62",
                                         marginBottom: "2.5rem",
-                                        fontStyle: "italic"
+                                        lineHeight: 1.1
                                     }}>
                                         {sheets[currentPage].title}
                                     </h2>
@@ -244,14 +287,18 @@ export default function LetterPage() {
                         <div style={{
                             position: "absolute",
                             top: "10px", left: "10px", right: "-10px", bottom: "-10px",
-                            background: "#fff", border: "2px solid #5a5a5a",
-                            zIndex: 1, transform: "rotate(1deg)", opacity: 0.5
+                            background: "#fff", backgroundImage: "url('https://www.transparenttextures.com/patterns/natural-paper.png')",
+                            border: "1px solid #e8e2d9", borderRadius: "4px",
+                            boxShadow: "0 4px 20px rgba(0,0,0,0.05)",
+                            zIndex: 1, transform: "rotate(1deg)"
                         }} />
                         <div style={{
                             position: "absolute",
                             top: "-5px", left: "-5px", right: "5px", bottom: "5px",
-                            background: "#fff", border: "2px solid #5a5a5a",
-                            zIndex: 0, transform: "rotate(-1.5deg)", opacity: 0.3
+                            background: "#fff", backgroundImage: "url('https://www.transparenttextures.com/patterns/natural-paper.png')",
+                            border: "1px solid #e8e2d9", borderRadius: "4px",
+                            boxShadow: "0 2px 10px rgba(0,0,0,0.05)",
+                            zIndex: 0, transform: "rotate(-1.5deg)"
                         }} />
                     </div>
 
@@ -268,24 +315,24 @@ export default function LetterPage() {
                             disabled={currentPage === 0}
                             style={{
                                 width: "50px", height: "50px",
-                                borderRadius: "15px", border: "2px solid #5a5a5a",
-                                background: "#fff", color: "#5a5a5a",
+                                borderRadius: "50%", border: "1px solid #e8e2d9",
+                                background: "#fff", color: "#a0907d",
                                 cursor: currentPage === 0 ? "not-allowed" : "pointer",
                                 opacity: currentPage === 0 ? 0.3 : 1,
                                 display: "flex", alignItems: "center", justifyContent: "center",
-                                boxShadow: "3px 3px 0px #5a5a5a",
+                                boxShadow: "0 4px 12px rgba(0,0,0,0.05)",
                                 transition: "all 0.2s ease"
                             }}
                             onMouseOver={(e) => {
                                 if (currentPage !== 0) {
-                                    e.currentTarget.style.transform = "translate(-1px, -1px)";
-                                    e.currentTarget.style.boxShadow = "5px 5px 0px #5a5a5a";
+                                    e.currentTarget.style.transform = "translateY(-2px)";
+                                    e.currentTarget.style.boxShadow = "0 6px 16px rgba(0,0,0,0.1)";
                                 }
                             }}
                             onMouseOut={(e) => {
                                 if (currentPage !== 0) {
-                                    e.currentTarget.style.transform = "translate(0, 0)";
-                                    e.currentTarget.style.boxShadow = "3px 3px 0px #5a5a5a";
+                                    e.currentTarget.style.transform = "translateY(0)";
+                                    e.currentTarget.style.boxShadow = "0 4px 12px rgba(0,0,0,0.05)";
                                 }
                             }}
                         >
@@ -314,22 +361,23 @@ export default function LetterPage() {
                             }}
                             style={{
                                 width: "50px", height: "50px",
-                                borderRadius: "15px", border: "2px solid #5a5a5a",
+                                borderRadius: "50%",
                                 background: currentPage === sheets.length - 1 ? "#d2691e" : "#fff",
-                                color: currentPage === sheets.length - 1 ? "#fff" : "#5a5a5a",
+                                color: currentPage === sheets.length - 1 ? "#fff" : "#a0907d",
                                 cursor: "pointer",
                                 opacity: 1,
                                 display: "flex", alignItems: "center", justifyContent: "center",
-                                boxShadow: "3px 3px 0px #5a5a5a",
-                                transition: "all 0.2s ease"
+                                boxShadow: "0 4px 12px rgba(0,0,0,0.05)",
+                                transition: "all 0.2s ease",
+                                border: currentPage === sheets.length - 1 ? "none" : "1px solid #e8e2d9"
                             }}
                             onMouseOver={(e) => {
-                                e.currentTarget.style.transform = "translate(-1px, -1px)";
-                                e.currentTarget.style.boxShadow = "5px 5px 0px #5a5a5a";
+                                e.currentTarget.style.transform = "translateY(-2px)";
+                                e.currentTarget.style.boxShadow = "0 6px 16px rgba(0,0,0,0.1)";
                             }}
                             onMouseOut={(e) => {
-                                e.currentTarget.style.transform = "translate(0, 0)";
-                                e.currentTarget.style.boxShadow = "3px 3px 0px #5a5a5a";
+                                e.currentTarget.style.transform = "translateY(0)";
+                                e.currentTarget.style.boxShadow = "0 4px 12px rgba(0,0,0,0.05)";
                             }}
                         >
                             {currentPage === sheets.length - 1 ? <Home size={24} /> : <ChevronRight size={24} />}

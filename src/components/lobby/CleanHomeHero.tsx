@@ -237,7 +237,7 @@ export function CleanHomeHero() {
         if (bigMatches.length <= 3) return;
         const id = setInterval(() => {
             setMatchPage(prev => {
-                const totalPages = Math.ceil(bigMatches.length / 3);
+                const totalPages = Math.ceil(bigMatches.length / 4);
                 return (prev + 1) % totalPages;
             });
         }, 10000);
@@ -246,8 +246,8 @@ export function CleanHomeHero() {
 
     const visibleMatches = useMemo(() => {
         if (bigMatches.length === 0) return [];
-        const start = (matchPage * 3) % bigMatches.length;
-        return bigMatches.slice(start, start + 3);
+        const start = (matchPage * 4) % bigMatches.length;
+        return bigMatches.slice(start, start + 4);
     }, [bigMatches, matchPage]);
 
     // Auto-rolling news - 3 articles per page, changing every 12s
@@ -301,12 +301,16 @@ export function CleanHomeHero() {
             position: "relative",
             display: "flex",
             flexDirection: "column",
-            padding: "0 1.5rem",
-            paddingTop: "0.4rem",
+            paddingLeft: "1.5rem",
+            paddingRight: "1.5rem",
+            paddingTop: "0.2rem",
             paddingBottom: "1.5rem",
             width: "100%",
             maxWidth: "460px",
-            margin: "0 auto",
+            marginTop: "-0.8rem",
+            marginLeft: "auto",
+            marginRight: "auto",
+            marginBottom: "0",
             fontFamily: "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif",
             color: "#fff",
         }}>
@@ -1020,7 +1024,7 @@ export function CleanHomeHero() {
                                             height: "100%",
                                             borderRadius: "14px",
                                             background: pulse.post?.coverImage ? `url(${pulse.post.coverImage}) center/cover no-repeat` : "linear-gradient(145deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.02) 100%)",
-                                            border: "1px solid rgba(255,255,255,0.08)",
+                                            border: "0.5px solid rgba(255,255,255,0.08)",
                                             boxShadow: "inset 0 1px 0 rgba(255,255,255,0.1), 0 4px 12px rgba(0,0,0,0.15)",
                                             transition: "all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)",
                                             cursor: "pointer",
@@ -1119,7 +1123,7 @@ export function CleanHomeHero() {
                             style={{
                                 display: "grid",
                                 gridTemplateColumns: "auto 1fr",
-                                gap: "1rem",
+                                gap: "1.5rem",
                                 alignItems: "start",
                                 position: "relative",
                                 zIndex: 1,
@@ -1131,10 +1135,10 @@ export function CleanHomeHero() {
                                 flexDirection: "column",
                                 background: "rgba(0, 0, 0, 0.12)",
                                 borderRadius: "18px",
-                                padding: "0.9rem 0.85rem",
+                                padding: "1.2rem 1.1rem",
                                 boxShadow: "inset 0 2px 6px rgba(0,0,0,0.08), 0 1px 0 rgba(255,255,255,0.06)",
-                                border: "1px solid rgba(255,255,255,0.08)",
-                                width: "170px",
+                                border: "0.5px solid rgba(255,255,255,0.08)",
+                                width: "195px",
                             }}>
                                 {/* Month header */}
                                 <div
@@ -1173,7 +1177,7 @@ export function CleanHomeHero() {
                                 <div style={{
                                     display: "grid",
                                     gridTemplateColumns: "repeat(7, 1fr)",
-                                    gap: "1px",
+                                    gap: "3px 1px",
                                     fontSize: "0.68rem",
                                     fontWeight: 500,
                                     color: "rgba(255,255,255,0.8)",
@@ -1201,7 +1205,7 @@ export function CleanHomeHero() {
                                                     flexDirection: "column",
                                                     alignItems: "center",
                                                     justifyContent: "center",
-                                                    padding: "2px 0",
+                                                    padding: "4px 0",
                                                     borderRadius: "6px",
                                                     color: isToday ? "white" : isHoliday ? "#ff6b6b" : (d ? "rgba(255,255,255,0.85)" : "transparent"),
                                                     background: isToday ? "linear-gradient(135deg, #ff3b30 0%, #ff6b4a 50%, #ff9500 100%)" : "transparent",
@@ -1247,7 +1251,7 @@ export function CleanHomeHero() {
 
                                 {/* Upcoming Matches */}
                                 {football && football.matches.length > 0 && (
-                                    <div style={{ marginTop: "0.8rem" }}>
+                                    <div style={{ marginTop: "1.8rem" }}>
                                         <div
                                             onClick={() => setShowMatchesPopup(true)}
                                             style={{
@@ -1274,7 +1278,7 @@ export function CleanHomeHero() {
                                                     <div key={`${matchPage}-${i}`} style={{
                                                         display: "flex", alignItems: "center", justifyContent: "space-between",
                                                         fontSize: "0.58rem",
-                                                        padding: "3px 5px",
+                                                        padding: "5px 6px",
                                                         borderRadius: "6px",
                                                         background: "rgba(255,255,255,0.06)",
                                                     }}>
@@ -1338,51 +1342,54 @@ export function CleanHomeHero() {
                                     const circDay = 2 * Math.PI * radiusDay;
 
                                     return (
-                                        <div style={{ display: "flex", alignItems: "center", gap: "12px", background: "rgba(0,0,0,0.12)", padding: "10px", borderRadius: "14px", border: "1px solid rgba(0,0,0,0.05)" }}>
+                                        <div style={{ display: "flex", flexDirection: "column", gap: "12px", background: "rgba(0,0,0,0.12)", padding: "14px", borderRadius: "20px", border: "0.5px solid rgba(255,255,255,0.08)" }}>
+                                            <div style={{ fontSize: "0.72rem", fontWeight: 700, color: "rgba(255,255,255,0.6)", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: "4px" }}>Time Stats</div>
 
-                                            {/* Concentric SVG Rings */}
-                                            <div style={{ position: "relative", width: "86px", height: "86px", flexShrink: 0 }}>
-                                                <svg width="86" height="86" viewBox="0 0 86 86" style={{ transform: "rotate(-90deg)" }}>
-                                                    {/* Background Rings */}
-                                                    <circle cx="43" cy="43" r={radiusYear} fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth="8" />
-                                                    <circle cx="43" cy="43" r={radiusMonth} fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth="8" />
-                                                    <circle cx="43" cy="43" r={radiusDay} fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth="8" />
-
-                                                    {/* Foreground Rings (Animated via CSS) */}
-                                                    <motion.circle
-                                                        cx="43" cy="43" r={radiusYear} fill="none" stroke="#a78bfa" strokeWidth="8" strokeLinecap="round"
-                                                        initial={{ strokeDasharray: circYear, strokeDashoffset: circYear }}
-                                                        animate={{ strokeDashoffset: circYear - ((yearProgress / 100) * circYear) }}
+                                            {/* Day Progress */}
+                                            <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+                                                <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.58rem", fontWeight: 700 }}>
+                                                    <span style={{ color: "rgba(255,255,255,0.7)" }}>DAY</span>
+                                                    <span style={{ color: "#34d399" }}>{dayProgress}%</span>
+                                                </div>
+                                                <div style={{ width: "100%", height: "6px", background: "rgba(255,255,255,0.08)", borderRadius: "3px", overflow: "hidden" }}>
+                                                    <motion.div
+                                                        initial={{ width: 0 }}
+                                                        animate={{ width: `${dayProgress}%` }}
                                                         transition={{ duration: 1.5, ease: "easeOut" }}
+                                                        style={{ height: "100%", background: "#34d399", borderRadius: "3px" }}
                                                     />
-                                                    <motion.circle
-                                                        cx="43" cy="43" r={radiusMonth} fill="none" stroke="#60a5fa" strokeWidth="8" strokeLinecap="round"
-                                                        initial={{ strokeDasharray: circMonth, strokeDashoffset: circMonth }}
-                                                        animate={{ strokeDashoffset: circMonth - ((monthProgress / 100) * circMonth) }}
-                                                        transition={{ duration: 1.5, ease: "easeOut", delay: 0.1 }}
-                                                    />
-                                                    <motion.circle
-                                                        cx="43" cy="43" r={radiusDay} fill="none" stroke="#34d399" strokeWidth="8" strokeLinecap="round"
-                                                        initial={{ strokeDasharray: circDay, strokeDashoffset: circDay }}
-                                                        animate={{ strokeDashoffset: circDay - ((dayProgress / 100) * circDay) }}
-                                                        transition={{ duration: 1.5, ease: "easeOut", delay: 0.2 }}
-                                                    />
-                                                </svg>
+                                                </div>
                                             </div>
 
-                                            {/* Legend & Percentages */}
-                                            <div style={{ display: "flex", flexDirection: "column", gap: "6px", flex: 1 }}>
-                                                <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.55rem", fontWeight: 700, alignItems: "center" }}>
-                                                    <div style={{ display: "flex", alignItems: "center", gap: "4px" }}><span style={{ width: "6px", height: "6px", borderRadius: "50%", background: "#a78bfa" }} /> <span style={{ color: "rgba(255,255,255,0.6)", textTransform: "uppercase" }}>Year</span></div>
-                                                    <span style={{ color: "rgba(255,255,255,0.9)", fontVariantNumeric: "tabular-nums" }}>{yearProgress}%</span>
+                                            {/* Month Progress */}
+                                            <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+                                                <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.58rem", fontWeight: 700 }}>
+                                                    <span style={{ color: "rgba(255,255,255,0.7)" }}>MONTH</span>
+                                                    <span style={{ color: "#60a5fa" }}>{monthProgress}%</span>
                                                 </div>
-                                                <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.55rem", fontWeight: 700, alignItems: "center" }}>
-                                                    <div style={{ display: "flex", alignItems: "center", gap: "4px" }}><span style={{ width: "6px", height: "6px", borderRadius: "50%", background: "#60a5fa" }} /> <span style={{ color: "rgba(255,255,255,0.6)", textTransform: "uppercase" }}>Month</span></div>
-                                                    <span style={{ color: "rgba(255,255,255,0.9)", fontVariantNumeric: "tabular-nums" }}>{monthProgress}%</span>
+                                                <div style={{ width: "100%", height: "6px", background: "rgba(255,255,255,0.08)", borderRadius: "3px", overflow: "hidden" }}>
+                                                    <motion.div
+                                                        initial={{ width: 0 }}
+                                                        animate={{ width: `${monthProgress}%` }}
+                                                        transition={{ duration: 1.5, ease: "easeOut", delay: 0.1 }}
+                                                        style={{ height: "100%", background: "#60a5fa", borderRadius: "3px" }}
+                                                    />
                                                 </div>
-                                                <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.55rem", fontWeight: 700, alignItems: "center" }}>
-                                                    <div style={{ display: "flex", alignItems: "center", gap: "4px" }}><span style={{ width: "6px", height: "6px", borderRadius: "50%", background: "#34d399" }} /> <span style={{ color: "rgba(255,255,255,0.6)", textTransform: "uppercase" }}>Day</span></div>
-                                                    <span style={{ color: "rgba(255,255,255,0.9)", fontVariantNumeric: "tabular-nums" }}>{dayProgress}%</span>
+                                            </div>
+
+                                            {/* Year Progress */}
+                                            <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+                                                <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.58rem", fontWeight: 700 }}>
+                                                    <span style={{ color: "rgba(255,255,255,0.7)" }}>YEAR</span>
+                                                    <span style={{ color: "#a78bfa" }}>{yearProgress}%</span>
+                                                </div>
+                                                <div style={{ width: "100%", height: "6px", background: "rgba(255,255,255,0.08)", borderRadius: "3px", overflow: "hidden" }}>
+                                                    <motion.div
+                                                        initial={{ width: 0 }}
+                                                        animate={{ width: `${yearProgress}%` }}
+                                                        transition={{ duration: 1.5, ease: "easeOut", delay: 0.2 }}
+                                                        style={{ height: "100%", background: "#a78bfa", borderRadius: "3px" }}
+                                                    />
                                                 </div>
                                             </div>
                                         </div>

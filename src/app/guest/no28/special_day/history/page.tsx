@@ -22,9 +22,11 @@ const HandwrittenNote = ({ children, style = {} }: { children: React.ReactNode, 
 );
 
 const SectionDivider = ({ label }: { label?: string }) => (
-    <div style={{ display: "flex", alignItems: "center", gap: "1rem", margin: "4rem 0 2rem" }}>
+    <div style={{ display: "flex", alignItems: "center", gap: "1rem", margin: "2.5rem 0 1.5rem" }}>
         <div style={{ flex: 1, height: "1px", background: "#e8e2d9" }} />
-        {label && <HandwrittenNote style={{ fontSize: "1rem", opacity: 0.6 }}>{label}</HandwrittenNote>}
+        <span style={{ fontSize: "12px", opacity: 0.4 }}>🌸</span>
+        {label && <HandwrittenNote style={{ fontSize: "1.1rem" }}>{label}</HandwrittenNote>}
+        <span style={{ fontSize: "12px", opacity: 0.4 }}>🌸</span>
         <div style={{ flex: 1, height: "1px", background: "#e8e2d9" }} />
     </div>
 );
@@ -34,6 +36,40 @@ const NoiseOverlay = () => (
         position: "fixed", inset: 0, pointerEvents: "none", zIndex: 50, opacity: 0.07,
         background: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
         mixBlendMode: "overlay"
+    }} />
+);
+
+// --- Handmade Primitives ---
+
+const TinyObject = ({ emoji, size = 16, top, left, right, bottom, rotate = 0, delay = 0 }: {
+    emoji: string; size?: number;
+    top?: string; left?: string; right?: string; bottom?: string;
+    rotate?: number; delay?: number;
+}) => (
+    <motion.div
+        initial={{ opacity: 0, scale: 0 }}
+        whileInView={{ opacity: 1, scale: 1 }}
+        viewport={{ once: true }}
+        transition={{ delay, duration: 0.6, ease: "backOut" }}
+        style={{
+            position: "absolute", top, left, right, bottom,
+            fontSize: size, lineHeight: 1, zIndex: 3,
+            transform: `rotate(${rotate}deg)`, pointerEvents: "none",
+            filter: "drop-shadow(0 1px 2px rgba(0,0,0,0.1))"
+        }}
+    >
+        {emoji}
+    </motion.div>
+);
+
+const WashiTape = ({ color = "#f5c6d0", rotate = -1, width = "90px" }: { color?: string; rotate?: number; width?: string }) => (
+    <div style={{
+        position: "absolute", top: "-1px", left: "50%",
+        transform: `translateX(-50%) rotate(${rotate}deg)`,
+        width, height: "22px",
+        background: `linear-gradient(135deg, ${color} 0%, ${color}dd 50%, ${color}bb 100%)`,
+        opacity: 0.85, borderRadius: "1px", zIndex: 10,
+        boxShadow: "0 2px 6px rgba(0,0,0,0.12)",
     }} />
 );
 
@@ -158,7 +194,11 @@ export default function HistoryPage() {
                             borderRadius: "6px", border: "1px solid #e8e2d9",
                             boxShadow: "0 8px 24px rgba(0,0,0,0.08)",
                             padding: isMobile ? "2rem 1.5rem" : "3rem 2.5rem",
+                            position: "relative"
                         }}>
+                            {/* Tiny flower deco */}
+                            <TinyObject emoji="🌸" size={15} top="15px" left="20px" rotate={-10} delay={0.3} />
+
                             <div style={{
                                 display: "flex", flexDirection: isMobile ? "column" : "row",
                                 alignItems: "center", gap: isMobile ? "2rem" : "4rem",
@@ -210,15 +250,19 @@ export default function HistoryPage() {
                                             </AnimatePresence>
                                         </div>
                                     </motion.div>
+
+                                    {/* Washi Tape on the stacked polaroid */}
+                                    <WashiTape color="#f5d5c0" rotate={-4} width="110px" />
                                 </div>
 
                                 {/* Text Content */}
-                                <div style={{ textAlign: isMobile ? "center" : "left", maxWidth: "400px" }}>
-                                    <div style={{ fontSize: "0.7rem", color: "#a0907d", textTransform: "uppercase", letterSpacing: "2px", marginBottom: "0.5rem" }}>Untukmu</div>
-                                    <h3 style={{ fontSize: isMobile ? "1.8rem" : "2.2rem", fontWeight: 300, color: "#4e4439", fontFamily: "'Crimson Pro', serif", lineHeight: 1.3, marginBottom: "1rem" }}>
+                                <div style={{ textAlign: isMobile ? "center" : "left", maxWidth: "400px", position: "relative" }}>
+                                    <TinyObject emoji="🌿" size={14} bottom="-15px" right="20%" rotate={15} delay={0.6} />
+                                    <div style={{ fontSize: "0.7rem", color: "#a0907d", textTransform: "uppercase", letterSpacing: "2px", marginBottom: "0.5rem", fontFamily: "'Crimson Pro', serif", fontWeight: 700 }}>Untukmu</div>
+                                    <h3 style={{ fontFamily: "'Caveat', cursive", fontSize: isMobile ? "2rem" : "2.6rem", fontWeight: 700, color: "#b07d62", lineHeight: 1.1, marginBottom: "1rem" }}>
                                         Jiwa yang lahir di hari yang istimewa
                                     </h3>
-                                    <HandwrittenNote style={{ fontSize: "1.1rem", lineHeight: 1.6, opacity: 0.8 }}>
+                                    <HandwrittenNote style={{ fontSize: "1.15rem", lineHeight: 1.6, opacity: 0.8 }}>
                                         Setiap garis di sketsa ini adalah pengingat bahwa keberadaanmu layak untuk diabadikan.
                                     </HandwrittenNote>
                                 </div>
@@ -254,7 +298,7 @@ export default function HistoryPage() {
                             ))}
 
                             <Moon size={20} color="rgba(255,255,255,0.3)" style={{ margin: "0 auto 1rem" }} />
-                            <div style={{ fontSize: "0.65rem", color: "rgba(255,255,255,0.5)", textTransform: "uppercase", letterSpacing: "3px", marginBottom: "1.5rem" }}>
+                            <div style={{ fontSize: "0.65rem", color: "rgba(255,255,255,0.5)", textTransform: "uppercase", letterSpacing: "3px", marginBottom: "1.5rem", fontFamily: "'Crimson Pro', serif", fontWeight: 700 }}>
                                 28 November 2000
                             </div>
 
@@ -266,11 +310,11 @@ export default function HistoryPage() {
                                 {moonOnBirthday.emoji}
                             </motion.div>
 
-                            <h3 style={{ fontSize: "1.6rem", color: "#e8d5b7", fontFamily: "'Crimson Pro', serif", fontWeight: 300, marginBottom: "0.5rem" }}>
+                            <h3 style={{ fontFamily: "'Caveat', cursive", fontSize: "2.2rem", color: "#e8d5b7", fontWeight: 700, marginBottom: "0.5rem" }}>
                                 {moonOnBirthday.phase}
                             </h3>
 
-                            <p style={{ fontSize: "1rem", color: "rgba(255,255,255,0.5)", fontStyle: "italic", maxWidth: "500px", margin: "0 auto 2rem", lineHeight: 1.6 }}>
+                            <p style={{ fontFamily: "'Crimson Pro', serif", fontSize: "1.1rem", color: "rgba(255,255,255,0.6)", fontStyle: "italic", maxWidth: "500px", margin: "0 auto 2rem", lineHeight: 1.6 }}>
                                 Di malam kamu lahir, cahaya bulan menerangi {moonOnBirthday.illumination}% langit — seolah semesta sedang bersiap menyambut kehadiranmu.
                             </p>
 
@@ -322,10 +366,10 @@ export default function HistoryPage() {
                                             <div style={{ width: "32px", height: "32px", borderRadius: "50%", background: "#fff", border: "1px solid #e8e2d9", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 0 12px rgba(176, 125, 98, 0.12)" }}>
                                                 <chapter.icon size={14} color="#b07d62" />
                                             </div>
-                                            <span style={{ fontSize: "0.65rem", fontWeight: 700, color: "#aaa" }}>{chapter.year}</span>
+                                            <span style={{ fontSize: "0.65rem", fontWeight: 700, color: "#aaa", fontFamily: "'Crimson Pro', serif" }}>{chapter.year}</span>
                                         </div>
-                                        <h4 style={{ fontSize: "1rem", fontWeight: 700, color: "#4e4439" }}>{chapter.title}</h4>
-                                        <HandwrittenNote style={{ fontSize: "0.9rem", marginTop: "4px" }}>{chapter.desc}</HandwrittenNote>
+                                        <h4 style={{ fontFamily: "'Caveat', cursive", fontSize: "1.4rem", fontWeight: 700, color: "#b07d62", marginBottom: "3px" }}>{chapter.title}</h4>
+                                        <HandwrittenNote style={{ fontSize: "0.95rem" }}>{chapter.desc}</HandwrittenNote>
                                     </div>
                                 ))}
                             </div>
@@ -345,7 +389,10 @@ export default function HistoryPage() {
                             borderRadius: "6px", border: "1px solid #e8e2d9",
                             boxShadow: "0 8px 24px rgba(0,0,0,0.08)",
                             padding: isMobile ? "2rem 1.5rem" : "3rem 2.5rem",
+                            position: "relative"
                         }}>
+                            <TinyObject emoji="🌼" size={14} bottom="20px" right="20px" rotate={-10} delay={0.4} />
+
                             <div style={{ display: "flex", flexDirection: isMobile ? "column" : "row", gap: isMobile ? "2rem" : "4rem", alignItems: "center" }}>
                                 {/* Animated Compass */}
                                 <div style={{ flex: isMobile ? "none" : "0 0 35%", display: "flex", justifyContent: "center" }}>
@@ -377,8 +424,8 @@ export default function HistoryPage() {
                                     <div style={{ position: "absolute", top: "-20px", left: "-20px", opacity: 0.1 }}>
                                         <Quote size={60} color="#aebdca" />
                                     </div>
-                                    <h3 style={{ fontSize: "1.6rem", fontWeight: 400, color: "#b07d62", fontFamily: "'Crimson Pro', serif", marginBottom: "1rem", fontStyle: "italic" }}>
-                                        &ldquo;Titik Keseimbangan Emas&rdquo;
+                                    <h3 style={{ fontFamily: "'Caveat', cursive", fontSize: "2rem", fontWeight: 700, color: "#b07d62", marginBottom: "0.5rem" }}>
+                                        Titik Keseimbangan Emas
                                     </h3>
                                     <p style={{ fontFamily: "'Crimson Pro', serif", fontSize: "1.1rem", lineHeight: 1.8, color: "#4e4439", marginBottom: "1.5rem" }}>
                                         Banyak yang bilang usia 25 adalah fase yang membingungkan. Seolah kamu harus memilih satu jalan pasti saat hatimu masih ingin menjelajah segalanya.
@@ -413,6 +460,9 @@ export default function HistoryPage() {
                                 <Sparkles size={14} color="#a0907d" />
                                 <h3 style={{ fontSize: "0.7rem", fontWeight: 700, color: "#a0907d", textTransform: "uppercase", letterSpacing: "2.5px" }}>Kamus Angka 28</h3>
                             </div>
+
+                            <WashiTape color="#e8e2d9" rotate={1} width="100px" />
+                            <TinyObject emoji="✨" size={14} top="20%" right="15%" rotate={15} delay={0.4} />
 
                             <div style={{
                                 fontSize: "6rem", fontWeight: 900, lineHeight: 0.8, fontFamily: "'Crimson Pro', serif",

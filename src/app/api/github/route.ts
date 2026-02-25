@@ -32,13 +32,15 @@ export async function GET() {
         const now = new Date();
         const currentMonth = now.getMonth();
         const currentYear = now.getFullYear();
-        const currentMonthTotalDays = new Date(currentYear, currentMonth + 1, 0).getDate();
+        // Get today's date in WIB to match pushDates
+        const getWIBDate = (d: string | Date) => new Date(d).toLocaleDateString("en-CA", { timeZone: "Asia/Jakarta" });
+        const todayWIB = new Date(new Date().toLocaleString("en-US", { timeZone: "Asia/Jakarta" }));
+        const currentMonthTotalDays = todayWIB.getDate();
 
         let currentMonthPushCount = 0;
         const currentMonthActiveDates = new Set<string>();
         let recentRepo: string | null = null;
 
-        const getWIBDate = (d: string | Date) => new Date(d).toLocaleDateString("en-CA", { timeZone: "Asia/Jakarta" });
         const pushDates = new Set<string>();
 
         // Track more event types for accurate activity data
