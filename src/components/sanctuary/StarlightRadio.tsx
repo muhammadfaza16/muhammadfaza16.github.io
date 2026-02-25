@@ -8,9 +8,10 @@ import { useAudio, PLAYLIST } from "@/components/AudioContext";
 const TIME_PER_SONG = 210; // 3.5 minutes per rotation
 
 export function StarlightRadio() {
-    const { playQueue, isPlaying, currentSong, seekTo } = useAudio();
+    const { playQueue, isPlaying, currentSong, seekTo, analyser } = useAudio();
     const [currentTime, setCurrentTime] = useState(0);
     const [mounted, setMounted] = useState(false);
+    const [freqData, setFreqData] = useState<Uint8Array | null>(null);
 
     useEffect(() => {
         setMounted(true);
@@ -19,6 +20,26 @@ export function StarlightRadio() {
         }, 1000);
         return () => clearInterval(interval);
     }, []);
+
+    // Visualizer loop
+    useEffect(() => {
+        if (!analyser || !isPlaying) {
+            setFreqData(null);
+            return;
+        }
+
+        const dataArray = new Uint8Array(analyser.frequencyBinCount);
+        let animationFrameId: number;
+
+        const updateVisualizer = () => {
+            analyser.getByteFrequencyData(dataArray);
+            setFreqData(new Uint8Array(dataArray)); // Force re-render
+            animationFrameId = requestAnimationFrame(updateVisualizer);
+        };
+
+        animationFrameId = requestAnimationFrame(updateVisualizer);
+        return () => cancelAnimationFrame(animationFrameId);
+    }, [analyser, isPlaying]);
 
     const radioState = useMemo(() => {
         if (!mounted) return null;
@@ -70,13 +91,14 @@ export function StarlightRadio() {
                     overflow: "hidden",
                 }}
             >
-                {/* Vintage Texture Overlay */}
+                {/* Vintage Texture Overlay - Procedural SVG Noise to fix 404 */}
                 <div style={{
                     position: "absolute",
                     inset: 0,
-                    backgroundImage: "url('/textures/noise.png')",
-                    opacity: 0.03,
+                    backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
+                    opacity: 0.04,
                     pointerEvents: "none",
+                    mixBlendMode: "overlay",
                 }} />
 
                 {/* Top Section: Display & Tuner */}
@@ -135,16 +157,26 @@ export function StarlightRadio() {
                         gap: "3px",
                         justifyContent: "flex-end"
                     }}>
-                        {[...Array(12)].map((_, i) => (
-                            <motion.div
-                                key={i}
-                                animate={{
-                                    opacity: isTunedIn ? (Math.random() > 0.3 ? 1 : 0.4) : 0.2,
-                                    backgroundColor: i < 3 ? "#FF3B30" : i < 6 ? "#FFCC00" : "#4CD964"
-                                }}
-                                style={{ height: "4px", borderRadius: "1px" }}
-                            />
-                        ))}
+                        {[...Array(12)].map((_, i) => {
+                            // Calculate which frequency bin to look at (mapping 12 bars to 128 bins)
+                            const binIndex = Math.floor((i / 12) * 60); // Focus on mid-low range for better visual
+                            const value = freqData ? freqData[binIndex] : 0;
+                            const threshold = (12 - i) * (200 / 12); // Higher bars need higher frequency values
+                            const isActive = isTunedIn && value > threshold;
+
+                            return (
+                                <motion.div
+                                    key={i}
+                                    animate={{
+                                        opacity: isActive ? 1 : 0.2,
+                                        backgroundColor: i < 3 ? "#FF3B30" : i < 6 ? "#FFCC00" : "#4CD964",
+                                        boxShadow: isActive ? `0 0 10px ${i < 3 ? "#FF3B30" : i < 6 ? "#FFCC00" : "#4CD964"}` : "none"
+                                    }}
+                                    transition={{ duration: 0.1 }}
+                                    style={{ height: "4px", borderRadius: "1px" }}
+                                />
+                            );
+                        })}
                     </div>
                 </div>
 

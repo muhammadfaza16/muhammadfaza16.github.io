@@ -263,8 +263,24 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
 
 
     const initializeAudio = useCallback(() => {
-        // DISABLED for Mobile Reliability (Background Play) aka "The Native Way"
-        return;
+        if (!audioRef.current || audioContextRef.current) return;
+
+        try {
+            const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
+            const context = new AudioContextClass();
+            const node = context.createAnalyser();
+            node.fftSize = 256;
+
+            const source = context.createMediaElementSource(audioRef.current);
+            source.connect(node);
+            node.connect(context.destination);
+
+            audioContextRef.current = context;
+            sourceRef.current = source;
+            setAnalyser(node);
+        } catch (err) {
+            console.error("Failed to initialize Web Audio API:", err);
+        }
     }, []);
 
     const togglePlay = useCallback(() => {
