@@ -40,17 +40,15 @@ const AppIcon = ({ title, href, icon, iconColor, delay = 0, isMobile = false }: 
                     width: isMobile ? "clamp(50px, 14vw, 62px)" : "clamp(58px, 16vw, 72px)",
                     height: isMobile ? "clamp(50px, 14vw, 62px)" : "clamp(58px, 16vw, 72px)",
                     borderRadius: "26%",
-                    background: "rgba(0, 0, 0, 0.35)", // Significantly more solid
-                    backdropFilter: "blur(20px) saturate(160%)", // Higher blur
-                    WebkitBackdropFilter: "blur(20px) saturate(160%)",
+                    background: "rgba(255, 255, 255, 0.12)", // Pseudo-glass: solid yet transparent
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
                     boxShadow: "0 6px 15px rgba(0,0,0,0.25), inset 0 1px 0.5px rgba(255,255,255,0.25)",
                     transition: "transform 0.15s ease",
                     overflow: "hidden",
-                    border: "1px solid rgba(255, 255, 255, 0.08)",
-                    transform: "translateZ(0)", // Force hardware acceleration to prevent Safari flickering
+                    border: "1px solid rgba(255, 255, 255, 0.22)", // Sharper edge
+                    transform: "translateZ(0)", // Maintain hardware acceleration
                     WebkitTransform: "translateZ(0)",
                 }} className="hover:scale-105 active:scale-95">
 
