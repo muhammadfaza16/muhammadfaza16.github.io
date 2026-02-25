@@ -9,6 +9,7 @@ import { motion } from "framer-motion";
 
 export default function StarlightPage() {
   const [activeDock, setActiveDock] = useState(0);
+  const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
     const saved = sessionStorage.getItem("starlight_active_dock");
@@ -20,10 +21,16 @@ export default function StarlightPage() {
     if (mainContent) {
       mainContent.scrollTop = 0;
       document.body.style.overflow = "hidden";
-      return () => {
-        document.body.style.overflow = "";
-      };
     }
+
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+
+    return () => {
+      document.body.style.overflow = "";
+      window.removeEventListener("resize", checkMobile);
+    };
   }, []);
 
   return (
@@ -89,7 +96,7 @@ export default function StarlightPage() {
             flexDirection: "column",
             alignItems: "center",
             justifyContent: "center", // Perfectly center the dock
-            padding: "2rem 1rem", // Standard padding all around
+            padding: isMobile ? "1.2rem 0.75rem" : "2rem 1rem", // Standard padding all around
           }}>
             <motion.div
               initial={{ opacity: 1, scale: 0.9, y: 20 }}
@@ -97,7 +104,7 @@ export default function StarlightPage() {
               transition={{ duration: 0.6, type: "spring", bounce: 0.3 }}
               style={{
                 width: "100%",
-                maxWidth: "520px",
+                maxWidth: isMobile ? "460px" : "520px",
                 display: "flex",
                 flexDirection: "column",
                 background: "rgba(0, 0, 0, 0.25)", // Thin premium dark glass
@@ -164,7 +171,7 @@ export default function StarlightPage() {
               </div>
 
               {/* Window Content */}
-              <div style={{ padding: "2rem 1.5rem 3rem", position: "relative", zIndex: 1 }}>
+              <div style={{ padding: isMobile ? "1.5rem 1rem 2rem" : "2rem 1.5rem 3rem", position: "relative", zIndex: 1 }}>
                 {/* Simple Heading */}
                 <div style={{
                   width: "100%",
@@ -172,7 +179,7 @@ export default function StarlightPage() {
                   marginBottom: "2.5rem",
                 }}>
                   <h1 style={{
-                    fontSize: "clamp(2rem, 6vw, 2.5rem)",
+                    fontSize: isMobile ? "2rem" : "clamp(2.5rem, 6vw, 2.5rem)",
                     fontWeight: 800,
                     letterSpacing: "-0.04em",
                     lineHeight: 1.1,
@@ -183,7 +190,7 @@ export default function StarlightPage() {
                     {activeDock === 0 ? "Explore." : activeDock === 1 ? "Work." : "Life."}
                   </h1>
                   <p style={{
-                    fontSize: "0.95rem",
+                    fontSize: isMobile ? "0.85rem" : "0.95rem",
                     color: "rgba(255, 255, 255, 0.8)",
                     lineHeight: 1.5,
                     fontWeight: 500,

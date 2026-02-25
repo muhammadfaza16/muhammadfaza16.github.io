@@ -18,7 +18,14 @@ interface AppIconProps {
     delay?: number;
 }
 
-const AppIcon = ({ title, href, icon, iconColor, delay = 0 }: AppIconProps) => {
+
+
+interface StarlightBentoGridProps {
+    activeDock: number;
+    setActiveDock: React.Dispatch<React.SetStateAction<number>>;
+}
+
+const AppIcon = ({ title, href, icon, iconColor, delay = 0, isMobile = false }: AppIconProps & { isMobile?: boolean }) => {
     return (
         <Link href={href} prefetch={true} style={{ textDecoration: 'none' }} className="group">
             <motion.div
@@ -41,8 +48,8 @@ const AppIcon = ({ title, href, icon, iconColor, delay = 0 }: AppIconProps) => {
                 {/* Ultra-Thin Premium Glass */}
                 <div style={{
                     position: "relative",
-                    width: "clamp(58px, 16vw, 72px)",
-                    height: "clamp(58px, 16vw, 72px)",
+                    width: isMobile ? "clamp(50px, 14vw, 62px)" : "clamp(58px, 16vw, 72px)",
+                    height: isMobile ? "clamp(50px, 14vw, 62px)" : "clamp(58px, 16vw, 72px)",
                     borderRadius: "22.5%",
                     background: "rgba(0, 0, 0, 0.25)", // Darker glass tint instead of blur for performance
                     willChange: "transform, opacity", // Prevent Safari rendering bugs
@@ -83,7 +90,7 @@ const AppIcon = ({ title, href, icon, iconColor, delay = 0 }: AppIconProps) => {
                 {/* Label */}
                 <span style={{
                     fontFamily: "-apple-system, BlinkMacSystemFont, sans-serif",
-                    fontSize: "0.74rem",
+                    fontSize: isMobile ? "0.68rem" : "0.74rem",
                     fontWeight: 500,
                     color: "#ffffff", // Pure white for perfect contrast against dark dock
                     textShadow: "0 1px 4px rgba(0,0,0,0.5)", // Strong shadow to separate from background
@@ -97,12 +104,15 @@ const AppIcon = ({ title, href, icon, iconColor, delay = 0 }: AppIconProps) => {
     );
 };
 
-interface StarlightBentoGridProps {
-    activeDock: number;
-    setActiveDock: React.Dispatch<React.SetStateAction<number>>;
-}
-
 export function StarlightBentoGrid({ activeDock, setActiveDock }: StarlightBentoGridProps) {
+    const [isMobile, setIsMobile] = React.useState(false);
+
+    React.useEffect(() => {
+        const checkMobile = () => setIsMobile(window.innerWidth < 768);
+        checkMobile();
+        window.addEventListener("resize", checkMobile);
+        return () => window.removeEventListener("resize", checkMobile);
+    }, []);
 
     const dock1Apps = [
         { title: "Bookshelf", href: "/bookshelf", icon: <Book />, iconColor: "#FF9F0A" }, // Orange
@@ -159,7 +169,7 @@ export function StarlightBentoGrid({ activeDock, setActiveDock }: StarlightBento
                 onClick={handlePrev}
                 style={{
                     position: "absolute",
-                    left: "-1rem",
+                    left: isMobile ? "-0.5rem" : "-1rem",
                     top: "calc(50% - 1.5rem)", // Offset by half of the container's paddingBottom
                     transform: "translateY(-50%)",
                     display: "flex",
@@ -176,7 +186,7 @@ export function StarlightBentoGrid({ activeDock, setActiveDock }: StarlightBento
             <section style={{
                 padding: "0 1.5rem",
                 width: "100%",
-                maxWidth: "380px", // Reduced from 420px for closer clustering
+                maxWidth: isMobile ? "340px" : "380px", // Reduced from 420px for closer clustering
                 paddingBottom: "3rem"
             }}>
                 <AnimatePresence mode="wait">
@@ -189,11 +199,11 @@ export function StarlightBentoGrid({ activeDock, setActiveDock }: StarlightBento
                         style={{
                             display: "grid",
                             gridTemplateColumns: "repeat(3, 1fr)",
-                            gap: "1.5rem 0.5rem", // Reduced gap to match Home Screen dock clustered feel
+                            gap: isMobile ? "1.2rem 0.35rem" : "1.5rem 0.5rem", // Reduced gap to match Home Screen dock clustered feel
                         }}
                     >
                         {allDocks[activeDock].map((app, idx) => (
-                            <AppIcon key={idx} {...app} delay={0.05 + idx * 0.04} />
+                            <AppIcon key={idx} {...app} delay={0.05 + idx * 0.04} isMobile={isMobile} />
                         ))}
                     </motion.div>
                 </AnimatePresence>
@@ -204,7 +214,7 @@ export function StarlightBentoGrid({ activeDock, setActiveDock }: StarlightBento
                 onClick={handleNext}
                 style={{
                     position: "absolute",
-                    right: "-1rem",
+                    right: isMobile ? "-0.5rem" : "-1rem",
                     top: "calc(50% - 1.5rem)", // Offset by half of the container's paddingBottom
                     transform: "translateY(-50%)",
                     display: "flex",
