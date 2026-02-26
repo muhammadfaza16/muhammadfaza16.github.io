@@ -3,20 +3,25 @@
 import React from "react";
 import { motion } from "framer-motion";
 import { Play } from "lucide-react";
-import { useRadio, TIME_PER_SONG } from "@/components/RadioContext";
+import { useRadio } from "@/components/RadioContext";
 import { PLAYLIST } from "@/components/AudioContext";
 
+// Generate random static timings for level meters outside component to satisfy React purity
+const METER_RANDOMS = Array.from({ length: 10 }).map(() => ({
+    duration: 0.3 + Math.random() * 0.5,
+    delay: Math.random() * 0.5
+}));
 
 export function StarlightRadio() {
     const {
         isTunedIn,
         isSyncing,
         isBuffering,
-        radioState,
+        currentSong,
         handleTuneIn
     } = useRadio();
 
-    if (!radioState) return null;
+    if (!currentSong) return null;
 
     return (
         <div style={{
@@ -105,17 +110,19 @@ export function StarlightRadio() {
                         <div style={{
                             position: "relative",
                             width: "100%",
+                            maxWidth: "180px", // Strict cap to prevent pushing flex neighbors
+                            minWidth: 0,
                             height: "24px",
                             marginTop: "0.75rem",
-                            overflow: "hidden",
+                            overflow: "hidden", // Double lock overflow
                             display: "flex",
                             alignItems: "center"
                         }}>
                             <motion.div
-                                key={radioState.song.title}
+                                key={currentSong.title}
                                 animate={{ x: isTunedIn ? ["0%", "-100%"] : "0%" }}
                                 transition={{
-                                    duration: 20,
+                                    duration: Math.max(8, currentSong.title.length * 0.4), // Dynamic speed based on length
                                     repeat: Infinity,
                                     ease: "linear"
                                 }}
@@ -131,9 +138,9 @@ export function StarlightRadio() {
                                     left: 0
                                 }}
                             >
-                                <span style={{ flexShrink: 0 }}>{radioState.song.title}</span>
-                                <span style={{ flexShrink: 0 }}>{radioState.song.title}</span>
-                                <span style={{ flexShrink: 0 }}>{radioState.song.title}</span>
+                                <span style={{ flexShrink: 0 }}>{currentSong.title}</span>
+                                <span style={{ flexShrink: 0 }}>{currentSong.title}</span>
+                                <span style={{ flexShrink: 0 }}>{currentSong.title}</span>
                             </motion.div>
                         </div>
 
@@ -142,7 +149,7 @@ export function StarlightRadio() {
                                 {isTunedIn ? "SINYAL STABIL" : "STANDBY"}
                             </span>
                             <span style={{ fontSize: "0.65rem", color: "#FFB000", fontFamily: "monospace", opacity: 0.8 }}>
-                                {radioState.formattedTime}
+                                FM
                             </span>
                         </div>
                     </div>
@@ -161,10 +168,10 @@ export function StarlightRadio() {
                         padding: "6px"
                     }}>
                         {[...Array(10)].map((_, i) => {
-                            const threshold = (10 - i) * 20;
                             // Predefined active baseline for each bar when tuned in
                             const isActiveBaseline = isTunedIn && (10 - i) <= 6; // 60% baseline
                             const color = i < 2 ? "#FF3B30" : i < 5 ? "#FFCC00" : "#4CD964";
+                            const { duration, delay } = METER_RANDOMS[i];
 
                             return (
                                 <motion.div
@@ -183,10 +190,10 @@ export function StarlightRadio() {
                                         boxShadow: "none"
                                     }}
                                     transition={isTunedIn ? {
-                                        duration: 0.3 + Math.random() * 0.5,
+                                        duration: duration,
                                         repeat: Infinity,
                                         repeatType: "reverse",
-                                        delay: Math.random() * 0.5
+                                        delay: delay
                                     } : { duration: 0.1 }}
                                     style={{ height: "4px", borderRadius: "1.5px" }}
                                 />
@@ -227,7 +234,7 @@ export function StarlightRadio() {
                     </div>
                     {/* The Tuning Needle */}
                     <motion.div
-                        animate={{ left: `${(radioState.index / PLAYLIST.length) * 100}%` }}
+                        animate={{ left: isTunedIn ? "68%" : "50%" }}
                         transition={{ type: "spring", stiffness: 60, damping: 15 }}
                         style={{
                             position: "absolute",
@@ -287,8 +294,8 @@ export function StarlightRadio() {
                         <div style={{ textAlign: "center", width: "40px" }}>
                             <div style={{ fontSize: "0.55rem", color: "rgba(255,255,255,0.4)", marginBottom: "6px", fontWeight: "900" }}>SYNC</div>
                             <motion.div
-                                animate={{ rotate: isSyncing ? 360 : radioState.index * 60 }}
-                                transition={isSyncing ? { duration: 1.5, repeat: Infinity, ease: "linear" } : { type: "spring" }}
+                                animate={{ rotate: isSyncing || isBuffering ? 360 : isTunedIn ? 180 : 0 }}
+                                transition={isSyncing || isBuffering ? { duration: 1.5, repeat: Infinity, ease: "linear" } : { type: "spring" }}
                                 style={{
                                     width: "28px",
                                     height: "28px",

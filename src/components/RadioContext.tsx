@@ -1,20 +1,13 @@
 "use client";
 
-import React, { createContext, useContext, useState, useEffect, useMemo, useRef } from "react";
+import React, { createContext, useContext, useState, useEffect, useRef } from "react";
 import { useAudio, PLAYLIST } from "./AudioContext";
-
-export const TIME_PER_SONG = 210; // 3.5 minutes per rotation
 
 interface RadioContextType {
     isTunedIn: boolean;
     isSyncing: boolean;
     isBuffering: boolean;
-    radioState: {
-        song: typeof PLAYLIST[0];
-        index: number;
-        progress: number;
-        formattedTime: string;
-    } | null;
+    currentSong: typeof PLAYLIST[0] | null;
     handleTuneIn: () => void;
 }
 
@@ -28,24 +21,32 @@ export function useRadio() {
     return context;
 }
 
+// Helper to shuffle the playlist
+function shuffleArray<T>(array: T[]): T[] {
+    const shuffled = [...array];
+    for (let i = shuffled.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+    return shuffled;
+}
+
 export function RadioProvider({ children }: { children: React.ReactNode }) {
-    const [currentTime, setCurrentTime] = useState(0);
-    const [mounted, setMounted] = useState(false);
     const [isTunedIn, setIsTunedIn] = useState(false);
     const [isSyncing, setIsSyncing] = useState(false);
     const [isBuffering, setIsBuffering] = useState(false);
+    const [radioQueue, setRadioQueue] = useState<typeof PLAYLIST>([]);
+    const [currentIndex, setCurrentIndex] = useState(0);
 
     const { isPlaying: globalPlaying, togglePlay } = useAudio();
     const audioRef = useRef<HTMLAudioElement | null>(null);
 
-    // Initial sync to "World Time"
+    // Initialize random queue on mount
     useEffect(() => {
-        setMounted(true);
-        const interval = setInterval(() => {
-            setCurrentTime(Math.floor(Date.now() / 1000));
-        }, 1000);
-        return () => clearInterval(interval);
+        setRadioQueue(shuffleArray(PLAYLIST));
     }, []);
+
+    const currentSong = radioQueue[currentIndex] || null;
 
     // Background Resume Logic
     // Ensures audio resumes when returning to the tab or if browser pauses it during navigation
@@ -54,10 +55,6 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
 
         const attemptResume = () => {
             if (audioRef.current && isTunedIn && audioRef.current.paused) {
-                // For radio, we always want to sync to "World Time" on resume
-                if (radioStateRef.current) {
-                    audioRef.current.currentTime = radioStateRef.current.progress;
-                }
                 audioRef.current.play().catch(() => {
                     // Fail silently, likely needs interaction
                 });
@@ -80,33 +77,9 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
         };
     }, [isTunedIn]);
 
-    const radioState = useMemo(() => {
-        if (!mounted) return null;
-        const totalDuration = PLAYLIST.length * TIME_PER_SONG;
-        const globalProgress = currentTime % totalDuration;
-        const songIndex = Math.floor(globalProgress / TIME_PER_SONG);
-        const songProgress = globalProgress % TIME_PER_SONG;
-
-        return {
-            song: PLAYLIST[songIndex],
-            index: songIndex,
-            progress: songProgress,
-            formattedTime: `${Math.floor(songProgress / 60)}:${(songProgress % 60).toString().padStart(2, '0')}`
-        };
-    }, [currentTime, mounted]);
-
-    // Track current state in a ref for use in effects without triggering them
-    const radioStateRef = useRef(radioState);
+    // Play/Pause Control
     useEffect(() => {
-        radioStateRef.current = radioState;
-    }, [radioState]);
-
-    // Unified Playback & Sync Logic
-    const radioSongUrl = radioState?.song?.audioUrl;
-
-    // Play/Pause & Song Change Effect
-    useEffect(() => {
-        if (!audioRef.current || !radioSongUrl) return;
+        if (!audioRef.current || !currentSong) return;
         const audio = audioRef.current;
 
         if (!isTunedIn) {
@@ -114,54 +87,28 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
             return;
         }
 
-        const syncAndPlay = () => {
-            if (radioStateRef.current) {
-                const targetTime = radioStateRef.current.progress;
-                console.log("Radio Engine: Syncing to", targetTime);
-                audio.currentTime = targetTime;
-                setIsSyncing(false);
-                audio.play().catch(e => console.error("Radio play failed", e));
-            }
-        };
-
-        const isSameSong = audio.src.endsWith(radioSongUrl);
+        const isSameSong = audio.src.endsWith(currentSong.audioUrl);
 
         if (!isSameSong) {
-            console.log("Radio Engine: Switching to new song", radioSongUrl);
+            console.log("Radio Engine: Switching to new song", currentSong.audioUrl);
             setIsSyncing(true);
-            audio.src = radioSongUrl;
-            audio.addEventListener('canplay', syncAndPlay, { once: true });
-            // Fallback if already buffered
-            if (audio.readyState >= 3) syncAndPlay();
+            audio.src = currentSong.audioUrl;
+
+            const attemptPlay = () => {
+                setIsSyncing(false);
+                audio.play().catch(e => console.error("Radio play failed", e));
+            };
+
+            audio.addEventListener('canplay', attemptPlay, { once: true });
+            if (audio.readyState >= 3) attemptPlay();
+
         } else if (audio.paused && isTunedIn) {
-            // If it's the same song but we just tuned in (paused), sync and play immediately
-            syncAndPlay();
+            audio.play().catch(e => console.error("Radio resume failed", e));
         }
-    }, [isTunedIn, radioSongUrl]);
-
-    // Drift Correction (Every 10 seconds)
-    useEffect(() => {
-        if (!isTunedIn || !audioRef.current || isSyncing) return;
-
-        const interval = setInterval(() => {
-            if (audioRef.current && radioStateRef.current) {
-                const audio = audioRef.current;
-                const targetTime = radioStateRef.current.progress;
-                const drift = Math.abs(audio.currentTime - targetTime);
-
-                // If drift > 2 seconds, do a hard sync
-                if (drift > 2) {
-                    console.log("Radio Engine: Correcting drift", { drift, current: audio.currentTime, target: targetTime });
-                    audio.currentTime = targetTime;
-                }
-            }
-        }, 10000);
-
-        return () => clearInterval(interval);
-    }, [isTunedIn, isSyncing]);
+    }, [isTunedIn, currentSong]); // Removed radioSongUrl
 
     const handleTuneIn = () => {
-        if (!radioState || !audioRef.current) return;
+        if (!currentSong || !audioRef.current) return;
 
         if (isTunedIn) {
             audioRef.current.pause();
@@ -176,33 +123,30 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
         setIsTunedIn(true);
     };
 
+    const handleNextSong = () => {
+        if (radioQueue.length === 0) return;
+        setCurrentIndex((prev) => (prev + 1) % radioQueue.length);
+    };
+
     return (
         <RadioContext.Provider value={{
             isTunedIn,
             isSyncing,
             isBuffering,
-            radioState,
+            currentSong,
             handleTuneIn
         }}>
             {children}
             <audio
                 ref={audioRef}
+                preload="metadata"
                 onWaiting={() => setIsBuffering(true)}
                 onPlaying={() => setIsBuffering(false)}
-                onPause={() => {
-                    // If it pauses and we are still "tuned in", it's likely a browser-forced pause
-                    // or a background suspension. The Visibility logic will handle the resume.
-                }}
+                onEnded={handleNextSong}
                 onError={() => {
                     setIsBuffering(false);
-                    // On error, try to re-sync if still tuned in
-                    if (isTunedIn) {
-                        setTimeout(() => {
-                            if (audioRef.current && radioStateRef.current) {
-                                audioRef.current.src = radioStateRef.current.song.audioUrl;
-                            }
-                        }, 1000);
-                    }
+                    // On error, skip to next track
+                    handleNextSong();
                 }}
             />
         </RadioContext.Provider>
