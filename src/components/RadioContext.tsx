@@ -1,13 +1,37 @@
 "use client";
 
-import React, { createContext, useContext, useState, useEffect, useRef } from "react";
-import { useAudio, PLAYLIST } from "./AudioContext";
+import React, { createContext, useContext, useState, useEffect, useRef, useMemo } from "react";
+import { useAudio } from "./AudioContext";
+import rawPlaylist from "@/data/radioPlaylist.json";
+
+// Type derived from our new JSON structure
+type RadioTrack = {
+    title: string;
+    audioUrl: string;
+    duration: number;
+};
+
+const PLAYLIST = rawPlaylist as RadioTrack[];
+
+// Pre-calculate the total timeline duration and absolute offsets for blazing-fast sync
+const TIMELINE = PLAYLIST.reduce((acc, song) => {
+    const start = acc.totalDuration;
+    const end = start + song.duration;
+    acc.tracks.push({ ...song, startOffset: start, endOffset: end });
+    acc.totalDuration = end;
+    return acc;
+}, { tracks: [] as (RadioTrack & { startOffset: number, endOffset: number })[], totalDuration: 0 });
 
 interface RadioContextType {
     isTunedIn: boolean;
     isSyncing: boolean;
     isBuffering: boolean;
-    currentSong: typeof PLAYLIST[0] | null;
+    radioState: {
+        song: RadioTrack;
+        index: number;
+        progress: number;
+        formattedTime: string;
+    } | null;
     handleTuneIn: () => void;
 }
 
@@ -108,7 +132,7 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
     }, [isTunedIn, currentSong]); // Removed radioSongUrl
 
     const handleTuneIn = () => {
-        if (!currentSong || !audioRef.current) return;
+        if (!radioState || !audioRef.current) return;
 
         if (isTunedIn) {
             audioRef.current.pause();
@@ -123,17 +147,12 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
         setIsTunedIn(true);
     };
 
-    const handleNextSong = () => {
-        if (radioQueue.length === 0) return;
-        setCurrentIndex((prev) => (prev + 1) % radioQueue.length);
-    };
-
     return (
         <RadioContext.Provider value={{
             isTunedIn,
             isSyncing,
             isBuffering,
-            currentSong,
+            radioState,
             handleTuneIn
         }}>
             {children}
@@ -142,11 +161,8 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
                 preload="metadata"
                 onWaiting={() => setIsBuffering(true)}
                 onPlaying={() => setIsBuffering(false)}
-                onEnded={handleNextSong}
                 onError={() => {
                     setIsBuffering(false);
-                    // On error, skip to next track
-                    handleNextSong();
                 }}
             />
         </RadioContext.Provider>

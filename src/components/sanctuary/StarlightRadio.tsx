@@ -17,11 +17,13 @@ export function StarlightRadio() {
         isTunedIn,
         isSyncing,
         isBuffering,
-        currentSong,
+        radioState,
         handleTuneIn
     } = useRadio();
 
-    if (!currentSong) return null;
+    if (!radioState) return null;
+
+    const currentSong = radioState.song;
 
     return (
         <div style={{
