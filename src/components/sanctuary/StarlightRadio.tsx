@@ -97,23 +97,37 @@ export function StarlightRadio() {
         };
     }, [currentTime, mounted]);
 
-    // Handle song transitions automatically if already "tuned in"
     const radioSongUrl = radioState?.song?.audioUrl;
-    useEffect(() => {
-        if (localTunedIn && localAudioRef.current && localAudioRef.current.src !== radioSongUrl) {
-            // Radio song changed, update src and re-sync
-            localAudioRef.current.src = radioSongUrl || "";
-            localAudioRef.current.play().catch(e => console.log("Auto play transition failed", e));
 
-            const performTransitionSync = () => {
-                if (localAudioRef.current && radioState) {
-                    localAudioRef.current.currentTime = radioState.progress;
-                    localAudioRef.current.removeEventListener('canplay', performTransitionSync);
+    // Unified Playback & Sync Logic
+    useEffect(() => {
+        if (!localTunedIn || !localAudioRef.current || !radioSongUrl || !radioState) return;
+
+        const audio = localAudioRef.current;
+
+        // Safely check if we need to switch sources
+        // We use .endsWith() because audio.src returns the full URL
+        const isSameSong = audio.src.endsWith(radioSongUrl);
+
+        if (!isSameSong) {
+            console.log("Radio: Switching to new song", radioSongUrl);
+            setIsSyncing(true);
+            audio.src = radioSongUrl;
+
+            const performSync = () => {
+                if (radioState) {
+                    audio.currentTime = radioState.progress;
+                    setIsSyncing(false);
+                    audio.play().catch(e => console.error("Radio play failed", e));
+                    audio.removeEventListener('canplay', performSync);
                 }
             };
-            localAudioRef.current.addEventListener('canplay', performTransitionSync);
+
+            audio.addEventListener('canplay', performSync);
+            // Fallback if already buffered
+            if (audio.readyState >= 3) performSync();
         }
-    }, [radioSongUrl, localTunedIn, radioState]);
+    }, [localTunedIn, radioSongUrl, radioState?.index]); // stable dependencies
 
     const handleTuneIn = () => {
         if (!radioState || !localAudioRef.current) return;
@@ -124,7 +138,7 @@ export function StarlightRadio() {
             return;
         }
 
-        // 1. Initialize audio context on user interaction
+        // 1. Initialize audio context on first user interaction
         initLocalAudio();
         if (localAudioContextRef.current?.state === 'suspended') {
             localAudioContextRef.current.resume();
@@ -135,27 +149,8 @@ export function StarlightRadio() {
             togglePlay();
         }
 
-        setIsSyncing(true);
+        // 3. Just trigger the state; the useEffect above will handle the actual source/play/sync
         setLocalTunedIn(true);
-
-        // 3. Set source and play
-        localAudioRef.current.src = radioState.song.audioUrl;
-        localAudioRef.current.play().catch(e => console.error("Radio play failed", e));
-
-        const performSync = () => {
-            if (localAudioRef.current && radioState) {
-                localAudioRef.current.currentTime = radioState.progress;
-                setIsSyncing(false);
-                localAudioRef.current.removeEventListener('canplay', performSync);
-            }
-        };
-
-        if (localAudioRef.current.readyState >= 3) {
-            performSync();
-        } else {
-            localAudioRef.current.addEventListener('canplay', performSync);
-            setTimeout(() => { if (isSyncing) performSync(); }, 3000);
-        }
     };
 
     const isTunedIn = localTunedIn;
