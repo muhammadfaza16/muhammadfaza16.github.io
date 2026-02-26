@@ -264,8 +264,10 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
         setHasInteracted(true);
 
         if (isPlaying) {
+            intentionalPauseRef.current = true; // Tell the onPause listener to respect this
             audioRef.current.pause();
         } else {
+            intentionalPauseRef.current = false;
             const playPromise = audioRef.current.play();
             if (playPromise !== undefined) {
                 playPromise
@@ -281,6 +283,7 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
     }, [isPlaying]);
 
     const playQueue = useCallback((newQueue: typeof PLAYLIST, startIndex = 0, playlistId: string | null = null) => {
+        intentionalPauseRef.current = false;
         setQueue(newQueue);
         setCurrentIndex(startIndex);
         setActivePlaylistId(playlistId);
@@ -308,6 +311,7 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
     }, [queue.length]);
 
     const jumpToSong = useCallback((index: number) => {
+        intentionalPauseRef.current = false;
         setIsBuffering(false);
         setHasInteracted(true);
         setIsPlaying(true);

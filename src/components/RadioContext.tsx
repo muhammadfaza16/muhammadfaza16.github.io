@@ -98,6 +98,7 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
     // Handle seamless URL handoff and Drift Correction
     useEffect(() => {
         if (!audioRef.current || !radioState || !isTunedIn) return;
+
         const audio = audioRef.current;
         const targetUrl = radioState.song.audioUrl;
         const targetTime = radioState.progress;
@@ -105,41 +106,38 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
         const isSameSong = audio.src.endsWith(targetUrl);
 
         if (!isSameSong) {
-            console.log("Global Radio: Switching to new song", targetUrl);
+            console.log(`Global Radio: Action [Switch Source] -> ${radioState.song.title}`);
             setIsSyncing(true);
             setIsBuffering(true);
 
             audio.src = targetUrl;
 
-            const attemptPlay = () => {
-                // Ensure we start exactly where the world timeline dictates at this millisecond
-                if (radioStateRef.current) {
-                    audio.currentTime = radioStateRef.current.progress;
-                }
-                setIsSyncing(false);
+            if (radioStateRef.current) {
+                audio.currentTime = radioStateRef.current.progress;
+            }
+
+            audio.load();
+
+            // DO NOT call play() here for the initial Tune In on iOS/Android,
+            // handleTuneIn does that instantly. This play() is only for natural song transitions.
+            if (!audio.paused || audio.readyState >= 3) {
                 const playPromise = audio.play();
                 if (playPromise !== undefined) {
-                    playPromise.catch(e => {
-                        console.error("Global Radio Auto-Play Blocked/Failed:", e);
-                        setIsBuffering(false);
-                    });
+                    playPromise.then(() => setIsSyncing(false)).catch(() => setIsSyncing(false));
+                } else {
+                    setIsSyncing(false);
                 }
-            };
-
-            audio.addEventListener('canplay', attemptPlay, { once: true });
-            if (audio.readyState >= 3) {
-                audio.removeEventListener('canplay', attemptPlay);
-                attemptPlay();
+            } else {
+                setIsSyncing(false);
             }
 
         } else {
             // Drift correction (only correct if drift is > 1.5s to prevent micro-stutters)
             if (!audio.paused && Math.abs(audio.currentTime - targetTime) > 1.5) {
-                console.log("Global Radio: Correcting drift. Audio:", audio.currentTime, "World:", targetTime);
                 audio.currentTime = targetTime;
             }
 
-            // If the browser paused us arbitrarily (but tuned in), fight back gently
+            // Safari / Chrome auto-suspend recovery
             if (audio.paused && !isSyncing) {
                 audio.currentTime = targetTime;
                 audio.play().catch(() => { });
@@ -188,6 +186,23 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
         }
 
         setIsTunedIn(true);
+
+        // --- MOBILE SAFARI KICKSTARTER ---
+        // We MUST trigger .play() directly inside this user-initiated click handler
+        // before React re-renders, otherwise iOS will block the subsequent useEffect play().
+        const audio = audioRef.current;
+        if (audio.src !== radioState.song.audioUrl) {
+            audio.src = radioState.song.audioUrl;
+            audio.load();
+        }
+        audio.currentTime = radioState.progress;
+
+        const playPromise = audio.play();
+        if (playPromise !== undefined) {
+            playPromise.catch(e => {
+                console.warn("Mobile Kickstarter Blocked:", e);
+            });
+        }
     };
 
     return (
