@@ -7,6 +7,7 @@ import { KonamiCode } from "@/components/KonamiCode";
 import { FloatingZenToggle } from "@/components/FloatingZenToggle";
 
 import { AudioProvider } from "@/components/AudioContext";
+import { RadioProvider } from "@/components/RadioContext";
 import { NarrativeProvider } from "@/components/NarrativeContext";
 import { GuestAudioPlayer } from "@/components/GuestAudioPlayer";
 
@@ -112,17 +113,19 @@ export default function RootLayout({
         <ThemeProvider>
           <NarrativeProvider>
             <AudioProvider>
-              <ZenProvider>
-                <SkipLink />
-                <KonamiCode />
-                <KonamiCode />
-                <FloatingZenToggle />
+              <RadioProvider>
+                <ZenProvider>
+                  <SkipLink />
+                  <KonamiCode />
+                  <KonamiCode />
+                  <FloatingZenToggle />
 
-                <LayoutShell>
-                  <GuestAudioPlayer />
-                  {children}
-                </LayoutShell>
-              </ZenProvider>
+                  <LayoutShell>
+                    <GuestAudioPlayer />
+                    {children}
+                  </LayoutShell>
+                </ZenProvider>
+              </RadioProvider>
             </AudioProvider>
           </NarrativeProvider>
         </ThemeProvider>

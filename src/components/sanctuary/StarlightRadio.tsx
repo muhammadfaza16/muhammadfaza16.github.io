@@ -1,162 +1,23 @@
 "use client";
 
-import React, { useState, useEffect, useMemo } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { Radio, Music2, Share2, Play } from "lucide-react";
-import { useAudio, PLAYLIST } from "@/components/AudioContext";
+import React from "react";
+import { motion } from "framer-motion";
+import { Play } from "lucide-react";
+import { useRadio, TIME_PER_SONG } from "@/components/RadioContext";
+import { PLAYLIST } from "@/components/AudioContext";
 
-const TIME_PER_SONG = 210; // 3.5 minutes per rotation
 
 export function StarlightRadio() {
-    const [currentTime, setCurrentTime] = useState(0);
-    const [mounted, setMounted] = useState(false);
-    const [freqData, setFreqData] = useState<Uint8Array | null>(null);
-    const [localTunedIn, setLocalTunedIn] = useState(false);
-    const [isSyncing, setIsSyncing] = useState(false);
-    const [localBuffering, setLocalBuffering] = useState(false);
+    const {
+        isTunedIn,
+        isSyncing,
+        isBuffering,
+        freqData,
+        radioState,
+        handleTuneIn
+    } = useRadio();
 
-    const { isPlaying: globalPlaying, togglePlay } = useAudio();
-    const localAudioRef = React.useRef<HTMLAudioElement | null>(null);
-    const localAnalyserRef = React.useRef<AnalyserNode | null>(null);
-    const localAudioContextRef = React.useRef<AudioContext | null>(null);
-
-    useEffect(() => {
-        setMounted(true);
-        const interval = setInterval(() => {
-            setCurrentTime(Math.floor(Date.now() / 1000));
-        }, 1000);
-        return () => clearInterval(interval);
-    }, []);
-
-    // Initialize local audio context for visualizer
-    const initLocalAudio = () => {
-        if (!localAudioRef.current || localAudioContextRef.current) return;
-
-        try {
-            const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
-            const ctx = new AudioContextClass();
-            const analyser = ctx.createAnalyser();
-            const source = ctx.createMediaElementSource(localAudioRef.current);
-
-            source.connect(analyser);
-            analyser.connect(ctx.destination);
-
-            analyser.fftSize = 256;
-            localAudioContextRef.current = ctx;
-            localAnalyserRef.current = analyser;
-        } catch (e) {
-            console.error("Local audio context failed:", e);
-        }
-    };
-
-    // Visualizer loop
-    useEffect(() => {
-        if (!localTunedIn) {
-            setFreqData(null);
-            return;
-        }
-
-        let animationFrameId: number;
-        const updateVisualizer = () => {
-            if (localAnalyserRef.current) {
-                const dataArray = new Uint8Array(localAnalyserRef.current.frequencyBinCount);
-                localAnalyserRef.current.getByteFrequencyData(dataArray);
-                setFreqData(new Uint8Array(dataArray));
-            }
-            animationFrameId = requestAnimationFrame(updateVisualizer);
-        };
-
-        animationFrameId = requestAnimationFrame(updateVisualizer);
-        return () => cancelAnimationFrame(animationFrameId);
-    }, [localTunedIn]);
-
-    useEffect(() => {
-        return () => {
-            if (localAudioRef.current) {
-                localAudioRef.current.pause();
-                localAudioRef.current.src = "";
-            }
-            if (localAudioContextRef.current) {
-                localAudioContextRef.current.close().catch(e => console.error(e));
-            }
-        };
-    }, []);
-
-    const radioState = useMemo(() => {
-        if (!mounted) return null;
-        const totalDuration = PLAYLIST.length * TIME_PER_SONG;
-        const globalProgress = currentTime % totalDuration;
-        const songIndex = Math.floor(globalProgress / TIME_PER_SONG);
-        const songProgress = globalProgress % TIME_PER_SONG;
-
-        return {
-            song: PLAYLIST[songIndex],
-            index: songIndex,
-            progress: songProgress,
-            formattedTime: `${Math.floor(songProgress / 60)}:${(songProgress % 60).toString().padStart(2, '0')}`
-        };
-    }, [currentTime, mounted]);
-
-    const radioSongUrl = radioState?.song?.audioUrl;
-
-    // Unified Playback & Sync Logic
-    useEffect(() => {
-        if (!localTunedIn || !localAudioRef.current || !radioSongUrl || !radioState) return;
-
-        const audio = localAudioRef.current;
-
-        // Safely check if we need to switch sources
-        // We use .endsWith() because audio.src returns the full URL
-        const isSameSong = audio.src.endsWith(radioSongUrl);
-
-        if (!isSameSong) {
-            console.log("Radio: Switching to new song", radioSongUrl);
-            setIsSyncing(true);
-            audio.src = radioSongUrl;
-
-            const performSync = () => {
-                if (radioState) {
-                    audio.currentTime = radioState.progress;
-                    setIsSyncing(false);
-                    audio.play().catch(e => console.error("Radio play failed", e));
-                    audio.removeEventListener('canplay', performSync);
-                }
-            };
-
-            audio.addEventListener('canplay', performSync);
-            // Fallback if already buffered
-            if (audio.readyState >= 3) performSync();
-        }
-    }, [localTunedIn, radioSongUrl, radioState?.index]); // stable dependencies
-
-    const handleTuneIn = () => {
-        if (!radioState || !localAudioRef.current) return;
-
-        if (localTunedIn) {
-            localAudioRef.current.pause();
-            setLocalTunedIn(false);
-            return;
-        }
-
-        // 1. Initialize audio context on first user interaction
-        initLocalAudio();
-        if (localAudioContextRef.current?.state === 'suspended') {
-            localAudioContextRef.current.resume();
-        }
-
-        // 2. Pause global music if playing
-        if (globalPlaying) {
-            togglePlay();
-        }
-
-        // 3. Just trigger the state; the useEffect above will handle the actual source/play/sync
-        setLocalTunedIn(true);
-    };
-
-    const isTunedIn = localTunedIn;
-
-
-    if (!mounted || !radioState) return null;
+    if (!radioState) return null;
 
     return (
         <div style={{
@@ -165,7 +26,7 @@ export function StarlightRadio() {
             margin: "0 auto 2rem",
             position: "relative",
             perspective: "1000px",
-            touchAction: "none", // Prevent mobile gestures/shifting
+            touchAction: "none",
             userSelect: "none"
         }}>
             {/* Retro Radio Body */}
@@ -182,7 +43,7 @@ export function StarlightRadio() {
                     overflow: "hidden",
                 }}
             >
-                {/* Vintage Texture Overlay - Procedural SVG Noise to fix 404 */}
+                {/* Vintage Texture Overlay */}
                 <div style={{
                     position: "absolute",
                     inset: 0,
@@ -254,10 +115,9 @@ export function StarlightRadio() {
                         padding: "4px"
                     }}>
                         {[...Array(12)].map((_, i) => {
-                            // Calculate which frequency bin to look at (mapping 12 bars to 128 bins)
-                            const binIndex = Math.floor((i / 12) * 60); // Focus on mid-low range for better visual
+                            const binIndex = Math.floor((i / 12) * 60);
                             const value = freqData ? freqData[binIndex] : 0;
-                            const threshold = (12 - i) * (200 / 12); // Higher bars need higher frequency values
+                            const threshold = (12 - i) * (200 / 12);
                             const isActive = isTunedIn && value > threshold;
 
                             return (
@@ -384,7 +244,7 @@ export function StarlightRadio() {
                             alignItems: "center",
                             justifyContent: "center",
                             gap: "10px",
-                            boxShadow: isTunedIn ? "0 8px 20px rgba(76, 217, 100, 0.25)" : "0 8px 20px rgba(255, 214, 10, 0.25)",
+                            boxShadow: isTunedIn ? "0 8px 20px rgba(76, 217, 100, 0.25)" : "0 8px 10px rgba(255, 176, 0, 0.25)",
                             cursor: "pointer",
                             fontFamily: "sans-serif",
                             textTransform: "uppercase",
@@ -392,7 +252,7 @@ export function StarlightRadio() {
                             border: "1px solid rgba(255,255,255,0.1)"
                         }}
                     >
-                        {isSyncing || localBuffering ? (
+                        {isSyncing || isBuffering ? (
                             <>
                                 <motion.div
                                     animate={{ rotate: 360 }}
@@ -434,16 +294,6 @@ export function StarlightRadio() {
                     background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent)",
                 }} />
             </motion.div>
-
-            {/* Local Radio Audio Engine */}
-            <audio
-                ref={localAudioRef}
-                onWaiting={() => setLocalBuffering(true)}
-                onPlaying={() => setLocalBuffering(false)}
-                onEnded={() => {
-                    // Handled by transition effect, but good to have
-                }}
-            />
 
             {/* Ghosting Shadow for depth */}
             <div style={{
