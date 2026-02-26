@@ -45,53 +45,126 @@ export function useRadio() {
     return context;
 }
 
-// Helper to shuffle the playlist
-function shuffleArray<T>(array: T[]): T[] {
-    const shuffled = [...array];
-    for (let i = shuffled.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-    }
-    return shuffled;
-}
-
 export function RadioProvider({ children }: { children: React.ReactNode }) {
+    const [currentTimeWorld, setCurrentTimeWorld] = useState(0);
+    const [mounted, setMounted] = useState(false);
+
     const [isTunedIn, setIsTunedIn] = useState(false);
     const [isSyncing, setIsSyncing] = useState(false);
     const [isBuffering, setIsBuffering] = useState(false);
-    const [radioQueue, setRadioQueue] = useState<typeof PLAYLIST>([]);
-    const [currentIndex, setCurrentIndex] = useState(0);
 
     const { isPlaying: globalPlaying, togglePlay } = useAudio();
     const audioRef = useRef<HTMLAudioElement | null>(null);
 
-    // Initialize random queue on mount
+    // Track precise World Time
     useEffect(() => {
-        setRadioQueue(shuffleArray(PLAYLIST));
+        setMounted(true);
+        // Sync the internal clock every second
+        const interval = setInterval(() => {
+            setCurrentTimeWorld(Date.now() / 1000);
+        }, 1000);
+        return () => clearInterval(interval);
     }, []);
 
-    const currentSong = radioQueue[currentIndex] || null;
+    // Evaluate the timeline
+    const radioState = useMemo(() => {
+        if (!mounted || TIMELINE.totalDuration === 0) return null;
 
-    // Background Resume Logic
-    // Ensures audio resumes when returning to the tab or if browser pauses it during navigation
+        // Find exactly where we are in the endless loop
+        const globalProgress = currentTimeWorld % TIMELINE.totalDuration;
+
+        const activeTrackIndex = TIMELINE.tracks.findIndex(
+            (t) => globalProgress >= t.startOffset && globalProgress < t.endOffset
+        );
+
+        if (activeTrackIndex === -1) return null; // Failsafe
+
+        const activeTrack = TIMELINE.tracks[activeTrackIndex];
+        const songProgress = globalProgress - activeTrack.startOffset;
+
+        return {
+            song: activeTrack,
+            index: activeTrackIndex,
+            progress: songProgress,
+            formattedTime: `${Math.floor(songProgress / 60)}:${Math.floor(songProgress % 60).toString().padStart(2, '0')}`
+        };
+    }, [currentTimeWorld, mounted]);
+
+    const radioStateRef = useRef(radioState);
+    useEffect(() => {
+        radioStateRef.current = radioState;
+    }, [radioState]);
+
+    // Handle seamless URL handoff and Drift Correction
+    useEffect(() => {
+        if (!audioRef.current || !radioState || !isTunedIn) return;
+        const audio = audioRef.current;
+        const targetUrl = radioState.song.audioUrl;
+        const targetTime = radioState.progress;
+
+        const isSameSong = audio.src.endsWith(targetUrl);
+
+        if (!isSameSong) {
+            console.log("Global Radio: Switching to new song", targetUrl);
+            setIsSyncing(true);
+            setIsBuffering(true);
+
+            audio.src = targetUrl;
+
+            const attemptPlay = () => {
+                // Ensure we start exactly where the world timeline dictates at this millisecond
+                if (radioStateRef.current) {
+                    audio.currentTime = radioStateRef.current.progress;
+                }
+                setIsSyncing(false);
+                const playPromise = audio.play();
+                if (playPromise !== undefined) {
+                    playPromise.catch(e => {
+                        console.error("Global Radio Auto-Play Blocked/Failed:", e);
+                        setIsBuffering(false);
+                    });
+                }
+            };
+
+            audio.addEventListener('canplay', attemptPlay, { once: true });
+            if (audio.readyState >= 3) {
+                audio.removeEventListener('canplay', attemptPlay);
+                attemptPlay();
+            }
+
+        } else {
+            // Drift correction (only correct if drift is > 1.5s to prevent micro-stutters)
+            if (!audio.paused && Math.abs(audio.currentTime - targetTime) > 1.5) {
+                console.log("Global Radio: Correcting drift. Audio:", audio.currentTime, "World:", targetTime);
+                audio.currentTime = targetTime;
+            }
+
+            // If the browser paused us arbitrarily (but tuned in), fight back gently
+            if (audio.paused && !isSyncing) {
+                audio.currentTime = targetTime;
+                audio.play().catch(() => { });
+            }
+        }
+    }, [isTunedIn, radioState?.song.audioUrl]);
+
+    // Background Resume Event Listeners
     useEffect(() => {
         if (!isTunedIn) return;
 
         const attemptResume = () => {
-            if (audioRef.current && isTunedIn && audioRef.current.paused) {
-                audioRef.current.play().catch(() => {
-                    // Fail silently, likely needs interaction
-                });
+            if (audioRef.current && isTunedIn && audioRef.current.paused && radioStateRef.current) {
+                audioRef.current.currentTime = radioStateRef.current.progress;
+                audioRef.current.play().catch(() => { });
             }
         };
 
         const handleVisibility = () => {
             if (document.visibilityState === 'visible') {
-                setTimeout(attemptResume, 100);
+                setTimeout(attemptResume, 150);
             }
         };
 
-        const handleFocus = () => setTimeout(attemptResume, 100);
+        const handleFocus = () => setTimeout(attemptResume, 150);
 
         document.addEventListener('visibilitychange', handleVisibility);
         window.addEventListener('focus', handleFocus);
@@ -100,36 +173,6 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
             window.removeEventListener('focus', handleFocus);
         };
     }, [isTunedIn]);
-
-    // Play/Pause Control
-    useEffect(() => {
-        if (!audioRef.current || !currentSong) return;
-        const audio = audioRef.current;
-
-        if (!isTunedIn) {
-            audio.pause();
-            return;
-        }
-
-        const isSameSong = audio.src.endsWith(currentSong.audioUrl);
-
-        if (!isSameSong) {
-            console.log("Radio Engine: Switching to new song", currentSong.audioUrl);
-            setIsSyncing(true);
-            audio.src = currentSong.audioUrl;
-
-            const attemptPlay = () => {
-                setIsSyncing(false);
-                audio.play().catch(e => console.error("Radio play failed", e));
-            };
-
-            audio.addEventListener('canplay', attemptPlay, { once: true });
-            if (audio.readyState >= 3) attemptPlay();
-
-        } else if (audio.paused && isTunedIn) {
-            audio.play().catch(e => console.error("Radio resume failed", e));
-        }
-    }, [isTunedIn, currentSong]); // Removed radioSongUrl
 
     const handleTuneIn = () => {
         if (!radioState || !audioRef.current) return;
