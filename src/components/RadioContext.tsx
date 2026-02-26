@@ -9,7 +9,6 @@ interface RadioContextType {
     isTunedIn: boolean;
     isSyncing: boolean;
     isBuffering: boolean;
-    freqData: Uint8Array | null;
     radioState: {
         song: typeof PLAYLIST[0];
         index: number;
@@ -32,15 +31,12 @@ export function useRadio() {
 export function RadioProvider({ children }: { children: React.ReactNode }) {
     const [currentTime, setCurrentTime] = useState(0);
     const [mounted, setMounted] = useState(false);
-    const [freqData, setFreqData] = useState<Uint8Array | null>(null);
     const [isTunedIn, setIsTunedIn] = useState(false);
     const [isSyncing, setIsSyncing] = useState(false);
     const [isBuffering, setIsBuffering] = useState(false);
 
     const { isPlaying: globalPlaying, togglePlay } = useAudio();
     const audioRef = useRef<HTMLAudioElement | null>(null);
-    const analyserRef = useRef<AnalyserNode | null>(null);
-    const contextRef = useRef<AudioContext | null>(null);
 
     // Initial sync to "World Time"
     useEffect(() => {
@@ -104,47 +100,6 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
     useEffect(() => {
         radioStateRef.current = radioState;
     }, [radioState]);
-
-    const initAudio = () => {
-        if (!audioRef.current || contextRef.current) return;
-
-        try {
-            const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
-            const ctx = new AudioContextClass();
-            const analyser = ctx.createAnalyser();
-            const source = ctx.createMediaElementSource(audioRef.current);
-
-            source.connect(analyser);
-            analyser.connect(ctx.destination);
-
-            analyser.fftSize = 256;
-            contextRef.current = ctx;
-            analyserRef.current = analyser;
-        } catch (e) {
-            console.error("Radio AudioContext failed:", e);
-        }
-    };
-
-    // Visualizer Loop
-    useEffect(() => {
-        if (!isTunedIn) {
-            setFreqData(null);
-            return;
-        }
-
-        let animationFrameId: number;
-        const updateVisualizer = () => {
-            if (analyserRef.current) {
-                const dataArray = new Uint8Array(analyserRef.current.frequencyBinCount);
-                analyserRef.current.getByteFrequencyData(dataArray);
-                setFreqData(new Uint8Array(dataArray));
-            }
-            animationFrameId = requestAnimationFrame(updateVisualizer);
-        };
-
-        animationFrameId = requestAnimationFrame(updateVisualizer);
-        return () => cancelAnimationFrame(animationFrameId);
-    }, [isTunedIn]);
 
     // Unified Playback & Sync Logic
     const radioSongUrl = radioState?.song?.audioUrl;
@@ -214,11 +169,6 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
             return;
         }
 
-        initAudio();
-        if (contextRef.current?.state === 'suspended') {
-            contextRef.current.resume();
-        }
-
         if (globalPlaying) {
             togglePlay();
         }
@@ -231,7 +181,6 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
             isTunedIn,
             isSyncing,
             isBuffering,
-            freqData,
             radioState,
             handleTuneIn
         }}>

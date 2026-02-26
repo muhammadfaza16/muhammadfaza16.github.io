@@ -12,7 +12,6 @@ export function StarlightRadio() {
         isTunedIn,
         isSyncing,
         isBuffering,
-        freqData,
         radioState,
         handleTuneIn
     } = useRadio();
@@ -162,20 +161,33 @@ export function StarlightRadio() {
                         padding: "6px"
                     }}>
                         {[...Array(10)].map((_, i) => {
-                            const binIndex = Math.floor((i / 10) * 40);
-                            const value = freqData ? freqData[binIndex] : 0;
-                            const threshold = (10 - i) * (200 / 10);
-                            const isActive = isTunedIn && value > threshold;
+                            const threshold = (10 - i) * 20;
+                            // Predefined active baseline for each bar when tuned in
+                            const isActiveBaseline = isTunedIn && (10 - i) <= 6; // 60% baseline
+                            const color = i < 2 ? "#FF3B30" : i < 5 ? "#FFCC00" : "#4CD964";
 
                             return (
                                 <motion.div
                                     key={i}
-                                    animate={{
-                                        opacity: isActive ? 1 : 0.15,
-                                        backgroundColor: i < 2 ? "#FF3B30" : i < 5 ? "#FFCC00" : "#4CD964",
-                                        boxShadow: isActive ? `0 0 10px ${i < 2 ? "#FF3B30" : i < 5 ? "#FFCC00" : "#4CD964"}` : "none"
+                                    animate={isTunedIn ? {
+                                        opacity: [isActiveBaseline ? 1 : 0.15, 1, 0.15],
+                                        backgroundColor: color,
+                                        boxShadow: [
+                                            isActiveBaseline ? `0 0 10px ${color}` : "none",
+                                            `0 0 15px ${color}`,
+                                            "none"
+                                        ]
+                                    } : {
+                                        opacity: 0.15,
+                                        backgroundColor: color,
+                                        boxShadow: "none"
                                     }}
-                                    transition={{ duration: 0.1 }}
+                                    transition={isTunedIn ? {
+                                        duration: 0.3 + Math.random() * 0.5,
+                                        repeat: Infinity,
+                                        repeatType: "reverse",
+                                        delay: Math.random() * 0.5
+                                    } : { duration: 0.1 }}
                                     style={{ height: "4px", borderRadius: "1.5px" }}
                                 />
                             );
@@ -252,9 +264,17 @@ export function StarlightRadio() {
                                 padding: "2px"
                             }}>
                                 <motion.div
-                                    animate={{
-                                        height: isTunedIn ? `${(freqData ? freqData[5] / 255 * 80 : 0) + 20}%` : "15%"
+                                    animate={isTunedIn ? {
+                                        height: ["40%", "85%", "35%", "70%", "50%"]
+                                    } : {
+                                        height: "15%"
                                     }}
+                                    transition={isTunedIn ? {
+                                        duration: 2,
+                                        repeat: Infinity,
+                                        repeatType: "reverse",
+                                        ease: "easeInOut"
+                                    } : { duration: 0.5 }}
                                     style={{
                                         width: "100%",
                                         background: "linear-gradient(to top, #FFB000, #FFD000)",

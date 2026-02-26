@@ -12,11 +12,10 @@ export function GradientOrb() {
     const bottomLeftRef = useRef<HTMLDivElement>(null);
     const bottomRightRef = useRef<HTMLDivElement>(null);
 
-    const { isPlaying, currentSong, analyser } = useAudio();
+    const { isPlaying, currentSong } = useAudio();
     const { isZen } = useZen();
     const isPlayingRef = useRef(isPlaying);
     const isZenRef = useRef(isZen);
-    const analyserRef = useRef(analyser); // Ref for loop access
 
     // Get current theme based on song title
     const theme = useMemo(() => {
@@ -28,8 +27,7 @@ export function GradientOrb() {
     useEffect(() => {
         isPlayingRef.current = isPlaying;
         isZenRef.current = isZen;
-        analyserRef.current = analyser;
-    }, [isPlaying, isZen, analyser]);
+    }, [isPlaying, isZen]);
 
     useEffect(() => {
         let animationId: number;
@@ -68,40 +66,18 @@ export function GradientOrb() {
             // Audio Reactive Scaling Calculation
             let currentScaleBoost = 0;
 
-            if (playing && analyserRef.current) {
-                // PHASE 2 OPTIMIZATION: CPU Saver
-                // Only poll audio data every 4th frame (approx 15fps effective analysis).
-                // Visual smoothing (lerp) below handles inter-frame smoothness.
-                if (frameCount % 4 === 0) {
-                    analyserRef.current.getByteFrequencyData(dataArray);
-                }
+            // Simulated breathing when not playing/no analyzer
+            // Overclocked: 1.5Hz = 90BPM pulse. 0.25 amp = Deep breath.
+            const breathFreq = playing ? 1.5 : 0.4;
+            const breathAmp = playing ? 0.25 : 0.15;
 
-                // Bass is usually in the lowest bins. With fftSize=64, bin 0 covers ~0-600Hz.
-                // We'll trust bin 0 for the "Kick/Thump" factor.
-                const bassEnergy = dataArray[0];
+            // Use absolute Math.sin to prevent negative scale or weird snapping?
+            // No, sin is -1 to 1. We want 1 + boost.
+            // If sin is -1, 1 - 0.25 = 0.75. Safe.
+            currentScaleBoost = Math.sin(time * breathFreq) * breathAmp;
 
-                // Normalize 0-255 to 0.0-1.0
-                const targetBoost = (bassEnergy / 255);
-
-                // Smooth interpolation (Attack fast, release slow-ish)
-                bassSmoothed += (targetBoost - bassSmoothed) * 0.2;
-
-                // Max scale impact: +30% size on max bass
-                currentScaleBoost = bassSmoothed * 0.3;
-            } else {
-                // Simulated breathing when not playing/no analyzer
-                // Overclocked: 1.5Hz = 90BPM pulse. 0.25 amp = Deep breath.
-                const breathFreq = playing ? 1.5 : 0.4;
-                const breathAmp = playing ? 0.25 : 0.15;
-
-                // Use absolute Math.sin to prevent negative scale or weird snapping?
-                // No, sin is -1 to 1. We want 1 + boost.
-                // If sin is -1, 1 - 0.25 = 0.75. Safe.
-                currentScaleBoost = Math.sin(time * breathFreq) * breathAmp;
-
-                // Reset smoother so it doesn't jump when song starts
-                if (!playing) bassSmoothed = 0;
-            }
+            // Reset smoother so it doesn't jump when song starts
+            if (!playing) bassSmoothed = 0;
 
             // Apply transforms
             if (primaryRef.current) {

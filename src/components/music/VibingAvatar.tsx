@@ -21,7 +21,7 @@ export const VibingAvatar = memo(function VibingAvatar({
     mood?: 'curious' | 'intense' | 'smart' | 'flirty' | 'chill';
     pose?: 'leaning_in' | 'chill' | 'bouncing' | 'annoyed';
 }) {
-    const { analyser, audioRef, currentSong } = useAudio();
+    const { audioRef, currentSong } = useAudio();
     const floaterRef = useRef<SVGGElement>(null);
     const rafRef = useRef<number | null>(null);
 
@@ -66,67 +66,43 @@ export const VibingAvatar = memo(function VibingAvatar({
             return;
         }
 
-        const bufferLength = analyser ? analyser.frequencyBinCount : 0;
-        const dataArray = analyser ? new Uint8Array(bufferLength) : new Uint8Array(0);
-
         const tick = () => {
             // [MODIFIED] Audio Analysis / Simulation
             let avgBass = 0;
             let avgVol = 0;
 
-            if (analyser) {
-                // Real Analysis (Desktop/If enabled)
-                analyser.getByteFrequencyData(dataArray);
+            // [NEW] Simulation Mode (Mobile/No Analyser)
+            // Use Vibe Data to simulate energy
+            const currentTime = audioRef.current?.currentTime ?? 0;
+            const vibes = SONG_VIBES[currentSong.title];
+            let currentVibeLevel = 0;
 
-                // Calculate bass (lower frequencies)
-                let bassSum = 0;
-                const bassBinCount = 4;
-                for (let i = 0; i < bassBinCount; i++) {
-                    bassSum += dataArray[i];
-                }
-                avgBass = bassSum / bassBinCount;
-
-                // Calculate Overall Energy
-                let totalSum = 0;
-                for (let i = 0; i < bufferLength; i++) {
-                    totalSum += dataArray[i];
-                }
-                avgVol = totalSum / bufferLength;
-
-            } else {
-                // [NEW] Simulation Mode (Mobile/No Analyser)
-                // Use Vibe Data to simulate energy
-                const currentTime = audioRef.current?.currentTime ?? 0;
-                const vibes = SONG_VIBES[currentSong.title];
-                let currentVibeLevel = 0;
-
-                if (vibes) {
-                    for (const vibe of vibes) {
-                        if (currentTime >= vibe.start && currentTime < vibe.end) {
-                            currentVibeLevel = vibe.level;
-                            break;
-                        }
+            if (vibes) {
+                for (const vibe of vibes) {
+                    if (currentTime >= vibe.start && currentTime < vibe.end) {
+                        currentVibeLevel = vibe.level;
+                        break;
                     }
                 }
+            }
 
-                // Simulate Bass based on Vibe Level
-                // Base: Breathing (Sine wave)
-                const pulse = (Math.sin(Date.now() / 500) + 1) / 2; // 0 to 1
+            // Simulate Bass based on Vibe Level
+            // Base: Breathing (Sine wave)
+            const pulse = (Math.sin(Date.now() / 500) + 1) / 2; // 0 to 1
 
-                if (currentVibeLevel === 2) {
-                    // BEAT DROP: High simulated bass to trigger notes
-                    // Random spikes to mimic beat
-                    avgBass = 160 + (Math.random() * 50);
-                    avgVol = 180;
-                } else if (currentVibeLevel === 1) {
-                    // BUILD UP
-                    avgBass = 80 + (pulse * 40);
-                    avgVol = 100;
-                } else {
-                    // CHILL
-                    avgBass = 20 + (pulse * 20);
-                    avgVol = 50;
-                }
+            if (currentVibeLevel === 2) {
+                // BEAT DROP: High simulated bass to trigger notes
+                // Random spikes to mimic beat
+                avgBass = 160 + (Math.random() * 50);
+                avgVol = 180;
+            } else if (currentVibeLevel === 1) {
+                // BUILD UP
+                avgBass = 80 + (pulse * 40);
+                avgVol = 100;
+            } else {
+                // CHILL
+                avgBass = 20 + (pulse * 20);
+                avgVol = 50;
             }
 
             // Map bass (0-255) to scale (1.0 - 1.2)
@@ -155,8 +131,6 @@ export const VibingAvatar = memo(function VibingAvatar({
 
             // [Intensity Detection & Override]
             // Re-calc vibe level for class application
-            const currentTime = audioRef.current?.currentTime ?? 0;
-            const vibes = SONG_VIBES[currentSong.title];
             let vibeLevel = 0;
 
             if (vibes) {
@@ -242,7 +216,7 @@ export const VibingAvatar = memo(function VibingAvatar({
         return () => {
             if (rafRef.current) cancelAnimationFrame(rafRef.current);
         };
-    }, [isPlaying, analyser, currentSong, lyrics]);
+    }, [isPlaying, currentSong, lyrics]);
 
     // Separate Effect for Narrative Text (Immediate Trigger)
     useEffect(() => {

@@ -16,7 +16,6 @@ interface AudioContextType {
     prevSong: () => void;
     jumpToSong: (index: number) => void;
     currentSong: { title: string; audioUrl: string };
-    analyser: AnalyserNode | null;
     audioRef: React.RefObject<HTMLAudioElement | null>;
     hasInteracted: boolean;
     isBuffering: boolean;
@@ -162,7 +161,6 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
     const [currentIndex, setCurrentIndex] = useState(0);
     const [activePlaylistId, setActivePlaylistId] = useState<string | null>(null);
     const [isMiniPlayerDismissed, setMiniPlayerDismissed] = useState(false);
-    const [analyser, setAnalyser] = useState<AnalyserNode | null>(null);
     const [hasInteracted, setHasInteracted] = useState(false);
 
     // Track intentional pauses to prevent browser-triggered pauses from stopping music
@@ -182,8 +180,6 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
     const [duration, setDuration] = useState(0);
 
     const audioRef = useRef<HTMLAudioElement | null>(null);
-    const audioContextRef = useRef<AudioContext | null>(null);
-    const sourceRef = useRef<MediaElementAudioSourceNode | null>(null);
 
     // Theme integration
     const { theme, setTheme } = useTheme();
@@ -262,42 +258,14 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
     }, [isPlaying]);
 
 
-    const initializeAudio = useCallback(() => {
-        if (!audioRef.current || audioContextRef.current) return;
-
-        try {
-            const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
-            const context = new AudioContextClass();
-            const node = context.createAnalyser();
-            node.fftSize = 256;
-
-            const source = context.createMediaElementSource(audioRef.current);
-            source.connect(node);
-            node.connect(context.destination);
-
-            audioContextRef.current = context;
-            sourceRef.current = source;
-            setAnalyser(node);
-        } catch (err) {
-            console.error("Failed to initialize Web Audio API:", err);
-        }
-    }, []);
-
     const togglePlay = useCallback(() => {
         if (!audioRef.current) return;
 
-        initializeAudio();
         setHasInteracted(true);
 
-        if (audioContextRef.current?.state === 'suspended') {
-            audioContextRef.current.resume();
-        }
-
         if (isPlaying) {
-            intentionalPauseRef.current = true; // Mark as intentional pause
             audioRef.current.pause();
         } else {
-            intentionalPauseRef.current = false; // User wants to play
             const playPromise = audioRef.current.play();
             if (playPromise !== undefined) {
                 playPromise
@@ -310,7 +278,7 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
                     });
             }
         }
-    }, [isPlaying, initializeAudio]);
+    }, [isPlaying]);
 
     const playQueue = useCallback((newQueue: typeof PLAYLIST, startIndex = 0, playlistId: string | null = null) => {
         setQueue(newQueue);
@@ -512,7 +480,7 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
 
     return (
         <AudioContext.Provider value={{
-            isPlaying, isBuffering, togglePlay, nextSong, prevSong, jumpToSong, currentSong, analyser, audioRef, hasInteracted, warmup,
+            isPlaying, isBuffering, togglePlay, nextSong, prevSong, jumpToSong, currentSong, audioRef, hasInteracted, warmup,
             showLyrics, setShowLyrics, showMarquee, setShowMarquee, showNarrative, setShowNarrative,
             currentLyricText,
             activeLyrics,
