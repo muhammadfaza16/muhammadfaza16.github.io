@@ -13,6 +13,7 @@ model Article {
   title        String
   content      String   @db.Text
   coverImage   String?
+  imageUrl     String?  @map("image_url")
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
   isRead       Boolean  @default(false)
@@ -25,6 +26,7 @@ model Post {
   title      String
   content    String   @db.Text
   coverImage String?
+  imageUrl   String?  @map("image_url")
   published  Boolean  @default(false)
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
@@ -35,6 +37,7 @@ model Book {
   title      String
   author     String
   coverImage String?
+  imageUrl   String?  @map("image_url")
   review     String?  @db.Text
   rating     Int      @default(0)
   createdAt  DateTime @default(now())
@@ -46,6 +49,7 @@ model WishlistItem {
   name       String
   price      String?
   url        String?
+  imageUrl   String?  @map("image_url")
   priority   String   @default("Low")
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
