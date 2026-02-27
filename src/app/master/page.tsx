@@ -512,7 +512,7 @@ export default function PersonalCMS() {
                             </div>
 
                             {/* Content Area */}
-                            <div className="flex-1 w-full p-5 pt-28">
+                            <div className="flex-1 w-full p-5 pt-16">
                                 {CATEGORIES.find(c => c.id === activeCategory)?.type === 'list' ? (
                                     <div className="flex flex-col w-full">
                                         {isFetching ? (
