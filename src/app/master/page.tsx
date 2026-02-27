@@ -204,8 +204,8 @@ export default function PersonalCMS() {
     if (!mounted) return null;
 
     return (
-        <div className="fixed inset-0 w-full min-h-svh flex flex-col items-center bg-[#F7F7F9] tracking-tight text-zinc-900 selection:bg-zinc-200 overflow-hidden antialiased pb-28">
-            <div className="w-full max-w-[500px] h-full flex flex-col relative bg-[#F7F7F9] shadow-2xl">
+        <div className="min-h-screen w-full flex flex-col items-center bg-[#F7F7F9] tracking-tight text-zinc-900 selection:bg-zinc-200 antialiased">
+            <div className="w-full max-w-[500px] min-h-screen flex flex-col relative bg-[#F7F7F9] shadow-2xl pb-32">
 
                 <AnimatePresence mode="wait">
                     {/* --- VIEW: AUTHENTICATION --- */}
@@ -215,7 +215,7 @@ export default function PersonalCMS() {
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
                             exit={{ opacity: 0 }}
-                            className="flex-1 flex flex-col p-8 items-center justify-center -mt-20"
+                            className="flex-1 flex flex-col p-8 items-center justify-center min-h-[80vh]"
                         >
                             <div className="w-20 h-20 bg-white rounded-[2rem] shadow-sm border border-gray-100 flex items-center justify-center mb-8">
                                 <Lock size={28} className="text-zinc-900" />
@@ -246,7 +246,7 @@ export default function PersonalCMS() {
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
                             exit={{ opacity: 0, y: -20 }}
-                            className="flex-1 overflow-y-auto no-scrollbar pb-32"
+                            className="flex-1 w-full flex flex-col"
                         >
                             <div className="pt-20 px-8 pb-8 w-full flex items-center justify-between">
                                 <div className="flex flex-col">
@@ -320,11 +320,11 @@ export default function PersonalCMS() {
                             initial={{ opacity: 0, x: 20 }}
                             animate={{ opacity: 1, x: 0 }}
                             exit={{ opacity: 0, x: -20 }}
-                            className="flex-1 bg-white overflow-hidden flex flex-col"
+                            className="flex-1 bg-white flex flex-col"
                         // Use a solid white background for sub-pages to contrast the gray lists
                         >
                             {/* Sticky Header */}
-                            <div className="pt-16 px-5 pb-4 bg-white/90 backdrop-blur-2xl z-20 flex flex-col gap-5">
+                            <div className="pt-16 px-5 pb-4 bg-white/90 backdrop-blur-2xl z-20 flex flex-col gap-5 sticky top-0">
                                 <div className="flex items-center justify-between">
                                     <button onClick={() => setView("dashboard")} className="w-12 h-12 flex items-center justify-center text-zinc-900 active:bg-gray-100 rounded-full transition-colors">
                                         <ChevronLeft size={28} />
@@ -344,7 +344,7 @@ export default function PersonalCMS() {
                             </div>
 
                             {/* Content Area */}
-                            <div className="flex-1 overflow-y-auto w-full p-5 pb-32 no-scrollbar">
+                            <div className="flex-1 w-full p-5">
                                 {CATEGORIES.find(c => c.id === activeCategory)?.type === 'list' ? (
                                     <div className="flex flex-col w-full">
                                         {DUMMY_DATA[activeCategory].map(item => (
@@ -367,11 +367,11 @@ export default function PersonalCMS() {
 
                 {/* --- GLOBAL FAB LAYER --- */}
                 {view !== "auth" && (
-                    <div className="absolute bottom-8 right-8 z-30">
+                    <div className="fixed bottom-8 left-1/2 -translate-x-1/2 w-full max-w-[500px] z-30 flex justify-end px-8 pointer-events-none">
                         <motion.button
                             whileTap={{ scale: 0.9 }}
                             onClick={() => setIsSheetOpen(true)}
-                            className="w-16 h-16 bg-black text-white rounded-full flex items-center justify-center shadow-[0_8px_30px_rgba(0,0,0,0.15)] shrink-0"
+                            className="w-16 h-16 bg-black text-white rounded-full flex items-center justify-center shadow-[0_12px_40px_rgba(0,0,0,0.2)] shrink-0 pointer-events-auto"
                         >
                             <Plus size={28} strokeWidth={2.5} />
                         </motion.button>
