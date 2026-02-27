@@ -5,7 +5,7 @@ import { motion, AnimatePresence, useMotionValue, useTransform } from "framer-mo
 import {
     Search, ChevronLeft, Lock, Plus, Edit2, Trash2,
     Book, ShoppingBag, FileText, Bookmark, Link2,
-    CheckCircle2, Clock, Globe
+    CheckCircle2, Clock, Globe, ChevronRight
 } from "lucide-react";
 import Link from "next/link";
 
@@ -24,10 +24,10 @@ interface CategoryInfo {
 }
 
 const CATEGORIES: CategoryInfo[] = [
-    { id: "writing", label: "Writing", icon: <FileText size={22} className="text-zinc-900" />, desc: "12 Published, 3 Drafts", type: "list" },
-    { id: "toread", label: "To Read", icon: <Bookmark size={22} className="text-zinc-900" />, desc: "24 Unread links", type: "list" },
-    { id: "books", label: "Books", icon: <Book size={22} className="text-zinc-900" />, desc: "4 Reading now, 12 Completed", type: "grid" },
-    { id: "wishlist", label: "Wishlist", icon: <ShoppingBag size={22} className="text-zinc-900" />, desc: "8 Items saved", type: "grid" },
+    { id: "writing", label: "Writing", icon: <FileText size={22} strokeWidth={2.5} className="text-zinc-700" />, desc: "12 Published, 3 Drafts", type: "list" },
+    { id: "toread", label: "To Read", icon: <Bookmark size={22} strokeWidth={2.5} className="text-zinc-700" />, desc: "24 Unread links", type: "list" },
+    { id: "books", label: "Books", icon: <Book size={22} strokeWidth={2.5} className="text-zinc-700" />, desc: "4 Reading now, 12 Completed", type: "grid" },
+    { id: "wishlist", label: "Wishlist", icon: <ShoppingBag size={22} strokeWidth={2.5} className="text-zinc-700" />, desc: "8 Items saved", type: "grid" },
 ];
 
 const DUMMY_DATA: Record<CategoryId, any[]> = {
@@ -106,7 +106,7 @@ const SwipeableRow = ({ item, type }: { item: any, type: CategoryId }) => {
 // 2. Visually-Heavy Grid Card
 const GridCard = ({ item }: { item: any }) => (
     <div className="flex flex-col gap-3 group">
-        <div className="w-full aspect-[3/4] rounded-[2rem] overflow-hidden bg-gray-100 relative shadow-sm border border-gray-100">
+        <div className="w-full aspect-[3/4] rounded-[2rem] overflow-hidden bg-gray-100 relative border border-white/60 shadow-[0_8px_30px_rgb(0,0,0,0.04)]">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={item.img} alt={item.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
             <div className="absolute inset-0 rounded-[2rem] shadow-[inset_0_0_0_1px_rgba(0,0,0,0.02)] pointer-events-none" />
@@ -204,8 +204,8 @@ export default function PersonalCMS() {
     if (!mounted) return null;
 
     return (
-        <div className="fixed inset-0 w-full min-h-svh flex flex-col items-center bg-gray-50 tracking-tight text-zinc-900 selection:bg-zinc-200 overflow-hidden antialiased">
-            <div className="w-full max-w-[500px] h-full flex flex-col relative bg-gray-50 shadow-2xl">
+        <div className="fixed inset-0 w-full min-h-svh flex flex-col items-center bg-zinc-50 tracking-tight text-zinc-900 selection:bg-zinc-200 overflow-hidden antialiased">
+            <div className="w-full max-w-[500px] h-full flex flex-col relative bg-zinc-50 shadow-2xl">
 
                 <AnimatePresence mode="wait">
                     {/* --- VIEW: AUTHENTICATION --- */}
@@ -261,7 +261,7 @@ export default function PersonalCMS() {
                             </div>
 
                             {/* True Bento Grid (Asymmetrical) */}
-                            <div className="px-6 grid grid-cols-2 gap-4">
+                            <div className="px-6 grid grid-cols-2 gap-5">
                                 {CATEGORIES.map((cat, idx) => (
                                     <motion.div
                                         whileTap={{ scale: 0.97 }}
@@ -270,13 +270,16 @@ export default function PersonalCMS() {
                                             setView("category");
                                         }}
                                         key={cat.id}
-                                        className={`bg-white rounded-[2rem] p-6 shadow-sm border border-gray-100 cursor-pointer flex flex-col justify-between 
+                                        className={`bg-white rounded-[2rem] p-6 border border-white/60 shadow-[0_8px_30px_rgb(0,0,0,0.04)] transition-all duration-300 hover:scale-[1.02] hover:shadow-md cursor-pointer flex flex-col justify-between 
                                             ${idx === 0 ? "col-span-2 aspect-[2.2/1]" // Writing: Full Width Row
                                                 : idx === 1 || idx === 2 ? "col-span-1 aspect-square" // To Read & Books: Square
                                                     : "col-span-2 aspect-[2.5/1]"}`} // Wishlist: Full Width lower
                                     >
-                                        <div className="w-12 h-12 rounded-full bg-gray-50 flex items-center justify-center mb-4 text-zinc-800">
-                                            {cat.icon}
+                                        <div className="flex items-start justify-between mb-4">
+                                            <div className="w-12 h-12 rounded-full bg-zinc-100 flex items-center justify-center text-zinc-700">
+                                                {cat.icon}
+                                            </div>
+                                            <ChevronRight size={20} className="text-gray-300" />
                                         </div>
                                         <div className="flex flex-col">
                                             <h3 className="text-[18px] font-bold tracking-tight text-zinc-900">{cat.label}</h3>
@@ -295,7 +298,7 @@ export default function PersonalCMS() {
                                         { title: "Refactoring UI Patterns", type: "Save" },
                                         { title: "Atomic Habits", type: "Log" }
                                     ].map((item, i) => (
-                                        <div key={i} className="flex-shrink-0 bg-white rounded-full px-5 py-3.5 shadow-sm border border-gray-100 flex items-center gap-3">
+                                        <div key={i} className="flex-shrink-0 bg-white rounded-full px-5 py-3.5 border border-white/60 shadow-[0_8px_30px_rgb(0,0,0,0.04)] transition-all duration-300 hover:scale-[1.02] hover:shadow-md cursor-pointer flex items-center gap-3">
                                             <div className="w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center text-zinc-400">
                                                 <Clock size={14} />
                                             </div>
