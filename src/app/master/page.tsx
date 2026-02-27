@@ -21,13 +21,15 @@ interface CategoryInfo {
     icon: React.ReactNode;
     desc: string;
     type: "list" | "grid";
+    iconBg: string;
+    iconColor: string;
 }
 
 const CATEGORIES: CategoryInfo[] = [
-    { id: "writing", label: "Writing", icon: <FileText className="w-5 h-5 text-gray-700" strokeWidth={2.5} />, desc: "12 Published, 3 Drafts", type: "list" },
-    { id: "toread", label: "To Read", icon: <Bookmark className="w-5 h-5 text-gray-700" strokeWidth={2.5} />, desc: "24 Unread links", type: "list" },
-    { id: "books", label: "Books", icon: <Book className="w-5 h-5 text-gray-700" strokeWidth={2.5} />, desc: "4 Reading now, 12 Completed", type: "grid" },
-    { id: "wishlist", label: "Wishlist", icon: <ShoppingBag className="w-5 h-5 text-gray-700" strokeWidth={2.5} />, desc: "8 Items saved", type: "grid" },
+    { id: "writing", label: "Writing", icon: <FileText className="w-5 h-5 text-blue-600" strokeWidth={2.5} />, desc: "12 Published, 3 Drafts", type: "list", iconBg: "bg-blue-50", iconColor: "text-blue-600" },
+    { id: "toread", label: "To Read", icon: <Bookmark className="w-5 h-5 text-amber-600" strokeWidth={2.5} />, desc: "24 Unread links", type: "list", iconBg: "bg-amber-50", iconColor: "text-amber-600" },
+    { id: "books", label: "Books", icon: <Book className="w-5 h-5 text-emerald-600" strokeWidth={2.5} />, desc: "4 Reading now, 12 Completed", type: "grid", iconBg: "bg-emerald-50", iconColor: "text-emerald-600" },
+    { id: "wishlist", label: "Wishlist", icon: <ShoppingBag className="w-5 h-5 text-purple-600" strokeWidth={2.5} />, desc: "8 Items saved", type: "grid", iconBg: "bg-purple-50", iconColor: "text-purple-600" },
 ];
 
 const DUMMY_DATA: Record<CategoryId, any[]> = {
@@ -81,7 +83,7 @@ const SwipeableRow = ({ item, type }: { item: any, type: CategoryId }) => {
                 dragElastic={0.1}
                 style={{ x: dragX }}
                 whileTap={{ cursor: "grabbing" }}
-                className="relative bg-transparent hover:bg-gray-50 transition-colors p-4 rounded-2xl flex items-center justify-between cursor-pointer"
+                className="relative bg-white rounded-2xl p-4 shadow-[0_4px_20px_rgb(0,0,0,0.03)] mb-3 flex items-center justify-between cursor-pointer transition-colors hover:bg-gray-50"
             >
                 <div className="flex items-center gap-4 truncate pr-4">
                     <div className="w-12 h-12 rounded-full bg-gray-50 flex items-center justify-center text-zinc-400 flex-shrink-0">
@@ -105,13 +107,13 @@ const SwipeableRow = ({ item, type }: { item: any, type: CategoryId }) => {
 
 // 2. Visually-Heavy Grid Card
 const GridCard = ({ item }: { item: any }) => (
-    <div className="flex flex-col gap-3 group">
-        <div className="w-full aspect-[3/4] rounded-[2rem] overflow-hidden bg-white relative shadow-[0_4px_20px_rgb(0,0,0,0.04)]">
+    <div className="bg-white rounded-2xl p-4 shadow-[0_4px_20px_rgb(0,0,0,0.03)] mb-3 flex flex-col gap-3 group">
+        <div className="w-full aspect-[3/4] rounded-xl overflow-hidden bg-gray-50 relative">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={item.img} alt={item.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
-            <div className="absolute inset-0 rounded-[2rem] shadow-[inset_0_0_0_1px_rgba(0,0,0,0.02)] pointer-events-none" />
+            <div className="absolute inset-0 rounded-xl shadow-[inset_0_0_0_1px_rgba(0,0,0,0.02)] pointer-events-none" />
         </div>
-        <div className="px-2 flex flex-col gap-0.5">
+        <div className="px-1 flex flex-col gap-0.5">
             <h3 className="text-[15px] font-bold tracking-tight text-zinc-900 leading-tight line-clamp-2">{item.title}</h3>
             <span className="text-[13px] text-zinc-500 font-medium truncate">{item.author || item.price}</span>
         </div>
@@ -276,7 +278,7 @@ export default function PersonalCMS() {
                                                     : "col-span-2 aspect-[2.5/1]"}`} // Wishlist: Full Width lower
                                     >
                                         <div className="flex justify-between items-start mb-4">
-                                            <div className="w-10 h-10 flex items-center justify-center rounded-full bg-gray-100">
+                                            <div className={`w-10 h-10 flex items-center justify-center rounded-full ${cat.iconBg}`}>
                                                 {cat.icon}
                                             </div>
                                             <ChevronRight className="w-5 h-5 text-gray-300" />
@@ -320,11 +322,10 @@ export default function PersonalCMS() {
                             initial={{ opacity: 0, x: 20 }}
                             animate={{ opacity: 1, x: 0 }}
                             exit={{ opacity: 0, x: -20 }}
-                            className="flex-1 bg-white flex flex-col"
-                        // Use a solid white background for sub-pages to contrast the gray lists
+                            className="flex-1 bg-[#F7F7F9] flex flex-col min-h-screen pb-32"
                         >
                             {/* Sticky Header */}
-                            <div className="pt-16 px-5 pb-4 bg-white/90 backdrop-blur-2xl z-20 flex flex-col gap-5 sticky top-0">
+                            <div className="pt-16 px-5 pb-4 bg-[#F7F7F9]/90 backdrop-blur-2xl z-20 flex flex-col gap-5 sticky top-0">
                                 <div className="flex items-center justify-between">
                                     <button onClick={() => setView("dashboard")} className="w-12 h-12 flex items-center justify-center text-zinc-900 active:bg-gray-100 rounded-full transition-colors">
                                         <ChevronLeft size={28} />
