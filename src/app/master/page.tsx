@@ -621,7 +621,11 @@ export default function PersonalCMS() {
                         </div>
                     )}
 
-                    <button onClick={handleSave} disabled={isSubmitting || !formTitle || (activeCategory === "toread" && !formUrl) || (activeCategory === "books" && !formExtra)} className="w-full h-14 bg-black text-white rounded-full font-bold text-[16px] shadow-[0_8px_30px_rgba(0,0,0,0.12)] mt-6 active:scale-[0.98] transition-transform disabled:opacity-50 disabled:active:scale-100 flex items-center justify-center">
+                    <button
+                        onClick={handleSave}
+                        disabled={isSubmitting || !formTitle || (activeCategory === "toread" && !formUrl) || (activeCategory === "books" && !formExtra)}
+                        className="w-full h-14 bg-black text-white rounded-full flex items-center justify-center appearance-none shrink-0 font-bold text-[16px] shadow-[0_8px_30px_rgba(0,0,0,0.12)] mt-6 active:scale-[0.98] transition-transform disabled:opacity-50 disabled:active:scale-100"
+                    >
                         {isSubmitting ? <div className="animate-spin w-5 h-5 border-2 border-white border-t-transparent rounded-full" /> : "Save Entry"}
                     </button>
                 </BottomSheet>
