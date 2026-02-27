@@ -539,6 +539,7 @@ export default function PersonalCMS() {
                                                         }}
                                                         type={activeCategory}
                                                         onToggle={(id, status) => handleToggleStatus(id, status, activeCategory)}
+                                                        onEdit={handleEditClick}
                                                         onDelete={(id) => handleDelete(id, activeCategory)}
                                                     />
                                                 );
@@ -560,6 +561,7 @@ export default function PersonalCMS() {
                                                 <div key={item.id} className="mb-5 inline-block w-full">
                                                     <GridCard
                                                         item={item}
+                                                        onEdit={handleEditClick}
                                                         onDelete={(id) => handleDelete(id, activeCategory)}
                                                     />
                                                 </div>
@@ -577,7 +579,7 @@ export default function PersonalCMS() {
                     <div className="fixed bottom-8 left-1/2 -translate-x-1/2 w-full max-w-[500px] z-30 flex justify-end px-8 pointer-events-none">
                         <motion.button
                             whileTap={{ scale: 0.9 }}
-                            onClick={() => setIsSheetOpen(true)}
+                            onClick={handleOpenCreateForm}
                             className="w-16 h-16 bg-black text-white rounded-full flex items-center justify-center shadow-[0_12px_40px_rgba(0,0,0,0.2)] shrink-0 pointer-events-auto"
                         >
                             <Plus size={28} strokeWidth={2.5} />
