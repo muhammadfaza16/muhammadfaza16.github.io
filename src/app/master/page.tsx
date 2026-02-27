@@ -1,535 +1,383 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
-import { motion, AnimatePresence } from "framer-motion";
-import { Search, ChevronLeft, Lock, Send, Loader2, Link2, FileText, Book, ShoppingBag, Edit3, Grid } from "lucide-react";
+import React, { useState, useEffect } from "react";
+import { motion, AnimatePresence, useMotionValue, useTransform } from "framer-motion";
+import {
+    Search, ChevronLeft, Lock, Plus, Edit2, Trash2,
+    Book, ShoppingBag, FileText, Bookmark, Link2,
+    CheckCircle2, Clock, Globe
+} from "lucide-react";
 import Link from "next/link";
-import React from "react";
 
-type Tab = "curation" | "writing" | "bookshelf" | "wishlist";
+// ============================================================================
+// TYPES & STORE
+// ============================================================================
+type ViewState = "auth" | "dashboard" | "category";
+type CategoryId = "writing" | "toread" | "books" | "wishlist";
 
-const AnimatedMeshBackground = React.memo(({ activeTab }: { activeTab: string }) => {
-    // Zero-GPU Static Radial Gradients for buttery smooth typing
-    const color1 = activeTab === 'home' || activeTab === 'curation' ? '#a2d2ff' : activeTab === 'writing' ? '#ffdfb8' : activeTab === 'bookshelf' ? '#e2c5ff' : '#ffc4c4';
-    const color2 = activeTab === 'home' || activeTab === 'bookshelf' ? '#cda4ff' : activeTab === 'writing' ? '#ffd0a1' : activeTab === 'curation' ? '#8bc4ff' : '#ff9494';
+interface CategoryInfo {
+    id: CategoryId;
+    label: string;
+    icon: React.ReactNode;
+    desc: string;
+    type: "list" | "grid";
+}
+
+const CATEGORIES: CategoryInfo[] = [
+    { id: "writing", label: "Writing", icon: <FileText size={22} className="text-zinc-900" />, desc: "12 Published, 3 Drafts", type: "list" },
+    { id: "toread", label: "To Read", icon: <Bookmark size={22} className="text-zinc-900" />, desc: "24 Unread links", type: "list" },
+    { id: "books", label: "Books", icon: <Book size={22} className="text-zinc-900" />, desc: "4 Reading now, 12 Completed", type: "grid" },
+    { id: "wishlist", label: "Wishlist", icon: <ShoppingBag size={22} className="text-zinc-900" />, desc: "8 Items saved", type: "grid" },
+];
+
+const DUMMY_DATA: Record<CategoryId, any[]> = {
+    writing: [
+        { id: 1, title: "The Architecture of Sanctuary", status: "Published", date: "Oct 12" },
+        { id: 2, title: "Minimalism in UI Design", status: "Draft", date: "Nov 05" },
+        { id: 3, title: "On Learning Framer Motion", status: "Draft", date: "Dec 01" }
+    ],
+    toread: [
+        { id: 4, title: "Stripe's Design Engineering", status: "Unread", domain: "medium.com" },
+        { id: 5, title: "Refactoring UI Patterns", status: "Read", domain: "twitter.com" },
+        { id: 6, title: "The End of Localhost", status: "Unread", domain: "vercel.com" }
+    ],
+    books: [
+        { id: 7, title: "Steve Jobs", author: "Walter Isaacson", img: "https://images.unsplash.com/photo-1544947950-fa07a98d237f?auto=format&fit=crop&q=80&w=200&h=300" },
+        { id: 8, title: "The Design of Everyday Things", author: "Don Norman", img: "https://images.unsplash.com/photo-1589829085413-56de8ae18c73?auto=format&fit=crop&q=80&w=200&h=300" },
+        { id: 9, title: "Atomic Habits", author: "James Clear", img: "https://images.unsplash.com/photo-1589829085413-56de8ae18c73?auto=format&fit=crop&q=80&w=200&h=300" }
+    ],
+    wishlist: [
+        { id: 10, title: "Sony WH-1000XM5", price: "$398", img: "https://images.unsplash.com/photo-1618366712010-f4ae9c647dcb?auto=format&fit=crop&q=80&w=200&h=200" },
+        { id: 11, title: "Herman Miller Aeron", price: "$1,200", img: "https://images.unsplash.com/photo-1505843490538-5133c6c7d0d1?auto=format&fit=crop&q=80&w=200&h=200" }
+    ]
+};
+
+// ============================================================================
+// REUSABLE UI COMPONENTS
+// ============================================================================
+
+// 1. Swipe-to-Action List Item (Mobile Pattern)
+const SwipeableRow = ({ item, type }: { item: any, type: CategoryId }) => {
+    const dragX = useMotionValue(0);
+    const scale = useTransform(dragX, [-80, 0], [1, 0.8]);
+    const opacity = useTransform(dragX, [-80, 0], [1, 0]);
 
     return (
-        <div
-            className="absolute inset-0 z-0 pointer-events-none transition-colors duration-1000 ease-in-out"
-            style={{
-                background: `radial-gradient(circle at 10% 10%, ${color1} 0%, transparent 60%), radial-gradient(circle at 90% 90%, ${color2} 0%, transparent 60%)`,
-                opacity: 0.65
-            }}
-        />
-    );
-});
+        <div className="relative w-full mb-2 rounded-2xl overflow-hidden touch-pan-y">
+            {/* Background Actions */}
+            <div className="absolute inset-0 flex items-center justify-end px-5 gap-3">
+                <motion.button style={{ scale, opacity }} className="w-12 h-12 bg-gray-200 rounded-full flex items-center justify-center text-zinc-700">
+                    <Edit2 size={18} />
+                </motion.button>
+                <motion.button style={{ scale, opacity }} className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center text-red-600">
+                    <Trash2 size={18} />
+                </motion.button>
+            </div>
 
-export default function GlobalMasterConsole() {
-    const router = useRouter();
-    const [password, setPassword] = useState("");
-    const [isAuthenticated, setIsAuthenticated] = useState(false);
+            {/* Foreground Card */}
+            <motion.div
+                drag="x"
+                dragConstraints={{ left: -120, right: 0 }}
+                dragElastic={0.1}
+                style={{ x: dragX }}
+                whileTap={{ cursor: "grabbing" }}
+                className="relative bg-transparent hover:bg-gray-50 transition-colors p-4 rounded-2xl flex items-center justify-between cursor-pointer"
+            >
+                <div className="flex items-center gap-4 truncate pr-4">
+                    <div className="w-12 h-12 rounded-full bg-gray-50 flex items-center justify-center text-zinc-400 flex-shrink-0">
+                        {type === 'writing' ? <FileText size={20} /> : <Globe size={20} />}
+                    </div>
+                    <div className="flex flex-col truncate">
+                        <h3 className="text-[16px] font-bold tracking-tight text-zinc-900 truncate">{item.title}</h3>
+                        <span className="text-[13px] text-zinc-500 font-medium truncate mt-0.5">
+                            {type === 'writing' ? item.date : item.domain}
+                        </span>
+                    </div>
+                </div>
+                <div className={`px-4 py-1.5 rounded-full text-[11px] font-bold tracking-wide flex-shrink-0
+                    ${item.status === 'Published' || item.status === 'Read' ? 'bg-zinc-100 text-zinc-600' : 'bg-gray-100 text-gray-400'}`}>
+                    {item.status}
+                </div>
+            </motion.div>
+        </div>
+    );
+};
+
+// 2. Visually-Heavy Grid Card
+const GridCard = ({ item }: { item: any }) => (
+    <div className="flex flex-col gap-3 group">
+        <div className="w-full aspect-[3/4] rounded-[2rem] overflow-hidden bg-gray-100 relative shadow-sm border border-gray-100">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={item.img} alt={item.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+            <div className="absolute inset-0 rounded-[2rem] shadow-[inset_0_0_0_1px_rgba(0,0,0,0.02)] pointer-events-none" />
+        </div>
+        <div className="px-2 flex flex-col gap-0.5">
+            <h3 className="text-[15px] font-bold tracking-tight text-zinc-900 leading-tight line-clamp-2">{item.title}</h3>
+            <span className="text-[13px] text-zinc-500 font-medium truncate">{item.author || item.price}</span>
+        </div>
+    </div>
+);
+
+// 3. Bottom Sheet UI (Universal Create/Update)
+const BottomSheet = ({ isOpen, onClose, title }: { isOpen: boolean, onClose: () => void, title: string }) => {
+    return (
+        <AnimatePresence>
+            {isOpen && (
+                <>
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        onClick={onClose}
+                        className="fixed inset-0 bg-black/20 z-40 backdrop-blur-sm transition-opacity"
+                    />
+                    <motion.div
+                        initial={{ y: "100%" }}
+                        animate={{ y: 0 }}
+                        exit={{ y: "100%" }}
+                        transition={{ type: "spring", damping: 25, stiffness: 220 }}
+                        drag="y"
+                        dragConstraints={{ top: 0, bottom: 0 }}
+                        dragElastic={0.2}
+                        onDragEnd={(e, { offset, velocity }) => {
+                            if (offset.y > 100 || velocity.y > 500) onClose();
+                        }}
+                        className="fixed bottom-0 left-0 right-0 h-[85vh] bg-white rounded-t-[2rem] z-50 flex flex-col shadow-[0_-8px_40px_rgba(0,0,0,0.08)]"
+                    >
+                        <div className="w-full flex justify-center py-5 flex-shrink-0 cursor-grab active:cursor-grabbing">
+                            <div className="w-12 h-1.5 bg-gray-200 rounded-full" />
+                        </div>
+                        <div className="px-8 py-2 flex-shrink-0 flex items-center justify-between">
+                            <h2 className="text-2xl font-bold text-zinc-900 tracking-tight">{title}</h2>
+                        </div>
+                        <div className="flex-grow overflow-y-auto px-8 pb-32 pt-6 flex flex-col gap-6 no-scrollbar">
+                            {/* Dummy Input Form to simulate flow */}
+                            <div className="flex flex-col gap-2">
+                                <label className="text-[12px] font-bold uppercase tracking-wider text-zinc-500 ml-1">Title</label>
+                                <input type="text" placeholder="Enter title" className="w-full bg-gray-50 rounded-[1.5rem] h-14 px-5 text-[16px] font-semibold text-zinc-900 border border-transparent outline-none focus:bg-white focus:border-zinc-200 focus:shadow-sm transition-all placeholder:text-zinc-400 placeholder:font-medium" />
+                            </div>
+                            <div className="flex flex-col gap-2">
+                                <label className="text-[12px] font-bold uppercase tracking-wider text-zinc-500 ml-1">URL / Link</label>
+                                <input type="url" placeholder="https://" className="w-full bg-gray-50 rounded-[1.5rem] h-14 px-5 text-[16px] font-semibold text-zinc-900 border border-transparent outline-none focus:bg-white focus:border-zinc-200 focus:shadow-sm transition-all placeholder:text-zinc-400 placeholder:font-medium" />
+                            </div>
+                            <div className="flex flex-col gap-2">
+                                <label className="text-[12px] font-bold uppercase tracking-wider text-zinc-500 ml-1">Notes</label>
+                                <textarea placeholder="Add your thoughts..." className="w-full bg-gray-50 rounded-[1.5rem] h-32 p-5 text-[16px] font-medium text-zinc-900 border border-transparent outline-none focus:bg-white focus:border-zinc-200 focus:shadow-sm transition-all resize-none placeholder:text-zinc-400" />
+                            </div>
+
+                            <button className="w-full h-14 bg-black text-white rounded-full font-bold text-[16px] shadow-[0_8px_30px_rgba(0,0,0,0.12)] mt-6 active:scale-[0.98] transition-transform">
+                                Save Entry
+                            </button>
+                        </div>
+                    </motion.div>
+                </>
+            )}
+        </AnimatePresence>
+    );
+};
+
+// ============================================================================
+// MAIN PAGE COMPONENT
+// ============================================================================
+export default function PersonalCMS() {
+    const [view, setView] = useState<ViewState>("auth");
+    const [activeCategory, setActiveCategory] = useState<CategoryId>("writing");
+    const [isSheetOpen, setIsSheetOpen] = useState(false);
     const [mounted, setMounted] = useState(false);
+    const [authPin, setAuthPin] = useState("");
 
     useEffect(() => {
         setMounted(true);
-        if (localStorage.getItem("master_auth") === "true") {
-            setIsAuthenticated(true);
-        }
+        if (localStorage.getItem("cms_auth") === "true") setView("dashboard");
     }, []);
-
-    // Active Tab Logic ('home' means showing the bento grid dashboard)
-    const [activeTab, setActiveTab] = useState<Tab | "home">("home");
-
-    const tabs: { id: Tab; label: string; icon: React.ReactNode; desc: string; color: string; gradient: string; iconBg: string; shadowColor: string }[] = [
-        { id: "curation", label: "Curation", icon: <FileText size={22} strokeWidth={2.5} />, desc: "Markdown read-later queue.", color: "#43A6FF", gradient: "from-[#43A6FF]/30 to-[#43A6FF]/5", iconBg: "linear-gradient(135deg, #60B6FF, #208AFF)", shadowColor: "rgba(67, 166, 255, 0.4)" },
-        { id: "writing", label: "Writing", icon: <Edit3 size={22} strokeWidth={2.5} />, desc: "Draft long-form essays.", color: "#F7A754", gradient: "from-[#F7A754]/30 to-[#F7A754]/5", iconBg: "linear-gradient(135deg, #FFB46B, #F08E22)", shadowColor: "rgba(247, 167, 84, 0.4)" },
-        { id: "bookshelf", label: "Bookshelf", icon: <Book size={22} strokeWidth={2.5} />, desc: "Log reading journeys.", color: "#B983FF", gradient: "from-[#B983FF]/30 to-[#B983FF]/5", iconBg: "linear-gradient(135deg, #C598FF, #9D5AFF)", shadowColor: "rgba(185, 131, 255, 0.4)" },
-        { id: "wishlist", label: "Wishlist", icon: <ShoppingBag size={22} strokeWidth={2.5} />, desc: "Track future acquisitions.", color: "#FF6B6B", gradient: "from-[#FF6B6B]/30 to-[#FF6B6B]/5", iconBg: "linear-gradient(135deg, #FF8282, #EB4848)", shadowColor: "rgba(255, 107, 107, 0.4)" },
-    ];
-
-    // Generic Form State
-    const [formData, setFormData] = useState<Record<string, any>>({
-        title: "",
-        content: "",
-        coverImage: "",
-        author: "",
-        rating: 1,
-        price: "",
-        priority: "Low",
-    });
-
-    const [isSubmitting, setIsSubmitting] = useState(false);
-    const [statusText, setStatusText] = useState("");
 
     const handleLogin = (e: React.FormEvent) => {
         e.preventDefault();
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-        if (password === "161616") {
-            setIsAuthenticated(true);
-            localStorage.setItem("master_auth", "true");
+        if (authPin === "161616") {
+            localStorage.setItem("cms_auth", "true");
+            setView("dashboard");
         } else {
             alert("Incorrect PIN");
-            setPassword("");
         }
-    };
-
-    const handleInputChange = (field: string, value: any) => {
-        setFormData((prev) => ({ ...prev, [field]: value }));
-    };
-
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        setIsSubmitting(true);
-        setStatusText("Saving to database...");
-
-        try {
-            const res = await fetch(`/api/${activeTab}`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(formData),
-            });
-
-            if (res.ok) {
-                setStatusText(`Persisted in ${activeTab}.`);
-                setFormData({
-                    title: "",
-                    content: "",
-                    coverImage: "",
-                    author: "",
-                    rating: 1,
-                    price: "",
-                    priority: "Low",
-                });
-                setTimeout(() => setStatusText(""), 3000);
-            } else {
-                setStatusText("Sync failed.");
-            }
-        } catch (error) {
-            setStatusText("Network error.");
-        } finally {
-            setIsSubmitting(false);
-        }
-    };
-
-    // Premium iOS Visual Tokens
-    const bgBase = "#F2F4F8";
-    const textDark = "#1c1c1e";
-    const textMuted = "#8E8E93";
-
-    // Reusable styles
-    const glassPanel = {
-        background: "rgba(255, 255, 255, 0.65)",
-        backdropFilter: "blur(40px) saturate(150%)",
-        WebkitBackdropFilter: "blur(40px) saturate(150%)",
-        borderTop: "1.5px solid rgba(255, 255, 255, 0.8)",
-        borderLeft: "1.5px solid rgba(255, 255, 255, 0.5)",
-        borderRight: "1px solid rgba(255, 255, 255, 0.2)",
-        borderBottom: "1px solid rgba(255, 255, 255, 0.2)",
-        boxShadow: "0 20px 40px rgba(0,0,0,0.05), inset 0 0 0 1px rgba(255,255,255,0.3)",
-        borderRadius: "32px",
-    };
-
-    const glassInput = {
-        background: "rgba(0, 0, 0, 0.03)",
-        backdropFilter: "blur(20px)",
-        WebkitBackdropFilter: "blur(20px)",
-        border: "1px solid rgba(0, 0, 0, 0.05)",
-        boxShadow: "inset 0 4px 10px rgba(0,0,0,0.04), 0 1px 0 rgba(255,255,255,0.8)",
-        borderRadius: "18px",
     };
 
     if (!mounted) return null;
 
     return (
-        <div
-            className="fixed inset-0 w-full font-sans antialiased flex flex-col items-center z-[50] overflow-hidden"
-            style={{
-                backgroundColor: bgBase,
-                color: textDark,
-                fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif",
-            }}
-        >
-            {/* Animated Memoized Background to stop keystroke render lag */}
-            <AnimatedMeshBackground activeTab={activeTab} />
+        <div className="fixed inset-0 w-full min-h-svh flex flex-col items-center bg-gray-50 tracking-tight text-zinc-900 selection:bg-zinc-200 overflow-hidden antialiased">
+            <div className="w-full max-w-[500px] h-full flex flex-col relative bg-gray-50 shadow-2xl">
 
-            <div className="w-full max-w-[500px] h-full flex flex-col relative overflow-hidden z-10 border-x border-black/5 bg-white/10 backdrop-blur-[2px]">
-                {/* TOP NAVIGATION */}
-                <div className="w-full flex items-center justify-between p-5 pt-12 z-20 flex-shrink-0">
-                    {!isAuthenticated || activeTab === "home" ? (
-                        <Link href="/" className="outline-none block">
-                            <motion.div
-                                whileTap={{ scale: 0.95 }}
-                                className="flex px-1.5 py-1.5 items-center justify-center gap-2 rounded-full bg-white/50 backdrop-blur-xl border border-white/60 shadow-sm cursor-pointer outline-none"
-                            >
-                                <div className="w-9 h-9 rounded-full flex items-center justify-center relative transition-transform bg-[#1c1c1e] text-white shadow-md">
-                                    <ChevronLeft size={18} className="mr-0.5" />
-                                </div>
-                                <div className="flex items-center justify-center px-4 font-bold text-[11px] tracking-[0.2em] uppercase pr-5 opacity-80 text-[#1c1c1e]">
-                                    HOME
-                                </div>
-                            </motion.div>
-                        </Link>
-                    ) : (
-                        <motion.button
-                            whileTap={{ scale: 0.95 }}
-                            onClick={() => setActiveTab("home")}
-                            className="flex px-1.5 py-1.5 items-center justify-center gap-2 rounded-full bg-white/50 backdrop-blur-xl border border-white/60 shadow-sm cursor-pointer outline-none"
+                <AnimatePresence mode="wait">
+                    {/* --- VIEW: AUTHENTICATION --- */}
+                    {view === "auth" && (
+                        <motion.div
+                            key="auth"
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            className="flex-1 flex flex-col p-8 items-center justify-center -mt-20"
                         >
-                            <div className="w-9 h-9 rounded-full flex items-center justify-center relative transition-transform bg-[#1c1c1e] text-white shadow-md">
-                                <ChevronLeft size={18} className="mr-0.5" />
+                            <div className="w-20 h-20 bg-white rounded-[2rem] shadow-sm border border-gray-100 flex items-center justify-center mb-8">
+                                <Lock size={28} className="text-zinc-900" />
                             </div>
-                            <div className="flex items-center justify-center px-4 font-bold text-[11px] tracking-[0.2em] uppercase pr-5 opacity-80 text-[#1c1c1e]">
-                                CONSOLE
-                            </div>
-                        </motion.button>
-                    )}
-                </div>
+                            <h1 className="text-3xl font-bold tracking-tight mb-3">Workspace</h1>
+                            <p className="text-zinc-500 text-[15px] font-medium mb-12 text-center">Enter your verification PIN to access the sanctuary backend.</p>
 
-                {!isAuthenticated ? (
-                    <motion.div
-                        initial={{ opacity: 1, scale: 0.95, y: 20 }}
-                        animate={{ opacity: 1, scale: 1, y: 0 }}
-                        className="flex flex-col flex-grow items-center justify-center px-6 pb-32 w-full"
-                    >
-                        {/* 3D Glass Artwork */}
-                        <div className="relative w-full h-[220px] flex items-center justify-center mb-10">
-                            <motion.div
-                                animate={{ y: [-5, 5, -5], rotate: -15 }}
-                                transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
-                                className="absolute w-32 h-44 rounded-[30px] bg-[#B983FF]/40 backdrop-blur-2xl shadow-xl border border-white/50"
-                                style={{ left: "10%" }}
-                            />
-                            <motion.div
-                                animate={{ y: [5, -5, 5], rotate: 10 }}
-                                transition={{ duration: 7, repeat: Infinity, ease: "easeInOut", delay: 1 }}
-                                className="absolute w-32 h-44 rounded-[30px] bg-[#43A6FF]/40 backdrop-blur-2xl shadow-xl border border-white/50"
-                                style={{ right: "10%" }}
-                            />
-                            <motion.div
-                                initial={{ scale: 0.9 }}
-                                animate={{ scale: 1 }}
-                                transition={{ type: "spring", bounce: 0.5 }}
-                                className="absolute w-40 h-40 rounded-[40px] shadow-2xl flex items-center justify-center"
-                                style={{
-                                    zIndex: 5,
-                                    background: "rgba(255, 255, 255, 0.4)",
-                                    backdropFilter: "blur(40px) saturate(200%)",
-                                    borderTop: "2px solid rgba(255, 255, 255, 0.9)",
-                                    borderLeft: "2px solid rgba(255, 255, 255, 0.7)",
-                                    borderBottom: "1px solid rgba(255, 255, 255, 0.3)",
-                                }}
-                            >
-                                <Lock size={44} className="text-[#1c1c1e] drop-shadow-sm opacity-80" />
-                            </motion.div>
-                        </div>
-
-                        <div className="w-full" style={glassPanel}>
-                            <form onSubmit={handleLogin} className="flex flex-col p-6 gap-6">
-                                <div className="text-center mb-2">
-                                    <h2 className="text-[28px] font-bold tracking-tight mb-1" style={{ color: textDark }}>
-                                        Private Access
-                                    </h2>
-                                    <p className="text-[13px] font-medium" style={{ color: textMuted }}>
-                                        Biometric or Passphrase Required
-                                    </p>
-                                </div>
-                                <div style={glassInput}>
-                                    <input
-                                        type="password"
-                                        inputMode="numeric"
-                                        pattern="[0-9]*"
-                                        placeholder="Enter PIN"
-                                        value={password}
-                                        onChange={(e) => setPassword(e.target.value)}
-                                        onBlur={() => window.scrollTo({ top: 0, behavior: 'instant' })}
-                                        className="w-full h-[52px] bg-transparent outline-none font-semibold text-center placeholder:text-[#8E8E93]/70 text-[16px]"
-                                        style={{ color: textDark }}
-                                        autoFocus
-                                    />
-                                </div>
-                                <motion.button
-                                    whileTap={{ scale: 0.97 }}
-                                    type="submit"
-                                    className="w-full h-[54px] font-bold text-[15px] rounded-[20px] flex items-center justify-center text-white shadow-lg"
-                                    style={{
-                                        background: "#1c1c1e",
-                                    }}
-                                >
-                                    Unlock
-                                </motion.button>
+                            <form onSubmit={handleLogin} className="w-full flex flex-col gap-4">
+                                <input
+                                    type="password"
+                                    inputMode="numeric"
+                                    placeholder="PIN"
+                                    value={authPin}
+                                    onChange={e => setAuthPin(e.target.value)}
+                                    className="w-full h-14 bg-white rounded-full px-6 text-center text-xl font-bold tracking-widest outline-none focus:ring-4 focus:ring-black/5 transition-all shadow-[0_4px_20px_rgb(0,0,0,0.03)]"
+                                />
+                                <button type="submit" className="w-full h-14 bg-black text-white rounded-full font-bold text-[16px] shadow-[0_8px_30px_rgba(0,0,0,0.12)] mt-2 active:scale-[0.98] transition-transform">
+                                    Authenticate
+                                </button>
                             </form>
-                        </div>
-                    </motion.div>
-                ) : activeTab === "home" ? (
-                    <motion.div
-                        key="dashboard"
-                        initial={{ opacity: 1, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -10 }}
-                        className="flex flex-col flex-grow px-5 overflow-y-auto no-scrollbar pb-32 pt-2"
-                    >
-                        <div className="mb-8 text-left px-2">
-                            <h1 className="text-[34px] font-bold tracking-tight mb-1 leading-tight" style={{ color: textDark }}>
-                                Overview
-                            </h1>
-                            <p className="text-[15px] font-medium" style={{ color: textMuted }}>
-                                Select a destination to append.
-                            </p>
-                        </div>
+                        </motion.div>
+                    )}
 
-                        {/* Bento Grid layout for modules */}
-                        <div className="grid grid-cols-2 gap-4">
-                            {tabs.map((tab, idx) => (
-                                <motion.button
-                                    whileTap={{ scale: 0.95 }}
-                                    key={tab.id}
-                                    onClick={() => setActiveTab(tab.id)}
-                                    className="flex flex-col items-start text-left p-5 overflow-hidden relative"
-                                    style={{
-                                        ...glassPanel,
-                                        borderRadius: "28px",
-                                        gridColumn: idx === 0 || idx === 3 ? "span 2" : "span 1",
-                                    }}
-                                >
-                                    <div className={`absolute inset-0 bg-gradient-to-br ${tab.gradient} opacity-40 pointer-events-none`} />
-
-                                    <div
-                                        className="w-12 h-12 rounded-[16px] flex items-center justify-center mb-5 relative z-10 shadow-sm"
-                                        style={{
-                                            background: tab.iconBg,
-                                            boxShadow: `0 8px 20px ${tab.shadowColor}, inset 0 2px 4px rgba(255, 255, 255, 0.4), inset 0 -2px 4px rgba(0, 0, 0, 0.1)`,
-                                            border: "1px solid rgba(255,255,255,0.3)",
-                                        }}
-                                    >
-                                        <div style={{ color: "#ffffff", filter: "drop-shadow(0 2px 4px rgba(0,0,0,0.2))" }}>
-                                            {tab.icon}
-                                        </div>
-                                    </div>
-                                    <h2 className="text-[19px] font-bold tracking-tight mb-1 relative z-10" style={{ color: textDark }}>
-                                        {tab.label}
-                                    </h2>
-                                    <p className="text-[13px] font-medium leading-snug relative z-10 opacity-80" style={{ color: textMuted }}>
-                                        {tab.desc}
-                                    </p>
-                                </motion.button>
-                            ))}
-                        </div>
-                    </motion.div>
-
-                ) : (
-                    <motion.div
-                        key="form"
-                        initial={{ opacity: 1, y: 10, scale: 0.98 }}
-                        animate={{ opacity: 1, y: 0, scale: 1 }}
-                        exit={{ opacity: 0, y: -10, scale: 0.98 }}
-                        transition={{ type: "spring", damping: 25, stiffness: 300 }}
-                        className="flex flex-col flex-grow px-5 overflow-y-auto no-scrollbar pb-32 pt-2"
-                    >
-                        {/* Contextual Header */}
-                        <div className="flex flex-col items-center justify-center text-center mb-6 px-4">
-                            <motion.div
-                                initial={{ scale: 0.5, opacity: 0 }}
-                                animate={{ scale: 1, opacity: 1 }}
-                                className="w-[72px] h-[72px] rounded-[24px] flex items-center justify-center mb-4 relative z-10"
-                                style={{
-                                    background: tabs.find((t) => t.id === activeTab)?.iconBg,
-                                    boxShadow: `0 12px 30px ${tabs.find((t) => t.id === activeTab)?.shadowColor}, inset 0 2px 5px rgba(255, 255, 255, 0.5), inset 0 -4px 10px rgba(0, 0, 0, 0.15)`,
-                                    border: "1px solid rgba(255,255,255,0.4)",
-                                }}
-                            >
-                                <div style={{ color: "#ffffff", filter: "drop-shadow(0 4px 8px rgba(0,0,0,0.3))" }}>
-                                    {tabs.find((t) => t.id === activeTab)?.icon}
-                                </div>
-                            </motion.div>
-                            <h1 className="text-[26px] font-bold tracking-tight mb-1" style={{ color: textDark }}>
-                                {tabs.find((t) => t.id === activeTab)?.label}
-                            </h1>
-                            <p className="text-[14px] font-medium" style={{ color: textMuted }}>
-                                {tabs.find((t) => t.id === activeTab)?.desc}
-                            </p>
-                        </div>
-
-                        {/* Floating Neo-Glass Tab Dock (Bottom) */}
-                        <div
-                            className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex items-center justify-center p-2 rounded-full"
-                            style={{
-                                background: "rgba(255, 255, 255, 0.7)",
-                                backdropFilter: "blur(30px) saturate(200%)",
-                                WebkitBackdropFilter: "blur(30px) saturate(200%)",
-                                border: "1px solid rgba(255, 255, 255, 0.8)",
-                                boxShadow: "0 10px 40px rgba(0,0,0,0.08)",
-                            }}
+                    {/* --- VIEW: MASTER DASHBOARD --- */}
+                    {view === "dashboard" && (
+                        <motion.div
+                            key="dashboard"
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -20 }}
+                            className="flex-1 overflow-y-auto no-scrollbar pb-32"
                         >
-                            <div className="flex gap-1.5 items-center">
-                                <motion.button
-                                    whileTap={{ scale: 0.85 }}
-                                    type="button"
-                                    onClick={() => setActiveTab("home")}
-                                    className="w-12 h-12 rounded-full flex items-center justify-center bg-transparent transition-colors hover:bg-black/5"
-                                    style={{ color: "#8E8E93" }}
-                                >
-                                    <Grid size={22} strokeWidth={2.5} />
-                                </motion.button>
+                            <div className="pt-20 px-8 pb-8 w-full flex items-center justify-between">
+                                <div className="flex flex-col">
+                                    <h1 className="text-[32px] font-bold tracking-tight leading-tight text-zinc-900">Welcome, Faza</h1>
+                                    <p className="text-[15px] text-zinc-500 font-medium mt-1">12 unread articles, 3 wishlist items.</p>
+                                </div>
+                                <Link href="/">
+                                    <div className="w-12 h-12 bg-white rounded-full shadow-sm border border-gray-100 flex items-center justify-center text-zinc-500 active:scale-95 transition-transform">
+                                        <Globe size={20} />
+                                    </div>
+                                </Link>
+                            </div>
 
-                                <div className="w-[1px] h-6 bg-black/10 mx-1" /> {/* Divider */}
-
-                                {tabs.map((tab) => (
-                                    <motion.button
-                                        whileTap={{ scale: 0.85 }}
-                                        key={tab.id}
-                                        type="button"
-                                        onClick={() => setActiveTab(tab.id)}
-                                        className="w-12 h-12 rounded-full flex items-center justify-center transition-all relative"
-                                        style={
-                                            activeTab === tab.id
-                                                ? {
-                                                    background: tab.iconBg,
-                                                    color: "#fff",
-                                                    boxShadow: `0 4px 15px ${tab.shadowColor}`,
-                                                }
-                                                : {
-                                                    background: "transparent",
-                                                    color: "#8E8E93",
-                                                }
-                                        }
+                            {/* True Bento Grid (Asymmetrical) */}
+                            <div className="px-6 grid grid-cols-2 gap-4">
+                                {CATEGORIES.map((cat, idx) => (
+                                    <motion.div
+                                        whileTap={{ scale: 0.97 }}
+                                        onClick={() => {
+                                            setActiveCategory(cat.id);
+                                            setView("category");
+                                        }}
+                                        key={cat.id}
+                                        className={`bg-white rounded-[2rem] p-6 shadow-sm border border-gray-100 cursor-pointer flex flex-col justify-between 
+                                            ${idx === 0 ? "col-span-2 aspect-[2.2/1]" // Writing: Full Width Row
+                                                : idx === 1 || idx === 2 ? "col-span-1 aspect-square" // To Read & Books: Square
+                                                    : "col-span-2 aspect-[2.5/1]"}`} // Wishlist: Full Width lower
                                     >
-                                        <div className={activeTab === tab.id ? "scale-90" : "scale-100 hover:text-[#1c1c1e] transition-colors"}>
-                                            {tab.icon}
+                                        <div className="w-12 h-12 rounded-full bg-gray-50 flex items-center justify-center mb-4 text-zinc-800">
+                                            {cat.icon}
                                         </div>
-                                    </motion.button>
+                                        <div className="flex flex-col">
+                                            <h3 className="text-[18px] font-bold tracking-tight text-zinc-900">{cat.label}</h3>
+                                            <p className="text-[14px] text-zinc-500 font-medium mt-0.5">{cat.desc}</p>
+                                        </div>
+                                    </motion.div>
                                 ))}
                             </div>
-                        </div>
 
-                        {/* Dynamic Form Editor */}
-                        <form onSubmit={handleSubmit} className="flex flex-col gap-5 w-full">
-                            <div className="w-full p-5 flex flex-col gap-5" style={glassPanel}>
-                                {/* COMMON FIELD: TITLE / ITEM NAME */}
-                                <div className="flex flex-col gap-1.5">
-                                    <label className="text-[11px] font-bold uppercase tracking-[0.1em] pl-1 opacity-70" style={{ color: textDark }}>
-                                        {activeTab === "wishlist" ? "Item Name" : activeTab === "bookshelf" ? "Book Title" : "Title"}
-                                    </label>
-                                    <div style={glassInput}>
-                                        <input
-                                            type="text"
-                                            required
-                                            placeholder="Enter title..."
-                                            value={formData.title}
-                                            onChange={(e) => handleInputChange("title", e.target.value)}
-                                            onBlur={() => window.scrollTo({ top: 0, behavior: 'instant' })}
-                                            className="w-full h-12 px-4 bg-transparent border-none outline-none font-semibold text-[16px] placeholder:text-[#8E8E93]/60"
-                                        />
-                                    </div>
+                            {/* Recent Activity (Pill Cards) */}
+                            <div className="mt-14 w-full">
+                                <h2 className="px-8 text-[16px] font-bold text-zinc-900 tracking-tight mb-4">Recent Activity</h2>
+                                <div className="flex overflow-x-auto gap-3 px-6 pb-8 no-scrollbar touch-pan-x">
+                                    {[
+                                        { title: "The Architecture of Sanctuary", type: "Publish" },
+                                        { title: "Refactoring UI Patterns", type: "Save" },
+                                        { title: "Atomic Habits", type: "Log" }
+                                    ].map((item, i) => (
+                                        <div key={i} className="flex-shrink-0 bg-white rounded-full px-5 py-3.5 shadow-sm border border-gray-100 flex items-center gap-3">
+                                            <div className="w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center text-zinc-400">
+                                                <Clock size={14} />
+                                            </div>
+                                            <div className="flex flex-col justify-center pr-2">
+                                                <h4 className="text-[14px] font-bold text-zinc-900 truncate max-w-[150px]">{item.title}</h4>
+                                                <span className="text-[12px] text-zinc-500 font-medium">{item.type}</span>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        </motion.div>
+                    )}
+
+                    {/* --- VIEW: CATEGORY (SUB-PAGE) --- */}
+                    {view === "category" && (
+                        <motion.div
+                            key="category"
+                            initial={{ opacity: 0, x: 20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            exit={{ opacity: 0, x: -20 }}
+                            className="flex-1 bg-white overflow-hidden flex flex-col"
+                        // Use a solid white background for sub-pages to contrast the gray lists
+                        >
+                            {/* Sticky Header */}
+                            <div className="pt-16 px-5 pb-4 bg-white/90 backdrop-blur-2xl z-20 flex flex-col gap-5">
+                                <div className="flex items-center justify-between">
+                                    <button onClick={() => setView("dashboard")} className="w-12 h-12 flex items-center justify-center text-zinc-900 active:bg-gray-100 rounded-full transition-colors">
+                                        <ChevronLeft size={28} />
+                                    </button>
+                                    <h2 className="text-[20px] font-bold tracking-tight text-zinc-900">
+                                        {CATEGORIES.find(c => c.id === activeCategory)?.label}
+                                    </h2>
+                                    <div className="w-12" /> {/* Spacer */}
                                 </div>
 
-                                {/* CONDITIONAL FIELD: AUTHOR (Bookshelf) */}
-                                {activeTab === "bookshelf" && (
-                                    <div className="flex flex-col gap-1.5">
-                                        <label className="text-[11px] font-bold uppercase tracking-[0.1em] pl-1 opacity-70" style={{ color: textDark }}>Author</label>
-                                        <div style={glassInput}>
-                                            <input
-                                                type="text"
-                                                required
-                                                placeholder="Author Name"
-                                                value={formData.author}
-                                                onChange={(e) => handleInputChange("author", e.target.value)}
-                                                onBlur={() => window.scrollTo({ top: 0, behavior: 'instant' })}
-                                                className="w-full h-12 px-4 bg-transparent border-none outline-none font-semibold text-[16px] placeholder:text-[#8E8E93]/60"
-                                            />
-                                        </div>
-                                    </div>
-                                )}
-
-                                {/* CONDITIONAL FIELD: PRICE (Wishlist) */}
-                                {activeTab === "wishlist" && (
-                                    <div className="flex flex-col gap-1.5">
-                                        <label className="text-[11px] font-bold uppercase tracking-[0.1em] pl-1 opacity-70" style={{ color: textDark }}>Estimated Price</label>
-                                        <div style={glassInput}>
-                                            <input
-                                                type="text"
-                                                required
-                                                placeholder="Rp 500.000"
-                                                value={formData.price}
-                                                onChange={(e) => handleInputChange("price", e.target.value)}
-                                                onBlur={() => window.scrollTo({ top: 0, behavior: 'instant' })}
-                                                className="w-full h-12 px-4 bg-transparent border-none outline-none font-semibold text-[16px] placeholder:text-[#8E8E93]/60"
-                                            />
-                                        </div>
-                                    </div>
-                                )}
-
-                                {/* COMMON FIELD: URL / IMAGE */}
-                                <div className="flex flex-col gap-1.5">
-                                    <label className="text-[11px] font-bold uppercase tracking-[0.1em] pl-1 opacity-70" style={{ color: textDark }}>
-                                        {activeTab === "wishlist" ? "Product URL" : "Cover Image URL"} <span className="text-[#8E8E93] font-medium lowercase tracking-normal">(optional)</span>
-                                    </label>
-                                    <div className="w-full h-12 flex items-center px-4" style={glassInput}>
-                                        <Link2 size={16} className="text-[#8E8E93] mr-2 flex-shrink-0" />
-                                        <input
-                                            type="url"
-                                            placeholder="https://..."
-                                            value={formData.coverImage}
-                                            onChange={(e) => handleInputChange("coverImage", e.target.value)}
-                                            onBlur={() => window.scrollTo({ top: 0, behavior: 'instant' })}
-                                            className="w-full bg-transparent border-none outline-none font-medium text-[16px] placeholder:text-[#8E8E93]/60"
-                                        />
-                                    </div>
+                                {/* Filter Chips */}
+                                <div className="flex gap-2.5 overflow-x-auto no-scrollbar px-1 pb-1">
+                                    <div className="px-5 py-2 bg-black text-white rounded-full text-[14px] font-bold flex-shrink-0 cursor-pointer shadow-[0_4px_10px_rgba(0,0,0,0.1)]">All</div>
+                                    <div className="px-5 py-2 bg-gray-50 text-zinc-500 rounded-full text-[14px] font-bold flex-shrink-0 cursor-pointer">Drafts</div>
+                                    <div className="px-5 py-2 bg-gray-50 text-zinc-500 rounded-full text-[14px] font-bold flex-shrink-0 cursor-pointer">Published</div>
                                 </div>
                             </div>
 
-                            {/* COMMON FIELD: PAYLOAD (Content / Review) */}
-                            {activeTab !== "wishlist" && (
-                                <div className="w-full p-5 flex flex-col gap-2" style={glassPanel}>
-                                    <label className="text-[11px] font-bold uppercase tracking-[0.1em] pl-1 opacity-70" style={{ color: textDark }}>
-                                        {activeTab === "bookshelf" ? "Short Review" : "Markdown Payload"}
-                                    </label>
-                                    <div style={{ ...glassInput, minHeight: "220px", padding: "12px" }}>
-                                        <textarea
-                                            required
-                                            placeholder={activeTab === "bookshelf" ? "What did you think of the book?" : "Paste your markdown content here..."}
-                                            value={formData.content}
-                                            onChange={(e) => handleInputChange("content", e.target.value)}
-                                            onBlur={() => window.scrollTo({ top: 0, behavior: 'instant' })}
-                                            className="w-full h-full min-h-[200px] bg-transparent border-none outline-none resize-none font-medium text-[16px] leading-relaxed placeholder:text-[#8E8E93]/60"
-                                            style={{ color: textDark }}
-                                        />
+                            {/* Content Area */}
+                            <div className="flex-1 overflow-y-auto w-full p-5 pb-32 no-scrollbar">
+                                {CATEGORIES.find(c => c.id === activeCategory)?.type === 'list' ? (
+                                    <div className="flex flex-col w-full">
+                                        {DUMMY_DATA[activeCategory].map(item => (
+                                            <SwipeableRow key={item.id} item={item} type={activeCategory} />
+                                        ))}
                                     </div>
-                                </div>
-                            )}
-
-                            {/* Action Bar */}
-                            <div className="w-full flex items-center justify-between py-2 px-1 mb-8">
-                                <span
-                                    className="text-[13px] font-semibold"
-                                    style={{ color: statusText.includes("Failed") ? "#FF3B30" : "#34C759" }}
-                                >
-                                    {statusText}
-                                </span>
-
-                                <motion.button
-                                    whileTap={{ scale: 0.95 }}
-                                    type="submit"
-                                    disabled={isSubmitting}
-                                    className="px-6 h-[46px] font-bold text-[14px] rounded-full flex items-center justify-center gap-2 text-white shadow-lg shadow-black/20"
-                                    style={{
-                                        background: isSubmitting ? "#8E8E93" : "#1c1c1e",
-                                    }}
-                                >
-                                    {isSubmitting ? (
-                                        <>
-                                            <Loader2 size={16} className="animate-spin" /> Saving...
-                                        </>
-                                    ) : (
-                                        <>
-                                            <Send size={16} /> Publish
-                                        </>
-                                    )}
-                                </motion.button>
+                                ) : (
+                                    <div className="columns-2 gap-5 pb-12">
+                                        {DUMMY_DATA[activeCategory].map(item => (
+                                            <div key={item.id} className="mb-5 inline-block w-full">
+                                                <GridCard item={item} />
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
                             </div>
-                        </form>
-                    </motion.div>
+                        </motion.div>
+                    )}
+                </AnimatePresence>
+
+                {/* --- GLOBAL FAB LAYER --- */}
+                {view !== "auth" && (
+                    <div className="absolute bottom-8 right-8 z-30">
+                        <motion.button
+                            whileTap={{ scale: 0.9 }}
+                            onClick={() => setIsSheetOpen(true)}
+                            className="w-16 h-16 bg-black text-white rounded-full flex items-center justify-center shadow-[0_8px_30px_rgba(0,0,0,0.15)] shrink-0"
+                        >
+                            <Plus size={28} strokeWidth={2.5} />
+                        </motion.button>
+                    </div>
                 )}
+
+                {/* --- BOTTOM SHEET PORTAL --- */}
+                <BottomSheet isOpen={isSheetOpen} onClose={() => setIsSheetOpen(false)} title="New Entry" />
+
             </div>
         </div>
     );

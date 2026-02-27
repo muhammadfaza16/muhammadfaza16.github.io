@@ -39,7 +39,7 @@ export const viewport: Viewport = {
 
 import { ZenProvider } from "@/components/ZenContext";
 
-import { Playfair_Display, Source_Serif_4, Space_Mono } from "next/font/google";
+import { Playfair_Display, Inter, Space_Mono } from "next/font/google";
 
 const playfair = Playfair_Display({
   subsets: ["latin"],
@@ -47,9 +47,9 @@ const playfair = Playfair_Display({
   display: "swap",
 });
 
-const sourceSerif = Source_Serif_4({
+const interSans = Inter({
   subsets: ["latin"],
-  variable: "--font-sans", // We use Serif as primary 'sans' role in this design system
+  variable: "--font-sans",
   display: "swap",
 });
 
@@ -102,7 +102,7 @@ export default function RootLayout({
       </head>
       <body
         suppressHydrationWarning
-        className={`${playfair.variable} ${sourceSerif.variable} ${spaceMono.variable}`}
+        className={`${playfair.variable} ${interSans.variable} ${spaceMono.variable}`}
         style={{ minHeight: "100svh", display: "flex", flexDirection: "column" }}
       >
         <script
