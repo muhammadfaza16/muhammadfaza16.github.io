@@ -8,7 +8,12 @@ import {
     CheckCircle2, Clock, Globe, ChevronRight
 } from "lucide-react";
 import Link from "next/link";
-import { getToReadArticles, createToReadArticle, toggleReadStatus, deleteToReadArticle } from "./actions";
+import {
+    getToReadArticles, createToReadArticle, toggleReadStatus, deleteToReadArticle,
+    getWritingArticles, createWritingArticle, togglePublishStatus, deleteWritingArticle,
+    getBooks, createBook, deleteBook,
+    getWishlistItems, createWishlistItem, deleteWishlistItem
+} from "./actions";
 
 // ============================================================================
 // TYPES & STORE
@@ -59,38 +64,15 @@ const DUMMY_DATA: Record<CategoryId, any[]> = {
 // REUSABLE UI COMPONENTS
 // ============================================================================
 
-// 1. Swipe-to-Action List Item (Mobile Pattern)
+// 1. Static List Item (Mobile Pattern)
 const SwipeableRow = ({ item, type, onToggle, onDelete }: { item: any, type: CategoryId, onToggle?: (id: string, status: boolean) => void, onDelete?: (id: string) => void }) => {
-    const dragX = useMotionValue(0);
-    const scale = useTransform(dragX, [-80, 0], [1, 0.8]);
-    const opacity = useTransform(dragX, [-80, 0], [1, 0]);
-
     return (
-        <div className="relative w-full mb-2 rounded-2xl overflow-hidden touch-pan-y">
-            {/* Background Actions */}
-            <div className="absolute inset-0 flex items-center justify-end px-5 gap-3">
-                <motion.button style={{ scale, opacity }} className="w-12 h-12 bg-gray-200 rounded-full flex items-center justify-center text-zinc-700">
-                    <Edit2 size={18} />
-                </motion.button>
-                <motion.button
-                    onClick={(e) => { e.stopPropagation(); onDelete && onDelete(item.id); }}
-                    style={{ scale, opacity }}
-                    className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center text-red-600 cursor-pointer pointer-events-auto"
-                >
-                    <Trash2 size={18} />
-                </motion.button>
-            </div>
-
+        <div className="relative w-full mb-3 rounded-2xl overflow-hidden">
             {/* Foreground Card */}
-            <motion.div
-                drag="x"
-                dragConstraints={{ left: -120, right: 0 }}
-                dragElastic={0.1}
-                style={{ x: dragX }}
-                whileTap={{ cursor: "grabbing" }}
-                className="relative bg-white rounded-2xl p-4 shadow-[0_4px_20px_rgb(0,0,0,0.03)] mb-3 flex items-center justify-between cursor-pointer transition-colors hover:bg-gray-50"
-            >
-                <div className="flex items-center gap-4 truncate pr-4">
+            <div className="relative bg-white rounded-2xl p-4 shadow-[0_4px_20px_rgb(0,0,0,0.03)] flex items-center justify-between transition-colors hover:bg-gray-50">
+
+                {/* Left Group (Icon + Text) */}
+                <div className="flex items-center gap-4 truncate pr-4 max-w-[50%] xs:max-w-[60%]">
                     <div className="w-12 h-12 rounded-full bg-gray-50 flex items-center justify-center text-zinc-400 flex-shrink-0">
                         {type === 'writing' ? <FileText size={20} /> : <Globe size={20} />}
                     </div>
@@ -101,28 +83,50 @@ const SwipeableRow = ({ item, type, onToggle, onDelete }: { item: any, type: Cat
                         </span>
                     </div>
                 </div>
-                <div
-                    onClick={(e) => { e.stopPropagation(); onToggle && onToggle(item.id, item.isRead || item.status === 'Read'); }}
-                    className={`px-4 py-1.5 rounded-full text-[11px] font-bold tracking-wide flex-shrink-0 cursor-pointer
-                    ${item.status === 'Published' || item.isRead || item.status === 'Read' ? 'bg-zinc-100 text-zinc-600' : 'bg-gray-100 text-gray-400'}`}>
-                    {type === 'toread' ? (item.isRead ? 'Read' : 'Unread') : item.status}
+
+                {/* RightActionGroup */}
+                <div className="flex items-center gap-3 flex-shrink-0">
+                    <button
+                        onClick={(e) => { e.stopPropagation(); onToggle && onToggle(item.id, item.isRead || item.status === 'Read'); }}
+                        className={`px-4 py-1.5 rounded-full text-[11px] font-bold tracking-wide flex-shrink-0 cursor-pointer active:scale-95 transition-transform
+                        ${item.status === 'Published' || item.isRead || item.status === 'Read' ? 'bg-zinc-100 text-zinc-600' : 'bg-gray-100 text-gray-400'}`}>
+                        {type === 'toread' ? (item.isRead ? 'Read' : 'Unread') : item.status}
+                    </button>
+
+                    {onDelete && (
+                        <button
+                            onClick={(e) => { e.stopPropagation(); onDelete(item.id); }}
+                            className="w-8 h-8 rounded-full flex items-center justify-center text-gray-400 hover:text-red-500 hover:bg-red-50 active:scale-95 transition-all"
+                        >
+                            <Trash2 size={16} />
+                        </button>
+                    )}
                 </div>
-            </motion.div>
+            </div>
         </div>
     );
 };
 
 // 2. Visually-Heavy Grid Card
-const GridCard = ({ item }: { item: any }) => (
-    <div className="bg-white rounded-2xl p-4 shadow-[0_4px_20px_rgb(0,0,0,0.03)] mb-3 flex flex-col gap-3 group">
+const GridCard = ({ item, onDelete }: { item: any; onDelete?: (id: string) => void }) => (
+    <div className="bg-white rounded-2xl p-4 shadow-[0_4px_20px_rgb(0,0,0,0.03)] mb-3 flex flex-col gap-3 group relative overflow-hidden">
+        {onDelete && (
+            <button
+                onClick={(e) => { e.stopPropagation(); onDelete(item.id); }}
+                className="absolute top-6 right-6 z-10 w-8 h-8 bg-black/40 hover:bg-red-500 backdrop-blur-md rounded-full flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-all pointer-events-auto"
+            >
+                <Trash2 size={14} />
+            </button>
+        )}
         <div className="w-full aspect-[3/4] rounded-xl overflow-hidden bg-gray-50 relative">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={item.img} alt={item.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+            <img src={item.img || item.coverImage || "https://images.unsplash.com/photo-1544947950-fa07a98d237f?auto=format&fit=crop&q=80&w=200&h=300"} alt={item.title || item.name} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
             <div className="absolute inset-0 rounded-xl shadow-[inset_0_0_0_1px_rgba(0,0,0,0.02)] pointer-events-none" />
         </div>
         <div className="px-1 flex flex-col gap-0.5">
-            <h3 className="text-[15px] font-bold tracking-tight text-zinc-900 leading-tight line-clamp-2">{item.title}</h3>
+            <h3 className="text-[15px] font-bold tracking-tight text-zinc-900 leading-tight line-clamp-2">{item.title || item.name}</h3>
             <span className="text-[13px] text-zinc-500 font-medium truncate">{item.author || item.price}</span>
+            {item.review && <p className="text-[12px] text-zinc-400 truncate mt-1">{item.review}</p>}
         </div>
     </div>
 );
@@ -179,14 +183,18 @@ export default function PersonalCMS() {
     const [mounted, setMounted] = useState(false);
     const [authPin, setAuthPin] = useState("");
 
-    // --- DB State (To Read) ---
+    // --- DB State ---
+    const [writingItems, setWritingItems] = useState<any[]>([]);
     const [toreadItems, setToreadItems] = useState<any[]>([]);
+    const [bookItems, setBookItems] = useState<any[]>([]);
+    const [wishlistItems, setWishlistItems] = useState<any[]>([]);
     const [isFetching, setIsFetching] = useState(false);
 
     // --- Form State ---
     const [formTitle, setFormTitle] = useState("");
     const [formUrl, setFormUrl] = useState("");
     const [formNotes, setFormNotes] = useState("");
+    const [formExtra, setFormExtra] = useState(""); // For Author or Price
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     useEffect(() => {
@@ -195,10 +203,20 @@ export default function PersonalCMS() {
     }, []);
 
     useEffect(() => {
-        if (view === "category" && activeCategory === "toread") {
-            loadToRead();
+        if (view === "category") {
+            if (activeCategory === "toread") loadToRead();
+            else if (activeCategory === "writing") loadWriting();
+            else if (activeCategory === "books") loadBooks();
+            else if (activeCategory === "wishlist") loadWishlist();
         }
     }, [view, activeCategory]);
+
+    const loadWriting = async () => {
+        setIsFetching(true);
+        const res = await getWritingArticles();
+        if (res.success && res.data) setWritingItems(res.data);
+        setIsFetching(false);
+    };
 
     const loadToRead = async () => {
         setIsFetching(true);
@@ -207,30 +225,82 @@ export default function PersonalCMS() {
         setIsFetching(false);
     };
 
-    const handleCreateToRead = async () => {
-        if (!formTitle || !formUrl) return;
+    const loadBooks = async () => {
+        setIsFetching(true);
+        const res = await getBooks();
+        if (res.success && res.data) setBookItems(res.data);
+        setIsFetching(false);
+    };
+
+    const loadWishlist = async () => {
+        setIsFetching(true);
+        const res = await getWishlistItems();
+        if (res.success && res.data) setWishlistItems(res.data);
+        setIsFetching(false);
+    };
+
+    const handleCreate = async () => {
+        if (!formTitle) return;
         setIsSubmitting(true);
-        const res = await createToReadArticle(formTitle, formUrl, formNotes);
+        let success = false;
+        let data = null;
+        let errorMsg = "Failed";
+
+        if (activeCategory === "toread") {
+            if (!formUrl) { setIsSubmitting(false); return; }
+            const res = await createToReadArticle(formTitle, formUrl, formNotes);
+            success = res.success; data = res.data; errorMsg = res.error || "Failed";
+        } else if (activeCategory === "writing") {
+            const res = await createWritingArticle(formTitle, formNotes, formUrl);
+            success = res.success; data = res.data; errorMsg = res.error || "Failed";
+        } else if (activeCategory === "books") {
+            if (!formExtra) { setIsSubmitting(false); alert("Author is required"); return; }
+            const res = await createBook(formTitle, formExtra, formUrl, formNotes);
+            success = res.success; data = res.data; errorMsg = res.error || "Failed";
+        } else if (activeCategory === "wishlist") {
+            const res = await createWishlistItem(formTitle, formExtra, formUrl);
+            success = res.success; data = res.data; errorMsg = res.error || "Failed";
+        }
+
         setIsSubmitting(false);
-        if (res.success && res.data) {
-            setToreadItems([res.data, ...toreadItems]);
+
+        if (success && data) {
+            if (activeCategory === "toread") setToreadItems([data, ...toreadItems]);
+            else if (activeCategory === "writing") setWritingItems([data, ...writingItems]);
+            else if (activeCategory === "books") setBookItems([data, ...bookItems]);
+            else if (activeCategory === "wishlist") setWishlistItems([data, ...wishlistItems]);
+
             setIsSheetOpen(false);
-            setFormTitle("");
-            setFormUrl("");
-            setFormNotes("");
+            setFormTitle(""); setFormUrl(""); setFormNotes(""); setFormExtra("");
         } else {
-            alert(res.error);
+            alert(errorMsg);
         }
     };
 
-    const handleToggleStatus = async (id: string, currentStatus: boolean) => {
-        setToreadItems(prev => prev.map(item => item.id === id ? { ...item, isRead: !currentStatus } : item));
-        await toggleReadStatus(id, currentStatus);
+    const handleToggleStatus = async (id: string, currentStatus: boolean, category: CategoryId) => {
+        if (category === "toread") {
+            setToreadItems(prev => prev.map(item => item.id === id ? { ...item, isRead: !currentStatus } : item));
+            await toggleReadStatus(id, currentStatus);
+        } else if (category === "writing") {
+            setWritingItems(prev => prev.map(item => item.id === id ? { ...item, published: !currentStatus } : item));
+            await togglePublishStatus(id, currentStatus);
+        }
     };
 
-    const handleDelete = async (id: string) => {
-        setToreadItems(prev => prev.filter(item => item.id !== id));
-        await deleteToReadArticle(id);
+    const handleDelete = async (id: string, category: CategoryId) => {
+        if (category === "toread") {
+            setToreadItems(prev => prev.filter(item => item.id !== id));
+            await deleteToReadArticle(id);
+        } else if (category === "writing") {
+            setWritingItems(prev => prev.filter(item => item.id !== id));
+            await deleteWritingArticle(id);
+        } else if (category === "books") {
+            setBookItems(prev => prev.filter(item => item.id !== id));
+            await deleteBook(id);
+        } else if (category === "wishlist") {
+            setWishlistItems(prev => prev.filter(item => item.id !== id));
+            await deleteWishlistItem(id);
+        }
     };
 
     const handleLogin = (e: React.FormEvent) => {
@@ -388,43 +458,56 @@ export default function PersonalCMS() {
                             <div className="flex-1 w-full p-5">
                                 {CATEGORIES.find(c => c.id === activeCategory)?.type === 'list' ? (
                                     <div className="flex flex-col w-full">
-                                        {activeCategory === "toread" ? (
-                                            isFetching ? (
-                                                <div className="w-full flex justify-center py-10">
-                                                    <div className="animate-spin w-8 h-8 border-4 border-gray-200 border-t-black rounded-full" />
-                                                </div>
-                                            ) : toreadItems.length === 0 ? (
-                                                <div className="w-full flex justify-center py-10">
-                                                    <p className="text-zinc-500 font-medium">Your reading list is empty.</p>
-                                                </div>
-                                            ) : (
-                                                toreadItems.map(item => {
-                                                    let domain = "Link";
-                                                    try { if (item.coverImage) domain = new URL(item.coverImage).hostname.replace('www.', ''); } catch (_) { }
-                                                    return (
-                                                        <SwipeableRow
-                                                            key={item.id}
-                                                            item={{ ...item, domain }}
-                                                            type="toread"
-                                                            onToggle={handleToggleStatus}
-                                                            onDelete={handleDelete}
-                                                        />
-                                                    );
-                                                })
-                                            )
+                                        {isFetching ? (
+                                            <div className="w-full flex justify-center py-10">
+                                                <div className="animate-spin w-8 h-8 border-4 border-gray-200 border-t-black rounded-full" />
+                                            </div>
+                                        ) : (activeCategory === "toread" ? toreadItems : writingItems).length === 0 ? (
+                                            <div className="w-full flex justify-center py-10">
+                                                <p className="text-zinc-500 font-medium">Your {activeCategory} list is empty.</p>
+                                            </div>
                                         ) : (
-                                            DUMMY_DATA[activeCategory].map(item => (
-                                                <SwipeableRow key={item.id} item={item} type={activeCategory} />
-                                            ))
+                                            (activeCategory === "toread" ? toreadItems : writingItems).map(item => {
+                                                let domain = "Link";
+                                                try { if (item.coverImage) domain = new URL(item.coverImage).hostname.replace('www.', ''); } catch (_) { }
+                                                let formattedDate = item.createdAt ? new Date(item.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric" }) : "";
+                                                return (
+                                                    <SwipeableRow
+                                                        key={item.id}
+                                                        item={{
+                                                            ...item,
+                                                            domain,
+                                                            date: formattedDate,
+                                                            status: activeCategory === "writing" ? (item.published ? 'Published' : 'Draft') : item.status
+                                                        }}
+                                                        type={activeCategory}
+                                                        onToggle={(id, status) => handleToggleStatus(id, status, activeCategory)}
+                                                        onDelete={(id) => handleDelete(id, activeCategory)}
+                                                    />
+                                                );
+                                            })
                                         )}
                                     </div>
                                 ) : (
                                     <div className="columns-2 gap-5 pb-12">
-                                        {DUMMY_DATA[activeCategory].map(item => (
-                                            <div key={item.id} className="mb-5 inline-block w-full">
-                                                <GridCard item={item} />
+                                        {isFetching ? (
+                                            <div className="w-full flex justify-center py-10 col-span-2">
+                                                <div className="animate-spin w-8 h-8 border-4 border-gray-200 border-t-black rounded-full" />
                                             </div>
-                                        ))}
+                                        ) : (activeCategory === "books" ? bookItems : wishlistItems).length === 0 ? (
+                                            <div className="w-full flex justify-center py-10 col-span-2">
+                                                <p className="text-zinc-500 font-medium">Your {activeCategory} list is empty.</p>
+                                            </div>
+                                        ) : (
+                                            (activeCategory === "books" ? bookItems : wishlistItems).map(item => (
+                                                <div key={item.id} className="mb-5 inline-block w-full">
+                                                    <GridCard
+                                                        item={item}
+                                                        onDelete={(id) => handleDelete(id, activeCategory)}
+                                                    />
+                                                </div>
+                                            ))
+                                        )}
                                     </div>
                                 )}
                             </div>
@@ -447,28 +530,41 @@ export default function PersonalCMS() {
 
                 {/* --- BOTTOM SHEET PORTAL --- */}
                 <BottomSheet isOpen={isSheetOpen} onClose={() => setIsSheetOpen(false)} title="New Entry">
-                    {activeCategory === "toread" ? (
-                        <>
-                            <div className="flex flex-col gap-2">
-                                <label className="text-[12px] font-bold uppercase tracking-wider text-zinc-500 ml-1">Title</label>
-                                <input value={formTitle} onChange={e => setFormTitle(e.target.value)} type="text" placeholder="Enter title" className="w-full bg-gray-50 rounded-[1.5rem] h-14 px-5 text-[16px] font-semibold text-zinc-900 border border-transparent outline-none focus:bg-white focus:border-zinc-200 focus:shadow-sm transition-all placeholder:text-zinc-400 placeholder:font-medium" />
-                            </div>
-                            <div className="flex flex-col gap-2">
-                                <label className="text-[12px] font-bold uppercase tracking-wider text-zinc-500 ml-1">URL / Link</label>
-                                <input value={formUrl} onChange={e => setFormUrl(e.target.value)} type="url" placeholder="https://" className="w-full bg-gray-50 rounded-[1.5rem] h-14 px-5 text-[16px] font-semibold text-zinc-900 border border-transparent outline-none focus:bg-white focus:border-zinc-200 focus:shadow-sm transition-all placeholder:text-zinc-400 placeholder:font-medium" />
-                            </div>
-                            <div className="flex flex-col gap-2">
-                                <label className="text-[12px] font-bold uppercase tracking-wider text-zinc-500 ml-1">Notes</label>
-                                <textarea value={formNotes} onChange={e => setFormNotes(e.target.value)} placeholder="Add your thoughts..." className="w-full bg-gray-50 rounded-[1.5rem] h-32 p-5 text-[16px] font-medium text-zinc-900 border border-transparent outline-none focus:bg-white focus:border-zinc-200 focus:shadow-sm transition-all resize-none placeholder:text-zinc-400" />
-                            </div>
+                    <div className="flex flex-col gap-2">
+                        <label className="text-[12px] font-bold uppercase tracking-wider text-zinc-500 ml-1">
+                            {activeCategory === "toread" || activeCategory === "writing" || activeCategory === "books" ? "Title" : "Item Name"}
+                        </label>
+                        <input value={formTitle} onChange={e => setFormTitle(e.target.value)} type="text" placeholder="Enter title or name" className="w-full bg-gray-50 rounded-[1.5rem] h-14 px-5 text-[16px] font-semibold text-zinc-900 border border-transparent outline-none focus:bg-white focus:border-zinc-200 focus:shadow-sm transition-all placeholder:text-zinc-400 placeholder:font-medium" />
+                    </div>
 
-                            <button onClick={handleCreateToRead} disabled={isSubmitting || !formTitle || !formUrl} className="w-full h-14 bg-black text-white rounded-full font-bold text-[16px] shadow-[0_8px_30px_rgba(0,0,0,0.12)] mt-6 active:scale-[0.98] transition-transform disabled:opacity-50 disabled:active:scale-100 flex items-center justify-center">
-                                {isSubmitting ? <div className="animate-spin w-5 h-5 border-2 border-white border-t-transparent rounded-full" /> : "Save Entry"}
-                            </button>
-                        </>
-                    ) : (
-                        <p className="text-center text-zinc-500 font-medium pb-20">Forms for other categories are not implemented yet.</p>
+                    {(activeCategory === "books" || activeCategory === "wishlist") && (
+                        <div className="flex flex-col gap-2">
+                            <label className="text-[12px] font-bold uppercase tracking-wider text-zinc-500 ml-1">
+                                {activeCategory === "books" ? "Author" : "Price"}
+                            </label>
+                            <input value={formExtra} onChange={e => setFormExtra(e.target.value)} type="text" placeholder={activeCategory === "books" ? "Author name" : "$0.00"} className="w-full bg-gray-50 rounded-[1.5rem] h-14 px-5 text-[16px] font-semibold text-zinc-900 border border-transparent outline-none focus:bg-white focus:border-zinc-200 focus:shadow-sm transition-all placeholder:text-zinc-400 placeholder:font-medium" />
+                        </div>
                     )}
+
+                    <div className="flex flex-col gap-2">
+                        <label className="text-[12px] font-bold uppercase tracking-wider text-zinc-500 ml-1">
+                            {activeCategory === "books" || activeCategory === "wishlist" ? "Cover/Image URL" : "URL / Link"}
+                        </label>
+                        <input value={formUrl} onChange={e => setFormUrl(e.target.value)} type="url" placeholder="https://" className="w-full bg-gray-50 rounded-[1.5rem] h-14 px-5 text-[16px] font-semibold text-zinc-900 border border-transparent outline-none focus:bg-white focus:border-zinc-200 focus:shadow-sm transition-all placeholder:text-zinc-400 placeholder:font-medium" />
+                    </div>
+
+                    {(activeCategory === "toread" || activeCategory === "writing" || activeCategory === "books") && (
+                        <div className="flex flex-col gap-2">
+                            <label className="text-[12px] font-bold uppercase tracking-wider text-zinc-500 ml-1">
+                                {activeCategory === "books" ? "Review / Thoughts" : "Notes / Content"}
+                            </label>
+                            <textarea value={formNotes} onChange={e => setFormNotes(e.target.value)} placeholder="Add your thoughts..." className="w-full bg-gray-50 rounded-[1.5rem] h-32 p-5 text-[16px] font-medium text-zinc-900 border border-transparent outline-none focus:bg-white focus:border-zinc-200 focus:shadow-sm transition-all resize-none placeholder:text-zinc-400" />
+                        </div>
+                    )}
+
+                    <button onClick={handleCreate} disabled={isSubmitting || !formTitle || (activeCategory === "toread" && !formUrl) || (activeCategory === "books" && !formExtra)} className="w-full h-14 bg-black text-white rounded-full font-bold text-[16px] shadow-[0_8px_30px_rgba(0,0,0,0.12)] mt-6 active:scale-[0.98] transition-transform disabled:opacity-50 disabled:active:scale-100 flex items-center justify-center">
+                        {isSubmitting ? <div className="animate-spin w-5 h-5 border-2 border-white border-t-transparent rounded-full" /> : "Save Entry"}
+                    </button>
                 </BottomSheet>
 
             </div>
