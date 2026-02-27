@@ -4,19 +4,28 @@ import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import { formatDistanceToNow } from "date-fns";
-import { ChevronRight, FileText, ChevronLeft, Plus } from "lucide-react";
+import { ChevronLeft, Bookmark, FileText } from "lucide-react";
+import { getSupabase } from "@/lib/supabase";
 
 type ArticleMeta = {
     id: string;
     title: string;
+    url?: string | null;
     coverImage: string | null;
+    imageUrl?: string | null;
     createdAt: string;
     isRead: boolean;
 };
 
+type FilterType = "all" | "unread" | "read";
+
 export default function CurationList() {
     const [articles, setArticles] = useState<ArticleMeta[]>([]);
     const [isLoading, setIsLoading] = useState(true);
+    const [filter, setFilter] = useState<FilterType>("all");
+
+    // Initialize Supabase once so we can generate public URLs
+    const supabase = getSupabase();
 
     useEffect(() => {
         fetch("/api/curation")
@@ -28,135 +37,162 @@ export default function CurationList() {
             .finally(() => setIsLoading(false));
     }, []);
 
-    const unreadCount = articles.filter(a => !a.isRead).length;
-
-    // Glass-Neumorphism Design Tokens
-    const baseBg = "#e0e5ec";
-    const textPrimary = "#4a4a4a";
-    const textSecondary = "#8b9bb4";
-
-    // Glassy + Extruded (Cards)
-    const glassNeuExtruded = {
-        background: "rgba(224, 229, 236, 0.45)",
-        backdropFilter: "blur(16px)",
-        WebkitBackdropFilter: "blur(16px)",
-        border: "1px solid rgba(255, 255, 255, 0.5)",
-        boxShadow: "9px 9px 16px rgba(163,177,198,0.5), -9px -9px 16px rgba(255,255,255, 0.8)",
-        borderRadius: "24px",
-    };
-
-    // Glassy + Extruded (Buttons)
-    const glassNeuButton = {
-        background: "rgba(224, 229, 236, 0.45)",
-        backdropFilter: "blur(16px)",
-        WebkitBackdropFilter: "blur(16px)",
-        border: "1px solid rgba(255, 255, 255, 0.5)",
-        boxShadow: "5px 5px 10px rgba(163,177,198,0.5), -5px -5px 10px rgba(255,255,255, 0.8)",
-        borderRadius: "16px",
-        transition: "all 0.2s ease",
-    };
+    const filteredArticles = articles.filter(a => {
+        if (filter === "unread") return !a.isRead;
+        if (filter === "read") return a.isRead;
+        return true;
+    });
 
     return (
-        <div
-            className="min-h-[100svh] w-full font-sans antialiased flex flex-col items-center p-4 md:p-12 relative z-50 overflow-hidden"
-            style={{
-                backgroundColor: baseBg,
-                color: textPrimary,
-                fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif"
-            }}
-        >
-            {/* Ambient Glassmorphism Blobs */}
-            <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
-                <div className="absolute top-[0%] left-[-10%] w-[40vw] h-[40vw] rounded-full bg-blue-300/30 blur-[80px]" />
-                <div className="absolute top-[20%] right-[-5%] w-[35vw] h-[35vw] rounded-full bg-purple-300/20 blur-[90px]" />
-                <div className="absolute bottom-[-10%] left-[15%] w-[50vw] h-[50vw] rounded-full bg-teal-200/30 blur-[100px]" />
+        <div className="h-screen w-full flex flex-col bg-white text-zinc-900 font-sans antialiased overflow-hidden relative selection:bg-zinc-200">
+
+            {/* Ambient Background (Fixed) */}
+            <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
+                <div className="absolute top-[-10%] left-[-10%] w-[50vw] h-[50vw] rounded-full bg-blue-100/60 blur-[100px]" />
+                <div className="absolute bottom-[-10%] right-[-10%] w-[45vw] h-[45vw] rounded-full bg-purple-100/50 blur-[100px]" />
             </div>
 
-            <div className="w-full max-w-2xl flex-grow flex flex-col relative z-10 pb-20">
-                {/* Header Navigation */}
-                <div className="w-full flex items-center justify-between mb-10 pt-4 sticky top-0 z-20">
-                    <Link
-                        href="/"
-                        className="flex items-center justify-center w-12 h-12 active:scale-95 transition-transform"
-                        style={glassNeuButton}
-                    >
-                        <ChevronLeft size={24} className="text-[#8b9bb4] -ml-1" />
+            {/* Glass Header */}
+            <header className="sticky top-0 z-50 bg-white/75 backdrop-blur-xl border-b border-gray-200/50 shrink-0 pb-3 pt-5 px-5 flex flex-col gap-5">
+                <div className="flex items-center justify-between">
+                    <Link href="/" className="w-11 h-11 flex items-center justify-center text-zinc-900 active:bg-gray-100 active:scale-90 rounded-full transition-all bg-white/50 backdrop-blur-md shadow-sm border border-gray-100">
+                        <ChevronLeft size={24} />
                     </Link>
-                    <div className="text-sm font-bold tracking-widest uppercase text-[#8b9bb4] px-4 py-2 rounded-full" style={glassNeuExtruded}>
-                        Curation
-                    </div>
-                    <Link
-                        href="/master"
-                        className="flex items-center justify-center w-12 h-12 active:scale-95 transition-transform"
-                        style={glassNeuButton}
-                    >
-                        <Plus size={24} className="text-[#4a4a4a]" />
-                    </Link>
+                    <h2 className="text-[18px] font-bold tracking-tight text-zinc-900">Curation</h2>
+                    <div className="w-11" /> {/* Spacer for centering */}
                 </div>
 
-                {/* Title Section */}
-                <div className="px-2 mb-8 relative">
-                    <h1 className="text-4xl font-extrabold tracking-tight mb-2" style={{ color: textPrimary }}>
-                        The Archive
-                    </h1>
-                    <p className="text-sm font-medium" style={{ color: textSecondary }}>
-                        {unreadCount > 0 ? `${unreadCount} unread articles resting in the void.` : "You're completely caught up."}
-                    </p>
+                {/* Premium Segmented Control */}
+                <div className="flex bg-gray-100/70 p-1 rounded-xl w-full">
+                    <button
+                        onClick={() => setFilter("all")}
+                        className={`flex-1 py-1.5 text-[13px] font-bold rounded-lg transition-all active:scale-[0.98] ${filter === "all" ? "bg-white text-zinc-900 shadow-sm" : "text-zinc-500"}`}
+                    >
+                        All
+                    </button>
+                    <button
+                        onClick={() => setFilter("unread")}
+                        className={`flex-1 py-1.5 text-[13px] font-bold rounded-lg transition-all active:scale-[0.98] ${filter === "unread" ? "bg-white text-zinc-900 shadow-sm" : "text-zinc-500"}`}
+                    >
+                        Unread
+                    </button>
+                    <button
+                        onClick={() => setFilter("read")}
+                        className={`flex-1 py-1.5 text-[13px] font-bold rounded-lg transition-all active:scale-[0.98] ${filter === "read" ? "bg-white text-zinc-900 shadow-sm" : "text-zinc-500"}`}
+                    >
+                        Read
+                    </button>
                 </div>
+            </header>
 
-                {/* Article List */}
-                <div className="flex flex-col gap-6 relative">
+            {/* Scrollable List Container */}
+            <main className="flex-1 overflow-y-auto px-5 pt-4 pb-32 relative z-10 w-full max-w-2xl mx-auto">
+                <div className="flex flex-col gap-3">
                     {isLoading ? (
-                        [1, 2, 3].map((i) => (
-                            <div key={i} className="h-24 w-full animate-pulse" style={glassNeuExtruded}></div>
+                        [1, 2, 3, 4].map((i) => (
+                            <div key={i} className="h-[90px] w-full bg-white/60 backdrop-blur-lg rounded-2xl border border-gray-100/50 shadow-sm animate-pulse" />
                         ))
-                    ) : articles.length === 0 ? (
-                        <div className="flex flex-col items-center justify-center py-20 opacity-50">
-                            <FileText size={48} className="mb-4 text-[#8b9bb4]" strokeWidth={1.5} />
-                            <p className="text-lg font-medium tracking-tight">Nothing here yet.</p>
+                    ) : filteredArticles.length === 0 ? (
+                        <div className="flex flex-col items-center justify-center py-20 opacity-50 text-zinc-400">
+                            <Bookmark size={48} className="mb-4" strokeWidth={1.5} />
+                            <p className="text-lg font-medium tracking-tight">No articles found.</p>
                         </div>
                     ) : (
                         <AnimatePresence>
-                            {articles.map((article, index) => (
-                                <motion.div
-                                    key={article.id}
-                                    initial={{ opacity: 1, y: 20 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    transition={{ delay: index * 0.05, ease: [0.22, 1, 0.36, 1] }}
-                                >
-                                    <Link
-                                        href={`/curation/${article.id}`}
-                                        className="block p-5 sm:p-6 active:scale-[0.98] transition-transform relative overflow-hidden"
-                                        style={glassNeuExtruded}
-                                    >
-                                        {/* Inner shiny highlight */}
-                                        <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-white/80 to-transparent opacity-60"></div>
+                            {filteredArticles.map((article, index) => {
+                                // 1. Extract domain for metadata from actual URL
+                                let domain = "";
+                                if (article.url) {
+                                    try {
+                                        domain = new URL(article.url).hostname.replace('www.', '');
+                                    } catch (_) {
+                                        domain = article.url.substring(0, 30); // fallback if malformed
+                                    }
+                                }
 
-                                        <div className="flex items-start justify-between gap-4 relative z-10">
-                                            <div className="flex flex-col gap-1.5 min-w-0">
-                                                <div className="flex items-center gap-2">
-                                                    {!article.isRead && (
-                                                        <div className="w-2.5 h-2.5 rounded-full bg-blue-400 shadow-[0_0_8px_rgba(96,165,250,0.6)] flex-shrink-0" />
+                                // 2. Determine valid image url from Supabase
+                                let validImageUrl: string | null = null;
+                                const activeImage = article.imageUrl || article.coverImage;
+
+                                if (activeImage) {
+                                    // Make sure we have a full public URL, not just a filename
+                                    if (activeImage.startsWith('http')) {
+                                        validImageUrl = activeImage;
+                                    } else if (supabase) {
+                                        const { data } = supabase.storage.from('images').getPublicUrl(activeImage);
+                                        validImageUrl = data.publicUrl;
+                                    }
+                                }
+
+                                const isLast = index === filteredArticles.length - 1;
+
+                                return (
+                                    <motion.div
+                                        key={article.id}
+                                        initial={{ opacity: 0, y: 10 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        exit={{ opacity: 0, scale: 0.95 }}
+                                        transition={{ duration: 0.2, delay: Math.min(index * 0.03, 0.3) }}
+                                    >
+                                        <Link
+                                            href={`/curation/${article.id}`}
+                                            className={`block active:bg-gray-50/80 transition-colors ${!isLast ? 'border-b border-gray-200/50' : ''}`}
+                                        >
+                                            <div className="flex items-center justify-between py-4 pr-1 min-h-[90px]">
+
+                                                {/* Text Content */}
+                                                <div className="flex flex-col flex-1 pr-6 min-w-0 justify-center">
+                                                    {(domain || !article.isRead) && (
+                                                        <div className="flex items-center gap-2 mb-1.5">
+                                                            {!article.isRead && (
+                                                                <div className="w-[6px] h-[6px] rounded-full bg-blue-500 shrink-0" />
+                                                            )}
+                                                            {domain && (
+                                                                <span className="text-[11px] font-bold tracking-widest uppercase text-zinc-400 truncate">
+                                                                    {domain}
+                                                                </span>
+                                                            )}
+                                                        </div>
                                                     )}
-                                                    <h2 className="text-[17px] font-bold tracking-tight truncate leading-tight" style={{ color: textPrimary }}>
+
+                                                    <h3 className="text-[16px] font-bold tracking-tight text-zinc-900 leading-tight mb-2 line-clamp-2">
                                                         {article.title}
-                                                    </h2>
+                                                    </h3>
+                                                    <span className="text-[12px] font-medium text-zinc-400">
+                                                        {formatDistanceToNow(new Date(article.createdAt))} ago
+                                                    </span>
                                                 </div>
-                                                <span className="text-[11px] font-bold tracking-widest uppercase pl-4" style={{ color: textSecondary }}>
-                                                    {formatDistanceToNow(new Date(article.createdAt))} ago
-                                                </span>
+
+                                                {/* Thumbnail or Fallback */}
+                                                {validImageUrl && (
+                                                    <div className="w-16 h-16 rounded-[14px] overflow-hidden bg-gray-50 shrink-0 border border-gray-200/60 relative">
+                                                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                                                        <img
+                                                            src={validImageUrl}
+                                                            alt=""
+                                                            className="w-full h-full object-cover"
+                                                            onError={(e) => {
+                                                                e.currentTarget.style.display = 'none';
+                                                                const fallback = e.currentTarget.nextElementSibling as HTMLElement;
+                                                                if (fallback) fallback.style.display = 'flex';
+                                                            }}
+                                                        />
+                                                        {/* Graceful Fallback (Hidden by Default) */}
+                                                        <div className="w-full h-full hidden flex-col items-center justify-center absolute inset-0 text-gray-300">
+                                                            <FileText size={20} strokeWidth={1.5} />
+                                                        </div>
+                                                    </div>
+                                                )}
+
                                             </div>
-                                            <div className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0" style={glassNeuButton}>
-                                                <ChevronRight size={18} className="text-[#8b9bb4]" />
-                                            </div>
-                                        </div>
-                                    </Link>
-                                </motion.div>
-                            ))}
+                                        </Link>
+                                    </motion.div>
+                                );
+                            })}
                         </AnimatePresence>
                     )}
                 </div>
-            </div>
+            </main>
         </div>
     );
 }

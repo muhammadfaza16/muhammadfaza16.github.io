@@ -16,6 +16,8 @@ import {
 } from "./actions";
 import { Toaster, toast } from 'react-hot-toast';
 import { getSupabase } from "@/lib/supabase";
+import { useEditor, EditorContent } from '@tiptap/react';
+import StarterKit from '@tiptap/starter-kit';
 
 // ============================================================================
 // TYPES & CONSTANTS
@@ -98,6 +100,30 @@ const ImagePicker = ({ preview, onSelect, onClear }: {
         }
     };
 
+    const handleQuickPasteImage = async () => {
+        try {
+            const items = await navigator.clipboard.read();
+            for (const item of items) {
+                if (item.types.some(type => type.startsWith('image/'))) {
+                    // Try to get png first, then jpeg
+                    const typeToGet = item.types.includes('image/png') ? 'image/png' : item.types.find(t => t.startsWith('image/'));
+                    if (typeToGet) {
+                        const blob = await item.getType(typeToGet);
+                        // Convert blob to file so the upstream handler treats it exactly like a file upload
+                        const file = new File([blob], `pasted-image-${Date.now()}.${typeToGet.split('/')[1]}`, { type: typeToGet });
+                        onSelect(file);
+                        toast.success("Image pasted from clipboard");
+                        return;
+                    }
+                }
+            }
+            toast.error("No image found in clipboard");
+        } catch (err) {
+            console.error("Paste error:", err);
+            toast.error("Clipboard access denied or nothing to paste");
+        }
+    };
+
     return (
         <div className="flex flex-col gap-2">
             <label className={LABEL_CLASS}>Cover Image</label>
@@ -132,21 +158,35 @@ const ImagePicker = ({ preview, onSelect, onClear }: {
             ) : (
                 <div
                     tabIndex={0}
-                    role="button"
-                    onClick={() => inputRef.current?.click()}
                     onPaste={handlePaste}
                     onFocus={() => setIsFocused(true)}
                     onBlur={() => setIsFocused(false)}
-                    className={`w-full aspect-video rounded-2xl border-2 border-dashed bg-gray-50/50 flex flex-col items-center justify-center gap-2.5 active:bg-gray-100 transition-all cursor-pointer outline-none
+                    className={`w-full aspect-video rounded-2xl border-2 border-dashed bg-gray-50/50 flex items-center justify-center gap-4 transition-all outline-none
                         ${isFocused ? 'border-blue-400 bg-blue-50/30' : 'border-gray-200'}`}
                 >
-                    <div className="w-14 h-14 rounded-full bg-gray-100 flex items-center justify-center">
-                        <Camera size={24} className="text-zinc-400" />
-                    </div>
-                    <span className="text-[14px] font-medium text-zinc-400">Tap to browse or paste image</span>
-                    <span className="text-[11px] text-zinc-300 font-medium flex items-center gap-1">
-                        <Clipboard size={10} /> Ctrl+V / ⌘V supported
-                    </span>
+                    {/* Action A: Browse */}
+                    <button
+                        onClick={() => inputRef.current?.click()}
+                        className="flex flex-col items-center justify-center gap-2 group active:scale-95 transition-transform"
+                    >
+                        <div className="w-14 h-14 rounded-full bg-white shadow-sm border border-gray-100 flex items-center justify-center group-hover:border-blue-200 group-hover:bg-blue-50 transition-colors">
+                            <Camera size={24} className="text-zinc-500 group-hover:text-blue-500" />
+                        </div>
+                        <span className="text-[13px] font-bold text-zinc-500">Browse</span>
+                    </button>
+
+                    <div className="w-[1px] h-12 bg-gray-200 rounded-full" />
+
+                    {/* Action B: Paste Image */}
+                    <button
+                        onClick={handleQuickPasteImage}
+                        className="flex flex-col items-center justify-center gap-2 group active:scale-95 transition-transform"
+                    >
+                        <div className="w-14 h-14 rounded-full bg-white shadow-sm border border-gray-100 flex items-center justify-center group-hover:border-purple-200 group-hover:bg-purple-50 transition-colors">
+                            <Clipboard size={24} className="text-zinc-500 group-hover:text-purple-500" />
+                        </div>
+                        <span className="text-[13px] font-bold text-zinc-500">Paste Image</span>
+                    </button>
                 </div>
             )}
         </div>
@@ -315,9 +355,114 @@ const BottomSheet = ({ isOpen, onClose, title, children }: {
     </AnimatePresence>
 );
 
+// --- Quick Paste Input ---
+const QuickPasteInput = ({ value, onChange, placeholder, type = "text" }: { value: string, onChange: (v: string) => void, placeholder: string, type?: string }) => {
+    const handlePaste = async () => {
+        try {
+            const text = await navigator.clipboard.readText();
+            if (text) {
+                onChange(text);
+                toast.success("Pasted", { icon: "📋", duration: 1500 });
+            } else {
+                toast.error("Clipboard is empty");
+            }
+        } catch (err) {
+            console.error(err);
+            toast.error("Clipboard access denied");
+        }
+    };
+
+    return (
+        <div className="relative w-full">
+            <input
+                value={value}
+                onChange={e => onChange(e.target.value)}
+                type={type}
+                placeholder={placeholder}
+                className={`${INPUT_CLASS} pr-12`}
+            />
+            <button
+                type="button"
+                onClick={handlePaste}
+                tabIndex={-1}
+                className="absolute right-3 top-1/2 -translate-y-1/2 p-2 text-zinc-400 hover:text-blue-500 hover:bg-blue-50 active:scale-90 transition-all rounded-lg"
+                title="Paste from clipboard"
+            >
+                <Clipboard size={18} strokeWidth={2.5} />
+            </button>
+        </div>
+    );
+};
+
 // ============================================================================
 // CONTEXT-AWARE FORM FIELDS
 // ============================================================================
+const MinimalRichTextEditor = ({ value, onChange, placeholder }: { value: string, onChange: (v: string) => void, placeholder: string }) => {
+    const editor = useEditor({
+        extensions: [StarterKit],
+        content: value,
+        immediatelyRender: false,
+        onUpdate: ({ editor }) => {
+            onChange(editor.getHTML());
+        },
+        editorProps: {
+            attributes: {
+                class: 'w-full bg-gray-50 rounded-2xl min-h-[112px] p-5 pt-8 text-[16px] font-medium text-zinc-900 border border-transparent outline-none focus:bg-white focus:border-zinc-200 focus:shadow-sm transition-all prose prose-sm max-w-none',
+            },
+        },
+    });
+
+    useEffect(() => {
+        if (editor && value !== editor.getHTML()) {
+            if (value === "") editor.commands.setContent("");
+        }
+    }, [value, editor]);
+
+    if (!editor) {
+        return <div className="w-full bg-gray-50 rounded-2xl h-28 p-5 animate-pulse" />;
+    }
+
+    const handleQuickPaste = async () => {
+        try {
+            const text = await navigator.clipboard.readText();
+            if (text && editor) {
+                // If the user pastes into the editor via button, we probably want to insert it at cursor
+                // or just append if no selection. For simplicity, we can insert text at current position.
+                editor.commands.insertContent(text);
+                toast.success("Pasted to editor", { icon: "📋", duration: 1500 });
+            } else {
+                toast.error("Clipboard is empty");
+            }
+        } catch (err) {
+            console.error(err);
+            toast.error("Clipboard access denied");
+        }
+    };
+
+    return (
+        <div className="relative w-full group">
+            <EditorContent editor={editor} />
+            {editor.isEmpty && (
+                <div className="absolute top-8 left-5 pointer-events-none text-zinc-400 font-medium text-[16px]">
+                    {placeholder}
+                </div>
+            )}
+            {/* Minimalist Floating Toolbar/Paste Button inside the editor bounds */}
+            <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition-opacity flex items-center gap-1 bg-white/80 backdrop-blur border border-zinc-200 rounded-lg shadow-sm p-1 z-10">
+                <button
+                    type="button"
+                    onClick={handleQuickPaste}
+                    tabIndex={-1}
+                    className="p-1.5 text-zinc-400 hover:text-purple-500 hover:bg-purple-50 active:scale-90 transition-all rounded-md"
+                    title="Quick Paste"
+                >
+                    <Clipboard size={16} strokeWidth={2.5} />
+                </button>
+            </div>
+        </div>
+    );
+};
+
 const FormFields = ({
     category,
     formTitle, setFormTitle,
@@ -336,15 +481,15 @@ const FormFields = ({
             <>
                 <div className="flex flex-col gap-1.5">
                     <label className={LABEL_CLASS}>Title</label>
-                    <input value={formTitle} onChange={e => setFormTitle(e.target.value)} type="text" placeholder="Article or page title" className={INPUT_CLASS} />
+                    <QuickPasteInput value={formTitle} onChange={setFormTitle} placeholder="Article or page title" />
                 </div>
                 <div className="flex flex-col gap-1.5">
                     <label className={LABEL_CLASS}>URL / Link</label>
-                    <input value={formUrl} onChange={e => setFormUrl(e.target.value)} type="url" placeholder="https://example.com" className={INPUT_CLASS} />
+                    <QuickPasteInput value={formUrl} onChange={setFormUrl} placeholder="https://example.com" type="url" />
                 </div>
                 <div className="flex flex-col gap-1.5">
                     <label className={LABEL_CLASS}>Notes</label>
-                    <textarea value={formNotes} onChange={e => setFormNotes(e.target.value)} placeholder="Quick notes or summary…" className="w-full bg-gray-50 rounded-2xl h-28 p-5 text-[16px] font-medium text-zinc-900 border border-transparent outline-none focus:bg-white focus:border-zinc-200 focus:shadow-sm transition-all resize-none placeholder:text-zinc-400" />
+                    <MinimalRichTextEditor value={formNotes} onChange={setFormNotes} placeholder="Quick notes or summary…" />
                 </div>
             </>
         );
@@ -355,15 +500,15 @@ const FormFields = ({
             <>
                 <div className="flex flex-col gap-1.5">
                     <label className={LABEL_CLASS}>Book Title</label>
-                    <input value={formTitle} onChange={e => setFormTitle(e.target.value)} type="text" placeholder="Enter book title" className={INPUT_CLASS} />
+                    <QuickPasteInput value={formTitle} onChange={setFormTitle} placeholder="Enter book title" />
                 </div>
                 <div className="flex flex-col gap-1.5">
                     <label className={LABEL_CLASS}>Author</label>
-                    <input value={formExtra} onChange={e => setFormExtra(e.target.value)} type="text" placeholder="Author name" className={INPUT_CLASS} />
+                    <QuickPasteInput value={formExtra} onChange={setFormExtra} placeholder="Author name" />
                 </div>
                 <div className="flex flex-col gap-1.5">
                     <label className={LABEL_CLASS}>Review / Notes</label>
-                    <textarea value={formNotes} onChange={e => setFormNotes(e.target.value)} placeholder="Your thoughts on this book…" className="w-full bg-gray-50 rounded-2xl h-28 p-5 text-[16px] font-medium text-zinc-900 border border-transparent outline-none focus:bg-white focus:border-zinc-200 focus:shadow-sm transition-all resize-none placeholder:text-zinc-400" />
+                    <MinimalRichTextEditor value={formNotes} onChange={setFormNotes} placeholder="Your thoughts on this book…" />
                 </div>
             </>
         );
@@ -374,15 +519,15 @@ const FormFields = ({
         <>
             <div className="flex flex-col gap-1.5">
                 <label className={LABEL_CLASS}>Item Name</label>
-                <input value={formTitle} onChange={e => setFormTitle(e.target.value)} type="text" placeholder="What do you want?" className={INPUT_CLASS} />
+                <QuickPasteInput value={formTitle} onChange={setFormTitle} placeholder="What do you want?" />
             </div>
             <div className="flex flex-col gap-1.5">
                 <label className={LABEL_CLASS}>Price / Link</label>
-                <input value={formExtra} onChange={e => setFormExtra(e.target.value)} type="text" placeholder="$0.00 or https://…" className={INPUT_CLASS} />
+                <QuickPasteInput value={formExtra} onChange={setFormExtra} placeholder="$0.00 or https://…" />
             </div>
             <div className="flex flex-col gap-1.5">
                 <label className={LABEL_CLASS}>Notes</label>
-                <textarea value={formNotes} onChange={e => setFormNotes(e.target.value)} placeholder="Why do you want this…" className="w-full bg-gray-50 rounded-2xl h-28 p-5 text-[16px] font-medium text-zinc-900 border border-transparent outline-none focus:bg-white focus:border-zinc-200 focus:shadow-sm transition-all resize-none placeholder:text-zinc-400" />
+                <MinimalRichTextEditor value={formNotes} onChange={setFormNotes} placeholder="Why do you want this…" />
             </div>
         </>
     );
@@ -685,7 +830,9 @@ export default function PersonalCMS() {
                                         <ChevronLeft size={26} />
                                     </button>
                                     <h2 className="text-[18px] font-bold tracking-tight text-zinc-900">{CATEGORIES.find(c => c.id === activeCategory)?.label}</h2>
-                                    <div className="w-11" />
+                                    <button onClick={handleOpenCreateForm} className="w-11 h-11 flex items-center justify-center text-zinc-900 active:bg-gray-100 active:scale-90 rounded-full transition-all">
+                                        <Plus size={24} />
+                                    </button>
                                 </div>
                                 <div className="flex gap-2 overflow-x-auto no-scrollbar px-0.5 pb-0.5">
                                     <div className="px-4 py-1.5 bg-black text-white rounded-full text-[13px] font-bold shrink-0 active:scale-95 transition-transform shadow-[0_2px_8px_rgba(0,0,0,0.12)]">All</div>
@@ -745,18 +892,6 @@ export default function PersonalCMS() {
                         </motion.div>
                     )}
                 </AnimatePresence>
-
-                {/* ============================================ */}
-                {/* GLOBAL FAB                                   */}
-                {/* ============================================ */}
-                {view !== "auth" && (
-                    <div className="fixed bottom-8 left-1/2 -translate-x-1/2 w-full max-w-[500px] z-30 flex justify-end px-7 pointer-events-none">
-                        <motion.button whileTap={{ scale: 0.88 }} onClick={handleOpenCreateForm}
-                            className="w-14 h-14 bg-black text-white rounded-full flex items-center justify-center shadow-[0_8px_30px_rgba(0,0,0,0.25)] shrink-0 pointer-events-auto active:scale-90 transition-transform">
-                            <Plus size={26} strokeWidth={2.5} />
-                        </motion.button>
-                    </div>
-                )}
 
                 {/* ============================================ */}
                 {/* BOTTOM SHEET — CONTEXT-AWARE FORM             */}
