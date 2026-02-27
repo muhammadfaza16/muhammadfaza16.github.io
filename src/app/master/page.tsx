@@ -8,6 +8,7 @@ import {
     CheckCircle2, Clock, Globe, ChevronRight
 } from "lucide-react";
 import Link from "next/link";
+import { getToReadArticles, createToReadArticle, toggleReadStatus, deleteToReadArticle } from "./actions";
 
 // ============================================================================
 // TYPES & STORE
@@ -59,7 +60,7 @@ const DUMMY_DATA: Record<CategoryId, any[]> = {
 // ============================================================================
 
 // 1. Swipe-to-Action List Item (Mobile Pattern)
-const SwipeableRow = ({ item, type }: { item: any, type: CategoryId }) => {
+const SwipeableRow = ({ item, type, onToggle, onDelete }: { item: any, type: CategoryId, onToggle?: (id: string, status: boolean) => void, onDelete?: (id: string) => void }) => {
     const dragX = useMotionValue(0);
     const scale = useTransform(dragX, [-80, 0], [1, 0.8]);
     const opacity = useTransform(dragX, [-80, 0], [1, 0]);
@@ -71,7 +72,11 @@ const SwipeableRow = ({ item, type }: { item: any, type: CategoryId }) => {
                 <motion.button style={{ scale, opacity }} className="w-12 h-12 bg-gray-200 rounded-full flex items-center justify-center text-zinc-700">
                     <Edit2 size={18} />
                 </motion.button>
-                <motion.button style={{ scale, opacity }} className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center text-red-600">
+                <motion.button
+                    onClick={(e) => { e.stopPropagation(); onDelete && onDelete(item.id); }}
+                    style={{ scale, opacity }}
+                    className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center text-red-600 cursor-pointer pointer-events-auto"
+                >
                     <Trash2 size={18} />
                 </motion.button>
             </div>
@@ -96,9 +101,11 @@ const SwipeableRow = ({ item, type }: { item: any, type: CategoryId }) => {
                         </span>
                     </div>
                 </div>
-                <div className={`px-4 py-1.5 rounded-full text-[11px] font-bold tracking-wide flex-shrink-0
-                    ${item.status === 'Published' || item.status === 'Read' ? 'bg-zinc-100 text-zinc-600' : 'bg-gray-100 text-gray-400'}`}>
-                    {item.status}
+                <div
+                    onClick={(e) => { e.stopPropagation(); onToggle && onToggle(item.id, item.isRead || item.status === 'Read'); }}
+                    className={`px-4 py-1.5 rounded-full text-[11px] font-bold tracking-wide flex-shrink-0 cursor-pointer
+                    ${item.status === 'Published' || item.isRead || item.status === 'Read' ? 'bg-zinc-100 text-zinc-600' : 'bg-gray-100 text-gray-400'}`}>
+                    {type === 'toread' ? (item.isRead ? 'Read' : 'Unread') : item.status}
                 </div>
             </motion.div>
         </div>
@@ -121,7 +128,7 @@ const GridCard = ({ item }: { item: any }) => (
 );
 
 // 3. Bottom Sheet UI (Universal Create/Update)
-const BottomSheet = ({ isOpen, onClose, title }: { isOpen: boolean, onClose: () => void, title: string }) => {
+const BottomSheet = ({ isOpen, onClose, title, children }: { isOpen: boolean, onClose: () => void, title: string, children: React.ReactNode }) => {
     return (
         <AnimatePresence>
             {isOpen && (
@@ -153,23 +160,7 @@ const BottomSheet = ({ isOpen, onClose, title }: { isOpen: boolean, onClose: () 
                             <h2 className="text-2xl font-bold text-zinc-900 tracking-tight">{title}</h2>
                         </div>
                         <div className="flex-grow overflow-y-auto px-8 pb-32 pt-6 flex flex-col gap-6 no-scrollbar">
-                            {/* Dummy Input Form to simulate flow */}
-                            <div className="flex flex-col gap-2">
-                                <label className="text-[12px] font-bold uppercase tracking-wider text-zinc-500 ml-1">Title</label>
-                                <input type="text" placeholder="Enter title" className="w-full bg-gray-50 rounded-[1.5rem] h-14 px-5 text-[16px] font-semibold text-zinc-900 border border-transparent outline-none focus:bg-white focus:border-zinc-200 focus:shadow-sm transition-all placeholder:text-zinc-400 placeholder:font-medium" />
-                            </div>
-                            <div className="flex flex-col gap-2">
-                                <label className="text-[12px] font-bold uppercase tracking-wider text-zinc-500 ml-1">URL / Link</label>
-                                <input type="url" placeholder="https://" className="w-full bg-gray-50 rounded-[1.5rem] h-14 px-5 text-[16px] font-semibold text-zinc-900 border border-transparent outline-none focus:bg-white focus:border-zinc-200 focus:shadow-sm transition-all placeholder:text-zinc-400 placeholder:font-medium" />
-                            </div>
-                            <div className="flex flex-col gap-2">
-                                <label className="text-[12px] font-bold uppercase tracking-wider text-zinc-500 ml-1">Notes</label>
-                                <textarea placeholder="Add your thoughts..." className="w-full bg-gray-50 rounded-[1.5rem] h-32 p-5 text-[16px] font-medium text-zinc-900 border border-transparent outline-none focus:bg-white focus:border-zinc-200 focus:shadow-sm transition-all resize-none placeholder:text-zinc-400" />
-                            </div>
-
-                            <button className="w-full h-14 bg-black text-white rounded-full font-bold text-[16px] shadow-[0_8px_30px_rgba(0,0,0,0.12)] mt-6 active:scale-[0.98] transition-transform">
-                                Save Entry
-                            </button>
+                            {children}
                         </div>
                     </motion.div>
                 </>
@@ -188,10 +179,59 @@ export default function PersonalCMS() {
     const [mounted, setMounted] = useState(false);
     const [authPin, setAuthPin] = useState("");
 
+    // --- DB State (To Read) ---
+    const [toreadItems, setToreadItems] = useState<any[]>([]);
+    const [isFetching, setIsFetching] = useState(false);
+
+    // --- Form State ---
+    const [formTitle, setFormTitle] = useState("");
+    const [formUrl, setFormUrl] = useState("");
+    const [formNotes, setFormNotes] = useState("");
+    const [isSubmitting, setIsSubmitting] = useState(false);
+
     useEffect(() => {
         setMounted(true);
         if (localStorage.getItem("cms_auth") === "true") setView("dashboard");
     }, []);
+
+    useEffect(() => {
+        if (view === "category" && activeCategory === "toread") {
+            loadToRead();
+        }
+    }, [view, activeCategory]);
+
+    const loadToRead = async () => {
+        setIsFetching(true);
+        const res = await getToReadArticles();
+        if (res.success && res.data) setToreadItems(res.data);
+        setIsFetching(false);
+    };
+
+    const handleCreateToRead = async () => {
+        if (!formTitle || !formUrl) return;
+        setIsSubmitting(true);
+        const res = await createToReadArticle(formTitle, formUrl, formNotes);
+        setIsSubmitting(false);
+        if (res.success && res.data) {
+            setToreadItems([res.data, ...toreadItems]);
+            setIsSheetOpen(false);
+            setFormTitle("");
+            setFormUrl("");
+            setFormNotes("");
+        } else {
+            alert(res.error);
+        }
+    };
+
+    const handleToggleStatus = async (id: string, currentStatus: boolean) => {
+        setToreadItems(prev => prev.map(item => item.id === id ? { ...item, isRead: !currentStatus } : item));
+        await toggleReadStatus(id, currentStatus);
+    };
+
+    const handleDelete = async (id: string) => {
+        setToreadItems(prev => prev.filter(item => item.id !== id));
+        await deleteToReadArticle(id);
+    };
 
     const handleLogin = (e: React.FormEvent) => {
         e.preventDefault();
@@ -348,9 +388,35 @@ export default function PersonalCMS() {
                             <div className="flex-1 w-full p-5">
                                 {CATEGORIES.find(c => c.id === activeCategory)?.type === 'list' ? (
                                     <div className="flex flex-col w-full">
-                                        {DUMMY_DATA[activeCategory].map(item => (
-                                            <SwipeableRow key={item.id} item={item} type={activeCategory} />
-                                        ))}
+                                        {activeCategory === "toread" ? (
+                                            isFetching ? (
+                                                <div className="w-full flex justify-center py-10">
+                                                    <div className="animate-spin w-8 h-8 border-4 border-gray-200 border-t-black rounded-full" />
+                                                </div>
+                                            ) : toreadItems.length === 0 ? (
+                                                <div className="w-full flex justify-center py-10">
+                                                    <p className="text-zinc-500 font-medium">Your reading list is empty.</p>
+                                                </div>
+                                            ) : (
+                                                toreadItems.map(item => {
+                                                    let domain = "Link";
+                                                    try { if (item.coverImage) domain = new URL(item.coverImage).hostname.replace('www.', ''); } catch (_) { }
+                                                    return (
+                                                        <SwipeableRow
+                                                            key={item.id}
+                                                            item={{ ...item, domain }}
+                                                            type="toread"
+                                                            onToggle={handleToggleStatus}
+                                                            onDelete={handleDelete}
+                                                        />
+                                                    );
+                                                })
+                                            )
+                                        ) : (
+                                            DUMMY_DATA[activeCategory].map(item => (
+                                                <SwipeableRow key={item.id} item={item} type={activeCategory} />
+                                            ))
+                                        )}
                                     </div>
                                 ) : (
                                     <div className="columns-2 gap-5 pb-12">
@@ -380,7 +446,30 @@ export default function PersonalCMS() {
                 )}
 
                 {/* --- BOTTOM SHEET PORTAL --- */}
-                <BottomSheet isOpen={isSheetOpen} onClose={() => setIsSheetOpen(false)} title="New Entry" />
+                <BottomSheet isOpen={isSheetOpen} onClose={() => setIsSheetOpen(false)} title="New Entry">
+                    {activeCategory === "toread" ? (
+                        <>
+                            <div className="flex flex-col gap-2">
+                                <label className="text-[12px] font-bold uppercase tracking-wider text-zinc-500 ml-1">Title</label>
+                                <input value={formTitle} onChange={e => setFormTitle(e.target.value)} type="text" placeholder="Enter title" className="w-full bg-gray-50 rounded-[1.5rem] h-14 px-5 text-[16px] font-semibold text-zinc-900 border border-transparent outline-none focus:bg-white focus:border-zinc-200 focus:shadow-sm transition-all placeholder:text-zinc-400 placeholder:font-medium" />
+                            </div>
+                            <div className="flex flex-col gap-2">
+                                <label className="text-[12px] font-bold uppercase tracking-wider text-zinc-500 ml-1">URL / Link</label>
+                                <input value={formUrl} onChange={e => setFormUrl(e.target.value)} type="url" placeholder="https://" className="w-full bg-gray-50 rounded-[1.5rem] h-14 px-5 text-[16px] font-semibold text-zinc-900 border border-transparent outline-none focus:bg-white focus:border-zinc-200 focus:shadow-sm transition-all placeholder:text-zinc-400 placeholder:font-medium" />
+                            </div>
+                            <div className="flex flex-col gap-2">
+                                <label className="text-[12px] font-bold uppercase tracking-wider text-zinc-500 ml-1">Notes</label>
+                                <textarea value={formNotes} onChange={e => setFormNotes(e.target.value)} placeholder="Add your thoughts..." className="w-full bg-gray-50 rounded-[1.5rem] h-32 p-5 text-[16px] font-medium text-zinc-900 border border-transparent outline-none focus:bg-white focus:border-zinc-200 focus:shadow-sm transition-all resize-none placeholder:text-zinc-400" />
+                            </div>
+
+                            <button onClick={handleCreateToRead} disabled={isSubmitting || !formTitle || !formUrl} className="w-full h-14 bg-black text-white rounded-full font-bold text-[16px] shadow-[0_8px_30px_rgba(0,0,0,0.12)] mt-6 active:scale-[0.98] transition-transform disabled:opacity-50 disabled:active:scale-100 flex items-center justify-center">
+                                {isSubmitting ? <div className="animate-spin w-5 h-5 border-2 border-white border-t-transparent rounded-full" /> : "Save Entry"}
+                            </button>
+                        </>
+                    ) : (
+                        <p className="text-center text-zinc-500 font-medium pb-20">Forms for other categories are not implemented yet.</p>
+                    )}
+                </BottomSheet>
 
             </div>
         </div>
