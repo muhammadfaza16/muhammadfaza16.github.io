@@ -108,7 +108,6 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
         if (!isSameSong) {
             console.log(`Global Radio: Action [Switch Source] -> ${radioState.song.title}`);
             setIsSyncing(true);
-            setIsBuffering(true);
 
             audio.src = targetUrl;
 
@@ -116,23 +115,23 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
                 audio.currentTime = radioStateRef.current.progress;
             }
 
-            audio.load();
+            // DO NOT call audio.load() - it destroys the active media session blessing on iOS
 
-            // DO NOT call play() here for the initial Tune In on iOS/Android,
-            // handleTuneIn does that instantly. This play() is only for natural song transitions.
-            if (!audio.paused || audio.readyState >= 3) {
-                const playPromise = audio.play();
-                if (playPromise !== undefined) {
-                    playPromise.then(() => setIsSyncing(false)).catch(() => setIsSyncing(false));
-                } else {
-                    setIsSyncing(false);
-                }
-            } else {
-                setIsSyncing(false);
+            if (isTunedIn) {
+                // Use a short 50ms timeout to let the DOM and JS engine breathe (AudioContext pattern)
+                const timer = setTimeout(() => {
+                    const playPromise = audio.play();
+                    if (playPromise !== undefined) {
+                        playPromise.then(() => setIsSyncing(false)).catch(() => setIsSyncing(false));
+                    } else {
+                        setIsSyncing(false);
+                    }
+                }, 50);
+                return () => clearTimeout(timer);
             }
 
         } else {
-            // Drift correction (only correct if drift is > 1.5s to prevent micro-stutters)
+            // Correct drift if out of sync by > 1.5s
             if (!audio.paused && Math.abs(audio.currentTime - targetTime) > 1.5) {
                 audio.currentTime = targetTime;
             }
@@ -193,7 +192,6 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
         const audio = audioRef.current;
         if (audio.src !== radioState.song.audioUrl) {
             audio.src = radioState.song.audioUrl;
-            audio.load();
         }
         audio.currentTime = radioState.progress;
 
