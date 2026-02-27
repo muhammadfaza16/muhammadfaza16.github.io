@@ -43,6 +43,17 @@ export async function toggleReadStatus(id: string, currentStatus: boolean) {
     }
 }
 
+export async function updateToReadArticle(id: string, title: string, url: string, notes: string) {
+    if (!title || !url) return { success: false, error: "Title and URL are required" };
+    try {
+        const article = await prisma.article.update({
+            where: { id },
+            data: { title, coverImage: url, content: notes || "No notes provided." }
+        });
+        return { success: true, data: article };
+    } catch (e: any) { return { success: false, error: e.message }; }
+}
+
 export async function deleteToReadArticle(id: string) {
     try {
         await prisma.article.delete({ where: { id } });
@@ -83,6 +94,18 @@ export async function togglePublishStatus(id: string, currentStatus: boolean) {
     } catch (e: any) { return { success: false, error: e.message }; }
 }
 
+export async function updateWritingArticle(id: string, title: string, content: string, coverImage: string) {
+    if (!title) return { success: false, error: "Title is required" };
+    const slug = title.toLowerCase().replace(/[^a-z0-9]+/g, '-') + '-' + Date.now();
+    try {
+        const post = await prisma.post.update({
+            where: { id },
+            data: { title, slug, content: content || "", coverImage }
+        });
+        return { success: true, data: post };
+    } catch (e: any) { return { success: false, error: e.message }; }
+}
+
 export async function deleteWritingArticle(id: string) {
     try { await prisma.post.delete({ where: { id } }); return { success: true }; }
     catch (e: any) { return { success: false, error: e.message }; }
@@ -108,6 +131,17 @@ export async function createBook(title: string, author: string, coverImage: stri
     } catch (e: any) { return { success: false, error: e.message }; }
 }
 
+export async function updateBook(id: string, title: string, author: string, coverImage: string, review: string) {
+    if (!title || !author) return { success: false, error: "Title and author required" };
+    try {
+        const book = await prisma.book.update({
+            where: { id },
+            data: { title, author, coverImage, review: review || "" }
+        });
+        return { success: true, data: book };
+    } catch (e: any) { return { success: false, error: e.message }; }
+}
+
 export async function deleteBook(id: string) {
     try { await prisma.book.delete({ where: { id } }); return { success: true }; }
     catch (e: any) { return { success: false, error: e.message }; }
@@ -127,6 +161,17 @@ export async function createWishlistItem(name: string, price: string, url: strin
     if (!name) return { success: false, error: "Name is required" };
     try {
         const item = await prisma.wishlistItem.create({
+            data: { name, price: price || "", url }
+        });
+        return { success: true, data: item };
+    } catch (e: any) { return { success: false, error: e.message }; }
+}
+
+export async function updateWishlistItem(id: string, name: string, price: string, url: string) {
+    if (!name) return { success: false, error: "Name is required" };
+    try {
+        const item = await prisma.wishlistItem.update({
+            where: { id },
             data: { name, price: price || "", url }
         });
         return { success: true, data: item };

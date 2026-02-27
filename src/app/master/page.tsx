@@ -9,10 +9,10 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import {
-    getToReadArticles, createToReadArticle, toggleReadStatus, deleteToReadArticle,
-    getWritingArticles, createWritingArticle, togglePublishStatus, deleteWritingArticle,
-    getBooks, createBook, deleteBook,
-    getWishlistItems, createWishlistItem, deleteWishlistItem
+    getToReadArticles, createToReadArticle, toggleReadStatus, deleteToReadArticle, updateToReadArticle,
+    getWritingArticles, createWritingArticle, togglePublishStatus, deleteWritingArticle, updateWritingArticle,
+    getBooks, createBook, deleteBook, updateBook,
+    getWishlistItems, createWishlistItem, deleteWishlistItem, updateWishlistItem
 } from "./actions";
 import { Toaster, toast } from 'react-hot-toast';
 
@@ -66,7 +66,7 @@ const DUMMY_DATA: Record<CategoryId, any[]> = {
 // ============================================================================
 
 // 1. Static List Item (Mobile Pattern)
-const SwipeableRow = ({ item, type, onToggle, onDelete }: { item: any, type: CategoryId, onToggle?: (id: string, status: boolean) => void, onDelete?: (id: string) => void }) => {
+const SwipeableRow = ({ item, type, onToggle, onEdit, onDelete }: { item: any, type: CategoryId, onToggle?: (id: string, status: boolean) => void, onEdit?: (item: any) => void, onDelete?: (id: string) => void }) => {
     return (
         <div className="relative w-full mb-3 rounded-2xl overflow-hidden">
             {/* Foreground Card */}
@@ -78,7 +78,7 @@ const SwipeableRow = ({ item, type, onToggle, onDelete }: { item: any, type: Cat
                         {type === 'writing' ? <FileText size={20} /> : <Globe size={20} />}
                     </div>
                     <div className="flex flex-col truncate">
-                        <h3 className="text-[16px] font-bold tracking-tight text-zinc-900 truncate">{item.title}</h3>
+                        <h3 className="text-[16px] font-bold tracking-tight text-zinc-900 truncate">{item.title || item.name}</h3>
                         <span className="text-[13px] text-zinc-500 font-medium truncate mt-0.5">
                             {type === 'writing' ? item.date : item.domain}
                         </span>
@@ -95,7 +95,7 @@ const SwipeableRow = ({ item, type, onToggle, onDelete }: { item: any, type: Cat
                     </button>
 
                     <button
-                        onClick={(e) => { e.stopPropagation(); toast.error("Edit not implemented yet!"); }}
+                        onClick={(e) => { e.stopPropagation(); onEdit && onEdit(item); }}
                         className="w-8 h-8 rounded-full flex items-center justify-center text-gray-400 hover:text-zinc-900 hover:bg-zinc-100 active:scale-95 transition-all"
                     >
                         <Edit2 size={16} />
@@ -116,11 +116,11 @@ const SwipeableRow = ({ item, type, onToggle, onDelete }: { item: any, type: Cat
 };
 
 // 2. Visually-Heavy Grid Card
-const GridCard = ({ item, onDelete }: { item: any; onDelete?: (id: string) => void }) => (
+const GridCard = ({ item, onEdit, onDelete }: { item: any; onEdit?: (item: any) => void; onDelete?: (id: string) => void }) => (
     <div className="bg-white rounded-2xl p-4 shadow-[0_4px_20px_rgb(0,0,0,0.03)] mb-3 flex flex-col gap-3 group relative overflow-hidden">
         <div className="absolute top-4 right-4 z-10 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-all pointer-events-auto indicator-group">
             <button
-                onClick={(e) => { e.stopPropagation(); toast.error("Edit not implemented yet!"); }}
+                onClick={(e) => { e.stopPropagation(); onEdit && onEdit(item); }}
                 className="w-8 h-8 bg-black/40 hover:bg-black/60 backdrop-blur-md rounded-full flex items-center justify-center text-white transition-all shadow-sm"
             >
                 <Edit2 size={14} />
@@ -207,6 +207,7 @@ export default function PersonalCMS() {
     const [isFetching, setIsFetching] = useState(false);
 
     // --- Form State ---
+    const [editItemId, setEditItemId] = useState<string | null>(null);
     const [formTitle, setFormTitle] = useState("");
     const [formUrl, setFormUrl] = useState("");
     const [formNotes, setFormNotes] = useState("");
@@ -255,7 +256,22 @@ export default function PersonalCMS() {
         setIsFetching(false);
     };
 
-    const handleCreate = async () => {
+    const handleOpenCreateForm = () => {
+        setEditItemId(null);
+        setFormTitle(""); setFormUrl(""); setFormNotes(""); setFormExtra("");
+        setIsSheetOpen(true);
+    };
+
+    const handleEditClick = (item: any) => {
+        setEditItemId(item.id);
+        setFormTitle(item.title || item.name || "");
+        setFormUrl(item.coverImage || item.url || item.img || "");
+        setFormNotes(item.content || item.review || "");
+        setFormExtra(item.author || item.price || "");
+        setIsSheetOpen(true);
+    };
+
+    const handleSave = async () => {
         if (!formTitle) return;
         setIsSubmitting(true);
         let success = false;
@@ -264,17 +280,25 @@ export default function PersonalCMS() {
 
         if (activeCategory === "toread") {
             if (!formUrl) { setIsSubmitting(false); return; }
-            const res = await createToReadArticle(formTitle, formUrl, formNotes);
+            const res = editItemId
+                ? await updateToReadArticle(editItemId, formTitle, formUrl, formNotes)
+                : await createToReadArticle(formTitle, formUrl, formNotes);
             success = res.success; data = res.data; errorMsg = res.error || "Failed";
         } else if (activeCategory === "writing") {
-            const res = await createWritingArticle(formTitle, formNotes, formUrl);
+            const res = editItemId
+                ? await updateWritingArticle(editItemId, formTitle, formNotes, formUrl)
+                : await createWritingArticle(formTitle, formNotes, formUrl);
             success = res.success; data = res.data; errorMsg = res.error || "Failed";
         } else if (activeCategory === "books") {
             if (!formExtra) { setIsSubmitting(false); alert("Author is required"); return; }
-            const res = await createBook(formTitle, formExtra, formUrl, formNotes);
+            const res = editItemId
+                ? await updateBook(editItemId, formTitle, formExtra, formUrl, formNotes)
+                : await createBook(formTitle, formExtra, formUrl, formNotes);
             success = res.success; data = res.data; errorMsg = res.error || "Failed";
         } else if (activeCategory === "wishlist") {
-            const res = await createWishlistItem(formTitle, formExtra, formUrl);
+            const res = editItemId
+                ? await updateWishlistItem(editItemId, formTitle, formExtra, formUrl)
+                : await createWishlistItem(formTitle, formExtra, formUrl);
             success = res.success; data = res.data; errorMsg = res.error || "Failed";
         }
 
@@ -282,13 +306,16 @@ export default function PersonalCMS() {
 
         if (success && data) {
             toast.success("Successfully saved!");
-            if (activeCategory === "toread") setToreadItems([data, ...toreadItems]);
-            else if (activeCategory === "writing") setWritingItems([data, ...writingItems]);
-            else if (activeCategory === "books") setBookItems([data, ...bookItems]);
-            else if (activeCategory === "wishlist") setWishlistItems([data, ...wishlistItems]);
+            const updateList = (list: any[]) => editItemId ? list.map(i => i.id === editItemId ? data : i) : [data, ...list];
+
+            if (activeCategory === "toread") setToreadItems(updateList(toreadItems));
+            else if (activeCategory === "writing") setWritingItems(updateList(writingItems));
+            else if (activeCategory === "books") setBookItems(updateList(bookItems));
+            else if (activeCategory === "wishlist") setWishlistItems(updateList(wishlistItems));
 
             setIsSheetOpen(false);
             setFormTitle(""); setFormUrl(""); setFormNotes(""); setFormExtra("");
+            setEditItemId(null);
         } else {
             toast.error(errorMsg);
         }
@@ -559,7 +586,7 @@ export default function PersonalCMS() {
                 )}
 
                 {/* --- BOTTOM SHEET PORTAL --- */}
-                <BottomSheet isOpen={isSheetOpen} onClose={() => setIsSheetOpen(false)} title="New Entry">
+                <BottomSheet isOpen={isSheetOpen} onClose={() => setIsSheetOpen(false)} title={editItemId ? "Edit Entry" : "New Entry"}>
                     <div className="flex flex-col gap-2">
                         <label className="text-[12px] font-bold uppercase tracking-wider text-zinc-500 ml-1">
                             {activeCategory === "toread" || activeCategory === "writing" || activeCategory === "books" ? "Title" : "Item Name"}
@@ -592,7 +619,7 @@ export default function PersonalCMS() {
                         </div>
                     )}
 
-                    <button onClick={handleCreate} disabled={isSubmitting || !formTitle || (activeCategory === "toread" && !formUrl) || (activeCategory === "books" && !formExtra)} className="w-full h-14 bg-black text-white rounded-full font-bold text-[16px] shadow-[0_8px_30px_rgba(0,0,0,0.12)] mt-6 active:scale-[0.98] transition-transform disabled:opacity-50 disabled:active:scale-100 flex items-center justify-center">
+                    <button onClick={handleSave} disabled={isSubmitting || !formTitle || (activeCategory === "toread" && !formUrl) || (activeCategory === "books" && !formExtra)} className="w-full h-14 bg-black text-white rounded-full font-bold text-[16px] shadow-[0_8px_30px_rgba(0,0,0,0.12)] mt-6 active:scale-[0.98] transition-transform disabled:opacity-50 disabled:active:scale-100 flex items-center justify-center">
                         {isSubmitting ? <div className="animate-spin w-5 h-5 border-2 border-white border-t-transparent rounded-full" /> : "Save Entry"}
                     </button>
                 </BottomSheet>
