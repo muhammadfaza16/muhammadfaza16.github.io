@@ -22,6 +22,7 @@
     "nextjs-toploader": "^3.9.17",
     "react": "19.2.3",
     "react-dom": "19.2.3",
+    "react-hot-toast": "^2.6.0",
     "react-markdown": "^10.1.0",
     "react-virtuoso": "^4.18.1",
     "remark-gfm": "^4.0.1",

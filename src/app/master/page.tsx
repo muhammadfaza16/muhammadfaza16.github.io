@@ -14,6 +14,7 @@ import {
     getBooks, createBook, deleteBook,
     getWishlistItems, createWishlistItem, deleteWishlistItem
 } from "./actions";
+import { Toaster, toast } from 'react-hot-toast';
 
 // ============================================================================
 // TYPES & STORE
@@ -93,6 +94,13 @@ const SwipeableRow = ({ item, type, onToggle, onDelete }: { item: any, type: Cat
                         {type === 'toread' ? (item.isRead ? 'Read' : 'Unread') : item.status}
                     </button>
 
+                    <button
+                        onClick={(e) => { e.stopPropagation(); toast.error("Edit not implemented yet!"); }}
+                        className="w-8 h-8 rounded-full flex items-center justify-center text-gray-400 hover:text-zinc-900 hover:bg-zinc-100 active:scale-95 transition-all"
+                    >
+                        <Edit2 size={16} />
+                    </button>
+
                     {onDelete && (
                         <button
                             onClick={(e) => { e.stopPropagation(); onDelete(item.id); }}
@@ -110,14 +118,22 @@ const SwipeableRow = ({ item, type, onToggle, onDelete }: { item: any, type: Cat
 // 2. Visually-Heavy Grid Card
 const GridCard = ({ item, onDelete }: { item: any; onDelete?: (id: string) => void }) => (
     <div className="bg-white rounded-2xl p-4 shadow-[0_4px_20px_rgb(0,0,0,0.03)] mb-3 flex flex-col gap-3 group relative overflow-hidden">
-        {onDelete && (
+        <div className="absolute top-4 right-4 z-10 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-all pointer-events-auto indicator-group">
             <button
-                onClick={(e) => { e.stopPropagation(); onDelete(item.id); }}
-                className="absolute top-6 right-6 z-10 w-8 h-8 bg-black/40 hover:bg-red-500 backdrop-blur-md rounded-full flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-all pointer-events-auto"
+                onClick={(e) => { e.stopPropagation(); toast.error("Edit not implemented yet!"); }}
+                className="w-8 h-8 bg-black/40 hover:bg-black/60 backdrop-blur-md rounded-full flex items-center justify-center text-white transition-all shadow-sm"
             >
-                <Trash2 size={14} />
+                <Edit2 size={14} />
             </button>
-        )}
+            {onDelete && (
+                <button
+                    onClick={(e) => { e.stopPropagation(); onDelete(item.id); }}
+                    className="w-8 h-8 bg-black/40 hover:bg-red-500 backdrop-blur-md rounded-full flex items-center justify-center text-white transition-all shadow-sm"
+                >
+                    <Trash2 size={14} />
+                </button>
+            )}
+        </div>
         <div className="w-full aspect-[3/4] rounded-xl overflow-hidden bg-gray-50 relative">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={item.img || item.coverImage || "https://images.unsplash.com/photo-1544947950-fa07a98d237f?auto=format&fit=crop&q=80&w=200&h=300"} alt={item.title || item.name} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
@@ -265,6 +281,7 @@ export default function PersonalCMS() {
         setIsSubmitting(false);
 
         if (success && data) {
+            toast.success("Successfully saved!");
             if (activeCategory === "toread") setToreadItems([data, ...toreadItems]);
             else if (activeCategory === "writing") setWritingItems([data, ...writingItems]);
             else if (activeCategory === "books") setBookItems([data, ...bookItems]);
@@ -273,7 +290,7 @@ export default function PersonalCMS() {
             setIsSheetOpen(false);
             setFormTitle(""); setFormUrl(""); setFormNotes(""); setFormExtra("");
         } else {
-            alert(errorMsg);
+            toast.error(errorMsg);
         }
     };
 
@@ -288,28 +305,40 @@ export default function PersonalCMS() {
     };
 
     const handleDelete = async (id: string, category: CategoryId) => {
+        const toastId = toast.loading("Deleting...");
+        let success = false;
+        let errorMsg = "Failed to delete item.";
+
         if (category === "toread") {
-            setToreadItems(prev => prev.filter(item => item.id !== id));
-            await deleteToReadArticle(id);
+            const res = await deleteToReadArticle(id);
+            if (res.success) { success = true; setToreadItems(prev => prev.filter(item => item.id !== id)); }
+            else { errorMsg = res.error || errorMsg; }
         } else if (category === "writing") {
-            setWritingItems(prev => prev.filter(item => item.id !== id));
-            await deleteWritingArticle(id);
+            const res = await deleteWritingArticle(id);
+            if (res.success) { success = true; setWritingItems(prev => prev.filter(item => item.id !== id)); }
+            else { errorMsg = res.error || errorMsg; }
         } else if (category === "books") {
-            setBookItems(prev => prev.filter(item => item.id !== id));
-            await deleteBook(id);
+            const res = await deleteBook(id);
+            if (res.success) { success = true; setBookItems(prev => prev.filter(item => item.id !== id)); }
+            else { errorMsg = res.error || errorMsg; }
         } else if (category === "wishlist") {
-            setWishlistItems(prev => prev.filter(item => item.id !== id));
-            await deleteWishlistItem(id);
+            const res = await deleteWishlistItem(id);
+            if (res.success) { success = true; setWishlistItems(prev => prev.filter(item => item.id !== id)); }
+            else { errorMsg = res.error || errorMsg; }
         }
+
+        if (success) toast.success("Deleted successfully", { id: toastId });
+        else toast.error(errorMsg, { id: toastId });
     };
 
     const handleLogin = (e: React.FormEvent) => {
         e.preventDefault();
         if (authPin === "161616") {
+            toast.success("Authenticated");
             localStorage.setItem("cms_auth", "true");
             setView("dashboard");
         } else {
-            alert("Incorrect PIN");
+            toast.error("Incorrect PIN");
         }
     };
 
@@ -317,6 +346,7 @@ export default function PersonalCMS() {
 
     return (
         <div className="min-h-screen w-full flex flex-col items-center bg-[#F7F7F9] tracking-tight text-zinc-900 selection:bg-zinc-200 antialiased">
+            <Toaster position="bottom-center" toastOptions={{ style: { background: '#333', color: '#fff', borderRadius: '100px', fontSize: '14px', fontWeight: 'bold' } }} />
             <div className="w-full max-w-[500px] min-h-screen flex flex-col relative bg-[#F7F7F9] shadow-2xl pb-32">
 
                 <AnimatePresence mode="wait">
@@ -435,7 +465,7 @@ export default function PersonalCMS() {
                             className="flex-1 bg-[#F7F7F9] flex flex-col min-h-screen pb-32"
                         >
                             {/* Sticky Header */}
-                            <div className="pt-16 px-5 pb-4 bg-[#F7F7F9]/90 backdrop-blur-2xl z-20 flex flex-col gap-5 sticky top-0">
+                            <div className="sticky top-0 z-20 bg-[#F7F7F9] pb-4 pt-6 px-5 flex flex-col gap-5">
                                 <div className="flex items-center justify-between">
                                     <button onClick={() => setView("dashboard")} className="w-12 h-12 flex items-center justify-center text-zinc-900 active:bg-gray-100 rounded-full transition-colors">
                                         <ChevronLeft size={28} />
@@ -455,7 +485,7 @@ export default function PersonalCMS() {
                             </div>
 
                             {/* Content Area */}
-                            <div className="flex-1 w-full p-5">
+                            <div className="flex-1 w-full p-5 pt-2">
                                 {CATEGORIES.find(c => c.id === activeCategory)?.type === 'list' ? (
                                     <div className="flex flex-col w-full">
                                         {isFetching ? (
