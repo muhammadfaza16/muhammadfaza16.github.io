@@ -3,7 +3,7 @@
 import { use, useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { motion, useScroll, useSpring, useMotionValueEvent, AnimatePresence } from "framer-motion";
-import { ArrowLeft, Clock, CheckCircle, Share, Trash2, Globe, Pencil, Loader2, Camera, X, Clipboard, ImageIcon, MessageSquareQuote, ChevronsDown } from "lucide-react";
+import { ArrowLeft, Clock, CheckCircle, Share, Trash2, Globe, Pencil, Loader2, Camera, X, Clipboard, ImageIcon, MessageSquareQuote, ChevronsDown, Maximize, Minimize, Minus, Plus, Type } from "lucide-react";
 import Link from "next/link";
 import ReactMarkdown from "react-markdown";
 import { getSupabase } from "@/lib/supabase";
@@ -22,6 +22,15 @@ type Article = {
     createdAt: string;
     isRead: boolean;
 };
+
+const THEMES = {
+    white: { bg: '#FFFFFF', text: '#1A1A1A', name: 'White' },
+    parchment: { bg: '#F4F1EA', text: '#2C2C2C', name: 'Parchment' },
+    sepia: { bg: '#FBF0D2', text: '#433422', name: 'Sepia' },
+    night: { bg: '#121212', text: '#E0E0E0', name: 'Night' }
+};
+
+type ThemeKey = keyof typeof THEMES;
 
 // ============================================================================
 // REUSABLE UI COMPONENTS (Ported from Master CMS)
@@ -176,6 +185,16 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
     const [article, setArticle] = useState<Article | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [isMarkingRead, setIsMarkingRead] = useState(false);
+    const [isZenMode, setIsZenMode] = useState(false);
+
+    // Appearance State
+    const [isAppearanceSheetOpen, setIsAppearanceSheetOpen] = useState(false);
+    const [readerSettings, setReaderSettings] = useState({
+        fontSize: 18,
+        lineHeight: 1.8,
+        theme: 'parchment' as ThemeKey,
+        fontFamily: 'serif' as 'serif' | 'sans'
+    });
 
     // Edit Sheet State
     const [isEditSheetOpen, setIsEditSheetOpen] = useState(false);
@@ -376,17 +395,68 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
     };
 
     return (
-        <div className="min-h-screen bg-[#FCFCFA] text-zinc-900 selection:bg-zinc-200 antialiased pb-32">
+        <div
+            className="min-h-screen transition-colors duration-500 selection:bg-blue-200 antialiased pb-32"
+            style={{ backgroundColor: THEMES[readerSettings.theme].bg, color: THEMES[readerSettings.theme].text }}
+        >
+            <style dangerouslySetInnerHTML={{
+                __html: `
+                .reader-content p, .reader-content li {
+                    font-size: ${readerSettings.fontSize}px !important;
+                    line-height: ${readerSettings.lineHeight} !important;
+                    font-family: ${readerSettings.fontFamily === 'serif' ? 'ui-serif, Georgia, Cambria, "Times New Roman", Times, serif' : 'ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif'} !important;
+                    color: ${THEMES[readerSettings.theme].text} !important;
+                    transition: font-size 0.3s ease, line-height 0.3s ease, color 0.5s ease;
+                }
+                .reader-content h1, .reader-content h2, .reader-content h3, .reader-content h4 {
+                    font-family: ${readerSettings.fontFamily === 'serif' ? 'ui-serif, Georgia, Cambria, "Times New Roman", Times, serif' : 'ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif'};
+                    color: ${THEMES[readerSettings.theme].text} !important;
+                    transition: color 0.5s ease;
+                }
+                .reader-content blockquote {
+                    color: ${THEMES[readerSettings.theme].text} !important;
+                    border-left-color: ${readerSettings.theme === 'night' ? '#333' : '#cbd5e1'} !important;
+                    background-color: ${readerSettings.theme === 'night' ? '#1e1e1e' : '#f8fafc'} !important;
+                }
+                .reader-content a {
+                    color: ${readerSettings.theme === 'night' ? '#60a5fa' : '#2563eb'} !important;
+                }
+                .reader-content strong, .reader-content b {
+                    color: ${THEMES[readerSettings.theme].text} !important;
+                }
+            `}} />
 
             {/* Top Reading Progress Bar */}
-            <motion.div
-                className="fixed top-0 left-0 right-0 h-[3px] bg-blue-600 origin-left z-[60]"
-                style={{ scaleX }}
-            />
+            <AnimatePresence>
+                {!isZenMode && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="fixed top-0 left-0 right-0 h-[3px] bg-blue-600 origin-left z-[60]"
+                        style={{ scaleX }}
+                    />
+                )}
+            </AnimatePresence>
+
+            {/* Exit Zen Mode Toggle */}
+            <AnimatePresence>
+                {isZenMode && (
+                    <motion.button
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        onClick={() => setIsZenMode(false)}
+                        className="fixed top-6 right-6 w-10 h-10 bg-black/5 backdrop-blur-sm rounded-full flex items-center justify-center text-gray-400 opacity-30 hover:opacity-100 transition-opacity z-[70] cursor-pointer"
+                    >
+                        <Minimize size={20} />
+                    </motion.button>
+                )}
+            </AnimatePresence>
 
             {/* Floating Back Button (Hide on Scroll Down) */}
             <AnimatePresence>
-                {isNavVisible && (
+                {isNavVisible && !isZenMode && (
                     <motion.div
                         initial={{ y: -100, opacity: 0 }}
                         animate={{ y: 0, opacity: 1 }}
@@ -430,8 +500,14 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
                     </div>
                 </div>
             ) : (
-                <div className="w-full px-5 pt-24 pb-8 md:px-12 md:pt-32 md:pb-12 max-w-3xl mx-auto border-b border-gray-100">
-                    <h1 className="text-[32px] md:text-5xl font-bold font-sans tracking-tight leading-tight mb-6 text-zinc-900">
+                <div
+                    className="w-full px-5 pt-24 pb-8 md:px-12 md:pt-32 md:pb-12 max-w-3xl mx-auto border-b transition-colors duration-500"
+                    style={{ borderColor: readerSettings.theme === 'night' ? '#333' : '#f3f4f6' }}
+                >
+                    <h1
+                        className="text-[32px] md:text-5xl font-bold font-sans tracking-tight leading-tight mb-6 transition-colors duration-500"
+                        style={{ color: THEMES[readerSettings.theme].text }}
+                    >
                         {article.title}
                     </h1>
                     <div className="flex items-center gap-4 text-zinc-500 font-medium text-[13px] tracking-wide">
@@ -449,11 +525,11 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
 
             {/* HTML / Rich Text Content */}
             <main
-                className="max-w-3xl mx-auto px-5 pt-8 md:px-12 relative z-20 select-text cursor-text touch-auto"
+                className={`max-w-3xl mx-auto px-5 relative z-20 select-text cursor-text touch-auto transition-all duration-700 ease-in-out ${isZenMode ? "py-[20vh] md:py-[25vh] md:px-5" : "pt-8 md:px-12"}`}
                 style={{ WebkitUserSelect: 'text', userSelect: 'text', WebkitTouchCallout: 'default' } as React.CSSProperties}
             >
                 <article
-                    className="prose max-w-none select-text touch-auto
+                    className="reader-content prose max-w-none select-text touch-auto
                     prose-p:text-[18px] prose-p:leading-[1.8] prose-p:mb-6 prose-p:font-serif prose-p:text-slate-800
                     prose-li:text-[18px] prose-li:leading-[1.8] prose-li:font-serif prose-li:text-slate-800
                     prose-headings:font-sans prose-headings:font-bold prose-headings:tracking-tight prose-headings:text-zinc-900
@@ -470,9 +546,9 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
                 />
             </main>
 
-            {/* Bottom Action Bar — 4 Buttons: Back, Edit, Open Web, Mark as Read */}
+            {/* Bottom Action Bar — 4 Buttons: Back, Zen, Open Web, Mark as Read */}
             <AnimatePresence>
-                {isNavVisible && (
+                {isNavVisible && !isZenMode && (
                     <motion.div
                         initial={{ y: 100, opacity: 0 }}
                         animate={{ y: 0, opacity: 1 }}
@@ -484,8 +560,12 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
                             <ArrowLeft size={22} />
                         </button>
                         <div className="w-[1px] h-6 bg-white/10" />
-                        <button onClick={handleEditClick} className="p-2 active:scale-90 transition-transform text-white/80 hover:text-white flex items-center justify-center">
-                            <Pencil size={20} />
+                        <button onClick={() => setIsAppearanceSheetOpen(true)} className="p-2 active:scale-90 transition-transform text-white/80 hover:text-white flex items-center justify-center font-serif font-bold text-[18px] leading-none" title="Appearance">
+                            Aa
+                        </button>
+                        <div className="w-[1px] h-6 bg-white/10" />
+                        <button onClick={() => setIsZenMode(true)} className="p-2 active:scale-90 transition-transform text-white/80 hover:text-white flex items-center justify-center" title="Zen Mode">
+                            <Maximize size={20} />
                         </button>
                         <div className="w-[1px] h-6 bg-white/10" />
                         <button onClick={handleOpenWeb} className="p-2 active:scale-90 transition-transform text-white/80 hover:text-white flex items-center justify-center">
@@ -502,6 +582,89 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
                     </motion.div>
                 )}
             </AnimatePresence>
+
+            {/* Appearance Settings Sheet */}
+            <BottomSheet isOpen={isAppearanceSheetOpen} onClose={() => setIsAppearanceSheetOpen(false)} title="Appearance">
+                <div className="flex flex-col gap-8 pb-4">
+
+                    {/* Font Size Row */}
+                    <div className="flex flex-col gap-3">
+                        <label className="text-[12px] font-bold uppercase tracking-wider text-zinc-500 ml-1">Font Size ({readerSettings.fontSize}px)</label>
+                        <div className="flex items-center gap-3 w-full bg-gray-50 rounded-2xl p-2 border border-gray-100">
+                            <button
+                                onClick={() => setReaderSettings(prev => ({ ...prev, fontSize: Math.max(16, prev.fontSize - 1) }))}
+                                className="w-12 h-12 flex items-center justify-center rounded-xl bg-white shadow-sm hover:bg-gray-50 active:scale-95 transition-all text-zinc-600"
+                            >
+                                <Minus size={20} />
+                            </button>
+                            <div className="flex-1 flex justify-center text-zinc-800 font-semibold text-lg">{readerSettings.fontSize}</div>
+                            <button
+                                onClick={() => setReaderSettings(prev => ({ ...prev, fontSize: Math.min(24, prev.fontSize + 1) }))}
+                                className="w-12 h-12 flex items-center justify-center rounded-xl bg-white shadow-sm hover:bg-gray-50 active:scale-95 transition-all text-zinc-600"
+                            >
+                                <Plus size={20} />
+                            </button>
+                        </div>
+                    </div>
+
+                    {/* Line Spacing */}
+                    <div className="flex flex-col gap-3">
+                        <label className="text-[12px] font-bold uppercase tracking-wider text-zinc-500 ml-1">Line Spacing</label>
+                        <div className="flex items-center gap-2 bg-gray-50 p-2 rounded-2xl border border-gray-100">
+                            {[
+                                { label: 'Tight', value: 1.4 },
+                                { label: 'Normal', value: 1.8 },
+                                { label: 'Wide', value: 2.2 }
+                            ].map(sp => (
+                                <button
+                                    key={sp.label}
+                                    onClick={() => setReaderSettings(prev => ({ ...prev, lineHeight: sp.value }))}
+                                    className={`flex-1 py-3 text-[14px] font-semibold rounded-xl transition-all ${readerSettings.lineHeight === sp.value ? 'bg-white shadow-sm text-blue-600' : 'text-zinc-500 hover:text-zinc-700'}`}
+                                >
+                                    {sp.label}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* Font Family */}
+                    <div className="flex flex-col gap-3">
+                        <label className="text-[12px] font-bold uppercase tracking-wider text-zinc-500 ml-1">Typography</label>
+                        <div className="flex items-center gap-2 bg-gray-50 p-2 rounded-2xl border border-gray-100">
+                            <button
+                                onClick={() => setReaderSettings(prev => ({ ...prev, fontFamily: 'serif' }))}
+                                className={`flex-1 py-3 text-[15px] font-serif rounded-xl transition-all ${readerSettings.fontFamily === 'serif' ? 'bg-white shadow-sm text-blue-600' : 'text-zinc-500 hover:text-zinc-700'}`}
+                            >
+                                Serif
+                            </button>
+                            <button
+                                onClick={() => setReaderSettings(prev => ({ ...prev, fontFamily: 'sans' }))}
+                                className={`flex-1 py-3 text-[15px] font-sans rounded-xl transition-all ${readerSettings.fontFamily === 'sans' ? 'bg-white shadow-sm text-blue-600' : 'text-zinc-500 hover:text-zinc-700'}`}
+                            >
+                                Sans
+                            </button>
+                        </div>
+                    </div>
+
+                    {/* Theme Picker */}
+                    <div className="flex flex-col gap-3">
+                        <label className="text-[12px] font-bold uppercase tracking-wider text-zinc-500 ml-1">Theme</label>
+                        <div className="flex items-center justify-around bg-gray-50 p-4 rounded-2xl border border-gray-100">
+                            {(Object.entries(THEMES) as [ThemeKey, typeof THEMES[ThemeKey]][]).map(([key, themeInfo]) => (
+                                <button
+                                    key={key}
+                                    onClick={() => setReaderSettings(prev => ({ ...prev, theme: key as ThemeKey }))}
+                                    className={`w-12 h-12 rounded-full transition-all border shadow-sm flex items-center justify-center ${readerSettings.theme === key ? 'ring-4 ring-blue-500/30 scale-110 border-transparent' : 'border-gray-200 hover:scale-105'}`}
+                                    style={{ backgroundColor: themeInfo.bg }}
+                                    title={themeInfo.name}
+                                >
+                                    <span style={{ color: themeInfo.text }} className="font-serif font-bold text-[15px]">Aa</span>
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            </BottomSheet>
 
             {/* Edit Article Sheet */}
             <BottomSheet isOpen={isEditSheetOpen} onClose={() => setIsEditSheetOpen(false)} title="Edit Article">
