@@ -396,11 +396,20 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
 
     return (
         <div
-            className="min-h-screen transition-colors duration-500 selection:bg-blue-200 antialiased pb-32"
+            className="min-h-screen transition-colors duration-500 selection:bg-blue-200 antialiased pb-32 scroll-smooth overscroll-contain"
             style={{ backgroundColor: THEMES[readerSettings.theme].bg, color: THEMES[readerSettings.theme].text }}
         >
             <style dangerouslySetInnerHTML={{
                 __html: `
+                html, body {
+                    scroll-behavior: smooth !important;
+                    overscroll-behavior-y: contain !important;
+                    scroll-snap-type: y proximity !important;
+                }
+                .reader-content p {
+                    scroll-snap-align: start;
+                    scroll-snap-stop: normal;
+                }
                 .reader-content p, .reader-content li {
                     font-size: ${readerSettings.fontSize}px !important;
                     line-height: ${readerSettings.lineHeight} !important;
@@ -436,6 +445,30 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
                         className="fixed top-0 left-0 right-0 h-[3px] bg-blue-600 origin-left z-[60]"
                         style={{ scaleX }}
                     />
+                )}
+            </AnimatePresence>
+
+            {/* Zen Mode Fade-Out Masks */}
+            <AnimatePresence>
+                {isZenMode && (
+                    <>
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            transition={{ duration: 0.7 }}
+                            className="fixed top-0 left-0 right-0 h-[10vh] z-[40] pointer-events-none"
+                            style={{ background: `linear-gradient(to bottom, ${THEMES[readerSettings.theme].bg} 20%, transparent 100%)` }}
+                        />
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            transition={{ duration: 0.7 }}
+                            className="fixed bottom-0 left-0 right-0 h-[10vh] z-[40] pointer-events-none"
+                            style={{ background: `linear-gradient(to top, ${THEMES[readerSettings.theme].bg} 20%, transparent 100%)` }}
+                        />
+                    </>
                 )}
             </AnimatePresence>
 
@@ -525,7 +558,7 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
 
             {/* HTML / Rich Text Content */}
             <main
-                className={`max-w-3xl mx-auto px-5 relative z-20 select-text cursor-text touch-auto transition-all duration-700 ease-in-out ${isZenMode ? "py-[20vh] md:py-[25vh] md:px-5" : "pt-8 md:px-12"}`}
+                className={`max-w-3xl mx-auto px-5 relative z-20 select-text cursor-text touch-auto transition-all duration-700 ease-in-out will-change-transform transform-gpu ${isZenMode ? "py-[20vh] md:py-[25vh] md:px-5" : "pt-8 md:px-12"}`}
                 style={{ WebkitUserSelect: 'text', userSelect: 'text', WebkitTouchCallout: 'default' } as React.CSSProperties}
             >
                 <article
