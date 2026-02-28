@@ -28,7 +28,7 @@ export default function CurationList() {
     const supabase = getSupabase();
 
     useEffect(() => {
-        fetch("/api/curation")
+        fetch("/api/curation", { cache: 'no-store' })
             .then(res => res.json())
             .then(data => {
                 if (Array.isArray(data)) setArticles(data);

@@ -3,7 +3,7 @@
 import { use, useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { motion, useScroll, useSpring, useMotionValueEvent, AnimatePresence } from "framer-motion";
-import { ArrowLeft, Clock, CheckCircle, Share, Trash2, Globe, Pencil, Loader2, Camera, X, Clipboard, ImageIcon, MessageSquareQuote } from "lucide-react";
+import { ArrowLeft, Clock, CheckCircle, Share, Trash2, Globe, Pencil, Loader2, Camera, X, Clipboard, ImageIcon, MessageSquareQuote, ChevronsDown } from "lucide-react";
 import Link from "next/link";
 import ReactMarkdown from "react-markdown";
 import { getSupabase } from "@/lib/supabase";
@@ -186,6 +186,7 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
     const [formImagePreview, setFormImagePreview] = useState<string | null>(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [uploadStatus, setUploadStatus] = useState<"idle" | "uploading" | "saving">("idle");
+    const formFooterRef = useRef<HTMLDivElement>(null);
 
     const supabase = getSupabase();
 
@@ -504,6 +505,12 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
 
             {/* Edit Article Sheet */}
             <BottomSheet isOpen={isEditSheetOpen} onClose={() => setIsEditSheetOpen(false)} title="Edit Article">
+                <button
+                    onClick={() => formFooterRef.current?.scrollIntoView({ behavior: 'smooth' })}
+                    className="self-start text-slate-500 text-xs font-medium bg-slate-100/70 rounded-full px-3 py-1 flex items-center justify-center gap-1 active:scale-95 transition-all mb-2"
+                >
+                    <ChevronsDown size={12} /> Jump to Actions
+                </button>
                 <div className="flex flex-col gap-1.5">
                     <label className={LABEL_CLASS}>Title</label>
                     <QuickPasteInput value={formTitle} onChange={setFormTitle} placeholder="Article or page title" />
@@ -532,26 +539,26 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
 
                 <div className="h-6" />
 
-                <div className="flex gap-4">
+                <div ref={formFooterRef} className="flex flex-row justify-between items-center gap-x-3 border-t border-gray-100 mt-6 px-4 py-6">
                     <button
                         onClick={handleDelete}
                         disabled={isSubmitting}
-                        className="flex-1 bg-red-50 text-red-600 font-bold py-4 rounded-full active:scale-95 transition-transform flex items-center justify-center gap-2"
+                        className="w-12 h-12 bg-red-50 rounded-full flex items-center justify-center text-red-500 shadow-inner border border-red-100 active:scale-90 transition-transform"
+                        title="Delete Article"
                     >
-                        <Trash2 size={18} /> Delete
+                        <Trash2 size={24} />
                     </button>
                     <button
                         onClick={handleEditSave}
                         disabled={isSubmitting || !formTitle || !formUrl}
-                        className="flex-[2] bg-zinc-900 text-white font-bold py-4 rounded-full active:scale-95 transition-transform disabled:opacity-50 flex items-center justify-center gap-2"
+                        className="flex-1 h-12 bg-black rounded-full flex items-center justify-center text-white font-semibold text-base shadow-lg active:scale-95 transition-all disabled:opacity-50"
                     >
                         {isSubmitting ? (
-                            <>
-                                <Loader2 size={18} className="animate-spin" />
-                                {uploadStatus === "uploading" ? "Uploading Image..." : "Saving Edit..."}
-                            </>
+                            <Loader2 size={18} className="animate-spin" />
                         ) : (
-                            "Save Changes"
+                            <span className="flex items-center justify-center">
+                                Save Changes
+                            </span>
                         )}
                     </button>
                 </div>

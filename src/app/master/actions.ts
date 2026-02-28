@@ -1,6 +1,7 @@
 "use server";
 
 import prisma from "@/lib/prisma";
+import { revalidatePath } from "next/cache";
 
 // ==========================================
 // TO READ (Article Model)
@@ -29,6 +30,7 @@ export async function createToReadArticle(title: string, url: string, notes: str
                 imageUrl: imageUrl || null,
             }
         });
+        revalidatePath('/curation');
         return { success: true, data: article };
     } catch (e: any) {
         return { success: false, error: e.message };
@@ -41,6 +43,7 @@ export async function toggleReadStatus(id: string, currentStatus: boolean) {
             where: { id },
             data: { isRead: !currentStatus }
         });
+        revalidatePath('/curation');
         return { success: true, data: article };
     } catch (e: any) {
         return { success: false, error: e.message };
@@ -54,6 +57,7 @@ export async function updateToReadArticle(id: string, title: string, url: string
             where: { id },
             data: { title, coverImage: url, content: notes || "No notes provided.", imageUrl: imageUrl || null }
         });
+        revalidatePath('/curation');
         return { success: true, data: article };
     } catch (e: any) { return { success: false, error: e.message }; }
 }
@@ -61,6 +65,7 @@ export async function updateToReadArticle(id: string, title: string, url: string
 export async function deleteToReadArticle(id: string) {
     try {
         await prisma.article.delete({ where: { id } });
+        revalidatePath('/curation');
         return { success: true };
     } catch (e: any) {
         return { success: false, error: e.message };
