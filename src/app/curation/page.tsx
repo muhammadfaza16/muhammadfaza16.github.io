@@ -1,11 +1,15 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import { formatDistanceToNow } from "date-fns";
-import { ChevronLeft, Bookmark, FileText } from "lucide-react";
+import { ChevronLeft, Bookmark, FileText, Plus, X, Camera, Clipboard } from "lucide-react";
 import { getSupabase } from "@/lib/supabase";
+import { Toaster, toast } from 'react-hot-toast';
+import { useEditor, EditorContent } from '@tiptap/react';
+import StarterKit from '@tiptap/starter-kit';
+import { createToReadArticle } from "@/app/master/actions";
 
 type ArticleMeta = {
     id: string;
@@ -19,13 +23,173 @@ type ArticleMeta = {
 
 type FilterType = "all" | "unread" | "read";
 
+const INPUT_CLASS = "w-full bg-gray-50 rounded-2xl h-13 px-5 py-3.5 text-[16px] font-semibold text-zinc-900 border border-transparent outline-none focus:bg-white focus:border-zinc-200 focus:shadow-sm transition-all placeholder:text-zinc-400 placeholder:font-medium";
+const LABEL_CLASS = "text-[12px] font-bold uppercase tracking-wider text-zinc-500 ml-1";
+
+async function uploadImageToSupabase(file: File): Promise<string | null> {
+    const fileExt = file.name.split('.').pop() || 'jpg';
+    const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
+    const filePath = `cms/${fileName}`;
+    try {
+        const client = getSupabase();
+        const { error } = await client.storage.from('images').upload(filePath, file, { cacheControl: '3600', upsert: false });
+        if (error) return null;
+        const { data } = client.storage.from('images').getPublicUrl(filePath);
+        return data.publicUrl;
+    } catch (err) { return null; }
+}
+
+const ImagePicker = ({ preview, onSelect, onClear }: { preview: string | null; onSelect: (f: File) => void; onClear: () => void; }) => {
+    const inputRef = useRef<HTMLInputElement>(null);
+    const [isFocused, setIsFocused] = useState(false);
+    const handlePaste = (e: React.ClipboardEvent) => {
+        const items = e.clipboardData?.items;
+        if (!items) return;
+        for (let i = 0; i < items.length; i++) {
+            if (items[i].type.indexOf('image') !== -1) {
+                const file = items[i].getAsFile();
+                if (file) { onSelect(file); e.preventDefault(); return; }
+            }
+        }
+    };
+    const handleQuickPasteImage = async () => {
+        try {
+            const items = await navigator.clipboard.read();
+            for (const item of items) {
+                if (item.types.some(type => type.startsWith('image/'))) {
+                    const typeToGet = item.types.includes('image/png') ? 'image/png' : item.types.find(t => t.startsWith('image/'));
+                    if (typeToGet) {
+                        const blob = await item.getType(typeToGet);
+                        const file = new File([blob], `pasted-image-${Date.now()}.${typeToGet.split('/')[1]}`, { type: typeToGet });
+                        onSelect(file); toast.success("Image pasted"); return;
+                    }
+                }
+            }
+            toast.error("No image found in clipboard");
+        } catch (err) { toast.error("Clipboard access denied"); }
+    };
+    return (
+        <div className="flex flex-col gap-2 w-full">
+            <label className={LABEL_CLASS}>Cover Image</label>
+            <input ref={inputRef} type="file" accept="image/*" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) onSelect(f); e.target.value = ''; }} />
+            {preview ? (
+                <div className="relative w-full aspect-video rounded-2xl overflow-hidden bg-gray-100">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={preview} alt="Preview" className="w-full h-full object-cover" />
+                    <button onClick={onClear} className="absolute top-3 right-3 w-9 h-9 bg-black/50 backdrop-blur-md rounded-full flex items-center justify-center text-white active:scale-90 transition-transform"><X size={16} /></button>
+                    <button onClick={() => inputRef.current?.click()} className="absolute bottom-3 right-3 px-4 py-2.5 bg-black/50 backdrop-blur-md rounded-full text-white text-[13px] font-semibold active:scale-95 flex items-center gap-1.5"><Camera size={14} /> Replace</button>
+                </div>
+            ) : (
+                <div tabIndex={0} onPaste={handlePaste} onFocus={() => setIsFocused(true)} onBlur={() => setIsFocused(false)} className={`w-full aspect-video rounded-2xl border-2 border-dashed bg-gray-50/50 flex items-center justify-center gap-4 transition-all outline-none ${isFocused ? 'border-blue-400 bg-blue-50/30' : 'border-gray-200'}`}>
+                    <button onClick={() => inputRef.current?.click()} className="flex flex-col items-center gap-2 group active:scale-95"><div className="w-14 h-14 rounded-full bg-white shadow-sm border border-gray-100 flex items-center justify-center group-hover:border-blue-200 group-hover:bg-blue-50"><Camera size={24} className="text-zinc-500 group-hover:text-blue-500" /></div><span className="text-[13px] font-bold text-zinc-500">Browse</span></button>
+                    <div className="w-[1px] h-12 bg-gray-200 rounded-full" />
+                    <button onClick={handleQuickPasteImage} className="flex flex-col items-center gap-2 group active:scale-95"><div className="w-14 h-14 rounded-full bg-white shadow-sm border border-gray-100 flex items-center justify-center group-hover:border-purple-200 group-hover:bg-purple-50"><Clipboard size={24} className="text-zinc-500 group-hover:text-purple-500" /></div><span className="text-[13px] font-bold text-zinc-500">Paste Image</span></button>
+                </div>
+            )}
+        </div>
+    );
+};
+
+const BottomSheet = ({ isOpen, onClose, title, children }: { isOpen: boolean; onClose: () => void; title: string; children: React.ReactNode; }) => (
+    <AnimatePresence>
+        {isOpen && (
+            <>
+                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onClose} className="fixed inset-0 bg-black/25 z-[60] backdrop-blur-sm" />
+                <motion.div initial={{ y: "100%" }} animate={{ y: 0 }} exit={{ y: "100%" }} transition={{ type: "spring", damping: 28, stiffness: 260 }} drag="y" dragConstraints={{ top: 0, bottom: 0 }} dragElastic={0.15} onDragEnd={(_, { offset, velocity }) => { if (offset.y > 100 || velocity.y > 500) onClose(); }} className="fixed bottom-0 left-0 right-0 h-[88vh] bg-white rounded-t-[2rem] z-[70] flex flex-col shadow-[0_-8px_40px_rgba(0,0,0,0.1)] max-w-2xl mx-auto">
+                    <div className="w-full flex justify-center py-4 shrink-0 cursor-grab active:cursor-grabbing"><div className="w-10 h-[5px] bg-gray-300 rounded-full" /></div>
+                    <div className="px-7 pb-3 shrink-0"><h2 className="text-[22px] font-bold text-zinc-900 tracking-tight">{title}</h2></div>
+                    <div className="flex-1 overflow-y-auto px-7 pb-32 pt-2 flex flex-col gap-5 no-scrollbar">{children}</div>
+                </motion.div>
+            </>
+        )}
+    </AnimatePresence>
+);
+
+const QuickPasteInput = ({ value, onChange, placeholder, type = "text" }: { value: string, onChange: (v: string) => void, placeholder: string, type?: string }) => {
+    const handlePaste = async () => {
+        try {
+            const text = await navigator.clipboard.readText();
+            if (text) { onChange(text); toast.success("Pasted"); }
+        } catch (err) { toast.error("Clipboard access denied"); }
+    };
+    return (
+        <div className="relative w-full">
+            <input value={value} onChange={e => onChange(e.target.value)} type={type} placeholder={placeholder} className={`${INPUT_CLASS} pr-12`} />
+            <button type="button" onClick={handlePaste} tabIndex={-1} className="absolute right-3 top-1/2 -translate-y-1/2 p-2 text-zinc-400 hover:text-blue-500 hover:bg-blue-50 active:scale-90 transition-all rounded-lg"><Clipboard size={18} strokeWidth={2.5} /></button>
+        </div>
+    );
+};
+
+const MinimalRichTextEditor = ({ value, onChange, placeholder }: { value: string, onChange: (v: string) => void, placeholder: string }) => {
+    const editor = useEditor({
+        extensions: [StarterKit], content: value, immediatelyRender: false,
+        onUpdate: ({ editor }) => onChange(editor.getHTML()),
+        editorProps: { attributes: { class: 'w-full bg-gray-50 rounded-2xl min-h-[112px] p-5 pt-8 text-[16px] font-medium text-zinc-900 border border-transparent outline-none focus:bg-white focus:border-zinc-200 focus:shadow-sm transition-all prose prose-sm max-w-none' } },
+    });
+    useEffect(() => { if (editor && value !== editor.getHTML()) { if (value === "") editor.commands.setContent(""); } }, [value, editor]);
+    if (!editor) return <div className="w-full bg-gray-50 rounded-2xl h-28 p-5 animate-pulse" />;
+    return (
+        <div className="relative w-full group">
+            <EditorContent editor={editor} />
+            {editor.isEmpty && <div className="absolute top-8 left-5 pointer-events-none text-zinc-400 font-medium text-[16px]">{placeholder}</div>}
+            <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition-opacity flex items-center gap-1 bg-white/80 backdrop-blur border border-zinc-200 rounded-lg shadow-sm p-1 z-10">
+                <button type="button" onClick={async () => { const text = await navigator.clipboard.readText(); if (text) editor.commands.insertContent(text); }} tabIndex={-1} className="p-1.5 text-zinc-400 hover:text-purple-500 hover:bg-purple-50 active:scale-90 transition-all rounded-md"><Clipboard size={16} strokeWidth={2.5} /></button>
+            </div>
+        </div>
+    );
+};
+
 export default function CurationList() {
     const [articles, setArticles] = useState<ArticleMeta[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [filter, setFilter] = useState<FilterType>("all");
 
+    // Form State
+    const [isSheetOpen, setIsSheetOpen] = useState(false);
+    const [formTitle, setFormTitle] = useState("");
+    const [formUrl, setFormUrl] = useState("");
+    const [formNotes, setFormNotes] = useState("");
+    const [formImageFile, setFormImageFile] = useState<File | null>(null);
+    const [formImagePreview, setFormImagePreview] = useState<string | null>(null);
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [uploadStatus, setUploadStatus] = useState<"idle" | "uploading" | "saving">("idle");
+
     // Initialize Supabase once so we can generate public URLs
     const supabase = getSupabase();
+
+    const handleSave = async () => {
+        if (!formTitle || !formUrl) {
+            toast.error("Title and URL are required");
+            return;
+        }
+        setIsSubmitting(true);
+        let imageUrl: string | undefined = formImagePreview || undefined;
+        if (formImageFile) {
+            setUploadStatus("uploading");
+            const uploadedUrl = await uploadImageToSupabase(formImageFile);
+            if (!uploadedUrl) {
+                toast.error("Image upload failed");
+                setIsSubmitting(false); setUploadStatus("idle");
+                return;
+            }
+            imageUrl = uploadedUrl;
+        }
+
+        setUploadStatus("saving");
+        const res = await createToReadArticle(formTitle, formUrl, formNotes, imageUrl);
+
+        setIsSubmitting(false); setUploadStatus("idle");
+
+        if (res.success && res.data) {
+            toast.success("Saved to Curation!");
+            setArticles(prev => [res.data, ...prev]);
+            setIsSheetOpen(false);
+            setFormTitle(""); setFormUrl(""); setFormNotes("");
+            setFormImageFile(null); setFormImagePreview(null);
+        } else {
+            toast.error(res.error || "Failed to save");
+        }
+    };
 
     useEffect(() => {
         fetch("/api/curation", { cache: 'no-store' })
@@ -45,7 +209,13 @@ export default function CurationList() {
 
     return (
         <div className="h-screen w-full flex flex-col bg-white text-zinc-900 font-sans antialiased overflow-hidden relative selection:bg-zinc-200">
-
+            <Toaster
+                position="bottom-center"
+                toastOptions={{
+                    style: { background: '#1a1a1a', color: '#fff', borderRadius: '100px', fontSize: '14px', fontWeight: '600', padding: '12px 20px' },
+                    duration: 2500,
+                }}
+            />
             {/* Ambient Background (Fixed) */}
             <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
                 <div className="absolute top-[-10%] left-[-10%] w-[50vw] h-[50vw] rounded-full bg-blue-100/60 blur-[100px]" />
@@ -224,6 +394,40 @@ export default function CurationList() {
                     </AnimatePresence>
                 </div>
             </main>
+
+            {/* Floating Add Button */}
+            <button
+                onClick={() => setIsSheetOpen(true)}
+                className="fixed bottom-6 right-6 w-14 h-14 bg-black text-white rounded-full flex items-center justify-center shadow-[0_8px_30px_rgba(0,0,0,0.15)] active:scale-90 transition-transform z-40"
+            >
+                <Plus size={24} />
+            </button>
+
+            {/* Bottom Sheet Form */}
+            <BottomSheet isOpen={isSheetOpen} onClose={() => setIsSheetOpen(false)} title="Add to Curation">
+                <ImagePicker preview={formImagePreview} onSelect={(f) => { setFormImageFile(f); setFormImagePreview(URL.createObjectURL(f)); }} onClear={() => { setFormImageFile(null); setFormImagePreview(null); }} />
+                <div className="flex flex-col gap-1.5">
+                    <label className={LABEL_CLASS}>Title</label>
+                    <QuickPasteInput value={formTitle} onChange={setFormTitle} placeholder="Article or page title" />
+                </div>
+                <div className="flex flex-col gap-1.5">
+                    <label className={LABEL_CLASS}>URL / Link</label>
+                    <QuickPasteInput value={formUrl} onChange={setFormUrl} placeholder="https://example.com" type="url" />
+                </div>
+                <div className="flex flex-col gap-1.5">
+                    <label className={LABEL_CLASS}>Notes</label>
+                    <MinimalRichTextEditor value={formNotes} onChange={setFormNotes} placeholder="Quick notes or summary…" />
+                </div>
+                <button onClick={handleSave} disabled={isSubmitting || !formTitle || !formUrl}
+                    className="w-full h-14 bg-black text-white rounded-full flex items-center justify-center appearance-none shrink-0 font-bold text-[16px] shadow-[0_8px_30px_rgba(0,0,0,0.12)] mt-4 active:scale-[0.98] transition-transform disabled:opacity-40 disabled:active:scale-100">
+                    {isSubmitting ? (
+                        <div className="flex items-center gap-2">
+                            <div className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full" />
+                            <span>{uploadStatus === "uploading" ? "Uploading…" : "Saving…"}</span>
+                        </div>
+                    ) : "Save Article"}
+                </button>
+            </BottomSheet>
         </div>
     );
 }
