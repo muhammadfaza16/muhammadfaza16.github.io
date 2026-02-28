@@ -100,7 +100,7 @@ const ImagePicker = ({ preview, onSelect, onClear }: { preview: string | null; o
     );
 };
 
-const BottomSheet = ({ isOpen, onClose, title, children }: { isOpen: boolean; onClose: () => void; title: string; children: React.ReactNode; }) => (
+const BottomSheet = ({ isOpen, onClose, title, children, footer }: { isOpen: boolean; onClose: () => void; title: string; children: React.ReactNode; footer?: React.ReactNode; }) => (
     <AnimatePresence>
         {isOpen && (
             <>
@@ -108,7 +108,10 @@ const BottomSheet = ({ isOpen, onClose, title, children }: { isOpen: boolean; on
                 <motion.div initial={{ y: "100%" }} animate={{ y: 0 }} exit={{ y: "100%" }} transition={{ type: "spring", damping: 28, stiffness: 260 }} drag="y" dragConstraints={{ top: 0, bottom: 0 }} dragElastic={0.15} onDragEnd={(_, { offset, velocity }) => { if (offset.y > 100 || velocity.y > 500) onClose(); }} className="fixed bottom-0 left-0 right-0 h-[88vh] bg-white rounded-t-[2rem] z-[70] flex flex-col shadow-[0_-8px_40px_rgba(0,0,0,0.1)] max-w-2xl mx-auto">
                     <div className="w-full flex justify-center py-4 shrink-0 cursor-grab active:cursor-grabbing"><div className="w-10 h-[5px] bg-gray-300 rounded-full" /></div>
                     <div className="px-7 pb-3 shrink-0"><h2 className="text-[22px] font-bold text-zinc-900 tracking-tight">{title}</h2></div>
-                    <div className="flex-1 overflow-y-auto px-7 pb-32 pt-2 flex flex-col gap-5 no-scrollbar">{children}</div>
+                    <div className="flex-1 overflow-y-auto px-7 pb-8 pt-2 flex flex-col gap-5 no-scrollbar">{children}</div>
+                    {footer && (
+                        <div className="shrink-0 px-7 pb-8 pt-4 bg-white border-t border-gray-100">{footer}</div>
+                    )}
                 </motion.div>
             </>
         )}
@@ -177,10 +180,24 @@ const MinimalRichTextEditor = ({ value, onChange, placeholder }: { value: string
     useEffect(() => { editorRef.current = editor; }, [editor]);
     useEffect(() => { if (editor && value !== editor.getHTML()) { if (value === "") editor.commands.setContent(""); } }, [value, editor]);
     if (!editor) return <div className="w-full bg-gray-50 rounded-2xl h-28 p-5 animate-pulse" />;
+
+    const handleQuickPaste = async () => {
+        try {
+            const text = await navigator.clipboard.readText();
+            if (text && editor) { editor.commands.insertContent(text); toast.success("Pasted to editor", { icon: "📋", duration: 1500 }); }
+            else toast.error("Clipboard is empty");
+        } catch (err) { toast.error("Clipboard access denied"); }
+    };
+
     return (
-        <div className="relative w-full">
+        <div className="relative w-full group">
             <EditorContent editor={editor} />
-            {editor.isEmpty && <div className="absolute top-5 left-5 pointer-events-none text-zinc-400 font-medium text-[16px]">{placeholder}</div>}
+            {editor.isEmpty && <div className="absolute top-8 left-5 pointer-events-none text-zinc-400 font-medium text-[16px]">{placeholder}</div>}
+            <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition-opacity flex items-center gap-1 bg-white/80 backdrop-blur border border-zinc-200 rounded-lg shadow-sm p-1 z-10">
+                <button type="button" onClick={handleQuickPaste} tabIndex={-1} className="p-1.5 text-zinc-400 hover:text-purple-500 hover:bg-purple-50 active:scale-90 transition-all rounded-md" title="Quick Paste">
+                    <Clipboard size={16} strokeWidth={2.5} />
+                </button>
+            </div>
         </div>
     );
 };
@@ -449,7 +466,17 @@ export default function CurationList() {
                 <Plus size={24} />
             </button>
 
-            <BottomSheet isOpen={isSheetOpen} onClose={() => setIsSheetOpen(false)} title="Add to Curation">
+            <BottomSheet isOpen={isSheetOpen} onClose={() => setIsSheetOpen(false)} title="Add to Curation" footer={
+                <button onClick={handleSave} disabled={isSubmitting || !formTitle || !formUrl}
+                    className="w-full h-14 bg-black text-white rounded-full flex items-center justify-center appearance-none shrink-0 font-bold text-[16px] shadow-[0_8px_30px_rgba(0,0,0,0.12)] active:scale-[0.98] transition-transform disabled:opacity-40 disabled:active:scale-100">
+                    {isSubmitting ? (
+                        <div className="flex items-center gap-2">
+                            <div className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full" />
+                            <span>{uploadStatus === "uploading" ? "Uploading…" : "Saving…"}</span>
+                        </div>
+                    ) : "Save Article"}
+                </button>
+            }>
                 <ImagePicker preview={formImagePreview} onSelect={(f) => { setFormImageFile(f); setFormImagePreview(URL.createObjectURL(f)); }} onClear={() => { setFormImageFile(null); setFormImagePreview(null); }} />
                 <div className="flex flex-col gap-1.5">
                     <label className={LABEL_CLASS}>Title</label>
@@ -463,15 +490,6 @@ export default function CurationList() {
                     <label className={LABEL_CLASS}>Notes</label>
                     <MinimalRichTextEditor value={formNotes} onChange={setFormNotes} placeholder="Quick notes or summary…" />
                 </div>
-                <button onClick={handleSave} disabled={isSubmitting || !formTitle || !formUrl}
-                    className="w-full h-14 bg-black text-white rounded-full flex items-center justify-center appearance-none shrink-0 font-bold text-[16px] shadow-[0_8px_30px_rgba(0,0,0,0.12)] mt-4 active:scale-[0.98] transition-transform disabled:opacity-40 disabled:active:scale-100">
-                    {isSubmitting ? (
-                        <div className="flex items-center gap-2">
-                            <div className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full" />
-                            <span>{uploadStatus === "uploading" ? "Uploading…" : "Saving…"}</span>
-                        </div>
-                    ) : "Save Article"}
-                </button>
             </BottomSheet>
         </div>
     );

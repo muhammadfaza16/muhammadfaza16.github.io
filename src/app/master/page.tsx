@@ -259,11 +259,12 @@ const GridCard = ({ item, type, onEdit, onDelete }: {
 };
 
 // --- Bottom Sheet ---
-const BottomSheet = ({ isOpen, onClose, title, children }: {
+const BottomSheet = ({ isOpen, onClose, title, children, footer }: {
     isOpen: boolean;
     onClose: () => void;
     title: string;
     children: React.ReactNode;
+    footer?: React.ReactNode;
 }) => (
     <AnimatePresence>
         {isOpen && (
@@ -295,9 +296,12 @@ const BottomSheet = ({ isOpen, onClose, title, children }: {
                     <div className="px-7 pb-3 shrink-0">
                         <h2 className="text-[22px] font-bold text-zinc-900 tracking-tight">{title}</h2>
                     </div>
-                    <div className="flex-1 overflow-y-auto px-7 pb-32 pt-2 flex flex-col gap-5 no-scrollbar">
+                    <div className="flex-1 overflow-y-auto px-7 pb-8 pt-2 flex flex-col gap-5 no-scrollbar">
                         {children}
                     </div>
+                    {footer && (
+                        <div className="shrink-0 px-7 pb-8 pt-4 bg-white border-t border-gray-100">{footer}</div>
+                    )}
                 </motion.div>
             </>
         )}
@@ -381,13 +385,24 @@ const MinimalRichTextEditor = ({ value, onChange, placeholder }: { value: string
     }
 
     return (
-        <div className="relative w-full">
+        <div className="relative w-full group">
             <EditorContent editor={editor} />
             {editor.isEmpty && (
-                <div className="absolute top-5 left-5 pointer-events-none text-zinc-400 font-medium text-[16px]">
+                <div className="absolute top-8 left-5 pointer-events-none text-zinc-400 font-medium text-[16px]">
                     {placeholder}
                 </div>
             )}
+            <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition-opacity flex items-center gap-1 bg-white/80 backdrop-blur border border-zinc-200 rounded-lg shadow-sm p-1 z-10">
+                <button type="button" onClick={async () => {
+                    try {
+                        const text = await navigator.clipboard.readText();
+                        if (text && editor) { editor.commands.insertContent(text); toast.success("Pasted to editor", { icon: "📋", duration: 1500 }); }
+                        else toast.error("Clipboard is empty");
+                    } catch (err) { toast.error("Clipboard access denied"); }
+                }} tabIndex={-1} className="p-1.5 text-zinc-400 hover:text-purple-500 hover:bg-purple-50 active:scale-90 transition-all rounded-md" title="Quick Paste">
+                    <Clipboard size={16} strokeWidth={2.5} />
+                </button>
+            </div>
         </div>
     );
 };
@@ -825,7 +840,17 @@ export default function PersonalCMS() {
                 {/* ============================================ */}
                 {/* BOTTOM SHEET — CONTEXT-AWARE FORM             */}
                 {/* ============================================ */}
-                <BottomSheet isOpen={isSheetOpen} onClose={() => setIsSheetOpen(false)} title={editItemId ? "Edit Entry" : "New Entry"}>
+                <BottomSheet isOpen={isSheetOpen} onClose={() => setIsSheetOpen(false)} title={editItemId ? "Edit Entry" : "New Entry"} footer={
+                    <button onClick={handleSave} disabled={isSaveDisabled()}
+                        className="w-full h-14 bg-black text-white rounded-full flex items-center justify-center appearance-none shrink-0 font-bold text-[16px] shadow-[0_8px_30px_rgba(0,0,0,0.12)] active:scale-[0.98] transition-transform disabled:opacity-40 disabled:active:scale-100">
+                        {isSubmitting ? (
+                            <div className="flex items-center gap-2">
+                                <div className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full" />
+                                <span>{saveButtonLabel()}</span>
+                            </div>
+                        ) : saveButtonLabel()}
+                    </button>
+                }>
                     {/* Image Picker (all categories) */}
                     <ImagePicker preview={formImagePreview} onSelect={handleImageSelect} onClear={handleImageClear} />
 
@@ -837,17 +862,6 @@ export default function PersonalCMS() {
                         formUrl={formUrl} setFormUrl={setFormUrl}
                         formNotes={formNotes} setFormNotes={setFormNotes}
                     />
-
-                    {/* Save Button */}
-                    <button onClick={handleSave} disabled={isSaveDisabled()}
-                        className="w-full h-14 bg-black text-white rounded-full flex items-center justify-center appearance-none shrink-0 font-bold text-[16px] shadow-[0_8px_30px_rgba(0,0,0,0.12)] mt-4 active:scale-[0.98] transition-transform disabled:opacity-40 disabled:active:scale-100">
-                        {isSubmitting ? (
-                            <div className="flex items-center gap-2">
-                                <div className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full" />
-                                <span>{saveButtonLabel()}</span>
-                            </div>
-                        ) : saveButtonLabel()}
-                    </button>
                 </BottomSheet>
             </div>
         </div>
