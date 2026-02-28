@@ -406,6 +406,12 @@ export default function CurationList() {
             {/* Bottom Sheet Form */}
             <BottomSheet isOpen={isSheetOpen} onClose={() => setIsSheetOpen(false)} title="Add to Curation">
                 <div className="flex flex-col gap-5 w-full h-full outline-none" onPaste={(e) => {
+                    // Ignore paste if we are focused inside the rich text editor
+                    const target = e.target as HTMLElement;
+                    if (target.isContentEditable || target.closest('.ProseMirror')) {
+                        return;
+                    }
+
                     const items = e.clipboardData?.items;
                     if (!items) return;
                     for (let i = 0; i < items.length; i++) {
