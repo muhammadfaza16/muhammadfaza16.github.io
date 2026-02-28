@@ -77,13 +77,43 @@ async function uploadImageToSupabase(file: File): Promise<string | null> {
 // REUSABLE UI COMPONENTS
 // ============================================================================
 
-// --- Image Picker (Browse Only) ---
+// --- Image Picker with Clipboard Paste ---
 const ImagePicker = ({ preview, onSelect, onClear }: {
     preview: string | null;
     onSelect: (file: File) => void;
     onClear: () => void;
 }) => {
     const inputRef = useRef<HTMLInputElement>(null);
+    const [isFocused, setIsFocused] = useState(false);
+
+    const handlePaste = (e: React.ClipboardEvent) => {
+        const items = e.clipboardData?.items;
+        if (!items) return;
+        for (let i = 0; i < items.length; i++) {
+            if (items[i].type.indexOf('image') !== -1) {
+                const file = items[i].getAsFile();
+                if (file) { onSelect(file); e.preventDefault(); return; }
+            }
+        }
+    };
+
+    const handleQuickPasteImage = async () => {
+        try {
+            const items = await navigator.clipboard.read();
+            for (const item of items) {
+                if (item.types.some(type => type.startsWith('image/'))) {
+                    const typeToGet = item.types.includes('image/png') ? 'image/png' : item.types.find(t => t.startsWith('image/'));
+                    if (typeToGet) {
+                        const blob = await item.getType(typeToGet);
+                        const file = new File([blob], `pasted-image-${Date.now()}.${typeToGet.split('/')[1]}`, { type: typeToGet });
+                        onSelect(file); toast.success("Image pasted from clipboard"); return;
+                    }
+                }
+            }
+            toast.error("No image found in clipboard");
+        } catch (err) { toast.error("Clipboard access denied or nothing to paste"); }
+    };
+
     return (
         <div className="flex flex-col gap-2">
             <label className={LABEL_CLASS}>Cover Image</label>
@@ -96,10 +126,17 @@ const ImagePicker = ({ preview, onSelect, onClear }: {
                     <button onClick={() => inputRef.current?.click()} className="absolute bottom-3 right-3 px-4 py-2.5 bg-black/50 backdrop-blur-md rounded-full text-white text-[13px] font-semibold active:scale-95 flex items-center gap-1.5"><Camera size={14} /> Replace</button>
                 </div>
             ) : (
-                <button onClick={() => inputRef.current?.click()} className="w-full aspect-video rounded-2xl border-2 border-dashed border-gray-200 bg-gray-50/50 flex flex-col items-center justify-center gap-2 transition-all outline-none hover:border-blue-300 hover:bg-blue-50/30 active:scale-[0.98]">
-                    <div className="w-14 h-14 rounded-full bg-white shadow-sm border border-gray-100 flex items-center justify-center"><Camera size={24} className="text-zinc-400" /></div>
-                    <span className="text-[13px] font-bold text-zinc-400">Browse Image</span>
-                </button>
+                <div tabIndex={0} onPaste={handlePaste} onFocus={() => setIsFocused(true)} onBlur={() => setIsFocused(false)} className={`w-full aspect-video rounded-2xl border-2 border-dashed bg-gray-50/50 flex items-center justify-center gap-4 transition-all outline-none ${isFocused ? 'border-blue-400 bg-blue-50/30' : 'border-gray-200'}`}>
+                    <button onClick={() => inputRef.current?.click()} className="flex flex-col items-center justify-center gap-2 group active:scale-95 transition-transform">
+                        <div className="w-14 h-14 rounded-full bg-white shadow-sm border border-gray-100 flex items-center justify-center group-hover:border-blue-200 group-hover:bg-blue-50 transition-colors"><Camera size={24} className="text-zinc-500 group-hover:text-blue-500" /></div>
+                        <span className="text-[13px] font-bold text-zinc-500">Browse</span>
+                    </button>
+                    <div className="w-[1px] h-12 bg-gray-200 rounded-full" />
+                    <button onClick={handleQuickPasteImage} className="flex flex-col items-center justify-center gap-2 group active:scale-95 transition-transform">
+                        <div className="w-14 h-14 rounded-full bg-white shadow-sm border border-gray-100 flex items-center justify-center group-hover:border-purple-200 group-hover:bg-purple-50 transition-colors"><Clipboard size={24} className="text-zinc-500 group-hover:text-purple-500" /></div>
+                        <span className="text-[13px] font-bold text-zinc-500">Paste Image</span>
+                    </button>
+                </div>
             )}
         </div>
     );

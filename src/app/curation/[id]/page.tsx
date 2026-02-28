@@ -12,6 +12,7 @@ import { toggleReadStatus, updateToReadArticle, deleteToReadArticle } from "@/ap
 import { toast } from "react-hot-toast";
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
+import { Image as TiptapImage } from '@tiptap/extension-image';
 
 type Article = {
     id: string;
@@ -89,12 +90,46 @@ const QuickPasteInput = ({ value, onChange, placeholder, type = "text" }: { valu
 };
 
 const MinimalRichTextEditor = ({ value, onChange, placeholder }: { value: string, onChange: (v: string) => void, placeholder: string }) => {
+    const editorRef = useRef<ReturnType<typeof useEditor>>(null);
+
     const editor = useEditor({
-        extensions: [StarterKit], content: value, immediatelyRender: false,
+        extensions: [
+            StarterKit,
+            TiptapImage.configure({ inline: false, allowBase64: false }),
+        ],
+        content: value,
+        immediatelyRender: false,
         onUpdate: ({ editor }) => { onChange(editor.getHTML()); },
-        editorProps: { attributes: { class: 'w-full bg-gray-50 rounded-2xl min-h-[180px] p-5 pt-8 text-[16px] font-medium text-zinc-900 border border-transparent outline-none focus:bg-white focus:border-zinc-200 focus:shadow-sm transition-all prose prose-sm max-w-none', }, },
+        editorProps: {
+            attributes: { class: 'w-full bg-gray-50 rounded-2xl min-h-[180px] p-5 pt-8 text-[16px] font-medium text-zinc-900 border border-transparent outline-none focus:bg-white focus:border-zinc-200 focus:shadow-sm transition-all prose prose-sm max-w-none [&_img]:rounded-xl [&_img]:max-w-full [&_img]:my-2' },
+            handlePaste: (_view, event) => {
+                const items = event.clipboardData?.items;
+                if (!items) return false;
+                for (let i = 0; i < items.length; i++) {
+                    const item = items[i];
+                    if (item.kind === 'file' && item.type.startsWith('image/')) {
+                        const file = item.getAsFile();
+                        if (!file) continue;
+                        event.preventDefault();
+                        const toastId = toast.loading("Uploading image\u2026");
+                        uploadImageToSupabase(file).then((url) => {
+                            const ed = editorRef.current;
+                            if (url && ed) {
+                                ed.chain().focus().setImage({ src: url }).run();
+                                toast.success("Image added!", { id: toastId });
+                            } else {
+                                toast.error("Upload failed", { id: toastId });
+                            }
+                        });
+                        return true;
+                    }
+                }
+                return false;
+            },
+        },
     });
 
+    useEffect(() => { editorRef.current = editor; }, [editor]);
     useEffect(() => { if (editor && value !== editor.getHTML()) { editor.commands.setContent(value); } }, [value, editor]);
 
     if (!editor) return <div className="w-full bg-gray-50 rounded-2xl h-28 p-5 animate-pulse" />;
@@ -102,7 +137,7 @@ const MinimalRichTextEditor = ({ value, onChange, placeholder }: { value: string
     const handleQuickPaste = async () => {
         try {
             const text = await navigator.clipboard.readText();
-            if (text && editor) { editor.commands.insertContent(text); toast.success("Pasted to editor", { icon: "📋", duration: 1500 }); }
+            if (text && editor) { editor.commands.insertContent(text); toast.success("Pasted to editor", { icon: "\ud83d\udccb", duration: 1500 }); }
             else toast.error("Clipboard is empty");
         } catch (err) { toast.error("Clipboard access denied"); }
     };
