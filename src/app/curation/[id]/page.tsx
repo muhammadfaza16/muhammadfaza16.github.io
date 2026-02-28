@@ -449,30 +449,6 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
                 )}
             </AnimatePresence>
 
-            {/* Zen Mode Fade-Out Masks */}
-            <AnimatePresence>
-                {isZenMode && (
-                    <>
-                        <motion.div
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            exit={{ opacity: 0 }}
-                            transition={{ duration: 0.7 }}
-                            className="fixed top-0 left-0 right-0 h-[10vh] z-[40] pointer-events-none"
-                            style={{ background: `linear-gradient(to bottom, ${THEMES[readerSettings.theme].bg} 20%, transparent 100%)` }}
-                        />
-                        <motion.div
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            exit={{ opacity: 0 }}
-                            transition={{ duration: 0.7 }}
-                            className="fixed bottom-0 left-0 right-0 h-[10vh] z-[40] pointer-events-none"
-                            style={{ background: `linear-gradient(to top, ${THEMES[readerSettings.theme].bg} 20%, transparent 100%)` }}
-                        />
-                    </>
-                )}
-            </AnimatePresence>
-
             {/* Exit Zen Mode Toggle */}
             <AnimatePresence>
                 {isZenMode && (
@@ -559,7 +535,7 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
 
             {/* HTML / Rich Text Content */}
             <main
-                className={`max-w-3xl mx-auto px-5 relative z-20 select-text cursor-text touch-auto transition-all duration-700 ease-in-out will-change-transform transform-gpu ${isZenMode ? "py-[12vh] md:py-[15vh] md:px-5" : "pt-8 md:px-12"}`}
+                className={`max-w-3xl mx-auto px-5 relative z-20 select-text cursor-text touch-auto transition-all duration-700 ease-in-out ${isZenMode ? "py-8 md:px-5" : "pt-8 md:px-12"}`}
                 style={{ WebkitUserSelect: 'text', userSelect: 'text', WebkitTouchCallout: 'default' } as React.CSSProperties}
             >
                 <article
