@@ -392,17 +392,15 @@ const MinimalRichTextEditor = ({ value, onChange, placeholder }: { value: string
                     {placeholder}
                 </div>
             )}
-            <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition-opacity flex items-center gap-1 bg-white/80 backdrop-blur border border-zinc-200 rounded-lg shadow-sm p-1 z-10">
-                <button type="button" onClick={async () => {
-                    try {
-                        const text = await navigator.clipboard.readText();
-                        if (text && editor) { editor.commands.insertContent(text); toast.success("Pasted to editor", { icon: "📋", duration: 1500 }); }
-                        else toast.error("Clipboard is empty");
-                    } catch (err) { toast.error("Clipboard access denied"); }
-                }} tabIndex={-1} className="p-1.5 text-zinc-400 hover:text-purple-500 hover:bg-purple-50 active:scale-90 transition-all rounded-md" title="Quick Paste">
-                    <Clipboard size={16} strokeWidth={2.5} />
-                </button>
-            </div>
+            <button type="button" onClick={async () => {
+                try {
+                    const text = await navigator.clipboard.readText();
+                    if (text && editor) { editor.commands.insertContent(text); toast.success("Pasted to editor", { icon: "📋", duration: 1500 }); }
+                    else toast.error("Clipboard is empty");
+                } catch (err) { toast.error("Clipboard access denied"); }
+            }} tabIndex={-1} className="absolute top-3 right-3 p-2 text-zinc-400 hover:text-blue-500 hover:bg-blue-50 active:scale-90 transition-all rounded-lg z-10" title="Paste from clipboard">
+                <Clipboard size={18} strokeWidth={2.5} />
+            </button>
         </div>
     );
 };
