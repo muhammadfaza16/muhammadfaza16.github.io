@@ -182,7 +182,7 @@ export default function CurationList() {
 
         if (res.success && res.data) {
             toast.success("Saved to Curation!");
-            setArticles(prev => [res.data, ...prev]);
+            setArticles(prev => [{ ...res.data, createdAt: res.data.createdAt.toISOString() }, ...prev]);
             setIsSheetOpen(false);
             setFormTitle(""); setFormUrl(""); setFormNotes("");
             setFormImageFile(null); setFormImagePreview(null);
