@@ -469,7 +469,7 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
                 />
             </main>
 
-            {/* Bottom Action Bar — 3 Buttons: Annotate, Open Web, Mark as Read */}
+            {/* Bottom Action Bar — 4 Buttons: Back, Edit, Open Web, Mark as Read */}
             <AnimatePresence>
                 {isNavVisible && (
                     <motion.div
@@ -477,14 +477,14 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
                         animate={{ y: 0, opacity: 1 }}
                         exit={{ y: 100, opacity: 0 }}
                         transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                        className="fixed bottom-6 left-1/2 -translate-x-1/2 w-[70%] max-w-xs h-14 bg-black/90 backdrop-blur-xl rounded-full text-white shadow-2xl flex items-center justify-evenly z-50"
+                        className="fixed bottom-6 left-1/2 -translate-x-1/2 w-[85%] max-w-sm h-14 bg-black/90 backdrop-blur-xl rounded-full text-white shadow-2xl flex items-center justify-evenly z-50"
                     >
-                        <button
-                            onPointerDown={(e) => e.preventDefault()}
-                            onClick={handleAnnotateClick}
-                            className="p-2 active:scale-90 transition-transform text-white/80 hover:text-yellow-400 flex items-center justify-center"
-                        >
-                            <MessageSquareQuote size={20} />
+                        <button onClick={() => router.push("/curation")} className="p-2 active:scale-90 transition-transform text-white/80 hover:text-white flex items-center justify-center">
+                            <ArrowLeft size={22} />
+                        </button>
+                        <div className="w-[1px] h-6 bg-white/10" />
+                        <button onClick={handleEditClick} className="p-2 active:scale-90 transition-transform text-white/80 hover:text-white flex items-center justify-center">
+                            <Pencil size={20} />
                         </button>
                         <div className="w-[1px] h-6 bg-white/10" />
                         <button onClick={handleOpenWeb} className="p-2 active:scale-90 transition-transform text-white/80 hover:text-white flex items-center justify-center">
