@@ -4,7 +4,7 @@ import { useEffect, useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import { formatDistanceToNow } from "date-fns";
-import { ChevronLeft, Bookmark, FileText, Plus, X, Camera } from "lucide-react";
+import { ChevronLeft, Bookmark, FileText, Plus, X, Camera, Clipboard } from "lucide-react";
 import { getSupabase } from "@/lib/supabase";
 import { Toaster, toast } from 'react-hot-toast';
 import { useEditor, EditorContent } from '@tiptap/react';
@@ -78,9 +78,23 @@ const BottomSheet = ({ isOpen, onClose, title, children }: { isOpen: boolean; on
     </AnimatePresence>
 );
 
-const QuickPasteInput = ({ value, onChange, placeholder, type = "text" }: { value: string, onChange: (v: string) => void, placeholder: string, type?: string }) => (
-    <input value={value} onChange={e => onChange(e.target.value)} type={type} placeholder={placeholder} className={INPUT_CLASS} />
-);
+const QuickPasteInput = ({ value, onChange, placeholder, type = "text" }: { value: string, onChange: (v: string) => void, placeholder: string, type?: string }) => {
+    const handlePaste = async () => {
+        try {
+            const text = await navigator.clipboard.readText();
+            if (text) { onChange(text); toast.success("Pasted", { icon: "📋", duration: 1500 }); }
+            else toast.error("Clipboard is empty");
+        } catch (err) { toast.error("Clipboard access denied"); }
+    };
+    return (
+        <div className="relative w-full">
+            <input value={value} onChange={e => onChange(e.target.value)} type={type} placeholder={placeholder} className={`${INPUT_CLASS} pr-12`} />
+            <button type="button" onClick={handlePaste} tabIndex={-1} className="absolute right-3 top-1/2 -translate-y-1/2 p-2 text-zinc-400 hover:text-blue-500 hover:bg-blue-50 active:scale-90 transition-all rounded-lg" title="Paste from clipboard">
+                <Clipboard size={18} strokeWidth={2.5} />
+            </button>
+        </div>
+    );
+};
 
 const MinimalRichTextEditor = ({ value, onChange, placeholder }: { value: string, onChange: (v: string) => void, placeholder: string }) => {
     const editorRef = useRef<ReturnType<typeof useEditor>>(null);
