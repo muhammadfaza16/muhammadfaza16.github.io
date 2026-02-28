@@ -405,28 +405,45 @@ export default function CurationList() {
 
             {/* Bottom Sheet Form */}
             <BottomSheet isOpen={isSheetOpen} onClose={() => setIsSheetOpen(false)} title="Add to Curation">
-                <ImagePicker preview={formImagePreview} onSelect={(f) => { setFormImageFile(f); setFormImagePreview(URL.createObjectURL(f)); }} onClear={() => { setFormImageFile(null); setFormImagePreview(null); }} />
-                <div className="flex flex-col gap-1.5">
-                    <label className={LABEL_CLASS}>Title</label>
-                    <QuickPasteInput value={formTitle} onChange={setFormTitle} placeholder="Article or page title" />
+                <div className="flex flex-col gap-5 w-full h-full outline-none" onPaste={(e) => {
+                    const items = e.clipboardData?.items;
+                    if (!items) return;
+                    for (let i = 0; i < items.length; i++) {
+                        if (items[i].type.indexOf('image') !== -1) {
+                            const file = items[i].getAsFile();
+                            if (file) {
+                                setFormImageFile(file);
+                                setFormImagePreview(URL.createObjectURL(file));
+                                toast.success("Cover image pasted!");
+                                e.preventDefault();
+                                return;
+                            }
+                        }
+                    }
+                }}>
+                    <ImagePicker preview={formImagePreview} onSelect={(f) => { setFormImageFile(f); setFormImagePreview(URL.createObjectURL(f)); }} onClear={() => { setFormImageFile(null); setFormImagePreview(null); }} />
+                    <div className="flex flex-col gap-1.5">
+                        <label className={LABEL_CLASS}>Title</label>
+                        <QuickPasteInput value={formTitle} onChange={setFormTitle} placeholder="Article or page title" />
+                    </div>
+                    <div className="flex flex-col gap-1.5">
+                        <label className={LABEL_CLASS}>URL / Link</label>
+                        <QuickPasteInput value={formUrl} onChange={setFormUrl} placeholder="https://example.com" type="url" />
+                    </div>
+                    <div className="flex flex-col gap-1.5">
+                        <label className={LABEL_CLASS}>Notes</label>
+                        <MinimalRichTextEditor value={formNotes} onChange={setFormNotes} placeholder="Quick notes or summary…" />
+                    </div>
+                    <button onClick={handleSave} disabled={isSubmitting || !formTitle || !formUrl}
+                        className="w-full h-14 bg-black text-white rounded-full flex items-center justify-center appearance-none shrink-0 font-bold text-[16px] shadow-[0_8px_30px_rgba(0,0,0,0.12)] mt-4 active:scale-[0.98] transition-transform disabled:opacity-40 disabled:active:scale-100">
+                        {isSubmitting ? (
+                            <div className="flex items-center gap-2">
+                                <div className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full" />
+                                <span>{uploadStatus === "uploading" ? "Uploading…" : "Saving…"}</span>
+                            </div>
+                        ) : "Save Article"}
+                    </button>
                 </div>
-                <div className="flex flex-col gap-1.5">
-                    <label className={LABEL_CLASS}>URL / Link</label>
-                    <QuickPasteInput value={formUrl} onChange={setFormUrl} placeholder="https://example.com" type="url" />
-                </div>
-                <div className="flex flex-col gap-1.5">
-                    <label className={LABEL_CLASS}>Notes</label>
-                    <MinimalRichTextEditor value={formNotes} onChange={setFormNotes} placeholder="Quick notes or summary…" />
-                </div>
-                <button onClick={handleSave} disabled={isSubmitting || !formTitle || !formUrl}
-                    className="w-full h-14 bg-black text-white rounded-full flex items-center justify-center appearance-none shrink-0 font-bold text-[16px] shadow-[0_8px_30px_rgba(0,0,0,0.12)] mt-4 active:scale-[0.98] transition-transform disabled:opacity-40 disabled:active:scale-100">
-                    {isSubmitting ? (
-                        <div className="flex items-center gap-2">
-                            <div className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full" />
-                            <span>{uploadStatus === "uploading" ? "Uploading…" : "Saving…"}</span>
-                        </div>
-                    ) : "Save Article"}
-                </button>
             </BottomSheet>
         </div>
     );

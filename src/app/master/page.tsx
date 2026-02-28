@@ -897,28 +897,44 @@ export default function PersonalCMS() {
                 {/* BOTTOM SHEET — CONTEXT-AWARE FORM             */}
                 {/* ============================================ */}
                 <BottomSheet isOpen={isSheetOpen} onClose={() => setIsSheetOpen(false)} title={editItemId ? "Edit Entry" : "New Entry"}>
-                    {/* Image Picker (all categories) */}
-                    <ImagePicker preview={formImagePreview} onSelect={handleImageSelect} onClear={handleImageClear} />
+                    <div className="flex flex-col gap-5 w-full h-full outline-none" onPaste={(e) => {
+                        const items = e.clipboardData?.items;
+                        if (!items) return;
+                        for (let i = 0; i < items.length; i++) {
+                            if (items[i].type.indexOf('image') !== -1) {
+                                const file = items[i].getAsFile();
+                                if (file) {
+                                    handleImageSelect(file);
+                                    toast.success("Cover image pasted!");
+                                    e.preventDefault();
+                                    return;
+                                }
+                            }
+                        }
+                    }}>
+                        {/* Image Picker (all categories) */}
+                        <ImagePicker preview={formImagePreview} onSelect={handleImageSelect} onClear={handleImageClear} />
 
-                    {/* Context-Aware Fields */}
-                    <FormFields
-                        category={activeCategory}
-                        formTitle={formTitle} setFormTitle={setFormTitle}
-                        formExtra={formExtra} setFormExtra={setFormExtra}
-                        formUrl={formUrl} setFormUrl={setFormUrl}
-                        formNotes={formNotes} setFormNotes={setFormNotes}
-                    />
+                        {/* Context-Aware Fields */}
+                        <FormFields
+                            category={activeCategory}
+                            formTitle={formTitle} setFormTitle={setFormTitle}
+                            formExtra={formExtra} setFormExtra={setFormExtra}
+                            formUrl={formUrl} setFormUrl={setFormUrl}
+                            formNotes={formNotes} setFormNotes={setFormNotes}
+                        />
 
-                    {/* Save Button */}
-                    <button onClick={handleSave} disabled={isSaveDisabled()}
-                        className="w-full h-14 bg-black text-white rounded-full flex items-center justify-center appearance-none shrink-0 font-bold text-[16px] shadow-[0_8px_30px_rgba(0,0,0,0.12)] mt-4 active:scale-[0.98] transition-transform disabled:opacity-40 disabled:active:scale-100">
-                        {isSubmitting ? (
-                            <div className="flex items-center gap-2">
-                                <div className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full" />
-                                <span>{saveButtonLabel()}</span>
-                            </div>
-                        ) : saveButtonLabel()}
-                    </button>
+                        {/* Save Button */}
+                        <button onClick={handleSave} disabled={isSaveDisabled()}
+                            className="w-full h-14 bg-black text-white rounded-full flex items-center justify-center appearance-none shrink-0 font-bold text-[16px] shadow-[0_8px_30px_rgba(0,0,0,0.12)] mt-4 active:scale-[0.98] transition-transform disabled:opacity-40 disabled:active:scale-100">
+                            {isSubmitting ? (
+                                <div className="flex items-center gap-2">
+                                    <div className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full" />
+                                    <span>{saveButtonLabel()}</span>
+                                </div>
+                            ) : saveButtonLabel()}
+                        </button>
+                    </div>
                 </BottomSheet>
             </div>
         </div>
