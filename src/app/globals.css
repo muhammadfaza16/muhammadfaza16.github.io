@@ -758,6 +758,12 @@
     }
   }
 
+  @keyframes shimmer {
+    100% {
+      transform: translateX(100%);
+    }
+  }
+
   .pause-on-hover:hover * {
     animation-play-state: paused !important;
   }
