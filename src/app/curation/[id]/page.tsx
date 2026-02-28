@@ -403,35 +403,36 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
                 __html: `
                 html, body {
                     scroll-behavior: smooth !important;
-                    overscroll-behavior-y: contain !important;
-                    scroll-snap-type: y proximity !important;
+            overscroll-behavior-y: contain !important;
+            ${isZenMode ? 'scroll-snap-type: y proximity !important;' : ''}
                 }
-                .reader-content p {
-                    scroll-snap-align: start;
-                    scroll-snap-stop: normal;
+            .reader-content p {
+                ${isZenMode ? 'scroll-snap-align: start;' : ''}
+            ${isZenMode ? 'scroll-margin-top: 15vh;' : ''}
+            scroll-snap-stop: normal;
                 }
-                .reader-content p, .reader-content li {
-                    font-size: ${readerSettings.fontSize}px !important;
-                    line-height: ${readerSettings.lineHeight} !important;
-                    font-family: ${readerSettings.fontFamily === 'serif' ? 'ui-serif, Georgia, Cambria, "Times New Roman", Times, serif' : 'ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif'} !important;
-                    color: ${THEMES[readerSettings.theme].text} !important;
-                    transition: font-size 0.3s ease, line-height 0.3s ease, color 0.5s ease;
+            .reader-content p, .reader-content li {
+                font - size: ${readerSettings.fontSize}px !important;
+            line-height: ${readerSettings.lineHeight} !important;
+            font-family: ${readerSettings.fontFamily === 'serif' ? 'ui-serif, Georgia, Cambria, "Times New Roman", Times, serif' : 'ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif'} !important;
+            color: ${THEMES[readerSettings.theme].text} !important;
+            transition: font-size 0.3s ease, line-height 0.3s ease, color 0.5s ease;
                 }
-                .reader-content h1, .reader-content h2, .reader-content h3, .reader-content h4 {
-                    font-family: ${readerSettings.fontFamily === 'serif' ? 'ui-serif, Georgia, Cambria, "Times New Roman", Times, serif' : 'ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif'};
-                    color: ${THEMES[readerSettings.theme].text} !important;
-                    transition: color 0.5s ease;
+            .reader-content h1, .reader-content h2, .reader-content h3, .reader-content h4 {
+                font - family: ${readerSettings.fontFamily === 'serif' ? 'ui-serif, Georgia, Cambria, "Times New Roman", Times, serif' : 'ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif'};
+            color: ${THEMES[readerSettings.theme].text} !important;
+            transition: color 0.5s ease;
                 }
-                .reader-content blockquote {
-                    color: ${THEMES[readerSettings.theme].text} !important;
-                    border-left-color: ${readerSettings.theme === 'night' ? '#333' : '#cbd5e1'} !important;
-                    background-color: ${readerSettings.theme === 'night' ? '#1e1e1e' : '#f8fafc'} !important;
+            .reader-content blockquote {
+                color: ${THEMES[readerSettings.theme].text} !important;
+            border-left-color: ${readerSettings.theme === 'night' ? '#333' : '#cbd5e1'} !important;
+            background-color: ${readerSettings.theme === 'night' ? '#1e1e1e' : '#f8fafc'} !important;
                 }
-                .reader-content a {
-                    color: ${readerSettings.theme === 'night' ? '#60a5fa' : '#2563eb'} !important;
+            .reader-content a {
+                color: ${readerSettings.theme === 'night' ? '#60a5fa' : '#2563eb'} !important;
                 }
-                .reader-content strong, .reader-content b {
-                    color: ${THEMES[readerSettings.theme].text} !important;
+            .reader-content strong, .reader-content b {
+                color: ${THEMES[readerSettings.theme].text} !important;
                 }
             `}} />
 
@@ -558,7 +559,7 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
 
             {/* HTML / Rich Text Content */}
             <main
-                className={`max-w-3xl mx-auto px-5 relative z-20 select-text cursor-text touch-auto transition-all duration-700 ease-in-out will-change-transform transform-gpu ${isZenMode ? "py-[20vh] md:py-[25vh] md:px-5" : "pt-8 md:px-12"}`}
+                className={`max-w-3xl mx-auto px-5 relative z-20 select-text cursor-text touch-auto transition-all duration-700 ease-in-out will-change-transform transform-gpu ${isZenMode ? "py-[12vh] md:py-[15vh] md:px-5" : "pt-8 md:px-12"}`}
                 style={{ WebkitUserSelect: 'text', userSelect: 'text', WebkitTouchCallout: 'default' } as React.CSSProperties}
             >
                 <article
