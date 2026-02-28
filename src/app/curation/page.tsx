@@ -97,31 +97,24 @@ export default function CurationList() {
                                 transition={{ duration: 0.5 }}
                                 className="flex flex-col gap-3 w-full"
                             >
-                                {[1, 2, 3, 4].map((i) => (
-                                    <div
-                                        key={i}
-                                        className="relative overflow-hidden w-full bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl p-4 flex items-center justify-between min-h-[90px]"
-                                    >
-                                        {/* Shimmer Effect */}
-                                        <div
-                                            className="absolute inset-0 -translate-x-full animate-[shimmer_2s_infinite] bg-gradient-to-r from-transparent via-white/10 to-transparent"
-                                        />
-
-                                        {/* Text Content Skeleton */}
-                                        <div className="flex flex-col flex-1 pr-6 gap-3">
-                                            {/* Domain Label */}
-                                            <div className="h-3 w-16 bg-white/10 rounded-full" />
-                                            {/* Title Lines */}
-                                            <div className="flex flex-col gap-2">
-                                                <div className="h-4 w-3/4 bg-white/20 rounded-full" />
-                                                <div className="h-4 w-1/2 bg-white/20 rounded-full" />
-                                            </div>
+                                <div className="flex flex-col items-center justify-center py-[20vh] w-full min-h-[50vh] gap-6">
+                                    <div className="relative flex items-center justify-center">
+                                        <div className="absolute inset-0 bg-blue-100/50 rounded-full blur-xl animate-pulse-slow" />
+                                        <div className="w-16 h-16 bg-white/40 backdrop-blur-xl border border-white/40 rounded-2xl flex items-center justify-center shadow-sm relative z-10">
+                                            <Bookmark size={24} className="text-zinc-400 animate-pulse" strokeWidth={1.5} />
                                         </div>
-
-                                        {/* Thumbnail Skeleton (3:4 aspect ratio) */}
-                                        <div className="w-16 h-[85px] rounded-[14px] bg-white/10 shrink-0" />
                                     </div>
-                                ))}
+                                    <div className="flex flex-col items-center gap-2">
+                                        <p className="text-[14px] font-bold tracking-widest uppercase text-zinc-400">
+                                            Curating Sanctuary
+                                        </p>
+                                        <div className="flex gap-1">
+                                            <div className="w-1.5 h-1.5 rounded-full bg-zinc-300 animate-bounce" style={{ animationDelay: "0ms" }} />
+                                            <div className="w-1.5 h-1.5 rounded-full bg-zinc-300 animate-bounce" style={{ animationDelay: "150ms" }} />
+                                            <div className="w-1.5 h-1.5 rounded-full bg-zinc-300 animate-bounce" style={{ animationDelay: "300ms" }} />
+                                        </div>
+                                    </div>
+                                </div>
                             </motion.div>
                         ) : filteredArticles.length === 0 ? (
                             <motion.div
