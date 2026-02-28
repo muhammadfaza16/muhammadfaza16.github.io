@@ -83,17 +83,19 @@ const QuickPasteInput = ({ value, onChange, placeholder, type = "text" }: { valu
 );
 
 const MinimalRichTextEditor = ({ value, onChange, placeholder }: { value: string, onChange: (v: string) => void, placeholder: string }) => {
+    const editorRef = useRef<ReturnType<typeof useEditor>>(null);
+
     const editor = useEditor({
         extensions: [
             StarterKit,
-            TiptapImage.configure({ inline: true, allowBase64: false }),
+            TiptapImage.configure({ inline: false, allowBase64: false }),
         ],
         content: value,
         immediatelyRender: false,
         onUpdate: ({ editor }) => onChange(editor.getHTML()),
         editorProps: {
-            attributes: { class: 'w-full bg-gray-50 rounded-2xl min-h-[112px] p-5 text-[16px] font-medium text-zinc-900 border border-transparent outline-none focus:bg-white focus:border-zinc-200 focus:shadow-sm transition-all prose prose-sm max-w-none' },
-            handlePaste: (view, event) => {
+            attributes: { class: 'w-full bg-gray-50 rounded-2xl min-h-[112px] p-5 text-[16px] font-medium text-zinc-900 border border-transparent outline-none focus:bg-white focus:border-zinc-200 focus:shadow-sm transition-all prose prose-sm max-w-none [&_img]:rounded-xl [&_img]:max-w-full [&_img]:my-2' },
+            handlePaste: (_view, event) => {
                 const items = event.clipboardData?.items;
                 if (!items) return false;
                 for (let i = 0; i < items.length; i++) {
@@ -104,13 +106,10 @@ const MinimalRichTextEditor = ({ value, onChange, placeholder }: { value: string
                         event.preventDefault();
                         const toastId = toast.loading("Uploading image…");
                         uploadImageToSupabase(file).then((url) => {
-                            if (url) {
-                                view.dispatch(view.state.tr.replaceSelectionWith(
-                                    view.state.schema.nodes.image.create({ src: url })
-                                ));
+                            const ed = editorRef.current;
+                            if (url && ed) {
+                                ed.chain().focus().setImage({ src: url }).run();
                                 toast.success("Image added!", { id: toastId });
-                                // Trigger onChange manually since we used dispatch
-                                onChange(view.dom.innerHTML);
                             } else {
                                 toast.error("Upload failed", { id: toastId });
                             }
@@ -122,6 +121,9 @@ const MinimalRichTextEditor = ({ value, onChange, placeholder }: { value: string
             },
         },
     });
+
+    // Keep ref in sync with editor instance
+    useEffect(() => { editorRef.current = editor; }, [editor]);
     useEffect(() => { if (editor && value !== editor.getHTML()) { if (value === "") editor.commands.setContent(""); } }, [value, editor]);
     if (!editor) return <div className="w-full bg-gray-50 rounded-2xl h-28 p-5 animate-pulse" />;
     return (
