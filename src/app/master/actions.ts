@@ -60,6 +60,19 @@ export async function toggleReadStatus(id: string, currentStatus: boolean) {
     }
 }
 
+export async function toggleBookmarkStatus(id: string, currentStatus: boolean) {
+    try {
+        const article = await prisma.article.update({
+            where: { id },
+            data: { isBookmarked: !currentStatus } as any
+        });
+        revalidatePath('/curation');
+        return { success: true, data: article };
+    } catch (e: any) {
+        return { success: false, error: e.message };
+    }
+}
+
 export async function updateToReadArticle(id: string, title: string, url: string, notes: string, imageUrl?: string, category?: string, createdAt?: string) {
     if (!title || !url) return { success: false, error: "Title and URL are required" };
     try {

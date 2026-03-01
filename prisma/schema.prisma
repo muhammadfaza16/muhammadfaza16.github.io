@@ -18,6 +18,7 @@ model Article {
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
   isRead       Boolean  @default(false)
+  isBookmarked Boolean  @default(false)
   scheduledFor DateTime?
 }
 

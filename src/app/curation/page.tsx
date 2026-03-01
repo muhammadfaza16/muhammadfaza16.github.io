@@ -19,10 +19,11 @@ interface ArticleMeta {
     imageUrl: string | null;
     category: string | null;
     isRead: boolean;
+    isBookmarked: boolean;
     createdAt: string;
 }
 
-type FilterType = "all" | "unread" | "read";
+type FilterType = "all" | "unread" | "read" | "bookmarked";
 
 const LABEL_CLASS = "text-[12px] font-bold uppercase tracking-wider text-zinc-500 ml-1";
 
@@ -37,6 +38,8 @@ const CATEGORIES = [
     "Health & Lifestyle"
 ];
 
+const CACHE_KEY = "curationFeedCache";
+
 export default function CurationList() {
     const [articles, setArticles] = useState<ArticleMeta[]>([]);
     const [isLoading, setIsLoading] = useState(true);
@@ -44,6 +47,11 @@ export default function CurationList() {
     const [imgErrors, setImgErrors] = useState<Record<string, boolean>>({});
     const [isLoadingMore, setIsLoadingMore] = useState(false);
     const [nextCursor, setNextCursor] = useState<string | null>(null);
+
+    // Cache Refs
+    const hasRestoredCache = useRef(false);
+    const skipFetchRef = useRef(false);
+    const scrollYRef = useRef(0);
 
     // Form State
     const [isSheetOpen, setIsSheetOpen] = useState(false);
@@ -220,11 +228,55 @@ export default function CurationList() {
 
     // Initial load and on filter change
     useEffect(() => {
+        if (!hasRestoredCache.current) {
+            hasRestoredCache.current = true;
+            const cached = sessionStorage.getItem(CACHE_KEY);
+            if (cached) {
+                try {
+                    const parsed = JSON.parse(cached);
+                    setArticles(parsed.articles || []);
+                    setNextCursor(parsed.nextCursor || null);
+                    setIsLoading(false);
+
+                    if (parsed.filter && parsed.filter !== filter) {
+                        skipFetchRef.current = true;
+                        setFilter(parsed.filter);
+                    }
+
+                    setTimeout(() => {
+                        const scrollContainer = document.getElementById("curation-scroll-container");
+                        if (scrollContainer && parsed.scrollY) {
+                            scrollContainer.scrollTop = parsed.scrollY;
+                            scrollYRef.current = parsed.scrollY; // sync ref
+                        }
+                    }, 50);
+
+                    return; // Skip fetch, loaded from cache
+                } catch (e) {
+                    console.error("Cache parse error", e);
+                }
+            }
+        }
+
+        if (skipFetchRef.current) {
+            skipFetchRef.current = false;
+            return; // Skip fetch after restoring filter
+        }
+
         setNextCursor(null);
         setArticles([]); // clear existing items immediately on filter change for better UX
         fetchArticles(null, filter, false);
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [filter]);
+
+    const saveStateToCache = () => {
+        sessionStorage.setItem(CACHE_KEY, JSON.stringify({
+            articles,
+            filter,
+            nextCursor,
+            scrollY: scrollYRef.current
+        }));
+    };
 
     // Intersection Observer for Infinite Scroll
     const observer = useRef<IntersectionObserver | null>(null);
@@ -279,12 +331,15 @@ export default function CurationList() {
                     <div className="w-10" />
                 </div>
 
-                {/* Pill Tabs */}
+                {/* Filter Tabs */}
                 <div className="flex gap-2">
-                    {(["all", "unread", "read"] as FilterType[]).map(f => (
+                    {(["all", "unread", "read", "bookmarked"] as FilterType[]).map(f => (
                         <button
                             key={f}
-                            onClick={() => handleFilterChange(f)}
+                            onClick={() => {
+                                sessionStorage.removeItem(CACHE_KEY); // clear cache when manually switching tabs
+                                handleFilterChange(f);
+                            }}
                             className={`px-4 py-1.5 text-[12px] font-bold rounded-full transition-all active:scale-[0.96] capitalize ${filter === f
                                 ? "bg-zinc-900 text-white shadow-sm"
                                 : "bg-white text-zinc-500 border border-gray-200"
@@ -297,7 +352,11 @@ export default function CurationList() {
             </header>
 
             {/* Scrollable Card Feed */}
-            <main className="flex-1 overflow-y-auto px-4 pt-5 pb-32 relative z-10 w-full max-w-2xl mx-auto">
+            <main
+                id="curation-scroll-container"
+                onScroll={(e) => scrollYRef.current = e.currentTarget.scrollTop}
+                className="flex-1 overflow-y-auto px-4 pt-5 pb-32 relative z-10 w-full max-w-2xl mx-auto"
+            >
                 <AnimatePresence mode="wait">
                     {isLoading ? (
                         <motion.div
@@ -348,6 +407,7 @@ export default function CurationList() {
                                     >
                                         <Link
                                             href={`/curation/${article.id}`}
+                                            onClick={saveStateToCache}
                                             className="block group"
                                         >
                                             {isHero ? (

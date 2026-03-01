@@ -40,6 +40,7 @@ export async function GET(request: Request) {
         const where: any = {};
         if (filter === "unread") where.isRead = false;
         if (filter === "read") where.isRead = true;
+        if (filter === "bookmarked") where.isBookmarked = true;
 
         const query: any = {
             take: limit + 1, // Fetch one extra to determine if there is a next page

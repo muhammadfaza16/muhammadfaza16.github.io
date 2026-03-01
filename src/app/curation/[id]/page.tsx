@@ -8,7 +8,7 @@ import Link from "next/link";
 import ReactMarkdown from "react-markdown";
 import { getSupabase } from "@/lib/supabase";
 import DOMPurify from 'dompurify';
-import { toggleReadStatus, updateToReadArticle, deleteToReadArticle } from "@/app/master/actions";
+import { toggleReadStatus, updateToReadArticle, deleteToReadArticle, toggleBookmarkStatus } from "@/app/master/actions";
 import { toast } from "react-hot-toast";
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
@@ -22,6 +22,7 @@ type Article = {
     imageUrl?: string | null;
     createdAt: string;
     isRead: boolean;
+    isBookmarked: boolean;
     category?: string | null;
 };
 
@@ -47,6 +48,7 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
     const [article, setArticle] = useState<Article | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [isMarkingRead, setIsMarkingRead] = useState(false);
+    const [isTogglingBookmark, setIsTogglingBookmark] = useState(false);
     const [isZenMode, setIsZenMode] = useState(false);
 
     // Appearance State
@@ -241,12 +243,51 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
         }
     };
 
+    const handleToggleBookmark = async () => {
+        if (!article || isTogglingBookmark) return;
+        setIsTogglingBookmark(true);
+        const toastId = toast.loading(article.isBookmarked ? "Removing from bookmarks..." : "Saving to bookmarks...");
+
+        try {
+            const res = await toggleBookmarkStatus(article.id, article.isBookmarked);
+            if (res.success) {
+                toast.success(article.isBookmarked ? "Removed from bookmarks" : "Saved to bookmarks", { id: toastId });
+                setArticle({ ...article, isBookmarked: !article.isBookmarked } as Article);
+            } else {
+                throw new Error(res.error);
+            }
+        } catch (error: any) {
+            toast.error(error.message || "Failed to update bookmark", { id: toastId });
+        } finally {
+            setIsTogglingBookmark(false);
+        }
+    };
+
     const handleOpenWeb = () => {
         if (!article.url) {
             toast.error("No source URL available");
             return;
         }
         window.open(article.url, "_blank");
+    };
+
+    const handleShare = async () => {
+        if (!article) return;
+        const shareData = {
+            title: article.title,
+            text: article.content ? article.content.substring(0, 100) + '...' : 'Check out this article I saved in my curation.',
+            url: window.location.href,
+        };
+        try {
+            if (navigator.share && navigator.canShare(shareData)) {
+                await navigator.share(shareData);
+            } else {
+                await navigator.clipboard.writeText(window.location.href);
+                toast.success("Link copied to clipboard!");
+            }
+        } catch (err: any) {
+            console.error(err);
+        }
     };
 
     const handleEditSave = async () => {
@@ -278,7 +319,7 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
         if (res.success) {
             toast.success("Article updated");
             // Refresh local state to reflect edits immediately
-            if (res.data) setArticle({ ...res.data, createdAt: String(res.data.createdAt) } as Article);
+            if (res.data) setArticle({ ...res.data, createdAt: String((res.data as any).createdAt) } as any);
             setIsEditSheetOpen(false);
         } else {
             toast.error(res.error || "Failed to update article");
@@ -481,6 +522,25 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
                     style={{ WebkitUserSelect: 'text', userSelect: 'text' } as React.CSSProperties}
                     dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(article.content) }}
                 />
+
+                {/* Bookmark Button at bottom */}
+                <div className="mt-8 mb-24 flex justify-end">
+                    <button
+                        onClick={handleToggleBookmark}
+                        disabled={isTogglingBookmark}
+                        className={`flex items-center gap-2 px-5 py-2.5 rounded-full font-bold text-[13px] transition-all active:scale-95 border shadow-sm ${article.isBookmarked
+                            ? "bg-blue-50 text-blue-600 border-blue-200 hover:bg-blue-100"
+                            : "bg-white text-zinc-700 border-gray-200 hover:bg-gray-50"
+                            }`}
+                    >
+                        {isTogglingBookmark ? (
+                            <Loader2 size={16} className="animate-spin" />
+                        ) : (
+                            <Bookmark size={16} className={article.isBookmarked ? "fill-blue-600 border-blue-600" : ""} />
+                        )}
+                        {article.isBookmarked ? "Bookmarked" : "Bookmark"}
+                    </button>
+                </div>
             </main>
 
             {/* Bottom Action Bar — 4 Buttons: Back, Zen, Open Web, Mark as Read */}
@@ -491,30 +551,35 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
                         animate={{ y: 0, opacity: 1 }}
                         exit={{ y: 100, opacity: 0 }}
                         transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                        className="fixed bottom-6 left-1/2 -translate-x-1/2 w-[85%] max-w-sm h-14 bg-black/90 backdrop-blur-xl rounded-full text-white shadow-2xl flex items-center justify-evenly z-50"
+                        className="fixed bottom-8 left-1/2 -translate-x-1/2 z-[60] flex items-center justify-between px-2 py-1.5 w-[90%] max-w-[340px] bg-black/85 dark:bg-white/10 backdrop-blur-xl rounded-full shadow-[0_8px_32px_rgba(0,0,0,0.3)] border border-white/15 text-white"
                     >
-                        <button onClick={() => router.push("/curation")} className="p-2 active:scale-90 transition-transform text-white/80 hover:text-white flex items-center justify-center">
-                            <ArrowLeft size={22} />
-                        </button>
-                        <div className="w-[1px] h-6 bg-white/10" />
                         <button onClick={() => setIsAppearanceSheetOpen(true)} className="p-2 active:scale-90 transition-transform text-white/80 hover:text-white flex items-center justify-center font-serif font-bold text-[18px] leading-none" title="Appearance">
                             Aa
                         </button>
-                        <div className="w-[1px] h-6 bg-white/10" />
+                        <div className="w-[1px] h-6 bg-white/15" />
                         <button onClick={() => setIsZenMode(true)} className="p-2 active:scale-90 transition-transform text-white/80 hover:text-white flex items-center justify-center" title="Zen Mode">
-                            <Maximize size={20} />
+                            <Maximize size={18} />
                         </button>
-                        <div className="w-[1px] h-6 bg-white/10" />
-                        <button onClick={handleOpenWeb} className="p-2 active:scale-90 transition-transform text-white/80 hover:text-white flex items-center justify-center">
-                            <Globe size={20} />
+                        <div className="w-[1px] h-6 bg-white/15" />
+                        <button onClick={handleEditClick} className="p-2 active:scale-90 transition-transform text-white/80 hover:text-white flex items-center justify-center" title="Edit Article">
+                            <Pencil size={18} />
                         </button>
-                        <div className="w-[1px] h-6 bg-white/10" />
+                        <div className="w-[1px] h-6 bg-white/15" />
+                        <button onClick={handleShare} className="p-2 active:scale-90 transition-transform text-white/80 hover:text-white flex items-center justify-center" title="Share">
+                            <Share size={18} />
+                        </button>
+                        <div className="w-[1px] h-6 bg-white/15" />
+                        <button onClick={handleOpenWeb} className="p-2 active:scale-90 transition-transform text-white/80 hover:text-white flex items-center justify-center" title="Open Source">
+                            <Globe size={18} />
+                        </button>
+                        <div className="w-[1px] h-6 bg-white/15" />
                         <button
                             onClick={handleMarkAsRead}
                             disabled={isMarkingRead}
                             className={`p-2 active:scale-90 transition-transform flex items-center justify-center disabled:opacity-50 ${article.isRead ? "text-emerald-400" : "text-white/80 hover:text-white"}`}
+                            title={article.isRead ? "Mark as unread" : "Mark as read"}
                         >
-                            {isMarkingRead ? <Loader2 size={22} className="animate-spin" /> : <CheckCircle size={22} />}
+                            {isMarkingRead ? <Loader2 size={20} className="animate-spin" /> : <CheckCircle size={20} />}
                         </button>
                     </motion.div>
                 )}
