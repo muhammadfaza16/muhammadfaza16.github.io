@@ -46,6 +46,16 @@ export async function GET(request: Request) {
             take: limit + 1, // Fetch one extra to determine if there is a next page
             where,
             orderBy: { createdAt: "desc" },
+            select: {
+                id: true,
+                title: true,
+                url: true,
+                imageUrl: true,
+                category: true,
+                isRead: true,
+                isBookmarked: true,
+                createdAt: true,
+            },
         };
 
         if (cursor) {

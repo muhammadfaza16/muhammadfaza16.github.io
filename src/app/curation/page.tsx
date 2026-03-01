@@ -38,7 +38,7 @@ const CATEGORIES = [
     "Health & Lifestyle"
 ];
 
-const CACHE_KEY = "curationFeedCache";
+const CACHE_KEY = "curationTabsPerFeedCache";
 
 export default function CurationList() {
     const [articles, setArticles] = useState<ArticleMeta[]>([]);
@@ -52,6 +52,7 @@ export default function CurationList() {
     const hasRestoredCache = useRef(false);
     const skipFetchRef = useRef(false);
     const scrollYRef = useRef(0);
+    const tabsCache = useRef<Partial<Record<FilterType, { articles: ArticleMeta[], nextCursor: string | null, scrollY: number }>>>({});
 
     // Form State
     const [isSheetOpen, setIsSheetOpen] = useState(false);
@@ -234,24 +235,16 @@ export default function CurationList() {
             if (cached) {
                 try {
                     const parsed = JSON.parse(cached);
-                    setArticles(parsed.articles || []);
-                    setNextCursor(parsed.nextCursor || null);
-                    setIsLoading(false);
-
-                    if (parsed.filter && parsed.filter !== filter) {
-                        skipFetchRef.current = true;
-                        setFilter(parsed.filter);
+                    if (parsed.tabs) {
+                        tabsCache.current = parsed.tabs;
                     }
+                    sessionStorage.removeItem(CACHE_KEY); // consume cache once
 
-                    setTimeout(() => {
-                        const scrollContainer = document.getElementById("curation-scroll-container");
-                        if (scrollContainer && parsed.scrollY) {
-                            scrollContainer.scrollTop = parsed.scrollY;
-                            scrollYRef.current = parsed.scrollY; // sync ref
-                        }
-                    }, 50);
-
-                    return; // Skip fetch, loaded from cache
+                    if (parsed.activeFilter && parsed.activeFilter !== filter) {
+                        skipFetchRef.current = true;
+                        setFilter(parsed.activeFilter as FilterType); // will re-trigger this effect
+                        return;
+                    }
                 } catch (e) {
                     console.error("Cache parse error", e);
                 }
@@ -263,18 +256,39 @@ export default function CurationList() {
             return; // Skip fetch after restoring filter
         }
 
-        setNextCursor(null);
-        setArticles([]); // clear existing items immediately on filter change for better UX
-        fetchArticles(null, filter, false);
+        // Apply cache or fetch for current filter
+        const currentCache = tabsCache.current[filter];
+        if (currentCache && currentCache.articles.length > 0) {
+            setArticles(currentCache.articles);
+            setNextCursor(currentCache.nextCursor);
+            setIsLoading(false);
+
+            setTimeout(() => {
+                const scrollContainer = document.getElementById("curation-scroll-container");
+                if (scrollContainer && currentCache.scrollY !== undefined) {
+                    scrollContainer.scrollTop = currentCache.scrollY;
+                    scrollYRef.current = currentCache.scrollY;
+                }
+            }, 50);
+        } else {
+            setNextCursor(null);
+            setArticles([]); // clear existing items immediately on filter change for better UX
+            fetchArticles(null, filter, false);
+        }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [filter]);
 
-    const saveStateToCache = () => {
-        sessionStorage.setItem(CACHE_KEY, JSON.stringify({
+    const saveStateToSession = () => {
+        // Update the current tab's cache before navigating away
+        tabsCache.current[filter] = {
             articles,
-            filter,
             nextCursor,
             scrollY: scrollYRef.current
+        };
+
+        sessionStorage.setItem(CACHE_KEY, JSON.stringify({
+            activeFilter: filter,
+            tabs: tabsCache.current
         }));
     };
 
@@ -294,6 +308,15 @@ export default function CurationList() {
     }, [isLoading, isLoadingMore, nextCursor, filter]);
 
     const handleFilterChange = (f: FilterType) => {
+        if (f === filter) return;
+
+        // Save current tab state before switching
+        tabsCache.current[filter] = {
+            articles,
+            nextCursor,
+            scrollY: scrollYRef.current
+        };
+
         setFilter(f);
     };
 
@@ -336,10 +359,7 @@ export default function CurationList() {
                     {(["all", "unread", "read", "bookmarked"] as FilterType[]).map(f => (
                         <button
                             key={f}
-                            onClick={() => {
-                                sessionStorage.removeItem(CACHE_KEY); // clear cache when manually switching tabs
-                                handleFilterChange(f);
-                            }}
+                            onClick={() => handleFilterChange(f)}
                             className={`px-4 py-1.5 text-[12px] font-bold rounded-full transition-all active:scale-[0.96] capitalize ${filter === f
                                 ? "bg-zinc-900 text-white shadow-sm"
                                 : "bg-white text-zinc-500 border border-gray-200"
@@ -407,7 +427,7 @@ export default function CurationList() {
                                     >
                                         <Link
                                             href={`/curation/${article.id}`}
-                                            onClick={saveStateToCache}
+                                            onClick={saveStateToSession}
                                             className="block group"
                                         >
                                             {isHero ? (
