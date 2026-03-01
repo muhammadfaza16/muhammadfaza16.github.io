@@ -1,28 +1,27 @@
 import { NextResponse } from "next/server";
-import { PrismaClient } from "@prisma/client";
-
-const prisma = new PrismaClient();
+import prisma from "@/lib/prisma";
 
 export const dynamic = 'force-dynamic';
 
 export async function POST(request: Request) {
     try {
         const data = await request.json();
-        const { title, content, coverImage } = data;
+        const { title, content, url } = data;
 
         if (!title || !content) {
             return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
         }
 
-        const article = await prisma.article.create({
+        const newArticle = await prisma.article.create({
             data: {
                 title,
-                content,
-                coverImage,
+                content: content || "No content provided",
+                url,
+                isRead: false,
             },
         });
 
-        return NextResponse.json({ success: true, article }, { status: 201 });
+        return NextResponse.json({ success: true, article: newArticle }, { status: 201 });
     } catch (error) {
         console.error("Failed to create curation article:", error);
         return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });

@@ -2,7 +2,7 @@
 
 import { use, useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { motion, useScroll, useSpring, useMotionValueEvent, AnimatePresence } from "framer-motion";
+import { motion, useScroll, useSpring, useMotionValueEvent, AnimatePresence, useTransform } from "framer-motion";
 import { ArrowLeft, Clock, CheckCircle, Share, Trash2, Globe, Pencil, Loader2, Camera, X, Clipboard, ImageIcon, MessageSquareQuote, ChevronsDown, Maximize, Minimize, Minus, Plus, Type } from "lucide-react";
 import Link from "next/link";
 import ReactMarkdown from "react-markdown";
@@ -18,7 +18,7 @@ type Article = {
     id: string;
     title: string;
     content: string;
-    coverImage: string | null;
+    url?: string | null;
     imageUrl?: string | null;
     createdAt: string;
     isRead: boolean;
@@ -33,184 +33,12 @@ const THEMES = {
 
 type ThemeKey = keyof typeof THEMES;
 
-// ============================================================================
-// REUSABLE UI COMPONENTS (Ported from Master CMS)
-// ============================================================================
-const INPUT_CLASS = "w-full bg-gray-50 rounded-2xl h-13 px-5 py-3.5 text-[16px] font-semibold text-zinc-900 border border-transparent outline-none focus:bg-white focus:border-zinc-200 focus:shadow-sm transition-all placeholder:text-zinc-400 placeholder:font-medium";
 const LABEL_CLASS = "text-[12px] font-bold uppercase tracking-wider text-zinc-500 ml-1";
 
-async function uploadImageToSupabase(file: File): Promise<string | null> {
-    const fileExt = file.name.split('.').pop() || 'jpg';
-    const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
-    const filePath = `cms/${fileName}`;
+import { uploadImageToSupabase } from "@/lib/uploadImage";
+import { BottomSheet, ImagePicker, QuickPasteInput, RichTextEditor } from "@/components/sanctuary";
 
-    try {
-        const client = getSupabase();
-        const { error } = await client.storage.from('images').upload(filePath, file, { cacheControl: '3600', upsert: false });
-        if (error) return null;
-        const { data } = client.storage.from('images').getPublicUrl(filePath);
-        return data.publicUrl;
-    } catch (err: any) {
-        return null;
-    }
-}
 
-const BottomSheet = ({ isOpen, onClose, title, children }: { isOpen: boolean; onClose: () => void; title: string; children: React.ReactNode; }) => (
-    <AnimatePresence>
-        {isOpen && (
-            <>
-                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onClose} className="fixed inset-0 bg-black/25 z-[70] backdrop-blur-sm" />
-                <motion.div initial={{ y: "100%" }} animate={{ y: 0 }} exit={{ y: "100%" }} transition={{ type: "spring", damping: 28, stiffness: 260 }} drag="y" dragConstraints={{ top: 0, bottom: 0 }} dragElastic={0.15} onDragEnd={(_, { offset, velocity }) => { if (offset.y > 100 || velocity.y > 500) onClose(); }} className="fixed bottom-0 left-0 right-0 h-[88vh] bg-white rounded-t-[2rem] z-[80] flex flex-col shadow-[0_-8px_40px_rgba(0,0,0,0.1)]">
-                    <div className="w-full flex justify-center py-4 shrink-0 cursor-grab active:cursor-grabbing"><div className="w-10 h-[5px] bg-gray-300 rounded-full" /></div>
-                    <div className="px-7 pb-3 shrink-0"><h2 className="text-[22px] font-bold text-zinc-900 tracking-tight">{title}</h2></div>
-                    <div className="flex-1 overflow-y-auto px-7 pb-32 pt-2 flex flex-col gap-5 no-scrollbar">{children}</div>
-                </motion.div>
-            </>
-        )}
-    </AnimatePresence>
-);
-
-const QuickPasteInput = ({ value, onChange, placeholder, type = "text" }: { value: string, onChange: (v: string) => void, placeholder: string, type?: string }) => {
-    const handlePaste = async () => {
-        try {
-            const text = await navigator.clipboard.readText();
-            if (text) { onChange(text); toast.success("Pasted", { icon: "📋", duration: 1500 }); }
-            else toast.error("Clipboard is empty");
-        } catch (err) { toast.error("Clipboard access denied"); }
-    };
-
-    return (
-        <div className="relative w-full">
-            <input value={value} onChange={e => onChange(e.target.value)} type={type} placeholder={placeholder} className={`${INPUT_CLASS} pr-12`} />
-            <button type="button" onClick={handlePaste} tabIndex={-1} className="absolute right-3 top-1/2 -translate-y-1/2 p-2 text-zinc-400 hover:text-blue-500 hover:bg-blue-50 active:scale-90 transition-all rounded-lg" title="Paste from clipboard">
-                <Clipboard size={18} strokeWidth={2.5} />
-            </button>
-        </div>
-    );
-};
-
-const MinimalRichTextEditor = ({ value, onChange, placeholder }: { value: string, onChange: (v: string) => void, placeholder: string }) => {
-    const editorRef = useRef<ReturnType<typeof useEditor>>(null);
-
-    const editor = useEditor({
-        extensions: [
-            StarterKit,
-            TiptapImage.configure({ inline: false, allowBase64: false }),
-        ],
-        content: value,
-        immediatelyRender: false,
-        onUpdate: ({ editor }) => { onChange(editor.getHTML()); },
-        editorProps: {
-            attributes: { class: 'w-full bg-gray-50 rounded-2xl min-h-[180px] p-5 pt-8 text-[16px] font-medium text-zinc-900 border border-transparent outline-none focus:bg-white focus:border-zinc-200 focus:shadow-sm transition-all prose prose-sm max-w-none [&_img]:rounded-xl [&_img]:max-w-full [&_img]:my-2' },
-            handlePaste: (_view, event) => {
-                const items = event.clipboardData?.items;
-                if (!items) return false;
-                for (let i = 0; i < items.length; i++) {
-                    const item = items[i];
-                    if (item.kind === 'file' && item.type.startsWith('image/')) {
-                        const file = item.getAsFile();
-                        if (!file) continue;
-                        event.preventDefault();
-                        const toastId = toast.loading("Uploading image\u2026");
-                        uploadImageToSupabase(file).then((url) => {
-                            const ed = editorRef.current;
-                            if (url && ed) {
-                                ed.chain().focus().setImage({ src: url }).run();
-                                toast.success("Image added!", { id: toastId });
-                            } else {
-                                toast.error("Upload failed", { id: toastId });
-                            }
-                        });
-                        return true;
-                    }
-                }
-                return false;
-            },
-        },
-    });
-
-    useEffect(() => { editorRef.current = editor; }, [editor]);
-    useEffect(() => { if (editor && value !== editor.getHTML()) { editor.commands.setContent(value); } }, [value, editor]);
-
-    if (!editor) return <div className="w-full bg-gray-50 rounded-2xl h-28 p-5 animate-pulse" />;
-
-    const handleQuickPaste = async () => {
-        try {
-            const text = await navigator.clipboard.readText();
-            if (text && editor) { editor.commands.insertContent(text); toast.success("Pasted to editor", { icon: "\ud83d\udccb", duration: 1500 }); }
-            else toast.error("Clipboard is empty");
-        } catch (err) { toast.error("Clipboard access denied"); }
-    };
-
-    return (
-        <div className="relative w-full group">
-            <EditorContent editor={editor} />
-            {editor.isEmpty && (<div className="absolute top-8 left-5 pointer-events-none text-zinc-400 font-medium text-[16px]">{placeholder}</div>)}
-            <button type="button" onClick={handleQuickPaste} tabIndex={-1} className="absolute top-3 right-3 p-2 text-zinc-400 hover:text-blue-500 hover:bg-blue-50 active:scale-90 transition-all rounded-lg z-10" title="Paste from clipboard">
-                <Clipboard size={18} strokeWidth={2.5} />
-            </button>
-        </div>
-    );
-};
-
-const ImagePicker = ({ preview, onSelect, onClear }: { preview: string | null; onSelect: (file: File) => void; onClear: () => void; }) => {
-    const inputRef = useRef<HTMLInputElement>(null);
-    const [isFocused, setIsFocused] = useState(false);
-
-    const handlePaste = (e: React.ClipboardEvent) => {
-        const items = e.clipboardData?.items;
-        if (!items) return;
-        for (let i = 0; i < items.length; i++) {
-            if (items[i].type.indexOf('image') !== -1) {
-                const file = items[i].getAsFile();
-                if (file) { onSelect(file); e.preventDefault(); return; }
-            }
-        }
-    };
-
-    const handleQuickPasteImage = async () => {
-        try {
-            const items = await navigator.clipboard.read();
-            for (const item of items) {
-                if (item.types.some(type => type.startsWith('image/'))) {
-                    const typeToGet = item.types.includes('image/png') ? 'image/png' : item.types.find(t => t.startsWith('image/'));
-                    if (typeToGet) {
-                        const blob = await item.getType(typeToGet);
-                        const file = new File([blob], `pasted-image-${Date.now()}.${typeToGet.split('/')[1]}`, { type: typeToGet });
-                        onSelect(file); toast.success("Image pasted from clipboard"); return;
-                    }
-                }
-            }
-            toast.error("No image found in clipboard");
-        } catch (err) { toast.error("Clipboard access denied or nothing to paste"); }
-    };
-
-    return (
-        <div className="flex flex-col gap-2">
-            <label className={LABEL_CLASS}>Cover Image</label>
-            <input ref={inputRef} type="file" accept="image/*" className="hidden" onChange={(e) => { const file = e.target.files?.[0]; if (file) onSelect(file); e.target.value = ''; }} />
-            {preview ? (
-                <div className="relative w-full aspect-video rounded-2xl overflow-hidden bg-gray-100">
-                    <img src={preview} alt="Preview" className="w-full h-full object-cover" />
-                    <button onClick={onClear} className="absolute top-3 right-3 w-9 h-9 bg-black/50 backdrop-blur-md rounded-full flex items-center justify-center text-white active:scale-90 transition-transform"><X size={16} /></button>
-                    <button onClick={() => inputRef.current?.click()} className="absolute bottom-3 right-3 px-4 py-2.5 bg-black/50 backdrop-blur-md rounded-full text-white text-[13px] font-semibold active:scale-95 transition-transform flex items-center gap-1.5"><Camera size={14} /> Replace</button>
-                </div>
-            ) : (
-                <div tabIndex={0} onPaste={handlePaste} onFocus={() => setIsFocused(true)} onBlur={() => setIsFocused(false)} className={`w-full aspect-video rounded-2xl border-2 border-dashed bg-gray-50/50 flex items-center justify-center gap-4 transition-all outline-none ${isFocused ? 'border-blue-400 bg-blue-50/30' : 'border-gray-200'}`}>
-                    <button onClick={() => inputRef.current?.click()} className="flex flex-col items-center justify-center gap-2 group active:scale-95 transition-transform">
-                        <div className="w-14 h-14 rounded-full bg-white shadow-sm border border-gray-100 flex items-center justify-center group-hover:border-blue-200 group-hover:bg-blue-50 transition-colors"><Camera size={24} className="text-zinc-500 group-hover:text-blue-500" /></div>
-                        <span className="text-[13px] font-bold text-zinc-500">Browse</span>
-                    </button>
-                    <div className="w-[1px] h-12 bg-gray-200 rounded-full" />
-                    <button onClick={handleQuickPasteImage} className="flex flex-col items-center justify-center gap-2 group active:scale-95 transition-transform">
-                        <div className="w-14 h-14 rounded-full bg-white shadow-sm border border-gray-100 flex items-center justify-center group-hover:border-purple-200 group-hover:bg-purple-50 transition-colors"><Clipboard size={24} className="text-zinc-500 group-hover:text-purple-500" /></div>
-                        <span className="text-[13px] font-bold text-zinc-500">Paste Image</span>
-                    </button>
-                </div>
-            )}
-        </div>
-    );
-};
 
 export default function CurationReaderPage({ params }: { params: Promise<{ id: string }> }) {
     const { id } = use(params);
@@ -236,22 +64,19 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
     const [formNotes, setFormNotes] = useState("");
     const [formImageFile, setFormImageFile] = useState<File | null>(null);
     const [formImagePreview, setFormImagePreview] = useState<string | null>(null);
+    const [formPublishedTime, setFormPublishedTime] = useState("");
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [uploadStatus, setUploadStatus] = useState<"idle" | "uploading" | "saving">("idle");
+    const [isFetchingMetadata, setIsFetchingMetadata] = useState(false);
     const formFooterRef = useRef<HTMLDivElement>(null);
 
     const supabase = getSupabase();
 
     // 1. Scroll Progress & Hide-On-Scroll Logic (Must be above early returns)
     const { scrollY, scrollYProgress } = useScroll();
+    const topMaskOpacity = useTransform(scrollY, [100, 300], [0, 1]);
     const [isNavVisible, setIsNavVisible] = useState(true);
     const lastYRef = useRef(0);
-
-    const scaleX = useSpring(scrollYProgress, {
-        stiffness: 100,
-        damping: 30,
-        restDelta: 0.001
-    });
 
     useMotionValueEvent(scrollY, "change", (latest) => {
         const previous = lastYRef.current;
@@ -267,6 +92,12 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
         }
     });
 
+    const scaleX = useSpring(scrollYProgress, {
+        stiffness: 100,
+        damping: 30,
+        restDelta: 0.001
+    });
+
     useEffect(() => {
         if (!id) return;
 
@@ -279,13 +110,52 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
                 setArticle(data);
                 // Pre-populate form state for edit action
                 setFormTitle(data.title || "");
-                setFormUrl(data.coverImage || ""); // Schema mapping: url is stored in coverImage
+                setFormUrl(data.url || ""); // Schema mapping: url is stored in url
                 setFormNotes(data.content || "");
-                setFormImagePreview(data.imageUrl || data.coverImage || null);
+                setFormImagePreview(data.imageUrl || null);
+                setIsLoading(false);
             })
-            .catch(() => router.push('/curation'))
-            .finally(() => setIsLoading(false));
-    }, [id, router]);
+            .catch(error => {
+                toast.error(error.message);
+                setIsLoading(false);
+            });
+    }, [id]);
+
+    // Auto-fetch metadata
+    useEffect(() => {
+        // Skip fetch if form hasn't been modified yet or isn't a valid url
+        if (!formUrl || !formUrl.startsWith("http")) return;
+        // Don't auto-fetch if we're just rendering the initial value from the DB
+        if (article && article.url === formUrl) return;
+
+        const timer = setTimeout(async () => {
+            setIsFetchingMetadata(true);
+            try {
+                const res = await fetch(`/api/curation/metadata?url=${encodeURIComponent(formUrl)}`);
+                const json = await res.json();
+
+                if (json.success && json.data) {
+                    const { title, description, image, publishedTime } = json.data;
+
+                    if (!formTitle && title) setFormTitle(title);
+                    if (!formNotes && description) {
+                        const notesHtml = description.trim().startsWith("<") ? description : `<p>${description}</p>`;
+                        setFormNotes(notesHtml);
+                    }
+                    // Note: Edit form already has a preview likely from DB, so only overwrite if empty
+                    if (!formImageFile && !formImagePreview && image) setFormImagePreview(image);
+                    if (!formPublishedTime && publishedTime) setFormPublishedTime(publishedTime);
+                }
+            } catch (error) {
+                console.error("Failed to fetch metadata:", error);
+            } finally {
+                setIsFetchingMetadata(false);
+            }
+        }, 800);
+
+        return () => clearTimeout(timer);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [formUrl]);
 
     if (isLoading) {
         return (
@@ -301,7 +171,7 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
     if (!article) return null;
 
     let validImageUrl: string | null = null;
-    const activeImage = article.imageUrl || article.coverImage;
+    const activeImage = article.imageUrl;
 
     if (activeImage) {
         if (activeImage.startsWith('http')) {
@@ -326,8 +196,8 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
 
             if (article) {
                 setFormTitle(article.title || "");
-                setFormUrl(article.coverImage || "");
-                setFormImagePreview(article.imageUrl || article.coverImage || null);
+                setFormUrl(article.url || "");
+                setFormImagePreview(article.imageUrl || null);
                 const existingNotes = article.content || "";
                 setFormNotes(existingNotes ? `${existingNotes}<br>${newNote}` : newNote);
             }
@@ -342,9 +212,10 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
     const handleEditClick = () => {
         if (article) {
             setFormTitle(article.title || "");
-            setFormUrl(article.coverImage || ""); // Schema mapping: url is stored in coverImage
+            setFormUrl(article.url || "");
             setFormNotes(article.content || "");
-            setFormImagePreview(article.imageUrl || article.coverImage || null);
+            setFormImagePreview(article.imageUrl || null);
+            setFormImageFile(null); // Fix: Reset any lingering file selection
         }
         setIsEditSheetOpen(true);
     };
@@ -370,11 +241,11 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
     };
 
     const handleOpenWeb = () => {
-        if (!article.coverImage) {
-            toast.error("No valid URL found for this article");
+        if (!article.url) {
+            toast.error("No source URL available");
             return;
         }
-        window.open(article.coverImage, "_blank");
+        window.open(article.url, "_blank");
     };
 
     const handleEditSave = async () => {
@@ -384,20 +255,24 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
         }
 
         setIsSubmitting(true);
-        let finalImageUrl = formImagePreview;
+        let updatedImageUrl: string | undefined = undefined;
 
         if (formImageFile) {
             setUploadStatus("uploading");
             const uploadedUrl = await uploadImageToSupabase(formImageFile);
-            if (uploadedUrl) {
-                finalImageUrl = uploadedUrl;
-            } else {
-                toast.error("Failed to upload image. Saving without new image.");
+            if (!uploadedUrl) {
+                toast.error("Image upload failed");
+                setIsSubmitting(false);
+                setUploadStatus("idle");
+                return;
             }
+            updatedImageUrl = uploadedUrl;
+        } else if (formImagePreview) {
+            updatedImageUrl = formImagePreview;
         }
 
         setUploadStatus("saving");
-        const res = await updateToReadArticle(article.id, formTitle, formUrl, formNotes, finalImageUrl || undefined);
+        const res = await updateToReadArticle(article.id, formTitle, formUrl, formNotes, updatedImageUrl, formPublishedTime);
 
         if (res.success) {
             toast.success("Article updated");
@@ -432,42 +307,6 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
             className="min-h-screen transition-colors duration-500 selection:bg-blue-200 antialiased pb-32 scroll-smooth overscroll-contain"
             style={{ backgroundColor: THEMES[readerSettings.theme].bg, color: THEMES[readerSettings.theme].text }}
         >
-            <style dangerouslySetInnerHTML={{
-                __html: `
-                html, body {
-                    scroll-behavior: smooth !important;
-                    overscroll-behavior-y: contain !important;
-                    scroll-snap-type: y proximity !important;
-                }
-                .reader-content p {
-                    scroll-snap-align: start;
-                    scroll-snap-stop: normal;
-                }
-                .reader-content p, .reader-content li {
-                    font-size: ${readerSettings.fontSize}px !important;
-                    line-height: ${readerSettings.lineHeight} !important;
-                    font-family: ${readerSettings.fontFamily === 'serif' ? 'ui-serif, Georgia, Cambria, "Times New Roman", Times, serif' : 'ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif'} !important;
-                    color: ${THEMES[readerSettings.theme].text} !important;
-                    transition: font-size 0.3s ease, line-height 0.3s ease, color 0.5s ease;
-                }
-                .reader-content h1, .reader-content h2, .reader-content h3, .reader-content h4 {
-                    font-family: ${readerSettings.fontFamily === 'serif' ? 'ui-serif, Georgia, Cambria, "Times New Roman", Times, serif' : 'ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif'};
-                    color: ${THEMES[readerSettings.theme].text} !important;
-                    transition: color 0.5s ease;
-                }
-                .reader-content blockquote {
-                    color: ${THEMES[readerSettings.theme].text} !important;
-                    border-left-color: ${readerSettings.theme === 'night' ? '#333' : '#cbd5e1'} !important;
-                    background-color: ${readerSettings.theme === 'night' ? '#1e1e1e' : '#f8fafc'} !important;
-                }
-                .reader-content a {
-                    color: ${readerSettings.theme === 'night' ? '#60a5fa' : '#2563eb'} !important;
-                }
-                .reader-content strong, .reader-content b {
-                    color: ${THEMES[readerSettings.theme].text} !important;
-                }
-            `}} />
-
             {/* Top Reading Progress Bar */}
             <AnimatePresence>
                 {!isZenMode && (
@@ -491,8 +330,15 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
                             exit={{ opacity: 0 }}
                             transition={{ duration: 0.7 }}
                             className="fixed top-0 left-0 right-0 h-[10vh] z-[40] pointer-events-none"
-                            style={{ background: `linear-gradient(to bottom, ${THEMES[readerSettings.theme].bg} 20%, transparent 100%)` }}
-                        />
+                        >
+                            <motion.div
+                                style={{
+                                    opacity: topMaskOpacity,
+                                    background: `linear-gradient(to bottom, ${THEMES[readerSettings.theme].bg} 20%, transparent 100%)`
+                                }}
+                                className="w-full h-full"
+                            />
+                        </motion.div>
                         <motion.div
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
@@ -509,11 +355,12 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
             <AnimatePresence>
                 {isZenMode && (
                     <motion.button
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
+                        initial={{ y: 50, opacity: 0 }}
+                        animate={{ y: 0, opacity: 1 }}
+                        exit={{ y: 50, opacity: 0 }}
                         onClick={() => setIsZenMode(false)}
-                        className="fixed top-6 right-6 w-10 h-10 bg-black/5 backdrop-blur-sm rounded-full flex items-center justify-center text-gray-400 opacity-30 hover:opacity-100 transition-opacity z-[70] cursor-pointer"
+                        className="fixed bottom-8 right-8 w-12 h-12 bg-black/5 dark:bg-white/5 backdrop-blur-md rounded-full flex items-center justify-center text-zinc-500 dark:text-zinc-400 opacity-40 hover:opacity-100 hover:bg-black/10 dark:hover:bg-white/10 transition-all duration-300 z-[70] cursor-pointer"
+                        title="Exit Zen Mode"
                     >
                         <Minimize size={20} />
                     </motion.button>
@@ -541,58 +388,69 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
             </AnimatePresence>
 
             {/* Hero Header */}
-            {validImageUrl ? (
-                <div className="w-full h-[35vh] min-h-[300px] relative overflow-hidden bg-zinc-900 mb-8 rounded-b-[2.5rem] shadow-sm">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={validImageUrl} alt="Cover" className="w-full h-full object-cover" />
-                    {/* Gradient Overlay for Text Readability - Always Above Image */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent pointer-events-none z-10"></div>
+            <motion.div animate={{ filter: isZenMode ? "grayscale(30%) brightness(0.8)" : "grayscale(0%) brightness(1)" }} transition={{ duration: 0.8 }} className={isZenMode ? "pointer-events-none" : ""}>
+                {validImageUrl ? (
+                    <div className="w-full aspect-[16/9] max-h-[40vh] relative overflow-hidden bg-zinc-900 mb-8 rounded-b-[2.5rem] shadow-sm">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img src={validImageUrl} alt="Cover" className="w-full h-full object-cover object-top" />
+                        {/* Gradient Overlay for Text Readability - Always Above Image */}
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent pointer-events-none z-10"></div>
 
-                    {/* Title overlay inside the image */}
-                    <div className="absolute bottom-0 left-0 w-full px-5 pb-8 md:px-12 md:pb-12 max-w-3xl mx-auto right-0 z-20">
-                        <h1 className="text-[32px] md:text-5xl font-bold font-sans tracking-tight leading-tight mb-4 text-white drop-shadow-md">
+                        {/* Title overlay inside the image */}
+                        <div className="absolute bottom-0 left-0 w-full px-5 pb-8 md:px-12 md:pb-12 max-w-3xl mx-auto right-0 z-20">
+                            <h1 className="text-[32px] md:text-5xl font-bold font-sans tracking-tight leading-tight mb-4 text-white drop-shadow-md">
+                                {article.title}
+                            </h1>
+                            <div className="flex items-center gap-4 text-white/90 font-medium text-[13px] tracking-wide">
+                                <span className="flex items-center gap-1.5 bg-black/40 backdrop-blur-md px-3 py-1.5 rounded-full border border-white/10">
+                                    <Clock size={14} />
+                                    {new Date(article.createdAt).toLocaleDateString('en-US', {
+                                        year: 'numeric', month: 'short', day: 'numeric'
+                                    })}
+                                    <span className="mx-1 text-white/50">•</span>
+                                    {readingTime} min read
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                ) : (
+                    <div
+                        className="w-full px-5 pt-24 pb-8 md:px-12 md:pt-32 md:pb-12 max-w-3xl mx-auto border-b transition-colors duration-500"
+                        style={{ borderColor: readerSettings.theme === 'night' ? '#333' : '#f3f4f6' }}
+                    >
+                        <h1
+                            className="text-[32px] md:text-5xl font-bold font-sans tracking-tight leading-tight mb-6 transition-colors duration-500"
+                            style={{ color: THEMES[readerSettings.theme].text }}
+                        >
                             {article.title}
                         </h1>
-                        <div className="flex items-center gap-4 text-white/90 font-medium text-[13px] tracking-wide">
-                            <span className="flex items-center gap-1.5 bg-black/40 backdrop-blur-md px-3 py-1.5 rounded-full border border-white/10">
+                        <div className="flex items-center gap-4 text-zinc-500 font-medium text-[13px] tracking-wide">
+                            <span className="flex items-center gap-1.5 bg-gray-50 px-3 py-1.5 rounded-full border border-gray-200">
                                 <Clock size={14} />
                                 {new Date(article.createdAt).toLocaleDateString('en-US', {
                                     year: 'numeric', month: 'short', day: 'numeric'
                                 })}
-                                <span className="mx-1 text-white/50">•</span>
+                                <span className="mx-1 text-zinc-300">•</span>
                                 {readingTime} min read
                             </span>
                         </div>
                     </div>
-                </div>
-            ) : (
-                <div
-                    className="w-full px-5 pt-24 pb-8 md:px-12 md:pt-32 md:pb-12 max-w-3xl mx-auto border-b transition-colors duration-500"
-                    style={{ borderColor: readerSettings.theme === 'night' ? '#333' : '#f3f4f6' }}
-                >
-                    <h1
-                        className="text-[32px] md:text-5xl font-bold font-sans tracking-tight leading-tight mb-6 transition-colors duration-500"
-                        style={{ color: THEMES[readerSettings.theme].text }}
-                    >
-                        {article.title}
-                    </h1>
-                    <div className="flex items-center gap-4 text-zinc-500 font-medium text-[13px] tracking-wide">
-                        <span className="flex items-center gap-1.5 bg-gray-50 px-3 py-1.5 rounded-full border border-gray-200">
-                            <Clock size={14} />
-                            {new Date(article.createdAt).toLocaleDateString('en-US', {
-                                year: 'numeric', month: 'short', day: 'numeric'
-                            })}
-                            <span className="mx-1 text-zinc-300">•</span>
-                            {readingTime} min read
-                        </span>
-                    </div>
-                </div>
-            )}
+                )}
+            </motion.div>
 
             {/* HTML / Rich Text Content */}
             <main
-                className={`max-w-3xl mx-auto px-5 relative z-20 select-text cursor-text touch-auto transition-all duration-700 ease-in-out will-change-transform transform-gpu ${isZenMode ? "py-[20vh] md:py-[25vh] md:px-5" : "pt-8 md:px-12"}`}
-                style={{ WebkitUserSelect: 'text', userSelect: 'text', WebkitTouchCallout: 'default' } as React.CSSProperties}
+                className="max-w-3xl mx-auto px-5 relative z-20 select-text cursor-text touch-auto pt-8 md:px-12"
+                style={{
+                    WebkitUserSelect: 'text', userSelect: 'text', WebkitTouchCallout: 'default',
+                    '--reader-font-size': `${readerSettings.fontSize}px`,
+                    '--reader-line-height': readerSettings.lineHeight,
+                    '--reader-font-family': readerSettings.fontFamily === 'serif' ? 'ui-serif, Georgia, Cambria, "Times New Roman", Times, serif' : 'ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif',
+                    '--theme-text': THEMES[readerSettings.theme].text,
+                    '--theme-quote-border': readerSettings.theme === 'night' ? '#333' : '#cbd5e1',
+                    '--theme-quote-bg': readerSettings.theme === 'night' ? '#1e1e1e' : '#f8fafc',
+                    '--theme-accent': readerSettings.theme === 'night' ? '#60a5fa' : '#2563eb'
+                } as React.CSSProperties}
             >
                 <article
                     className="reader-content prose max-w-none select-text touch-auto
@@ -733,27 +591,60 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
             </BottomSheet>
 
             {/* Edit Article Sheet */}
-            <BottomSheet isOpen={isEditSheetOpen} onClose={() => setIsEditSheetOpen(false)} title="Edit Article">
-                <button
-                    onClick={() => formFooterRef.current?.scrollIntoView({ behavior: 'smooth' })}
-                    className="self-start text-slate-500 text-xs font-medium bg-slate-100/70 rounded-full px-3 py-1 flex items-center justify-center gap-1 active:scale-95 transition-all mb-2"
-                >
-                    <ChevronsDown size={12} /> Jump to Actions
-                </button>
-                <div className="flex flex-col gap-1.5">
-                    <label className={LABEL_CLASS}>Title</label>
-                    <QuickPasteInput value={formTitle} onChange={setFormTitle} placeholder="Article or page title" />
-                </div>
-                <div className="flex flex-col gap-1.5">
-                    <label className={LABEL_CLASS}>URL / Link</label>
+            <BottomSheet
+                isOpen={isEditSheetOpen}
+                onClose={() => {
+                    setIsEditSheetOpen(false);
+                    // Reset to original article values to clear any unsaved edits/image selections
+                    if (article) {
+                        setFormTitle(article.title || "");
+                        setFormUrl(article.url || "");
+                        setFormNotes(article.content || "");
+                        setFormImagePreview(article.imageUrl || null);
+                        setFormPublishedTime(article.createdAt ? String(article.createdAt) : "");
+                        setFormImageFile(null);
+                    }
+                }}
+                title="Edit Article"
+                footer={
+                    <div ref={formFooterRef} className="flex flex-row justify-between items-center gap-x-3">
+                        <button
+                            onClick={handleDelete}
+                            disabled={isSubmitting}
+                            className="w-12 h-12 bg-red-50 rounded-full flex items-center justify-center text-red-500 shadow-inner border border-red-100 active:scale-90 transition-transform"
+                            title="Delete Article"
+                        >
+                            <Trash2 size={24} />
+                        </button>
+                        <button
+                            onClick={handleEditSave}
+                            disabled={isSubmitting || !formTitle || !formUrl}
+                            className="flex-1 h-12 bg-black rounded-full flex items-center justify-center text-white font-semibold text-base shadow-lg active:scale-95 transition-all disabled:opacity-50"
+                        >
+                            {isSubmitting ? (
+                                <Loader2 size={18} className="animate-spin" />
+                            ) : (
+                                <span className="flex items-center justify-center">
+                                    Save Changes
+                                </span>
+                            )}
+                        </button>
+                    </div>
+                }
+            >
+                <div className="mt-2" />
+                <div className="flex flex-col gap-1.5 mt-2">
+                    <div className="flex items-center justify-between">
+                        <label className={LABEL_CLASS}>URL / Link</label>
+                        {isFetchingMetadata && (
+                            <div className="flex items-center gap-1.5 text-zinc-400">
+                                <Loader2 size={12} className="animate-spin" />
+                                <span className="text-[10px] font-bold uppercase tracking-wider">Scanning...</span>
+                            </div>
+                        )}
+                    </div>
                     <QuickPasteInput value={formUrl} onChange={setFormUrl} placeholder="https://example.com" type="url" />
                 </div>
-                <div className="flex flex-col gap-1.5">
-                    <label className={LABEL_CLASS}>Notes</label>
-                    <MinimalRichTextEditor value={formNotes} onChange={setFormNotes} placeholder="Quick notes or summary…" />
-                </div>
-
-                <div className="mt-2" />
                 <ImagePicker
                     preview={formImagePreview}
                     onSelect={(file) => {
@@ -765,31 +656,13 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
                         setFormImagePreview(null);
                     }}
                 />
-
-                <div className="h-6" />
-
-                <div ref={formFooterRef} className="flex flex-row justify-between items-center gap-x-3 border-t border-gray-100 mt-6 px-4 py-6">
-                    <button
-                        onClick={handleDelete}
-                        disabled={isSubmitting}
-                        className="w-12 h-12 bg-red-50 rounded-full flex items-center justify-center text-red-500 shadow-inner border border-red-100 active:scale-90 transition-transform"
-                        title="Delete Article"
-                    >
-                        <Trash2 size={24} />
-                    </button>
-                    <button
-                        onClick={handleEditSave}
-                        disabled={isSubmitting || !formTitle || !formUrl}
-                        className="flex-1 h-12 bg-black rounded-full flex items-center justify-center text-white font-semibold text-base shadow-lg active:scale-95 transition-all disabled:opacity-50"
-                    >
-                        {isSubmitting ? (
-                            <Loader2 size={18} className="animate-spin" />
-                        ) : (
-                            <span className="flex items-center justify-center">
-                                Save Changes
-                            </span>
-                        )}
-                    </button>
+                <div className="flex flex-col gap-1.5">
+                    <label className={LABEL_CLASS}>Title</label>
+                    <QuickPasteInput value={formTitle} onChange={setFormTitle} placeholder="Article or page title" />
+                </div>
+                <div className="flex flex-col gap-1.5">
+                    <label className={LABEL_CLASS}>Notes</label>
+                    <RichTextEditor value={formNotes} onChange={setFormNotes} placeholder="Quick notes or summary…" />
                 </div>
             </BottomSheet>
         </div>

@@ -10,7 +10,7 @@ type Book = {
     id: string;
     title: string;
     author: string;
-    coverImage: string | null;
+    url?: string | null;
     review: string | null;
     rating: number;
     createdAt: string;
@@ -188,8 +188,8 @@ export default function BookshelfPage() {
                                     )}
 
                                     <motion.div layoutId={`image-${book.id}`} className="w-full aspect-[2/3] relative overflow-hidden rounded-[12px] shadow-[0_8px_16px_rgba(0,0,0,0.1),inset_0_2px_4px_rgba(255,255,255,0.4)]">
-                                        {book.coverImage ? (
-                                            <img src={book.coverImage} alt={book.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                                        {book.url ? (
+                                            <img src={book.url} alt={book.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
                                         ) : (
                                             <div className="w-full h-full flex flex-col items-center justify-center p-4 text-center bg-gradient-to-br from-[#f1f5f9] to-[#e2e8f0]">
                                                 <span className="font-serif text-2xl font-bold text-[#8b9bb4]/50 truncate w-full px-2" style={{ writingMode: 'vertical-rl', transform: 'rotate(180deg)' }}>
@@ -231,7 +231,7 @@ export default function BookshelfPage() {
                     <>
                         {/* Backdrop */}
                         <motion.div
-                            initial={{ opacity: 1,}}
+                            initial={{ opacity: 1, }}
                             animate={{ opacity: 1 }}
                             exit={{ opacity: 0 }}
                             onClick={() => setSelectedId(null)}
@@ -256,8 +256,8 @@ export default function BookshelfPage() {
                                 {/* Cover Side */}
                                 <motion.div layoutId={`image-${selectedBook.id}`} className="w-full md:w-[45%] shrink-0 relative bg-white/50 p-6 md:p-8">
                                     <div className="w-full aspect-[2/3] rounded-[16px] overflow-hidden shadow-[0_20px_40px_rgba(0,0,0,0.15)] ring-1 ring-black/5">
-                                        {selectedBook.coverImage ? (
-                                            <img src={selectedBook.coverImage} alt={selectedBook.title} className="w-full h-full object-cover" />
+                                        {selectedBook.url ? (
+                                            <img src={selectedBook.url} alt={selectedBook.title} className="w-full h-full object-cover" />
                                         ) : (
                                             <div className="w-full h-full flex flex-col items-center justify-center p-6 text-center bg-gradient-to-br from-[#f1f5f9] to-[#e2e8f0]">
                                                 <span className="font-serif text-3xl font-bold text-[#8b9bb4] px-6">

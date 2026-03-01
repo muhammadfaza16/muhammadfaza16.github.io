@@ -497,6 +497,40 @@
     text-decoration: none !important;
   }
 
+  /* Reader Dynamic Custom Properties */
+  .reader-content p,
+  .reader-content li {
+    font-size: var(--reader-font-size, 18px) !important;
+    line-height: var(--reader-line-height, 1.8) !important;
+    font-family: var(--reader-font-family, inherit) !important;
+    color: var(--theme-text, inherit) !important;
+    transition: font-size 0.3s ease, line-height 0.3s ease, color 0.5s ease;
+  }
+
+  .reader-content h1,
+  .reader-content h2,
+  .reader-content h3,
+  .reader-content h4 {
+    font-family: var(--reader-font-family, inherit) !important;
+    color: var(--theme-text, inherit) !important;
+    transition: color 0.5s ease;
+  }
+
+  .reader-content blockquote {
+    color: var(--theme-text, inherit) !important;
+    border-left-color: var(--theme-quote-border, #cbd5e1) !important;
+    background-color: var(--theme-quote-bg, #f8fafc) !important;
+  }
+
+  .reader-content a {
+    color: var(--theme-accent, #2563eb) !important;
+  }
+
+  .reader-content strong,
+  .reader-content b {
+    color: var(--theme-text, inherit) !important;
+  }
+
   /* Print Styles */
   @media print {
     body {

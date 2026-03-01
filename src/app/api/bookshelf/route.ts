@@ -1,14 +1,10 @@
 import { NextResponse } from "next/server";
-import { PrismaClient } from "@prisma/client";
-
-const prisma = new PrismaClient();
-
-
+import prisma from "@/lib/prisma";
 
 export async function POST(request: Request) {
     try {
         const data = await request.json();
-        const { title, author, coverImage, content } = data; // Note: content maps to review in Prisma
+        const { title, author, url, content } = data; // Note: content maps to review in Prisma
 
         if (!title || !author) {
             return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
@@ -18,7 +14,7 @@ export async function POST(request: Request) {
             data: {
                 title,
                 author,
-                coverImage,
+                url,
                 review: content, // Form sends 'content', Prisma expects 'review'
             },
         });

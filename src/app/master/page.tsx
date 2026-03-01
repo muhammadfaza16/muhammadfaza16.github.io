@@ -16,9 +16,8 @@ import {
 } from "./actions";
 import { Toaster, toast } from 'react-hot-toast';
 import { getSupabase } from "@/lib/supabase";
-import { useEditor, EditorContent } from '@tiptap/react';
-import StarterKit from '@tiptap/starter-kit';
-import { Image as TiptapImage } from '@tiptap/extension-image';
+import { uploadImageToSupabase } from "@/lib/uploadImage";
+import { BottomSheet, ImagePicker, QuickPasteInput, RichTextEditor } from "@/components/sanctuary";
 
 // ============================================================================
 // TYPES & CONSTANTS
@@ -46,101 +45,8 @@ const INPUT_CLASS = "w-full bg-gray-50 rounded-2xl h-13 px-5 py-3.5 text-[16px] 
 const LABEL_CLASS = "text-[12px] font-bold uppercase tracking-wider text-zinc-500 ml-1";
 
 // ============================================================================
-// IMAGE UPLOAD HELPER
-// ============================================================================
-async function uploadImageToSupabase(file: File): Promise<string | null> {
-    const fileExt = file.name.split('.').pop() || 'jpg';
-    const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
-    const filePath = `cms/${fileName}`;
-
-    try {
-        const client = getSupabase();
-
-        const { error } = await client.storage
-            .from('images')
-            .upload(filePath, file, { cacheControl: '3600', upsert: false });
-
-        if (error) {
-            console.error('Upload error:', error);
-            return null;
-        }
-
-        const { data } = client.storage.from('images').getPublicUrl(filePath);
-        return data.publicUrl;
-    } catch (err: any) {
-        console.error('Supabase not configured:', err.message);
-        return null;
-    }
-}
-
-// ============================================================================
 // REUSABLE UI COMPONENTS
 // ============================================================================
-
-// --- Image Picker with Clipboard Paste ---
-const ImagePicker = ({ preview, onSelect, onClear }: {
-    preview: string | null;
-    onSelect: (file: File) => void;
-    onClear: () => void;
-}) => {
-    const inputRef = useRef<HTMLInputElement>(null);
-    const [isFocused, setIsFocused] = useState(false);
-
-    const handlePaste = (e: React.ClipboardEvent) => {
-        const items = e.clipboardData?.items;
-        if (!items) return;
-        for (let i = 0; i < items.length; i++) {
-            if (items[i].type.indexOf('image') !== -1) {
-                const file = items[i].getAsFile();
-                if (file) { onSelect(file); e.preventDefault(); return; }
-            }
-        }
-    };
-
-    const handleQuickPasteImage = async () => {
-        try {
-            const items = await navigator.clipboard.read();
-            for (const item of items) {
-                if (item.types.some(type => type.startsWith('image/'))) {
-                    const typeToGet = item.types.includes('image/png') ? 'image/png' : item.types.find(t => t.startsWith('image/'));
-                    if (typeToGet) {
-                        const blob = await item.getType(typeToGet);
-                        const file = new File([blob], `pasted-image-${Date.now()}.${typeToGet.split('/')[1]}`, { type: typeToGet });
-                        onSelect(file); toast.success("Image pasted from clipboard"); return;
-                    }
-                }
-            }
-            toast.error("No image found in clipboard");
-        } catch (err) { toast.error("Clipboard access denied or nothing to paste"); }
-    };
-
-    return (
-        <div className="flex flex-col gap-2">
-            <label className={LABEL_CLASS}>Cover Image</label>
-            <input ref={inputRef} type="file" accept="image/*" className="hidden" onChange={(e) => { const file = e.target.files?.[0]; if (file) onSelect(file); e.target.value = ''; }} />
-            {preview ? (
-                <div className="relative w-full aspect-video rounded-2xl overflow-hidden bg-gray-100">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={preview} alt="Preview" className="w-full h-full object-cover" />
-                    <button onClick={onClear} className="absolute top-3 right-3 w-9 h-9 bg-black/50 backdrop-blur-md rounded-full flex items-center justify-center text-white active:scale-90 transition-transform"><X size={16} /></button>
-                    <button onClick={() => inputRef.current?.click()} className="absolute bottom-3 right-3 px-4 py-2.5 bg-black/50 backdrop-blur-md rounded-full text-white text-[13px] font-semibold active:scale-95 flex items-center gap-1.5"><Camera size={14} /> Replace</button>
-                </div>
-            ) : (
-                <div tabIndex={0} onPaste={handlePaste} onFocus={() => setIsFocused(true)} onBlur={() => setIsFocused(false)} className={`w-full aspect-video rounded-2xl border-2 border-dashed bg-gray-50/50 flex items-center justify-center gap-4 transition-all outline-none ${isFocused ? 'border-blue-400 bg-blue-50/30' : 'border-gray-200'}`}>
-                    <button onClick={() => inputRef.current?.click()} className="flex flex-col items-center justify-center gap-2 group active:scale-95 transition-transform">
-                        <div className="w-14 h-14 rounded-full bg-white shadow-sm border border-gray-100 flex items-center justify-center group-hover:border-blue-200 group-hover:bg-blue-50 transition-colors"><Camera size={24} className="text-zinc-500 group-hover:text-blue-500" /></div>
-                        <span className="text-[13px] font-bold text-zinc-500">Browse</span>
-                    </button>
-                    <div className="w-[1px] h-12 bg-gray-200 rounded-full" />
-                    <button onClick={handleQuickPasteImage} className="flex flex-col items-center justify-center gap-2 group active:scale-95 transition-transform">
-                        <div className="w-14 h-14 rounded-full bg-white shadow-sm border border-gray-100 flex items-center justify-center group-hover:border-purple-200 group-hover:bg-purple-50 transition-colors"><Clipboard size={24} className="text-zinc-500 group-hover:text-purple-500" /></div>
-                        <span className="text-[13px] font-bold text-zinc-500">Paste Image</span>
-                    </button>
-                </div>
-            )}
-        </div>
-    );
-};
 
 // --- List Item (Writing / To Read) ---
 const ListRow = ({ item, type, onToggle, onEdit, onDelete }: {
@@ -150,7 +56,7 @@ const ListRow = ({ item, type, onToggle, onEdit, onDelete }: {
     onEdit?: (item: any) => void;
     onDelete?: (id: string) => void;
 }) => {
-    const imageSrc = item.imageUrl || item.coverImage;
+    const imageSrc = item.imageUrl || item.url;
 
     return (
         <div className="relative w-full mb-3 rounded-2xl overflow-hidden">
@@ -214,7 +120,7 @@ const GridCard = ({ item, type, onEdit, onDelete }: {
     onEdit?: (item: any) => void;
     onDelete?: (id: string) => void;
 }) => {
-    const imageSrc = item.imageUrl || item.img || item.coverImage;
+    const imageSrc = item.imageUrl || item.img || item.url;
     const aspectClass = type === 'books' ? 'aspect-[3/4]' : 'aspect-square';
 
     return (
@@ -257,154 +163,6 @@ const GridCard = ({ item, type, onEdit, onDelete }: {
         </div>
     );
 };
-
-// --- Bottom Sheet ---
-const BottomSheet = ({ isOpen, onClose, title, children, footer }: {
-    isOpen: boolean;
-    onClose: () => void;
-    title: string;
-    children: React.ReactNode;
-    footer?: React.ReactNode;
-}) => (
-    <AnimatePresence>
-        {isOpen && (
-            <>
-                <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    onClick={onClose}
-                    className="fixed inset-0 bg-black/25 z-40 backdrop-blur-sm"
-                />
-                <motion.div
-                    initial={{ y: "100%" }}
-                    animate={{ y: 0 }}
-                    exit={{ y: "100%" }}
-                    transition={{ type: "spring", damping: 28, stiffness: 260 }}
-                    drag="y"
-                    dragConstraints={{ top: 0, bottom: 0 }}
-                    dragElastic={0.15}
-                    onDragEnd={(_, { offset, velocity }) => {
-                        if (offset.y > 100 || velocity.y > 500) onClose();
-                    }}
-                    className="fixed bottom-0 left-0 right-0 h-[88vh] bg-white rounded-t-[2rem] z-50 flex flex-col shadow-[0_-8px_40px_rgba(0,0,0,0.1)]"
-                >
-                    {/* Grab Handle */}
-                    <div className="w-full flex justify-center py-4 shrink-0 cursor-grab active:cursor-grabbing">
-                        <div className="w-10 h-[5px] bg-gray-300 rounded-full" />
-                    </div>
-                    <div className="px-7 pb-3 shrink-0">
-                        <h2 className="text-[22px] font-bold text-zinc-900 tracking-tight">{title}</h2>
-                    </div>
-                    <div className="flex-1 overflow-y-auto px-7 pb-8 pt-2 flex flex-col gap-5 no-scrollbar">
-                        {children}
-                    </div>
-                    {footer && (
-                        <div className="shrink-0 px-7 pb-8 pt-4 bg-white border-t border-gray-100">{footer}</div>
-                    )}
-                </motion.div>
-            </>
-        )}
-    </AnimatePresence>
-);
-
-// --- Quick Paste Input ---
-const QuickPasteInput = ({ value, onChange, placeholder, type = "text" }: { value: string, onChange: (v: string) => void, placeholder: string, type?: string }) => {
-    const handlePaste = async () => {
-        try {
-            const text = await navigator.clipboard.readText();
-            if (text) { onChange(text); toast.success("Pasted", { icon: "📋", duration: 1500 }); }
-            else toast.error("Clipboard is empty");
-        } catch (err) { toast.error("Clipboard access denied"); }
-    };
-    return (
-        <div className="relative w-full">
-            <input value={value} onChange={e => onChange(e.target.value)} type={type} placeholder={placeholder} className={`${INPUT_CLASS} pr-12`} />
-            <button type="button" onClick={handlePaste} tabIndex={-1} className="absolute right-3 top-1/2 -translate-y-1/2 p-2 text-zinc-400 hover:text-blue-500 hover:bg-blue-50 active:scale-90 transition-all rounded-lg" title="Paste from clipboard">
-                <Clipboard size={18} strokeWidth={2.5} />
-            </button>
-        </div>
-    );
-};
-
-// ============================================================================
-// CONTEXT-AWARE FORM FIELDS
-// ============================================================================
-const MinimalRichTextEditor = ({ value, onChange, placeholder }: { value: string, onChange: (v: string) => void, placeholder: string }) => {
-    const editorRef = useRef<ReturnType<typeof useEditor>>(null);
-
-    const editor = useEditor({
-        extensions: [
-            StarterKit,
-            TiptapImage.configure({ inline: false, allowBase64: false }),
-        ],
-        content: value,
-        immediatelyRender: false,
-        onUpdate: ({ editor }) => onChange(editor.getHTML()),
-        editorProps: {
-            attributes: {
-                class: 'w-full bg-gray-50 rounded-2xl min-h-[112px] p-5 text-[16px] font-medium text-zinc-900 border border-transparent outline-none focus:bg-white focus:border-zinc-200 focus:shadow-sm transition-all prose prose-sm max-w-none [&_img]:rounded-xl [&_img]:max-w-full [&_img]:my-2',
-            },
-            handlePaste: (_view, event) => {
-                const items = event.clipboardData?.items;
-                if (!items) return false;
-                for (let i = 0; i < items.length; i++) {
-                    const item = items[i];
-                    if (item.kind === 'file' && item.type.startsWith('image/')) {
-                        const file = item.getAsFile();
-                        if (!file) continue;
-                        event.preventDefault();
-                        const toastId = toast.loading("Uploading image…");
-                        uploadImageToSupabase(file).then((url) => {
-                            const ed = editorRef.current;
-                            if (url && ed) {
-                                ed.chain().focus().setImage({ src: url }).run();
-                                toast.success("Image added!", { id: toastId });
-                            } else {
-                                toast.error("Upload failed", { id: toastId });
-                            }
-                        });
-                        return true;
-                    }
-                }
-                return false;
-            },
-        },
-    });
-
-    // Keep ref in sync with editor instance
-    useEffect(() => { editorRef.current = editor; }, [editor]);
-    useEffect(() => {
-        if (editor && value !== editor.getHTML()) {
-            if (value === "") editor.commands.setContent("");
-        }
-    }, [value, editor]);
-
-    if (!editor) {
-        return <div className="w-full bg-gray-50 rounded-2xl h-28 p-5 animate-pulse" />;
-    }
-
-    return (
-        <div className="relative w-full group">
-            <EditorContent editor={editor} />
-            {editor.isEmpty && (
-                <div className="absolute top-8 left-5 pointer-events-none text-zinc-400 font-medium text-[16px]">
-                    {placeholder}
-                </div>
-            )}
-            <button type="button" onClick={async () => {
-                try {
-                    const text = await navigator.clipboard.readText();
-                    if (text && editor) { editor.commands.insertContent(text); toast.success("Pasted to editor", { icon: "📋", duration: 1500 }); }
-                    else toast.error("Clipboard is empty");
-                } catch (err) { toast.error("Clipboard access denied"); }
-            }} tabIndex={-1} className="absolute top-3 right-3 p-2 text-zinc-400 hover:text-blue-500 hover:bg-blue-50 active:scale-90 transition-all rounded-lg z-10" title="Paste from clipboard">
-                <Clipboard size={18} strokeWidth={2.5} />
-            </button>
-        </div>
-    );
-};
-
 const FormFields = ({
     category,
     formTitle, setFormTitle,
@@ -431,7 +189,7 @@ const FormFields = ({
                 </div>
                 <div className="flex flex-col gap-1.5">
                     <label className={LABEL_CLASS}>Notes</label>
-                    <MinimalRichTextEditor value={formNotes} onChange={setFormNotes} placeholder="Quick notes or summary…" />
+                    <RichTextEditor value={formNotes} onChange={setFormNotes} placeholder="Quick notes or summary…" />
                 </div>
             </>
         );
@@ -450,7 +208,7 @@ const FormFields = ({
                 </div>
                 <div className="flex flex-col gap-1.5">
                     <label className={LABEL_CLASS}>Review / Notes</label>
-                    <MinimalRichTextEditor value={formNotes} onChange={setFormNotes} placeholder="Your thoughts on this book…" />
+                    <RichTextEditor value={formNotes} onChange={setFormNotes} placeholder="Your thoughts on this book…" />
                 </div>
             </>
         );
@@ -469,7 +227,7 @@ const FormFields = ({
             </div>
             <div className="flex flex-col gap-1.5">
                 <label className={LABEL_CLASS}>Notes</label>
-                <MinimalRichTextEditor value={formNotes} onChange={setFormNotes} placeholder="Why do you want this…" />
+                <RichTextEditor value={formNotes} onChange={setFormNotes} placeholder="Why do you want this…" />
             </div>
         </>
     );
@@ -541,7 +299,7 @@ export default function PersonalCMS() {
 
         // Context-aware field mapping for Edit
         if (activeCategory === "writing" || activeCategory === "toread") {
-            setFormUrl(item.coverImage || item.url || "");
+            setFormUrl(item.url || "");
             setFormExtra("");
         } else if (activeCategory === "books") {
             setFormExtra(item.author || "");
@@ -797,7 +555,7 @@ export default function PersonalCMS() {
                                         ) : (
                                             (activeCategory === "toread" ? toreadItems : writingItems).map(item => {
                                                 let domain = "Link";
-                                                try { if (item.coverImage) domain = new URL(item.coverImage).hostname.replace('www.', ''); } catch (_) { }
+                                                try { if (item.url) domain = new URL(item.url).hostname.replace('www.', ''); } catch (_) { }
                                                 const formattedDate = item.createdAt ? new Date(item.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric" }) : "";
                                                 return (
                                                     <ListRow key={item.id}

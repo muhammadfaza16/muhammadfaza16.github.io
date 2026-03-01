@@ -1,7 +1,5 @@
 import { NextResponse } from "next/server";
-import { PrismaClient } from "@prisma/client";
-
-const prisma = new PrismaClient();
+import prisma from "@/lib/prisma";
 
 export async function GET() {
     try {
@@ -11,18 +9,21 @@ export async function GET() {
             latestCuration,
             latestWishlist,
         ] = await Promise.all([
-            prisma.book.findFirst({
+            prisma.book.findMany({
+                take: 1,
                 orderBy: { createdAt: "desc" },
-                select: { title: true, author: true, coverImage: true, rating: true }
+                select: { title: true, author: true, url: true, rating: true }
             }),
-            prisma.post.findFirst({
+            prisma.post.findMany({
                 where: { published: true },
+                take: 1,
                 orderBy: { createdAt: "desc" },
-                select: { title: true, slug: true, coverImage: true }
+                select: { title: true, slug: true, url: true }
             }),
-            prisma.article.findFirst({
+            prisma.article.findMany({
+                take: 1,
                 orderBy: { createdAt: "desc" },
-                select: { title: true, coverImage: true, isRead: true }
+                select: { title: true, url: true, isRead: true }
             }),
             prisma.wishlistItem.findFirst({
                 orderBy: { createdAt: "desc" },

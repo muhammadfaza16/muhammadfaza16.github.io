@@ -1,36 +1,28 @@
 import { NextResponse } from "next/server";
-import { PrismaClient } from "@prisma/client";
-
-const prisma = new PrismaClient();
+import prisma from "@/lib/prisma";
 
 export async function POST(request: Request) {
     try {
         const data = await request.json();
-        const { title, content, coverImage } = data;
+        const { title, content, url } = data;
 
         if (!title || !content) {
             return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
         }
 
-        // Auto-generate slug from title
-        const slug = title
-            .toLowerCase()
-            .trim()
-            .replace(/[^\w\s-]/g, "")
-            .replace(/[\s_-]+/g, "-")
-            .replace(/^-+|-+$/g, "");
+        const slug = title.toLowerCase().replace(/[^a-z0-9]+/g, '-') + '-' + Date.now();
 
-        const post = await prisma.post.create({
+        const newPost = await prisma.post.create({
             data: {
-                slug,
                 title,
-                content,
-                coverImage,
+                slug,
+                content: content || "",
+                url,
                 published: true, // We assume posting from master console means it's published for now
             },
         });
 
-        return NextResponse.json({ success: true, post }, { status: 201 });
+        return NextResponse.json({ success: true, post: newPost }, { status: 201 });
     } catch (error) {
         console.error("Failed to create writing post:", error);
         return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
@@ -46,8 +38,8 @@ export async function GET() {
                 id: true,
                 title: true,
                 slug: true,
-                coverImage: true,
-                createdAt: true,
+                url: true,
+                published: true,
             }
         });
         return NextResponse.json(posts);
