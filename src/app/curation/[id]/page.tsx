@@ -3,7 +3,7 @@
 import { use, useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { motion, useScroll, useSpring, useMotionValueEvent, AnimatePresence, useTransform } from "framer-motion";
-import { ArrowLeft, Clock, CheckCircle, Share, Trash2, Globe, Pencil, Loader2, Camera, X, Clipboard, ImageIcon, MessageSquareQuote, ChevronsDown, Maximize, Minimize, Minus, Plus, Type } from "lucide-react";
+import { ArrowLeft, Clock, CheckCircle, Share, Trash2, Globe, Pencil, Loader2, Camera, X, Clipboard, ImageIcon, MessageSquareQuote, ChevronsDown, Maximize, Minimize, Minus, Plus, Type, Bookmark } from "lucide-react";
 import Link from "next/link";
 import ReactMarkdown from "react-markdown";
 import { getSupabase } from "@/lib/supabase";
@@ -22,6 +22,7 @@ type Article = {
     imageUrl?: string | null;
     createdAt: string;
     isRead: boolean;
+    category?: string | null;
 };
 
 const THEMES = {
@@ -390,19 +391,19 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
             {/* Hero Header */}
             <motion.div animate={{ filter: isZenMode ? "grayscale(30%) brightness(0.8)" : "grayscale(0%) brightness(1)" }} transition={{ duration: 0.8 }} className={isZenMode ? "pointer-events-none" : ""}>
                 {validImageUrl ? (
-                    <div className="w-full aspect-[16/9] max-h-[40vh] relative overflow-hidden bg-zinc-900 mb-8 rounded-b-[2.5rem] shadow-sm">
+                    <div className="w-full min-h-[50vh] sm:min-h-[60vh] relative overflow-hidden bg-zinc-900 mb-8 rounded-b-[2.5rem] shadow-sm flex flex-col justify-end">
                         {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img src={validImageUrl} alt="Cover" className="w-full h-full object-cover object-top" />
+                        <img src={validImageUrl} alt="Cover" className="absolute inset-0 w-full h-full object-cover object-top" />
                         {/* Gradient Overlay for Text Readability - Always Above Image */}
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent pointer-events-none z-10"></div>
+                        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/70 to-black/20 pointer-events-none z-10"></div>
 
                         {/* Title overlay inside the image */}
-                        <div className="absolute bottom-0 left-0 w-full px-5 pb-8 md:px-12 md:pb-12 max-w-3xl mx-auto right-0 z-20">
-                            <h1 className="text-[32px] md:text-5xl font-bold font-sans tracking-tight leading-tight mb-4 text-white drop-shadow-md">
+                        <div className="relative z-20 w-full px-5 pb-8 pt-28 md:px-12 md:pb-12 max-w-3xl mx-auto mt-auto">
+                            <h1 className="text-[32px] md:text-5xl font-bold font-sans tracking-tight leading-tight mb-4 text-white drop-shadow-lg">
                                 {article.title}
                             </h1>
-                            <div className="flex items-center gap-4 text-white/90 font-medium text-[13px] tracking-wide">
-                                <span className="flex items-center gap-1.5 bg-black/40 backdrop-blur-md px-3 py-1.5 rounded-full border border-white/10">
+                            <div className="flex flex-wrap items-center gap-3 text-white/90 font-medium text-[13px] tracking-wide">
+                                <span className="flex items-center gap-1.5 bg-black/50 backdrop-blur-md px-3 py-1.5 rounded-full border border-white/20">
                                     <Clock size={14} />
                                     {new Date(article.createdAt).toLocaleDateString('en-US', {
                                         year: 'numeric', month: 'short', day: 'numeric'
@@ -410,6 +411,12 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
                                     <span className="mx-1 text-white/50">•</span>
                                     {readingTime} min read
                                 </span>
+                                {article.category && (
+                                    <span className="flex items-center gap-1.5 bg-blue-500/20 text-blue-50 backdrop-blur-md px-3 py-1.5 rounded-full border border-blue-400/30">
+                                        <Bookmark size={14} />
+                                        {article.category}
+                                    </span>
+                                )}
                             </div>
                         </div>
                     </div>
@@ -424,7 +431,7 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
                         >
                             {article.title}
                         </h1>
-                        <div className="flex items-center gap-4 text-zinc-500 font-medium text-[13px] tracking-wide">
+                        <div className="flex flex-wrap items-center gap-3 text-zinc-500 font-medium text-[13px] tracking-wide">
                             <span className="flex items-center gap-1.5 bg-gray-50 px-3 py-1.5 rounded-full border border-gray-200">
                                 <Clock size={14} />
                                 {new Date(article.createdAt).toLocaleDateString('en-US', {
@@ -433,6 +440,12 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
                                 <span className="mx-1 text-zinc-300">•</span>
                                 {readingTime} min read
                             </span>
+                            {article.category && (
+                                <span className="flex items-center gap-1.5 bg-blue-50 text-blue-600 px-3 py-1.5 rounded-full border border-blue-100">
+                                    <Bookmark size={14} />
+                                    {article.category}
+                                </span>
+                            )}
                         </div>
                     </div>
                 )}

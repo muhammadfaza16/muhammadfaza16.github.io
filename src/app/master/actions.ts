@@ -17,7 +17,7 @@ export async function getToReadArticles() {
     }
 }
 
-export async function createToReadArticle(title: string, url: string, notes: string, imageUrl?: string, createdAt?: string) {
+export async function createToReadArticle(title: string, url: string, notes: string, imageUrl?: string, category?: string, createdAt?: string) {
     if (!title || !url) {
         return { success: false, error: "Title and URL are required" };
     }
@@ -27,6 +27,7 @@ export async function createToReadArticle(title: string, url: string, notes: str
             url,
             content: notes || "No notes provided.",
             imageUrl: imageUrl || null,
+            category: category || null,
         };
 
         if (createdAt) {
@@ -59,10 +60,10 @@ export async function toggleReadStatus(id: string, currentStatus: boolean) {
     }
 }
 
-export async function updateToReadArticle(id: string, title: string, url: string, notes: string, imageUrl?: string, createdAt?: string) {
+export async function updateToReadArticle(id: string, title: string, url: string, notes: string, imageUrl?: string, category?: string, createdAt?: string) {
     if (!title || !url) return { success: false, error: "Title and URL are required" };
     try {
-        const dataPayload: any = { title, url, content: notes || "No notes provided.", imageUrl: imageUrl || null };
+        const dataPayload: any = { title, url, content: notes || "No notes provided.", imageUrl: imageUrl || null, category: category || null };
         if (createdAt) {
             const parsedDate = new Date(createdAt);
             if (!isNaN(parsedDate.getTime())) {

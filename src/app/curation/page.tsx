@@ -1,41 +1,49 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import { formatDistanceToNow } from "date-fns";
 import { ChevronLeft, Bookmark, FileText, Plus, Loader2 } from "lucide-react";
 import { Toaster, toast } from 'react-hot-toast';
-import { createToReadArticle } from "@/app/master/actions";
+import { createToReadArticle, updateToReadArticle } from "@/app/master/actions";
 import { uploadImageToSupabase } from "@/lib/uploadImage";
 import { getSupabase } from "@/lib/supabase";
 import { BottomSheet, ImagePicker, QuickPasteInput, RichTextEditor } from "@/components/sanctuary";
 
-type ArticleMeta = {
+interface ArticleMeta {
     id: string;
     title: string;
-    url?: string | null;
-    imageUrl?: string | null;
-    createdAt: string;
+    content: string;
+    url: string | null;
+    imageUrl: string | null;
+    category: string | null;
     isRead: boolean;
-};
+    createdAt: string;
+}
 
 type FilterType = "all" | "unread" | "read";
 
 const LABEL_CLASS = "text-[12px] font-bold uppercase tracking-wider text-zinc-500 ml-1";
 
-
-
-
-
+const CATEGORIES = [
+    "AI & Tools",
+    "Wealth & Business",
+    "Mindset & Philosophy",
+    "Self-Improvement & Productivity",
+    "Career & Skills",
+    "Marketing & Growth",
+    "Building & Design",
+    "Health & Lifestyle"
+];
 
 export default function CurationList() {
     const [articles, setArticles] = useState<ArticleMeta[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [filter, setFilter] = useState<FilterType>("all");
     const [imgErrors, setImgErrors] = useState<Record<string, boolean>>({});
-    const PAGE_SIZE = 10;
-    const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
+    const [isLoadingMore, setIsLoadingMore] = useState(false);
+    const [nextCursor, setNextCursor] = useState<string | null>(null);
 
     // Form State
     const [isSheetOpen, setIsSheetOpen] = useState(false);
@@ -45,9 +53,11 @@ export default function CurationList() {
     const [formImageFile, setFormImageFile] = useState<File | null>(null);
     const [formImagePreview, setFormImagePreview] = useState<string | null>(null);
     const [formPublishedTime, setFormPublishedTime] = useState("");
+    const [formCategory, setFormCategory] = useState("");
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [uploadStatus, setUploadStatus] = useState<"idle" | "uploading" | "saving">("idle");
     const [isFetchingMetadata, setIsFetchingMetadata] = useState(false);
+    const [editingId, setEditingId] = useState<string | null>(null);
     const supabase = getSupabase();
 
     // Auto-fetch metadata
@@ -83,12 +93,40 @@ export default function CurationList() {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [formUrl]);
 
+    const handleEditArticle = (article: ArticleMeta) => {
+        if (article) {
+            setEditingId(article.id);
+            setFormTitle(article.title);
+            setFormUrl(article.url || "");
+            setFormNotes(article.content);
+            setFormImagePreview(article.imageUrl);
+            setFormPublishedTime(new Date(article.createdAt).toISOString().slice(0, 16));
+            setFormCategory(article.category || "");
+            setFormImageFile(null);
+            setIsSheetOpen(true);
+        }
+    };
+
+    const handleCloseSheet = () => {
+        setIsSheetOpen(false);
+        setEditingId(null);
+        setFormTitle("");
+        setFormUrl("");
+        setFormNotes("");
+        setFormImageFile(null);
+        setFormImagePreview(null);
+        setFormPublishedTime("");
+        setFormCategory("");
+    };
+
     useEffect(() => {
         if (!isSheetOpen) {
             setFormTitle(""); setFormUrl(""); setFormNotes("");
             setFormImageFile(null); setFormImagePreview(null);
             setFormPublishedTime("");
+            setFormCategory("");
             setUploadStatus("idle");
+            setEditingId(null);
         }
     }, [isSheetOpen]);
 
@@ -98,61 +136,113 @@ export default function CurationList() {
             return;
         }
         setIsSubmitting(true);
-        let imageUrl: string | undefined = formImagePreview || undefined;
-        if (formImageFile) {
-            setUploadStatus("uploading");
-            const uploadedUrl = await uploadImageToSupabase(formImageFile);
-            if (!uploadedUrl) {
-                toast.error("Image upload failed");
-                setIsSubmitting(false); setUploadStatus("idle");
-                return;
+        try {
+            let finalImageUrl = formImagePreview;
+
+            if (formImageFile) {
+                setUploadStatus("uploading");
+                const uploadedUrl = await uploadImageToSupabase(formImageFile);
+                if (uploadedUrl) {
+                    finalImageUrl = uploadedUrl;
+                } else {
+                    toast.error("Failed to upload image");
+                    setIsSubmitting(false);
+                    setUploadStatus("idle");
+                    return;
+                }
             }
-            imageUrl = uploadedUrl;
-        } else if (!formImageFile && formImagePreview && formImagePreview.startsWith("http")) { // Handle scrape image fallback
-            imageUrl = formImagePreview;
-        }
 
-        setUploadStatus("saving");
-        const res = await createToReadArticle(formTitle, formUrl, formNotes, imageUrl, formPublishedTime);
+            const payload = {
+                title: formTitle,
+                url: formUrl,
+                notes: formNotes,
+                imageUrl: finalImageUrl || undefined,
+                createdAt: formPublishedTime || undefined,
+                category: formCategory || undefined,
+            };
 
-        setIsSubmitting(false); setUploadStatus("idle");
-
-        if (res.success && res.data) {
-            toast.success("Saved to Curation!");
-            setArticles(prev => [{ ...res.data, createdAt: res.data.createdAt.toISOString() }, ...prev]);
-            setIsSheetOpen(false);
-            setFormTitle(""); setFormUrl(""); setFormNotes("");
-            setFormImageFile(null); setFormImagePreview(null);
-            setFormPublishedTime("");
-        } else {
-            toast.error(res.error || "Failed to save");
+            setUploadStatus("saving");
+            if (editingId) {
+                const res = await updateToReadArticle(editingId, payload.title, payload.url, payload.notes, payload.imageUrl, payload.category, payload.createdAt);
+                if (res.success && res.data) {
+                    toast.success("Article updated");
+                    setArticles(prev => prev.map(a => a.id === editingId ? { ...(res.data as any), createdAt: res.data!.createdAt.toISOString() } : a));
+                    setIsSheetOpen(false);
+                } else {
+                    toast.error(res.error || "Failed to update");
+                }
+            } else {
+                const res = await createToReadArticle(payload.title, payload.url, payload.notes, payload.imageUrl, payload.category, payload.createdAt);
+                if (res.success && res.data) {
+                    toast.success("Saved to Curation");
+                    setArticles(prev => [{ ...(res.data as any), createdAt: res.data!.createdAt.toISOString() }, ...prev]);
+                    setIsSheetOpen(false);
+                } else {
+                    toast.error(res.error || "Failed to save");
+                }
+            }
+        } catch (error) {
+            console.error("Save failed:", error);
+            toast.error("An unexpected error occurred.");
+        } finally {
+            setIsSubmitting(false);
+            setUploadStatus("idle");
         }
     };
 
+    // Data Fetching logic
+    const fetchArticles = async (currentCursor: string | null, currentFilter: string, isLoadMore = false) => {
+        try {
+            if (isLoadMore) setIsLoadingMore(true);
+            else setIsLoading(true);
+
+            let url = `/api/curation?limit=10&filter=${currentFilter}`;
+            if (currentCursor) url += `&cursor=${currentCursor}`;
+
+            const res = await fetch(url, { cache: 'no-store' });
+            const data = await res.json();
+
+            if (data.articles) {
+                if (isLoadMore) {
+                    setArticles(prev => [...prev, ...data.articles]);
+                } else {
+                    setArticles(data.articles);
+                }
+                setNextCursor(data.nextCursor);
+            }
+        } catch (error) {
+            console.error("Failed to fetch articles:", error);
+        } finally {
+            setIsLoading(false);
+            setIsLoadingMore(false);
+        }
+    };
+
+    // Initial load and on filter change
     useEffect(() => {
-        fetch("/api/curation", { cache: 'no-store' })
-            .then(res => res.json())
-            .then(data => {
-                if (Array.isArray(data)) setArticles(data);
-            })
-            .catch(console.error)
-            .finally(() => setIsLoading(false));
-    }, []);
+        setNextCursor(null);
+        setArticles([]); // clear existing items immediately on filter change for better UX
+        fetchArticles(null, filter, false);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [filter]);
 
-    const filteredArticles = articles
-        .filter(a => {
-            if (filter === "unread") return !a.isRead;
-            if (filter === "read") return a.isRead;
-            return true;
-        })
-        .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+    // Intersection Observer for Infinite Scroll
+    const observer = useRef<IntersectionObserver | null>(null);
+    const loaderRef = useCallback((node: HTMLDivElement | null) => {
+        if (isLoading || isLoadingMore) return;
+        if (observer.current) observer.current.disconnect();
 
-    const visibleArticles = filteredArticles.slice(0, visibleCount);
-    const hasMore = visibleCount < filteredArticles.length;
+        observer.current = new IntersectionObserver((entries) => {
+            if (entries[0].isIntersecting && nextCursor) {
+                fetchArticles(nextCursor, filter, true);
+            }
+        }, { threshold: 0.1 });
+
+        if (node) observer.current.observe(node);
+    }, [isLoading, isLoadingMore, nextCursor, filter]);
 
     const handleFilterChange = (f: FilterType) => {
         setFilter(f);
-        setVisibleCount(PAGE_SIZE);
     };
 
     // Helper to resolve image URLs
@@ -222,7 +312,7 @@ export default function CurationList() {
                             </div>
                             <p className="text-[13px] font-medium text-zinc-400 tracking-wide">Loading your feed…</p>
                         </motion.div>
-                    ) : filteredArticles.length === 0 ? (
+                    ) : articles.length === 0 ? (
                         <motion.div
                             key="empty"
                             initial={{ opacity: 0, y: 20 }}
@@ -242,7 +332,7 @@ export default function CurationList() {
                             exit={{ opacity: 0 }}
                             className="flex flex-col gap-4"
                         >
-                            {visibleArticles.map((article, index) => {
+                            {articles.map((article, index) => {
                                 const domain = getDomain(article.url);
                                 const validImageUrl = getImageUrl(article);
                                 const isHero = index === 0 && validImageUrl;
@@ -276,13 +366,22 @@ export default function CurationList() {
                                                     <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
                                                     <div className="absolute bottom-0 left-0 right-0 p-5">
                                                         <div className="flex items-center gap-2 mb-2.5">
-                                                            {!article.isRead && (
-                                                                <div className="w-[6px] h-[6px] rounded-full bg-blue-400 shrink-0" />
-                                                            )}
-                                                            {domain && (
-                                                                <span className="text-[10px] font-bold uppercase tracking-[0.12em] text-white/60">
-                                                                    {domain}
+                                                            {article.isRead ? (
+                                                                <span className="text-[10px] font-bold uppercase tracking-[0.12em] bg-zinc-800/80 text-zinc-400 px-2 py-0.5 rounded-md backdrop-blur-sm">
+                                                                    READ
                                                                 </span>
+                                                            ) : (
+                                                                <span className="text-[10px] font-bold uppercase tracking-[0.12em] bg-blue-500/90 text-white px-2 py-0.5 rounded-md shadow-sm backdrop-blur-sm">
+                                                                    UNREAD
+                                                                </span>
+                                                            )}
+                                                            {article.category && (
+                                                                <>
+                                                                    <span className="text-white/30">•</span>
+                                                                    <span className="text-[10px] font-bold uppercase tracking-[0.12em] text-blue-300">
+                                                                        {article.category}
+                                                                    </span>
+                                                                </>
                                                             )}
                                                         </div>
                                                         <h3 className="text-[20px] font-bold tracking-tight text-white leading-snug line-clamp-2 mb-2">
@@ -313,14 +412,23 @@ export default function CurationList() {
                                                         </div>
                                                         {/* Text */}
                                                         <div className="flex-1 min-w-0">
-                                                            <div className="flex items-center gap-1.5 mb-1.5">
-                                                                {!article.isRead && (
-                                                                    <div className="w-[5px] h-[5px] rounded-full bg-blue-500 shrink-0" />
-                                                                )}
-                                                                {domain && (
-                                                                    <span className="text-[10px] font-bold uppercase tracking-[0.1em] text-zinc-400 truncate">
-                                                                        {domain}
+                                                            <div className="flex items-center gap-1.5 mb-1.5 mt-0.5">
+                                                                {article.isRead ? (
+                                                                    <span className="text-[9px] font-bold uppercase tracking-[0.1em] bg-slate-100/80 text-slate-500 px-1.5 py-[2px] rounded border border-slate-200">
+                                                                        READ
                                                                     </span>
+                                                                ) : (
+                                                                    <span className="text-[9px] font-bold uppercase tracking-[0.1em] bg-blue-100 text-blue-700 px-1.5 py-[2px] rounded border border-blue-200">
+                                                                        UNREAD
+                                                                    </span>
+                                                                )}
+                                                                {article.category && (
+                                                                    <>
+                                                                        <span className="text-zinc-300">•</span>
+                                                                        <span className="text-[10px] font-bold uppercase tracking-[0.1em] text-blue-500 truncate">
+                                                                            {article.category}
+                                                                        </span>
+                                                                    </>
                                                                 )}
                                                             </div>
                                                             <h3 className="text-[15px] font-bold tracking-tight text-zinc-900 leading-snug line-clamp-2">
@@ -339,20 +447,24 @@ export default function CurationList() {
                                 );
                             })}
 
-                            {/* Load More / Count */}
-                            <div className="flex flex-col items-center gap-3 pt-2 pb-4">
-                                <span className="text-[11px] font-medium text-zinc-400">
-                                    Showing {visibleArticles.length} of {filteredArticles.length}
-                                </span>
-                                {hasMore && (
-                                    <button
-                                        onClick={() => setVisibleCount(prev => prev + PAGE_SIZE)}
-                                        className="px-6 py-2.5 bg-white border border-gray-200 rounded-full text-[13px] font-bold text-zinc-700 active:scale-[0.96] active:bg-gray-50 transition-all shadow-sm"
-                                    >
-                                        Load More
-                                    </button>
-                                )}
-                            </div>
+                            {/* Infinite Scroll Sentinel */}
+                            {nextCursor && (
+                                <div ref={loaderRef} className="flex justify-center py-6">
+                                    {isLoadingMore ? (
+                                        <Loader2 className="animate-spin text-zinc-400 w-5 h-5" />
+                                    ) : (
+                                        <div className="h-5" /> // Empty space for observer to hit
+                                    )}
+                                </div>
+                            )}
+                            {!nextCursor && articles.length > 0 && (
+                                <div className="text-center py-8">
+                                    <span className="text-[11px] font-medium text-zinc-400">
+                                        You&apos;ve reached the end
+                                    </span>
+                                </div>
+                            )}
+
                         </motion.div>
                     )}
                 </AnimatePresence>
