@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
-import prisma from "@/lib/prisma";
 import { execFile } from "child_process";
 import { promisify } from "util";
 import path from "path";
@@ -122,12 +121,6 @@ export async function POST(req: NextRequest) {
         const safeTitle = formatTitle(rawTitle);
 
         console.log(`[MASTER] Discovered: ${safeTitle} (${duration}s)`);
-
-        // Check for duplicates
-        const existing = await prisma.song.findFirst({ where: { title: safeTitle } });
-        if (existing) {
-            return NextResponse.json({ success: true, song: existing, message: "Already exists in vault." });
-        }
 
         // Step 2: Download + convert to MP3 via yt-dlp + ffmpeg
         const outputTemplate = path.join(TMP_DIR, `${Date.now()}-%(title)s.%(ext)s`);
