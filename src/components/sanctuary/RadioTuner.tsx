@@ -5,9 +5,9 @@ import { motion } from "framer-motion";
 import { ArrowLeft, Square } from "lucide-react";
 import { useRadio } from "../RadioContext";
 
-const METER_RANDOMS = Array.from({ length: 12 }).map(() => ({
-    duration: 0.2 + Math.random() * 0.4,
-    delay: Math.random() * 0.3
+const METER_BARS = Array.from({ length: 16 }).map(() => ({
+    dur: 0.15 + Math.random() * 0.35,
+    del: Math.random() * 0.25
 }));
 
 export function RadioTuner({ stationId, onBack }: { stationId: string; onBack: () => void }) {
@@ -18,222 +18,269 @@ export function RadioTuner({ stationId, onBack }: { stationId: string; onBack: (
 
     const isActive = activeStationId === station.id;
     const currentState = stationsState[station.id];
+    const color = station.themeColor || "#888";
 
-    // Fallback if timeline hasn't computed yet
     const displayTime = currentState ? currentState.formattedTime : "0:00";
-    const displaySong = currentState ? currentState.song.title : "SYNCING TIMELINES...";
+    const displaySong = currentState ? currentState.song.title : "SYNCING...";
 
     return (
-        <div style={{
-            width: "100%",
-            maxWidth: "440px",
-            margin: "0 auto",
-            userSelect: "none",
-            touchAction: "none"
-        }}>
-            {/* Navigation Header */}
-            <div style={{ display: "flex", alignItems: "center", marginBottom: "1.5rem", gap: "1rem" }}>
-                <button
+        <div style={{ width: "100%", userSelect: "none", touchAction: "none" }}>
+
+            {/* Nav */}
+            <div style={{ display: "flex", alignItems: "center", marginBottom: "0.85rem", gap: "0.6rem" }}>
+                <motion.button
                     onClick={onBack}
+                    whileTap={{ scale: 0.9, y: 1 }}
                     style={{
-                        background: "#3f3f46",
-                        border: "1px solid #18181b",
-                        borderBottom: "3px solid #18181b",
-                        borderRadius: "8px",
-                        width: "40px",
-                        height: "40px",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        cursor: "pointer",
-                        color: "#d4d4d8"
+                        background: "#1e1e1e", border: "1.5px solid #2a2a2a",
+                        borderRadius: "8px", width: "32px", height: "32px",
+                        display: "flex", alignItems: "center", justifyContent: "center",
+                        cursor: "pointer", color: "#777",
+                        boxShadow: "inset 0 2px 3px rgba(0,0,0,0.4)",
                     }}
                 >
-                    <ArrowLeft size={20} strokeWidth={2.5} />
-                </button>
-                <div style={{ fontSize: "0.75rem", color: "#a1a1aa", fontWeight: 800, letterSpacing: "1px", textTransform: "uppercase" }}>
-                    Tuner Mode
-                </div>
+                    <ArrowLeft size={16} strokeWidth={2.5} />
+                </motion.button>
+                <span style={{ fontSize: "0.6rem", color: "#555", fontWeight: 700, letterSpacing: "1.5px", textTransform: "uppercase" }}>
+                    Tuner
+                </span>
             </div>
 
-            {/* Hardware Chassis */}
+            {/* Tuner Panel */}
             <motion.div
                 layoutId={`station-card-${station.id}`}
                 style={{
-                    background: "#282828",
-                    borderRadius: "12px",
-                    padding: "1.5rem",
-                    border: "1px solid #18181b",
-                    borderBottom: "6px solid #18181b", // heavy embedded hardware panel
+                    background: "#1e1e1e",
+                    borderRadius: "16px",
+                    padding: "1.25rem",
+                    border: `1.5px solid ${isActive ? color + "30" : "#2a2a2a"}`,
                     position: "relative",
-                    overflow: "hidden"
+                    overflow: "hidden",
+                    boxShadow: isActive
+                        ? `inset 0 0 30px ${color}06, 0 0 20px ${color}08`
+                        : "inset 0 2px 6px rgba(0,0,0,0.4)",
                 }}
             >
-                {/* Station Identification with LED indicator */}
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "1.5rem" }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                        <div style={{
-                            width: "6px",
-                            height: "6px",
-                            borderRadius: "50%",
-                            background: isActive ? "#39ff14" : "#ff0000",
-                            opacity: isActive ? 0.9 : 0.4,
-                            boxShadow: isActive ? "0 0 6px rgba(57, 255, 20, 0.4)" : "none",
-                            border: "1px solid rgba(0,0,0,0.5)"
-                        }} />
+                {/* Subtle glow overlay when active */}
+                {isActive && (
+                    <div style={{
+                        position: "absolute",
+                        top: 0,
+                        left: "50%",
+                        transform: "translateX(-50%)",
+                        width: "60%",
+                        height: "2px",
+                        background: `linear-gradient(90deg, transparent, ${color}60, transparent)`,
+                        borderRadius: "1px",
+                    }} />
+                )}
+
+                {/* Station Name + LED */}
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                        <motion.div
+                            animate={isActive ? { opacity: [0.5, 1, 0.5] } : {}}
+                            transition={{ repeat: Infinity, duration: 1.5 }}
+                            style={{
+                                width: "5px", height: "5px", borderRadius: "50%",
+                                background: isActive ? color : "#333",
+                                boxShadow: isActive ? `0 0 6px ${color}` : "none",
+                            }}
+                        />
                         <motion.h2
                             layoutId={`station-title-${station.id}`}
-                            style={{ margin: 0, color: "#e4e4e7", fontSize: "1.25rem", fontWeight: 800, letterSpacing: "0.5px", textTransform: "uppercase" }}
+                            style={{
+                                margin: 0,
+                                color: isActive ? color : "#888",
+                                fontSize: "1rem",
+                                fontWeight: 800,
+                                letterSpacing: "0.5px",
+                                textTransform: "uppercase",
+                            }}
                         >
                             {station.name}
                         </motion.h2>
                     </div>
-                    <div style={{
-                        width: "12px",
-                        height: "12px",
-                        borderRadius: "2px",
-                        background: isActive ? "#d4d4d8" : "#18181b",
-                        border: "1px solid #18181b"
-                    }} />
+                    <span style={{
+                        fontFamily: "monospace",
+                        fontSize: "0.6rem",
+                        fontWeight: 700,
+                        color: isActive ? color : "#444",
+                        letterSpacing: "1px",
+                    }}>
+                        {isActive ? "ON AIR" : "OFF"}
+                    </span>
                 </div>
 
-                {/* Digital Display Panel (Retro LCD Base) */}
+                {/* LCD Screen */}
                 <div style={{
-                    background: "#c1c1c1", // Classic LCD physical background tint
-                    borderRadius: "4px",
-                    padding: "0.75rem",
-                    border: "2px solid #18181b",
-                    boxShadow: "inset 0 6px 10px rgba(0,0,0,0.4), inset 0 2px 4px rgba(0,0,0,0.6)", // Deeper physically recessed shadow
-                    marginBottom: "1.5rem",
-                    minHeight: "80px",
+                    background: "#111",
+                    borderRadius: "8px",
+                    padding: "0.75rem 0.85rem",
+                    border: "1.5px solid #222",
+                    boxShadow: "inset 0 4px 8px rgba(0,0,0,0.6)",
+                    marginBottom: "0.85rem",
+                    minHeight: "60px",
                     display: "flex",
                     flexDirection: "column",
-                    position: "relative"
+                    justifyContent: "space-between",
                 }}>
-                    <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "0.5rem" }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "0.4rem" }}>
                         <span style={{
                             fontFamily: "monospace",
-                            fontSize: "0.75rem",
-                            color: isActive ? "#111" : "#777", // Dark LCD digits
-                            fontWeight: 900,
+                            fontSize: "0.6rem",
+                            color: isActive ? color + "aa" : "#333",
+                            fontWeight: 700,
                             letterSpacing: "1px",
                         }}>
-                            {isActive ? "ON AIR" : "STANDBY"}
+                            {isActive ? "▶ PLAYING" : "■ STANDBY"}
                         </span>
-                        <span style={{ fontFamily: "monospace", fontSize: "0.75rem", color: "#111", fontWeight: 800 }}>
+                        <span style={{
+                            fontFamily: "monospace",
+                            fontSize: "0.6rem",
+                            color: isActive ? color + "cc" : "#333",
+                            fontWeight: 800,
+                        }}>
                             {displayTime}
                         </span>
                     </div>
 
-                    {/* Marquee Track Title */}
-                    <div style={{ flex: 1, display: "flex", alignItems: "center", overflow: "hidden", position: "relative" }}>
+                    {/* Track name with marquee */}
+                    <div style={{
+                        flex: 1,
+                        display: "flex",
+                        alignItems: "center",
+                        overflow: "hidden",
+                        position: "relative",
+                        minHeight: "22px",
+                    }}>
                         <motion.div
-                            animate={{ x: isActive ? ["0%", "-100%"] : "0%" }}
-                            transition={{ duration: Math.max(10, displaySong.length * 0.3), repeat: Infinity, ease: "linear" }}
+                            animate={isActive ? { x: ["0%", "-50%"] } : { x: "0%" }}
+                            transition={isActive ? {
+                                duration: Math.max(8, displaySong.length * 0.28),
+                                repeat: Infinity,
+                                ease: "linear"
+                            } : {}}
                             style={{
-                                fontFamily: "'Courier New', Courier, monospace",
-                                fontSize: "1rem",
-                                color: isActive ? "#111" : "#777",
-                                fontWeight: "bold",
+                                fontFamily: "monospace",
+                                fontSize: "0.85rem",
+                                color: isActive ? color : "#333",
+                                fontWeight: 700,
                                 whiteSpace: "nowrap",
                                 display: "flex",
-                                gap: "4rem",
+                                gap: "3rem",
                                 position: "absolute",
-                                left: 0
+                                left: 0,
                             }}
                         >
                             <span>{displaySong}</span>
-                            <span>{displaySong}</span>
+                            {isActive && <span>{displaySong}</span>}
                         </motion.div>
                     </div>
                 </div>
 
-                {/* Functional Hardware Modules */}
-                <div style={{ display: "flex", gap: "1rem", alignItems: "stretch" }}>
+                {/* VU Meter + Action Button Row */}
+                <div style={{ display: "flex", gap: "0.65rem", alignItems: "stretch" }}>
 
-                    {/* Module 1: Level Meter Panel */}
+                    {/* VU Meter */}
                     <div style={{
                         flex: 1,
-                        background: "#18181b", // Inset physical panel
-                        borderRadius: "6px",
-                        padding: "0.5rem",
-                        border: "1px solid #3f3f46",
+                        background: "#111",
+                        borderRadius: "8px",
+                        padding: "0.4rem 0.5rem",
+                        border: "1.5px solid #222",
+                        boxShadow: "inset 0 2px 4px rgba(0,0,0,0.5)",
                         display: "flex",
                         alignItems: "flex-end",
                         justifyContent: "space-between",
                         gap: "2px",
-                        height: "50px"
+                        height: "42px"
                     }}>
-                        {METER_RANDOMS.map((random, i) => {
-                            const isPeak = i > 3 && i < 9;
-                            const isActiveBaseline = isActive && isPeak;
+                        {METER_BARS.map((bar, i) => {
+                            const ratio = i / METER_BARS.length;
+                            const barColor = ratio > 0.75 ? "#ef4444" : ratio > 0.5 ? color : color + "88";
 
                             return (
                                 <motion.div
                                     key={i}
                                     animate={isActive ? {
-                                        height: ["15%", `${50 + Math.random() * 50}%`, "15%"],
+                                        height: [`12%`, `${30 + Math.random() * 65}%`, `12%`],
                                     } : {
-                                        height: "15%",
+                                        height: "8%",
                                     }}
                                     transition={isActive ? {
-                                        duration: random.duration,
+                                        duration: bar.dur,
                                         repeat: Infinity,
                                         repeatType: "reverse",
-                                        delay: random.delay
-                                    } : { duration: 0.1 }}
+                                        delay: bar.del
+                                    } : { duration: 0.3 }}
                                     style={{
                                         flex: 1,
-                                        background: isActiveBaseline ? "#d4d4d8" : "#71717a",
+                                        background: isActive ? barColor : "#222",
                                         borderRadius: "1px",
+                                        opacity: isActive ? 0.85 : 0.4,
                                     }}
                                 />
                             );
                         })}
                     </div>
 
-                    {/* Module 2: The Physical Action Button */}
+                    {/* Play/Stop Button */}
                     <motion.button
-                        whileHover={{ scale: 1.02 }}
-                        whileTap={{ scale: 0.95 }}
+                        whileHover={{ scale: 1.03 }}
+                        whileTap={{ scale: 0.93, y: 2 }}
                         onClick={() => isActive ? turnOff() : handleTuneIn(station.id)}
                         style={{
-                            width: "80px",
-                            background: isActive ? "#18181b" : "#3f3f46",
-                            color: isActive ? "#a1a1aa" : "#e4e4e7",
-                            border: "1px solid #18181b",
-                            borderBottom: isActive ? "1px solid #18181b" : "3px solid #18181b", // Clicked in when active
-                            borderRadius: "6px",
+                            width: "60px",
+                            background: isActive ? "#111" : "#1e1e1e",
+                            color: isActive ? color : "#888",
+                            border: `1.5px solid ${isActive ? color + "30" : "#2a2a2a"}`,
+                            borderRadius: "10px",
                             display: "flex",
                             flexDirection: "column",
                             alignItems: "center",
                             justifyContent: "center",
-                            gap: "6px",
+                            gap: "4px",
                             cursor: "pointer",
-                            fontSize: "0.6rem",
-                            fontWeight: 900,
-                            letterSpacing: "1px"
+                            fontSize: "0.5rem",
+                            fontWeight: 800,
+                            letterSpacing: "1px",
+                            boxShadow: isActive
+                                ? `inset 0 2px 4px rgba(0,0,0,0.5), 0 0 8px ${color}15`
+                                : "inset 0 2px 4px rgba(0,0,0,0.3)",
                         }}
                     >
                         {isActive && (
-                            <div style={{
-                                width: "4px",
-                                height: "4px",
-                                borderRadius: "50%",
-                                background: "#39ff14", // Dim green physical LED
-                                opacity: 0.8,
-                                boxShadow: "0 0 4px rgba(57, 255, 20, 0.3)",
-                                marginBottom: "2px"
-                            }} />
+                            <motion.div
+                                animate={{ opacity: [0.4, 1, 0.4] }}
+                                transition={{ repeat: Infinity, duration: 1.2 }}
+                                style={{
+                                    width: "4px", height: "4px", borderRadius: "50%",
+                                    background: color,
+                                    boxShadow: `0 0 4px ${color}`,
+                                }}
+                            />
                         )}
                         {isSyncing || isBuffering ? (
-                            <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 1, ease: "linear" }} style={{ width: "16px", height: "16px", borderRadius: "50%", border: "2px solid currentColor", borderTopColor: "transparent" }} />
+                            <motion.div
+                                animate={{ rotate: 360 }}
+                                transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
+                                style={{
+                                    width: "14px", height: "14px", borderRadius: "50%",
+                                    border: "2px solid currentColor", borderTopColor: "transparent",
+                                }}
+                            />
                         ) : isActive ? (
-                            <Square size={16} fill="currentColor" />
+                            <Square size={14} fill="currentColor" />
                         ) : (
-                            <div style={{ width: "0", height: "0", borderTop: "6px solid transparent", borderLeft: "10px solid currentColor", borderBottom: "6px solid transparent" }} />
+                            <div style={{
+                                width: "0", height: "0",
+                                borderTop: "6px solid transparent",
+                                borderLeft: "10px solid currentColor",
+                                borderBottom: "6px solid transparent",
+                            }} />
                         )}
-                        <span style={{ marginTop: "2px" }}>{isActive ? "STOP" : "PLAY"}</span>
+                        <span>{isActive ? "STOP" : "PLAY"}</span>
                     </motion.button>
                 </div>
             </motion.div>
