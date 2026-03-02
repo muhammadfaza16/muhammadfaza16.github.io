@@ -2,9 +2,10 @@
 
 import React, { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { usePathname } from "next/navigation";
 import { useAudio } from "../AudioContext";
 import { useRadio } from "../RadioContext";
-import { Play, Square, SkipBack, SkipForward, Radio as RadioIcon, X } from "lucide-react";
+import { Square, SkipBack, SkipForward, X } from "lucide-react";
 
 export function GlobalBottomPlayer() {
     const {
@@ -12,20 +13,21 @@ export function GlobalBottomPlayer() {
         togglePlay, currentSong, currentTime, duration, nextSong, prevSong
     } = useAudio();
 
-    // We cannot destructure directly at hook level because RadioContext is optional depending on where it's mounted,
-    // but here we know it runs inside the app wrapper which has both.
-    const { activeStationId, stations, turnOff, stationsState, isSyncing } = useRadio();
+    const { activeStationId, stations, turnOff, stationsState } = useRadio();
 
+    const pathname = usePathname();
     const [isMounted, setIsMounted] = useState(false);
     useEffect(() => setIsMounted(true), []);
     if (!isMounted) return null;
 
     if (activePlaybackMode === 'none') return null;
 
+    // Hide on radio page when radio is playing (RadioTuner has its own controls)
+    if (pathname?.startsWith('/music/radio') && activePlaybackMode === 'radio') return null;
+
     const isRadio = activePlaybackMode === 'radio';
     const isMusic = activePlaybackMode === 'music';
 
-    // Format time helper
     const formatTime = (time: number) => {
         if (!time || isNaN(time)) return "0:00";
         const m = Math.floor(time / 60);
@@ -33,9 +35,18 @@ export function GlobalBottomPlayer() {
         return `${m}:${s}`;
     };
 
-    // Derived Radio Data
     const activeStation = isRadio ? stations.find(s => s.id === activeStationId) : null;
     const currentState = activeStation ? stationsState[activeStation.id] : null;
+    const themeColor = activeStation?.themeColor || "#888";
+    const accent = isRadio ? themeColor : "#aaa";
+
+    // Parse song title into artist / track
+    const songTitle = isMusic && currentSong
+        ? (currentSong.title.split("—")[1]?.trim() || currentSong.title)
+        : (currentState?.song.title || "SYNCING...");
+    const songArtist = isMusic && currentSong
+        ? (currentSong.title.split("—")[0]?.trim() || "")
+        : (activeStation?.name || "");
 
     return (
         <AnimatePresence>
@@ -46,151 +57,212 @@ export function GlobalBottomPlayer() {
                 transition={{ type: "spring", stiffness: 300, damping: 30 }}
                 style={{
                     position: "fixed",
-                    bottom: "1rem",
+                    bottom: "0.75rem",
                     left: "50%",
-                    width: "calc(100% - 2rem)",
-                    maxWidth: "600px",
+                    width: "calc(100% - 1.5rem)",
+                    maxWidth: "400px",
                     zIndex: 9999,
-                    userSelect: "none"
+                    userSelect: "none",
                 }}
             >
                 <div style={{
-                    background: "#3f3f46", // Elevated hardware tier
-                    border: "1px solid #18181b",
-                    borderBottom: "4px solid #18181b", // Physical chassis ridge
-                    borderRadius: "12px",
-                    padding: "1rem",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "space-between",
-                    gap: "1rem",
-                    boxShadow: "0 10px 30px -5px rgba(0,0,0,0.5), inset 0 1px 1px rgba(255,255,255,0.1)"
+                    background: "linear-gradient(180deg, #2a2a2a 0%, #222 100%)",
+                    border: "2px solid #111",
+                    borderRadius: "16px",
+                    overflow: "hidden",
+                    boxShadow: "0 12px 40px -8px rgba(0,0,0,0.7), inset 0 1px 0 rgba(255,255,255,0.04)",
                 }}>
-
-                    {/* Left: Info LCD Screen */}
+                    {/* Now Playing Info Row */}
                     <div style={{
-                        flex: 1,
-                        background: "#c1c1c1", // Classic LCD
-                        borderRadius: "4px",
-                        padding: "0.4rem 0.75rem",
-                        border: "2px solid #18181b",
-                        boxShadow: "inset 0 2px 4px rgba(0,0,0,0.3)",
                         display: "flex",
-                        flexDirection: "column",
-                        gap: "2px",
-                        overflow: "hidden"
+                        alignItems: "center",
+                        gap: "0.6rem",
+                        padding: "0.6rem 0.65rem 0.45rem",
                     }}>
-                        {isRadio && activeStation ? (
-                            <>
-                                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                                    <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                                        <div style={{ width: "4px", height: "4px", borderRadius: "50%", background: "#39ff14", boxShadow: "0 0 4px rgba(57,255,20,0.5)" }} />
-                                        <span style={{ fontFamily: "monospace", fontSize: "0.65rem", fontWeight: 900, color: "#111", letterSpacing: "1px" }}>LIVE ON AIR</span>
-                                    </div>
-                                    <span style={{ fontFamily: "monospace", fontSize: "0.65rem", fontWeight: 900, color: "#111" }}>
-                                        {currentState ? currentState.formattedTime : "0:00"}
-                                    </span>
-                                </div>
-                                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
-                                    <span style={{ fontSize: "0.85rem", fontWeight: 800, color: "#111", textTransform: "uppercase", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-                                        {activeStation.name}
-                                    </span>
-                                    <span style={{ fontSize: "0.65rem", fontWeight: 700, color: "#555", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", maxWidth: "120px" }}>
-                                        {currentState ? currentState.song.title : "SYNCING..."}
-                                    </span>
-                                </div>
-                            </>
-                        ) : isMusic && currentSong ? (
-                            <>
-                                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                                    <span style={{ fontFamily: "monospace", fontSize: "0.65rem", fontWeight: 900, color: "#111", letterSpacing: "1px" }}>PROTOCOL</span>
-                                    <span style={{ fontFamily: "monospace", fontSize: "0.65rem", fontWeight: 900, color: "#111" }}>
-                                        {formatTime(currentTime)} / {formatTime(duration)}
-                                    </span>
-                                </div>
-                                <div style={{ display: "flex", flexDirection: "column" }}>
-                                    <span style={{ fontSize: "0.85rem", fontWeight: 800, color: "#111", textTransform: "uppercase", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-                                        {currentSong.title.split("—")[1]?.trim() || currentSong.title}
-                                    </span>
-                                    <span style={{ fontSize: "0.65rem", fontWeight: 700, color: "#555", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-                                        {currentSong.title.split("—")[0]?.trim() || "Local File"}
-                                    </span>
-                                </div>
-                                {/* Progress Bar Mini */}
-                                <div style={{ width: "100%", height: "2px", background: "rgba(0,0,0,0.1)", borderRadius: "1px", marginTop: "4px" }}>
-                                    <div style={{ width: `${(currentTime / (duration || 1)) * 100}%`, height: "100%", background: "#111", borderRadius: "1px" }} />
-                                </div>
-                            </>
-                        ) : null}
+                        {/* Album Art Placeholder / Waveform Indicator */}
+                        <div style={{
+                            width: "40px",
+                            height: "40px",
+                            borderRadius: "8px",
+                            background: "#111",
+                            border: `1.5px solid ${accent}20`,
+                            display: "flex",
+                            alignItems: "flex-end",
+                            justifyContent: "center",
+                            gap: "2px",
+                            padding: "6px 5px",
+                            flexShrink: 0,
+                            boxShadow: "inset 0 2px 4px rgba(0,0,0,0.5)",
+                        }}>
+                            {/* Animated playing bars */}
+                            {[1, 2, 3, 4].map(i => (
+                                <motion.div
+                                    key={i}
+                                    animate={(musicPlaying || isRadio) ? {
+                                        height: ["30%", `${40 + Math.random() * 55}%`, "30%"],
+                                    } : { height: "20%" }}
+                                    transition={(musicPlaying || isRadio) ? {
+                                        duration: 0.3 + i * 0.08,
+                                        repeat: Infinity,
+                                        repeatType: "reverse",
+                                        delay: i * 0.06,
+                                    } : { duration: 0.2 }}
+                                    style={{
+                                        flex: 1,
+                                        background: accent,
+                                        borderRadius: "1px",
+                                        opacity: (musicPlaying || isRadio) ? 0.7 : 0.2,
+                                    }}
+                                />
+                            ))}
+                        </div>
+
+                        {/* Track info — fixed width, truncated */}
+                        <div style={{
+                            flex: 1,
+                            minWidth: 0, // allow truncation
+                            display: "flex",
+                            flexDirection: "column",
+                            gap: "1px",
+                        }}>
+                            <span style={{
+                                fontSize: "0.78rem",
+                                fontWeight: 700,
+                                color: "#ccc",
+                                whiteSpace: "nowrap",
+                                overflow: "hidden",
+                                textOverflow: "ellipsis",
+                            }}>
+                                {songTitle}
+                            </span>
+                            <span style={{
+                                fontSize: "0.6rem",
+                                fontWeight: 600,
+                                color: isRadio ? accent + "99" : "#666",
+                                whiteSpace: "nowrap",
+                                overflow: "hidden",
+                                textOverflow: "ellipsis",
+                            }}>
+                                {songArtist}
+                            </span>
+                        </div>
+
+                        {/* Time */}
+                        <span style={{
+                            fontFamily: "monospace",
+                            fontSize: "0.6rem",
+                            fontWeight: 700,
+                            color: "#555",
+                            flexShrink: 0,
+                        }}>
+                            {isRadio
+                                ? (currentState?.formattedTime || "0:00")
+                                : formatTime(currentTime)
+                            }
+                        </span>
                     </div>
 
-                    {/* Right: Hardware Tactile Controls */}
-                    <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                    {/* Progress Bar (music only) */}
+                    {isMusic && (
+                        <div style={{ width: "100%", height: "2px", background: "#1a1a1a" }}>
+                            <div style={{
+                                width: `${(currentTime / (duration || 1)) * 100}%`,
+                                height: "100%",
+                                background: "#555",
+                                transition: "width 0.3s linear",
+                            }} />
+                        </div>
+                    )}
+
+                    {/* Controls Row */}
+                    <div style={{
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        gap: "0.6rem",
+                        padding: "0.4rem 0.65rem 0.55rem",
+                        borderTop: "1px solid #1a1a1a",
+                    }}>
                         {isMusic && (
                             <motion.button
-                                whileTap={{ scale: 0.9, y: 1 }}
+                                whileTap={{ scale: 0.85 }}
                                 onClick={() => prevSong()}
                                 style={{
-                                    background: "#282828", border: "1px solid #18181b", borderBottom: "2px solid #18181b",
-                                    borderRadius: "4px", width: "32px", height: "32px", display: "flex", alignItems: "center", justifyContent: "center", color: "#a1a1aa", cursor: "pointer"
+                                    background: "none", border: "none",
+                                    color: "#666", cursor: "pointer", padding: "4px",
                                 }}
                             >
-                                <SkipBack size={14} fill="currentColor" />
+                                <SkipBack size={16} fill="currentColor" />
                             </motion.button>
                         )}
 
                         <motion.button
-                            whileTap={{ scale: 0.9, y: 2 }}
+                            whileTap={{ scale: 0.85, y: 1 }}
                             onClick={isRadio ? turnOff : togglePlay}
                             style={{
-                                background: isRadio ? "#18181b" : "#282828",
-                                border: "1px solid #18181b",
-                                borderBottom: isRadio ? "1px solid #18181b" : "3px solid #18181b",
-                                borderRadius: "6px", width: "42px", height: "42px", display: "flex", alignItems: "center", justifyContent: "center",
-                                color: isRadio ? "#a1a1aa" : "#e4e4e7", cursor: "pointer"
+                                background: "#151515",
+                                border: `1.5px solid ${isRadio ? accent + "30" : "#2a2a2a"}`,
+                                borderRadius: "50%",
+                                width: "36px",
+                                height: "36px",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                color: isRadio ? accent : "#aaa",
+                                cursor: "pointer",
+                                boxShadow: "inset 0 2px 4px rgba(0,0,0,0.4)",
                             }}
                         >
                             {isRadio ? (
-                                <Square size={16} fill="currentColor" />
+                                <Square size={12} fill="currentColor" />
                             ) : musicPlaying ? (
-                                <div style={{ display: "flex", gap: "3px" }}>
-                                    <div style={{ width: "4px", height: "14px", background: "currentColor", borderRadius: "1px" }} />
-                                    <div style={{ width: "4px", height: "14px", background: "currentColor", borderRadius: "1px" }} />
+                                <div style={{ display: "flex", gap: "2.5px" }}>
+                                    <div style={{ width: "3px", height: "12px", background: "currentColor", borderRadius: "1px" }} />
+                                    <div style={{ width: "3px", height: "12px", background: "currentColor", borderRadius: "1px" }} />
                                 </div>
                             ) : (
-                                <div style={{ width: "0", height: "0", borderTop: "6px solid transparent", borderLeft: "10px solid currentColor", borderBottom: "6px solid transparent", marginLeft: "2px" }} />
+                                <div style={{
+                                    width: "0", height: "0",
+                                    borderTop: "6px solid transparent",
+                                    borderLeft: "10px solid currentColor",
+                                    borderBottom: "6px solid transparent",
+                                    marginLeft: "2px",
+                                }} />
                             )}
                         </motion.button>
 
                         {isMusic && (
                             <motion.button
-                                whileTap={{ scale: 0.9, y: 1 }}
+                                whileTap={{ scale: 0.85 }}
                                 onClick={() => nextSong()}
                                 style={{
-                                    background: "#282828", border: "1px solid #18181b", borderBottom: "2px solid #18181b",
-                                    borderRadius: "4px", width: "32px", height: "32px", display: "flex", alignItems: "center", justifyContent: "center", color: "#a1a1aa", cursor: "pointer"
+                                    background: "none", border: "none",
+                                    color: "#666", cursor: "pointer", padding: "4px",
                                 }}
                             >
-                                <SkipForward size={14} fill="currentColor" />
+                                <SkipForward size={16} fill="currentColor" />
                             </motion.button>
                         )}
 
-                        {/* Global Close to entirely dismiss the module */}
+                        {/* Dismiss */}
                         <motion.button
-                            whileTap={{ scale: 0.9, y: 1 }}
+                            whileTap={{ scale: 0.85 }}
                             onClick={() => {
                                 if (isRadio) turnOff();
                                 else if (musicPlaying) togglePlay();
                                 setActivePlaybackMode('none');
                             }}
                             style={{
-                                background: "transparent", border: "none", color: "#71717a", cursor: "pointer", padding: "4px", marginLeft: "4px"
+                                background: "none", border: "none",
+                                color: "#333", cursor: "pointer", padding: "4px",
+                                position: "absolute",
+                                right: "0.65rem",
+                                top: "0.5rem",
                             }}
                         >
-                            <X size={16} strokeWidth={3} />
+                            <X size={12} strokeWidth={3} />
                         </motion.button>
                     </div>
-
                 </div>
             </motion.div>
         </AnimatePresence>

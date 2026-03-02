@@ -192,12 +192,13 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
     const turnOff = useCallback(() => {
         setIsSyncing(false);
         setActiveStationId(null);
-        setActivePlaybackMode('none');
+        // Don't set activePlaybackMode to 'none' — let the widget persist
+        // The user can dismiss with the X button on the GlobalBottomPlayer
         if (audioRef.current) {
             audioRef.current.pause();
             audioRef.current.src = "";
         }
-    }, [setActivePlaybackMode]);
+    }, []);
 
     return (
         <RadioContext.Provider value={{
