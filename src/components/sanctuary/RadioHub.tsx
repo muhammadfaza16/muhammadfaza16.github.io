@@ -5,7 +5,7 @@ import { motion } from "framer-motion";
 import { useRadio } from "../RadioContext";
 
 export function RadioHub({ onSelect }: { onSelect: (id: string) => void }) {
-    const { stations, activeStationId, isRadioPaused, stationsState } = useRadio();
+    const { stations, activeStationId, isRadioPaused, stationsState, isSyncing, isBuffering } = useRadio();
 
     return (
         <div style={{
@@ -16,7 +16,7 @@ export function RadioHub({ onSelect }: { onSelect: (id: string) => void }) {
         }}>
             {stations.map((station, idx) => {
                 const isThisStation = activeStationId === station.id;
-                const isPlaying = isThisStation && !isRadioPaused;
+                const isPlaying = isThisStation && !isRadioPaused && !isSyncing && !isBuffering;
                 const state = stationsState[station.id];
                 const isLive = state !== null;
                 const color = station.themeColor || "#888";

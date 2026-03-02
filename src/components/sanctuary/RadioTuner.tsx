@@ -17,7 +17,7 @@ export function RadioTuner({ stationId, onBack }: { stationId: string; onBack: (
     if (!station) return null;
 
     const isThisStation = activeStationId === station.id;
-    const isPlaying = isThisStation && !isRadioPaused;
+    const isPlaying = isThisStation && !isRadioPaused && !isSyncing && !isBuffering;
     const currentState = stationsState[station.id];
     const isLive = currentState !== null;
     const color = station.themeColor || "#888";
