@@ -13,7 +13,7 @@ export function GlobalBottomPlayer() {
         togglePlay, currentSong, currentTime, duration, nextSong, prevSong
     } = useAudio();
 
-    const { activeStationId, stations, turnOff, stationsState } = useRadio();
+    const { activeStationId, stations, turnOff, pauseRadio, resumeRadio, isRadioPaused, stationsState, handleTuneIn } = useRadio();
 
     const pathname = usePathname();
     const [isMounted, setIsMounted] = useState(false);
@@ -38,7 +38,9 @@ export function GlobalBottomPlayer() {
     const activeStation = isRadio ? stations.find(s => s.id === activeStationId) : null;
     const currentState = activeStation ? stationsState[activeStation.id] : null;
     const themeColor = activeStation?.themeColor || "#888";
+    const isRadioPlaying = isRadio && activeStationId && !isRadioPaused;
     const accent = isRadio ? themeColor : "#aaa";
+    const isPlaying = isRadio ? !!isRadioPlaying : musicPlaying;
 
     // Parse song title into artist / track
     const songTitle = isMusic && currentSong
@@ -98,10 +100,10 @@ export function GlobalBottomPlayer() {
                             {[1, 2, 3, 4].map(i => (
                                 <motion.div
                                     key={i}
-                                    animate={(musicPlaying || isRadio) ? {
+                                    animate={isPlaying ? {
                                         height: ["30%", `${40 + Math.random() * 55}%`, "30%"],
                                     } : { height: "20%" }}
-                                    transition={(musicPlaying || isRadio) ? {
+                                    transition={isPlaying ? {
                                         duration: 0.3 + i * 0.08,
                                         repeat: Infinity,
                                         repeatType: "reverse",
@@ -111,7 +113,7 @@ export function GlobalBottomPlayer() {
                                         flex: 1,
                                         background: accent,
                                         borderRadius: "1px",
-                                        opacity: (musicPlaying || isRadio) ? 0.7 : 0.2,
+                                        opacity: isPlaying ? 0.7 : 0.2,
                                     }}
                                 />
                             ))}
@@ -198,7 +200,17 @@ export function GlobalBottomPlayer() {
 
                         <motion.button
                             whileTap={{ scale: 0.85, y: 1 }}
-                            onClick={isRadio ? turnOff : togglePlay}
+                            onClick={() => {
+                                if (isRadio) {
+                                    if (isRadioPaused && activeStationId) {
+                                        resumeRadio(); // Lightweight resume
+                                    } else {
+                                        pauseRadio(); // Soft stop
+                                    }
+                                } else {
+                                    togglePlay();
+                                }
+                            }}
                             style={{
                                 background: "#151515",
                                 border: `1.5px solid ${isRadio ? accent + "30" : "#2a2a2a"}`,
@@ -214,7 +226,17 @@ export function GlobalBottomPlayer() {
                             }}
                         >
                             {isRadio ? (
-                                <Square size={12} fill="currentColor" />
+                                isRadioPaused ? (
+                                    <div style={{
+                                        width: "0", height: "0",
+                                        borderTop: "6px solid transparent",
+                                        borderLeft: "10px solid currentColor",
+                                        borderBottom: "6px solid transparent",
+                                        marginLeft: "2px",
+                                    }} />
+                                ) : (
+                                    <Square size={12} fill="currentColor" />
+                                )
                             ) : musicPlaying ? (
                                 <div style={{ display: "flex", gap: "2.5px" }}>
                                     <div style={{ width: "3px", height: "12px", background: "currentColor", borderRadius: "1px" }} />

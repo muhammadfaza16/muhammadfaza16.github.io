@@ -44,10 +44,12 @@ interface RadioContextType {
     activeStationId: string | null;
     isSyncing: boolean;
     isBuffering: boolean;
-    // The live state of ALL stations rolling continuously in world time
+    isRadioPaused: boolean;
     stationsState: Record<string, StationState | null>;
     handleTuneIn: (stationId: string) => void;
-    turnOff: () => void;
+    turnOff: () => void;       // Full dismiss — clears everything, hides widget
+    pauseRadio: () => void;    // Soft stop — keeps station info, widget stays
+    resumeRadio: () => void;   // Lightweight resume — just unpause audio
 }
 
 const RadioContext = createContext<RadioContextType | undefined>(undefined);
@@ -65,6 +67,7 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
     const [activeStationId, setActiveStationId] = useState<string | null>(null);
     const [isSyncing, setIsSyncing] = useState(false);
     const [isBuffering, setIsBuffering] = useState(false);
+    const [isRadioPaused, setIsRadioPaused] = useState(false);
 
     const { isPlaying: globalPlaying, togglePlay, setActivePlaybackMode } = useAudio();
     const audioRef = useRef<HTMLAudioElement | null>(null);
@@ -121,6 +124,8 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
 
     // Seamless URL handoff and Drift Correction for the ACTIVE station
     useEffect(() => {
+        // Don't try to play if paused by user
+        if (isRadioPaused) return;
         if (!audioRef.current || !activeStationId || !activeTargetState) return;
 
         const audio = audioRef.current;
@@ -149,19 +154,19 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
             if (!audio.paused && Math.abs(audio.currentTime - targetTime) > 1.5) {
                 audio.currentTime = targetTime;
             }
-            // Auto-resume if paused unexpectedly but should be playing
-            if (audio.paused && !isSyncing && activeStationId) {
+            // Auto-resume only if NOT user-paused
+            if (audio.paused && !isSyncing && activeStationId && !isRadioPaused) {
                 audio.currentTime = targetTime;
                 audio.play().catch(() => { });
             }
         }
-    }, [activeStationId, activeTargetState?.song.audioUrl]); // Dependency on the active song URL
+    }, [activeStationId, activeTargetState?.song.audioUrl, isRadioPaused]);
 
-    // Background Resume
+    // Background Resume (only if not user-paused)
     useEffect(() => {
-        if (!activeStationId) return;
+        if (!activeStationId || isRadioPaused) return;
         const attemptResume = () => {
-            if (audioRef.current && activeStationId && audioRef.current.paused && activeTargetStateRef.current) {
+            if (audioRef.current && activeStationId && audioRef.current.paused && activeTargetStateRef.current && !isRadioPaused) {
                 audioRef.current.currentTime = activeTargetStateRef.current.progress;
                 audioRef.current.play().catch(() => { });
             }
@@ -171,11 +176,12 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
         document.addEventListener('visibilitychange', handleVisibility);
         window.addEventListener('focus', handleFocus);
         return () => { document.removeEventListener('visibilitychange', handleVisibility); window.removeEventListener('focus', handleFocus); };
-    }, [activeStationId]);
+    }, [activeStationId, isRadioPaused]);
 
     const handleTuneIn = useCallback((stationId: string) => {
         if (!audioRef.current) return;
         setActivePlaybackMode('radio');
+        setIsRadioPaused(false); // Clear pause state when tuning in
 
         // If switching stations or turning on, pause everything first
         setIsSyncing(true);
@@ -189,16 +195,44 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
         setActiveStationId(stationId);
     }, [globalPlaying, togglePlay, setActivePlaybackMode]);
 
+    // Soft stop: pauses audio, keeps station info, widget stays visible
+    const pauseRadio = useCallback(() => {
+        setIsSyncing(false);
+        setIsRadioPaused(true);
+        if (audioRef.current) {
+            audioRef.current.pause();
+        }
+    }, []);
+
+    // Lightweight resume: just unpause, no full re-init
+    const resumeRadio = useCallback(() => {
+        if (!audioRef.current || !activeStationId) return;
+        setIsRadioPaused(false);
+        setActivePlaybackMode('radio');
+        // Sync to current world time position
+        const state = stationsState[activeStationId];
+        if (state) {
+            const audio = audioRef.current;
+            const targetUrl = state.song.audioUrl;
+            if (!audio.src.endsWith(targetUrl)) {
+                audio.src = targetUrl;
+            }
+            audio.currentTime = state.progress;
+            audio.play().catch(() => { });
+        }
+    }, [activeStationId, stationsState, setActivePlaybackMode]);
+
+    // Full dismiss: clears everything, hides widget
     const turnOff = useCallback(() => {
         setIsSyncing(false);
+        setIsRadioPaused(false);
         setActiveStationId(null);
-        // Don't set activePlaybackMode to 'none' — let the widget persist
-        // The user can dismiss with the X button on the GlobalBottomPlayer
+        setActivePlaybackMode('none');
         if (audioRef.current) {
             audioRef.current.pause();
             audioRef.current.src = "";
         }
-    }, []);
+    }, [setActivePlaybackMode]);
 
     return (
         <RadioContext.Provider value={{
@@ -206,9 +240,12 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
             activeStationId,
             isSyncing,
             isBuffering,
+            isRadioPaused,
             stationsState,
             handleTuneIn,
-            turnOff
+            turnOff,
+            pauseRadio,
+            resumeRadio
         }}>
             {children}
             <audio

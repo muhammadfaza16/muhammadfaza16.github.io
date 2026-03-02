@@ -11,17 +11,18 @@ const METER_BARS = Array.from({ length: 16 }).map(() => ({
 }));
 
 export function RadioTuner({ stationId, onBack }: { stationId: string; onBack: () => void }) {
-    const { stations, activeStationId, isSyncing, isBuffering, stationsState, handleTuneIn, turnOff } = useRadio();
+    const { stations, activeStationId, isSyncing, isBuffering, stationsState, handleTuneIn, pauseRadio, resumeRadio, isRadioPaused } = useRadio();
 
     const station = stations.find(s => s.id === stationId);
     if (!station) return null;
 
-    const isActive = activeStationId === station.id;
+    const isThisStation = activeStationId === station.id;
+    const isPlaying = isThisStation && !isRadioPaused;
     const currentState = stationsState[station.id];
     const color = station.themeColor || "#888";
 
     const displayTime = currentState ? currentState.formattedTime : "0:00";
-    const displaySong = currentState ? currentState.song.title : "SYNCING...";
+    const displaySong = currentState ? currentState.song.title : "STANDBY";
 
     return (
         <div style={{ width: "100%", userSelect: "none", touchAction: "none" }}>
@@ -53,16 +54,16 @@ export function RadioTuner({ stationId, onBack }: { stationId: string; onBack: (
                     background: "#1e1e1e",
                     borderRadius: "16px",
                     padding: "1.25rem",
-                    border: `1.5px solid ${isActive ? color + "30" : "#2a2a2a"}`,
+                    border: `1.5px solid ${isPlaying ? color + "30" : "#2a2a2a"}`,
                     position: "relative",
                     overflow: "hidden",
-                    boxShadow: isActive
+                    boxShadow: isPlaying
                         ? `inset 0 0 30px ${color}06, 0 0 20px ${color}08`
                         : "inset 0 2px 6px rgba(0,0,0,0.4)",
                 }}
             >
-                {/* Subtle glow overlay when active */}
-                {isActive && (
+                {/* Subtle glow overlay — only when playing */}
+                {isPlaying && (
                     <div style={{
                         position: "absolute",
                         top: 0,
@@ -79,19 +80,19 @@ export function RadioTuner({ stationId, onBack }: { stationId: string; onBack: (
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
                     <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
                         <motion.div
-                            animate={isActive ? { opacity: [0.5, 1, 0.5] } : {}}
+                            animate={isPlaying ? { opacity: [0.5, 1, 0.5] } : {}}
                             transition={{ repeat: Infinity, duration: 1.5 }}
                             style={{
                                 width: "5px", height: "5px", borderRadius: "50%",
-                                background: isActive ? color : "#333",
-                                boxShadow: isActive ? `0 0 6px ${color}` : "none",
+                                background: isPlaying ? color : "#333",
+                                boxShadow: isPlaying ? `0 0 6px ${color}` : "none",
                             }}
                         />
                         <motion.h2
                             layoutId={`station-title-${station.id}`}
                             style={{
                                 margin: 0,
-                                color: isActive ? color : "#888",
+                                color: isPlaying ? color : "#888",
                                 fontSize: "1rem",
                                 fontWeight: 800,
                                 letterSpacing: "0.5px",
@@ -105,10 +106,10 @@ export function RadioTuner({ stationId, onBack }: { stationId: string; onBack: (
                         fontFamily: "monospace",
                         fontSize: "0.6rem",
                         fontWeight: 700,
-                        color: isActive ? color : "#444",
+                        color: isPlaying ? color : "#444",
                         letterSpacing: "1px",
                     }}>
-                        {isActive ? "ON AIR" : "OFF"}
+                        {isPlaying ? "ON AIR" : "OFF"}
                     </span>
                 </div>
 
@@ -129,16 +130,16 @@ export function RadioTuner({ stationId, onBack }: { stationId: string; onBack: (
                         <span style={{
                             fontFamily: "monospace",
                             fontSize: "0.6rem",
-                            color: isActive ? color + "aa" : "#333",
+                            color: isPlaying ? color + "aa" : "#555",
                             fontWeight: 700,
                             letterSpacing: "1px",
                         }}>
-                            {isActive ? "▶ PLAYING" : "■ STANDBY"}
+                            {isPlaying ? "▶ PLAYING" : "■ STANDBY"}
                         </span>
                         <span style={{
                             fontFamily: "monospace",
                             fontSize: "0.6rem",
-                            color: isActive ? color + "cc" : "#333",
+                            color: isPlaying ? color + "cc" : "#666",
                             fontWeight: 800,
                         }}>
                             {displayTime}
@@ -155,8 +156,8 @@ export function RadioTuner({ stationId, onBack }: { stationId: string; onBack: (
                         minHeight: "22px",
                     }}>
                         <motion.div
-                            animate={isActive ? { x: ["0%", "-50%"] } : { x: "0%" }}
-                            transition={isActive ? {
+                            animate={isPlaying ? { x: ["0%", "-50%"] } : { x: "0%" }}
+                            transition={isPlaying ? {
                                 duration: Math.max(8, displaySong.length * 0.28),
                                 repeat: Infinity,
                                 ease: "linear"
@@ -164,7 +165,7 @@ export function RadioTuner({ stationId, onBack }: { stationId: string; onBack: (
                             style={{
                                 fontFamily: "monospace",
                                 fontSize: "0.85rem",
-                                color: isActive ? color : "#333",
+                                color: isPlaying ? color : "#666",
                                 fontWeight: 700,
                                 whiteSpace: "nowrap",
                                 display: "flex",
@@ -174,7 +175,7 @@ export function RadioTuner({ stationId, onBack }: { stationId: string; onBack: (
                             }}
                         >
                             <span>{displaySong}</span>
-                            {isActive && <span>{displaySong}</span>}
+                            {isPlaying && <span>{displaySong}</span>}
                         </motion.div>
                     </div>
                 </div>
@@ -203,12 +204,12 @@ export function RadioTuner({ stationId, onBack }: { stationId: string; onBack: (
                             return (
                                 <motion.div
                                     key={i}
-                                    animate={isActive ? {
+                                    animate={isPlaying ? {
                                         height: [`12%`, `${30 + Math.random() * 65}%`, `12%`],
                                     } : {
                                         height: "8%",
                                     }}
-                                    transition={isActive ? {
+                                    transition={isPlaying ? {
                                         duration: bar.dur,
                                         repeat: Infinity,
                                         repeatType: "reverse",
@@ -216,9 +217,9 @@ export function RadioTuner({ stationId, onBack }: { stationId: string; onBack: (
                                     } : { duration: 0.3 }}
                                     style={{
                                         flex: 1,
-                                        background: isActive ? barColor : "#222",
+                                        background: isPlaying ? barColor : "#222",
                                         borderRadius: "1px",
-                                        opacity: isActive ? 0.85 : 0.4,
+                                        opacity: isPlaying ? 0.85 : 0.4,
                                     }}
                                 />
                             );
@@ -229,12 +230,20 @@ export function RadioTuner({ stationId, onBack }: { stationId: string; onBack: (
                     <motion.button
                         whileHover={{ scale: 1.03 }}
                         whileTap={{ scale: 0.93, y: 2 }}
-                        onClick={() => isActive ? turnOff() : handleTuneIn(station.id)}
+                        onClick={() => {
+                            if (isPlaying) {
+                                pauseRadio();
+                            } else if (isThisStation && isRadioPaused) {
+                                resumeRadio(); // Lightweight resume
+                            } else {
+                                handleTuneIn(station.id); // Fresh tune-in
+                            }
+                        }}
                         style={{
                             width: "60px",
-                            background: isActive ? "#111" : "#1e1e1e",
-                            color: isActive ? color : "#888",
-                            border: `1.5px solid ${isActive ? color + "30" : "#2a2a2a"}`,
+                            background: isPlaying ? "#111" : "#1e1e1e",
+                            color: isPlaying ? color : "#888",
+                            border: `1.5px solid ${isPlaying ? color + "30" : "#2a2a2a"}`,
                             borderRadius: "10px",
                             display: "flex",
                             flexDirection: "column",
@@ -245,12 +254,12 @@ export function RadioTuner({ stationId, onBack }: { stationId: string; onBack: (
                             fontSize: "0.5rem",
                             fontWeight: 800,
                             letterSpacing: "1px",
-                            boxShadow: isActive
+                            boxShadow: isPlaying
                                 ? `inset 0 2px 4px rgba(0,0,0,0.5), 0 0 8px ${color}15`
                                 : "inset 0 2px 4px rgba(0,0,0,0.3)",
                         }}
                     >
-                        {isActive && (
+                        {isPlaying && (
                             <motion.div
                                 animate={{ opacity: [0.4, 1, 0.4] }}
                                 transition={{ repeat: Infinity, duration: 1.2 }}
@@ -270,7 +279,7 @@ export function RadioTuner({ stationId, onBack }: { stationId: string; onBack: (
                                     border: "2px solid currentColor", borderTopColor: "transparent",
                                 }}
                             />
-                        ) : isActive ? (
+                        ) : isPlaying ? (
                             <Square size={14} fill="currentColor" />
                         ) : (
                             <div style={{
@@ -280,7 +289,7 @@ export function RadioTuner({ stationId, onBack }: { stationId: string; onBack: (
                                 borderBottom: "6px solid transparent",
                             }} />
                         )}
-                        <span>{isActive ? "STOP" : "PLAY"}</span>
+                        <span>{isPlaying ? "STOP" : "PLAY"}</span>
                     </motion.button>
                 </div>
             </motion.div>

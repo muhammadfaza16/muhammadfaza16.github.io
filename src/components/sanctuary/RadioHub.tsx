@@ -5,7 +5,7 @@ import { motion } from "framer-motion";
 import { useRadio } from "../RadioContext";
 
 export function RadioHub({ onSelect }: { onSelect: (id: string) => void }) {
-    const { stations, activeStationId, stationsState } = useRadio();
+    const { stations, activeStationId, isRadioPaused, stationsState } = useRadio();
 
     return (
         <div style={{
@@ -15,7 +15,8 @@ export function RadioHub({ onSelect }: { onSelect: (id: string) => void }) {
             gap: "0.5rem"
         }}>
             {stations.map((station, idx) => {
-                const isActive = activeStationId === station.id;
+                const isThisStation = activeStationId === station.id;
+                const isPlaying = isThisStation && !isRadioPaused;
                 const state = stationsState[station.id];
                 const isLive = state !== null;
                 const color = station.themeColor || "#888";
@@ -32,14 +33,14 @@ export function RadioHub({ onSelect }: { onSelect: (id: string) => void }) {
                         whileTap={{ scale: 0.985 }}
                         style={{
                             background: "#1e1e1e",
-                            border: `1.5px solid ${isActive ? color + "40" : "#2a2a2a"}`,
+                            border: `1.5px solid ${isPlaying ? color + "40" : "#2a2a2a"}`,
                             borderRadius: "12px",
                             padding: "0.85rem 1rem",
                             cursor: "pointer",
                             display: "flex",
                             alignItems: "center",
                             gap: "0.85rem",
-                            boxShadow: isActive
+                            boxShadow: isPlaying
                                 ? `inset 0 0 20px ${color}08, 0 0 15px ${color}10`
                                 : "inset 0 2px 4px rgba(0,0,0,0.3), 0 1px 0 rgba(255,255,255,0.02)",
                             position: "relative",
@@ -52,12 +53,12 @@ export function RadioHub({ onSelect }: { onSelect: (id: string) => void }) {
                             height: "38px",
                             borderRadius: "50%",
                             background: "#151515",
-                            border: `2px solid ${isActive ? color : "#333"}`,
+                            border: `2px solid ${isPlaying ? color : "#333"}`,
                             display: "flex",
                             alignItems: "center",
                             justifyContent: "center",
                             flexShrink: 0,
-                            boxShadow: `inset 0 2px 4px rgba(0,0,0,0.5)${isActive ? `, 0 0 8px ${color}30` : ""}`,
+                            boxShadow: `inset 0 2px 4px rgba(0,0,0,0.5)${isPlaying ? `, 0 0 8px ${color}30` : ""}`,
                             position: "relative",
                         }}>
                             {/* Center dot */}
@@ -65,12 +66,12 @@ export function RadioHub({ onSelect }: { onSelect: (id: string) => void }) {
                                 width: "4px",
                                 height: "4px",
                                 borderRadius: "50%",
-                                background: isActive ? color : "#444",
-                                boxShadow: isActive ? `0 0 6px ${color}` : "none",
+                                background: isPlaying ? color : "#444",
+                                boxShadow: isPlaying ? `0 0 6px ${color}` : "none",
                             }} />
 
-                            {/* Animated ring for active */}
-                            {isActive && (
+                            {/* Animated ring only when actually playing */}
+                            {isPlaying && (
                                 <motion.div
                                     animate={{ rotate: 360 }}
                                     transition={{ repeat: Infinity, duration: 3, ease: "linear" }}
@@ -93,7 +94,7 @@ export function RadioHub({ onSelect }: { onSelect: (id: string) => void }) {
                                     layoutId={`station-title-${station.id}`}
                                     style={{
                                         margin: 0,
-                                        color: isActive ? color : "#aaa",
+                                        color: isPlaying ? color : "#aaa",
                                         fontSize: "0.85rem",
                                         fontWeight: 800,
                                         textTransform: "uppercase",
@@ -106,15 +107,15 @@ export function RadioHub({ onSelect }: { onSelect: (id: string) => void }) {
                                 {isLive && (
                                     <span style={{
                                         fontSize: "0.5rem",
-                                        background: isActive ? color + "20" : "#222",
-                                        color: isActive ? color : "#666",
+                                        background: isPlaying ? color + "20" : "#222",
+                                        color: isPlaying ? color : "#666",
                                         padding: "1px 5px",
                                         borderRadius: "3px",
                                         fontWeight: 800,
                                         letterSpacing: "0.5px",
-                                        border: `1px solid ${isActive ? color + "30" : "#333"}`,
+                                        border: `1px solid ${isPlaying ? color + "30" : "#333"}`,
                                     }}>
-                                        {isActive ? "ON AIR" : "LIVE"}
+                                        {isPlaying ? "ON AIR" : "LIVE"}
                                     </span>
                                 )}
                             </div>
@@ -127,12 +128,12 @@ export function RadioHub({ onSelect }: { onSelect: (id: string) => void }) {
                                 overflow: "hidden",
                                 textOverflow: "ellipsis",
                             }}>
-                                {isActive && state ? state.song.title : station.description}
+                                {isPlaying && state ? state.song.title : station.description}
                             </p>
                         </div>
 
-                        {/* Playing Bars */}
-                        {isActive && (
+                        {/* Playing Bars — only when actually playing */}
+                        {isPlaying && (
                             <div style={{ display: "flex", alignItems: "flex-end", gap: "2px", height: "16px", flexShrink: 0 }}>
                                 {[1, 2, 3].map(i => (
                                     <motion.div
