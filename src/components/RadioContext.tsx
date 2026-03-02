@@ -69,7 +69,7 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
     const [isBuffering, setIsBuffering] = useState(false);
     const [isRadioPaused, setIsRadioPaused] = useState(false);
 
-    const { isPlaying: globalPlaying, togglePlay, setActivePlaybackMode } = useAudio();
+    const { isPlaying: globalPlaying, togglePlay, setActivePlaybackMode, activePlaybackMode } = useAudio();
     const audioRef = useRef<HTMLAudioElement | null>(null);
 
     // Track precise World Time for all stations concurrently
@@ -177,6 +177,13 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
         window.addEventListener('focus', handleFocus);
         return () => { document.removeEventListener('visibilitychange', handleVisibility); window.removeEventListener('focus', handleFocus); };
     }, [activeStationId, isRadioPaused]);
+
+    // Handle focus stealing: if Music starts playing, Radio should pause automatically
+    useEffect(() => {
+        if (activePlaybackMode !== 'radio' && !isRadioPaused && activeStationId) {
+            pauseRadio();
+        }
+    }, [activePlaybackMode, isRadioPaused, activeStationId]);
 
     const handleTuneIn = useCallback((stationId: string) => {
         if (!audioRef.current) return;
