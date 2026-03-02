@@ -19,6 +19,7 @@ export function RadioTuner({ stationId, onBack }: { stationId: string; onBack: (
     const isThisStation = activeStationId === station.id;
     const isPlaying = isThisStation && !isRadioPaused;
     const currentState = stationsState[station.id];
+    const isLive = currentState !== null;
     const color = station.themeColor || "#888";
 
     const displayTime = currentState ? currentState.formattedTime : "0:00";
@@ -84,8 +85,8 @@ export function RadioTuner({ stationId, onBack }: { stationId: string; onBack: (
                             transition={{ repeat: Infinity, duration: 1.5 }}
                             style={{
                                 width: "5px", height: "5px", borderRadius: "50%",
-                                background: isPlaying ? color : "#333",
-                                boxShadow: isPlaying ? `0 0 6px ${color}` : "none",
+                                background: isPlaying ? color : (isLive ? color + "88" : "#333"),
+                                boxShadow: isPlaying ? `0 0 6px ${color}` : (isLive ? `0 0 4px ${color}40` : "none"),
                             }}
                         />
                         <motion.h2
@@ -106,10 +107,10 @@ export function RadioTuner({ stationId, onBack }: { stationId: string; onBack: (
                         fontFamily: "monospace",
                         fontSize: "0.6rem",
                         fontWeight: 700,
-                        color: isPlaying ? color : "#444",
+                        color: isPlaying ? color : (isLive ? color + "aa" : "#444"),
                         letterSpacing: "1px",
                     }}>
-                        {isPlaying ? "ON AIR" : "OFF"}
+                        {isPlaying ? "ON AIR" : (isLive ? "LIVE" : "OFF")}
                     </span>
                 </div>
 
