@@ -4,180 +4,123 @@ import { ZenHideable } from "@/components/ZenHideable";
 import { RadioHub } from "@/components/sanctuary/RadioHub";
 import { RadioTuner } from "@/components/sanctuary/RadioTuner";
 import Link from "next/link";
-import { ChevronLeft, Radio as RadioIcon } from "lucide-react";
-import { useEffect, useState } from "react";
+import { ChevronLeft } from "lucide-react";
+import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
-export default function StarlightRadioPage() {
-    const [isMobile, setIsMobile] = useState(false);
+export default function RadioPage() {
     const [selectedStationId, setSelectedStationId] = useState<string | null>(null);
-
-    useEffect(() => {
-        const checkMobile = () => setIsMobile(window.innerWidth < 768);
-        checkMobile();
-        window.addEventListener('resize', checkMobile);
-        return () => window.removeEventListener('resize', checkMobile);
-    }, []);
 
     return (
         <>
-            {/* Matte Gray Background */}
-            <div style={{
-                position: 'fixed',
-                inset: 0,
-                backgroundColor: '#282828',
-                zIndex: -1
-            }} />
+            <div style={{ position: 'fixed', inset: 0, backgroundColor: '#1a1a1a', zIndex: -1 }} />
 
             <ZenHideable>
                 <main style={{
-                    minHeight: "100vh",
+                    minHeight: "100dvh",
                     display: "flex",
                     flexDirection: "column",
                     alignItems: "center",
                     justifyContent: "center",
-                    padding: isMobile ? "1rem" : "2.5rem",
+                    padding: "1rem",
                     position: "relative",
                     zIndex: 1,
                 }}>
-                    {/* Global Back Button (Only visible in Hub) */}
+                    {/* Back to Hub */}
                     <AnimatePresence>
                         {!selectedStationId && (
-                            <Link href="/music">
+                            <Link href="/music" style={{ textDecoration: "none" }}>
                                 <motion.div
                                     initial={{ opacity: 0, x: -10 }}
                                     animate={{ opacity: 1, x: 0 }}
                                     exit={{ opacity: 0, x: -10 }}
                                     style={{
                                         position: "fixed",
-                                        top: isMobile ? "1.5rem" : "2.5rem",
-                                        left: isMobile ? "1.5rem" : "2.5rem",
+                                        top: "1.25rem",
+                                        left: "1.25rem",
                                         zIndex: 100,
-                                        display: "flex",
-                                        alignItems: "center",
-                                        gap: "8px",
-                                        padding: "8px 16px",
-                                        background: "#3f3f46",
-                                        border: "1px solid #18181b",
-                                        borderBottom: "3px solid #18181b",
-                                        borderRadius: "6px",
-                                        color: "#d4d4d8",
-                                        textDecoration: "none",
-                                        fontSize: "0.75rem",
-                                        fontWeight: 800,
+                                        display: "flex", alignItems: "center", gap: "6px",
+                                        padding: "6px 12px",
+                                        background: "#2a2a2a",
+                                        border: "1.5px solid #333",
+                                        borderRadius: "8px",
+                                        color: "#777",
+                                        fontSize: "0.65rem",
+                                        fontWeight: 700,
                                         textTransform: "uppercase",
+                                        letterSpacing: "1px",
                                     }}
-                                    whileHover={{ scale: 1.02 }}
-                                    whileTap={{ scale: 0.98 }}
+                                    whileTap={{ scale: 0.95 }}
                                 >
-                                    <ChevronLeft size={16} strokeWidth={3} />
-                                    <span>Back</span>
+                                    <ChevronLeft size={14} strokeWidth={2.5} />
+                                    <span>Hub</span>
                                 </motion.div>
                             </Link>
                         )}
                     </AnimatePresence>
 
-                    {/* Heading (Only visible in Hub) */}
-                    <AnimatePresence>
-                        {!selectedStationId && (
-                            <motion.div
-                                initial={{ opacity: 0, y: 20 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                exit={{ opacity: 0, y: -20, filter: "blur(10px)" }}
-                                style={{
-                                    textAlign: "center",
-                                    marginBottom: "3rem",
-                                }}
-                            >
-                                <div style={{
-                                    display: "flex",
-                                    alignItems: "center",
-                                    justifyContent: "center",
-                                    gap: "10px",
-                                    marginBottom: "0.5rem"
-                                }}>
-                                    <RadioIcon size={22} color="#d4d4d8" />
-                                    <h1 style={{
-                                        fontSize: isMobile ? "1.5rem" : "2rem",
-                                        fontWeight: 800,
-                                        letterSpacing: "-0.02em",
-                                        margin: 0,
-                                        color: "#d4d4d8",
-                                        textTransform: "uppercase"
-                                    }}>
-                                        Starlight Freqs
-                                    </h1>
-                                </div>
-                                <p style={{
-                                    fontSize: "0.7rem",
-                                    color: "#a1a1aa",
-                                    fontWeight: 700,
-                                    margin: 0,
-                                    textTransform: "uppercase",
-                                    letterSpacing: "1px"
-                                }}>
-                                    Tactile Audio Hardware
-                                </p>
-                            </motion.div>
-                        )}
-                    </AnimatePresence>
-
-                    {/* The Two-Stage Router */}
-                    <AnimatePresence mode="wait">
-                        {!selectedStationId ? (
-                            <motion.div
-                                key="hub"
-                                initial={{ opacity: 0, scale: 0.95 }}
-                                animate={{ opacity: 1, scale: 1 }}
-                                exit={{ opacity: 0, scale: 0.95, filter: "blur(10px)" }}
-                                transition={{ duration: 0.3 }}
-                                style={{ width: "100%", display: "flex", justifyContent: "center" }}
-                            >
-                                <RadioHub onSelect={(id) => setSelectedStationId(id)} />
-                            </motion.div>
-                        ) : (
-                            <motion.div
-                                key="tuner"
-                                initial={{ opacity: 0, y: 20 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                exit={{ opacity: 0, y: -20, filter: "blur(10px)" }}
-                                transition={{ duration: 0.3 }}
-                                style={{ width: "100%", display: "flex", justifyContent: "center" }}
-                            >
-                                <RadioTuner stationId={selectedStationId} onBack={() => setSelectedStationId(null)} />
-                            </motion.div>
-                        )}
-                    </AnimatePresence>
-
-                    {/* Studio Ambiance Decorative Elements */}
-                    {!isMobile && (
-                        <div style={{
-                            position: "fixed",
-                            bottom: "3rem",
+                    {/* DAP Chassis */}
+                    <motion.div
+                        initial={{ opacity: 0, scale: 0.95 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{ type: "spring", stiffness: 250, damping: 25 }}
+                        style={{
                             width: "100%",
+                            maxWidth: "380px",
+                            background: "linear-gradient(180deg, #2d2d2d 0%, #252525 100%)",
+                            border: "2px solid #111",
+                            borderRadius: "24px",
+                            display: "flex",
+                            flexDirection: "column",
+                            boxShadow: "0 40px 70px -15px rgba(0,0,0,0.7), inset 0 1px 0 rgba(255,255,255,0.05)",
+                            overflow: "hidden",
+                        }}
+                    >
+                        {/* Header */}
+                        <div style={{
                             display: "flex",
                             justifyContent: "center",
-                            gap: "4rem",
-                            pointerEvents: "none"
+                            alignItems: "center",
+                            padding: "1.25rem 1.25rem 0.75rem",
                         }}>
-                            {[1, 2, 3, 4].map(i => (
-                                <div key={i} style={{
-                                    display: "flex",
-                                    flexDirection: "column",
-                                    gap: "8px"
-                                }}>
-                                    {[1, 2, 3, 4, 5, 6].map(j => (
-                                        <div key={j} style={{
-                                            width: "60px",
-                                            height: "2px",
-                                            background: "#3f3f46",
-                                            opacity: 1 - (j * 0.15)
-                                        }} />
-                                    ))}
-                                </div>
-                            ))}
+                            <span style={{
+                                color: "#555",
+                                fontSize: "0.55rem",
+                                fontWeight: 700,
+                                letterSpacing: "3px",
+                                textTransform: "uppercase"
+                            }}>
+                                Radio Frequencies
+                            </span>
                         </div>
-                    )}
+
+                        {/* Content Area */}
+                        <div style={{ padding: "0 1rem 1.5rem", minHeight: "280px" }}>
+                            <AnimatePresence mode="wait">
+                                {!selectedStationId ? (
+                                    <motion.div
+                                        key="hub"
+                                        initial={{ opacity: 0, scale: 0.95 }}
+                                        animate={{ opacity: 1, scale: 1 }}
+                                        exit={{ opacity: 0, scale: 0.95 }}
+                                        transition={{ duration: 0.25 }}
+                                    >
+                                        <RadioHub onSelect={(id) => setSelectedStationId(id)} />
+                                    </motion.div>
+                                ) : (
+                                    <motion.div
+                                        key="tuner"
+                                        initial={{ opacity: 0, y: 15 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        exit={{ opacity: 0, y: -15 }}
+                                        transition={{ duration: 0.25 }}
+                                    >
+                                        <RadioTuner stationId={selectedStationId} onBack={() => setSelectedStationId(null)} />
+                                    </motion.div>
+                                )}
+                            </AnimatePresence>
+                        </div>
+                    </motion.div>
                 </main>
             </ZenHideable>
         </>

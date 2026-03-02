@@ -4,22 +4,19 @@ import { ZenHideable } from "@/components/ZenHideable";
 import Link from "next/link";
 import {
     ChevronLeft,
-    Database,
-    Search,
-    Download,
-    Upload,
     CheckCircle2,
     XCircle,
     Clipboard,
     Loader2,
     Save,
     PenLine,
-    Lock
+    Lock,
+    Search
 } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
-const MASTER_PIN = "0000"; // Change this to your preferred PIN
+const MASTER_PIN = "0000";
 
 type FlowState = "idle" | "fetching" | "editing" | "saving" | "done" | "error";
 
@@ -36,14 +33,6 @@ export default function MasterPanelPage() {
     const titleInputRef = useRef<HTMLInputElement>(null);
     const inputRef = useRef<HTMLInputElement>(null);
     const terminalEndRef = useRef<HTMLDivElement>(null);
-    const [isMobile, setIsMobile] = useState(false);
-
-    useEffect(() => {
-        const checkMobile = () => setIsMobile(window.innerWidth < 768);
-        checkMobile();
-        window.addEventListener('resize', checkMobile);
-        return () => window.removeEventListener('resize', checkMobile);
-    }, []);
 
     useEffect(() => {
         terminalEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -53,7 +42,6 @@ export default function MasterPanelPage() {
         if (flowState === "editing") titleInputRef.current?.focus();
     }, [flowState]);
 
-    // Check if already unlocked this session
     useEffect(() => {
         if (typeof window !== "undefined" && sessionStorage.getItem("master_unlocked") === "true") {
             setIsUnlocked(true);
@@ -83,30 +71,23 @@ export default function MasterPanelPage() {
         } catch { }
     };
 
-    // STEP 1: Fetch + Upload (no DB save)
     const handleFetch = async () => {
         if (!url || flowState === "fetching") return;
-
         setFlowState("fetching");
         setLastSong(null);
         setLogs([]);
         addLog(`Target: ${url}`);
         addLog("Extracting audio...");
-
         try {
             const res = await fetch("/api/music/master/fetch", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ url })
             });
-
             const data = await res.json();
-
             if (data.success) {
-                addLog("Audio uploaded to cloud ✓", "success");
+                addLog("Audio uploaded ✓", "success");
                 addLog("Edit the title below, then save.", "info");
-
-                // Move to editing state
                 setEditTitle(data.suggestedTitle || "");
                 setPendingData({ audioUrl: data.audioUrl, duration: data.duration });
                 setFlowState("editing");
@@ -121,13 +102,10 @@ export default function MasterPanelPage() {
         }
     };
 
-    // STEP 2: Save with user-edited title
     const handleSave = async () => {
         if (!pendingData || !editTitle.trim()) return;
-
         setFlowState("saving");
         addLog(`Saving as: ${editTitle.trim()}`, "info");
-
         try {
             const res = await fetch("/api/music/master/save", {
                 method: "POST",
@@ -138,9 +116,7 @@ export default function MasterPanelPage() {
                     duration: pendingData.duration
                 })
             });
-
             const data = await res.json();
-
             if (data.success) {
                 addLog("Saved to library ✓", "success");
                 setLastSong({ title: editTitle.trim() });
@@ -149,7 +125,7 @@ export default function MasterPanelPage() {
                 setEditTitle("");
             } else {
                 addLog(data.error || "Save failed", "error");
-                setFlowState("editing"); // stay in editing so user can retry
+                setFlowState("editing");
             }
         } catch (error: any) {
             addLog(error.message || "Save error", "error");
@@ -169,54 +145,45 @@ export default function MasterPanelPage() {
         if (flowState === "done") return "#39ff14";
         if (flowState === "error") return "#ef4444";
         if (flowState === "editing") return "#3b82f6";
-        if (flowState === "idle") return "#71717a";
+        if (flowState === "idle") return "#555";
         return "#ff9f0a";
     };
 
     const logColor = (type: "info" | "success" | "error") => {
         if (type === "success") return "#39ff14";
         if (type === "error") return "#ef4444";
-        return "#71717a";
+        return "#666";
     };
 
     const isBusy = flowState === "fetching" || flowState === "saving";
 
+    // ─── Shared DAP shell styles ───
+    const shellBg = "linear-gradient(180deg, #2d2d2d 0%, #252525 100%)";
+    const shellBorder = "2px solid #111";
+    const shellRadius = "24px";
+    const shellShadow = "0 40px 70px -15px rgba(0,0,0,0.7), inset 0 1px 0 rgba(255,255,255,0.05)";
+    const insetBox = { background: "#1e1e1e", border: "1.5px solid #2a2a2a", borderRadius: "10px", boxShadow: "inset 0 2px 4px rgba(0,0,0,0.4)" };
+    const backBtn = {
+        position: "fixed" as const, top: "1.25rem", left: "1.25rem", zIndex: 100,
+        display: "flex", alignItems: "center", gap: "6px",
+        padding: "6px 12px", background: "#2a2a2a", border: "1.5px solid #333",
+        borderRadius: "8px", color: "#777", textDecoration: "none",
+        fontSize: "0.65rem", fontWeight: 700, textTransform: "uppercase" as const, letterSpacing: "1px",
+    };
+
     return (
         <>
-            <div style={{ position: 'fixed', inset: 0, backgroundColor: '#282828', zIndex: -1 }} />
+            <div style={{ position: 'fixed', inset: 0, backgroundColor: '#1a1a1a', zIndex: -1 }} />
 
-            {/* === PIN LOCK SCREEN === */}
+            {/* === PIN LOCK === */}
             {!isUnlocked ? (
                 <main style={{
-                    minHeight: "100vh",
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    padding: "2rem",
+                    minHeight: "100dvh", display: "flex", flexDirection: "column",
+                    alignItems: "center", justifyContent: "center", padding: "1rem",
                 }}>
-                    {/* Back */}
-                    <Link href="/music">
-                        <motion.div
-                            initial={{ opacity: 0, x: -10 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            style={{
-                                position: "fixed",
-                                top: isMobile ? "1.5rem" : "2.5rem",
-                                left: isMobile ? "1.5rem" : "2.5rem",
-                                zIndex: 100,
-                                display: "flex", alignItems: "center", gap: "8px",
-                                padding: "8px 16px",
-                                background: "#3f3f46", border: "1px solid #18181b",
-                                borderBottom: "3px solid #18181b", borderRadius: "6px",
-                                color: "#d4d4d8", textDecoration: "none",
-                                fontSize: "0.75rem", fontWeight: 800, textTransform: "uppercase",
-                            }}
-                            whileHover={{ scale: 1.02 }}
-                            whileTap={{ scale: 0.98 }}
-                        >
-                            <ChevronLeft size={16} strokeWidth={3} />
-                            <span>Hub</span>
+                    <Link href="/music" style={{ textDecoration: "none" }}>
+                        <motion.div style={backBtn} whileTap={{ scale: 0.95 }}>
+                            <ChevronLeft size={14} strokeWidth={2.5} /><span>Hub</span>
                         </motion.div>
                     </Link>
 
@@ -224,32 +191,27 @@ export default function MasterPanelPage() {
                         initial={{ opacity: 0, scale: 0.9 }}
                         animate={{ opacity: 1, scale: 1 }}
                         style={{
-                            width: "100%", maxWidth: "320px",
-                            background: "#3f3f46",
-                            border: "2px solid #18181b",
-                            borderBottom: "8px solid #18181b",
-                            borderRadius: "16px",
+                            width: "100%", maxWidth: "300px",
+                            background: shellBg, border: shellBorder, borderRadius: shellRadius,
                             padding: "2rem 1.5rem",
-                            display: "flex", flexDirection: "column",
-                            alignItems: "center", gap: "1.25rem",
-                            boxShadow: "0 25px 50px -12px rgba(0,0,0,0.5)"
+                            display: "flex", flexDirection: "column", alignItems: "center", gap: "1.25rem",
+                            boxShadow: shellShadow,
                         }}
                     >
                         <div style={{
-                            width: "48px", height: "48px", borderRadius: "50%",
-                            background: "#18181b",
+                            ...insetBox,
+                            width: "44px", height: "44px", borderRadius: "50%",
                             display: "flex", alignItems: "center", justifyContent: "center",
-                            border: "2px solid #27272a"
                         }}>
-                            <Lock size={22} color="#71717a" strokeWidth={2.5} />
+                            <Lock size={20} color="#666" strokeWidth={2.5} />
                         </div>
 
                         <div style={{ textAlign: "center" }}>
-                            <h2 style={{ color: "#d4d4d8", fontSize: "1rem", fontWeight: 900, letterSpacing: "2px", margin: 0 }}>
-                                MASTER CTRL
+                            <h2 style={{ color: "#aaa", fontSize: "0.85rem", fontWeight: 800, letterSpacing: "3px", margin: 0, textTransform: "uppercase" }}>
+                                Master Ctrl
                             </h2>
-                            <p style={{ color: "#52525b", fontSize: "0.65rem", fontWeight: 500, margin: "6px 0 0 0" }}>
-                                Enter access code to continue
+                            <p style={{ color: "#444", fontSize: "0.6rem", fontWeight: 500, margin: "6px 0 0 0" }}>
+                                Enter access code
                             </p>
                         </div>
 
@@ -268,25 +230,16 @@ export default function MasterPanelPage() {
                                 placeholder="• • • •"
                                 autoFocus
                                 style={{
-                                    width: "100%",
-                                    background: "#18181b",
-                                    border: `2px solid ${pinError ? "#ef4444" : "#27272a"}`,
-                                    borderRadius: "8px",
-                                    padding: "0.85rem",
-                                    color: "#d4d4d8",
-                                    fontFamily: "monospace",
-                                    fontSize: "1.2rem",
-                                    fontWeight: 700,
-                                    textAlign: "center",
-                                    letterSpacing: "8px",
-                                    outline: "none",
-                                    boxShadow: "inset 0 3px 6px rgba(0,0,0,0.4)",
-                                    transition: "border-color 0.2s"
+                                    width: "100%", ...insetBox,
+                                    padding: "0.85rem", color: "#aaa",
+                                    fontFamily: "monospace", fontSize: "1.2rem", fontWeight: 700,
+                                    textAlign: "center", letterSpacing: "8px", outline: "none",
+                                    borderColor: pinError ? "#ef4444" : "#2a2a2a",
                                 }}
                             />
                             {pinError && (
                                 <p style={{ color: "#ef4444", fontSize: "0.6rem", fontWeight: 600, textAlign: "center", margin: 0 }}>
-                                    Wrong code. Try again.
+                                    Wrong code.
                                 </p>
                             )}
                         </motion.div>
@@ -296,16 +249,12 @@ export default function MasterPanelPage() {
                             disabled={pin.length < 4}
                             whileTap={{ scale: 0.95, y: 2 }}
                             style={{
-                                width: "100%",
-                                background: pin.length >= 4 ? "#282828" : "#3f3f46",
-                                border: "2px solid #18181b",
-                                borderBottom: pin.length >= 4 ? "5px solid #18181b" : "2px solid #18181b",
-                                borderRadius: "8px",
+                                width: "100%", ...insetBox,
                                 padding: "0.75rem",
-                                color: pin.length >= 4 ? "#d4d4d8" : "#52525b",
-                                fontWeight: 900, letterSpacing: "2px", fontSize: "0.72rem",
+                                color: pin.length >= 4 ? "#aaa" : "#444",
+                                fontWeight: 800, letterSpacing: "2px", fontSize: "0.7rem",
                                 cursor: pin.length >= 4 ? "pointer" : "not-allowed",
-                                boxShadow: "inset 0 1px 1px rgba(255,255,255,0.06)"
+                                textAlign: "center",
                             }}
                         >
                             UNLOCK
@@ -318,349 +267,255 @@ export default function MasterPanelPage() {
                 /* === UNLOCKED: MASTER PANEL === */
                 <ZenHideable>
                     <main style={{
-                        minHeight: "100vh",
-                        display: "flex",
-                        flexDirection: "column",
-                        alignItems: "center",
-                        padding: isMobile ? "5rem 1rem 6rem" : "5rem 2.5rem 6rem",
-                        position: "relative",
-                        zIndex: 1,
+                        minHeight: "100dvh", display: "flex", flexDirection: "column",
+                        alignItems: "center", justifyContent: "center", padding: "1rem",
+                        position: "relative", zIndex: 1,
                     }}>
-                        {/* Back */}
-                        <Link href="/music">
-                            <motion.div
-                                initial={{ opacity: 0, x: -10 }}
-                                animate={{ opacity: 1, x: 0 }}
-                                style={{
-                                    position: "fixed",
-                                    top: isMobile ? "1.5rem" : "2.5rem",
-                                    left: isMobile ? "1.5rem" : "2.5rem",
-                                    zIndex: 100,
-                                    display: "flex", alignItems: "center", gap: "8px",
-                                    padding: "8px 16px",
-                                    background: "#3f3f46", border: "1px solid #18181b",
-                                    borderBottom: "3px solid #18181b", borderRadius: "6px",
-                                    color: "#d4d4d8", textDecoration: "none",
-                                    fontSize: "0.75rem", fontWeight: 800, textTransform: "uppercase",
-                                }}
-                                whileHover={{ scale: 1.02 }}
-                                whileTap={{ scale: 0.98 }}
-                            >
-                                <ChevronLeft size={16} strokeWidth={3} />
-                                <span>Hub</span>
+                        <Link href="/music" style={{ textDecoration: "none" }}>
+                            <motion.div style={backBtn} whileTap={{ scale: 0.95 }}>
+                                <ChevronLeft size={14} strokeWidth={2.5} /><span>Hub</span>
                             </motion.div>
                         </Link>
 
-                        {/* === CHASSIS === */}
+                        {/* DAP Chassis */}
                         <motion.div
                             initial={{ opacity: 0, scale: 0.95 }}
                             animate={{ opacity: 1, scale: 1 }}
-                            transition={{ type: "spring", stiffness: 300, damping: 25 }}
+                            transition={{ type: "spring", stiffness: 250, damping: 25 }}
                             style={{
-                                width: "100%", maxWidth: "460px",
-                                background: "#3f3f46",
-                                border: "2px solid #18181b",
-                                borderBottom: "8px solid #18181b",
-                                borderRadius: "16px",
-                                padding: "1.5rem",
-                                display: "flex", flexDirection: "column", gap: "1.25rem",
-                                boxShadow: "0 25px 50px -12px rgba(0,0,0,0.5), inset 0 2px 2px rgba(255,255,255,0.05)"
+                                width: "100%", maxWidth: "380px",
+                                background: shellBg, border: shellBorder, borderRadius: shellRadius,
+                                display: "flex", flexDirection: "column",
+                                boxShadow: shellShadow, overflow: "hidden",
                             }}
                         >
                             {/* Header */}
-                            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                                <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                                    <Database size={18} color="#a1a1aa" strokeWidth={2.5} />
-                                    <span style={{ color: "#d4d4d8", fontWeight: 900, letterSpacing: "2px", fontSize: "1rem" }}>
-                                        MASTER CTRL
-                                    </span>
-                                </div>
+                            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "1.25rem 1.25rem 0.5rem" }}>
+                                <span style={{ color: "#555", fontSize: "0.55rem", fontWeight: 700, letterSpacing: "3px", textTransform: "uppercase" }}>
+                                    Master Control
+                                </span>
                                 <motion.div
                                     animate={isBusy ? { opacity: [0.3, 1, 0.3] } : {}}
                                     transition={{ repeat: Infinity, duration: 0.8 }}
                                     style={{
-                                        width: "8px", height: "8px", borderRadius: "50%",
+                                        width: "6px", height: "6px", borderRadius: "50%",
                                         background: ledColor(),
-                                        boxShadow: `0 0 ${isBusy ? "8px" : "3px"} ${ledColor()}`,
-                                        border: "1px solid #111"
+                                        boxShadow: `0 0 ${isBusy ? "6px" : "2px"} ${ledColor()}`,
                                     }}
                                 />
                             </div>
 
-                            {/* HOW IT WORKS (idle only) */}
-                            <AnimatePresence>
-                                {flowState === "idle" && logs.length === 0 && (
-                                    <motion.div
-                                        initial={{ opacity: 0, height: 0 }}
-                                        animate={{ opacity: 1, height: "auto" }}
-                                        exit={{ opacity: 0, height: 0 }}
-                                        style={{
-                                            background: "#18181b", borderRadius: "8px",
-                                            padding: "1rem", border: "1px solid #27272a",
-                                        }}
-                                    >
-                                        <p style={{ color: "#a1a1aa", fontSize: "0.65rem", fontWeight: 700, letterSpacing: "1.5px", textTransform: "uppercase", margin: "0 0 0.75rem 0" }}>
-                                            How it works
-                                        </p>
-                                        <div style={{ display: "flex", flexDirection: "column", gap: "0.6rem" }}>
+                            {/* Content */}
+                            <div style={{ padding: "0.5rem 1rem 1.5rem", display: "flex", flexDirection: "column", gap: "0.75rem" }}>
+
+                                {/* How It Works (idle only) */}
+                                <AnimatePresence>
+                                    {flowState === "idle" && logs.length === 0 && (
+                                        <motion.div
+                                            initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }}
+                                            style={{ ...insetBox, padding: "0.85rem" }}
+                                        >
+                                            <p style={{ color: "#555", fontSize: "0.58rem", fontWeight: 700, letterSpacing: "1.5px", textTransform: "uppercase", margin: "0 0 0.6rem 0" }}>
+                                                How it works
+                                            </p>
                                             {[
-                                                { icon: <Clipboard size={14} />, text: "Paste a YouTube link below" },
-                                                { icon: <Download size={14} />, text: "Audio is extracted & uploaded" },
-                                                { icon: <PenLine size={14} />, text: "Edit the song title to your liking" },
-                                                { icon: <Save size={14} />, text: "Save to your music library" },
+                                                { icon: <Clipboard size={12} />, text: "Paste a YouTube link" },
+                                                { icon: <Search size={12} />, text: "Audio extracted & uploaded" },
+                                                { icon: <PenLine size={12} />, text: "Edit the title" },
+                                                { icon: <Save size={12} />, text: "Save to library" },
                                             ].map((step, i) => (
-                                                <div key={i} style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                                                    <div style={{ color: "#52525b", flexShrink: 0 }}>{step.icon}</div>
-                                                    <span style={{ color: "#a1a1aa", fontSize: "0.72rem", fontWeight: 500 }}>{step.text}</span>
+                                                <div key={i} style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "4px" }}>
+                                                    <div style={{ color: "#444", flexShrink: 0 }}>{step.icon}</div>
+                                                    <span style={{ color: "#666", fontSize: "0.6rem", fontWeight: 500 }}>{step.text}</span>
                                                 </div>
                                             ))}
-                                        </div>
-                                    </motion.div>
-                                )}
-                            </AnimatePresence>
+                                        </motion.div>
+                                    )}
+                                </AnimatePresence>
 
-                            {/* PROGRESS LOG */}
-                            <AnimatePresence>
-                                {logs.length > 0 && (
-                                    <motion.div
-                                        initial={{ opacity: 0, y: -10 }}
-                                        animate={{ opacity: 1, y: 0 }}
-                                        style={{
-                                            background: "#18181b", borderRadius: "8px",
-                                            padding: "1rem", border: "1px solid #27272a",
-                                        }}
-                                    >
-                                        {/* Status label */}
-                                        <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.5rem" }}>
-                                            {flowState === "done" ? <CheckCircle2 size={14} color="#39ff14" strokeWidth={2.5} />
-                                                : flowState === "error" ? <XCircle size={14} color="#ef4444" strokeWidth={2.5} />
-                                                    : flowState === "editing" ? <PenLine size={14} color="#3b82f6" strokeWidth={2.5} />
-                                                        : <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 1, ease: "linear" }}><Loader2 size={14} color="#ff9f0a" strokeWidth={2.5} /></motion.div>}
-                                            <span style={{
-                                                color: ledColor(), fontSize: "0.65rem",
-                                                fontWeight: 800, letterSpacing: "1px", textTransform: "uppercase"
-                                            }}>
-                                                {flowState === "fetching" ? "Extracting..." : flowState === "editing" ? "Edit Title" : flowState === "saving" ? "Saving..." : flowState === "done" ? "Complete" : flowState === "error" ? "Failed" : ""}
-                                            </span>
-                                        </div>
-
-                                        <div style={{ maxHeight: "80px", overflowY: "auto", display: "flex", flexDirection: "column", gap: "0.25rem", scrollbarWidth: "none" }}>
-                                            {logs.map((log, i) => (
-                                                <motion.div
-                                                    key={i}
-                                                    initial={{ opacity: 0, x: -5 }}
-                                                    animate={{ opacity: 1, x: 0 }}
-                                                    style={{ fontFamily: "monospace", fontSize: "0.65rem", color: logColor(log.type), wordBreak: "break-all", lineHeight: 1.4, display: "flex", gap: "6px" }}
-                                                >
-                                                    <span style={{ opacity: 0.4 }}>›</span>
-                                                    <span>{log.text}</span>
-                                                </motion.div>
-                                            ))}
-                                            <div ref={terminalEndRef} />
-                                        </div>
-                                    </motion.div>
-                                )}
-                            </AnimatePresence>
-
-                            {/* EDITABLE TITLE FIELD (Step 2) */}
-                            <AnimatePresence>
-                                {flowState === "editing" && (
-                                    <motion.div
-                                        initial={{ opacity: 0, y: 10 }}
-                                        animate={{ opacity: 1, y: 0 }}
-                                        exit={{ opacity: 0 }}
-                                        style={{
-                                            background: "#18181b", borderRadius: "8px",
-                                            padding: "1rem", border: "1px solid #3b82f6",
-                                            display: "flex", flexDirection: "column", gap: "0.6rem"
-                                        }}
-                                    >
-                                        <label style={{ fontSize: "0.6rem", fontWeight: 800, color: "#3b82f6", letterSpacing: "1.5px", textTransform: "uppercase" }}>
-                                            Song Title
-                                        </label>
-                                        <input
-                                            ref={titleInputRef}
-                                            type="text"
-                                            value={editTitle}
-                                            onChange={(e) => setEditTitle(e.target.value)}
-                                            onKeyDown={(e) => e.key === "Enter" && handleSave()}
-                                            placeholder="Artist — Song Name"
-                                            style={{
-                                                background: "#111",
-                                                border: "2px solid #27272a",
-                                                borderRadius: "6px",
-                                                padding: "0.75rem 0.8rem",
-                                                color: "#e4e4e7",
-                                                fontFamily: "monospace",
-                                                fontSize: "0.85rem",
-                                                fontWeight: 600,
-                                                outline: "none",
-                                                boxShadow: "inset 0 3px 5px rgba(0,0,0,0.3)"
-                                            }}
-                                        />
-                                        <p style={{ color: "#52525b", fontSize: "0.55rem", margin: 0 }}>
-                                            Recommended format: Artist — Song Title (use em-dash —)
-                                        </p>
-
-                                        <motion.button
-                                            onClick={handleSave}
-                                            disabled={!editTitle.trim()}
-                                            whileTap={{ scale: 0.95, y: 2 }}
-                                            style={{
-                                                background: "#282828",
-                                                border: "2px solid #18181b",
-                                                borderBottom: "5px solid #18181b",
-                                                borderRadius: "8px",
-                                                padding: "0.7rem 1rem",
-                                                color: editTitle.trim() ? "#39ff14" : "#52525b",
-                                                fontWeight: 900, letterSpacing: "1px", fontSize: "0.72rem",
-                                                cursor: editTitle.trim() ? "pointer" : "not-allowed",
-                                                display: "flex", alignItems: "center", justifyContent: "center",
-                                                gap: "8px",
-                                                boxShadow: "inset 0 1px 1px rgba(255,255,255,0.08)"
-                                            }}
+                                {/* Progress Log */}
+                                <AnimatePresence>
+                                    {logs.length > 0 && (
+                                        <motion.div
+                                            initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }}
+                                            style={{ ...insetBox, padding: "0.85rem" }}
                                         >
-                                            <Save size={14} strokeWidth={2.5} />
-                                            SAVE TO LIBRARY
-                                        </motion.button>
-                                    </motion.div>
-                                )}
-                            </AnimatePresence>
+                                            <div style={{ display: "flex", alignItems: "center", gap: "0.4rem", marginBottom: "0.4rem" }}>
+                                                {flowState === "done" ? <CheckCircle2 size={12} color="#39ff14" strokeWidth={2.5} />
+                                                    : flowState === "error" ? <XCircle size={12} color="#ef4444" strokeWidth={2.5} />
+                                                        : flowState === "editing" ? <PenLine size={12} color="#3b82f6" strokeWidth={2.5} />
+                                                            : <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 1, ease: "linear" }}><Loader2 size={12} color="#ff9f0a" strokeWidth={2.5} /></motion.div>}
+                                                <span style={{ color: ledColor(), fontSize: "0.58rem", fontWeight: 800, letterSpacing: "1px", textTransform: "uppercase" }}>
+                                                    {flowState === "fetching" ? "Extracting..." : flowState === "editing" ? "Edit Title" : flowState === "saving" ? "Saving..." : flowState === "done" ? "Complete" : flowState === "error" ? "Failed" : ""}
+                                                </span>
+                                            </div>
+                                            <div style={{ maxHeight: "70px", overflowY: "auto", display: "flex", flexDirection: "column", gap: "2px", scrollbarWidth: "none" }}>
+                                                {logs.map((log, i) => (
+                                                    <motion.div key={i} initial={{ opacity: 0, x: -4 }} animate={{ opacity: 1, x: 0 }}
+                                                        style={{ fontFamily: "monospace", fontSize: "0.58rem", color: logColor(log.type), wordBreak: "break-all", lineHeight: 1.4, display: "flex", gap: "5px" }}
+                                                    >
+                                                        <span style={{ opacity: 0.4 }}>›</span>
+                                                        <span>{log.text}</span>
+                                                    </motion.div>
+                                                ))}
+                                                <div ref={terminalEndRef} />
+                                            </div>
+                                        </motion.div>
+                                    )}
+                                </AnimatePresence>
 
-                            {/* SUCCESS CARD */}
-                            <AnimatePresence>
-                                {lastSong && flowState === "done" && (
-                                    <motion.div
-                                        initial={{ opacity: 0, y: 10 }}
-                                        animate={{ opacity: 1, y: 0 }}
-                                        exit={{ opacity: 0 }}
-                                        style={{
-                                            background: "rgba(57, 255, 20, 0.06)",
-                                            border: "1px solid rgba(57, 255, 20, 0.2)",
-                                            borderRadius: "8px",
-                                            padding: "0.75rem 1rem",
-                                            display: "flex", alignItems: "center", gap: "10px"
-                                        }}
-                                    >
-                                        <CheckCircle2 size={18} color="#39ff14" strokeWidth={2} />
-                                        <div style={{ flex: 1 }}>
-                                            <p style={{ color: "#d4d4d8", fontSize: "0.78rem", fontWeight: 700, margin: 0 }}>{lastSong.title}</p>
-                                            <p style={{ color: "#71717a", fontSize: "0.6rem", fontWeight: 500, margin: "2px 0 0 0" }}>Added to your library</p>
-                                        </div>
-                                    </motion.div>
-                                )}
-                            </AnimatePresence>
-
-                            {/* FETCH ANOTHER (after done/error) */}
-                            <AnimatePresence>
-                                {(flowState === "done" || flowState === "error") && (
-                                    <motion.button
-                                        initial={{ opacity: 0 }}
-                                        animate={{ opacity: 1 }}
-                                        onClick={handleReset}
-                                        whileTap={{ scale: 0.95 }}
-                                        style={{
-                                            background: "#282828",
-                                            border: "2px solid #18181b",
-                                            borderBottom: "4px solid #18181b",
-                                            borderRadius: "8px",
-                                            padding: "0.6rem",
-                                            color: "#a1a1aa",
-                                            fontWeight: 800, letterSpacing: "1px", fontSize: "0.65rem",
-                                            cursor: "pointer",
-                                            textTransform: "uppercase"
-                                        }}
-                                    >
-                                        + Fetch Another
-                                    </motion.button>
-                                )}
-                            </AnimatePresence>
-
-                            {/* URL INPUT (Step 1) — only when idle or error */}
-                            <AnimatePresence>
-                                {(flowState === "idle" || flowState === "error") && (
-                                    <motion.div
-                                        initial={{ opacity: 0 }}
-                                        animate={{ opacity: 1 }}
-                                        style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}
-                                    >
-                                        <label style={{ fontSize: "0.6rem", fontWeight: 800, color: "#71717a", letterSpacing: "1.5px", textTransform: "uppercase" }}>
-                                            YouTube URL
-                                        </label>
-                                        <div style={{ display: "flex", gap: "0.4rem" }}>
-                                            <motion.button
-                                                onClick={handlePaste}
-                                                whileTap={{ scale: 0.92 }}
-                                                title="Paste from clipboard"
-                                                style={{
-                                                    background: "#282828",
-                                                    border: "2px solid #18181b",
-                                                    borderBottom: "4px solid #18181b",
-                                                    borderRadius: "6px",
-                                                    padding: "0 0.65rem",
-                                                    color: "#71717a",
-                                                    cursor: "pointer",
-                                                    display: "flex", alignItems: "center",
-                                                }}
-                                            >
-                                                <Clipboard size={14} strokeWidth={2.5} />
-                                            </motion.button>
-
+                                {/* Editable Title (Step 2) */}
+                                <AnimatePresence>
+                                    {flowState === "editing" && (
+                                        <motion.div
+                                            initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
+                                            style={{ ...insetBox, padding: "0.85rem", borderColor: "#3b82f6", display: "flex", flexDirection: "column", gap: "0.5rem" }}
+                                        >
+                                            <label style={{ fontSize: "0.55rem", fontWeight: 800, color: "#3b82f6", letterSpacing: "1.5px", textTransform: "uppercase" }}>
+                                                Song Title
+                                            </label>
                                             <input
-                                                ref={inputRef}
+                                                ref={titleInputRef}
                                                 type="text"
-                                                value={url}
-                                                onChange={(e) => setUrl(e.target.value)}
-                                                onKeyDown={(e) => e.key === "Enter" && handleFetch()}
-                                                placeholder="https://youtube.com/watch?v=..."
-                                                disabled={isBusy}
+                                                value={editTitle}
+                                                onChange={(e) => setEditTitle(e.target.value)}
+                                                onKeyDown={(e) => e.key === "Enter" && handleSave()}
+                                                placeholder="Artist — Song Name"
                                                 style={{
-                                                    flex: 1,
-                                                    background: "#18181b",
-                                                    border: "2px solid #27272a",
-                                                    borderRadius: "6px",
-                                                    padding: "0.7rem 0.8rem",
-                                                    color: "#d4d4d8",
-                                                    fontFamily: "monospace",
-                                                    fontSize: "0.75rem",
-                                                    outline: "none",
-                                                    boxShadow: "inset 0 3px 5px rgba(0,0,0,0.3)"
+                                                    background: "#151515", border: "1.5px solid #222", borderRadius: "6px",
+                                                    padding: "0.65rem 0.7rem", color: "#ccc",
+                                                    fontFamily: "monospace", fontSize: "0.8rem", fontWeight: 600,
+                                                    outline: "none", boxShadow: "inset 0 2px 4px rgba(0,0,0,0.4)"
                                                 }}
                                             />
-
+                                            <p style={{ color: "#444", fontSize: "0.5rem", margin: 0 }}>
+                                                Format: Artist — Song Title
+                                            </p>
                                             <motion.button
-                                                onClick={handleFetch}
-                                                disabled={!url || isBusy}
+                                                onClick={handleSave}
+                                                disabled={!editTitle.trim()}
                                                 whileTap={{ scale: 0.95, y: 2 }}
                                                 style={{
-                                                    background: isBusy ? "#3f3f46" : "#282828",
-                                                    border: "2px solid #18181b",
-                                                    borderBottom: isBusy ? "2px solid #18181b" : "5px solid #18181b",
-                                                    borderRadius: "8px",
-                                                    padding: "0 1rem",
-                                                    color: isBusy ? "#52525b" : "#d4d4d8",
-                                                    fontWeight: 900, letterSpacing: "1px", fontSize: "0.72rem",
-                                                    cursor: (!url || isBusy) ? "not-allowed" : "pointer",
-                                                    display: "flex", alignItems: "center", justifyContent: "center",
-                                                    gap: "6px",
-                                                    boxShadow: "inset 0 1px 1px rgba(255,255,255,0.08)"
+                                                    background: "#1e1e1e", border: "1.5px solid #222", borderRadius: "8px",
+                                                    padding: "0.6rem", color: editTitle.trim() ? "#39ff14" : "#444",
+                                                    fontWeight: 800, letterSpacing: "1px", fontSize: "0.65rem",
+                                                    cursor: editTitle.trim() ? "pointer" : "not-allowed",
+                                                    display: "flex", alignItems: "center", justifyContent: "center", gap: "6px",
                                                 }}
                                             >
-                                                {isBusy ? (
-                                                    <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 1, ease: "linear" }}>
-                                                        <Loader2 size={14} strokeWidth={2.5} />
-                                                    </motion.div>
-                                                ) : <Search size={14} strokeWidth={2.5} />}
-                                                <span>{isBusy ? "WAIT" : "FETCH"}</span>
+                                                <Save size={12} strokeWidth={2.5} /> SAVE TO LIBRARY
                                             </motion.button>
-                                        </div>
-                                        <p style={{ color: "#52525b", fontSize: "0.58rem", margin: "2px 0 0 0", fontWeight: 500 }}>
-                                            Playlist params are stripped automatically.
-                                        </p>
-                                    </motion.div>
-                                )}
-                            </AnimatePresence>
+                                        </motion.div>
+                                    )}
+                                </AnimatePresence>
 
+                                {/* Success Card */}
+                                <AnimatePresence>
+                                    {lastSong && flowState === "done" && (
+                                        <motion.div
+                                            initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
+                                            style={{
+                                                background: "rgba(57, 255, 20, 0.04)",
+                                                border: "1.5px solid rgba(57, 255, 20, 0.15)",
+                                                borderRadius: "10px",
+                                                padding: "0.65rem 0.85rem",
+                                                display: "flex", alignItems: "center", gap: "8px"
+                                            }}
+                                        >
+                                            <CheckCircle2 size={16} color="#39ff14" strokeWidth={2} />
+                                            <div style={{ flex: 1 }}>
+                                                <p style={{ color: "#aaa", fontSize: "0.72rem", fontWeight: 700, margin: 0 }}>{lastSong.title}</p>
+                                                <p style={{ color: "#555", fontSize: "0.55rem", fontWeight: 500, margin: "2px 0 0 0" }}>Added to library</p>
+                                            </div>
+                                        </motion.div>
+                                    )}
+                                </AnimatePresence>
+
+                                {/* Fetch Another */}
+                                <AnimatePresence>
+                                    {(flowState === "done" || flowState === "error") && (
+                                        <motion.button
+                                            initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+                                            onClick={handleReset}
+                                            whileTap={{ scale: 0.95 }}
+                                            style={{
+                                                ...insetBox, padding: "0.55rem",
+                                                color: "#666", fontWeight: 800, letterSpacing: "1px",
+                                                fontSize: "0.6rem", cursor: "pointer", textTransform: "uppercase", textAlign: "center",
+                                            }}
+                                        >
+                                            + Fetch Another
+                                        </motion.button>
+                                    )}
+                                </AnimatePresence>
+
+                                {/* URL Input (Step 1) */}
+                                <AnimatePresence>
+                                    {(flowState === "idle" || flowState === "error") && (
+                                        <motion.div
+                                            initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+                                            style={{ display: "flex", flexDirection: "column", gap: "0.4rem" }}
+                                        >
+                                            <label style={{ fontSize: "0.55rem", fontWeight: 700, color: "#555", letterSpacing: "1.5px", textTransform: "uppercase" }}>
+                                                YouTube URL
+                                            </label>
+                                            <div style={{ display: "flex", gap: "0.35rem" }}>
+                                                <motion.button
+                                                    onClick={handlePaste}
+                                                    whileTap={{ scale: 0.9 }}
+                                                    title="Paste"
+                                                    style={{
+                                                        ...insetBox, padding: "0 0.6rem",
+                                                        color: "#555", cursor: "pointer",
+                                                        display: "flex", alignItems: "center",
+                                                    }}
+                                                >
+                                                    <Clipboard size={13} strokeWidth={2.5} />
+                                                </motion.button>
+
+                                                <input
+                                                    ref={inputRef}
+                                                    type="text"
+                                                    value={url}
+                                                    onChange={(e) => setUrl(e.target.value)}
+                                                    onKeyDown={(e) => e.key === "Enter" && handleFetch()}
+                                                    placeholder="https://youtube.com/watch?v=..."
+                                                    disabled={isBusy}
+                                                    style={{
+                                                        flex: 1, ...insetBox,
+                                                        padding: "0.6rem 0.7rem", color: "#aaa",
+                                                        fontFamily: "monospace", fontSize: "0.65rem",
+                                                        outline: "none",
+                                                    }}
+                                                />
+
+                                                <motion.button
+                                                    onClick={handleFetch}
+                                                    disabled={!url || isBusy}
+                                                    whileTap={{ scale: 0.95, y: 2 }}
+                                                    style={{
+                                                        ...insetBox, padding: "0 0.85rem",
+                                                        color: (!url || isBusy) ? "#444" : "#aaa",
+                                                        fontWeight: 800, letterSpacing: "1px", fontSize: "0.65rem",
+                                                        cursor: (!url || isBusy) ? "not-allowed" : "pointer",
+                                                        display: "flex", alignItems: "center", justifyContent: "center", gap: "5px",
+                                                    }}
+                                                >
+                                                    {isBusy ? (
+                                                        <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 1, ease: "linear" }}>
+                                                            <Loader2 size={13} strokeWidth={2.5} />
+                                                        </motion.div>
+                                                    ) : <Search size={13} strokeWidth={2.5} />}
+                                                    <span>{isBusy ? "..." : "GO"}</span>
+                                                </motion.button>
+                                            </div>
+                                            <p style={{ color: "#444", fontSize: "0.5rem", margin: "2px 0 0 0", fontWeight: 500 }}>
+                                                Playlist params stripped automatically.
+                                            </p>
+                                        </motion.div>
+                                    )}
+                                </AnimatePresence>
+                            </div>
                         </motion.div>
                     </main>
                 </ZenHideable>
