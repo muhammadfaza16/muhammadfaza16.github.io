@@ -22,8 +22,8 @@ export function GlobalBottomPlayer() {
 
     if (activePlaybackMode === 'none') return null;
 
-    // Hide on radio page when radio is playing (RadioTuner has its own controls)
-    if (pathname?.startsWith('/music/radio') && activePlaybackMode === 'radio') return null;
+    // Hide on all music-related pages as they have their own dedicated UI
+    if (pathname?.startsWith('/music') || pathname?.startsWith('/playlist')) return null;
 
     const isRadio = activePlaybackMode === 'radio';
     const isMusic = activePlaybackMode === 'music';

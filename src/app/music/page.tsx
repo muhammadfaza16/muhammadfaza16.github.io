@@ -25,7 +25,16 @@ const TOOLBAR = [
     { icon: Power, href: "/" },
 ];
 
+import { useAudio } from "@/components/AudioContext";
+import { useRadio } from "@/components/RadioContext";
+
 export default function AudioHubPage() {
+    const { activePlaybackMode, isPlaying: musicPlaying, activePlaylistId } = useAudio();
+    const { isRadioPaused, isSyncing, isBuffering } = useRadio();
+
+    const isRadioPlaying = activePlaybackMode === 'radio' && !isRadioPaused && !isSyncing && !isBuffering;
+    const isMusicPlaying = activePlaybackMode === 'music' && musicPlaying;
+
     return (
         <>
             <div style={{ position: 'fixed', inset: 0, backgroundColor: '#1a1a1a', zIndex: -1 }} />
@@ -103,6 +112,18 @@ export default function AudioHubPage() {
                         }}>
                             {MENU_ITEMS.map((item, i) => {
                                 const Icon = item.icon;
+
+                                // Determine if this specific item is currently actively playing
+                                let isItemActive = false;
+                                if (item.id === "radio" && isRadioPlaying) {
+                                    isItemActive = true;
+                                } else if (item.id === "songs" && isMusicPlaying && activePlaylistId === null) {
+                                    // Default queue (Songs) uses null or 'all' for playlistId
+                                    isItemActive = true;
+                                } else if (item.id === "playlists" && isMusicPlaying && activePlaylistId !== null) {
+                                    isItemActive = true;
+                                }
+
                                 return (
                                     <Link key={item.id} href={item.href} style={{ textDecoration: "none" }}>
                                         <motion.div
@@ -123,11 +144,29 @@ export default function AudioHubPage() {
                                         >
                                             <div style={{
                                                 width: "44px", height: "44px", borderRadius: "12px",
-                                                background: "#1e1e1e", border: "1.5px solid #383838",
+                                                background: "#1e1e1e",
+                                                border: `1.5px solid ${isItemActive ? "#39ff1450" : "#383838"}`,
                                                 display: "flex", alignItems: "center", justifyContent: "center",
-                                                boxShadow: "inset 0 2px 4px rgba(0,0,0,0.35), 0 1px 0 rgba(255,255,255,0.03)",
+                                                boxShadow: isItemActive
+                                                    ? "inset 0 0 15px rgba(57,255,20,0.15), 0 0 10px rgba(57,255,20,0.1)"
+                                                    : "inset 0 2px 4px rgba(0,0,0,0.35), 0 1px 0 rgba(255,255,255,0.03)",
+                                                position: "relative"
                                             }}>
-                                                <Icon size={20} color="#aaa" strokeWidth={2} />
+                                                <Icon size={20} color={isItemActive ? "#39ff14" : "#aaa"} strokeWidth={2} />
+
+                                                {isItemActive && (
+                                                    <motion.div
+                                                        animate={{ opacity: [0.3, 0.8, 0.3], scale: [0.95, 1.05, 0.95] }}
+                                                        transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
+                                                        style={{
+                                                            position: "absolute",
+                                                            inset: -2,
+                                                            borderRadius: "12px",
+                                                            border: "1px solid #39ff14",
+                                                            opacity: 0.5,
+                                                        }}
+                                                    />
+                                                )}
                                             </div>
                                             <span style={{
                                                 color: "#888",
