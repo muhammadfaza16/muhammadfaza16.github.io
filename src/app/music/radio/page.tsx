@@ -100,20 +100,20 @@ export default function RadioPage() {
                                 {!selectedStationId ? (
                                     <motion.div
                                         key="hub"
-                                        initial={{ opacity: 0, scale: 0.95 }}
-                                        animate={{ opacity: 1, scale: 1 }}
-                                        exit={{ opacity: 0, scale: 0.95 }}
-                                        transition={{ duration: 0.25 }}
+                                        initial={{ opacity: 0, filter: "blur(4px)", scale: 0.96 }}
+                                        animate={{ opacity: 1, filter: "blur(0px)", scale: 1 }}
+                                        exit={{ opacity: 0, filter: "blur(4px)", scale: 0.96, position: "absolute", width: "100%" }}
+                                        transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
                                     >
                                         <RadioHub onSelect={(id) => setSelectedStationId(id)} />
                                     </motion.div>
                                 ) : (
                                     <motion.div
                                         key="tuner"
-                                        initial={{ opacity: 0, y: 15 }}
-                                        animate={{ opacity: 1, y: 0 }}
-                                        exit={{ opacity: 0, y: -15 }}
-                                        transition={{ duration: 0.25 }}
+                                        initial={{ opacity: 0, filter: "blur(4px)", scale: 1.04 }}
+                                        animate={{ opacity: 1, filter: "blur(0px)", scale: 1 }}
+                                        exit={{ opacity: 0, filter: "blur(4px)", scale: 1.04, position: "absolute", width: "100%" }}
+                                        transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
                                     >
                                         <RadioTuner stationId={selectedStationId} onBack={() => setSelectedStationId(null)} />
                                     </motion.div>
