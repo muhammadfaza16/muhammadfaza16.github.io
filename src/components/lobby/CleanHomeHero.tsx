@@ -476,6 +476,7 @@ export function CleanHomeHero() {
                 </div>
 
                 <style>{`
+                    @keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.5; transform: scale(0.85); } }
                     @keyframes blink-cursor { 0%,100%{opacity:1} 50%{opacity:0} } 
                     @keyframes today-pulse { 0%,100%{box-shadow:0 0 6px rgba(255,59,48,0.4)} 50%{box-shadow:0 0 14px rgba(255,59,48,0.7)} }
                     .custom-scrollbar::-webkit-scrollbar {
@@ -494,15 +495,29 @@ export function CleanHomeHero() {
                 `}</style>
 
                 {curationReminder && (
-                    <Link href={`/curation/${curationReminder.article.id}`} style={{ display: "block", width: "fit-content", marginBottom: "0.8rem", marginTop: "0.8rem" }}>
-                        <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", background: "rgba(231,231,231,0.1)", border: "1px solid rgba(231,231,231,0.2)", backdropFilter: "blur(12px)", padding: "0.625rem 1rem", borderRadius: "1rem", transition: "all 0.3s ease" }}>
-                            <div style={{ width: "0.5rem", height: "0.5rem", borderRadius: "50%", background: "#f87171", animation: "pulse 1.5s infinite" }} />
-                            <div>
-                                <p style={{ color: "white", fontSize: "0.875rem", fontWeight: 600, marginBottom: "0.125rem" }}>{curationReminder.message}</p>
-                                <p style={{ color: "rgba(255,255,255,0.6)", fontSize: "0.75rem" }}>Read: {curationReminder.article.title}</p>
-                            </div>
-                        </div>
-                    </Link>
+                    <motion.div
+                        initial={{ opacity: 0, y: -5 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        style={{ marginBottom: "0.8rem", marginTop: "0.2rem" }}
+                    >
+                        <Link href={`/curation/${curationReminder.article.id}`} style={{
+                            display: "inline-flex",
+                            alignItems: "center",
+                            gap: "0.5rem",
+                            padding: "0.35rem 0.75rem",
+                            borderRadius: "100px",
+                            background: "rgba(255,255,255,0.08)",
+                            backdropFilter: "blur(8px)",
+                            border: "1px solid rgba(255,255,255,0.12)",
+                            textDecoration: "none",
+                            transition: "all 0.2s ease"
+                        }}>
+                            <div style={{ width: "6px", height: "6px", borderRadius: "50%", background: "#f87171", animation: "pulse 1.5s infinite" }} />
+                            <span style={{ color: "rgba(255,255,255,0.9)", fontSize: "0.72rem", fontWeight: 700, letterSpacing: "-0.01em" }}>
+                                {curationReminder.count} backlogs · {curationReminder.article.title}
+                            </span>
+                        </Link>
+                    </motion.div>
                 )}
             </motion.div>
 
