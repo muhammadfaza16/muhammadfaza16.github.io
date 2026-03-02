@@ -97,7 +97,7 @@ export default function RadioPage() {
                         {/* Content Area */}
                         <div style={{
                             padding: "0 1rem 1.5rem",
-                            height: "420px",
+                            maxHeight: "55dvh",
                             overflowY: "auto",
                             overflowX: "hidden",
                         }}>
