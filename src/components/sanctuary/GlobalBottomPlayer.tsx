@@ -62,7 +62,7 @@ export function GlobalBottomPlayer() {
                     bottom: "0.75rem",
                     left: "50%",
                     width: "calc(100% - 1.5rem)",
-                    maxWidth: "400px",
+                    maxWidth: "320px",
                     zIndex: 9999,
                     userSelect: "none",
                 }}

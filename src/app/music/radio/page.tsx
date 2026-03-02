@@ -66,7 +66,7 @@ export default function RadioPage() {
                         transition={{ type: "spring", stiffness: 250, damping: 25 }}
                         style={{
                             width: "100%",
-                            maxWidth: "380px",
+                            maxWidth: "320px",
                             background: "linear-gradient(180deg, #2d2d2d 0%, #252525 100%)",
                             border: "2px solid #111",
                             borderRadius: "24px",
@@ -95,7 +95,12 @@ export default function RadioPage() {
                         </div>
 
                         {/* Content Area */}
-                        <div style={{ padding: "0 1rem 1.5rem", minHeight: "280px" }}>
+                        <div style={{
+                            padding: "0 1rem 1.5rem",
+                            height: "420px",
+                            overflowY: "auto",
+                            overflowX: "hidden",
+                        }}>
                             <AnimatePresence mode="wait">
                                 {!selectedStationId ? (
                                     <motion.div
