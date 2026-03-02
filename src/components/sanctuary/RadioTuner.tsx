@@ -2,7 +2,7 @@
 
 import React from "react";
 import { motion } from "framer-motion";
-import { ArrowLeft, Square } from "lucide-react";
+import { ArrowLeft, Square, Radio as RadioIcon } from "lucide-react";
 import { useRadio } from "../RadioContext";
 
 const METER_BARS = Array.from({ length: 16 }).map(() => ({
@@ -200,17 +200,23 @@ export function RadioTuner({ stationId, onBack }: { stationId: string; onBack: (
                     }}>
                         {METER_BARS.map((bar, i) => {
                             const ratio = i / METER_BARS.length;
-                            const barColor = ratio > 0.75 ? "#ef4444" : ratio > 0.5 ? color : color + "88";
+                            // Normal playing color: Green/Red
+                            // Dimmed live color: dark green/grey
+                            const playingColor = ratio > 0.75 ? "#ef4444" : ratio > 0.5 ? color : color + "88";
+                            const liveDimmedColor = ratio > 0.75 ? "#ef444460" : color + "40";
+                            const barColor = isPlaying ? playingColor : (isLive ? liveDimmedColor : "#222");
 
                             return (
                                 <motion.div
                                     key={i}
                                     animate={isPlaying ? {
                                         height: [`12%`, `${30 + Math.random() * 65}%`, `12%`],
+                                    } : isLive ? {
+                                        height: [`8%`, `${15 + Math.random() * 30}%`, `8%`],
                                     } : {
                                         height: "8%",
                                     }}
-                                    transition={isPlaying ? {
+                                    transition={(isPlaying || isLive) ? {
                                         duration: bar.dur,
                                         repeat: Infinity,
                                         repeatType: "reverse",
@@ -218,9 +224,9 @@ export function RadioTuner({ stationId, onBack }: { stationId: string; onBack: (
                                     } : { duration: 0.3 }}
                                     style={{
                                         flex: 1,
-                                        background: isPlaying ? barColor : "#222",
+                                        background: barColor,
                                         borderRadius: "1px",
-                                        opacity: isPlaying ? 0.85 : 0.4,
+                                        opacity: isPlaying ? 0.85 : (isLive ? 0.4 : 0.2),
                                     }}
                                 />
                             );
@@ -283,14 +289,9 @@ export function RadioTuner({ stationId, onBack }: { stationId: string; onBack: (
                         ) : isPlaying ? (
                             <Square size={14} fill="currentColor" />
                         ) : (
-                            <div style={{
-                                width: "0", height: "0",
-                                borderTop: "6px solid transparent",
-                                borderLeft: "10px solid currentColor",
-                                borderBottom: "6px solid transparent",
-                            }} />
+                            <RadioIcon size={14} />
                         )}
-                        <span>{isPlaying ? "STOP" : "PLAY"}</span>
+                        <span>{isPlaying ? "MUTE" : "LISTEN"}</span>
                     </motion.button>
                 </div>
             </motion.div>
