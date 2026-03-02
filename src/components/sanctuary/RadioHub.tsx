@@ -66,8 +66,8 @@ export function RadioHub({ onSelect }: { onSelect: (id: string) => void }) {
                                 width: "4px",
                                 height: "4px",
                                 borderRadius: "50%",
-                                background: isPlaying ? color : "#444",
-                                boxShadow: isPlaying ? `0 0 6px ${color}` : "none",
+                                background: isPlaying ? color : (isLive ? color + "88" : "#444"),
+                                boxShadow: isPlaying ? `0 0 6px ${color}` : (isLive ? `0 0 4px ${color}40` : "none"),
                             }} />
 
                             {/* Animated ring only when actually playing */}
@@ -128,7 +128,7 @@ export function RadioHub({ onSelect }: { onSelect: (id: string) => void }) {
                                 overflow: "hidden",
                                 textOverflow: "ellipsis",
                             }}>
-                                {isPlaying && state ? state.song.title : station.description}
+                                {isPlaying && state ? state.song.title : (isLive && state ? state.song.title : station.description)}
                             </p>
                         </div>
 
