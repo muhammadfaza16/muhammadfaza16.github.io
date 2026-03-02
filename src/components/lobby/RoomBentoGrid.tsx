@@ -125,9 +125,9 @@ export function RoomBentoGrid() {
             iconColor: "#0A84FF" // Vivid Blue
         },
         {
-            title: "Radio",
-            href: "/starlight/radio",
-            icon: <Radio />,
+            title: "Music",
+            href: "/music",
+            icon: <Music />,
             iconColor: "#FFD60A" // Vivid Yellow (more distinct from Guest Orange)
         }
     ];

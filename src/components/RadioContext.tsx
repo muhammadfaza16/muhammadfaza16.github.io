@@ -1,47 +1,60 @@
 "use client";
 
-import React, { createContext, useContext, useState, useEffect, useRef, useMemo } from "react";
+import React, { createContext, useContext, useState, useEffect, useRef, useMemo, useCallback } from "react";
 import { useAudio } from "./AudioContext";
-import rawPlaylist from "@/data/radioPlaylist.json";
+import rawStations from "@/data/radioStations.json";
 
-// Type derived from our new JSON structure
-type RadioTrack = {
+export type RadioTrack = {
     title: string;
     audioUrl: string;
     duration: number;
 };
 
-const PLAYLIST = rawPlaylist as RadioTrack[];
+export type RadioStation = {
+    id: string;
+    name: string;
+    description: string;
+    themeColor: string;
+    playlist: RadioTrack[];
+};
 
-// Pre-calculate the total timeline duration and absolute offsets for blazing-fast sync
-const TIMELINE = PLAYLIST.reduce((acc, song) => {
-    const start = acc.totalDuration;
-    const end = start + song.duration;
-    acc.tracks.push({ ...song, startOffset: start, endOffset: end });
-    acc.totalDuration = end;
-    return acc;
-}, { tracks: [] as (RadioTrack & { startOffset: number, endOffset: number })[], totalDuration: 0 });
+const STATIONS = rawStations as RadioStation[];
+
+// Pre-calculate timelines for ALL stations
+const TIMELINES: Record<string, { tracks: (RadioTrack & { startOffset: number, endOffset: number })[], totalDuration: number }> = {};
+STATIONS.forEach(station => {
+    TIMELINES[station.id] = station.playlist.reduce((acc, song) => {
+        const start = acc.totalDuration;
+        const end = start + song.duration;
+        acc.tracks.push({ ...song, startOffset: start, endOffset: end });
+        acc.totalDuration = end;
+        return acc;
+    }, { tracks: [] as (RadioTrack & { startOffset: number, endOffset: number })[], totalDuration: 0 });
+});
+
+export type StationState = {
+    song: RadioTrack;
+    index: number;
+    progress: number;
+    formattedTime: string;
+};
 
 interface RadioContextType {
-    isTunedIn: boolean;
+    stations: RadioStation[];
+    activeStationId: string | null;
     isSyncing: boolean;
     isBuffering: boolean;
-    radioState: {
-        song: RadioTrack;
-        index: number;
-        progress: number;
-        formattedTime: string;
-    } | null;
-    handleTuneIn: () => void;
+    // The live state of ALL stations rolling continuously in world time
+    stationsState: Record<string, StationState | null>;
+    handleTuneIn: (stationId: string) => void;
+    turnOff: () => void;
 }
 
 const RadioContext = createContext<RadioContextType | undefined>(undefined);
 
 export function useRadio() {
     const context = useContext(RadioContext);
-    if (!context) {
-        throw new Error("useRadio must be used within a RadioProvider");
-    }
+    if (!context) throw new Error("useRadio must be used within a RadioProvider");
     return context;
 }
 
@@ -49,167 +62,152 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
     const [currentTimeWorld, setCurrentTimeWorld] = useState(0);
     const [mounted, setMounted] = useState(false);
 
-    const [isTunedIn, setIsTunedIn] = useState(false);
+    const [activeStationId, setActiveStationId] = useState<string | null>(null);
     const [isSyncing, setIsSyncing] = useState(false);
     const [isBuffering, setIsBuffering] = useState(false);
 
-    const { isPlaying: globalPlaying, togglePlay } = useAudio();
+    const { isPlaying: globalPlaying, togglePlay, setActivePlaybackMode } = useAudio();
     const audioRef = useRef<HTMLAudioElement | null>(null);
 
-    // Track precise World Time
+    // Track precise World Time for all stations concurrently
     useEffect(() => {
         setMounted(true);
-        // Sync the internal clock every second
-        const interval = setInterval(() => {
-            setCurrentTimeWorld(Date.now() / 1000);
-        }, 1000);
+        const interval = setInterval(() => setCurrentTimeWorld(Date.now() / 1000), 1000);
         return () => clearInterval(interval);
     }, []);
 
-    // Evaluate the timeline
-    const radioState = useMemo(() => {
-        if (!mounted || TIMELINE.totalDuration === 0) return null;
+    // Evaluate the timeline for ALL stations
+    const stationsState = useMemo(() => {
+        if (!mounted) return {};
+        const state: Record<string, StationState | null> = {};
 
-        // Find exactly where we are in the endless loop
-        const globalProgress = currentTimeWorld % TIMELINE.totalDuration;
+        STATIONS.forEach(station => {
+            const timeline = TIMELINES[station.id];
+            if (timeline.totalDuration === 0) {
+                state[station.id] = null;
+                return;
+            }
 
-        const activeTrackIndex = TIMELINE.tracks.findIndex(
-            (t) => globalProgress >= t.startOffset && globalProgress < t.endOffset
-        );
+            const globalProgress = currentTimeWorld % timeline.totalDuration;
+            const activeTrackIndex = timeline.tracks.findIndex(
+                (t) => globalProgress >= t.startOffset && globalProgress < t.endOffset
+            );
 
-        if (activeTrackIndex === -1) return null; // Failsafe
+            if (activeTrackIndex === -1) {
+                state[station.id] = null;
+                return;
+            }
 
-        const activeTrack = TIMELINE.tracks[activeTrackIndex];
-        const songProgress = globalProgress - activeTrack.startOffset;
+            const activeTrack = timeline.tracks[activeTrackIndex];
+            const songProgress = globalProgress - activeTrack.startOffset;
 
-        return {
-            song: activeTrack,
-            index: activeTrackIndex,
-            progress: songProgress,
-            formattedTime: `${Math.floor(songProgress / 60)}:${Math.floor(songProgress % 60).toString().padStart(2, '0')}`
-        };
+            state[station.id] = {
+                song: activeTrack,
+                index: activeTrackIndex,
+                progress: songProgress,
+                formattedTime: `${Math.floor(songProgress / 60)}:${Math.floor(songProgress % 60).toString().padStart(2, '0')}`
+            };
+        });
+
+        return state;
     }, [currentTimeWorld, mounted]);
 
-    const radioStateRef = useRef(radioState);
+    // Active station target state tracking for seamless audio handoff
+    const activeTargetState = activeStationId ? stationsState[activeStationId] : null;
+    const activeTargetStateRef = useRef(activeTargetState);
     useEffect(() => {
-        radioStateRef.current = radioState;
-    }, [radioState]);
+        activeTargetStateRef.current = activeTargetState;
+    }, [activeTargetState]);
 
-    // Handle seamless URL handoff and Drift Correction
+    // Seamless URL handoff and Drift Correction for the ACTIVE station
     useEffect(() => {
-        if (!audioRef.current || !radioState || !isTunedIn) return;
+        if (!audioRef.current || !activeStationId || !activeTargetState) return;
 
         const audio = audioRef.current;
-        const targetUrl = radioState.song.audioUrl;
-        const targetTime = radioState.progress;
+        const targetUrl = activeTargetState.song.audioUrl;
+        const targetTime = activeTargetState.progress;
 
         const isSameSong = audio.src.endsWith(targetUrl);
 
         if (!isSameSong) {
-            console.log(`Global Radio: Action [Switch Source] -> ${radioState.song.title}`);
+            console.log(`Global Radio: Action [Switch Source] -> ${activeTargetState.song.title}`);
             setIsSyncing(true);
-
             audio.src = targetUrl;
+            if (activeTargetStateRef.current) audio.currentTime = activeTargetStateRef.current.progress;
 
-            if (radioStateRef.current) {
-                audio.currentTime = radioStateRef.current.progress;
-            }
-
-            // DO NOT call audio.load() - it destroys the active media session blessing on iOS
-
-            if (isTunedIn) {
-                // Use a short 50ms timeout to let the DOM and JS engine breathe (AudioContext pattern)
-                const timer = setTimeout(() => {
-                    const playPromise = audio.play();
-                    if (playPromise !== undefined) {
-                        playPromise.then(() => setIsSyncing(false)).catch(() => setIsSyncing(false));
-                    } else {
-                        setIsSyncing(false);
-                    }
-                }, 50);
-                return () => clearTimeout(timer);
-            }
-
+            const timer = setTimeout(() => {
+                const playPromise = audio.play();
+                if (playPromise !== undefined) {
+                    playPromise.then(() => setIsSyncing(false)).catch(() => setIsSyncing(false));
+                } else {
+                    setIsSyncing(false);
+                }
+            }, 50);
+            return () => clearTimeout(timer);
         } else {
-            // Correct drift if out of sync by > 1.5s
+            // Correct drift
             if (!audio.paused && Math.abs(audio.currentTime - targetTime) > 1.5) {
                 audio.currentTime = targetTime;
             }
-
-            // Safari / Chrome auto-suspend recovery
-            if (audio.paused && !isSyncing) {
+            // Auto-resume if paused unexpectedly but should be playing
+            if (audio.paused && !isSyncing && activeStationId) {
                 audio.currentTime = targetTime;
                 audio.play().catch(() => { });
             }
         }
-    }, [isTunedIn, radioState?.song.audioUrl]);
+    }, [activeStationId, activeTargetState?.song.audioUrl]); // Dependency on the active song URL
 
-    // Background Resume Event Listeners
+    // Background Resume
     useEffect(() => {
-        if (!isTunedIn) return;
-
+        if (!activeStationId) return;
         const attemptResume = () => {
-            if (audioRef.current && isTunedIn && audioRef.current.paused && radioStateRef.current) {
-                audioRef.current.currentTime = radioStateRef.current.progress;
+            if (audioRef.current && activeStationId && audioRef.current.paused && activeTargetStateRef.current) {
+                audioRef.current.currentTime = activeTargetStateRef.current.progress;
                 audioRef.current.play().catch(() => { });
             }
         };
-
-        const handleVisibility = () => {
-            if (document.visibilityState === 'visible') {
-                setTimeout(attemptResume, 150);
-            }
-        };
-
+        const handleVisibility = () => { if (document.visibilityState === 'visible') setTimeout(attemptResume, 150); };
         const handleFocus = () => setTimeout(attemptResume, 150);
-
         document.addEventListener('visibilitychange', handleVisibility);
         window.addEventListener('focus', handleFocus);
-        return () => {
-            document.removeEventListener('visibilitychange', handleVisibility);
-            window.removeEventListener('focus', handleFocus);
-        };
-    }, [isTunedIn]);
+        return () => { document.removeEventListener('visibilitychange', handleVisibility); window.removeEventListener('focus', handleFocus); };
+    }, [activeStationId]);
 
-    const handleTuneIn = () => {
-        if (!radioState || !audioRef.current) return;
+    const handleTuneIn = useCallback((stationId: string) => {
+        if (!audioRef.current) return;
+        setActivePlaybackMode('radio');
 
-        if (isTunedIn) {
-            audioRef.current.pause();
-            setIsTunedIn(false);
-            return;
-        }
+        // If switching stations or turning on, pause everything first
+        setIsSyncing(true);
+        audioRef.current.pause();
 
+        // Pause Global Audio if it's playing music
         if (globalPlaying) {
             togglePlay();
         }
 
-        setIsTunedIn(true);
+        setActiveStationId(stationId);
+    }, [globalPlaying, togglePlay, setActivePlaybackMode]);
 
-        // --- MOBILE SAFARI KICKSTARTER ---
-        // We MUST trigger .play() directly inside this user-initiated click handler
-        // before React re-renders, otherwise iOS will block the subsequent useEffect play().
-        const audio = audioRef.current;
-        if (audio.src !== radioState.song.audioUrl) {
-            audio.src = radioState.song.audioUrl;
+    const turnOff = useCallback(() => {
+        setIsSyncing(false);
+        setActiveStationId(null);
+        setActivePlaybackMode('none');
+        if (audioRef.current) {
+            audioRef.current.pause();
+            audioRef.current.src = "";
         }
-        audio.currentTime = radioState.progress;
-
-        const playPromise = audio.play();
-        if (playPromise !== undefined) {
-            playPromise.catch(e => {
-                console.warn("Mobile Kickstarter Blocked:", e);
-            });
-        }
-    };
+    }, [setActivePlaybackMode]);
 
     return (
         <RadioContext.Provider value={{
-            isTunedIn,
+            stations: STATIONS,
+            activeStationId,
             isSyncing,
             isBuffering,
-            radioState,
-            handleTuneIn
+            stationsState,
+            handleTuneIn,
+            turnOff
         }}>
             {children}
             <audio
@@ -217,9 +215,7 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
                 preload="metadata"
                 onWaiting={() => setIsBuffering(true)}
                 onPlaying={() => setIsBuffering(false)}
-                onError={() => {
-                    setIsBuffering(false);
-                }}
+                onError={() => setIsBuffering(false)}
             />
         </RadioContext.Provider>
     );

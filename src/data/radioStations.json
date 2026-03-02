@@ -1,0 +1,91 @@
+[
+    {
+        "id": "starlight",
+        "name": "Starlight AM",
+        "description": "The original sanctuary. Ethereal, ambient, and calm.",
+        "themeColor": "#FFB000",
+        "playlist": [
+            {
+                "title": "Cigarettes After Sex — Apocalypse",
+                "audioUrl": "/audio/Apocalypse.mp3",
+                "duration": 290.2465306122449
+            },
+            {
+                "title": "Lord Huron — The Night We Met",
+                "audioUrl": "/audio/Lord%20Huron%20-%20The%20Night%20We%20Met.mp3",
+                "duration": 208.6138775510204
+            },
+            {
+                "title": "Beach House — Space Song",
+                "audioUrl": "/audio/Space%20Song%20-%20Beach%20House%20(OFFICIAL%20AUDIO).mp3",
+                "duration": 320.6008163265306
+            },
+            {
+                "title": "d4vd — Romantic Homicide",
+                "audioUrl": "/audio/d4vd%20-%20Romantic%20Homicide%20(Official%20Audio).mp3",
+                "duration": 132.72816326530614
+            },
+            {
+                "title": "Mac DeMarco — Chamber Of Reflection",
+                "audioUrl": "/audio/Chamber%20Of%20Reflection.mp3",
+                "duration": 231.78448979591838
+            }
+        ]
+    },
+    {
+        "id": "deepfocus",
+        "name": "Deep Focus",
+        "description": "Minimalist beats for intense concentration and flow state.",
+        "themeColor": "#39FF14",
+        "playlist": [
+            {
+                "title": "Alan Walker — Faded",
+                "audioUrl": "/audio/Alan%20Walker%20-%20Faded.mp3",
+                "duration": 212.7934693877551
+            },
+            {
+                "title": "Alan Walker — Alone",
+                "audioUrl": "/audio/Alan%20Walker%20-%20Alone.mp3",
+                "duration": 160.57469387755103
+            },
+            {
+                "title": "Elektronomia — Sky High",
+                "audioUrl": "/audio/Elektronomia%20-%20Sky%20High%20%20Progressive%20House%20%20NCS%20-%20Copyright%20Free%20Music.mp3",
+                "duration": 238.08
+            },
+            {
+                "title": "Janji — Heroes Tonight",
+                "audioUrl": "/audio/Janji%20-%20Heroes%20Tonight%20(feat.%20Johnning)%20%20Progressive%20House%20%20NCS%20-%20Copyright%20Free%20Music.mp3",
+                "duration": 208.14367346938775
+            }
+        ]
+    },
+    {
+        "id": "midnight",
+        "name": "Midnight FM",
+        "description": "Late night drives and neon cityscapes.",
+        "themeColor": "#00F0FF",
+        "playlist": [
+            {
+                "title": "The Weeknd & Ariana Grande — Save Your Tears",
+                "audioUrl": "/audio/The%20Weeknd%20%26%20Ariana%20Grande%20-%20Save%20Your%20Tears%20(Remix)%20(Lyrics).mp3",
+                "duration": 191.16408163265305
+            },
+            {
+                "title": "Joji — Glimpse of Us",
+                "audioUrl": "/audio/Joji%20-%20%20Glimpse%20of%20Us.mp3",
+                "duration": 233.5608163265306
+            },
+            {
+                "title": "Harry Styles — As It Was",
+                "audioUrl": "/audio/Harry%20Styles%20-%20As%20It%20Was%20(Lyrics).mp3",
+                "duration": 163.5526530612245
+            },
+            {
+                "title": "David Guetta & Bebe Rexha — I'm Good (Blue)",
+                "audioUrl": "/audio/David%20Guetta,%20Bebe%20Rexha%20-%20I'm%20good%20(Blue)%20%20I'm%20good,%20yeah,%20I'm%20feelin'%20alright.mp3",
+                "duration": 176.0130612244898
+            }
+        ]
+    }
+]

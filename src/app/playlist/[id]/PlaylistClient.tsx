@@ -19,10 +19,25 @@ export default function PlaylistClient({ playlistId }: { playlistId: string }) {
 
     const [searchQuery, setSearchQuery] = useState("");
     const [mounted, setMounted] = useState(false);
+    const [dbSongs, setDbSongs] = useState<{ title: string; audioUrl: string }[]>([]);
 
     useEffect(() => {
         setMounted(true);
     }, []);
+
+    // Fetch songs from database (MASTER-fetched songs) when viewing 'all'
+    useEffect(() => {
+        if (playlistId === "all") {
+            fetch("/api/music/songs")
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success && data.songs) {
+                        setDbSongs(data.songs.map((s: any) => ({ title: s.title, audioUrl: s.audioUrl })));
+                    }
+                })
+                .catch(() => { });
+        }
+    }, [playlistId]);
 
     // Haptic Helper
     const triggerHaptic = () => {
@@ -47,19 +62,25 @@ export default function PlaylistClient({ playlistId }: { playlistId: string }) {
                     title.toLowerCase().includes(song.title.toLowerCase())
                 )
             );
+        } else if (playlistId === "all" && dbSongs.length > 0) {
+            // Merge DB songs (from MASTER) at the top, then static PLAYLIST
+            // Deduplicate by audioUrl
+            const staticUrls = new Set(PLAYLIST.map(s => s.audioUrl));
+            const uniqueDbSongs = dbSongs.filter(s => !staticUrls.has(s.audioUrl));
+            baseSongs = [...uniqueDbSongs, ...PLAYLIST];
         }
 
         return baseSongs
             .map((song) => {
                 const originalIndex = PLAYLIST.findIndex(p => p.audioUrl === song.audioUrl);
-                return { ...song, originalIndex };
+                return { ...song, originalIndex: originalIndex === -1 ? 9999 : originalIndex };
             })
             .filter(song =>
                 song.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
                 song.title.toLowerCase().split("—")[0]?.trim().includes(searchQuery.toLowerCase()) ||
                 song.title.toLowerCase().split("—")[1]?.trim().includes(searchQuery.toLowerCase())
             );
-    }, [activePlaylist, searchQuery]);
+    }, [activePlaylist, searchQuery, dbSongs, playlistId]);
 
     // Scroll to active song on mount
     const activeItemIndex = useMemo(() => {

@@ -38,6 +38,9 @@ interface AudioContextType {
     currentTime: number;
     duration: number;
     seekTo: (time: number) => void;
+    // Global Hub Mode
+    activePlaybackMode: 'none' | 'music' | 'radio';
+    setActivePlaybackMode: (mode: 'none' | 'music' | 'radio') => void;
 }
 
 const AudioContext = createContext<AudioContextType | undefined>(undefined);
@@ -163,6 +166,9 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
     const [isMiniPlayerDismissed, setMiniPlayerDismissed] = useState(false);
     const [hasInteracted, setHasInteracted] = useState(false);
 
+    // Global Hub Mode State
+    const [activePlaybackMode, setActivePlaybackMode] = useState<'none' | 'music' | 'radio'>('none');
+
     // Track intentional pauses to prevent browser-triggered pauses from stopping music
     const intentionalPauseRef = useRef(false);
 
@@ -268,6 +274,10 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
             audioRef.current.pause();
         } else {
             intentionalPauseRef.current = false;
+
+            // If starting from standby, assume 'music' mode by default for local library
+            setActivePlaybackMode(prev => prev === 'none' ? 'music' : prev);
+
             const playPromise = audioRef.current.play();
             if (playPromise !== undefined) {
                 playPromise
@@ -289,6 +299,7 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
         setActivePlaylistId(playlistId);
         setIsBuffering(false);
         setHasInteracted(true);
+        setActivePlaybackMode('music'); // Steal focus for music mode
         setIsPlaying(true);
     }, []);
 
@@ -496,7 +507,9 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
             setMiniPlayerDismissed,
             currentTime,
             duration,
-            seekTo
+            seekTo,
+            activePlaybackMode,
+            setActivePlaybackMode
         }}>
             <audio
                 ref={audioRef}

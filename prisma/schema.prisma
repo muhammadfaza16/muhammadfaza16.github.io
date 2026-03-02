@@ -56,3 +56,13 @@ model WishlistItem {
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
 }
+
+model Song {
+  id         String   @id @default(uuid())
+  title      String
+  audioUrl   String   @map("audio_url")
+  source     String   @default("youtube") // youtube, local, etc
+  duration   Int?     // seconds
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
