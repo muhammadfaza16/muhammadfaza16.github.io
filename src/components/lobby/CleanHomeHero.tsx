@@ -2,9 +2,10 @@
 
 import React, { useState, useEffect, useRef, useMemo, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Cloud, CloudSun, Sun, CloudRain, Calendar as CalIcon, GitBranch, Quote, Thermometer, Droplets, Wind, Disc, Play, Pause, SkipBack, SkipForward } from "lucide-react";
+import { Cloud, CloudSun, Sun, CloudRain, Calendar as CalIcon, GitBranch, Quote, Thermometer, Droplets, Wind, Disc, Play, Pause, SkipBack, SkipForward, Radio as RadioIcon, ChevronLeft, ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { useAudio } from "@/components/AudioContext";
+import { useRadio } from "@/components/RadioContext";
 import { useLyrics } from "@/hooks/useLyrics";
 import { AnimatedNumber } from "./AnimatedNumber";
 
@@ -15,7 +16,10 @@ const MONTHS_SHORT = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "S
 export function CleanHomeHero() {
     const [now, setNow] = useState(new Date());
     const [isMobile, setIsMobile] = useState(false);
-    const { isPlaying, togglePlay, currentSong, hasInteracted, currentTime, duration, nextSong, prevSong } = useAudio();
+    const { isPlaying, togglePlay, currentSong, hasInteracted, currentTime, duration, nextSong, prevSong, seekTo, activePlaybackMode, activePlaylistId } = useAudio();
+    const { isRadioPaused, activeStationId, stations, stationsState } = useRadio();
+    const isRadioActive = activePlaybackMode === 'radio';
+    const isRadioPlaying = isRadioActive && !isRadioPaused;
     const songParts = currentSong.title.split("—");
     const artist = songParts[0]?.trim() || "Unknown";
     const song = songParts[1]?.trim() || currentSong.title;
@@ -66,10 +70,7 @@ export function CleanHomeHero() {
     }, []);
 
 
-    // Auto-switch to music when user first interacts
-    useEffect(() => {
-        if (hasInteracted) { setWidgetIndex(1); setSwipeDirection(1); }
-    }, [hasInteracted]);
+    // WC-3: Removed auto-switch to music — let users stay on their preferred widget
 
     // Deprecated: const showNowPlaying = WIDGETS[widgetIndex] === 'music' && hasInteracted;
 
@@ -622,127 +623,198 @@ export function CleanHomeHero() {
                             transition={{ duration: 0.25, ease: [0.25, 0.46, 0.45, 0.94] }}
                             style={{ position: "relative", zIndex: 1 }}
                         >
-                            {/* Now Playing Header */}
-                            <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", marginBottom: "0.75rem" }}>
-                                {/* Rotating Disc */}
-                                <div style={{
-                                    width: "48px", height: "48px", borderRadius: "50%",
-                                    background: "linear-gradient(135deg, #FFD60A 0%, #FF9F0A 100%)",
-                                    display: "flex", alignItems: "center", justifyContent: "center",
-                                    flexShrink: 0,
-                                    boxShadow: isPlaying ? "0 0 20px rgba(255,214,10,0.35)" : "none",
-                                }}>
-                                    <motion.div
-                                        animate={{ rotate: isPlaying ? 360 : 0 }}
-                                        transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
-                                        style={{ display: "flex", alignItems: "center", justifyContent: "center" }}
-                                    >
-                                        <Disc size={22} color="rgba(0,0,0,0.6)" />
-                                    </motion.div>
-                                </div>
-
-                                {/* Song Info */}
-                                <div style={{ flex: 1, minWidth: 0 }}>
-                                    <div style={{
-                                        fontSize: "0.9rem", fontWeight: 700,
-                                        color: "rgba(255,255,255,0.95)",
-                                        whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
-                                        marginBottom: "2px",
-                                    }}>{song}</div>
-                                    <div style={{
-                                        fontSize: "0.75rem", fontWeight: 500,
-                                        color: "rgba(255,255,255,0.55)",
-                                        whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
-                                        display: "flex", alignItems: "center", gap: "6px",
-                                    }}>
-                                        {artist}
-                                        {isPlaying && (
-                                            <span style={{ display: "flex", alignItems: "flex-end", gap: "1.5px", height: "12px" }}>
-                                                {[0, 1, 2].map(b => (
-                                                    <motion.span
-                                                        key={b}
-                                                        style={{ width: "2px", borderRadius: "1px", background: "#FFD60A" }}
-                                                        animate={{ height: ["3px", `${8 + b * 3}px`, "4px", `${10 - b * 2}px`, "3px"] }}
-                                                        transition={{ duration: 0.8 + b * 0.15, repeat: Infinity, ease: "easeInOut", delay: b * 0.12 }}
+                            {/* MW-1: Radio-aware header */}
+                            {isRadioActive ? (
+                                /* Radio Mode Display */
+                                <div style={{ display: "flex", flexDirection: "column", gap: "0.6rem" }}>
+                                    <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
+                                        <div style={{
+                                            width: "48px", height: "48px", borderRadius: "50%",
+                                            background: isRadioPlaying
+                                                ? "linear-gradient(135deg, #22c55e 0%, #16a34a 100%)"
+                                                : "linear-gradient(135deg, #6b7280 0%, #4b5563 100%)",
+                                            display: "flex", alignItems: "center", justifyContent: "center",
+                                            flexShrink: 0,
+                                            boxShadow: isRadioPlaying ? "0 0 20px rgba(34,197,94,0.35)" : "none",
+                                            transition: "all 0.5s ease",
+                                        }}>
+                                            <RadioIcon size={22} color="rgba(255,255,255,0.9)" />
+                                        </div>
+                                        <div style={{ flex: 1, minWidth: 0 }}>
+                                            <div style={{
+                                                fontSize: "0.9rem", fontWeight: 700,
+                                                color: "rgba(255,255,255,0.95)",
+                                                whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
+                                                marginBottom: "2px",
+                                            }}>
+                                                {activeStationId && stationsState[activeStationId]
+                                                    ? stationsState[activeStationId].song.title
+                                                    : "Radio"}
+                                            </div>
+                                            <div style={{
+                                                fontSize: "0.75rem", fontWeight: 500,
+                                                color: "rgba(255,255,255,0.55)",
+                                                display: "flex", alignItems: "center", gap: "6px",
+                                            }}>
+                                                {activeStationId
+                                                    ? (stations.find(s => s.id === activeStationId)?.name || "Station")
+                                                    : "No station"}
+                                                {isRadioPlaying && (
+                                                    <motion.div
+                                                        animate={{ scale: [1, 1.3, 1] }}
+                                                        transition={{ repeat: Infinity, duration: 1.5 }}
+                                                        style={{ width: "6px", height: "6px", borderRadius: "50%", background: "#22c55e", boxShadow: "0 0 6px rgba(34,197,94,0.6)" }}
                                                     />
-                                                ))}
-                                            </span>
+                                                )}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <Link href="/music/radio" style={{ textDecoration: "none" }}>
+                                        <div style={{
+                                            textAlign: "center", padding: "8px",
+                                            borderRadius: "10px", background: "rgba(255,255,255,0.06)",
+                                            fontSize: "0.72rem", fontWeight: 600, color: "rgba(255,255,255,0.6)",
+                                            border: "1px solid rgba(255,255,255,0.08)",
+                                        }}>Open Radio →</div>
+                                    </Link>
+                                </div>
+                            ) : (
+                                /* Music Mode Display */
+                                <>
+                                    {/* Now Playing Header */}
+                                    <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", marginBottom: "0.75rem" }}>
+                                        {/* Rotating Disc */}
+                                        <div style={{
+                                            width: "48px", height: "48px", borderRadius: "50%",
+                                            background: "linear-gradient(135deg, #FFD60A 0%, #FF9F0A 100%)",
+                                            display: "flex", alignItems: "center", justifyContent: "center",
+                                            flexShrink: 0,
+                                            boxShadow: isPlaying ? "0 0 20px rgba(255,214,10,0.35)" : "none",
+                                        }}>
+                                            <motion.div
+                                                animate={{ rotate: isPlaying ? 360 : 0 }}
+                                                transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
+                                                style={{ display: "flex", alignItems: "center", justifyContent: "center" }}
+                                            >
+                                                <Disc size={22} color="rgba(0,0,0,0.6)" />
+                                            </motion.div>
+                                        </div>
+
+                                        {/* MW-4: Song Info — tappable, links to active playlist */}
+                                        <Link href={activePlaylistId ? `/playlist/${activePlaylistId}` : "/playlist/all"} style={{ flex: 1, minWidth: 0, textDecoration: "none" }}>
+                                            <div style={{
+                                                fontSize: "0.9rem", fontWeight: 700,
+                                                color: "rgba(255,255,255,0.95)",
+                                                whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
+                                                marginBottom: "2px",
+                                            }}>{song}</div>
+                                            <div style={{
+                                                fontSize: "0.75rem", fontWeight: 500,
+                                                color: "rgba(255,255,255,0.55)",
+                                                whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
+                                                display: "flex", alignItems: "center", gap: "6px",
+                                            }}>
+                                                {artist}
+                                                {isPlaying && (
+                                                    <span style={{ display: "flex", alignItems: "flex-end", gap: "1.5px", height: "12px" }}>
+                                                        {[0, 1, 2].map(b => (
+                                                            <motion.span
+                                                                key={b}
+                                                                style={{ width: "2px", borderRadius: "1px", background: "#FFD60A" }}
+                                                                animate={{ height: ["3px", `${8 + b * 3}px`, "4px", `${10 - b * 2}px`, "3px"] }}
+                                                                transition={{ duration: 0.8 + b * 0.15, repeat: Infinity, ease: "easeInOut", delay: b * 0.12 }}
+                                                            />
+                                                        ))}
+                                                    </span>
+                                                )}
+                                            </div>
+                                        </Link>
+
+                                        {/* MW-5: Controls — larger touch targets */}
+                                        <div style={{ display: "flex", alignItems: "center", gap: "2px", flexShrink: 0 }}>
+                                            <div onClick={() => prevSong()} style={{ padding: "10px", cursor: "pointer", display: "flex", borderRadius: "50%" }}>
+                                                <SkipBack size={15} fill="rgba(255,255,255,0.95)" color="rgba(255,255,255,0.95)" />
+                                            </div>
+                                            <div onClick={togglePlay} style={{
+                                                width: "38px", height: "38px", borderRadius: "50%",
+                                                background: "rgba(0,0,0,0.08)",
+                                                display: "flex", alignItems: "center", justifyContent: "center",
+                                                cursor: "pointer",
+                                            }}>
+                                                {isPlaying
+                                                    ? <Pause size={15} fill="rgba(255,255,255,0.95)" color="rgba(255,255,255,0.95)" />
+                                                    : <Play size={15} fill="rgba(255,255,255,0.95)" color="rgba(255,255,255,0.95)" style={{ marginLeft: "2px" }} />
+                                                }
+                                            </div>
+                                            <div onClick={() => nextSong()} style={{ padding: "10px", cursor: "pointer", display: "flex", borderRadius: "50%" }}>
+                                                <SkipForward size={15} fill="rgba(255,255,255,0.95)" color="rgba(255,255,255,0.95)" />
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* MW-2: Seekable Progress Bar */}
+                                    <div
+                                        onClick={(e) => {
+                                            if (duration > 0) {
+                                                const rect = e.currentTarget.getBoundingClientRect();
+                                                const pct = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+                                                seekTo(pct * duration);
+                                            }
+                                        }}
+                                        style={{
+                                            width: "100%", height: "6px", borderRadius: "3px",
+                                            background: "rgba(0,0,0,0.08)", marginBottom: "0.65rem",
+                                            overflow: "hidden", cursor: "pointer",
+                                        }}
+                                    >
+                                        <div style={{
+                                            width: duration > 0 ? `${(currentTime / duration) * 100}%` : "0%",
+                                            height: "100%", borderRadius: "3px",
+                                            background: "linear-gradient(90deg, #FFD60A, #FF9F0A)",
+                                            transition: "width 0.3s linear",
+                                            boxShadow: "0 0 6px rgba(255,214,10,0.4)",
+                                        }} />
+                                    </div>
+
+                                    {/* MW-3: Lyrics Area — data-scrollable for mobile scroll lock bypass */}
+                                    <div
+                                        ref={lyricsContainerRef}
+                                        data-scrollable="true"
+                                        style={{
+                                            maxHeight: "120px",
+                                            overflowY: "auto",
+                                            scrollbarWidth: "none",
+                                            WebkitMaskImage: "linear-gradient(transparent 0%, black 15%, black 85%, transparent 100%)",
+                                            maskImage: "linear-gradient(transparent 0%, black 15%, black 85%, transparent 100%)",
+                                        }}
+                                    >
+                                        {lyrics && lyrics.length > 0 ? (
+                                            lyrics.map((line, i) => (
+                                                <div key={i} style={{
+                                                    padding: "3px 0",
+                                                    fontSize: i === activeLyricIndex ? "0.82rem" : "0.72rem",
+                                                    fontWeight: i === activeLyricIndex ? 700 : 400,
+                                                    color: i === activeLyricIndex
+                                                        ? "rgba(255,255,255,0.95)"
+                                                        : "rgba(255,255,255,0.55)",
+                                                    opacity: i === activeLyricIndex ? 1 : 0.5,
+                                                    transition: "all 0.3s ease",
+                                                    textAlign: "center",
+                                                    lineHeight: 1.5,
+                                                }}>
+                                                    {line.text || "♪"}
+                                                </div>
+                                            ))
+                                        ) : (
+                                            <div style={{
+                                                textAlign: "center", padding: "1.5rem 0",
+                                                fontSize: "0.78rem", color: "rgba(255,255,255,0.55)",
+                                                fontStyle: "italic",
+                                            }}>♪ No lyrics available ♪</div>
                                         )}
                                     </div>
-                                </div>
-
-                                {/* Controls */}
-                                <div style={{ display: "flex", alignItems: "center", gap: "2px", flexShrink: 0 }}>
-                                    <div onClick={() => prevSong()} style={{ padding: "6px", cursor: "pointer", display: "flex" }}>
-                                        <SkipBack size={15} fill="rgba(255,255,255,0.95)" color="rgba(255,255,255,0.95)" />
-                                    </div>
-                                    <div onClick={togglePlay} style={{
-                                        width: "34px", height: "34px", borderRadius: "50%",
-                                        background: "rgba(0,0,0,0.08)",
-                                        display: "flex", alignItems: "center", justifyContent: "center",
-                                        cursor: "pointer",
-                                    }}>
-                                        {isPlaying
-                                            ? <Pause size={15} fill="rgba(255,255,255,0.95)" color="rgba(255,255,255,0.95)" />
-                                            : <Play size={15} fill="rgba(255,255,255,0.95)" color="rgba(255,255,255,0.95)" style={{ marginLeft: "2px" }} />
-                                        }
-                                    </div>
-                                    <div onClick={() => nextSong()} style={{ padding: "6px", cursor: "pointer", display: "flex" }}>
-                                        <SkipForward size={15} fill="rgba(255,255,255,0.95)" color="rgba(255,255,255,0.95)" />
-                                    </div>
-                                </div>
-                            </div>
-
-                            {/* Progress Bar */}
-                            <div style={{
-                                width: "100%", height: "3px", borderRadius: "2px",
-                                background: "rgba(0,0,0,0.08)", marginBottom: "0.65rem",
-                                overflow: "hidden",
-                            }}>
-                                <div style={{
-                                    width: duration > 0 ? `${(currentTime / duration) * 100}%` : "0%",
-                                    height: "100%", borderRadius: "2px",
-                                    background: "linear-gradient(90deg, #FFD60A, #FF9F0A)",
-                                    transition: "width 0.3s linear",
-                                }} />
-                            </div>
-
-                            {/* Lyrics Area */}
-                            <div
-                                ref={lyricsContainerRef}
-                                style={{
-                                    maxHeight: "120px",
-                                    overflowY: "auto",
-                                    scrollbarWidth: "none",
-                                    WebkitMaskImage: "linear-gradient(transparent 0%, black 15%, black 85%, transparent 100%)",
-                                    maskImage: "linear-gradient(transparent 0%, black 15%, black 85%, transparent 100%)",
-                                }}
-                            >
-                                {lyrics && lyrics.length > 0 ? (
-                                    lyrics.map((line, i) => (
-                                        <div key={i} style={{
-                                            padding: "3px 0",
-                                            fontSize: i === activeLyricIndex ? "0.82rem" : "0.72rem",
-                                            fontWeight: i === activeLyricIndex ? 700 : 400,
-                                            color: i === activeLyricIndex
-                                                ? "rgba(255,255,255,0.95)"
-                                                : "rgba(255,255,255,0.55)",
-                                            opacity: i === activeLyricIndex ? 1 : 0.5,
-                                            transition: "all 0.3s ease",
-                                            textAlign: "center",
-                                            lineHeight: 1.5,
-                                        }}>
-                                            {line.text || "♪"}
-                                        </div>
-                                    ))
-                                ) : (
-                                    <div style={{
-                                        textAlign: "center", padding: "1.5rem 0",
-                                        fontSize: "0.78rem", color: "rgba(255,255,255,0.55)",
-                                        fontStyle: "italic",
-                                    }}>♪ No lyrics available ♪</div>
-                                )}
-                            </div>
+                                </>
+                            )}
                         </motion.div>
                     ) : WIDGETS[widgetIndex] === 'news' ? (
                         <motion.div
@@ -929,7 +1001,12 @@ export function CleanHomeHero() {
                                                     );
                                                 })()}
                                             </div>
-                                            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", marginTop: "4px" }}>
+                                            {/* CRW-1: Gauge endpoint labels */}
+                                            <div style={{ display: "flex", justifyContent: "space-between", width: "60px", marginTop: "2px" }}>
+                                                <span style={{ fontSize: "0.35rem", color: "rgba(255,255,255,0.35)", fontWeight: 600 }}>FEAR</span>
+                                                <span style={{ fontSize: "0.35rem", color: "rgba(255,255,255,0.35)", fontWeight: 600 }}>GREED</span>
+                                            </div>
+                                            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", marginTop: "2px" }}>
                                                 <div style={{ fontSize: "0.85rem", fontWeight: 800, color: "#fff", lineHeight: 1 }}>{cryptoData.global.fng || 50}</div>
                                                 <div style={{ fontSize: "0.45rem", fontWeight: 700, color: "rgba(255,255,255,0.5)", textTransform: "uppercase", letterSpacing: "0.05em" }}>Sentiment</div>
                                             </div>
@@ -974,7 +1051,8 @@ export function CleanHomeHero() {
                                                 key={c.id}
                                                 onMouseEnter={() => setHoveredCoin(c.id)}
                                                 onMouseLeave={() => setHoveredCoin(null)}
-                                                style={{ display: "flex", flexDirection: "column", padding: "6px 8px", borderRadius: "10px", background: hoveredCoin === c.id ? "rgba(0,0,0,0.22)" : "rgba(0,0,0,0.12)", cursor: "default", transition: "background 0.2s ease", position: "relative", overflow: "hidden" }}
+                                                onClick={() => setHoveredCoin(hoveredCoin === c.id ? null : c.id)}
+                                                style={{ display: "flex", flexDirection: "column", padding: "6px 8px", borderRadius: "10px", background: hoveredCoin === c.id ? "rgba(0,0,0,0.22)" : "rgba(0,0,0,0.12)", cursor: "pointer", transition: "background 0.2s ease", position: "relative", overflow: "hidden" }}
                                             >
                                                 {/* Sparkline Background */}
                                                 {sparkPath && (
@@ -1494,20 +1572,36 @@ export function CleanHomeHero() {
                     position: "relative",
                     zIndex: 5,
                 }}>
+                    {/* WC-2: Desktop navigation arrows */}
+                    <div
+                        onClick={() => { setSwipeDirection(-1); setWidgetIndex(prev => (prev - 1 + WIDGETS.length) % WIDGETS.length); }}
+                        style={{ padding: "4px", cursor: "pointer", opacity: 0.3, transition: "opacity 0.2s" }}
+                        className="hover:opacity-80"
+                    >
+                        <ChevronLeft size={12} color="white" />
+                    </div>
+                    {/* WC-1: Improved dot indicators */}
                     {WIDGETS.map((w, i) => (
                         <div
                             key={w}
                             onClick={() => { setSwipeDirection(i > widgetIndex ? 1 : -1); setWidgetIndex(i); }}
                             style={{
-                                width: "3px",
-                                borderRadius: "2px",
-                                background: widgetIndex === i ? "rgba(255,255,255,0.9)" : "rgba(255,255,255,0.2)",
-                                height: widgetIndex === i ? "12px" : "4px",
+                                width: widgetIndex === i ? "16px" : "5px",
+                                height: "5px",
+                                borderRadius: "3px",
+                                background: widgetIndex === i ? "rgba(255,255,255,0.9)" : "rgba(255,255,255,0.25)",
                                 cursor: "pointer",
-                                transition: "all 0.3s ease",
+                                transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
                             }}
                         />
                     ))}
+                    <div
+                        onClick={() => { setSwipeDirection(1); setWidgetIndex(prev => (prev + 1) % WIDGETS.length); }}
+                        style={{ padding: "4px", cursor: "pointer", opacity: 0.3, transition: "opacity 0.2s" }}
+                        className="hover:opacity-80"
+                    >
+                        <ChevronRight size={12} color="white" />
+                    </div>
                 </div>
             </motion.div>
 
