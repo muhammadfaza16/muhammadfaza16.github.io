@@ -59,42 +59,64 @@ export function GlobalBottomPlayer() {
                 transition={{ type: "spring", stiffness: 300, damping: 30 }}
                 style={{
                     position: "fixed",
-                    bottom: "0.75rem",
+                    bottom: "1rem",
                     left: "50%",
                     width: "calc(100% - 1.5rem)",
-                    maxWidth: "320px",
+                    maxWidth: "340px",
                     zIndex: 9999,
                     userSelect: "none",
                 }}
             >
+                {/* Subtle outer glow matched to accent */}
+                {isPlaying && (
+                    <motion.div
+                        animate={{ opacity: [0.3, 0.6, 0.3], scale: [0.95, 1.05, 0.95] }}
+                        transition={{ repeat: Infinity, duration: 4, ease: "easeInOut" }}
+                        style={{
+                            position: "absolute",
+                            inset: 0,
+                            background: `radial-gradient(ellipse at bottom, ${accent}30 0%, transparent 70%)`,
+                            filter: "blur(20px)",
+                            zIndex: -1,
+                            pointerEvents: "none"
+                        }}
+                    />
+                )}
+
                 <div style={{
-                    background: "linear-gradient(180deg, #2a2a2a 0%, #222 100%)",
-                    border: "2px solid #111",
-                    borderRadius: "16px",
+                    background: isPlaying ? "rgba(15, 15, 18, 0.65)" : "rgba(20, 20, 25, 0.45)",
+                    backdropFilter: "blur(32px) saturate(180%)",
+                    WebkitBackdropFilter: "blur(32px) saturate(180%)",
+                    border: "1px solid rgba(255,255,255,0.1)",
+                    borderTop: "1px solid rgba(255,255,255,0.15)",
+                    borderLeft: "1px solid rgba(255,255,255,0.12)",
+                    borderRadius: "24px",
                     overflow: "hidden",
-                    boxShadow: "0 12px 40px -8px rgba(0,0,0,0.7), inset 0 1px 0 rgba(255,255,255,0.04)",
+                    boxShadow: isPlaying
+                        ? "0 16px 40px rgba(0,0,0,0.4), inset 0 2px 10px rgba(255,255,255,0.05)"
+                        : "0 12px 30px rgba(0,0,0,0.3), inset 0 1px 4px rgba(255,255,255,0.05)",
                 }}>
                     {/* Now Playing Info Row */}
                     <div style={{
                         display: "flex",
                         alignItems: "center",
-                        gap: "0.6rem",
-                        padding: "0.6rem 0.65rem 0.45rem",
+                        gap: "0.8rem",
+                        padding: "0.75rem 0.85rem 0.6rem",
                     }}>
                         {/* Album Art Placeholder / Waveform Indicator */}
                         <div style={{
-                            width: "40px",
-                            height: "40px",
-                            borderRadius: "8px",
-                            background: "#111",
-                            border: `1.5px solid ${accent}20`,
+                            width: "44px",
+                            height: "44px",
+                            borderRadius: "12px",
+                            background: "rgba(0,0,0,0.3)",
+                            border: `1px solid ${accent}40`,
                             display: "flex",
                             alignItems: "flex-end",
                             justifyContent: "center",
-                            gap: "2px",
-                            padding: "6px 5px",
+                            gap: "3px",
+                            padding: "6px",
                             flexShrink: 0,
-                            boxShadow: "inset 0 2px 4px rgba(0,0,0,0.5)",
+                            boxShadow: `inset 0 2px 10px rgba(0,0,0,0.5)${isPlaying ? `, 0 0 15px ${accent}30` : ""}`,
                         }}>
                             {/* Animated playing bars */}
                             {[1, 2, 3, 4].map(i => (
@@ -112,8 +134,9 @@ export function GlobalBottomPlayer() {
                                     style={{
                                         flex: 1,
                                         background: accent,
-                                        borderRadius: "1px",
-                                        opacity: isPlaying ? 0.7 : 0.2,
+                                        borderRadius: "2px",
+                                        opacity: isPlaying ? 0.9 : 0.3,
+                                        boxShadow: isPlaying ? `0 0 6px ${accent}` : "none"
                                     }}
                                 />
                             ))}
@@ -125,25 +148,27 @@ export function GlobalBottomPlayer() {
                             minWidth: 0, // allow truncation
                             display: "flex",
                             flexDirection: "column",
-                            gap: "1px",
+                            gap: "2px",
                         }}>
                             <span style={{
-                                fontSize: "0.78rem",
-                                fontWeight: 700,
-                                color: "#ccc",
+                                fontSize: "0.85rem",
+                                fontWeight: 800,
+                                color: "rgba(255,255,255,0.9)",
                                 whiteSpace: "nowrap",
                                 overflow: "hidden",
                                 textOverflow: "ellipsis",
+                                textShadow: isPlaying ? "0 0 10px rgba(255,255,255,0.15)" : "none"
                             }}>
                                 {songTitle}
                             </span>
                             <span style={{
-                                fontSize: "0.6rem",
+                                fontSize: "0.65rem",
                                 fontWeight: 600,
-                                color: isRadio ? accent + "99" : "#666",
+                                color: isRadio ? accent : "rgba(255,255,255,0.5)",
                                 whiteSpace: "nowrap",
                                 overflow: "hidden",
                                 textOverflow: "ellipsis",
+                                opacity: 0.9
                             }}>
                                 {songArtist}
                             </span>
@@ -152,10 +177,11 @@ export function GlobalBottomPlayer() {
                         {/* Time */}
                         <span style={{
                             fontFamily: "monospace",
-                            fontSize: "0.6rem",
-                            fontWeight: 700,
-                            color: "#555",
+                            fontSize: "0.65rem",
+                            fontWeight: 800,
+                            color: isPlaying ? "rgba(255,255,255,0.7)" : "rgba(255,255,255,0.4)",
                             flexShrink: 0,
+                            marginRight: "0.2rem"
                         }}>
                             {isRadio
                                 ? (currentState?.formattedTime || "0:00")
@@ -166,14 +192,18 @@ export function GlobalBottomPlayer() {
 
                     {/* Progress Bar (music only) */}
                     {isMusic && (
-                        <div style={{ width: "100%", height: "2px", background: "#1a1a1a" }}>
+                        <div style={{ width: "100%", height: "2px", background: "rgba(255,255,255,0.08)" }}>
                             <div style={{
                                 width: `${(currentTime / (duration || 1)) * 100}%`,
                                 height: "100%",
-                                background: "#555",
+                                background: "rgba(255,255,255,0.8)",
+                                boxShadow: "0 0 8px rgba(255,255,255,0.5)",
                                 transition: "width 0.3s linear",
                             }} />
                         </div>
+                    )}
+                    {isRadio && (
+                        <div style={{ width: "100%", height: "1px", background: "rgba(255,255,255,0.05)" }} />
                     )}
 
                     {/* Controls Row */}
@@ -181,25 +211,29 @@ export function GlobalBottomPlayer() {
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "center",
-                        gap: "0.6rem",
-                        padding: "0.4rem 0.65rem 0.55rem",
-                        borderTop: "1px solid #1a1a1a",
+                        gap: "1rem",
+                        padding: "0.5rem 0.65rem 0.75rem",
+                        position: "relative"
                     }}>
                         {isMusic && (
                             <motion.button
-                                whileTap={{ scale: 0.85 }}
+                                whileHover={{ scale: 1.1, backgroundColor: "rgba(255,255,255,0.1)" }}
+                                whileTap={{ scale: 0.9 }}
                                 onClick={() => prevSong()}
                                 style={{
-                                    background: "none", border: "none",
-                                    color: "#666", cursor: "pointer", padding: "4px",
+                                    background: "transparent", border: "none",
+                                    color: "rgba(255,255,255,0.6)", cursor: "pointer",
+                                    padding: "6px", borderRadius: "50%",
+                                    display: "flex", alignItems: "center", justifyContent: "center"
                                 }}
                             >
-                                <SkipBack size={16} fill="currentColor" />
+                                <SkipBack size={18} fill="currentColor" />
                             </motion.button>
                         )}
 
                         <motion.button
-                            whileTap={{ scale: 0.85, y: 1 }}
+                            whileHover={{ scale: 1.05, backgroundColor: isPlaying ? "rgba(0,0,0,0.5)" : "rgba(255,255,255,0.15)" }}
+                            whileTap={{ scale: 0.9, y: 1 }}
                             onClick={() => {
                                 if (isRadio) {
                                     if (isRadioPaused && activeStationId) {
@@ -212,77 +246,86 @@ export function GlobalBottomPlayer() {
                                 }
                             }}
                             style={{
-                                background: "#151515",
-                                border: `1.5px solid ${isRadio ? accent + "30" : "#2a2a2a"}`,
+                                background: isPlaying ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.3)",
+                                border: `1px solid ${isPlaying ? "rgba(255,255,255,0.2)" : "rgba(255,255,255,0.1)"}`,
                                 borderRadius: "50%",
-                                width: "36px",
-                                height: "36px",
+                                width: "42px",
+                                height: "42px",
                                 display: "flex",
                                 alignItems: "center",
                                 justifyContent: "center",
-                                color: isRadio ? accent : "#aaa",
+                                color: isRadio ? accent : "#fff",
                                 cursor: "pointer",
-                                boxShadow: "inset 0 2px 4px rgba(0,0,0,0.4)",
+                                boxShadow: "0 4px 12px rgba(0,0,0,0.2)",
+                                transition: "all 0.2s"
                             }}
                         >
                             {isRadio ? (
                                 isRadioPaused ? (
                                     <div style={{
                                         width: "0", height: "0",
-                                        borderTop: "6px solid transparent",
-                                        borderLeft: "10px solid currentColor",
-                                        borderBottom: "6px solid transparent",
-                                        marginLeft: "2px",
+                                        borderTop: "7px solid transparent",
+                                        borderLeft: "11px solid currentColor",
+                                        borderBottom: "7px solid transparent",
+                                        marginLeft: "3px",
                                     }} />
                                 ) : (
-                                    <Square size={12} fill="currentColor" />
+                                    <Square size={14} fill="currentColor" />
                                 )
                             ) : musicPlaying ? (
-                                <div style={{ display: "flex", gap: "2.5px" }}>
-                                    <div style={{ width: "3px", height: "12px", background: "currentColor", borderRadius: "1px" }} />
-                                    <div style={{ width: "3px", height: "12px", background: "currentColor", borderRadius: "1px" }} />
+                                <div style={{ display: "flex", gap: "3px" }}>
+                                    <div style={{ width: "3.5px", height: "14px", background: "currentColor", borderRadius: "2px" }} />
+                                    <div style={{ width: "3.5px", height: "14px", background: "currentColor", borderRadius: "2px" }} />
                                 </div>
                             ) : (
                                 <div style={{
                                     width: "0", height: "0",
-                                    borderTop: "6px solid transparent",
-                                    borderLeft: "10px solid currentColor",
-                                    borderBottom: "6px solid transparent",
-                                    marginLeft: "2px",
+                                    borderTop: "7px solid transparent",
+                                    borderLeft: "11px solid currentColor",
+                                    borderBottom: "7px solid transparent",
+                                    marginLeft: "3px",
                                 }} />
                             )}
                         </motion.button>
 
                         {isMusic && (
                             <motion.button
-                                whileTap={{ scale: 0.85 }}
+                                whileHover={{ scale: 1.1, backgroundColor: "rgba(255,255,255,0.1)" }}
+                                whileTap={{ scale: 0.9 }}
                                 onClick={() => nextSong()}
                                 style={{
-                                    background: "none", border: "none",
-                                    color: "#666", cursor: "pointer", padding: "4px",
+                                    background: "transparent", border: "none",
+                                    color: "rgba(255,255,255,0.6)", cursor: "pointer",
+                                    padding: "6px", borderRadius: "50%",
+                                    display: "flex", alignItems: "center", justifyContent: "center"
                                 }}
                             >
-                                <SkipForward size={16} fill="currentColor" />
+                                <SkipForward size={18} fill="currentColor" />
                             </motion.button>
                         )}
 
                         {/* Dismiss */}
                         <motion.button
-                            whileTap={{ scale: 0.85 }}
+                            whileHover={{ scale: 1.2, rotate: 90 }}
+                            whileTap={{ scale: 0.8 }}
                             onClick={() => {
                                 if (isRadio) turnOff();
                                 else if (musicPlaying) togglePlay();
                                 setActivePlaybackMode('none');
                             }}
                             style={{
-                                background: "none", border: "none",
-                                color: "#333", cursor: "pointer", padding: "4px",
+                                background: "rgba(0,0,0,0.2)",
+                                border: "1px solid rgba(255,255,255,0.1)",
+                                borderRadius: "50%",
+                                color: "rgba(255,255,255,0.5)",
+                                cursor: "pointer",
+                                padding: "6px",
                                 position: "absolute",
-                                right: "0.65rem",
-                                top: "0.5rem",
+                                right: "0.85rem",
+                                display: "flex", alignItems: "center", justifyContent: "center"
                             }}
                         >
-                            <X size={12} strokeWidth={3} />
+                            <X size={14} strokeWidth={2.5} />
                         </motion.button>
                     </div>
                 </div>

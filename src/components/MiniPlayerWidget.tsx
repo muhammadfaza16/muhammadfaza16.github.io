@@ -233,21 +233,27 @@ export function MiniPlayerWidget({ style: customStyle }: MiniPlayerProps) {
                             }
                         }}
                         style={{
-                            background: "rgba(18, 18, 20, 0.92)",
-                            backdropFilter: "blur(20px) saturate(180%)",
-                            WebkitBackdropFilter: "blur(20px) saturate(180%)",
-                            border: "1px solid rgba(255, 255, 255, 0.08)",
-                            borderRadius: "16px",
-                            padding: "10px 14px",
+                            background: isPlaying ? "rgba(10, 10, 12, 0.65)" : "rgba(20, 20, 22, 0.5)",
+                            backdropFilter: "blur(24px) saturate(180%)",
+                            WebkitBackdropFilter: "blur(24px) saturate(180%)",
+                            border: "1px solid rgba(255, 255, 255, 0.1)",
+                            borderTop: "1px solid rgba(255, 255, 255, 0.15)",
+                            borderLeft: "1px solid rgba(255, 255, 255, 0.12)",
+                            borderRadius: "24px",
+                            padding: "10px 16px",
                             display: "flex",
                             alignItems: "center",
-                            gap: "12px",
-                            boxShadow: "0 8px 32px rgba(0, 0, 0, 0.5)",
+                            gap: "14px",
+                            boxShadow: isPlaying
+                                ? "0 12px 32px rgba(0, 0, 0, 0.4), inset 0 0 20px rgba(255, 214, 10, 0.05)"
+                                : "0 8px 32px rgba(0, 0, 0, 0.3)",
                             cursor: "pointer",
                             minWidth: "200px",
-                            maxWidth: "280px"
+                            maxWidth: "280px",
+                            position: "relative",
+                            overflow: "hidden"
                         }}
-                        whileHover={{ scale: 1.02 }}
+                        whileHover={{ scale: 1.02, backgroundColor: "rgba(20, 20, 22, 0.75)" }}
                         whileTap={{ scale: 0.98 }}
                         onClick={() => {
                             if (activePlaylistId) {
@@ -257,6 +263,19 @@ export function MiniPlayerWidget({ style: customStyle }: MiniPlayerProps) {
                             }
                         }}
                     >
+                        {/* Subtle Glow Background */}
+                        {isPlaying && (
+                            <div style={{
+                                position: "absolute",
+                                top: 0,
+                                left: 0,
+                                width: "40%",
+                                height: "100%",
+                                background: "radial-gradient(circle at left, rgba(255, 214, 10, 0.15) 0%, transparent 80%)",
+                                pointerEvents: "none"
+                            }} />
+                        )}
+
                         {/* Rotating Disk */}
                         <div style={{
                             width: "36px",
@@ -267,8 +286,9 @@ export function MiniPlayerWidget({ style: customStyle }: MiniPlayerProps) {
                             alignItems: "center",
                             justifyContent: "center",
                             flexShrink: 0,
-                            boxShadow: isPlaying ? "0 0 12px rgba(255, 214, 10, 0.4)" : "none",
-                            animation: isBuffering ? "pulse-buffering 1.2s ease-in-out infinite" : "none"
+                            boxShadow: isPlaying ? "0 0 16px rgba(255, 214, 10, 0.5), inset 0 2px 4px rgba(255,255,255,0.4)" : "inset 0 2px 4px rgba(255,255,255,0.3)",
+                            animation: isBuffering ? "pulse-buffering 1.2s ease-in-out infinite" : "none",
+                            zIndex: 1
                         }}>
                             <motion.div
                                 animate={{ rotate: isPlaying ? 360 : 0 }}
@@ -280,23 +300,24 @@ export function MiniPlayerWidget({ style: customStyle }: MiniPlayerProps) {
                         </div>
 
                         {/* Text Info */}
-                        <div style={{ flex: 1, overflow: "hidden", minWidth: 0 }}>
+                        <div style={{ flex: 1, overflow: "hidden", minWidth: 0, zIndex: 1 }}>
                             <div style={{
                                 fontFamily: "-apple-system, sans-serif",
                                 fontSize: "0.85rem",
-                                fontWeight: 600,
-                                color: "white",
+                                fontWeight: 700,
+                                color: "rgba(255,255,255,0.9)",
                                 whiteSpace: "nowrap",
                                 overflow: "hidden",
                                 textOverflow: "ellipsis",
-                                marginBottom: "2px"
+                                marginBottom: "2px",
+                                textShadow: isPlaying ? "0 0 8px rgba(255,255,255,0.2)" : "none"
                             }}>
                                 {song}
                             </div>
                             <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
                                 <span style={{
                                     fontSize: "0.7rem",
-                                    color: "rgba(255,255,255,0.5)",
+                                    color: isPlaying ? "rgba(255,255,255,0.7)" : "rgba(255,255,255,0.5)",
                                     whiteSpace: "nowrap",
                                     overflow: "hidden",
                                     textOverflow: "ellipsis"
@@ -307,11 +328,12 @@ export function MiniPlayerWidget({ style: customStyle }: MiniPlayerProps) {
                                     <span style={{
                                         fontSize: "0.65rem",
                                         color: "#FFD60A",
-                                        fontWeight: 500,
+                                        fontWeight: 600,
                                         display: "flex",
                                         alignItems: "center",
                                         gap: "3px",
-                                        flexShrink: 0
+                                        flexShrink: 0,
+                                        textShadow: "0 0 6px rgba(255,214,10,0.4)"
                                     }}>
                                         <Music2 size={10} />
                                         {playlistProgress}
@@ -327,14 +349,17 @@ export function MiniPlayerWidget({ style: customStyle }: MiniPlayerProps) {
                                 width: "32px",
                                 height: "32px",
                                 borderRadius: "50%",
-                                background: "rgba(255,255,255,0.12)",
+                                background: isPlaying ? "rgba(255,255,255,0.15)" : "rgba(255,255,255,0.08)",
+                                border: "1px solid rgba(255,255,255,0.1)",
                                 display: "flex",
                                 alignItems: "center",
                                 justifyContent: "center",
                                 color: "white",
-                                flexShrink: 0
+                                flexShrink: 0,
+                                zIndex: 1,
+                                boxShadow: "0 2px 8px rgba(0,0,0,0.2)"
                             }}
-                            className="hover:bg-white/20 active:scale-90"
+                            className="hover:bg-white/25 active:scale-90 transition-colors"
                         >
                             {isPlaying ? <Pause size={14} fill="white" /> : <Play size={14} fill="white" style={{ marginLeft: "2px" }} />}
                         </div>

@@ -28,29 +28,34 @@ interface StarlightBentoGridProps {
 const AppIcon = ({ title, href, icon, iconColor, delay = 0, isMobile = false }: AppIconProps & { isMobile?: boolean }) => {
     return (
         <Link href={href} prefetch={true} style={{ textDecoration: 'none' }} className="group">
-            <div style={{
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                gap: "0.4rem",
-            }}>
-                {/* Ultra-Thin Premium Glass */}
-                <div style={{
-                    position: "relative",
-                    width: isMobile ? "clamp(50px, 14vw, 62px)" : "clamp(58px, 16vw, 72px)",
-                    height: isMobile ? "clamp(50px, 14vw, 62px)" : "clamp(58px, 16vw, 72px)",
-                    borderRadius: "26%",
-                    background: "rgba(255, 255, 255, 0.12)", // Pseudo-glass: solid yet transparent
+            <motion.div
+                whileHover={{ scale: 1.05, y: -4, transition: { type: "spring", stiffness: 400, damping: 25 } }}
+                whileTap={{ scale: 0.95, y: 2, transition: { type: "spring", stiffness: 500, damping: 30 } }}
+                style={{
                     display: "flex",
+                    flexDirection: "column",
                     alignItems: "center",
-                    justifyContent: "center",
-                    boxShadow: "0 6px 15px rgba(0,0,0,0.25), inset 0 1px 0.5px rgba(255,255,255,0.25)",
-                    transition: "transform 0.15s ease",
-                    overflow: "hidden",
-                    border: "1px solid rgba(255, 255, 255, 0.22)", // Sharper edge
-                    transform: "translateZ(0)", // Maintain hardware acceleration
-                    WebkitTransform: "translateZ(0)",
-                }} className="hover:scale-105 active:scale-95">
+                    gap: "0.4rem",
+                }}>
+                {/* Ultra-Thin Premium Glass */}
+                <motion.div
+                    layoutId={`app-icon-${title.toLowerCase().replace(/\s+/g, '-')}`}
+                    style={{
+                        position: "relative",
+                        width: isMobile ? "clamp(50px, 14vw, 62px)" : "clamp(58px, 16vw, 72px)",
+                        height: isMobile ? "clamp(50px, 14vw, 62px)" : "clamp(58px, 16vw, 72px)",
+                        borderRadius: "26%",
+                        background: "rgba(255, 255, 255, 0.05)", // Deep dark glass
+                        backdropFilter: "blur(20px) saturate(120%)",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        boxShadow: "0 8px 24px rgba(0,0,0,0.2), inset 0 1px 1px rgba(255,255,255,0.15)",
+                        overflow: "hidden",
+                        border: "1px solid rgba(255, 255, 255, 0.12)", // Sharper edge
+                        transform: "translateZ(0)", // Maintain hardware acceleration
+                        WebkitTransform: "translateZ(0)",
+                    }}>
 
                     {/* Icon symbol (Restored Brand Colors) */}
                     <div style={{
@@ -59,7 +64,7 @@ const AppIcon = ({ title, href, icon, iconColor, delay = 0, isMobile = false }: 
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "center",
-                        filter: "drop-shadow(0 2px 4px rgba(0,0,0,0.3))"
+                        filter: "drop-shadow(0 4px 8px rgba(0,0,0,0.4))"
                     }}>
                         {React.cloneElement(icon as any, { size: "42%", strokeWidth: 2.5 })}
                     </div>
@@ -71,10 +76,10 @@ const AppIcon = ({ title, href, icon, iconColor, delay = 0, isMobile = false }: 
                         left: "15%",
                         right: "15%",
                         height: "1px",
-                        background: "linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.45) 30%, rgba(255,255,255,0.55) 50%, rgba(255,255,255,0.45) 70%, transparent 100%)",
+                        background: "linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.4) 30%, rgba(255,255,255,0.6) 50%, rgba(255,255,255,0.4) 70%, transparent 100%)",
                         pointerEvents: "none",
                         zIndex: 4,
-                        filter: "blur(0.3px)",
+                        filter: "blur(0.5px)",
                     }} />
 
                     {/* Glossy sheen (Match Home) */}
@@ -84,28 +89,28 @@ const AppIcon = ({ title, href, icon, iconColor, delay = 0, isMobile = false }: 
                         left: 0,
                         right: 0,
                         height: "50%",
-                        background: "linear-gradient(180deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0.03) 60%, transparent 100%)", // Brighter gloss
+                        background: "linear-gradient(180deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.01) 60%, transparent 100%)", // Brighter gloss
                         zIndex: 3,
                         pointerEvents: "none",
                         borderRadius: "26% 26% 0 0",
                     }} />
 
 
-                </div>
+                </motion.div>
 
                 {/* Label */}
                 <span style={{
                     fontFamily: "-apple-system, BlinkMacSystemFont, sans-serif",
                     fontSize: isMobile ? "0.65rem" : "0.7rem",
                     fontWeight: 600,
-                    color: "rgba(255, 255, 255, 0.9)",
-                    textShadow: "0 1px 4px rgba(0,0,0,0.5)", // Strong shadow to separate from background
+                    color: "rgba(255, 255, 255, 0.95)",
+                    textShadow: "0 1px 3px rgba(0,0,0,0.6)", // Strong shadow to separate from background
                     textAlign: "center",
                     letterSpacing: "0.02em",
                 }}>
                     {title}
                 </span>
-            </div>
+            </motion.div>
         </Link>
     );
 };

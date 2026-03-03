@@ -25,49 +25,72 @@ export function RadioHub({ onSelect }: { onSelect: (id: string) => void }) {
                     <motion.div
                         key={station.id}
                         layoutId={`station-card-${station.id}`}
-                        initial={{ opacity: 0, y: 10 }}
+                        initial={{ opacity: 0, y: 15 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: idx * 0.06, type: "spring", stiffness: 300, damping: 22 }}
                         onClick={() => onSelect(station.id)}
-                        whileHover={{ scale: 1.015 }}
-                        whileTap={{ scale: 0.985 }}
+                        whileHover={{ scale: 1.02, backgroundColor: isPlaying ? "rgba(255,255,255,0.12)" : "rgba(255,255,255,0.08)" }}
+                        whileTap={{ scale: 0.96 }}
                         style={{
-                            background: "#1e1e1e",
-                            border: `1.5px solid ${isPlaying ? color + "40" : "#2a2a2a"}`,
-                            borderRadius: "12px",
-                            padding: "0.85rem 1rem",
+                            background: isPlaying
+                                ? "linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.02) 100%)"
+                                : "linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.01) 100%)",
+                            backdropFilter: "blur(16px) saturate(120%)",
+                            border: `1px solid ${isPlaying ? color + "60" : "rgba(255,255,255,0.08)"}`,
+                            borderTop: `1px solid ${isPlaying ? color + "80" : "rgba(255,255,255,0.15)"}`,
+                            borderLeft: `1px solid ${isPlaying ? color + "60" : "rgba(255,255,255,0.1)"}`,
+                            borderRadius: "16px",
+                            padding: "1rem 1.25rem",
                             cursor: "pointer",
                             display: "flex",
                             alignItems: "center",
-                            gap: "0.85rem",
+                            gap: "1rem",
                             boxShadow: isPlaying
-                                ? `inset 0 0 20px ${color}08, 0 0 15px ${color}10`
-                                : "inset 0 2px 4px rgba(0,0,0,0.3), 0 1px 0 rgba(255,255,255,0.02)",
+                                ? `0 8px 32px ${color}25, inset 0 0 20px ${color}10`
+                                : "0 4px 16px rgba(0,0,0,0.1)",
                             position: "relative",
                             overflow: "hidden",
                         }}
                     >
+                        {/* Ambient Glow Behind Card for LIVE */}
+                        {isPlaying && (
+                            <motion.div
+                                animate={{ opacity: [0.3, 0.6, 0.3], scale: [0.9, 1.1, 0.9] }}
+                                transition={{ repeat: Infinity, duration: 4, ease: "easeInOut" }}
+                                style={{
+                                    position: "absolute",
+                                    inset: 0,
+                                    background: `radial-gradient(circle at 30% 50%, ${color}40 0%, transparent 60%)`,
+                                    filter: "blur(20px)",
+                                    pointerEvents: "none",
+                                    zIndex: 0
+                                }}
+                            />
+                        )}
+
                         {/* Frequency Dial Icon */}
                         <div style={{
-                            width: "38px",
-                            height: "38px",
+                            width: "42px",
+                            height: "42px",
                             borderRadius: "50%",
-                            background: "#151515",
-                            border: `2px solid ${isPlaying ? color : "#333"}`,
+                            background: "rgba(0,0,0,0.2)",
+                            backdropFilter: "blur(8px)",
+                            border: `2px solid ${isPlaying ? color : "rgba(255,255,255,0.15)"}`,
                             display: "flex",
                             alignItems: "center",
                             justifyContent: "center",
                             flexShrink: 0,
-                            boxShadow: `inset 0 2px 4px rgba(0,0,0,0.5)${isPlaying ? `, 0 0 8px ${color}30` : ""}`,
+                            boxShadow: `inset 0 2px 4px rgba(0,0,0,0.3)${isPlaying ? `, 0 0 12px ${color}40` : ""}`,
                             position: "relative",
+                            zIndex: 1
                         }}>
                             {/* Center dot */}
                             <div style={{
-                                width: "4px",
-                                height: "4px",
+                                width: "6px",
+                                height: "6px",
                                 borderRadius: "50%",
-                                background: isPlaying ? color : (isLive ? color + "88" : "#444"),
-                                boxShadow: isPlaying ? `0 0 6px ${color}` : (isLive ? `0 0 4px ${color}40` : "none"),
+                                background: isPlaying ? color : (isLive ? color + "aa" : "rgba(255,255,255,0.3)"),
+                                boxShadow: isPlaying ? `0 0 8px ${color}` : (isLive ? `0 0 6px ${color}60` : "none"),
                             }} />
 
                             {/* Animated ring only when actually playing */}
@@ -77,28 +100,29 @@ export function RadioHub({ onSelect }: { onSelect: (id: string) => void }) {
                                     transition={{ repeat: Infinity, duration: 3, ease: "linear" }}
                                     style={{
                                         position: "absolute",
-                                        inset: "-1px",
+                                        inset: "-2px",
                                         borderRadius: "50%",
-                                        border: `1px solid transparent`,
+                                        border: `1.5px solid transparent`,
                                         borderTopColor: color,
-                                        opacity: 0.5,
+                                        opacity: 0.8,
                                     }}
                                 />
                             )}
                         </div>
 
                         {/* Station Info */}
-                        <div style={{ flex: 1, minWidth: 0 }}>
-                            <div style={{ display: "flex", alignItems: "center", gap: "6px", marginBottom: "3px" }}>
+                        <div style={{ flex: 1, minWidth: 0, zIndex: 1 }}>
+                            <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "4px" }}>
                                 <motion.h3
                                     layoutId={`station-title-${station.id}`}
                                     style={{
                                         margin: 0,
-                                        color: isPlaying ? color : "#aaa",
-                                        fontSize: "0.85rem",
+                                        color: isPlaying ? "#fff" : "rgba(255,255,255,0.8)",
+                                        fontSize: "0.9rem",
                                         fontWeight: 800,
                                         textTransform: "uppercase",
                                         letterSpacing: "0.5px",
+                                        textShadow: isPlaying ? `0 0 10px ${color}60` : "none"
                                     }}
                                 >
                                     {station.name}
@@ -106,14 +130,15 @@ export function RadioHub({ onSelect }: { onSelect: (id: string) => void }) {
 
                                 {isLive && (
                                     <span style={{
-                                        fontSize: "0.5rem",
-                                        background: isPlaying ? color + "20" : "#222",
-                                        color: isPlaying ? color : "#666",
-                                        padding: "1px 5px",
-                                        borderRadius: "3px",
+                                        fontSize: "0.55rem",
+                                        background: isPlaying ? color + "30" : "rgba(0,0,0,0.3)",
+                                        color: isPlaying ? "#fff" : "rgba(255,255,255,0.6)",
+                                        padding: "2px 6px",
+                                        borderRadius: "4px",
                                         fontWeight: 800,
                                         letterSpacing: "0.5px",
-                                        border: `1px solid ${isPlaying ? color + "30" : "#333"}`,
+                                        border: `1px solid ${isPlaying ? color + "50" : "rgba(255,255,255,0.1)"}`,
+                                        backdropFilter: "blur(4px)"
                                     }}>
                                         {isPlaying ? "ON AIR" : "LIVE"}
                                     </span>
@@ -121,8 +146,8 @@ export function RadioHub({ onSelect }: { onSelect: (id: string) => void }) {
                             </div>
                             <p style={{
                                 margin: 0,
-                                color: "#555",
-                                fontSize: "0.6rem",
+                                color: isPlaying ? "rgba(255,255,255,0.85)" : "rgba(255,255,255,0.5)",
+                                fontSize: "0.65rem",
                                 fontWeight: 500,
                                 whiteSpace: "nowrap",
                                 overflow: "hidden",
@@ -134,13 +159,13 @@ export function RadioHub({ onSelect }: { onSelect: (id: string) => void }) {
 
                         {/* Playing Bars — only when actually playing */}
                         {isPlaying && (
-                            <div style={{ display: "flex", alignItems: "flex-end", gap: "2px", height: "16px", flexShrink: 0 }}>
+                            <div style={{ display: "flex", alignItems: "flex-end", gap: "2.5px", height: "18px", flexShrink: 0, zIndex: 1 }}>
                                 {[1, 2, 3].map(i => (
                                     <motion.div
                                         key={i}
-                                        animate={{ height: [4, 14, 4] }}
+                                        animate={{ height: [4, 16, 4] }}
                                         transition={{ duration: 0.5, repeat: Infinity, delay: i * 0.12 }}
-                                        style={{ width: "2.5px", background: color, borderRadius: "1px", opacity: 0.7 }}
+                                        style={{ width: "3px", background: color, borderRadius: "2px", opacity: 0.9, boxShadow: `0 0 8px ${color}` }}
                                     />
                                 ))}
                             </div>

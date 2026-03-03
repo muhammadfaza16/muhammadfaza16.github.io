@@ -106,6 +106,7 @@ export default function StarlightPage() {
             padding: isMobile ? "1.2rem 0.75rem" : "2rem 1rem", // Standard padding all around
           }}>
             <motion.div
+              layoutId="starlight-main-container"
               initial={{ opacity: 1, scale: 0.9, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               transition={{ duration: 0.6, type: "spring", bounce: 0.3 }}
@@ -114,12 +115,13 @@ export default function StarlightPage() {
                 maxWidth: isMobile ? "460px" : "520px",
                 display: "flex",
                 flexDirection: "column",
-                background: "linear-gradient(145deg, rgba(255,255,255,0.22) 0%, rgba(200,220,255,0.15) 50%, rgba(255,255,255,0.1) 100%)", // Much more solid
-                backdropFilter: "blur(28px) saturate(160%)", // Stronger blur
-                WebkitBackdropFilter: "blur(28px) saturate(160%)",
+                background: "rgba(255, 255, 255, 0.03)", // Deep immersive glass
+                backdropFilter: "blur(40px) saturate(140%)", // Stronger blur
+                WebkitBackdropFilter: "blur(40px) saturate(140%)",
                 borderRadius: "32px",
-                border: "1px solid rgba(255, 255, 255, 0.25)", // Thicker edge highlight
-                boxShadow: "0 25px 50px -12px rgba(0,0,0,0.35), inset 0 1px 0.5px rgba(255,255,255,0.2)",
+                border: "1px solid rgba(255, 255, 255, 0.08)", // Thin sheer border
+                borderTop: "1px solid rgba(255, 255, 255, 0.15)", // Specular top edge
+                boxShadow: "0 30px 60px -12px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.1)", // Deep elevation
                 overflow: "hidden", // Keep children inside rounded corners
                 position: "relative"
               }}

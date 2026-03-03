@@ -72,12 +72,17 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
     const { isPlaying: globalPlaying, togglePlay, setActivePlaybackMode, activePlaybackMode } = useAudio();
     const audioRef = useRef<HTMLAudioElement | null>(null);
 
-    // Track precise World Time for all stations concurrently
+    // Track precise World Time — only tick at 1s when a station is active (Phase 2)
     useEffect(() => {
         setMounted(true);
+        setCurrentTimeWorld(Date.now() / 1000); // Initial snapshot for LIVE indicators
+    }, []);
+
+    useEffect(() => {
+        if (!activeStationId || isRadioPaused) return; // Only tick when actively playing
         const interval = setInterval(() => setCurrentTimeWorld(Date.now() / 1000), 1000);
         return () => clearInterval(interval);
-    }, []);
+    }, [activeStationId, isRadioPaused]);
 
     // Evaluate the timeline for ALL stations
     const stationsState = useMemo(() => {

@@ -6,6 +6,7 @@ import { Cloud, CloudSun, Sun, CloudRain, Calendar as CalIcon, GitBranch, Quote,
 import Link from "next/link";
 import { useAudio } from "@/components/AudioContext";
 import { useLyrics } from "@/hooks/useLyrics";
+import { AnimatedNumber } from "./AnimatedNumber";
 
 const DAYS_FULL = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 const MONTHS_FULL = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
@@ -530,22 +531,30 @@ export function CleanHomeHero() {
                     duration: 0.8, delay: 0.15, type: "spring", bounce: 0.35,
                     layout: { duration: 0.35, ease: [0.25, 0.46, 0.45, 0.94] }
                 }}
-                whileHover={{ y: -4, transition: { duration: 0.2 } }}
+                whileHover={{ scale: 1.015, y: -4, transition: { type: "spring", stiffness: 400, damping: 30 } }}
+                whileTap={{ scale: 0.985, y: 2, transition: { type: "spring", stiffness: 500, damping: 40 } }}
                 onTouchStart={handleTouchStart}
                 onTouchEnd={handleTouchEnd}
                 style={{
-                    background: "linear-gradient(145deg, rgba(255,255,255,0.03) 0%, rgba(200,220,255,0.02) 50%, rgba(255,255,255,0.01) 100%)",
-                    backdropFilter: "blur(14px) saturate(130%)",
-                    WebkitBackdropFilter: "blur(14px) saturate(130%)",
-                    borderRadius: "28px",
-                    border: "1px solid rgba(255,255,255,0.1)",
-                    boxShadow: "0 20px 40px -10px rgba(0,0,0,0.12), inset 0 1px 0 rgba(255,255,255,0.15), inset 0 -1px 0 rgba(255,255,255,0.05)",
+                    // Premium Sheer Background (preserves contrast while letting atmospheric light shine through)
+                    background: "rgba(255, 255, 255, 0.03)",
+                    // Maximum Depth Blur
+                    backdropFilter: "blur(40px) saturate(140%)",
+                    WebkitBackdropFilter: "blur(40px) saturate(140%)",
+                    borderRadius: "32px", // Increased radius for softer look
+                    // Subtle light-catching borders
+                    border: "1px solid rgba(255,255,255,0.08)",
+                    borderTop: "1px solid rgba(255,255,255,0.15)",
+                    borderLeft: "1px solid rgba(255,255,255,0.1)",
+                    // Elevation
+                    boxShadow: "0 24px 48px -12px rgba(0,0,0,0.2), inset 0 0 0 1px rgba(255,255,255,0.02)",
                     padding: "1rem",
                     position: "relative",
                     overflow: "hidden",
                     touchAction: "pan-y",
+                    cursor: "pointer",
                 }}>
-                {/* Dynamic Ambient Aura */}
+                {/* Dynamic Ambient Aura - Remains the same to provide color bleed */}
                 <motion.div
                     animate={{
                         background:
@@ -564,55 +573,37 @@ export function CleanHomeHero() {
                     }}
                 />
 
-                {/* Glass Noise Texture */}
+                {/* Glass Noise Texture - Crucial for physical realism */}
                 <div style={{
                     position: "absolute",
                     inset: 0,
                     backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
-                    opacity: 0.04,
+                    opacity: 0.05,
                     pointerEvents: "none",
                     mixBlendMode: "overlay",
                     zIndex: 1,
                 }} />
 
-                {/* Layer 1: Gradient border — soft edge that catches light */}
-                <div style={{
-                    position: "absolute",
-                    inset: 0,
-                    borderRadius: "28px", // MUST EXACTLY MATCH CONTAINER
-                    padding: "1px",
-                    background: "linear-gradient(160deg, rgba(255,255,255,0.25) 0%, rgba(255,255,255,0.05) 40%, transparent 60%, rgba(255,255,255,0.02) 100%)",
-                    WebkitMask: "linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)",
-                    WebkitMaskComposite: "xor" as any,
-                    maskComposite: "exclude" as any,
-                    pointerEvents: "none",
-                    zIndex: 3,
-                }} />
+                {/* HIGHLIGHT EDGE (Efek Cahaya Menyala saat Hover) */}
+                <div
+                    className="absolute inset-0 rounded-[32px] opacity-0 hover:opacity-100 transition-opacity duration-300 pointer-events-none"
+                    style={{
+                        boxShadow: "inset 0px 1px 1px rgba(255, 255, 255, 0.5), inset 0px 0px 24px rgba(255, 255, 255, 0.08)",
+                        zIndex: 3
+                    }}
+                />
 
-                {/* Layer 2: Specular highlight — bright focused shine at top */}
+                {/* Layer 2: Specular highlight peak */}
                 <div style={{
                     position: "absolute",
                     top: 0,
                     left: "20%",
                     right: "20%",
                     height: "1px",
-                    background: "linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.5) 30%, rgba(255,255,255,0.6) 50%, rgba(255,255,255,0.5) 70%, transparent 100%)",
+                    background: "linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.4) 30%, rgba(255,255,255,0.7) 50%, rgba(255,255,255,0.4) 70%, transparent 100%)",
                     pointerEvents: "none",
                     zIndex: 4,
                     filter: "blur(0.5px)",
-                }} />
-
-                {/* Layer 3: Glossy sheen — smooth light sweep across surface */}
-                <div style={{
-                    position: "absolute",
-                    top: 0,
-                    left: 0,
-                    right: 0,
-                    height: "55%",
-                    background: "linear-gradient(180deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.02) 60%, transparent 100%)",
-                    borderRadius: "32px 32px 0 0",
-                    pointerEvents: "none",
-                    zIndex: 2,
                 }} />
 
                 <AnimatePresence mode="popLayout" initial={false} custom={swipeDirection}>
@@ -682,7 +673,7 @@ export function CleanHomeHero() {
 
                                 {/* Controls */}
                                 <div style={{ display: "flex", alignItems: "center", gap: "2px", flexShrink: 0 }}>
-                                    <div onClick={prevSong} style={{ padding: "6px", cursor: "pointer", display: "flex" }}>
+                                    <div onClick={() => prevSong()} style={{ padding: "6px", cursor: "pointer", display: "flex" }}>
                                         <SkipBack size={15} fill="rgba(255,255,255,0.95)" color="rgba(255,255,255,0.95)" />
                                     </div>
                                     <div onClick={togglePlay} style={{
@@ -1381,14 +1372,16 @@ export function CleanHomeHero() {
                                             {/* Day Progress */}
                                             <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
                                                 <div style={{ display: "flex", justifyContent: "space-between", fontSize: isMobile ? "0.52rem" : "0.58rem", fontWeight: 700 }}>
-                                                    <span style={{ color: "rgba(255,255,255,0.7)" }}>DAY</span>
-                                                    <span style={{ color: "#34d399" }}>{dayProgress}%</span>
+                                                    <span style={{ color: "rgba(255,255,255,0.7)", textShadow: "0 1px 3px rgba(0,0,0,0.5)" }}>DAY</span>
+                                                    <span style={{ color: "#34d399", textShadow: "0 1px 4px rgba(52,211,153,0.3)" }}>
+                                                        <AnimatedNumber value={dayProgress} />%
+                                                    </span>
                                                 </div>
-                                                <div style={{ width: "100%", height: "6px", background: "rgba(255,255,255,0.08)", borderRadius: "3px", overflow: "hidden" }}>
+                                                <div style={{ width: "100%", height: "6px", background: "rgba(255,255,255,0.08)", borderRadius: "3px", overflow: "hidden", boxShadow: "inset 0 1px 2px rgba(0,0,0,0.2)" }}>
                                                     <motion.div
                                                         initial={{ width: 0 }}
                                                         animate={{ width: `${dayProgress}%` }}
-                                                        transition={{ duration: 1.5, ease: "easeOut" }}
+                                                        transition={{ duration: 1.5, type: "spring", damping: 30, stiffness: 200 }}
                                                         style={{ height: "100%", background: "#34d399", borderRadius: "3px" }}
                                                     />
                                                 </div>
@@ -1397,14 +1390,16 @@ export function CleanHomeHero() {
                                             {/* Month Progress */}
                                             <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
                                                 <div style={{ display: "flex", justifyContent: "space-between", fontSize: isMobile ? "0.52rem" : "0.58rem", fontWeight: 700 }}>
-                                                    <span style={{ color: "rgba(255,255,255,0.7)" }}>MONTH</span>
-                                                    <span style={{ color: "#60a5fa" }}>{monthProgress}%</span>
+                                                    <span style={{ color: "rgba(255,255,255,0.7)", textShadow: "0 1px 3px rgba(0,0,0,0.5)" }}>MONTH</span>
+                                                    <span style={{ color: "#60a5fa", textShadow: "0 1px 4px rgba(96,165,250,0.3)" }}>
+                                                        <AnimatedNumber value={monthProgress} />%
+                                                    </span>
                                                 </div>
-                                                <div style={{ width: "100%", height: "6px", background: "rgba(255,255,255,0.08)", borderRadius: "3px", overflow: "hidden" }}>
+                                                <div style={{ width: "100%", height: "6px", background: "rgba(255,255,255,0.08)", borderRadius: "3px", overflow: "hidden", boxShadow: "inset 0 1px 2px rgba(0,0,0,0.2)" }}>
                                                     <motion.div
                                                         initial={{ width: 0 }}
                                                         animate={{ width: `${monthProgress}%` }}
-                                                        transition={{ duration: 1.5, ease: "easeOut", delay: 0.1 }}
+                                                        transition={{ duration: 1.5, type: "spring", damping: 30, stiffness: 200, delay: 0.1 }}
                                                         style={{ height: "100%", background: "#60a5fa", borderRadius: "3px" }}
                                                     />
                                                 </div>
@@ -1413,14 +1408,16 @@ export function CleanHomeHero() {
                                             {/* Year Progress */}
                                             <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
                                                 <div style={{ display: "flex", justifyContent: "space-between", fontSize: isMobile ? "0.52rem" : "0.58rem", fontWeight: 700 }}>
-                                                    <span style={{ color: "rgba(255,255,255,0.7)" }}>YEAR</span>
-                                                    <span style={{ color: "#a78bfa" }}>{yearProgress}%</span>
+                                                    <span style={{ color: "rgba(255,255,255,0.7)", textShadow: "0 1px 3px rgba(0,0,0,0.5)" }}>YEAR</span>
+                                                    <span style={{ color: "#a78bfa", textShadow: "0 1px 4px rgba(167,139,250,0.3)" }}>
+                                                        <AnimatedNumber value={yearProgress} />%
+                                                    </span>
                                                 </div>
-                                                <div style={{ width: "100%", height: "6px", background: "rgba(255,255,255,0.08)", borderRadius: "3px", overflow: "hidden" }}>
+                                                <div style={{ width: "100%", height: "6px", background: "rgba(255,255,255,0.08)", borderRadius: "3px", overflow: "hidden", boxShadow: "inset 0 1px 2px rgba(0,0,0,0.2)" }}>
                                                     <motion.div
                                                         initial={{ width: 0 }}
                                                         animate={{ width: `${yearProgress}%` }}
-                                                        transition={{ duration: 1.5, ease: "easeOut", delay: 0.2 }}
+                                                        transition={{ duration: 1.5, type: "spring", damping: 30, stiffness: 200, delay: 0.2 }}
                                                         style={{ height: "100%", background: "#a78bfa", borderRadius: "3px" }}
                                                     />
                                                 </div>
@@ -1430,19 +1427,25 @@ export function CleanHomeHero() {
                                 })()}
 
                                 {/* GitHub Benchmark */}
-                                <Link href="https://github.com/muhammadfaza16" target="_blank" style={{ marginTop: "0.3rem" }}>
-                                    <div style={{
-                                        background: "rgba(0,0,0,0.12)",
-                                        borderRadius: "18px",
-                                        padding: isMobile ? "0.6rem 0.8rem" : "0.7rem 0.9rem",
-                                        transition: "background 0.2s ease",
-                                        cursor: "pointer",
-                                    }}>
+                                <Link href="https://github.com/muhammadfaza16" target="_blank" style={{ marginTop: "0.3rem", textDecoration: "none" }}>
+                                    <motion.div
+                                        whileHover={{ scale: 1.02, y: -2, transition: { type: "spring", stiffness: 400, damping: 30 } }}
+                                        whileTap={{ scale: 0.98, y: 1, transition: { type: "spring", stiffness: 500, damping: 40 } }}
+                                        style={{
+                                            background: "rgba(255,255,255,0.05)",
+                                            backdropFilter: "blur(12px) saturate(120%)",
+                                            borderRadius: "18px",
+                                            padding: isMobile ? "0.6rem 0.8rem" : "0.7rem 0.9rem",
+                                            boxShadow: "inset 0 1px 0 rgba(255,255,255,0.08), 0 4px 12px rgba(0,0,0,0.1)",
+                                            border: "1px solid rgba(255,255,255,0.05)",
+                                            cursor: "pointer",
+                                        }}>
                                         <div style={{
                                             display: "flex", alignItems: "center", gap: "0.35rem",
                                             fontSize: "0.68rem", fontWeight: 700, textTransform: "uppercase" as const,
                                             letterSpacing: "0.03em", color: "rgba(255,255,255,0.95)",
                                             marginBottom: "0.3rem",
+                                            textShadow: "0 1px 3px rgba(0,0,0,0.5)"
                                         }}>
                                             <GitBranch size={13} strokeWidth={2.5} />
                                             GitHub
@@ -1450,15 +1453,18 @@ export function CleanHomeHero() {
                                         {github ? (
                                             <>
                                                 <div style={{ display: "flex", alignItems: "baseline", gap: "0.3rem" }}>
-                                                    <span style={{ fontSize: isMobile ? "1rem" : "1.2rem", fontWeight: 800, color: "rgba(255,255,255,0.95)", lineHeight: 1 }}>
-                                                        {github.currentMonthActiveDays}<span style={{ fontSize: "0.8rem", color: "rgba(255,255,255,0.5)" }}>/{github.currentMonthTotalDays}</span>
+                                                    <span style={{ fontSize: isMobile ? "1rem" : "1.2rem", fontWeight: 800, color: "rgba(255,255,255,0.95)", lineHeight: 1, textShadow: "0 2px 4px rgba(0,0,0,0.4)" }}>
+                                                        <AnimatedNumber value={github.currentMonthActiveDays} />
+                                                        <span style={{ fontSize: "0.8rem", color: "rgba(255,255,255,0.5)", textShadow: "none" }}>/{github.currentMonthTotalDays}</span>
                                                     </span>
-                                                    <span style={{ fontSize: isMobile ? "0.58rem" : "0.65rem", fontWeight: 500, color: "rgba(255,255,255,0.65)" }}>
+                                                    <span style={{ fontSize: isMobile ? "0.58rem" : "0.65rem", fontWeight: 500, color: "rgba(255,255,255,0.65)", textShadow: "0 1px 2px rgba(0,0,0,0.3)" }}>
                                                         days active
                                                     </span>
                                                 </div>
                                                 <div style={{ fontSize: "0.62rem", color: "rgba(255,255,255,0.55)", marginTop: "0.2rem", display: "flex", alignItems: "center", gap: "4px" }}>
-                                                    <span style={{ color: "#4ade80", fontWeight: 700 }}>{github.currentMonthPushCount}</span> commits/pushes
+                                                    <span style={{ color: "#4ade80", fontWeight: 700, textShadow: "0 1px 3px rgba(74,222,128,0.4)" }}>
+                                                        <AnimatedNumber value={github.currentMonthPushCount} />
+                                                    </span> commits/pushes
                                                 </div>
                                                 {github.recentRepo && (
                                                     <div style={{ fontSize: "0.58rem", color: "rgba(255,255,255,0.45)", marginTop: "0.3rem", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", fontStyle: "italic" }}>
@@ -1469,7 +1475,7 @@ export function CleanHomeHero() {
                                         ) : (
                                             <div style={{ fontSize: "0.75rem", color: "rgba(255,255,255,0.55)" }}>Loading···</div>
                                         )}
-                                    </div>
+                                    </motion.div>
                                 </Link>
 
                             </div>

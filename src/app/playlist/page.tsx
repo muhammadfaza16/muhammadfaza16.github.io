@@ -5,7 +5,8 @@ import { Search, Disc, Shuffle } from "lucide-react";
 import { GradientOrb } from "@/components/GradientOrb";
 import { CosmicStars } from "@/components/CosmicStars";
 import { MilkyWay } from "@/components/MilkyWay";
-import { useAudio, PLAYLIST } from "@/components/AudioContext";
+import { PLAYLIST } from "@/data/masterPlaylist";
+import { useAudio } from "@/components/AudioContext";
 import { motion } from "framer-motion";
 import { PLAYLIST_CATEGORIES } from "@/data/playlists";
 import { StandardBackButton } from "@/components/ui/StandardBackButton";
@@ -13,7 +14,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 
 export default function LibraryIndexPage() {
-    const { isPlaying, queue } = useAudio();
+    const { isPlaying, queue, activePlaylistId } = useAudio();
     const router = useRouter();
     const [searchQuery, setSearchQuery] = useState("");
 
@@ -24,26 +25,8 @@ export default function LibraryIndexPage() {
         }
     };
 
-    // Detect which playlist is currently IN THE QUEUE
-    const currentQueuePlaylistId = useMemo(() => {
-        if (queue.length === 0) return null;
-
-        for (const playlist of PLAYLIST_CATEGORIES) {
-            const playlistSongs = PLAYLIST.filter(song =>
-                playlist.songTitles.some((title: string) =>
-                    song.title.toLowerCase().includes(title.toLowerCase()) ||
-                    title.toLowerCase().includes(song.title.toLowerCase())
-                )
-            );
-
-            if (queue.length === playlistSongs.length) {
-                const playlistUrls = new Set(playlistSongs.map(s => s.audioUrl));
-                const allMatch = queue.every(qSong => playlistUrls.has(qSong.audioUrl));
-                if (allMatch) return playlist.id;
-            }
-        }
-        return null;
-    }, [queue]);
+    // Phase 4: Use activePlaylistId directly instead of O(n×m) matching loop
+    const currentQueuePlaylistId = activePlaylistId;
 
     const filteredCategories = useMemo(() => {
         return PLAYLIST_CATEGORIES.filter(p =>

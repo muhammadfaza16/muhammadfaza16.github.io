@@ -27,6 +27,7 @@ const TOOLBAR = [
 
 import { useAudio } from "@/components/AudioContext";
 import { useRadio } from "@/components/RadioContext";
+import { AtmosphericBackground } from "@/components/AtmosphericBackground";
 
 export default function AudioHubPage() {
     const { activePlaybackMode, isPlaying: musicPlaying, activePlaylistId } = useAudio();
@@ -37,7 +38,7 @@ export default function AudioHubPage() {
 
     return (
         <>
-            <div style={{ position: 'fixed', inset: 0, backgroundColor: '#1a1a1a', zIndex: -1 }} />
+            <AtmosphericBackground />
 
             <ZenHideable>
                 <main style={{
@@ -46,79 +47,83 @@ export default function AudioHubPage() {
                     flexDirection: "column",
                     alignItems: "center",
                     justifyContent: "center",
-                    padding: "1rem",
+                    padding: "2rem",
                     position: "relative",
                     zIndex: 1,
                 }}>
-                    {/* === DAP CHASSIS === */}
                     <motion.div
-                        initial={{ opacity: 0, scale: 0.95 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        transition={{ type: "spring", stiffness: 250, damping: 25 }}
+                        initial={{ opacity: 0, y: 30 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ type: "spring", stiffness: 200, damping: 25 }}
                         style={{
                             width: "100%",
-                            maxWidth: "320px",
-                            background: "linear-gradient(180deg, #2d2d2d 0%, #252525 100%)",
-                            border: "2px solid #111",
-                            borderRadius: "24px",
+                            maxWidth: "360px",
                             display: "flex",
                             flexDirection: "column",
-                            boxShadow: "0 40px 70px -15px rgba(0,0,0,0.7), inset 0 1px 0 rgba(255,255,255,0.05)",
-                            overflow: "hidden"
+                            gap: "1.5rem"
                         }}
                     >
                         {/* Status Bar */}
                         <div style={{
                             display: "flex",
                             justifyContent: "center",
-                            padding: "1.25rem 1.25rem 0.25rem",
+                            alignItems: "center",
+                            marginBottom: "1rem"
                         }}>
                             <span style={{
-                                color: "#555",
-                                fontSize: "0.55rem",
-                                fontWeight: 700,
-                                letterSpacing: "3px",
-                                textTransform: "uppercase"
+                                color: "rgba(255,255,255,0.7)",
+                                fontSize: "0.6rem",
+                                fontWeight: 800,
+                                letterSpacing: "4px",
+                                textTransform: "uppercase",
+                                textShadow: "0 2px 8px rgba(0,0,0,0.5)"
                             }}>
-                                Audio System
+                                Audio Engine
                             </span>
                         </div>
 
-                        {/* Search */}
-                        <div style={{ display: "flex", justifyContent: "center", padding: "0.5rem 0 0.5rem" }}>
-                            <Link href="/playlist/all" style={{ textDecoration: "none" }}>
-                                <motion.div
-                                    whileHover={{ scale: 1.1 }}
-                                    whileTap={{ scale: 0.9 }}
-                                    style={{
-                                        width: "32px", height: "32px", borderRadius: "50%",
-                                        background: "#1e1e1e", border: "1.5px solid #3a3a3a",
-                                        display: "flex", alignItems: "center", justifyContent: "center",
-                                        cursor: "pointer",
-                                        boxShadow: "inset 0 2px 3px rgba(0,0,0,0.5), 0 1px 0 rgba(255,255,255,0.03)"
-                                    }}
-                                >
-                                    <Search size={14} color="#777" strokeWidth={2.5} />
-                                </motion.div>
-                            </Link>
-                        </div>
+                        {/* Search Bar - Glassmorphic */}
+                        <Link href="/playlist/all" style={{ textDecoration: "none" }}>
+                            <motion.div
+                                whileHover={{ scale: 1.02, backgroundColor: "rgba(255,255,255,0.08)" }}
+                                whileTap={{ scale: 0.98 }}
+                                style={{
+                                    height: "48px",
+                                    borderRadius: "16px",
+                                    background: "rgba(255,255,255,0.04)",
+                                    backdropFilter: "blur(20px) saturate(140%)",
+                                    border: "1px solid rgba(255,255,255,0.1)",
+                                    borderTop: "1px solid rgba(255,255,255,0.2)",
+                                    borderLeft: "1px solid rgba(255,255,255,0.15)",
+                                    boxShadow: "0 8px 32px rgba(0,0,0,0.2)",
+                                    display: "flex",
+                                    alignItems: "center",
+                                    padding: "0 16px",
+                                    gap: "12px",
+                                    cursor: "pointer"
+                                }}
+                            >
+                                <Search size={18} color="rgba(255,255,255,0.5)" strokeWidth={2.5} />
+                                <span style={{ color: "rgba(255,255,255,0.4)", fontSize: "0.9rem", fontWeight: 500 }}>
+                                    Search tracks...
+                                </span>
+                            </motion.div>
+                        </Link>
 
-                        {/* 2x2 Icon Grid */}
+                        {/* 2x2 Glass Grid */}
                         <div style={{
                             display: "grid",
                             gridTemplateColumns: "repeat(2, 1fr)",
-                            padding: "0.5rem 2rem 1.75rem",
-                            gap: "0.25rem",
+                            gap: "12px",
                         }}>
                             {MENU_ITEMS.map((item, i) => {
                                 const Icon = item.icon;
 
-                                // Determine if this specific item is currently actively playing
+                                // Determine if active
                                 let isItemActive = false;
                                 if (item.id === "radio" && isRadioPlaying) {
                                     isItemActive = true;
                                 } else if (item.id === "songs" && isMusicPlaying && activePlaylistId === null) {
-                                    // Default queue (Songs) uses null or 'all' for playlistId
                                     isItemActive = true;
                                 } else if (item.id === "playlists" && isMusicPlaying && activePlaylistId !== null) {
                                     isItemActive = true;
@@ -127,89 +132,105 @@ export default function AudioHubPage() {
                                 return (
                                     <Link key={item.id} href={item.href} style={{ textDecoration: "none" }}>
                                         <motion.div
-                                            initial={{ opacity: 0, y: 12 }}
+                                            initial={{ opacity: 0, y: 15 }}
                                             animate={{ opacity: 1, y: 0 }}
-                                            transition={{ delay: 0.1 + i * 0.06, type: "spring", stiffness: 300, damping: 22 }}
-                                            whileHover={{ scale: 1.08 }}
-                                            whileTap={{ scale: 0.9 }}
+                                            transition={{ delay: 0.1 + i * 0.05, type: "spring", stiffness: 250, damping: 22 }}
+                                            whileHover={{ scale: 1.03, backgroundColor: isItemActive ? "rgba(255,255,255,0.15)" : "rgba(255,255,255,0.08)" }}
+                                            whileTap={{ scale: 0.95 }}
                                             style={{
+                                                aspectRatio: "1/1",
+                                                background: isItemActive
+                                                    ? "linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.03) 100%)"
+                                                    : "linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.01) 100%)",
+                                                backdropFilter: "blur(24px) saturate(140%)",
+                                                border: "1px solid rgba(255,255,255,0.08)",
+                                                borderTop: `1px solid ${isItemActive ? "rgba(255,255,255,0.4)" : "rgba(255,255,255,0.2)"}`,
+                                                borderLeft: `1px solid ${isItemActive ? "rgba(255,255,255,0.3)" : "rgba(255,255,255,0.15)"}`,
+                                                borderRadius: "24px",
+                                                padding: "1.25rem",
                                                 display: "flex",
                                                 flexDirection: "column",
+                                                justifyContent: "center",
                                                 alignItems: "center",
-                                                gap: "8px",
-                                                padding: "1.25rem 0.5rem",
+                                                gap: "12px",
                                                 cursor: "pointer",
-                                                borderRadius: "12px",
+                                                boxShadow: isItemActive
+                                                    ? "0 10px 40px rgba(255,255,255,0.1)"
+                                                    : "0 10px 30px rgba(0,0,0,0.2)",
+                                                overflow: "hidden",
+                                                position: "relative"
                                             }}
                                         >
-                                            <div style={{
-                                                width: "44px", height: "44px", borderRadius: "12px",
-                                                background: "#1e1e1e",
-                                                border: `1.5px solid ${isItemActive ? "#39ff1450" : "#383838"}`,
-                                                display: "flex", alignItems: "center", justifyContent: "center",
-                                                boxShadow: isItemActive
-                                                    ? "inset 0 0 15px rgba(57,255,20,0.15), 0 0 10px rgba(57,255,20,0.1)"
-                                                    : "inset 0 2px 4px rgba(0,0,0,0.35), 0 1px 0 rgba(255,255,255,0.03)",
-                                                position: "relative"
-                                            }}>
-                                                <Icon size={20} color={isItemActive ? "#39ff14" : "#aaa"} strokeWidth={2} />
-
-                                                {isItemActive && (
-                                                    <motion.div
-                                                        animate={{ opacity: [0.3, 0.8, 0.3], scale: [0.95, 1.05, 0.95] }}
-                                                        transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
-                                                        style={{
-                                                            position: "absolute",
-                                                            inset: -2,
-                                                            borderRadius: "12px",
-                                                            border: "1px solid #39ff14",
-                                                            opacity: 0.5,
-                                                        }}
-                                                    />
-                                                )}
-                                            </div>
+                                            <Icon
+                                                size={32}
+                                                color={isItemActive ? "#fff" : "rgba(255,255,255,0.6)"}
+                                                strokeWidth={isItemActive ? 2.5 : 2}
+                                            />
                                             <span style={{
-                                                color: "#888",
-                                                fontSize: "0.6rem",
-                                                fontWeight: 600,
-                                                letterSpacing: "0.3px"
+                                                color: isItemActive ? "#fff" : "rgba(255,255,255,0.7)",
+                                                fontSize: "0.8rem",
+                                                fontWeight: 700,
+                                                letterSpacing: "0.5px"
                                             }}>
                                                 {item.label}
                                             </span>
+
+                                            {/* Suble glow behind icon if active */}
+                                            {isItemActive && (
+                                                <div style={{
+                                                    position: "absolute",
+                                                    top: "50%",
+                                                    left: "50%",
+                                                    transform: "translate(-50%, -50%)",
+                                                    width: "50px",
+                                                    height: "50px",
+                                                    background: "radial-gradient(circle, rgba(255,255,255,0.2) 0%, transparent 70%)",
+                                                    filter: "blur(10px)",
+                                                    pointerEvents: "none"
+                                                }} />
+                                            )}
                                         </motion.div>
                                     </Link>
                                 );
                             })}
                         </div>
 
-                        {/* Bottom Toolbar */}
-                        <div style={{
-                            display: "flex",
-                            justifyContent: "center",
-                            alignItems: "center",
-                            gap: "2.5rem",
-                            padding: "0.75rem 1.5rem",
-                            borderTop: "1px solid #1e1e1e",
-                            background: "rgba(0,0,0,0.2)",
-                        }}>
+                        {/* Toolbar Glass */}
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.95 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            transition={{ delay: 0.3 }}
+                            style={{
+                                display: "flex",
+                                justifyContent: "center",
+                                alignItems: "center",
+                                gap: "2.5rem",
+                                padding: "1rem 1.5rem",
+                                borderRadius: "20px",
+                                background: "rgba(0,0,0,0.2)",
+                                backdropFilter: "blur(16px)",
+                                border: "1px solid rgba(255,255,255,0.05)",
+                                marginTop: "1rem"
+                            }}
+                        >
                             {TOOLBAR.map((item) => {
                                 const Icon = item.icon;
                                 return (
                                     <Link key={item.href} href={item.href} style={{ textDecoration: "none" }}>
                                         <motion.div
-                                            whileHover={{ scale: 1.2, y: -2 }}
-                                            whileTap={{ scale: 0.85 }}
+                                            whileHover={{ scale: 1.1, y: -2 }}
+                                            whileTap={{ scale: 0.9 }}
                                             style={{
-                                                display: "flex", alignItems: "center", justifyContent: "center",
-                                                cursor: "pointer", padding: "4px",
+                                                cursor: "pointer",
+                                                display: "flex",
                                             }}
                                         >
-                                            <Icon size={17} color="#555" strokeWidth={2} />
+                                            <Icon size={22} color="rgba(255,255,255,0.5)" strokeWidth={2} />
                                         </motion.div>
                                     </Link>
                                 );
                             })}
-                        </div>
+                        </motion.div>
                     </motion.div>
                 </main>
             </ZenHideable>
