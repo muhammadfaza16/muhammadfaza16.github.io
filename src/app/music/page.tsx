@@ -28,10 +28,11 @@ const TOOLBAR = [
 import { useAudio } from "@/components/AudioContext";
 import { useRadio } from "@/components/RadioContext";
 import { AtmosphericBackground } from "@/components/AtmosphericBackground";
+import { ChevronLeft, Pause, Play } from "lucide-react";
 
 export default function AudioHubPage() {
-    const { activePlaybackMode, isPlaying: musicPlaying, activePlaylistId } = useAudio();
-    const { isRadioPaused, isSyncing, isBuffering } = useRadio();
+    const { activePlaybackMode, isPlaying: musicPlaying, activePlaylistId, currentSong, togglePlay } = useAudio();
+    const { isRadioPaused, isSyncing, isBuffering, activeStationId, stations, stationsState } = useRadio();
 
     const isRadioPlaying = activePlaybackMode === 'radio' && !isRadioPaused && !isSyncing && !isBuffering;
     const isMusicPlaying = activePlaybackMode === 'music' && musicPlaying;
@@ -81,6 +82,72 @@ export default function AudioHubPage() {
                                 Audio Engine
                             </span>
                         </div>
+
+                        {/* UX-8: Now Playing Strip */}
+                        {(isMusicPlaying || isRadioPlaying) && (
+                            <motion.div
+                                initial={{ opacity: 0, y: 10 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                style={{
+                                    background: "rgba(255,255,255,0.06)",
+                                    backdropFilter: "blur(20px)",
+                                    borderRadius: "14px",
+                                    padding: "12px 16px",
+                                    border: "1px solid rgba(255,255,255,0.1)",
+                                    display: "flex",
+                                    alignItems: "center",
+                                    gap: "12px",
+                                    cursor: "pointer"
+                                }}
+                                onClick={isMusicPlaying ? togglePlay : undefined}
+                            >
+                                <motion.div
+                                    animate={{ scale: [1, 1.3, 1] }}
+                                    transition={{ repeat: Infinity, duration: 1.5 }}
+                                    style={{ width: "8px", height: "8px", borderRadius: "50%", background: "#22c55e", flexShrink: 0, boxShadow: "0 0 8px rgba(34,197,94,0.6)" }}
+                                />
+                                <div style={{ flex: 1, minWidth: 0 }}>
+                                    <div style={{ fontSize: "0.6rem", fontWeight: 800, color: "rgba(255,255,255,0.5)", letterSpacing: "1px", textTransform: "uppercase", marginBottom: "2px" }}>
+                                        NOW PLAYING
+                                    </div>
+                                    <div style={{ fontSize: "0.85rem", fontWeight: 600, color: "white", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                                        {isMusicPlaying ? currentSong.title : (
+                                            isRadioPlaying && activeStationId ? (
+                                                stationsState[activeStationId]?.song.title || stations.find(s => s.id === activeStationId)?.name || "Radio"
+                                            ) : "Playing..."
+                                        )}
+                                    </div>
+                                </div>
+                                {isMusicPlaying && (
+                                    <div style={{ color: "white", opacity: 0.7 }}>
+                                        {musicPlaying ? <Pause size={14} fill="currentColor" /> : <Play size={14} fill="currentColor" />}
+                                    </div>
+                                )}
+                            </motion.div>
+                        )}
+
+                        {/* Back to Starlight */}
+                        <Link href="/starlight" style={{ textDecoration: "none" }}>
+                            <motion.div
+                                whileHover={{ scale: 1.02 }}
+                                whileTap={{ scale: 0.97 }}
+                                style={{
+                                    display: "flex", alignItems: "center", justifyContent: "center", gap: "6px",
+                                    padding: "10px",
+                                    borderRadius: "12px",
+                                    background: "rgba(255,255,255,0.04)",
+                                    border: "1px solid rgba(255,255,255,0.06)",
+                                    color: "rgba(255,255,255,0.4)",
+                                    fontSize: "0.7rem",
+                                    fontWeight: 700,
+                                    letterSpacing: "1px",
+                                    textTransform: "uppercase" as const
+                                }}
+                            >
+                                <ChevronLeft size={14} />
+                                Back to Starlight
+                            </motion.div>
+                        </Link>
 
                         {/* Search Bar - Glassmorphic */}
                         <Link href="/playlist/all" style={{ textDecoration: "none" }}>

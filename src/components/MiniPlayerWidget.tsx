@@ -12,7 +12,7 @@ interface MiniPlayerProps {
 }
 
 export function MiniPlayerWidget({ style: customStyle }: MiniPlayerProps) {
-    const { isPlaying, togglePlay, currentSong, hasInteracted, queue, currentIndex, nextSong, prevSong, activePlaylistId, isMiniPlayerDismissed, setMiniPlayerDismissed, isBuffering } = useAudio();
+    const { isPlaying, togglePlay, currentSong, hasInteracted, queue, currentIndex, nextSong, prevSong, activePlaylistId, isMiniPlayerDismissed, setMiniPlayerDismissed, isBuffering, activePlaybackMode } = useAudio();
     const { isZen, setZen } = useZen();
     const router = useRouter();
     const pathname = usePathname();
@@ -32,7 +32,8 @@ export function MiniPlayerWidget({ style: customStyle }: MiniPlayerProps) {
 
     // Only show if user has started playing something or interacted
     // HIDE on Radio page to maintain isolation
-    if (!hasInteracted || isMiniPlayerDismissed || pathname === "/starlight/radio") return null;
+    // UX-4: Hide when CurrentlyStrip is visible on home, when radio active, or on radio page
+    if (!hasInteracted || isMiniPlayerDismissed || activePlaybackMode === 'radio' || pathname === "/starlight/radio" || pathname === "/") return null;
 
     // Split title for artist/song
     const parts = currentSong.title.split("—");

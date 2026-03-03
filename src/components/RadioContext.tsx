@@ -184,11 +184,13 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
     }, [activeStationId, isRadioPaused]);
 
     // Handle focus stealing: if Music starts playing, Radio should pause automatically
+    // B4 Fix: Removed isRadioPaused from deps to prevent fragile re-firing loop
     useEffect(() => {
         if (activePlaybackMode !== 'radio' && !isRadioPaused && activeStationId) {
             pauseRadio();
         }
-    }, [activePlaybackMode, isRadioPaused, activeStationId]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [activePlaybackMode, activeStationId]);
 
     const handleTuneIn = useCallback((stationId: string) => {
         if (!audioRef.current) return;
@@ -219,20 +221,28 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
     // Lightweight resume: just unpause, no full re-init
     const resumeRadio = useCallback(() => {
         if (!audioRef.current || !activeStationId) return;
+        // B7 Fix: Snapshot world time immediately to prevent stale state
+        const freshTime = Date.now() / 1000;
+        setCurrentTimeWorld(freshTime);
         setIsRadioPaused(false);
         setActivePlaybackMode('radio');
-        // Sync to current world time position
-        const state = stationsState[activeStationId];
-        if (state) {
-            const audio = audioRef.current;
-            const targetUrl = state.song.audioUrl;
-            if (!audio.src.endsWith(targetUrl)) {
-                audio.src = targetUrl;
+        // Calculate current state from fresh time
+        const timeline = TIMELINES[activeStationId];
+        if (timeline && timeline.totalDuration > 0) {
+            const globalProgress = freshTime % timeline.totalDuration;
+            const activeTrack = timeline.tracks.find(
+                (t) => globalProgress >= t.startOffset && globalProgress < t.endOffset
+            );
+            if (activeTrack) {
+                const audio = audioRef.current;
+                if (!audio.src.endsWith(activeTrack.audioUrl)) {
+                    audio.src = activeTrack.audioUrl;
+                }
+                audio.currentTime = globalProgress - activeTrack.startOffset;
+                audio.play().catch(() => { });
             }
-            audio.currentTime = state.progress;
-            audio.play().catch(() => { });
         }
-    }, [activeStationId, stationsState, setActivePlaybackMode]);
+    }, [activeStationId, setActivePlaybackMode]);
 
     // Full dismiss: clears everything, hides widget
     const turnOff = useCallback(() => {

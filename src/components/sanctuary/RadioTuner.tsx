@@ -5,6 +5,12 @@ import { motion } from "framer-motion";
 import { ArrowLeft, Square, Radio as RadioIcon } from "lucide-react";
 import { useRadio } from "../RadioContext";
 
+const triggerHaptic = () => {
+    if (typeof navigator !== 'undefined' && navigator.vibrate) {
+        navigator.vibrate(10);
+    }
+};
+
 const METER_BARS = Array.from({ length: 16 }).map(() => ({
     dur: 0.15 + Math.random() * 0.35,
     del: Math.random() * 0.25
@@ -31,7 +37,7 @@ export function RadioTuner({ stationId, onBack }: { stationId: string; onBack: (
             {/* Nav */}
             <div style={{ display: "flex", alignItems: "center", marginBottom: "1rem", gap: "0.8rem" }}>
                 <motion.button
-                    onClick={onBack}
+                    onClick={() => { triggerHaptic(); onBack(); }}
                     whileTap={{ scale: 0.9, y: 1 }}
                     whileHover={{ scale: 1.05, backgroundColor: "rgba(255,255,255,0.1)" }}
                     style={{
@@ -259,6 +265,7 @@ export function RadioTuner({ stationId, onBack }: { stationId: string; onBack: (
                         whileHover={{ scale: 1.05, backgroundColor: isPlaying ? "rgba(0,0,0,0.5)" : "rgba(255,255,255,0.1)" }}
                         whileTap={{ scale: 0.95, y: 1 }}
                         onClick={() => {
+                            triggerHaptic();
                             if (isPlaying) {
                                 pauseRadio();
                             } else if (isThisStation && isRadioPaused) {

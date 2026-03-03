@@ -5,12 +5,12 @@ import { motion, AnimatePresence } from "framer-motion";
 import { usePathname } from "next/navigation";
 import { useAudio } from "../AudioContext";
 import { useRadio } from "../RadioContext";
-import { Square, SkipBack, SkipForward, X } from "lucide-react";
+import { Square, SkipBack, SkipForward, X, Play, Pause } from "lucide-react";
 
 export function GlobalBottomPlayer() {
     const {
         activePlaybackMode, setActivePlaybackMode, isPlaying: musicPlaying,
-        togglePlay, currentSong, currentTime, duration, nextSong, prevSong
+        togglePlay, currentSong, currentTime, duration, nextSong, prevSong, stopMusic
     } = useAudio();
 
     const { activeStationId, stations, turnOff, pauseRadio, resumeRadio, isRadioPaused, stationsState, handleTuneIn } = useRadio();
@@ -242,6 +242,7 @@ export function GlobalBottomPlayer() {
                                         pauseRadio(); // Soft stop
                                     }
                                 } else {
+                                    setActivePlaybackMode('music'); // B5 Fix: Ensure mode is music
                                     togglePlay();
                                 }
                             }}
@@ -262,29 +263,14 @@ export function GlobalBottomPlayer() {
                         >
                             {isRadio ? (
                                 isRadioPaused ? (
-                                    <div style={{
-                                        width: "0", height: "0",
-                                        borderTop: "7px solid transparent",
-                                        borderLeft: "11px solid currentColor",
-                                        borderBottom: "7px solid transparent",
-                                        marginLeft: "3px",
-                                    }} />
+                                    <Play size={16} fill="currentColor" style={{ marginLeft: "2px" }} />
                                 ) : (
                                     <Square size={14} fill="currentColor" />
                                 )
                             ) : musicPlaying ? (
-                                <div style={{ display: "flex", gap: "3px" }}>
-                                    <div style={{ width: "3.5px", height: "14px", background: "currentColor", borderRadius: "2px" }} />
-                                    <div style={{ width: "3.5px", height: "14px", background: "currentColor", borderRadius: "2px" }} />
-                                </div>
+                                <Pause size={16} fill="currentColor" />
                             ) : (
-                                <div style={{
-                                    width: "0", height: "0",
-                                    borderTop: "7px solid transparent",
-                                    borderLeft: "11px solid currentColor",
-                                    borderBottom: "7px solid transparent",
-                                    marginLeft: "3px",
-                                }} />
+                                <Play size={16} fill="currentColor" style={{ marginLeft: "2px" }} />
                             )}
                         </motion.button>
 
@@ -310,7 +296,7 @@ export function GlobalBottomPlayer() {
                             whileTap={{ scale: 0.8 }}
                             onClick={() => {
                                 if (isRadio) turnOff();
-                                else if (musicPlaying) togglePlay();
+                                else stopMusic(); // B2 Fix: Use stopMusic instead of togglePlay
                                 setActivePlaybackMode('none');
                             }}
                             style={{

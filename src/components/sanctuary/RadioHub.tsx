@@ -149,11 +149,12 @@ export function RadioHub({ onSelect }: { onSelect: (id: string) => void }) {
                                 color: isPlaying ? "rgba(255,255,255,0.85)" : "rgba(255,255,255,0.5)",
                                 fontSize: "0.65rem",
                                 fontWeight: 500,
+                                fontStyle: isLive ? "italic" : "normal",
                                 whiteSpace: "nowrap",
                                 overflow: "hidden",
                                 textOverflow: "ellipsis",
                             }}>
-                                {isPlaying && state ? state.song.title : (isLive && state ? state.song.title : station.description)}
+                                {isLive && state ? `♪ ${state.song.title}` : station.description}
                             </p>
                         </div>
 

@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import { useAudio, PLAYLIST } from "./AudioContext";
 import { useNarrativeEngine } from "../hooks/useNarrativeEngine";
 import { useZen } from "./ZenContext";
-import { SkipBack, SkipForward, ListMusic } from "lucide-react";
+import { SkipBack, SkipForward, ListMusic, Play, Pause } from "lucide-react";
 import { getSongMessage } from "../data/songMessages";
 import { LyricsDisplay } from "./LyricsDisplay";
 import { PlaylistDrawer } from "./PlaylistDrawer";
@@ -412,7 +412,7 @@ export function CurrentlyStrip() {
                             className="hover:opacity-100"
                             aria-label={isPlaying ? "Pause" : "Play"}
                         >
-                            {isPlaying ? "⏸" : "▶"}
+                            {isPlaying ? <Pause size={16} fill="currentColor" /> : <Play size={16} fill="currentColor" style={{ marginLeft: "2px" }} />}
                         </button>
 
                         {/* Next Button */}

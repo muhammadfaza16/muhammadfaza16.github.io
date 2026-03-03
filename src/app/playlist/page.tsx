@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { Search, Disc, Shuffle } from "lucide-react";
 import { GradientOrb } from "@/components/GradientOrb";
 import { CosmicStars } from "@/components/CosmicStars";
@@ -18,6 +18,31 @@ export default function LibraryIndexPage() {
     const router = useRouter();
     const [searchQuery, setSearchQuery] = useState("");
 
+    // UX-7: Clean useEffect to hide header/footer — no dangerouslySetInnerHTML
+    useEffect(() => {
+        document.body.classList.add("fullscreen-music-page");
+
+        // Inject global styles once if not already present
+        if (!document.getElementById("fullscreen-music-styles")) {
+            const style = document.createElement("style");
+            style.id = "fullscreen-music-styles";
+            style.textContent = `
+                .fullscreen-music-page header, .fullscreen-music-page footer { display: none !important; }
+                .fullscreen-music-page #main-content { padding-top: 0 !important; }
+                .fullscreen-music-page { overflow: auto !important; overscroll-behavior: none; touch-action: pan-y; background: #000; }
+                @keyframes eq-bar1 { 0%,100%{height:4px} 50%{height:14px} }
+                @keyframes eq-bar2 { 0%,100%{height:8px} 50%{height:4px} }
+                @keyframes eq-bar3 { 0%,100%{height:6px} 50%{height:12px} }
+                .eq-bar { width:2px; background:#FFD60A; border-radius:999px; }
+            `;
+            document.head.appendChild(style);
+        }
+
+        return () => {
+            document.body.classList.remove("fullscreen-music-page");
+        };
+    }, []);
+
     // Haptic Helper
     const triggerHaptic = () => {
         if (typeof navigator !== 'undefined' && navigator.vibrate) {
@@ -25,7 +50,6 @@ export default function LibraryIndexPage() {
         }
     };
 
-    // Phase 4: Use activePlaylistId directly instead of O(n×m) matching loop
     const currentQueuePlaylistId = activePlaylistId;
 
     const filteredCategories = useMemo(() => {
@@ -37,22 +61,6 @@ export default function LibraryIndexPage() {
 
     return (
         <>
-            <style dangerouslySetInnerHTML={{
-                __html: `
-        header, footer { display: none !important; }
-        #main-content { padding-top: 0 !important; }
-        html, body { 
-            overflow: auto !important; 
-            overscroll-behavior: none; 
-            touch-action: pan-y; 
-            background: #000;
-        }
-        @keyframes eq-bar1 { 0%,100%{height:4px} 50%{height:14px} }
-        @keyframes eq-bar2 { 0%,100%{height:8px} 50%{height:4px} }
-        @keyframes eq-bar3 { 0%,100%{height:6px} 50%{height:12px} }
-        .eq-bar { width:2px; background:#FFD60A; border-radius:999px; }
-      `}} />
-
             <div style={{
                 position: "fixed",
                 top: 0,

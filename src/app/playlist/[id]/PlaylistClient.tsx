@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useState, useMemo, useEffect } from "react";
-import { Play, Pause, Search, Disc, Shuffle, SkipBack, SkipForward, Sparkles } from "lucide-react";
+import React, { useState, useMemo, useEffect, useRef } from "react";
+import { Play, Pause, Search, Disc, Shuffle, SkipBack, SkipForward, Sparkles, Loader2 } from "lucide-react";
 import { Virtuoso } from 'react-virtuoso';
 import { GradientOrb } from "@/components/GradientOrb";
 import { CosmicStars } from "@/components/CosmicStars";
@@ -13,13 +13,21 @@ import { useZen } from "@/components/ZenContext";
 import { motion, PanInfo, AnimatePresence } from "framer-motion";
 import { PLAYLIST_CATEGORIES } from "@/data/playlists";
 import { StandardBackButton } from "@/components/ui/StandardBackButton";
+import { useRouter } from "next/navigation";
 
 // Phase 6: Extracted shared TrackRow component
-function TrackRow({ song, index, isActive, isPlaying, onPlay }: {
+const fmtTime = (s: number) => {
+    const m = Math.floor(s / 60);
+    const sec = Math.floor(s % 60);
+    return `${m}:${sec.toString().padStart(2, '0')}`;
+};
+
+function TrackRow({ song, index, isActive, isPlaying, isBuffering, onPlay }: {
     song: { title: string; audioUrl: string; originalIndex: number };
     index: number;
     isActive: boolean;
     isPlaying: boolean;
+    isBuffering?: boolean;
     onPlay: () => void;
 }) {
     return (
@@ -36,7 +44,9 @@ function TrackRow({ song, index, isActive, isPlaying, onPlay }: {
             }}
         >
             <div style={{ width: "24px", textAlign: "center", color: isActive ? "#3b82f6" : "rgba(255,255,255,0.2)", fontWeight: 700 }}>
-                {isActive && isPlaying ? (
+                {isActive && isBuffering ? (
+                    <Loader2 size={14} className="animate-spin" color="#3b82f6" />
+                ) : isActive && isPlaying ? (
                     <div className="flex gap-[3px] items-end h-[14px]">
                         <div className="eq-bar" style={{ animation: 'eq-bar1 0.5s ease infinite' }} />
                         <div className="eq-bar" style={{ animation: 'eq-bar2 0.5s ease infinite 0.1s' }} />
@@ -58,8 +68,9 @@ function TrackRow({ song, index, isActive, isPlaying, onPlay }: {
 }
 
 export default function PlaylistClient({ playlistId }: { playlistId: string }) {
-    const { isPlaying, currentSong, jumpToSong, playQueue, queue, currentIndex, togglePlay, nextSong, prevSong, hasInteracted, currentTime, duration, seekTo, activePlaylistId } = useAudio();
+    const { isPlaying, currentSong, jumpToSong, playQueue, queue, currentIndex, togglePlay, nextSong, prevSong, hasInteracted, currentTime, duration, seekTo, activePlaylistId, isBuffering } = useAudio();
     const { isZen, setZen } = useZen();
+    const router = useRouter();
 
     const [searchQuery, setSearchQuery] = useState("");
     const [mounted, setMounted] = useState(false);
@@ -67,6 +78,27 @@ export default function PlaylistClient({ playlistId }: { playlistId: string }) {
 
     useEffect(() => {
         setMounted(true);
+
+        // UX-7: Inject styles via body class instead of dangerouslySetInnerHTML
+        document.body.classList.add("fullscreen-music-page");
+        if (!document.getElementById("fullscreen-playlist-styles")) {
+            const style = document.createElement("style");
+            style.id = "fullscreen-playlist-styles";
+            style.textContent = `
+                .fullscreen-music-page header, .fullscreen-music-page footer, .fullscreen-music-page .zen-toggle-floating { display: none !important; }
+                .fullscreen-music-page #main-content { padding-top: 0 !important; }
+                .fullscreen-music-page { overscroll-behavior: none; touch-action: pan-y; background: #000; }
+                @keyframes eq-bar1 { 0%,100%{height:4px} 50%{height:14px} }
+                @keyframes eq-bar2 { 0%,100%{height:8px} 50%{height:4px} }
+                @keyframes eq-bar3 { 0%,100%{height:6px} 50%{height:12px} }
+                .eq-bar { width:3px; background:#FFD60A; border-radius:9999px; will-change:height; }
+            `;
+            document.head.appendChild(style);
+        }
+
+        return () => {
+            document.body.classList.remove("fullscreen-music-page");
+        };
     }, []);
 
     // Fetch songs from database (MASTER-fetched songs) when viewing 'all'
@@ -167,20 +199,7 @@ export default function PlaylistClient({ playlistId }: { playlistId: string }) {
 
     return (
         <>
-            <style dangerouslySetInnerHTML={{
-                __html: `
-        header, footer, .zen-toggle-floating { display: none !important; }
-        #main-content { padding-top: 0 !important; }
-        html { 
-            overscroll-behavior: none; 
-            touch-action: pan-y; 
-            background: #000;
-        }
-        @keyframes eq-bar1 { 0%,100%{height:4px} 50%{height:14px} }
-        @keyframes eq-bar2 { 0%,100%{height:8px} 50%{height:4px} }
-        @keyframes eq-bar3 { 0%,100%{height:6px} 50%{height:12px} }
-        .eq-bar { width:3px; background:#FFD60A; border-radius:9999px; will-change:height; }
-      `}} />
+            {/* UX-7: Styles injected via useEffect in body-class pattern above */}
 
             <div style={{
                 position: "fixed",
@@ -206,7 +225,7 @@ export default function PlaylistClient({ playlistId }: { playlistId: string }) {
                     dragConstraints={{ top: 0, bottom: 0 }}
                     dragElastic={{ top: 0, bottom: 0.5 }}
                     onDragEnd={(e: any, info: PanInfo) => {
-                        if (info.offset.y > 150) setZen(false);
+                        if (info.offset.y > 80) setZen(false); // UX-2: Lowered from 150 to 80
                     }}
                     style={{
                         position: "fixed",
@@ -224,7 +243,16 @@ export default function PlaylistClient({ playlistId }: { playlistId: string }) {
                         backdropFilter: "blur(30px) saturate(150%)"
                     }}
                 >
+                    {/* UX-2: Tap backdrop to close */}
+                    <div
+                        onClick={() => setZen(false)}
+                        style={{ position: "absolute", inset: 0, zIndex: -1 }}
+                    />
                     <div style={{ width: "40px", height: "4px", backgroundColor: "rgba(255,255,255,0.3)", borderRadius: "2px", position: "absolute", top: "16px" }} />
+                    {/* UX-2: Hint text */}
+                    <div style={{ position: "absolute", top: "28px", fontSize: "0.6rem", color: "rgba(255,255,255,0.3)", fontWeight: 600, letterSpacing: "1px" }}>
+                        SWIPE DOWN TO CLOSE
+                    </div>
                     <div style={{ width: "100%", maxWidth: "500px", transform: "scale(1.1)" }}>
                         <CurrentlyStrip />
                     </div>
@@ -241,7 +269,7 @@ export default function PlaylistClient({ playlistId }: { playlistId: string }) {
                     flexDirection: "column",
                     gap: "1.5rem"
                 }}>
-                    {/* Standard Back Button — Phase 9: contextual routing */}
+                    {/* UX-9: StandardBackButton already uses router.back() internally, href is fallback */}
                     <StandardBackButton href={playlistId === "all" ? "/music" : "/playlist"} />
 
                     <div style={{ display: "flex", alignItems: "center", justifyContent: "center", marginBottom: "0.5rem" }}>
@@ -423,6 +451,33 @@ export default function PlaylistClient({ playlistId }: { playlistId: string }) {
                             </h3>
                         </div>
 
+                        {/* UX-1: Seek Bar */}
+                        {activePlaylistId === playlistId && (
+                            <div style={{ padding: "0 24px 16px" }}>
+                                <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.7rem", color: "rgba(255,255,255,0.4)", fontFamily: "monospace", fontWeight: 600, marginBottom: "6px" }}>
+                                    <span>{fmtTime(currentTime)}</span>
+                                    <span>{fmtTime(duration)}</span>
+                                </div>
+                                <div
+                                    onClick={(e) => {
+                                        const rect = e.currentTarget.getBoundingClientRect();
+                                        const pct = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+                                        seekTo(pct * duration);
+                                    }}
+                                    style={{ width: "100%", height: "6px", background: "rgba(255,255,255,0.08)", borderRadius: "3px", cursor: "pointer", position: "relative", overflow: "hidden" }}
+                                >
+                                    <div style={{
+                                        width: `${(currentTime / (duration || 1)) * 100}%`,
+                                        height: "100%",
+                                        background: "linear-gradient(90deg, #3b82f6, #60a5fa)",
+                                        borderRadius: "3px",
+                                        transition: "width 0.3s linear",
+                                        boxShadow: "0 0 8px rgba(59, 130, 246, 0.5)"
+                                    }} />
+                                </div>
+                            </div>
+                        )}
+
                         {/* Phase 6: Use shared TrackRow for both small and large lists */}
                         {filteredPlaylist.length <= 50 ? (
                             <div style={{ display: "flex", flexDirection: "column" }}>
@@ -433,6 +488,7 @@ export default function PlaylistClient({ playlistId }: { playlistId: string }) {
                                         index={i}
                                         isActive={currentSong?.audioUrl === song.audioUrl}
                                         isPlaying={isPlaying}
+                                        isBuffering={isBuffering}
                                         onPlay={() => playQueue(filteredPlaylist, i, playlistId)}
                                     />
                                 ))}
@@ -450,6 +506,7 @@ export default function PlaylistClient({ playlistId }: { playlistId: string }) {
                                         index={i}
                                         isActive={currentSong?.audioUrl === song.audioUrl}
                                         isPlaying={isPlaying}
+                                        isBuffering={isBuffering}
                                         onPlay={() => playQueue(filteredPlaylist, i, playlistId)}
                                     />
                                 )}

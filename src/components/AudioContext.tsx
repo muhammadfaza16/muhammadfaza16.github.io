@@ -43,6 +43,7 @@ interface AudioContextType {
     // Global Hub Mode
     activePlaybackMode: 'none' | 'music' | 'radio';
     setActivePlaybackMode: (mode: 'none' | 'music' | 'radio') => void;
+    stopMusic: () => void; // Properly stops music and clears retries
 }
 
 const AudioContext = createContext<AudioContextType | undefined>(undefined);
@@ -92,21 +93,22 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
     // Lyrics cache to avoid re-fetching on song revisit (Phase 5)
     const lyricsCacheRef = useRef<Map<string, LyricItem[]>>(new Map());
 
-    // Melancholy Mode Effect
+    // Melancholy Mode Effect — B8 Fix: Respect activePlaybackMode
     useEffect(() => {
-        if (isPlaying && setTheme) {
+        const isAnyAudioActive = isPlaying || activePlaybackMode === 'radio';
+        if (isAnyAudioActive && setTheme) {
             if (theme === "light") {
                 setTheme("dark");
                 wasSwitchedRef.current = true;
             }
         } else if (setTheme) {
-            // When paused/stopped, revert only if we switched it
-            if (wasSwitchedRef.current) {
+            // When ALL audio is idle, revert only if we switched it
+            if (wasSwitchedRef.current && activePlaybackMode === 'none') {
                 setTheme("light");
                 wasSwitchedRef.current = false;
             }
         }
-    }, [isPlaying, setTheme, theme]);
+    }, [isPlaying, setTheme, theme, activePlaybackMode]);
 
     // Auto-resume audio when page visibility/focus changes
     // This handles browser pausing audio during navigation or tab switches
@@ -140,28 +142,27 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
     }, [isPlaying]);
 
     // Periodic sync: if isPlaying is true but audio is paused (desync from navigation), resume it
-    // Optimization: Only run interval for 3 seconds after isPlaying becomes true (covers navigation period)
+    // B1 Fix: Only sync when in music mode, and limit attempts
     useEffect(() => {
-        if (!isPlaying) return;
+        if (!isPlaying || activePlaybackMode !== 'music') return;
 
         let attempts = 0;
-        const maxAttempts = 6; // 6 attempts * 500ms = 3 seconds coverage
+        const maxAttempts = 4; // 4 attempts * 500ms = 2 seconds coverage
 
         const syncInterval = setInterval(() => {
             attempts++;
 
-            if (audioRef.current && audioRef.current.paused && !intentionalPauseRef.current) {
+            if (audioRef.current && audioRef.current.paused && !intentionalPauseRef.current && activePlaybackMode === 'music') {
                 audioRef.current.play().catch(() => { });
             }
 
-            // Stop checking after 3 seconds - if still broken, user needs to interact
             if (attempts >= maxAttempts) {
                 clearInterval(syncInterval);
             }
         }, 500);
 
         return () => clearInterval(syncInterval);
-    }, [isPlaying]);
+    }, [isPlaying, activePlaybackMode]);
 
 
     const togglePlay = useCallback(() => {
@@ -191,6 +192,15 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
             }
         }
     }, [isPlaying]);
+
+    // B2 Fix: Proper stopMusic that kills all retries
+    const stopMusic = useCallback(() => {
+        intentionalPauseRef.current = true;
+        if (audioRef.current) {
+            audioRef.current.pause();
+        }
+        setIsPlaying(false);
+    }, []);
 
     const playQueue = useCallback((newQueue: typeof PLAYLIST, startIndex = 0, playlistId: string | null = null) => {
         intentionalPauseRef.current = false;
@@ -450,7 +460,8 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
             duration,
             seekTo,
             activePlaybackMode,
-            setActivePlaybackMode
+            setActivePlaybackMode,
+            stopMusic
         }}>
             <audio
                 ref={audioRef}
@@ -467,28 +478,20 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
                     setIsPlaying(true);
                 }}
                 onPause={() => {
-                    // Only update state if user intentionally paused
-                    // Browser-triggered pauses (navigation, tab switch, DOM changes) should not affect state
+                    // B1 Fix: Only attempt resume if we are in music mode and not intentionally paused
                     if (intentionalPauseRef.current) {
                         setIsPlaying(false);
-                    } else {
-                        // Unintentional pause detected - attempt to resume
-                        // Use multiple retries with increasing delays for robustness
-                        const attemptResume = (attempt: number) => {
-                            if (attempt > 3) return; // Max 3 attempts
-
-                            setTimeout(() => {
-                                if (audioRef.current && audioRef.current.paused && !intentionalPauseRef.current) {
-                                    audioRef.current.play().catch(() => {
-                                        // If failed, retry with longer delay
-                                        attemptResume(attempt + 1);
-                                    });
-                                }
-                            }, attempt * 100); // 100ms, 200ms, 300ms delays
-                        };
-
-                        attemptResume(1);
+                    } else if (activePlaybackMode === 'music') {
+                        // Unintentional pause (browser-triggered) — single gentle retry only
+                        setTimeout(() => {
+                            if (audioRef.current && audioRef.current.paused && !intentionalPauseRef.current && activePlaybackMode === 'music') {
+                                audioRef.current.play().catch(() => {
+                                    // If still fails, accept it — don't storm
+                                });
+                            }
+                        }, 200);
                     }
+                    // If mode is 'radio' or 'none', do nothing — let it stay paused
                 }}
                 onWaiting={() => setIsBuffering(true)} // Buffer started
                 onPlaying={() => setIsBuffering(false)} // Buffer finished, playing
