@@ -3,7 +3,7 @@
 import { X, Play, BarChart2, Search } from "lucide-react";
 import { useEffect, useState, useRef } from "react";
 import { createPortal } from "react-dom";
-import { PLAYLIST } from "./AudioContext";
+import { useAudio } from "./AudioContext";
 
 interface PlaylistDrawerProps {
     isOpen: boolean;
@@ -20,6 +20,7 @@ export function PlaylistDrawer({
     onPlaySong,
     isPlaying
 }: PlaylistDrawerProps) {
+    const { queue } = useAudio();
     const [isRendered, setIsRendered] = useState(false);
     const [searchQuery, setSearchQuery] = useState("");
     const scrollRef = useRef<HTMLDivElement>(null);
@@ -44,7 +45,7 @@ export function PlaylistDrawer({
     }, [isOpen]);
 
     // Filter Logic
-    const filteredPlaylist = PLAYLIST
+    const filteredPlaylist = queue
         .map((song, index) => ({ ...song, originalIndex: index }))
         .filter(song =>
             song.title.toLowerCase().includes(searchQuery.toLowerCase())

@@ -2,9 +2,7 @@
 
 import { createContext, useContext, useEffect, useRef, useState, useCallback } from "react";
 import { useTheme } from "./ThemeProvider";
-import { PLAYLIST } from "@/data/masterPlaylist";
 
-export { PLAYLIST } from "@/data/masterPlaylist";
 
 export interface LyricItem {
     time: number;
@@ -56,10 +54,10 @@ export function useAudio() {
     return context;
 }
 
-export function AudioProvider({ children }: { children: React.ReactNode }) {
+export function AudioProvider({ children, initialSongs = [] }: { children: React.ReactNode, initialSongs?: { title: string; audioUrl: string }[] }) {
     const [isPlaying, setIsPlaying] = useState(false);
     const [isBuffering, setIsBuffering] = useState(false);
-    const [queue, setQueue] = useState(PLAYLIST);
+    const [queue, setQueue] = useState<{ title: string; audioUrl: string }[]>(initialSongs);
     const [currentIndex, setCurrentIndex] = useState(0);
     const [activePlaylistId, setActivePlaylistId] = useState<string | null>(null);
     const [isMiniPlayerDismissed, setMiniPlayerDismissed] = useState(false);
@@ -85,6 +83,18 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
     const [duration, setDuration] = useState(0);
 
     const audioRef = useRef<HTMLAudioElement | null>(null);
+
+    // Initial fetch for the queue if empty
+    useEffect(() => {
+        fetch("/api/music/songs")
+            .then(res => res.json())
+            .then(data => {
+                if (data.success && data.songs && queue.length === 0) {
+                    setQueue(data.songs.map((s: any) => ({ title: s.title, audioUrl: s.audioUrl })));
+                }
+            })
+            .catch(() => { });
+    }, [queue.length]);
 
     // Theme integration
     const { theme, setTheme } = useTheme();
@@ -202,7 +212,7 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
         setIsPlaying(false);
     }, []);
 
-    const playQueue = useCallback((newQueue: typeof PLAYLIST, startIndex = 0, playlistId: string | null = null) => {
+    const playQueue = useCallback((newQueue: { title: string; audioUrl: string }[], startIndex = 0, playlistId: string | null = null) => {
         intentionalPauseRef.current = false;
         setQueue(newQueue);
         setCurrentIndex(startIndex);

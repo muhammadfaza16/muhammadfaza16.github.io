@@ -26,10 +26,12 @@ export default function MasterPanelPage() {
     const [pinError, setPinError] = useState(false);
     const [url, setUrl] = useState("");
     const [flowState, setFlowState] = useState<FlowState>("idle");
+    const [editArtist, setEditArtist] = useState("");
     const [editTitle, setEditTitle] = useState("");
     const [pendingData, setPendingData] = useState<{ audioUrl: string; duration: number } | null>(null);
     const [logs, setLogs] = useState<{ text: string; type: "info" | "success" | "error" }[]>([]);
-    const [lastSong, setLastSong] = useState<{ title: string } | null>(null);
+    const [lastSong, setLastSong] = useState<{ artist: string; title: string } | null>(null);
+    const artistInputRef = useRef<HTMLInputElement>(null);
     const titleInputRef = useRef<HTMLInputElement>(null);
     const inputRef = useRef<HTMLInputElement>(null);
     const terminalEndRef = useRef<HTMLDivElement>(null);
@@ -39,7 +41,7 @@ export default function MasterPanelPage() {
     }, [logs]);
 
     useEffect(() => {
-        if (flowState === "editing") titleInputRef.current?.focus();
+        if (flowState === "editing") artistInputRef.current?.focus();
     }, [flowState]);
 
     useEffect(() => {
@@ -87,7 +89,8 @@ export default function MasterPanelPage() {
             const data = await res.json();
             if (data.success) {
                 addLog("Audio uploaded ✓", "success");
-                addLog("Edit the title below, then save.", "info");
+                addLog("Review Artist & Title, then save.", "info");
+                setEditArtist(data.suggestedArtist || "");
                 setEditTitle(data.suggestedTitle || "");
                 setPendingData({ audioUrl: data.audioUrl, duration: data.duration });
                 setFlowState("editing");
@@ -105,12 +108,13 @@ export default function MasterPanelPage() {
     const handleSave = async () => {
         if (!pendingData || !editTitle.trim()) return;
         setFlowState("saving");
-        addLog(`Saving as: ${editTitle.trim()}`, "info");
+        addLog(`Saving: ${editArtist} — ${editTitle}`, "info");
         try {
             const res = await fetch("/api/music/master/save", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
+                    artist: editArtist.trim(),
                     title: editTitle.trim(),
                     audioUrl: pendingData.audioUrl,
                     duration: pendingData.duration
@@ -119,9 +123,10 @@ export default function MasterPanelPage() {
             const data = await res.json();
             if (data.success) {
                 addLog("Saved to library ✓", "success");
-                setLastSong({ title: editTitle.trim() });
+                setLastSong({ artist: editArtist.trim(), title: editTitle.trim() });
                 setFlowState("done");
                 setPendingData(null);
+                setEditArtist("");
                 setEditTitle("");
             } else {
                 addLog(data.error || "Save failed", "error");
@@ -138,6 +143,7 @@ export default function MasterPanelPage() {
         setLogs([]);
         setLastSong(null);
         setPendingData(null);
+        setEditArtist("");
         setEditTitle("");
     };
 
@@ -364,43 +370,62 @@ export default function MasterPanelPage() {
                                     )}
                                 </AnimatePresence>
 
-                                {/* Editable Title (Step 2) */}
+                                {/* Editable Metadata (Step 2) */}
                                 <AnimatePresence>
                                     {flowState === "editing" && (
                                         <motion.div
                                             initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
-                                            style={{ ...insetBox, padding: "0.85rem", borderColor: "#3b82f6", display: "flex", flexDirection: "column", gap: "0.5rem" }}
+                                            style={{ ...insetBox, padding: "0.85rem", borderColor: "#3b82f6", display: "flex", flexDirection: "column", gap: "0.6rem" }}
                                         >
-                                            <label style={{ fontSize: "0.55rem", fontWeight: 800, color: "#3b82f6", letterSpacing: "1.5px", textTransform: "uppercase" }}>
-                                                Song Title
-                                            </label>
-                                            <input
-                                                ref={titleInputRef}
-                                                type="text"
-                                                value={editTitle}
-                                                onChange={(e) => setEditTitle(e.target.value)}
-                                                onKeyDown={(e) => e.key === "Enter" && handleSave()}
-                                                placeholder="Artist — Song Name"
-                                                style={{
-                                                    background: "#151515", border: "1.5px solid #222", borderRadius: "6px",
-                                                    padding: "0.65rem 0.7rem", color: "#ccc",
-                                                    fontFamily: "monospace", fontSize: "0.8rem", fontWeight: 600,
-                                                    outline: "none", boxShadow: "inset 0 2px 4px rgba(0,0,0,0.4)"
-                                                }}
-                                            />
-                                            <p style={{ color: "#444", fontSize: "0.5rem", margin: 0 }}>
-                                                Format: Artist — Song Title
-                                            </p>
+                                            <div style={{ display: "flex", flexDirection: "column", gap: "0.4rem" }}>
+                                                <label style={{ fontSize: "0.55rem", fontWeight: 800, color: "#3b82f6", letterSpacing: "1.5px", textTransform: "uppercase" }}>
+                                                    Artist
+                                                </label>
+                                                <input
+                                                    ref={artistInputRef}
+                                                    type="text"
+                                                    value={editArtist}
+                                                    onChange={(e) => setEditArtist(e.target.value)}
+                                                    placeholder="e.g. Lewis Capaldi"
+                                                    style={{
+                                                        background: "#151515", border: "1.5px solid #222", borderRadius: "6px",
+                                                        padding: "0.6rem 0.7rem", color: "#ccc",
+                                                        fontFamily: "monospace", fontSize: "0.75rem", fontWeight: 600,
+                                                        outline: "none", boxShadow: "inset 0 2px 4px rgba(0,0,0,0.4)"
+                                                    }}
+                                                />
+                                            </div>
+
+                                            <div style={{ display: "flex", flexDirection: "column", gap: "0.4rem" }}>
+                                                <label style={{ fontSize: "0.55rem", fontWeight: 800, color: "#3b82f6", letterSpacing: "1.5px", textTransform: "uppercase" }}>
+                                                    Song Title
+                                                </label>
+                                                <input
+                                                    ref={titleInputRef}
+                                                    type="text"
+                                                    value={editTitle}
+                                                    onChange={(e) => setEditTitle(e.target.value)}
+                                                    onKeyDown={(e) => e.key === "Enter" && handleSave()}
+                                                    placeholder="e.g. Someone You Loved"
+                                                    style={{
+                                                        background: "#151515", border: "1.5px solid #222", borderRadius: "6px",
+                                                        padding: "0.6rem 0.7rem", color: "#ccc",
+                                                        fontFamily: "monospace", fontSize: "0.75rem", fontWeight: 600,
+                                                        outline: "none", boxShadow: "inset 0 2px 4px rgba(0,0,0,0.4)"
+                                                    }}
+                                                />
+                                            </div>
+
                                             <motion.button
                                                 onClick={handleSave}
                                                 disabled={!editTitle.trim()}
                                                 whileTap={{ scale: 0.95, y: 2 }}
                                                 style={{
                                                     background: "#1e1e1e", border: "1.5px solid #222", borderRadius: "8px",
-                                                    padding: "0.6rem", color: editTitle.trim() ? "#39ff14" : "#444",
+                                                    padding: "0.75rem", color: editTitle.trim() ? "#39ff14" : "#444",
                                                     fontWeight: 800, letterSpacing: "1px", fontSize: "0.65rem",
                                                     cursor: editTitle.trim() ? "pointer" : "not-allowed",
-                                                    display: "flex", alignItems: "center", justifyContent: "center", gap: "6px",
+                                                    display: "flex", alignItems: "center", justifyContent: "center", gap: "6px", marginTop: "0.25rem"
                                                 }}
                                             >
                                                 <Save size={12} strokeWidth={2.5} /> SAVE TO LIBRARY
@@ -424,7 +449,7 @@ export default function MasterPanelPage() {
                                         >
                                             <CheckCircle2 size={16} color="#39ff14" strokeWidth={2} />
                                             <div style={{ flex: 1 }}>
-                                                <p style={{ color: "#aaa", fontSize: "0.72rem", fontWeight: 700, margin: 0 }}>{lastSong.title}</p>
+                                                <p style={{ color: "#aaa", fontSize: "0.72rem", fontWeight: 700, margin: 0 }}>{lastSong.artist} — {lastSong.title}</p>
                                                 <p style={{ color: "#555", fontSize: "0.55rem", fontWeight: 500, margin: "2px 0 0 0" }}>Added to library</p>
                                             </div>
                                         </motion.div>

@@ -33,12 +33,12 @@ export function RadioHub({ onSelect }: { onSelect: (id: string) => void }) {
                         whileTap={{ scale: 0.96 }}
                         style={{
                             background: isPlaying
-                                ? "linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.02) 100%)"
-                                : "linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.01) 100%)",
+                                ? "linear-gradient(135deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.01) 100%)"
+                                : "linear-gradient(135deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.01) 100%)",
                             backdropFilter: "blur(16px) saturate(120%)",
-                            border: `1px solid ${isPlaying ? color + "60" : "rgba(255,255,255,0.08)"}`,
-                            borderTop: `1px solid ${isPlaying ? color + "80" : "rgba(255,255,255,0.15)"}`,
-                            borderLeft: `1px solid ${isPlaying ? color + "60" : "rgba(255,255,255,0.1)"}`,
+                            border: `1px solid ${isPlaying ? color + "40" : "rgba(255,255,255,0.08)"}`,
+                            borderTop: `1px solid ${isPlaying ? color + "60" : "rgba(255,255,255,0.15)"}`,
+                            borderLeft: `1px solid ${isPlaying ? color + "40" : "rgba(255,255,255,0.1)"}`,
                             borderRadius: "16px",
                             padding: "1rem 1.25rem",
                             cursor: "pointer",
@@ -46,7 +46,7 @@ export function RadioHub({ onSelect }: { onSelect: (id: string) => void }) {
                             alignItems: "center",
                             gap: "1rem",
                             boxShadow: isPlaying
-                                ? `0 8px 32px ${color}25, inset 0 0 20px ${color}10`
+                                ? `0 8px 32px ${color}15, inset 0 0 20px ${color}05`
                                 : "0 4px 16px rgba(0,0,0,0.1)",
                             position: "relative",
                             overflow: "hidden",
@@ -55,18 +55,34 @@ export function RadioHub({ onSelect }: { onSelect: (id: string) => void }) {
                         {/* Ambient Glow Behind Card for LIVE */}
                         {isPlaying && (
                             <motion.div
-                                animate={{ opacity: [0.3, 0.6, 0.3], scale: [0.9, 1.1, 0.9] }}
+                                animate={{ opacity: [0.15, 0.3, 0.15], scale: [0.9, 1.05, 0.9] }}
                                 transition={{ repeat: Infinity, duration: 4, ease: "easeInOut" }}
                                 style={{
                                     position: "absolute",
                                     inset: 0,
-                                    background: `radial-gradient(circle at 30% 50%, ${color}40 0%, transparent 60%)`,
+                                    background: `radial-gradient(circle at 30% 50%, ${color}30 0%, transparent 60%)`,
                                     filter: "blur(20px)",
                                     pointerEvents: "none",
                                     zIndex: 0
                                 }}
                             />
                         )}
+
+                        {/* Radio Waves Watermark */}
+                        <div style={{
+                            position: "absolute",
+                            right: "0",
+                            top: "0",
+                            bottom: "0",
+                            width: "70%",
+                            opacity: isPlaying ? 0.25 : 0.04,
+                            pointerEvents: "none",
+                            zIndex: 0,
+                            backgroundImage: `repeating-radial-gradient(circle at 100% 50%, transparent 0, transparent 12px, ${color} 12px, ${color} 13px)`,
+                            maskImage: "linear-gradient(to right, rgba(0,0,0,0) 0%, rgba(0,0,0,1) 100%)",
+                            WebkitMaskImage: "linear-gradient(to right, rgba(0,0,0,0) 0%, rgba(0,0,0,1) 100%)",
+                            transition: "opacity 0.6s ease"
+                        }} />
 
                         {/* Frequency Dial Icon */}
                         <div style={{

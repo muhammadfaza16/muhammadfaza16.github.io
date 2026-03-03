@@ -1,13 +1,19 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
+import { formatSongTitle } from "@/lib/music-naming";
 
 export async function POST(req: NextRequest) {
     try {
-        const { title, audioUrl, duration } = await req.json();
+        const { artist, title: rawTitle, audioUrl, duration } = await req.json();
 
-        if (!title || !audioUrl) {
+        if (!rawTitle || !audioUrl) {
             return NextResponse.json({ success: false, error: "Missing title or audioUrl" }, { status: 400 });
         }
+
+        // Standardize the final title format: Artist — Title
+        // Use the shared utility to ensure no junk survives manual edits
+        const fullRaw = artist ? `${artist} — ${rawTitle}` : rawTitle;
+        const title = formatSongTitle(fullRaw);
 
         // Check for duplicates
         const existing = await prisma.song.findFirst({ where: { audioUrl } });

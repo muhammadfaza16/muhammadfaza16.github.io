@@ -10,6 +10,7 @@ import { AudioProvider } from "@/components/AudioContext";
 import { RadioProvider } from "@/components/RadioContext";
 import { NarrativeProvider } from "@/components/NarrativeContext";
 import { GuestAudioPlayer } from "@/components/GuestAudioPlayer";
+import prisma from "@/lib/prisma";
 
 export const metadata: Metadata = {
   title: "The Almanack of Broken Wanderer.",
@@ -62,7 +63,7 @@ const spaceMono = Space_Mono({
 
 import NextTopLoader from 'nextjs-toploader';
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
@@ -80,6 +81,10 @@ export default function RootLayout({
     jobTitle: "Software Engineer",
     description: "Writer and developer exploring digital craftsmanship."
   };
+
+  const initialSongs = await prisma.song.findMany({
+    orderBy: { title: 'asc' }
+  });
 
   return (
     <html lang="en" suppressHydrationWarning className="dark">
@@ -112,7 +117,7 @@ export default function RootLayout({
         <NextTopLoader color="#E5E5E5" showSpinner={false} height={2} shadow="0 0 10px #E5E5E5,0 0 5px #E5E5E5" />
         <ThemeProvider>
           <NarrativeProvider>
-            <AudioProvider>
+            <AudioProvider initialSongs={JSON.parse(JSON.stringify(initialSongs))}>
               <RadioProvider>
                 <ZenProvider>
                   <SkipLink />

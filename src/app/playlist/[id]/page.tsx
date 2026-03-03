@@ -1,8 +1,6 @@
 import { PLAYLIST_CATEGORIES } from "@/data/playlists";
 import PlaylistClient from "./PlaylistClient";
-
-export const dynamic = "force-static";
-export const dynamicParams = false;
+import prisma from "@/lib/prisma";
 
 export async function generateStaticParams() {
     const paths = PLAYLIST_CATEGORIES.map((playlist) => ({
@@ -17,5 +15,9 @@ export async function generateStaticParams() {
 
 export default async function PlaylistDetailPage({ params }: { params: Promise<{ id: string }> }) {
     const { id } = await params;
-    return <PlaylistClient playlistId={id} />;
+    const songs = await prisma.song.findMany({
+        orderBy: { title: 'asc' }
+    });
+
+    return <PlaylistClient playlistId={id} initialSongs={JSON.parse(JSON.stringify(songs))} />;
 }

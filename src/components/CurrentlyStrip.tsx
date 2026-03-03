@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef, useMemo } from "react";
 import { usePathname } from "next/navigation";
-import { useAudio, PLAYLIST } from "./AudioContext";
+import { useAudio } from "./AudioContext";
 import { useNarrativeEngine } from "../hooks/useNarrativeEngine";
 import { useZen } from "./ZenContext";
 import { SkipBack, SkipForward, ListMusic, Play, Pause } from "lucide-react";
@@ -21,7 +21,7 @@ export function CurrentlyStrip() {
     const pathname = usePathname();
     const {
         isPlaying, isBuffering, togglePlay, currentSong, nextSong, prevSong, hasInteracted, audioRef, warmup,
-        showLyrics, showMarquee, activeLyrics, currentIndex, playQueue
+        showLyrics, showMarquee, activeLyrics, currentIndex, playQueue, queue
     } = useAudio();
 
     // Debounced Buffering State
@@ -51,8 +51,8 @@ export function CurrentlyStrip() {
     }, [isBuffering]);
 
     // Calculate Next Song
-    const nextIndex = (currentIndex + 1) % PLAYLIST.length;
-    const nextSongTitle = PLAYLIST[nextIndex].title;
+    const nextIndex = queue.length > 0 ? (currentIndex + 1) % queue.length : 0;
+    const nextSongTitle = queue[nextIndex]?.title || "";
 
     // Narrative Engine
     const narrative = useNarrativeEngine({
@@ -447,7 +447,7 @@ export function CurrentlyStrip() {
                 isOpen={isPlaylistOpen}
                 onClose={() => setIsPlaylistOpen(false)}
                 currentSongTitle={currentSong.title}
-                onPlaySong={(index) => playQueue(PLAYLIST, index)}
+                onPlaySong={(index) => playQueue(queue, index)}
                 isPlaying={isPlaying}
             />
 

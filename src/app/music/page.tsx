@@ -11,6 +11,9 @@ import {
     ChevronLeft,
     Pause,
     Play,
+    Activity,
+    Disc3,
+    RadioTower,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAudio } from "@/components/AudioContext";
@@ -18,9 +21,9 @@ import { useRadio } from "@/components/RadioContext";
 import { AtmosphericBackground } from "@/components/AtmosphericBackground";
 
 const MENU_ITEMS = [
-    { id: "songs", label: "Songs", subtitle: "All tracks", icon: Music2, href: "/playlist/all", color: "#FFD60A" },
-    { id: "playlists", label: "Playlists", subtitle: "Curated sets", icon: ListMusic, href: "/playlist", color: "#0A84FF" },
-    { id: "radio", label: "Radio", subtitle: "Live stations", icon: RadioIcon, href: "/music/radio", color: "#32D74B" },
+    { id: "songs", label: "Songs", subtitle: "All tracks", icon: Music2, watermark: Activity, href: "/playlist/all", color: "#FFD60A" },
+    { id: "playlists", label: "Playlists", subtitle: "Curated sets", icon: ListMusic, watermark: Disc3, href: "/playlist", color: "#0A84FF" },
+    { id: "radio", label: "Radio", subtitle: "Live stations", icon: RadioIcon, watermark: RadioTower, href: "/music/radio", color: "#32D74B" },
 ];
 
 export default function AudioHubPage() {
@@ -245,6 +248,7 @@ export default function AudioHubPage() {
                         }}>
                             {MENU_ITEMS.map((item, i) => {
                                 const Icon = item.icon;
+                                const WatermarkIcon = item.watermark;
 
                                 let isItemActive = false;
                                 if (item.id === "radio" && isRadioPlaying) isItemActive = true;
@@ -276,6 +280,19 @@ export default function AudioHubPage() {
                                                 transition: "background 0.2s, border-color 0.2s",
                                             }}
                                         >
+                                            {/* Watermark Icon */}
+                                            <div style={{
+                                                position: "absolute",
+                                                right: "-12px",
+                                                top: "50%",
+                                                transform: "translateY(-50%)",
+                                                opacity: isItemActive ? 0.08 : 0.03,
+                                                pointerEvents: "none",
+                                                transition: "opacity 0.2s ease, transform 0.3s ease",
+                                            }}>
+                                                <WatermarkIcon size={110} color={isItemActive ? item.color : "white"} strokeWidth={1} style={{ transform: "rotate(-10deg)" }} />
+                                            </div>
+
                                             {/* Icon circle */}
                                             <div style={{
                                                 width: "44px", height: "44px",

@@ -15,79 +15,7 @@ const TMP_DIR = path.join(process.cwd(), "tmp");
 
 export const maxDuration = 120; // Allow up to 2 minutes for download + conversion
 
-/**
- * Formats a raw YouTube title into a clean "Artist — Title" format.
- * 
- * Input examples:
- *   "Banners - Someone To You (Slowed N Reverb) -While Its Raining"
- *   "rihanna - umbrella ( slowed + reverb )"
- *   "Sia - Chandelier (Official Video)"
- *   "alan walker faded lyrics"
- * 
- * Output:
- *   "Banners — Someone To You"
- *   "Rihanna — Umbrella"
- *   "Sia — Chandelier" 
- *   "Alan Walker — Faded"
- */
-function formatTitle(raw: string): string {
-    let t = raw.trim();
-
-    // 1. Remove everything in brackets [] or parentheses ()
-    //    This catches: (Official Video), [Lyrics], (Slowed + Reverb), (Audio), [HD], etc.
-    t = t.replace(/\s*[\[(][^\])]*[\])]\s*/g, " ");
-
-    // 2. Remove common trailing junk words (without brackets)
-    const trailJunk = [
-        /\s+official\s*(music\s*)?video\s*/gi,
-        /\s+official\s*audio\s*/gi,
-        /\s+lyrics?\s*(video)?\s*/gi,
-        /\s+visualizer\s*/gi,
-        /\s+slowed\s*((\+|n|and)\s*reverb)?\s*/gi,
-        /\s+reverb\s*/gi,
-        /\s+bass\s*boost(ed)?\s*/gi,
-        /\s+sped\s*up\s*/gi,
-        /\s+nightcore\s*/gi,
-        /\s+8d\s*audio\s*/gi,
-        /\s+use\s*headphones?\s*/gi,
-        /\s*\|\s*.*$/gi,  // Everything after a pipe
-    ];
-    for (const p of trailJunk) {
-        t = t.replace(p, " ");
-    }
-
-    // 3. Clean up stray punctuation left behind
-    t = t.replace(/\s*-\s*$/g, "");      // trailing dash
-    t = t.replace(/^\s*-\s*/g, "");      // leading dash
-    t = t.replace(/\s{2,}/g, " ").trim();
-
-    // 4. Split into Artist and Title on " - " or " – "
-    let artist = "";
-    let title = t;
-    const dashMatch = t.match(/^(.+?)\s*[-–]\s+(.+)$/);
-    if (dashMatch) {
-        artist = dashMatch[1].trim();
-        title = dashMatch[2].trim();
-    }
-
-    // 5. Title-case helper
-    const titleCase = (s: string) =>
-        s.split(/\s+/)
-            .map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase())
-            .join(" ");
-
-    artist = titleCase(artist);
-    title = titleCase(title);
-
-    // 6. Remove stray trailing dash from title
-    title = title.replace(/\s*-\s*$/, "").trim();
-
-    // 7. Assemble final format
-    const formatted = artist ? `${artist} — ${title}` : title;
-
-    // 8. Limit length
-    return formatted.slice(0, 80).trim();
-}
+import { parseSongTitle, formatSongTitle } from "@/lib/music-naming";
 
 
 export async function POST(req: NextRequest) {
@@ -118,9 +46,9 @@ export async function POST(req: NextRequest) {
 
         const [rawTitle, durationStr] = infoResult.stdout.trim().split("|||");
         const duration = parseInt(durationStr) || 0;
-        const safeTitle = formatTitle(rawTitle);
+        const { artist, title } = parseSongTitle(rawTitle);
 
-        console.log(`[MASTER] Discovered: ${safeTitle} (${duration}s)`);
+        console.log(`[MASTER] Discovered: ${artist} — ${title} (${duration}s)`);
 
         // Step 2: Download + convert to MP3 via yt-dlp + ffmpeg
         const outputTemplate = path.join(TMP_DIR, `${Date.now()}-%(title)s.%(ext)s`);
@@ -148,11 +76,11 @@ export async function POST(req: NextRequest) {
             if (allMp3.length === 0) throw new Error("MP3 file not found after conversion");
             // Use the most recent one
             const mp3Path = path.join(TMP_DIR, allMp3[allMp3.length - 1]);
-            return await uploadOnly(mp3Path, safeTitle, duration);
+            return await uploadOnly(mp3Path, artist, title, duration);
         }
 
         const mp3Path = path.join(TMP_DIR, mp3File);
-        return await uploadOnly(mp3Path, safeTitle, duration);
+        return await uploadOnly(mp3Path, artist, title, duration);
 
     } catch (error: any) {
         console.error("[MASTER] Fetch Error:", error);
@@ -163,7 +91,7 @@ export async function POST(req: NextRequest) {
     }
 }
 
-async function uploadOnly(mp3Path: string, title: string, duration: number) {
+async function uploadOnly(mp3Path: string, artist: string, title: string, duration: number) {
     // Read the MP3 buffer
     const audioBuffer = await fs.readFile(mp3Path);
     console.log(`[MASTER] MP3 ready. Size: ${audioBuffer.length} bytes. Uploading to Supabase...`);
@@ -175,8 +103,11 @@ async function uploadOnly(mp3Path: string, title: string, duration: number) {
 
     const supabase = createClient(supabaseUrl, supabaseKey);
 
+    // Final full title for filename
+    const fullTitle = artist ? `${artist} — ${title}` : title;
+
     // Sanitize filename for Supabase Storage
-    const safeFileName = title
+    const safeFileName = fullTitle
         .replace(/\s*—\s*/g, "-")
         .replace(/[^\w\s-]/g, "")
         .replace(/\s+/g, "_")
@@ -206,6 +137,7 @@ async function uploadOnly(mp3Path: string, title: string, duration: number) {
     // Return data WITHOUT saving to DB — let user edit title first
     return NextResponse.json({
         success: true,
+        suggestedArtist: artist,
         suggestedTitle: title,
         audioUrl: publicUrl,
         duration

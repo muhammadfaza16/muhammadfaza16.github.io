@@ -7,7 +7,7 @@ import { GradientOrb } from "@/components/GradientOrb";
 import { CosmicStars } from "@/components/CosmicStars";
 import { MilkyWay } from "@/components/MilkyWay";
 import { CurrentlyStrip } from "@/components/CurrentlyStrip";
-import { PLAYLIST } from "@/data/masterPlaylist";
+
 import { useAudio } from "@/components/AudioContext";
 import { useZen } from "@/components/ZenContext";
 import { motion, PanInfo, AnimatePresence } from "framer-motion";
@@ -67,14 +67,14 @@ function TrackRow({ song, index, isActive, isPlaying, isBuffering, onPlay }: {
     );
 }
 
-export default function PlaylistClient({ playlistId }: { playlistId: string }) {
+export default function PlaylistClient({ playlistId, initialSongs = [] }: { playlistId: string, initialSongs?: any[] }) {
     const { isPlaying, currentSong, jumpToSong, playQueue, queue, currentIndex, togglePlay, nextSong, prevSong, hasInteracted, currentTime, duration, seekTo, activePlaylistId, isBuffering } = useAudio();
     const { isZen, setZen } = useZen();
     const router = useRouter();
 
     const [searchQuery, setSearchQuery] = useState("");
     const [mounted, setMounted] = useState(false);
-    const [dbSongs, setDbSongs] = useState<{ title: string; audioUrl: string }[]>([]);
+    const [dbSongs, setDbSongs] = useState<{ title: string; audioUrl: string; source?: string; duration?: number; id?: string }[]>(initialSongs);
 
     useEffect(() => {
         setMounted(true);
@@ -101,19 +101,17 @@ export default function PlaylistClient({ playlistId }: { playlistId: string }) {
         };
     }, []);
 
-    // Fetch songs from database (MASTER-fetched songs) when viewing 'all'
+    // Fetch all songs from database
     useEffect(() => {
-        if (playlistId === "all") {
-            fetch("/api/music/songs")
-                .then(res => res.json())
-                .then(data => {
-                    if (data.success && data.songs) {
-                        setDbSongs(data.songs.map((s: any) => ({ title: s.title, audioUrl: s.audioUrl })));
-                    }
-                })
-                .catch(() => { });
-        }
-    }, [playlistId]);
+        fetch("/api/music/songs")
+            .then(res => res.json())
+            .then(data => {
+                if (data.success && data.songs) {
+                    setDbSongs(data.songs);
+                }
+            })
+            .catch(() => { });
+    }, []);
 
     // Haptic Helper
     const triggerHaptic = () => {
@@ -130,33 +128,25 @@ export default function PlaylistClient({ playlistId }: { playlistId: string }) {
 
     // 2. Filter songs for this playlist
     const filteredPlaylist = useMemo(() => {
-        let baseSongs = PLAYLIST;
+        let baseSongs = dbSongs;
+
         if (activePlaylist) {
-            baseSongs = PLAYLIST.filter(song =>
+            baseSongs = dbSongs.filter(song =>
                 activePlaylist.songTitles.some((title: string) =>
                     song.title.toLowerCase().includes(title.toLowerCase()) ||
                     title.toLowerCase().includes(song.title.toLowerCase())
                 )
             );
-        } else if (playlistId === "all" && dbSongs.length > 0) {
-            // Merge DB songs (from MASTER) at the top, then static PLAYLIST
-            // Deduplicate by audioUrl
-            const staticUrls = new Set(PLAYLIST.map(s => s.audioUrl));
-            const uniqueDbSongs = dbSongs.filter(s => !staticUrls.has(s.audioUrl));
-            baseSongs = [...uniqueDbSongs, ...PLAYLIST];
         }
 
         return baseSongs
-            .map((song) => {
-                const originalIndex = PLAYLIST.findIndex(p => p.audioUrl === song.audioUrl);
-                return { ...song, originalIndex: originalIndex === -1 ? 9999 : originalIndex };
-            })
+            .map((song, index) => ({ ...song, originalIndex: index }))
             .filter(song =>
                 song.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
                 song.title.toLowerCase().split("—")[0]?.trim().includes(searchQuery.toLowerCase()) ||
                 song.title.toLowerCase().split("—")[1]?.trim().includes(searchQuery.toLowerCase())
             );
-    }, [activePlaylist, searchQuery, dbSongs, playlistId]);
+    }, [activePlaylist, searchQuery, dbSongs]);
 
     // Scroll to active song on mount
     const activeItemIndex = useMemo(() => {
@@ -296,13 +286,72 @@ export default function PlaylistClient({ playlistId }: { playlistId: string }) {
                             boxShadow: "0 20px 50px -10px rgba(0,0,0,0.4)"
                         }}>
                             <div style={{
+                                position: "relative",
                                 width: "100%",
                                 aspectRatio: "1/1",
-                                borderRadius: "20px",
-                                overflow: "hidden",
-                                boxShadow: `0 20px 40px -10px ${activePlaylist.coverColor}40`
+                                zIndex: 1,
                             }}>
-                                <img src={activePlaylist.coverImage} alt={activePlaylist.title} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                                {/* Sliding Vinyl Record */}
+                                <motion.div
+                                    initial={{ x: 0, rotate: 0 }}
+                                    animate={{
+                                        x: isThisPlaylistPlaying ? "25%" : 0,
+                                        rotate: isThisPlaylistPlaying ? 360 : 0
+                                    }}
+                                    transition={{
+                                        x: { type: "spring", stiffness: 100, damping: 20 },
+                                        rotate: { repeat: Infinity, duration: 4, ease: "linear" }
+                                    }}
+                                    style={{
+                                        position: "absolute",
+                                        right: 0,
+                                        top: "5%",
+                                        height: "90%",
+                                        aspectRatio: "1/1",
+                                        borderRadius: "50%",
+                                        background: "linear-gradient(135deg, #111 0%, #1a1a1a 50%, #0a0a0a 100%)",
+                                        boxShadow: "inset 0 0 0 4px #222, 0 8px 32px rgba(0,0,0,0.5)",
+                                        display: "flex",
+                                        alignItems: "center",
+                                        justifyContent: "center",
+                                        zIndex: -1,
+                                        border: "1px solid #333",
+                                    }}
+                                >
+                                    {/* Vinyl Grooves */}
+                                    <div style={{ position: "absolute", inset: "12%", borderRadius: "50%", border: "1px solid rgba(255,255,255,0.05)" }} />
+                                    <div style={{ position: "absolute", inset: "25%", borderRadius: "50%", border: "1px solid rgba(255,255,255,0.08)" }} />
+                                    <div style={{ position: "absolute", inset: "38%", borderRadius: "50%", border: "1px solid rgba(255,255,255,0.05)" }} />
+
+                                    {/* Vinyl Label */}
+                                    <div style={{
+                                        width: "35%",
+                                        aspectRatio: "1/1",
+                                        borderRadius: "50%",
+                                        background: activePlaylist.coverColor || "#FFD60A",
+                                        display: "flex",
+                                        alignItems: "center",
+                                        justifyContent: "center",
+                                        boxShadow: "inset 0 0 10px rgba(0,0,0,0.3)"
+                                    }}>
+                                        {/* Center hole */}
+                                        <div style={{ width: "15%", aspectRatio: "1/1", borderRadius: "50%", background: "#111" }} />
+                                    </div>
+                                </motion.div>
+
+                                {/* Cover Art */}
+                                <div style={{
+                                    width: "100%",
+                                    height: "100%",
+                                    borderRadius: "20px",
+                                    overflow: "hidden",
+                                    boxShadow: `0 20px 40px -10px ${activePlaylist.coverColor}40`,
+                                    position: "relative",
+                                    zIndex: 2,
+                                    background: "#111"
+                                }}>
+                                    <img src={activePlaylist.coverImage} alt={activePlaylist.title} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                                </div>
                             </div>
 
                             <div style={{
