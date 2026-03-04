@@ -94,7 +94,7 @@ export function PlaylistModule({ addLog, isBusy, setIsBusy, insetBox }: Playlist
     const fetchPlaylists = async () => {
         setIsLoading(true);
         try {
-            const res = await fetch("/api/music/master/playlists");
+            const res = await fetch("/api/music/master/playlists", { cache: 'no-store' });
             const data = await res.json();
             if (data.success) setPlaylists(data.playlists);
         } catch (err) {
@@ -106,7 +106,7 @@ export function PlaylistModule({ addLog, isBusy, setIsBusy, insetBox }: Playlist
 
     const fetchAllSongs = async () => {
         try {
-            const res = await fetch("/api/music/songs");
+            const res = await fetch("/api/music/songs", { cache: 'no-store' });
             const data = await res.json();
             if (data.success) setAllSongs(data.songs);
         } catch (err) { }
@@ -114,7 +114,7 @@ export function PlaylistModule({ addLog, isBusy, setIsBusy, insetBox }: Playlist
 
     const fetchPlaylistSongs = async (playlistId: string) => {
         try {
-            const res = await fetch(`/api/music/master/playlists/${playlistId}/songs`);
+            const res = await fetch(`/api/music/master/playlists/${playlistId}/songs`, { cache: 'no-store' });
             const data = await res.json();
             if (data.success) setCurrentSongs(data.songs);
         } catch (err) {
@@ -195,6 +195,7 @@ export function PlaylistModule({ addLog, isBusy, setIsBusy, insetBox }: Playlist
         const targetSong = allSongs.find(s => s.id === songId);
         if (targetSong) setCurrentSongs(prev => [targetSong, ...prev]);
 
+        console.log("Adding song to playlist:", viewingPlaylist.id, "Song ID:", songId);
         try {
             const res = await fetch(`/api/music/master/playlists/${viewingPlaylist.id}/songs`, {
                 method: "POST",
@@ -202,6 +203,8 @@ export function PlaylistModule({ addLog, isBusy, setIsBusy, insetBox }: Playlist
                 body: JSON.stringify({ songId })
             });
             const data = await res.json();
+            console.log("Add song response:", data);
+
             if (data.success) {
                 addLog(`✓ Added: ${songTitle}`, "success");
             } else {
@@ -209,6 +212,7 @@ export function PlaylistModule({ addLog, isBusy, setIsBusy, insetBox }: Playlist
                 addLog(data.error || "Add failed", "error");
             }
         } catch (err) {
+            console.error("Add song error:", err);
             setCurrentSongs(prev => prev.filter(s => s.id !== songId)); // Revert
             addLog("Add failed", "error");
         } finally {

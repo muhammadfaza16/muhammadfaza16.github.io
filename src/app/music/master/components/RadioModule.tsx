@@ -85,7 +85,7 @@ export function RadioModule({ addLog, isBusy, setIsBusy, insetBox }: RadioModule
     const fetchRadios = async () => {
         setIsLoading(true);
         try {
-            const res = await fetch("/api/music/master/radios");
+            const res = await fetch("/api/music/master/radios", { cache: 'no-store' });
             const data = await res.json();
             if (data.success) setRadios(data.radios);
         } catch (err) {
@@ -97,7 +97,7 @@ export function RadioModule({ addLog, isBusy, setIsBusy, insetBox }: RadioModule
 
     const fetchAllSongs = async () => {
         try {
-            const res = await fetch("/api/music/songs");
+            const res = await fetch("/api/music/songs", { cache: 'no-store' });
             const data = await res.json();
             if (data.success) setAllSongs(data.songs);
         } catch (err) { }
@@ -105,7 +105,7 @@ export function RadioModule({ addLog, isBusy, setIsBusy, insetBox }: RadioModule
 
     const fetchRadioSongs = async (radioId: string) => {
         try {
-            const res = await fetch(`/api/music/master/radios/${radioId}/songs`);
+            const res = await fetch(`/api/music/master/radios/${radioId}/songs`, { cache: 'no-store' });
             const data = await res.json();
             if (data.success) setCurrentSongs(data.songs);
         } catch (err) {
