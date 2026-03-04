@@ -148,6 +148,11 @@ export function PlaylistModule({ addLog, isBusy, setIsBusy, insetBox }: Playlist
                 addLog(`Playlist ${editingId ? "updated" : "created"}: ${formData.title}`, "success");
                 await fetchPlaylists();
                 resetForm();
+
+                // UX Fix: If this was a NEW playlist, immediately open its song view so user can add songs
+                if (!editingId && data.playlist) {
+                    openSongs(data.playlist);
+                }
             } else {
                 addLog(data.error || "Operation failed", "error");
             }

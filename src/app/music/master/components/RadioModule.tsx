@@ -134,6 +134,11 @@ export function RadioModule({ addLog, isBusy, setIsBusy, insetBox }: RadioModule
                 addLog(`Radio ${editingId ? "updated" : "created"}: ${formData.name}`, "success");
                 await fetchRadios();
                 resetForm();
+
+                // UX Fix: If this was a NEW radio, immediately open its song view so user can add songs
+                if (!editingId && data.radio) {
+                    openSongs(data.radio);
+                }
             } else {
                 addLog(data.error || "Operation failed", "error");
             }
