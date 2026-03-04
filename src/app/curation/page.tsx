@@ -521,7 +521,7 @@ export default function CurationList() {
                 </div>
 
                 {/* ═══ SORT PILLS ═══ */}
-                <div className="flex gap-2 px-1 mb-2">
+                <div className="flex gap-2 px-1 mb-3">
                     {([
                         { key: "latest" as SortType, label: "Latest" },
                         { key: "top" as SortType, label: "Top Rated" },
@@ -560,7 +560,7 @@ export default function CurationList() {
                 </div>
 
                 {/* ═══ CATEGORY PILLS ═══ */}
-                <div className="flex gap-2 overflow-x-auto px-1 no-scrollbar pb-4 mb-2">
+                <div className="flex gap-2 overflow-x-auto px-1 no-scrollbar pb-5 mb-3">
                     {CATEGORIES.map(cat => {
                         const isActive = categoryFilter.includes(cat.name);
                         return (
@@ -622,7 +622,7 @@ export default function CurationList() {
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
                             exit={{ opacity: 0 }}
-                            className="flex flex-col gap-4"
+                            className="flex flex-col gap-5"
                         >
                             {filteredArticles.map((article, index) => {
                                 const validImageUrl = getImageUrl(article);
