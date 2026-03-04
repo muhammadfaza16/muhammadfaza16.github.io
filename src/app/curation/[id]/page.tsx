@@ -708,13 +708,13 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
 
             {/* Bottom Action Bar — 4 Buttons: Back, Zen, Open Web, Mark as Read */}
             <AnimatePresence>
-                {isNavVisible && !isZenMode && (
+                {!isZenMode && (
                     <motion.div
                         initial={{ y: 100, opacity: 0 }}
                         animate={{ y: 0, opacity: 1 }}
                         exit={{ y: 100, opacity: 0 }}
                         transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                        className="fixed bottom-8 left-1/2 -translate-x-1/2 z-[60] flex items-center justify-between px-2 py-1.5 w-[90%] max-w-[340px] bg-black/85 dark:bg-white/10 backdrop-blur-xl rounded-full shadow-[0_8px_32px_rgba(0,0,0,0.3)] border border-white/15 text-white"
+                        className="fixed bottom-8 left-1/2 -translate-x-1/2 z-[60] flex items-center justify-between px-2 py-1.5 w-[90%] max-w-[340px] bg-zinc-900 rounded-full shadow-[0_8px_32px_rgba(0,0,0,0.35)] border border-zinc-700/50 text-white"
                     >
                         <button onClick={() => setIsAppearanceSheetOpen(true)} className="p-2 active:scale-90 transition-transform text-white/80 hover:text-white flex items-center justify-center font-serif font-bold text-[18px] leading-none" title="Appearance">
                             Aa
