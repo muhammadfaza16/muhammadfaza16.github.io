@@ -313,18 +313,21 @@ export default function CurationList() {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [sort, categoryFilter]);
 
+    // Infinite scroll via scroll event
     useEffect(() => {
-        const scrollContainer = scrollContainerRef.current;
-        const observer = new IntersectionObserver(
-            entries => {
-                if (entries[0].isIntersecting && nextCursor && !isLoadingMore) {
-                    fetchArticles(nextCursor, sort, categoryFilter, true);
-                }
-            },
-            { threshold: 0.1, rootMargin: "200px", root: scrollContainer }
-        );
-        if (loaderRef.current) observer.observe(loaderRef.current);
-        return () => observer.disconnect();
+        const container = scrollContainerRef.current;
+        if (!container) return;
+
+        const handleScroll = () => {
+            if (!nextCursor || isLoadingMore) return;
+            const { scrollTop, scrollHeight, clientHeight } = container;
+            if (scrollHeight - scrollTop - clientHeight < 400) {
+                fetchArticles(nextCursor, sort, categoryFilter, true);
+            }
+        };
+
+        container.addEventListener('scroll', handleScroll, { passive: true });
+        return () => container.removeEventListener('scroll', handleScroll);
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [nextCursor, isLoadingMore, sort, categoryFilter]);
 
@@ -578,7 +581,6 @@ export default function CurationList() {
                 {/* ═══ ARTICLE FEED ═══ */}
                 <AnimatePresence mode="wait">
                     {isLoading ? (
-                        /* ═══ SHIMMER SKELETONS ═══ */
                         <motion.div
                             key="skeleton"
                             initial={{ opacity: 1 }}
@@ -587,16 +589,16 @@ export default function CurationList() {
                             className="flex flex-col gap-4"
                         >
                             {/* Hero skeleton */}
-                            <div className="rounded-[2rem] bg-zinc-100 h-[280px] animate-pulse" />
+                            <div className="rounded-[2rem] bg-zinc-300/60 h-[280px] animate-pulse" />
                             {/* Card skeletons */}
                             {[1, 2, 3].map(i => (
-                                <div key={i} className="bg-white rounded-[1.5rem] border border-zinc-100 p-4 flex items-center gap-4">
-                                    <div className="w-[80px] h-[80px] rounded-2xl bg-zinc-100 animate-pulse shrink-0" />
+                                <div key={i} className="bg-white rounded-[1.5rem] border border-zinc-200 p-4 flex items-center gap-4">
+                                    <div className="w-[80px] h-[80px] rounded-2xl bg-zinc-200 animate-pulse shrink-0" />
                                     <div className="flex-1 space-y-2">
-                                        <div className="h-3 bg-zinc-100 rounded animate-pulse w-1/3" />
-                                        <div className="h-4 bg-zinc-100 rounded animate-pulse w-full" />
-                                        <div className="h-4 bg-zinc-100 rounded animate-pulse w-2/3" />
-                                        <div className="h-3 bg-zinc-100 rounded animate-pulse w-1/4 mt-1" />
+                                        <div className="h-3 bg-zinc-200 rounded animate-pulse w-1/3" />
+                                        <div className="h-4 bg-zinc-300/50 rounded animate-pulse w-full" />
+                                        <div className="h-4 bg-zinc-300/50 rounded animate-pulse w-2/3" />
+                                        <div className="h-3 bg-zinc-200 rounded animate-pulse w-1/4 mt-1" />
                                     </div>
                                 </div>
                             ))}
@@ -704,11 +706,11 @@ export default function CurationList() {
                                 );
                             })}
 
-                            {/* Infinite Scroll Sentinel */}
+                            {/* Load More Indicator */}
                             {nextCursor && (
-                                <div ref={loaderRef} className="flex justify-center py-6">
+                                <div className="flex justify-center py-6">
                                     {isLoadingMore ? (
-                                        <Loader2 className="animate-spin text-zinc-300 w-5 h-5" />
+                                        <Loader2 className="animate-spin text-zinc-400 w-5 h-5" />
                                     ) : (
                                         <div className="h-5" />
                                     )}
