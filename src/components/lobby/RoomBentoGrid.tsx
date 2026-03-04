@@ -9,7 +9,8 @@ import {
     Activity,
     Sparkles,
     Music,
-    Radio
+    Radio,
+    BookOpen
 } from "lucide-react";
 
 interface DockIconProps {
@@ -107,10 +108,10 @@ const DockIcon = ({ title, href, icon, iconColor, delay = 0 }: DockIconProps) =>
 export function RoomBentoGrid() {
     const apps: DockIconProps[] = [
         {
-            title: "Teman",
-            href: "/guest",
-            icon: <Users />,
-            iconColor: "#FF9F0A" // Vivid Orange
+            title: "Kurasi",
+            href: "/curation",
+            icon: <BookOpen />,
+            iconColor: "#BF5AF2" // Vivid Purple
         },
         {
             title: "Waktu",
@@ -128,7 +129,7 @@ export function RoomBentoGrid() {
             title: "Music",
             href: "/music",
             icon: <Music />,
-            iconColor: "#FFD60A" // Vivid Yellow (more distinct from Guest Orange)
+            iconColor: "#FFD60A" // Vivid Yellow
         }
     ];
 

@@ -84,6 +84,7 @@ export default function CurationList() {
     const tabsCache = useRef<Record<string, { articles: ArticleMeta[], nextCursor: string | null, scrollY: number }>>({});
     const loaderRef = useRef<HTMLDivElement>(null);
     const searchInputRef = useRef<HTMLInputElement>(null);
+    const scrollContainerRef = useRef<HTMLDivElement>(null);
 
     const getCacheKey = (sortType: string, cats: string[]) => `${sortType}-${cats.sort().join(",")}`;
 
@@ -312,15 +313,15 @@ export default function CurationList() {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [sort, categoryFilter]);
 
-    // Infinite scroll
     useEffect(() => {
+        const scrollContainer = scrollContainerRef.current;
         const observer = new IntersectionObserver(
             entries => {
                 if (entries[0].isIntersecting && nextCursor && !isLoadingMore) {
                     fetchArticles(nextCursor, sort, categoryFilter, true);
                 }
             },
-            { threshold: 0.3, rootMargin: "100px" }
+            { threshold: 0.1, rootMargin: "200px", root: scrollContainer }
         );
         if (loaderRef.current) observer.observe(loaderRef.current);
         return () => observer.disconnect();
@@ -491,8 +492,10 @@ export default function CurationList() {
             {/* ═══ SCROLLABLE CONTENT ═══ */}
             <main
                 id="curation-scroll-container"
+                ref={scrollContainerRef}
                 onScroll={(e) => scrollYRef.current = e.currentTarget.scrollTop}
                 className="flex-1 overflow-y-auto overflow-x-hidden px-4 pt-6 pb-32 relative z-10 w-full max-w-2xl mx-auto"
+                style={{ WebkitOverflowScrolling: "touch", overscrollBehaviorY: "auto" } as React.CSSProperties}
             >
                 {/* ═══ ONBOARDING / LANDING ZONE ═══ */}
                 <div className="mb-8 px-1">
@@ -515,7 +518,7 @@ export default function CurationList() {
                 </div>
 
                 {/* ═══ SORT PILLS ═══ */}
-                <div className="flex gap-2 px-1 mb-3 overflow-x-auto no-scrollbar">
+                <div className="flex gap-2 px-1 mb-2">
                     {([
                         { key: "latest" as SortType, label: "Latest" },
                         { key: "top" as SortType, label: "Top Rated" },
@@ -532,26 +535,25 @@ export default function CurationList() {
                         </button>
                     ))}
 
-                    {/* Separator */}
-                    <div className="w-[1px] bg-zinc-200/60 mx-1 self-stretch" />
-
-                    {/* Status Filter Pills */}
-                    {([
-                        { key: "all" as const, label: "All" },
-                        { key: "unread" as const, label: "Unread" },
-                        { key: "bookmarked" as const, label: "Saved" },
-                    ]).map(f => (
-                        <button
-                            key={f.key}
-                            onClick={() => setStatusFilter(f.key)}
-                            className={`px-3.5 py-1.5 text-[12px] font-bold rounded-full transition-all active:scale-[0.96] whitespace-nowrap ${statusFilter === f.key
-                                ? "bg-blue-600 text-white shadow-sm"
-                                : "bg-white text-zinc-400 border border-zinc-200/80 hover:border-zinc-300"
-                                }`}
-                        >
-                            {f.key === "bookmarked" && "🔖 "}{f.label}
-                        </button>
-                    ))}
+                    {/* Status Filter Pills — same row, right side */}
+                    <div className="flex gap-2 ml-auto">
+                        {([
+                            { key: "all" as const, label: "All" },
+                            { key: "unread" as const, label: "Unread" },
+                            { key: "bookmarked" as const, label: "Saved" },
+                        ]).map(f => (
+                            <button
+                                key={f.key}
+                                onClick={() => setStatusFilter(f.key)}
+                                className={`px-3 py-1.5 text-[12px] font-bold rounded-full transition-all active:scale-[0.96] whitespace-nowrap ${statusFilter === f.key
+                                    ? "bg-blue-600 text-white shadow-sm"
+                                    : "text-zinc-400 hover:text-zinc-600"
+                                    }`}
+                            >
+                                {f.label}
+                            </button>
+                        ))}
+                    </div>
                 </div>
 
                 {/* ═══ CATEGORY PILLS ═══ */}
