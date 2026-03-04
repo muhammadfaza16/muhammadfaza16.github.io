@@ -888,12 +888,12 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
                     </div>
                 )}
 
-                {/* Legacy Community Section: Comments */}
+                {/* Community Section: Comments */}
                 <div className="mt-16 mb-40 pt-16 border-t pb-10 snap-start scroll-my-24" style={{ borderColor: THEMES[readerSettings.theme].text + '20' }}>
                     <div className="flex items-center gap-3 mb-8">
                         <MessageSquareQuote size={24} className="text-zinc-400" />
                         <h3 className="text-[20px] font-bold tracking-tight text-zinc-900 font-sans" style={{ color: THEMES[readerSettings.theme].text }}>
-                            Community Legacy
+                            Community Discussion
                         </h3>
                     </div>
 
@@ -903,7 +903,7 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
                             <textarea
                                 value={newCommentText}
                                 onChange={(e) => setNewCommentText(e.target.value)}
-                                placeholder="Share your thoughts or legacy on this piece..."
+                                placeholder="Share your thoughts on this piece..."
                                 rows={3}
                                 className="w-full bg-white dark:bg-zinc-900 rounded-2xl px-5 py-4 text-[15px] text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 border border-zinc-200 dark:border-zinc-800 outline-none focus:border-blue-500/50 focus:ring-4 focus:ring-blue-500/10 transition-all resize-none shadow-sm"
                             />
@@ -933,8 +933,9 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
                                 <Loader2 size={24} className="animate-spin text-zinc-400" />
                             </div>
                         ) : comments.length === 0 ? (
-                            <div className="text-center py-12">
-                                <p className="text-[14px] text-zinc-500 font-medium tracking-tight">Be the first to leave a legacy here.</p>
+                            <div className="py-8 text-center bg-black/[0.02] dark:bg-white/[0.02] rounded-2xl border" style={{ borderColor: THEMES[readerSettings.theme].text + '10' }}>
+                                <MessageSquareQuote size={32} className="mx-auto text-zinc-300 dark:text-zinc-700 mb-3" strokeWidth={1.5} />
+                                <p className="text-[14px] text-zinc-500 font-medium tracking-tight">Be the first to leave a comment here.</p>
                             </div>
                         ) : (
                             comments.map((comment) => (
