@@ -28,6 +28,12 @@ const nextConfig: NextConfig = {
   reactCompiler: true,
   // Acknowledge Next.js 16 Turbopack default
   turbopack: {},
+  outputFileTracingExcludes: {
+    '*': [
+      'public/audio/**/*',
+      'bin/**/*'
+    ]
+  },
 };
 
 export default withPWA(nextConfig);
