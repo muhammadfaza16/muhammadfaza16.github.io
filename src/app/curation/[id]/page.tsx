@@ -993,7 +993,7 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
 
             {/* TTS Mini Player */}
             <AnimatePresence>
-                {isTTSPlaying && (
+                {isTTSPlaying && !isZenMode && (
                     <motion.div
                         initial={{ y: -60, opacity: 0 }}
                         animate={{ y: 0, opacity: 1 }}
