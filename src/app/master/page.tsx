@@ -12,7 +12,8 @@ import {
     getToReadArticles, createToReadArticle, toggleReadStatus, deleteToReadArticle, updateToReadArticle,
     getWritingArticles, createWritingArticle, togglePublishStatus, deleteWritingArticle, updateWritingArticle,
     getBooks, createBook, deleteBook, updateBook,
-    getWishlistItems, createWishlistItem, deleteWishlistItem, updateWishlistItem
+    getWishlistItems, createWishlistItem, deleteWishlistItem, updateWishlistItem,
+    getSuggestedArticles, approveSuggestedArticle
 } from "./actions";
 import { Toaster, toast } from 'react-hot-toast';
 import { getSupabase } from "@/lib/supabase";
@@ -23,7 +24,7 @@ import { BottomSheet, ImagePicker, QuickPasteInput, RichTextEditor } from "@/com
 // TYPES & CONSTANTS
 // ============================================================================
 type ViewState = "auth" | "dashboard" | "category";
-type CategoryId = "writing" | "toread" | "books" | "wishlist";
+type CategoryId = "writing" | "toread" | "books" | "wishlist" | "suggestions";
 
 interface CategoryInfo {
     id: CategoryId;
@@ -37,6 +38,7 @@ interface CategoryInfo {
 const CATEGORIES: CategoryInfo[] = [
     { id: "writing", label: "Writing", icon: <FileText className="w-5 h-5 text-blue-600" strokeWidth={2.5} />, desc: "Articles & Essays", type: "list", iconBg: "bg-blue-50" },
     { id: "toread", label: "To Read", icon: <Bookmark className="w-5 h-5 text-amber-600" strokeWidth={2.5} />, desc: "Saved links", type: "list", iconBg: "bg-amber-50" },
+    { id: "suggestions", label: "Suggestions", icon: <Clock className="w-5 h-5 text-indigo-600" strokeWidth={2.5} />, desc: "Community inbox", type: "list", iconBg: "bg-indigo-50" },
     { id: "books", label: "Books", icon: <Book className="w-5 h-5 text-emerald-600" strokeWidth={2.5} />, desc: "Library", type: "grid", iconBg: "bg-emerald-50" },
     { id: "wishlist", label: "Wishlist", icon: <ShoppingBag className="w-5 h-5 text-purple-600" strokeWidth={2.5} />, desc: "Saved items", type: "grid", iconBg: "bg-purple-50" },
 ];
@@ -84,13 +86,22 @@ const ListRow = ({ item, type, onToggle, onEdit, onDelete }: {
 
                 {/* Actions */}
                 <div className="flex items-center gap-2 shrink-0">
-                    <button
-                        onClick={(e) => { e.stopPropagation(); onToggle && onToggle(item.id, item.isRead || item.status === 'Read'); }}
-                        className={`px-3.5 py-1.5 rounded-full text-[11px] font-bold tracking-wide shrink-0 active:scale-95 transition-transform
-                        ${item.status === 'Published' || item.isRead || item.status === 'Read' ? 'bg-emerald-50 text-emerald-600' : 'bg-gray-100 text-gray-400'}`}
-                    >
-                        {type === 'toread' ? (item.isRead ? 'Read' : 'Unread') : item.status}
-                    </button>
+                    {type === "suggestions" ? (
+                        <button
+                            onClick={(e) => { e.stopPropagation(); onToggle && onToggle(item.id, false); }}
+                            className={`px-3.5 py-1.5 rounded-full text-[11px] font-bold tracking-wide shrink-0 active:scale-95 transition-transform bg-indigo-50 text-indigo-600`}
+                        >
+                            Approve
+                        </button>
+                    ) : (
+                        <button
+                            onClick={(e) => { e.stopPropagation(); onToggle && onToggle(item.id, item.isRead || item.status === 'Read'); }}
+                            className={`px-3.5 py-1.5 rounded-full text-[11px] font-bold tracking-wide shrink-0 active:scale-95 transition-transform
+                            ${item.status === 'Published' || item.isRead || item.status === 'Read' ? 'bg-emerald-50 text-emerald-600' : 'bg-gray-100 text-gray-400'}`}
+                        >
+                            {type === 'toread' ? (item.isRead ? 'Read' : 'Unread') : item.status}
+                        </button>
+                    )}
 
                     <button
                         onClick={(e) => { e.stopPropagation(); onEdit && onEdit(item); }}
@@ -246,6 +257,7 @@ export default function PersonalCMS() {
     // --- DB State ---
     const [writingItems, setWritingItems] = useState<any[]>([]);
     const [toreadItems, setToreadItems] = useState<any[]>([]);
+    const [suggestionItems, setSuggestionItems] = useState<any[]>([]);
     const [bookItems, setBookItems] = useState<any[]>([]);
     const [wishlistItems, setWishlistItems] = useState<any[]>([]);
     const [isFetching, setIsFetching] = useState(false);
@@ -263,7 +275,11 @@ export default function PersonalCMS() {
 
     useEffect(() => {
         setMounted(true);
-        if (localStorage.getItem("cms_auth") === "true") setView("dashboard");
+        // Check admin status via secure cookie
+        fetch("/api/auth")
+            .then(res => res.json())
+            .then(data => { if (data.isAdmin) setView("dashboard"); })
+            .catch(() => { });
     }, []);
 
     useEffect(() => {
@@ -272,12 +288,14 @@ export default function PersonalCMS() {
             else if (activeCategory === "writing") loadWriting();
             else if (activeCategory === "books") loadBooks();
             else if (activeCategory === "wishlist") loadWishlist();
+            else if (activeCategory === "suggestions") loadSuggestions();
         }
     }, [view, activeCategory]);
 
     // --- Loaders ---
     const loadWriting = async () => { setIsFetching(true); const r = await getWritingArticles(); if (r.success && r.data) setWritingItems(r.data); setIsFetching(false); };
     const loadToRead = async () => { setIsFetching(true); const r = await getToReadArticles(); if (r.success && r.data) setToreadItems(r.data); setIsFetching(false); };
+    const loadSuggestions = async () => { setIsFetching(true); const r = await getSuggestedArticles(); if (r.success && r.data) setSuggestionItems(r.data); setIsFetching(false); };
     const loadBooks = async () => { setIsFetching(true); const r = await getBooks(); if (r.success && r.data) setBookItems(r.data); setIsFetching(false); };
     const loadWishlist = async () => { setIsFetching(true); const r = await getWishlistItems(); if (r.success && r.data) setWishlistItems(r.data); setIsFetching(false); };
 
@@ -298,7 +316,7 @@ export default function PersonalCMS() {
         setFormImagePreview(item.imageUrl || null);
 
         // Context-aware field mapping for Edit
-        if (activeCategory === "writing" || activeCategory === "toread") {
+        if (activeCategory === "writing" || activeCategory === "toread" || activeCategory === "suggestions") {
             setFormUrl(item.url || "");
             setFormExtra("");
         } else if (activeCategory === "books") {
@@ -346,7 +364,7 @@ export default function PersonalCMS() {
         let data = null;
         let errorMsg = "Failed";
 
-        if (activeCategory === "toread") {
+        if (activeCategory === "toread" || activeCategory === "suggestions") {
             if (!formUrl) { toast.error("URL is required"); setIsSubmitting(false); setUploadStatus("idle"); return; }
             const res = editItemId
                 ? await updateToReadArticle(editItemId, formTitle, formUrl, formNotes, imageUrl)
@@ -376,6 +394,7 @@ export default function PersonalCMS() {
             toast.success(editItemId ? "Updated!" : "Created!");
             const updateList = (list: any[]) => editItemId ? list.map(i => i.id === editItemId ? data : i) : [data, ...list];
             if (activeCategory === "toread") setToreadItems(updateList(toreadItems));
+            else if (activeCategory === "suggestions") setSuggestionItems(updateList(suggestionItems));
             else if (activeCategory === "writing") setWritingItems(updateList(writingItems));
             else if (activeCategory === "books") setBookItems(updateList(bookItems));
             else if (activeCategory === "wishlist") setWishlistItems(updateList(wishlistItems));
@@ -392,6 +411,10 @@ export default function PersonalCMS() {
         } else if (category === "writing") {
             setWritingItems(prev => prev.map(i => i.id === id ? { ...i, published: !currentStatus } : i));
             await togglePublishStatus(id, currentStatus);
+        } else if (category === "suggestions") {
+            setSuggestionItems(prev => prev.filter(i => i.id !== id));
+            await approveSuggestedArticle(id);
+            toast.success("Approved as Published!");
         }
     };
 
@@ -399,16 +422,32 @@ export default function PersonalCMS() {
         const toastId = toast.loading("Deleting...");
         let success = false; let errorMsg = "Failed";
         if (category === "toread") { const r = await deleteToReadArticle(id); if (r.success) { success = true; setToreadItems(p => p.filter(i => i.id !== id)); } else errorMsg = r.error || errorMsg; }
+        else if (category === "suggestions") { const r = await deleteToReadArticle(id); if (r.success) { success = true; setSuggestionItems(p => p.filter(i => i.id !== id)); } else errorMsg = r.error || errorMsg; }
         else if (category === "writing") { const r = await deleteWritingArticle(id); if (r.success) { success = true; setWritingItems(p => p.filter(i => i.id !== id)); } else errorMsg = r.error || errorMsg; }
         else if (category === "books") { const r = await deleteBook(id); if (r.success) { success = true; setBookItems(p => p.filter(i => i.id !== id)); } else errorMsg = r.error || errorMsg; }
         else if (category === "wishlist") { const r = await deleteWishlistItem(id); if (r.success) { success = true; setWishlistItems(p => p.filter(i => i.id !== id)); } else errorMsg = r.error || errorMsg; }
         if (success) toast.success("Deleted", { id: toastId }); else toast.error(errorMsg, { id: toastId });
     };
 
-    const handleLogin = (e: React.FormEvent) => {
+    const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (authPin === "161616") { toast.success("Welcome back"); localStorage.setItem("cms_auth", "true"); setView("dashboard"); }
-        else toast.error("Incorrect PIN");
+        try {
+            const res = await fetch("/api/auth", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ password: authPin }),
+            });
+            const data = await res.json();
+            if (data.success) {
+                toast.success("Welcome back");
+                localStorage.setItem("cms_auth", "true"); // Keep for backward compat
+                setView("dashboard");
+            } else {
+                toast.error("Incorrect PIN");
+            }
+        } catch {
+            toast.error("Auth failed");
+        }
     };
 
     const saveButtonLabel = () => {
@@ -438,7 +477,7 @@ export default function PersonalCMS() {
                     duration: 2500,
                 }}
             />
-            <div className="w-full max-w-[500px] min-h-screen flex flex-col relative bg-[#F7F7F9] shadow-2xl">
+            <div className="w-full max-w-[500px] min-h-screen flex flex-col relative bg-[#F7F7F9] shadow-2xl overflow-hidden">
 
                 <AnimatePresence mode="wait">
                     {/* ============================================ */}
@@ -486,7 +525,7 @@ export default function PersonalCMS() {
                                         onClick={() => { setActiveCategory(cat.id); setView("category"); }}
                                         key={cat.id}
                                         className={`bg-white rounded-[1.5rem] p-5 shadow-[0_2px_12px_rgb(0,0,0,0.04)] active:scale-[0.98] transition-transform cursor-pointer flex flex-col justify-between 
-                                            ${idx === 0 ? "col-span-2 aspect-[2.4/1]" : idx === 1 || idx === 2 ? "col-span-1 aspect-square" : "col-span-2 aspect-[2.8/1]"}`}>
+                                            ${idx === 0 || idx === 1 ? "col-span-2 aspect-[3.5/1] py-4 px-5" : "col-span-1 aspect-square"}`}>
                                         <div className="flex justify-between items-start">
                                             <div className={`w-10 h-10 flex items-center justify-center rounded-full ${cat.iconBg}`}>{cat.icon}</div>
                                             <ChevronRight className="w-5 h-5 text-gray-300" />
@@ -547,13 +586,13 @@ export default function PersonalCMS() {
                                     <div className="flex flex-col w-full">
                                         {isFetching ? (
                                             <div className="w-full flex justify-center py-16"><div className="animate-spin w-7 h-7 border-[3px] border-gray-200 border-t-black rounded-full" /></div>
-                                        ) : (activeCategory === "toread" ? toreadItems : writingItems).length === 0 ? (
+                                        ) : (activeCategory === "toread" ? toreadItems : activeCategory === "suggestions" ? suggestionItems : writingItems).length === 0 ? (
                                             <div className="w-full flex flex-col items-center py-20 gap-3">
                                                 <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center"><FileText size={24} className="text-gray-400" /></div>
                                                 <p className="text-zinc-500 font-medium text-[15px]">No items yet</p>
                                             </div>
                                         ) : (
-                                            (activeCategory === "toread" ? toreadItems : writingItems).map(item => {
+                                            (activeCategory === "toread" ? toreadItems : activeCategory === "suggestions" ? suggestionItems : writingItems).map(item => {
                                                 let domain = "Link";
                                                 try { if (item.url) domain = new URL(item.url).hostname.replace('www.', ''); } catch (_) { }
                                                 const formattedDate = item.createdAt ? new Date(item.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric" }) : "";

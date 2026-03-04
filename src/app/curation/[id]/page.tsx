@@ -26,6 +26,13 @@ type Article = {
     category?: string | null;
 };
 
+type Comment = {
+    id: string;
+    authorName: string;
+    content: string;
+    createdAt: string;
+};
+
 const THEMES = {
     white: { bg: '#FFFFFF', text: '#1A1A1A', name: 'White' },
     parchment: { bg: '#F4F1EA', text: '#2C2C2C', name: 'Parchment' },
@@ -50,6 +57,7 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
     const [isMarkingRead, setIsMarkingRead] = useState(false);
     const [isTogglingBookmark, setIsTogglingBookmark] = useState(false);
     const [isZenMode, setIsZenMode] = useState(false);
+    const [isAdmin, setIsAdmin] = useState(false);
 
     // Appearance State
     const [isAppearanceSheetOpen, setIsAppearanceSheetOpen] = useState(false);
@@ -72,6 +80,13 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
     const [uploadStatus, setUploadStatus] = useState<"idle" | "uploading" | "saving">("idle");
     const [isFetchingMetadata, setIsFetchingMetadata] = useState(false);
     const formFooterRef = useRef<HTMLDivElement>(null);
+
+    // Comments State
+    const [comments, setComments] = useState<Comment[]>([]);
+    const [isLoadingComments, setIsLoadingComments] = useState(true);
+    const [newCommentName, setNewCommentName] = useState("");
+    const [newCommentText, setNewCommentText] = useState("");
+    const [isSubmittingComment, setIsSubmittingComment] = useState(false);
 
     const supabase = getSupabase();
 
@@ -121,6 +136,26 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
             .catch(error => {
                 toast.error(error.message);
                 setIsLoading(false);
+            });
+
+        // Check admin status via secure cookie
+        fetch("/api/auth")
+            .then(res => res.json())
+            .then(data => setIsAdmin(data.isAdmin === true))
+            .catch(() => setIsAdmin(false));
+
+        // Fetch comments
+        fetch(`/api/curation/comments?articleId=${id}`)
+            .then(res => res.json())
+            .then(data => {
+                if (data.success && data.data) {
+                    setComments(data.data);
+                }
+                setIsLoadingComments(false);
+            })
+            .catch(() => {
+                setIsLoadingComments(false);
+                console.error("Failed to load comments");
             });
     }, [id]);
 
@@ -344,6 +379,37 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
         }
     };
 
+    const handleCommentSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!newCommentText.trim() || !article) return;
+
+        setIsSubmittingComment(true);
+        try {
+            const res = await fetch("/api/curation/comments", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    articleId: article.id,
+                    authorName: newCommentName.trim() || undefined,
+                    content: newCommentText.trim(),
+                }),
+            });
+            const data = await res.json();
+
+            if (res.ok && data.success) {
+                setComments(prev => [data.comment, ...prev]);
+                setNewCommentText("");
+                toast.success("Comment posted!");
+            } else {
+                toast.error(data.error || "Failed to post comment");
+            }
+        } catch (error) {
+            toast.error("An unexpected error occurred.");
+        } finally {
+            setIsSubmittingComment(false);
+        }
+    };
+
     return (
         <div
             className="min-h-screen transition-colors duration-500 selection:bg-blue-200 antialiased pb-32 scroll-smooth overscroll-contain"
@@ -507,16 +573,16 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
                 } as React.CSSProperties}
             >
                 <article
-                    className="reader-content prose max-w-none select-text touch-auto
-                    prose-p:text-[18px] prose-p:leading-[1.8] prose-p:mb-6 prose-p:font-serif prose-p:text-slate-800
-                    prose-li:text-[18px] prose-li:leading-[1.8] prose-li:font-serif prose-li:text-slate-800
+                    className="reader-content prose max-w-[65ch] mx-auto select-text touch-auto
+                    prose-p:text-[19px] prose-p:leading-[1.9] prose-p:mb-7 prose-p:font-serif prose-p:text-slate-800
+                    prose-li:text-[19px] prose-li:leading-[1.9] prose-li:font-serif prose-li:text-slate-800
                     prose-headings:font-sans prose-headings:font-bold prose-headings:tracking-tight prose-headings:text-zinc-900
-                    prose-h2:text-[24px] prose-h2:font-semibold prose-h2:mt-8 prose-h2:mb-4
-                    prose-h3:text-[20px] prose-h3:font-semibold prose-h3:mt-8 prose-h3:mb-4
+                    prose-h2:text-[26px] prose-h2:font-semibold prose-h2:mt-10 prose-h2:mb-5
+                    prose-h3:text-[22px] prose-h3:font-semibold prose-h3:mt-8 prose-h3:mb-4
                     prose-a:text-blue-600 hover:prose-a:text-blue-500 prose-a:transition-colors prose-a:underline-offset-4
                     prose-img:rounded-3xl prose-img:border prose-img:border-gray-100 prose-img:shadow-sm prose-img:my-8
                     prose-hr:border-gray-100 prose-hr:my-8
-                    prose-blockquote:border-l-blue-500 prose-blockquote:bg-blue-50/50 prose-blockquote:px-6 prose-blockquote:py-3 prose-blockquote:rounded-r-2xl prose-blockquote:not-italic prose-blockquote:text-zinc-700
+                    prose-blockquote:border-l-blue-500 prose-blockquote:bg-blue-50/50 prose-blockquote:px-6 prose-blockquote:py-4 prose-blockquote:rounded-r-2xl prose-blockquote:not-italic prose-blockquote:text-zinc-700
                     prose-code:text-rose-600 prose-code:bg-rose-50 prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded-md prose-code:before:content-none prose-code:after:content-none prose-code:font-medium
                     prose-pre:bg-zinc-900 prose-pre:text-zinc-100 prose-pre:border prose-pre:border-zinc-800 prose-pre:rounded-2xl prose-pre:shadow-sm"
                     style={{ WebkitUserSelect: 'text', userSelect: 'text' } as React.CSSProperties}
@@ -541,6 +607,74 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
                         {article.isBookmarked ? "Bookmarked" : "Bookmark"}
                     </button>
                 </div>
+
+                {/* Legacy Community Section: Comments */}
+                <div className="mt-16 mb-40 pt-16 border-t pb-10" style={{ borderColor: THEMES[readerSettings.theme].text + '20' }}>
+                    <div className="flex items-center gap-3 mb-8">
+                        <MessageSquareQuote size={24} className="text-zinc-400" />
+                        <h3 className="text-[20px] font-bold tracking-tight text-zinc-900 font-sans" style={{ color: THEMES[readerSettings.theme].text }}>
+                            Community Legacy
+                        </h3>
+                    </div>
+
+                    {/* Comment Form */}
+                    <form onSubmit={handleCommentSubmit} className="mb-12 bg-black/[0.02] dark:bg-white/[0.02] rounded-[1.5rem] p-5 md:p-6 border" style={{ borderColor: THEMES[readerSettings.theme].text + '10' }}>
+                        <div className="flex flex-col gap-4">
+                            <textarea
+                                value={newCommentText}
+                                onChange={(e) => setNewCommentText(e.target.value)}
+                                placeholder="Share your thoughts or legacy on this piece..."
+                                rows={3}
+                                className="w-full bg-white dark:bg-zinc-900/50 rounded-2xl px-5 py-4 text-[15px] text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 border border-transparent outline-none focus:border-blue-500/50 focus:bg-white transition-all resize-none shadow-sm"
+                            />
+                            <div className="flex items-center justify-between gap-4">
+                                <input
+                                    type="text"
+                                    value={newCommentName}
+                                    onChange={(e) => setNewCommentName(e.target.value)}
+                                    placeholder="Your Name (Optional)"
+                                    className="w-[180px] bg-white dark:bg-zinc-900/50 rounded-full px-4 text-[13px] font-medium h-10 border border-transparent outline-none focus:border-zinc-300 transition-all shadow-sm"
+                                />
+                                <button
+                                    type="submit"
+                                    disabled={!newCommentText.trim() || isSubmittingComment}
+                                    className="h-10 px-6 bg-blue-600 text-white rounded-full font-bold text-[13px] tracking-wide shadow-md active:scale-95 transition-all disabled:opacity-50 disabled:active:scale-100 flex items-center justify-center min-w-[100px]"
+                                >
+                                    {isSubmittingComment ? <Loader2 size={16} className="animate-spin" /> : "Post"}
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+
+                    {/* Comments List */}
+                    <div className="flex flex-col gap-6">
+                        {isLoadingComments ? (
+                            <div className="flex justify-center py-8">
+                                <Loader2 size={24} className="animate-spin text-zinc-400" />
+                            </div>
+                        ) : comments.length === 0 ? (
+                            <div className="text-center py-12">
+                                <p className="text-[14px] text-zinc-500 font-medium tracking-tight">Be the first to leave a legacy here.</p>
+                            </div>
+                        ) : (
+                            comments.map((comment) => (
+                                <div key={comment.id} className="flex flex-col gap-2">
+                                    <div className="flex items-center justify-between">
+                                        <span className="font-bold text-[14px] font-sans" style={{ color: THEMES[readerSettings.theme].text }}>
+                                            {comment.authorName}
+                                        </span>
+                                        <span className="text-[11px] font-medium text-zinc-400 uppercase tracking-widest">
+                                            {new Date(comment.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                                        </span>
+                                    </div>
+                                    <p className="text-[15px] leading-relaxed font-serif text-zinc-700 dark:text-zinc-300">
+                                        {comment.content}
+                                    </p>
+                                </div>
+                            ))
+                        )}
+                    </div>
+                </div>
             </main>
 
             {/* Bottom Action Bar — 4 Buttons: Back, Zen, Open Web, Mark as Read */}
@@ -560,10 +694,14 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
                         <button onClick={() => setIsZenMode(true)} className="p-2 active:scale-90 transition-transform text-white/80 hover:text-white flex items-center justify-center" title="Zen Mode">
                             <Maximize size={18} />
                         </button>
-                        <div className="w-[1px] h-6 bg-white/15" />
-                        <button onClick={handleEditClick} className="p-2 active:scale-90 transition-transform text-white/80 hover:text-white flex items-center justify-center" title="Edit Article">
-                            <Pencil size={18} />
-                        </button>
+                        {isAdmin && (
+                            <>
+                                <div className="w-[1px] h-6 bg-white/15" />
+                                <button onClick={handleEditClick} className="p-2 active:scale-90 transition-transform text-white/80 hover:text-white flex items-center justify-center" title="Edit Article">
+                                    <Pencil size={18} />
+                                </button>
+                            </>
+                        )}
                         <div className="w-[1px] h-6 bg-white/15" />
                         <button onClick={handleShare} className="p-2 active:scale-90 transition-transform text-white/80 hover:text-white flex items-center justify-center" title="Share">
                             <Share size={18} />

@@ -1,15 +1,16 @@
 "use client";
 
 import { useEffect, useState, useRef, useCallback } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, useMotionValue, useTransform } from "framer-motion";
 import Link from "next/link";
-import { formatDistanceToNow } from "date-fns";
-import { ChevronLeft, Bookmark, FileText, Plus, Loader2 } from "lucide-react";
+import { Search, ChevronLeft, Bookmark, FileText, Plus, Loader2, CheckCircle, Send, X, ArrowUpRight, Sparkles } from "lucide-react";
 import { Toaster, toast } from 'react-hot-toast';
 import { createToReadArticle, updateToReadArticle } from "@/app/master/actions";
 import { uploadImageToSupabase } from "@/lib/uploadImage";
 import { getSupabase } from "@/lib/supabase";
 import { BottomSheet, ImagePicker, QuickPasteInput, RichTextEditor } from "@/components/sanctuary";
+
+// ─── Types ───
 
 interface ArticleMeta {
     id: string;
@@ -21,38 +22,70 @@ interface ArticleMeta {
     isRead: boolean;
     isBookmarked: boolean;
     createdAt: string;
+    qualityScore: number | null;
+    substanceScore: number | null;
 }
 
-type FilterType = "all" | "unread" | "read" | "bookmarked";
+type SortType = "latest" | "top";
 
-const LABEL_CLASS = "text-[12px] font-bold uppercase tracking-wider text-zinc-500 ml-1";
+// ─── Constants ───
 
 const CATEGORIES = [
-    "AI & Tools",
-    "Wealth & Business",
-    "Mindset & Philosophy",
-    "Self-Improvement & Productivity",
-    "Career & Skills",
-    "Marketing & Growth",
-    "Building & Design",
-    "Health & Lifestyle"
+    { name: "AI & Tools", emoji: "🤖" },
+    { name: "Wealth & Business", emoji: "💰" },
+    { name: "Mindset & Philosophy", emoji: "🧠" },
+    { name: "Self-Improvement & Productivity", emoji: "⚡" },
+    { name: "Career & Skills", emoji: "🎯" },
+    { name: "Marketing & Growth", emoji: "📈" },
+    { name: "Building & Design", emoji: "🔨" },
+    { name: "Health & Lifestyle", emoji: "🌱" },
 ];
 
+const LABEL_CLASS = "text-[12px] font-bold uppercase tracking-wider text-zinc-500 ml-1";
 const CACHE_KEY = "curationTabsPerFeedCache";
+const VISITOR_STATE_KEY = "curation_visitor_state";
+
+// ─── Visitor State (localStorage) ───
+
+function getVisitorState(): { read: Record<string, boolean>; bookmarked: Record<string, boolean> } {
+    if (typeof window === "undefined") return { read: {}, bookmarked: {} };
+    try {
+        const raw = localStorage.getItem(VISITOR_STATE_KEY);
+        return raw ? JSON.parse(raw) : { read: {}, bookmarked: {} };
+    } catch { return { read: {}, bookmarked: {} }; }
+}
+
+function saveVisitorState(state: { read: Record<string, boolean>; bookmarked: Record<string, boolean> }) {
+    if (typeof window === "undefined") return;
+    localStorage.setItem(VISITOR_STATE_KEY, JSON.stringify(state));
+}
+
+// ─── Main Component ───
 
 export default function CurationList() {
     const [articles, setArticles] = useState<ArticleMeta[]>([]);
     const [isLoading, setIsLoading] = useState(true);
-    const [filter, setFilter] = useState<FilterType>("all");
+    const [sort, setSort] = useState<SortType>("latest");
+    const [categoryFilter, setCategoryFilter] = useState<string[]>([]);
+    const [statusFilter, setStatusFilter] = useState<"all" | "unread" | "bookmarked">("all");
+    const [searchQuery, setSearchQuery] = useState("");
+    const [isSearchOpen, setIsSearchOpen] = useState(false);
     const [imgErrors, setImgErrors] = useState<Record<string, boolean>>({});
     const [isLoadingMore, setIsLoadingMore] = useState(false);
     const [nextCursor, setNextCursor] = useState<string | null>(null);
+    const [isAdmin, setIsAdmin] = useState(false);
+    const [visitorState, setVisitorState] = useState<{ read: Record<string, boolean>; bookmarked: Record<string, boolean> }>({ read: {}, bookmarked: {} });
+    const [articleCount, setArticleCount] = useState<number | null>(null);
 
     // Cache Refs
     const hasRestoredCache = useRef(false);
     const skipFetchRef = useRef(false);
     const scrollYRef = useRef(0);
-    const tabsCache = useRef<Partial<Record<FilterType, { articles: ArticleMeta[], nextCursor: string | null, scrollY: number }>>>({});
+    const tabsCache = useRef<Record<string, { articles: ArticleMeta[], nextCursor: string | null, scrollY: number }>>({});
+    const loaderRef = useRef<HTMLDivElement>(null);
+    const searchInputRef = useRef<HTMLInputElement>(null);
+
+    const getCacheKey = (sortType: string, cats: string[]) => `${sortType}-${cats.sort().join(",")}`;
 
     // Form State
     const [isSheetOpen, setIsSheetOpen] = useState(false);
@@ -81,8 +114,6 @@ export default function CurationList() {
 
                 if (json.success && json.data) {
                     const { title, description, image, publishedTime } = json.data;
-
-                    // Conditional autofill: only if empty
                     if (!formTitle && title) setFormTitle(title);
                     if (!formNotes && description) {
                         const notesHtml = description.trim().startsWith("<") ? description : `<p>${description}</p>`;
@@ -96,24 +127,20 @@ export default function CurationList() {
             } finally {
                 setIsFetchingMetadata(false);
             }
-        }, 800);
+        }, 600);
 
         return () => clearTimeout(timer);
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [formUrl]);
 
     const handleEditArticle = (article: ArticleMeta) => {
-        if (article) {
-            setEditingId(article.id);
-            setFormTitle(article.title);
-            setFormUrl(article.url || "");
-            setFormNotes(article.content);
-            setFormImagePreview(article.imageUrl);
-            setFormPublishedTime(new Date(article.createdAt).toISOString().slice(0, 16));
-            setFormCategory(article.category || "");
-            setFormImageFile(null);
-            setIsSheetOpen(true);
-        }
+        setEditingId(article.id);
+        setFormTitle(article.title);
+        setFormUrl(article.url || "");
+        setFormNotes(article.content || "");
+        setFormImagePreview(article.imageUrl || null);
+        setFormCategory(article.category || "");
+        setIsSheetOpen(true);
     };
 
     const handleCloseSheet = () => {
@@ -128,66 +155,107 @@ export default function CurationList() {
         setFormCategory("");
     };
 
+    // Init
     useEffect(() => {
-        if (!isSheetOpen) {
-            setFormTitle(""); setFormUrl(""); setFormNotes("");
-            setFormImageFile(null); setFormImagePreview(null);
-            setFormPublishedTime("");
-            setFormCategory("");
-            setUploadStatus("idle");
-            setEditingId(null);
-        }
-    }, [isSheetOpen]);
+        setVisitorState(getVisitorState());
 
-    const handleSave = async () => {
-        if (!formTitle || !formUrl) {
-            toast.error("Title and URL are required");
-            return;
-        }
-        setIsSubmitting(true);
-        try {
-            let finalImageUrl = formImagePreview;
+        // Check admin status via secure cookie
+        fetch("/api/auth")
+            .then(res => res.json())
+            .then(data => setIsAdmin(data.isAdmin === true))
+            .catch(() => setIsAdmin(false));
 
-            if (formImageFile) {
-                setUploadStatus("uploading");
-                const uploadedUrl = await uploadImageToSupabase(formImageFile);
-                if (uploadedUrl) {
-                    finalImageUrl = uploadedUrl;
-                } else {
-                    toast.error("Failed to upload image");
-                    setIsSubmitting(false);
-                    setUploadStatus("idle");
-                    return;
+        // Restore cache
+        const cached = sessionStorage.getItem(CACHE_KEY);
+        if (cached) {
+            try {
+                const parsed = JSON.parse(cached);
+                tabsCache.current = parsed.tabs || {};
+                const key = getCacheKey(parsed.lastSort || "latest", parsed.lastCategories || []);
+                const tabData = tabsCache.current[key];
+                if (tabData) {
+                    setArticles(tabData.articles);
+                    setNextCursor(tabData.nextCursor);
+                    setSort(parsed.lastSort || "latest");
+                    setCategoryFilter(parsed.lastCategories || []);
+                    hasRestoredCache.current = true;
+                    skipFetchRef.current = true;
+                    setIsLoading(false);
+
+                    requestAnimationFrame(() => {
+                        const container = document.getElementById("curation-scroll-container");
+                        if (container) container.scrollTop = tabData.scrollY || 0;
+                    });
                 }
+            } catch { }
+        }
+    }, []);
+
+    // Save handler
+    const handleSave = async () => {
+        if (!formTitle || !formUrl) return;
+        setIsSubmitting(true);
+
+        try {
+            let imageUrl = formImagePreview;
+
+            if (formImageFile && supabase) {
+                setUploadStatus("uploading");
+                const uploaded = await uploadImageToSupabase(formImageFile);
+                if (uploaded) imageUrl = uploaded;
             }
+
+            setUploadStatus("saving");
 
             const payload = {
                 title: formTitle,
                 url: formUrl,
                 notes: formNotes,
-                imageUrl: finalImageUrl || undefined,
-                createdAt: formPublishedTime || undefined,
-                category: formCategory || undefined,
+                imageUrl,
+                category: formCategory || null,
+                createdAt: formPublishedTime ? new Date(formPublishedTime) : undefined,
             };
 
-            setUploadStatus("saving");
-            if (editingId) {
-                const res = await updateToReadArticle(editingId, payload.title, payload.url, payload.notes, payload.imageUrl, payload.category, payload.createdAt);
-                if (res.success && res.data) {
-                    toast.success("Article updated");
-                    setArticles(prev => prev.map(a => a.id === editingId ? { ...(res.data as any), createdAt: res.data!.createdAt.toISOString() } : a));
-                    setIsSheetOpen(false);
+            if (!isAdmin) {
+                // GUEST FLOW — Suggest
+                const res = await fetch("/api/curation/suggestions", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        title: payload.title,
+                        content: payload.notes || "No description",
+                        url: payload.url,
+                        imageUrl: payload.imageUrl,
+                        category: payload.category,
+                    }),
+                });
+                const json = await res.json();
+                if (json.success) {
+                    toast.success("Suggestion sent! It'll be reviewed shortly.");
+                    handleCloseSheet();
                 } else {
-                    toast.error(res.error || "Failed to update");
+                    toast.error(json.error || "Failed to send suggestion");
                 }
             } else {
-                const res = await createToReadArticle(payload.title, payload.url, payload.notes, payload.imageUrl, payload.category, payload.createdAt);
-                if (res.success && res.data) {
-                    toast.success("Saved to Curation");
-                    setArticles(prev => [{ ...(res.data as any), createdAt: res.data!.createdAt.toISOString() }, ...prev]);
-                    setIsSheetOpen(false);
+                // ADMIN FLOW
+                if (editingId) {
+                    const res = await updateToReadArticle(editingId, payload.title, payload.url, payload.notes, payload.imageUrl ?? undefined, payload.category ?? undefined, payload.createdAt?.toISOString());
+                    if (res.success && res.data) {
+                        toast.success("Article updated");
+                        setArticles(prev => prev.map(a => a.id === editingId ? { ...(res.data as any), createdAt: res.data!.createdAt.toISOString() } : a));
+                        setIsSheetOpen(false);
+                    } else {
+                        toast.error(res.error || "Failed to update");
+                    }
                 } else {
-                    toast.error(res.error || "Failed to save");
+                    const res = await createToReadArticle(payload.title, payload.url, payload.notes, payload.imageUrl ?? undefined, payload.category ?? undefined, payload.createdAt?.toISOString());
+                    if (res.success && res.data) {
+                        toast.success("Saved to Curation");
+                        setArticles(prev => [{ ...(res.data as any), createdAt: res.data!.createdAt.toISOString() }, ...prev]);
+                        setIsSheetOpen(false);
+                    } else {
+                        toast.error(res.error || "Failed to save");
+                    }
                 }
             }
         } catch (error) {
@@ -199,13 +267,16 @@ export default function CurationList() {
         }
     };
 
-    // Data Fetching logic
-    const fetchArticles = async (currentCursor: string | null, currentFilter: string, isLoadMore = false) => {
+    // Data Fetching
+    const fetchArticles = async (currentCursor: string | null, currentSort: string, categories: string[], isLoadMore = false) => {
         try {
             if (isLoadMore) setIsLoadingMore(true);
             else setIsLoading(true);
 
-            let url = `/api/curation?limit=10&filter=${currentFilter}`;
+            let url = `/api/curation?limit=10&sort=${currentSort === "top" ? "quality" : "date"}`;
+            if (categories.length > 0) {
+                url += `&category=${encodeURIComponent(categories.join(","))}`;
+            }
             if (currentCursor) url += `&cursor=${currentCursor}`;
 
             const res = await fetch(url, { cache: 'no-store' });
@@ -218,124 +289,153 @@ export default function CurationList() {
                     setArticles(data.articles);
                 }
                 setNextCursor(data.nextCursor);
+
+                // Update count on first load
+                if (!isLoadMore && articleCount === null) {
+                    setArticleCount(data.articles.length + (data.nextCursor ? 10 : 0)); // Rough estimate
+                }
             }
         } catch (error) {
-            console.error("Failed to fetch articles:", error);
+            console.error("Fetch failed:", error);
         } finally {
             setIsLoading(false);
             setIsLoadingMore(false);
         }
     };
 
-    // Initial load and on filter change
     useEffect(() => {
-        if (!hasRestoredCache.current) {
-            hasRestoredCache.current = true;
-            const cached = sessionStorage.getItem(CACHE_KEY);
-            if (cached) {
-                try {
-                    const parsed = JSON.parse(cached);
-                    if (parsed.tabs) {
-                        tabsCache.current = parsed.tabs;
-                    }
-                    sessionStorage.removeItem(CACHE_KEY); // consume cache once
-
-                    if (parsed.activeFilter && parsed.activeFilter !== filter) {
-                        skipFetchRef.current = true;
-                        setFilter(parsed.activeFilter as FilterType); // will re-trigger this effect
-                        return;
-                    }
-                } catch (e) {
-                    console.error("Cache parse error", e);
-                }
-            }
-        }
-
         if (skipFetchRef.current) {
             skipFetchRef.current = false;
-            return; // Skip fetch after restoring filter
+            return;
         }
-
-        // Apply cache or fetch for current filter
-        const currentCache = tabsCache.current[filter];
-        if (currentCache && currentCache.articles.length > 0) {
-            setArticles(currentCache.articles);
-            setNextCursor(currentCache.nextCursor);
-            setIsLoading(false);
-
-            setTimeout(() => {
-                const scrollContainer = document.getElementById("curation-scroll-container");
-                if (scrollContainer && currentCache.scrollY !== undefined) {
-                    scrollContainer.scrollTop = currentCache.scrollY;
-                    scrollYRef.current = currentCache.scrollY;
-                }
-            }, 50);
-        } else {
-            setNextCursor(null);
-            setArticles([]); // clear existing items immediately on filter change for better UX
-            fetchArticles(null, filter, false);
-        }
+        fetchArticles(null, sort, categoryFilter);
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [filter]);
+    }, [sort, categoryFilter]);
+
+    // Infinite scroll
+    useEffect(() => {
+        const observer = new IntersectionObserver(
+            entries => {
+                if (entries[0].isIntersecting && nextCursor && !isLoadingMore) {
+                    fetchArticles(nextCursor, sort, categoryFilter, true);
+                }
+            },
+            { threshold: 0.3, rootMargin: "100px" }
+        );
+        if (loaderRef.current) observer.observe(loaderRef.current);
+        return () => observer.disconnect();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [nextCursor, isLoadingMore, sort, categoryFilter]);
+
+    // Visitor state actions
+    const toggleVisitorRead = (articleId: string) => {
+        setVisitorState(prev => {
+            const updated = { ...prev, read: { ...prev.read, [articleId]: !prev.read[articleId] } };
+            if (!updated.read[articleId]) delete updated.read[articleId];
+            saveVisitorState(updated);
+            return updated;
+        });
+        try { if (navigator.vibrate) navigator.vibrate([10, 30, 10]); } catch { }
+        toast.success(visitorState.read[articleId] ? "Marked unread" : "Marked read");
+    };
+
+    const toggleVisitorBookmark = (articleId: string) => {
+        setVisitorState(prev => {
+            const updated = { ...prev, bookmarked: { ...prev.bookmarked, [articleId]: !prev.bookmarked[articleId] } };
+            if (!updated.bookmarked[articleId]) delete updated.bookmarked[articleId];
+            saveVisitorState(updated);
+            return updated;
+        });
+        try { if (navigator.vibrate) navigator.vibrate([15, 30, 15]); } catch { }
+        toast.success(visitorState.bookmarked[articleId] ? "Removed bookmark" : "Bookmarked!");
+    };
 
     const saveStateToSession = () => {
-        // Update the current tab's cache before navigating away
-        tabsCache.current[filter] = {
+        const currentCacheKey = getCacheKey(sort, categoryFilter);
+        tabsCache.current[currentCacheKey] = {
             articles,
             nextCursor,
             scrollY: scrollYRef.current
         };
 
         sessionStorage.setItem(CACHE_KEY, JSON.stringify({
-            activeFilter: filter,
-            tabs: tabsCache.current
+            tabs: tabsCache.current,
+            lastSort: sort,
+            lastCategories: categoryFilter,
         }));
     };
 
-    // Intersection Observer for Infinite Scroll
-    const observer = useRef<IntersectionObserver | null>(null);
-    const loaderRef = useCallback((node: HTMLDivElement | null) => {
-        if (isLoading || isLoadingMore) return;
-        if (observer.current) observer.current.disconnect();
+    const handleSortChange = (s: SortType) => {
+        if (s === sort) return;
+        const currentKey = getCacheKey(sort, categoryFilter);
+        tabsCache.current[currentKey] = { articles, nextCursor, scrollY: scrollYRef.current };
 
-        observer.current = new IntersectionObserver((entries) => {
-            if (entries[0].isIntersecting && nextCursor) {
-                fetchArticles(nextCursor, filter, true);
-            }
-        }, { threshold: 0.1 });
-
-        if (node) observer.current.observe(node);
-    }, [isLoading, isLoadingMore, nextCursor, filter]);
-
-    const handleFilterChange = (f: FilterType) => {
-        if (f === filter) return;
-
-        // Save current tab state before switching
-        tabsCache.current[filter] = {
-            articles,
-            nextCursor,
-            scrollY: scrollYRef.current
-        };
-
-        setFilter(f);
+        const newKey = getCacheKey(s, categoryFilter);
+        const cached = tabsCache.current[newKey];
+        if (cached) {
+            setArticles(cached.articles);
+            setNextCursor(cached.nextCursor);
+            skipFetchRef.current = true;
+        }
+        setSort(s);
     };
 
-    // Helper to resolve image URLs
+    const handleCategoryToggle = (cat: string) => {
+        const currentKey = getCacheKey(sort, categoryFilter);
+        tabsCache.current[currentKey] = { articles, nextCursor, scrollY: scrollYRef.current };
+
+        const newCats = categoryFilter.includes(cat)
+            ? categoryFilter.filter(c => c !== cat)
+            : [...categoryFilter, cat];
+
+        const newKey = getCacheKey(sort, newCats);
+        const cached = tabsCache.current[newKey];
+        if (cached) {
+            setArticles(cached.articles);
+            setNextCursor(cached.nextCursor);
+            skipFetchRef.current = true;
+        }
+        setCategoryFilter(newCats);
+    };
+
+    // Helpers
     const getImageUrl = (article: ArticleMeta): string | null => {
-        const activeImage = article.imageUrl;
-        if (!activeImage) return null;
-        if (activeImage.startsWith('http')) return activeImage;
-        const { data } = supabase.storage.from('images').getPublicUrl(activeImage);
-        return data.publicUrl;
+        if (!article.imageUrl) return null;
+        const img = article.imageUrl;
+        if (img.startsWith("http")) return img;
+        if (supabase) {
+            const { data } = supabase.storage.from('images').getPublicUrl(img);
+            return data.publicUrl;
+        }
+        return null;
     };
 
     const getDomain = (url?: string | null): string => {
-        if (!url) return "";
-        try { return new URL(url).hostname.replace('www.', ''); } catch { return url.substring(0, 30); }
+        try { return url ? new URL(url).hostname.replace("www.", "") : ""; }
+        catch { return ""; }
     };
 
+    const getReadTime = (content?: string) => {
+        if (!content) return 1;
+        const text = content.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+        return Math.max(1, Math.ceil(text.split(/\s+/).length / 225));
+    };
+
+    // Client-side filtering (search + status)
+    const filteredArticles = articles.filter(a => {
+        // Search filter
+        if (searchQuery.trim() && !a.title.toLowerCase().includes(searchQuery.toLowerCase())) return false;
+        // Status filter (against localStorage visitor state)
+        if (statusFilter === "unread" && visitorState.read[a.id]) return false;
+        if (statusFilter === "bookmarked" && !visitorState.bookmarked[a.id]) return false;
+        return true;
+    });
+
+    // Category count
+    const categoryCount = CATEGORIES.length;
+
     return (
-        <div className="h-screen w-full flex flex-col bg-[#fafafa] text-zinc-900 font-sans antialiased overflow-hidden relative selection:bg-zinc-200">
+        <div className="h-screen w-full flex flex-col bg-[#fafaf8] text-zinc-900 font-sans antialiased overflow-hidden relative selection:bg-amber-100">
             <Toaster
                 position="bottom-center"
                 toastOptions={{
@@ -344,54 +444,162 @@ export default function CurationList() {
                 }}
             />
 
-            {/* Glass Header */}
-            <header className="sticky top-0 z-50 bg-[#fafafa]/80 backdrop-blur-xl border-b border-gray-200/50 shrink-0 pb-3 pt-5 px-5 flex flex-col gap-4">
-                <div className="flex items-center justify-between">
-                    <Link href="/" className="w-10 h-10 flex items-center justify-center text-zinc-900 active:bg-gray-100 active:scale-90 rounded-full transition-all">
-                        <ChevronLeft size={22} />
-                    </Link>
-                    <h2 className="text-[17px] font-bold tracking-tight text-zinc-900">Curation</h2>
-                    <div className="w-10" />
-                </div>
-
-                {/* Filter Tabs */}
-                <div className="flex gap-2">
-                    {(["all", "unread", "read", "bookmarked"] as FilterType[]).map(f => (
-                        <button
-                            key={f}
-                            onClick={() => handleFilterChange(f)}
-                            className={`px-4 py-1.5 text-[12px] font-bold rounded-full transition-all active:scale-[0.96] capitalize ${filter === f
-                                ? "bg-zinc-900 text-white shadow-sm"
-                                : "bg-white text-zinc-500 border border-gray-200"
-                                }`}
-                        >
-                            {f}
-                        </button>
-                    ))}
-                </div>
+            {/* ═══ MINIMAL HEADER ═══ */}
+            <header className="sticky top-0 z-50 bg-[#fafaf8]/80 backdrop-blur-xl border-b border-zinc-200/40 shrink-0 px-5 py-3.5 flex items-center justify-between">
+                <Link href="/" className="w-10 h-10 flex items-center justify-center text-zinc-400 hover:text-zinc-900 active:scale-90 rounded-full transition-all">
+                    <ChevronLeft size={20} />
+                </Link>
+                <h2 className="text-[15px] font-semibold tracking-[-0.01em] text-zinc-900">Curation</h2>
+                <button
+                    onClick={() => {
+                        setIsSearchOpen(!isSearchOpen);
+                        if (!isSearchOpen) setTimeout(() => searchInputRef.current?.focus(), 100);
+                    }}
+                    className="w-10 h-10 flex items-center justify-center text-zinc-400 hover:text-zinc-900 active:scale-90 rounded-full transition-all"
+                >
+                    {isSearchOpen ? <X size={18} /> : <Search size={18} />}
+                </button>
             </header>
 
-            {/* Scrollable Card Feed */}
+            {/* ═══ SEARCH BAR (expandable) ═══ */}
+            <AnimatePresence>
+                {isSearchOpen && (
+                    <motion.div
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: "auto", opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        transition={{ duration: 0.2 }}
+                        className="overflow-hidden bg-[#fafaf8] border-b border-zinc-200/40 px-5 z-40"
+                    >
+                        <div className="py-3">
+                            <div className="relative">
+                                <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-300" />
+                                <input
+                                    ref={searchInputRef}
+                                    type="text"
+                                    placeholder="Search articles..."
+                                    value={searchQuery}
+                                    onChange={e => setSearchQuery(e.target.value)}
+                                    className="w-full h-11 bg-white rounded-xl border border-zinc-200/80 pl-10 pr-4 text-[14px] text-zinc-900 placeholder:text-zinc-300 outline-none focus:border-zinc-300 focus:ring-2 focus:ring-zinc-100 transition-all"
+                                />
+                            </div>
+                        </div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
+            {/* ═══ SCROLLABLE CONTENT ═══ */}
             <main
                 id="curation-scroll-container"
                 onScroll={(e) => scrollYRef.current = e.currentTarget.scrollTop}
-                className="flex-1 overflow-y-auto px-4 pt-5 pb-32 relative z-10 w-full max-w-2xl mx-auto"
+                className="flex-1 overflow-y-auto px-4 pt-6 pb-32 relative z-10 w-full max-w-2xl mx-auto"
             >
+                {/* ═══ ONBOARDING / LANDING ZONE ═══ */}
+                <div className="mb-8 px-1">
+                    <h1 className="text-[36px] md:text-[44px] leading-[1.05] tracking-[-0.03em] text-zinc-900 mb-4" style={{ fontFamily: "'Playfair Display', Georgia, serif" }}>
+                        Curated Knowledge<br />
+                        <span className="italic text-zinc-400" style={{ fontWeight: 400 }}>& Perspectives.</span>
+                    </h1>
+                    <p className="text-[15px] text-zinc-500 leading-relaxed max-w-[44ch]">
+                        A carefully assembled library of essays, frameworks, and ideas — for the curious mind. Explore, discover, contribute.
+                    </p>
+
+                    {/* Stats line */}
+                    <div className="flex items-center gap-2 mt-5">
+                        <span className="text-[12px] font-medium text-zinc-400">
+                            {articles.length > 0 ? `${articles.length}+ reads` : ""} {categoryCount > 0 && articles.length > 0 ? `• ${categoryCount} topics` : ""}
+                        </span>
+                    </div>
+
+                    <div className="w-10 h-[1px] bg-zinc-200 mt-5" />
+                </div>
+
+                {/* ═══ SORT PILLS ═══ */}
+                <div className="flex gap-2 px-1 mb-3">
+                    {([
+                        { key: "latest" as SortType, label: "Latest" },
+                        { key: "top" as SortType, label: "Top Rated" },
+                    ]).map(s => (
+                        <button
+                            key={s.key}
+                            onClick={() => handleSortChange(s.key)}
+                            className={`px-4 py-1.5 text-[12px] font-bold rounded-full transition-all active:scale-[0.96] whitespace-nowrap ${sort === s.key
+                                ? "bg-zinc-900 text-white shadow-sm"
+                                : "bg-white text-zinc-400 border border-zinc-200/80 hover:border-zinc-300"
+                                }`}
+                        >
+                            {s.key === "top" && "⭐ "}{s.label}
+                        </button>
+                    ))}
+
+                    {/* Separator */}
+                    <div className="w-[1px] bg-zinc-200/60 mx-1 self-stretch" />
+
+                    {/* Status Filter Pills */}
+                    {([
+                        { key: "all" as const, label: "All" },
+                        { key: "unread" as const, label: "Unread" },
+                        { key: "bookmarked" as const, label: "Saved" },
+                    ]).map(f => (
+                        <button
+                            key={f.key}
+                            onClick={() => setStatusFilter(f.key)}
+                            className={`px-3.5 py-1.5 text-[12px] font-bold rounded-full transition-all active:scale-[0.96] whitespace-nowrap ${statusFilter === f.key
+                                ? "bg-blue-600 text-white shadow-sm"
+                                : "bg-white text-zinc-400 border border-zinc-200/80 hover:border-zinc-300"
+                                }`}
+                        >
+                            {f.key === "bookmarked" && "🔖 "}{f.label}
+                        </button>
+                    ))}
+                </div>
+
+                {/* ═══ CATEGORY PILLS ═══ */}
+                <div className="flex gap-2 overflow-x-auto px-1 no-scrollbar pb-4 mb-2">
+                    {CATEGORIES.map(cat => {
+                        const isActive = categoryFilter.includes(cat.name);
+                        return (
+                            <button
+                                key={cat.name}
+                                onClick={() => handleCategoryToggle(cat.name)}
+                                className={`px-3 py-1.5 text-[11px] font-semibold rounded-full transition-all active:scale-[0.96] whitespace-nowrap shrink-0 border ${isActive
+                                    ? "bg-zinc-900 text-white border-zinc-900 shadow-sm"
+                                    : "bg-white text-zinc-400 border-zinc-200/60 hover:border-zinc-300"
+                                    }`}
+                            >
+                                {cat.emoji} {cat.name}
+                            </button>
+                        );
+                    })}
+                </div>
+
+                {/* ═══ ARTICLE FEED ═══ */}
                 <AnimatePresence mode="wait">
                     {isLoading ? (
+                        /* ═══ SHIMMER SKELETONS ═══ */
                         <motion.div
                             key="skeleton"
                             initial={{ opacity: 1 }}
                             exit={{ opacity: 0 }}
-                            transition={{ duration: 0.4 }}
-                            className="flex flex-col items-center justify-center py-[20vh] w-full gap-5"
+                            transition={{ duration: 0.3 }}
+                            className="flex flex-col gap-4"
                         >
-                            <div className="relative w-10 h-10">
-                                <div className="absolute inset-0 border-[3px] border-gray-200 border-t-zinc-900 rounded-full animate-spin" />
-                            </div>
-                            <p className="text-[13px] font-medium text-zinc-400 tracking-wide">Loading your feed…</p>
+                            {/* Hero skeleton */}
+                            <div className="rounded-[2rem] bg-zinc-100 h-[280px] animate-pulse" />
+                            {/* Card skeletons */}
+                            {[1, 2, 3].map(i => (
+                                <div key={i} className="bg-white rounded-[1.5rem] border border-zinc-100 p-4 flex items-center gap-4">
+                                    <div className="w-[80px] h-[80px] rounded-2xl bg-zinc-100 animate-pulse shrink-0" />
+                                    <div className="flex-1 space-y-2">
+                                        <div className="h-3 bg-zinc-100 rounded animate-pulse w-1/3" />
+                                        <div className="h-4 bg-zinc-100 rounded animate-pulse w-full" />
+                                        <div className="h-4 bg-zinc-100 rounded animate-pulse w-2/3" />
+                                        <div className="h-3 bg-zinc-100 rounded animate-pulse w-1/4 mt-1" />
+                                    </div>
+                                </div>
+                            ))}
                         </motion.div>
-                    ) : articles.length === 0 ? (
+                    ) : filteredArticles.length === 0 ? (
                         <motion.div
                             key="empty"
                             initial={{ opacity: 0, y: 20 }}
@@ -399,9 +607,10 @@ export default function CurationList() {
                             exit={{ opacity: 0 }}
                             className="flex flex-col items-center justify-center py-24 text-zinc-300 w-full"
                         >
-                            <Bookmark size={44} className="mb-4" strokeWidth={1.5} />
-                            <p className="text-base font-semibold tracking-tight text-zinc-400">Nothing here yet.</p>
-                            <p className="text-[13px] text-zinc-400 mt-1">Tap + to save your first article.</p>
+                            <FileText size={44} className="mb-4" strokeWidth={1.5} />
+                            <p className="text-base font-semibold tracking-tight text-zinc-400">
+                                {searchQuery ? "No matching articles." : "Nothing here yet."}
+                            </p>
                         </motion.div>
                     ) : (
                         <motion.div
@@ -411,11 +620,13 @@ export default function CurationList() {
                             exit={{ opacity: 0 }}
                             className="flex flex-col gap-4"
                         >
-                            {articles.map((article, index) => {
-                                const domain = getDomain(article.url);
+                            {filteredArticles.map((article, index) => {
                                 const validImageUrl = getImageUrl(article);
                                 const isHero = index === 0 && validImageUrl;
                                 const postDate = new Date(article.createdAt);
+                                const readTime = getReadTime(article.content);
+                                const isVisitorRead = visitorState.read[article.id];
+                                const isVisitorBookmarked = visitorState.bookmarked[article.id];
 
                                 return (
                                     <motion.div
@@ -425,104 +636,68 @@ export default function CurationList() {
                                         exit={{ opacity: 0, scale: 0.97 }}
                                         transition={{ duration: 0.3, delay: Math.min(index * 0.04, 0.4) }}
                                     >
-                                        <Link
-                                            href={`/curation/${article.id}`}
-                                            onClick={saveStateToSession}
-                                            className="block group"
-                                        >
-                                            {isHero ? (
-                                                /* ═══ HERO CARD (first article with image) ═══ */
-                                                <div className="relative rounded-3xl overflow-hidden bg-zinc-900 shadow-sm active:scale-[0.98] transition-transform">
+                                        {isHero ? (
+                                            /* ═══ HERO CARD ═══ */
+                                            <Link
+                                                href={`/curation/${article.id}`}
+                                                onClick={saveStateToSession}
+                                                className="block group"
+                                            >
+                                                <div className="relative rounded-[2rem] overflow-hidden bg-zinc-900 shadow-lg active:scale-[0.97] transition-all duration-300 ease-out group/hero">
                                                     {!imgErrors[article.id] ? (
                                                         <img
                                                             src={validImageUrl!}
                                                             alt=""
-                                                            className="w-full aspect-[16/10] object-cover"
+                                                            className="w-full h-[300px] md:h-[380px] object-cover object-top opacity-80 group-hover/hero:opacity-90 transition-opacity duration-500"
                                                             onError={() => setImgErrors(prev => ({ ...prev, [article.id]: true }))}
                                                         />
                                                     ) : (
-                                                        <div className="w-full aspect-[16/10] bg-gradient-to-br from-zinc-800 to-zinc-900" />
+                                                        <div className="w-full h-[300px] md:h-[380px] bg-gradient-to-br from-zinc-800 to-zinc-900" />
                                                     )}
-                                                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-                                                    <div className="absolute bottom-0 left-0 right-0 p-5">
-                                                        <div className="flex items-center gap-2 mb-2.5">
-                                                            {article.isRead ? (
-                                                                <span className="text-[10px] font-bold uppercase tracking-[0.12em] bg-zinc-800/80 text-zinc-400 px-2 py-0.5 rounded-md backdrop-blur-sm">
-                                                                    READ
-                                                                </span>
-                                                            ) : (
-                                                                <span className="text-[10px] font-bold uppercase tracking-[0.12em] bg-blue-500/90 text-white px-2 py-0.5 rounded-md shadow-sm backdrop-blur-sm">
-                                                                    UNREAD
+                                                    <div className="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-transparent" />
+                                                    <div className="absolute bottom-0 left-0 right-0 p-6 md:p-8">
+                                                        <div className="flex items-center gap-2 mb-3 flex-wrap">
+                                                            {article.qualityScore && article.qualityScore >= 75 && (
+                                                                <span className="text-[10px] font-bold uppercase tracking-[0.12em] bg-amber-500/20 text-amber-200 px-2 py-0.5 rounded-full border border-amber-400/30 backdrop-blur-sm">
+                                                                    ⭐ Top Read
                                                                 </span>
                                                             )}
                                                             {article.category && (
                                                                 <>
                                                                     <span className="text-white/30">•</span>
-                                                                    <span className="text-[10px] font-bold uppercase tracking-[0.12em] text-blue-300">
+                                                                    <span className="text-[10px] font-bold uppercase tracking-[0.12em] text-blue-200/80">
                                                                         {article.category}
                                                                     </span>
                                                                 </>
                                                             )}
                                                         </div>
-                                                        <h3 className="text-[20px] font-bold tracking-tight text-white leading-snug line-clamp-2 mb-2">
+                                                        <h3 className="text-[22px] md:text-[26px] font-bold tracking-[-0.02em] text-white leading-[1.2] line-clamp-2 md:line-clamp-3 mb-3" style={{ fontFamily: "'Playfair Display', Georgia, serif" }}>
                                                             {article.title}
                                                         </h3>
-                                                        <span className="text-[11px] font-medium text-white/50">
-                                                            {postDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
-                                                        </span>
-                                                    </div>
-                                                </div>
-                                            ) : (
-                                                <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-[0_1px_3px_rgba(0,0,0,0.04)] active:scale-[0.98] active:bg-gray-50 transition-all p-4">
-                                                    <div className="flex items-center gap-3">
-                                                        {/* Thumbnail */}
-                                                        <div className="w-[72px] h-[72px] rounded-2xl overflow-hidden bg-gray-100 shrink-0">
-                                                            {validImageUrl && !imgErrors[article.id] ? (
-                                                                <img
-                                                                    src={validImageUrl}
-                                                                    alt=""
-                                                                    className="w-full h-full object-cover"
-                                                                    onError={() => setImgErrors(prev => ({ ...prev, [article.id]: true }))}
-                                                                />
-                                                            ) : (
-                                                                <div className="w-full h-full flex items-center justify-center text-gray-300">
-                                                                    <FileText size={22} strokeWidth={1.5} />
-                                                                </div>
-                                                            )}
-                                                        </div>
-                                                        {/* Text */}
-                                                        <div className="flex-1 min-w-0">
-                                                            <div className="flex items-center gap-1.5 mb-1.5 mt-0.5">
-                                                                {article.isRead ? (
-                                                                    <span className="text-[9px] font-bold uppercase tracking-[0.1em] bg-slate-100/80 text-slate-500 px-1.5 py-[2px] rounded border border-slate-200">
-                                                                        READ
-                                                                    </span>
-                                                                ) : (
-                                                                    <span className="text-[9px] font-bold uppercase tracking-[0.1em] bg-blue-100 text-blue-700 px-1.5 py-[2px] rounded border border-blue-200">
-                                                                        UNREAD
-                                                                    </span>
-                                                                )}
-                                                                {article.category && (
-                                                                    <>
-                                                                        <span className="text-zinc-300">•</span>
-                                                                        <span className="text-[10px] font-bold uppercase tracking-[0.1em] text-blue-500 truncate">
-                                                                            {article.category}
-                                                                        </span>
-                                                                    </>
-                                                                )}
-                                                            </div>
-                                                            <h3 className="text-[15px] font-bold tracking-tight text-zinc-900 leading-snug line-clamp-2">
-                                                                {article.title}
-                                                            </h3>
-                                                            <span className="text-[11px] font-medium text-zinc-400 mt-1 block">
-                                                                {postDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
-                                                                {postDate.getFullYear() !== new Date().getFullYear() && `, ${postDate.getFullYear()}`}
-                                                            </span>
+                                                        <div className="flex items-center gap-2 text-[12px] font-medium text-white/50">
+                                                            <span>{postDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+                                                            <span className="w-1 h-1 rounded-full bg-white/25" />
+                                                            <span>{readTime} min read</span>
                                                         </div>
                                                     </div>
                                                 </div>
-                                            )}
-                                        </Link>
+                                            </Link>
+                                        ) : (
+                                            /* ═══ SWIPEABLE ARTICLE CARD ═══ */
+                                            <SwipeableArticleCard
+                                                article={article}
+                                                validImageUrl={validImageUrl}
+                                                postDate={postDate}
+                                                readTime={readTime}
+                                                isVisitorRead={!!isVisitorRead}
+                                                isVisitorBookmarked={!!isVisitorBookmarked}
+                                                imgError={!!imgErrors[article.id]}
+                                                onImgError={() => setImgErrors(prev => ({ ...prev, [article.id]: true }))}
+                                                onClick={saveStateToSession}
+                                                onSwipeRight={() => toggleVisitorRead(article.id)}
+                                                onSwipeLeft={() => toggleVisitorBookmark(article.id)}
+                                            />
+                                        )}
                                     </motion.div>
                                 );
                             })}
@@ -531,17 +706,28 @@ export default function CurationList() {
                             {nextCursor && (
                                 <div ref={loaderRef} className="flex justify-center py-6">
                                     {isLoadingMore ? (
-                                        <Loader2 className="animate-spin text-zinc-400 w-5 h-5" />
+                                        <Loader2 className="animate-spin text-zinc-300 w-5 h-5" />
                                     ) : (
-                                        <div className="h-5" /> // Empty space for observer to hit
+                                        <div className="h-5" />
                                     )}
                                 </div>
                             )}
-                            {!nextCursor && articles.length > 0 && (
-                                <div className="text-center py-8">
-                                    <span className="text-[11px] font-medium text-zinc-400">
+
+                            {/* ═══ END OF FEED — SUGGEST CTA ═══ */}
+                            {!nextCursor && filteredArticles.length > 0 && (
+                                <div className="text-center py-10 space-y-4">
+                                    <span className="text-[11px] font-medium text-zinc-300 block">
                                         You&apos;ve reached the end
                                     </span>
+                                    {!isAdmin && (
+                                        <button
+                                            onClick={() => setIsSheetOpen(true)}
+                                            className="inline-flex items-center gap-2 px-5 py-2.5 bg-white text-zinc-500 text-[13px] font-semibold rounded-full border border-zinc-200/80 hover:border-zinc-300 hover:text-zinc-700 active:scale-[0.97] transition-all"
+                                        >
+                                            <Send size={14} />
+                                            Know something we should read? Suggest it.
+                                        </button>
+                                    )}
                                 </div>
                             )}
 
@@ -550,47 +736,233 @@ export default function CurationList() {
                 </AnimatePresence>
             </main>
 
-            {/* Floating Add Button */}
-            <button
-                onClick={() => setIsSheetOpen(true)}
-                className="fixed bottom-6 right-6 w-14 h-14 bg-black text-white rounded-full flex items-center justify-center shadow-[0_8px_30px_rgba(0,0,0,0.15)] active:scale-90 transition-transform z-40"
-            >
-                <Plus size={24} />
-            </button>
+            {/* ═══ FAB — Admin: Add, Visitor: Suggest ═══ */}
+            {isAdmin ? (
+                <button
+                    onClick={() => setIsSheetOpen(true)}
+                    className="fixed bottom-6 right-6 w-14 h-14 bg-zinc-900 text-white rounded-full flex items-center justify-center shadow-[0_8px_30px_rgba(0,0,0,0.15)] active:scale-90 transition-transform z-40"
+                >
+                    <Plus size={24} />
+                </button>
+            ) : null}
 
-            <BottomSheet isOpen={isSheetOpen} onClose={() => setIsSheetOpen(false)} title="Add to Curation" footer={
+            {/* ═══ BOTTOM SHEET ═══ */}
+            <BottomSheet isOpen={isSheetOpen} onClose={handleCloseSheet} title={isAdmin ? (editingId ? "Edit Entry" : "Add to Curation") : "Suggest an Article"} footer={
                 <button onClick={handleSave} disabled={isSubmitting || !formTitle || !formUrl}
-                    className="w-full h-14 bg-black text-white rounded-full flex items-center justify-center appearance-none shrink-0 font-bold text-[16px] shadow-[0_8px_30px_rgba(0,0,0,0.12)] active:scale-[0.98] transition-transform disabled:opacity-40 disabled:active:scale-100">
+                    className="w-full h-14 bg-zinc-900 text-white rounded-full flex items-center justify-center appearance-none shrink-0 font-bold text-[16px] shadow-[0_8px_30px_rgba(0,0,0,0.12)] active:scale-[0.98] transition-transform disabled:opacity-40 disabled:active:scale-100">
                     {isSubmitting ? (
                         <div className="flex items-center gap-2">
                             <div className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full" />
                             <span>{uploadStatus === "uploading" ? "Uploading…" : "Saving…"}</span>
                         </div>
-                    ) : "Save Article"}
+                    ) : (isAdmin ? (editingId ? "Update Article" : "Save Article") : "Send Suggestion")}
                 </button>
             }>
                 <div className="flex flex-col gap-1.5">
                     <div className="flex items-center justify-between">
                         <label className={LABEL_CLASS}>URL / Link</label>
                         {isFetchingMetadata && (
-                            <div className="flex items-center gap-1.5 text-zinc-400">
-                                <Loader2 size={12} className="animate-spin" />
-                                <span className="text-[10px] font-bold uppercase tracking-wider">Scanning...</span>
-                            </div>
+                            <span className="text-[10px] text-zinc-400 flex items-center gap-1"><Loader2 size={10} className="animate-spin" /> Fetching…</span>
                         )}
                     </div>
-                    <QuickPasteInput value={formUrl} onChange={setFormUrl} placeholder="https://example.com" type="url" />
+                    <QuickPasteInput value={formUrl} onChange={setFormUrl} placeholder="Paste link here..." />
                 </div>
-                <ImagePicker preview={formImagePreview} onSelect={(f) => { setFormImageFile(f); setFormImagePreview(URL.createObjectURL(f)); }} onClear={() => { setFormImageFile(null); setFormImagePreview(null); }} />
+
                 <div className="flex flex-col gap-1.5">
                     <label className={LABEL_CLASS}>Title</label>
-                    <QuickPasteInput value={formTitle} onChange={setFormTitle} placeholder="Article or page title" />
+                    <input value={formTitle} onChange={e => setFormTitle(e.target.value)} placeholder="Article title"
+                        className="h-12 bg-zinc-50 rounded-xl border border-zinc-200/80 px-4 text-[14px] outline-none focus:border-zinc-300 focus:ring-2 focus:ring-zinc-100 transition-all" />
                 </div>
-                <div className="flex flex-col gap-1.5">
-                    <label className={LABEL_CLASS}>Notes</label>
-                    <RichTextEditor value={formNotes} onChange={setFormNotes} placeholder="Quick notes or summary…" />
-                </div>
+
+                {isAdmin && (
+                    <>
+                        <div className="flex flex-col gap-1.5">
+                            <label className={LABEL_CLASS}>Notes / Summary</label>
+                            <RichTextEditor value={formNotes} onChange={setFormNotes} placeholder="Add a summary..." />
+                        </div>
+
+                        <div className="flex flex-col gap-1.5">
+                            <label className={LABEL_CLASS}>Cover Image</label>
+                            <ImagePicker
+                                preview={formImagePreview}
+                                onSelect={(file: File) => { setFormImageFile(file); setFormImagePreview(URL.createObjectURL(file)); }}
+                                onClear={() => { setFormImageFile(null); setFormImagePreview(null); }}
+                            />
+                        </div>
+
+                        <div className="flex flex-col gap-1.5">
+                            <label className={LABEL_CLASS}>Category</label>
+                            <select
+                                value={formCategory}
+                                onChange={e => setFormCategory(e.target.value)}
+                                className="h-12 bg-zinc-50 rounded-xl border border-zinc-200/80 px-4 text-[14px] outline-none focus:border-zinc-300 appearance-none"
+                            >
+                                <option value="">None</option>
+                                {CATEGORIES.map(c => <option key={c.name} value={c.name}>{c.emoji} {c.name}</option>)}
+                            </select>
+                        </div>
+
+                        <div className="flex flex-col gap-1.5">
+                            <label className={LABEL_CLASS}>Published Date</label>
+                            <input type="date" value={formPublishedTime} onChange={e => setFormPublishedTime(e.target.value)}
+                                className="h-12 bg-zinc-50 rounded-xl border border-zinc-200/80 px-4 text-[14px] outline-none focus:border-zinc-300 appearance-none" />
+                        </div>
+                    </>
+                )}
             </BottomSheet>
+
+            {/* ═══ GOOGLE FONTS ═══ */}
+            {/* eslint-disable-next-line @next/next/no-page-custom-font */}
+            <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&display=swap" rel="stylesheet" />
+        </div>
+    );
+}
+
+// ═══ SWIPEABLE ARTICLE CARD ═══
+
+function SwipeableArticleCard({
+    article,
+    validImageUrl,
+    postDate,
+    readTime,
+    isVisitorRead,
+    isVisitorBookmarked,
+    imgError,
+    onImgError,
+    onClick,
+    onSwipeRight,
+    onSwipeLeft
+}: {
+    article: ArticleMeta,
+    validImageUrl: string | null,
+    postDate: Date,
+    readTime: number,
+    isVisitorRead: boolean,
+    isVisitorBookmarked: boolean,
+    imgError: boolean,
+    onImgError: () => void,
+    onClick: () => void,
+    onSwipeRight: () => void,
+    onSwipeLeft: () => void
+}) {
+    const x = useMotionValue(0);
+    const [isDragging, setIsDragging] = useState(false);
+
+    const bgRightOpacity = useTransform(x, [0, 60], [0, 1]);
+    const bgLeftOpacity = useTransform(x, [0, -60], [0, 1]);
+    const scaleRightIcon = useTransform(x, [20, 70], [0.5, 1.2]);
+    const scaleLeftIcon = useTransform(x, [-20, -70], [0.5, 1.2]);
+
+    const handleDragEnd = (event: any, info: any) => {
+        setIsDragging(false);
+        const swipeThreshold = 80;
+        if (info.offset.x > swipeThreshold) {
+            onSwipeRight();
+        } else if (info.offset.x < -swipeThreshold) {
+            onSwipeLeft();
+        }
+    };
+
+    return (
+        <div className="relative group/card touch-pan-y">
+            {/* Action Backgrounds */}
+            <div className="absolute inset-0 rounded-[1.5rem] overflow-hidden">
+                <motion.div
+                    className={`absolute inset-y-0 left-0 w-1/2 flex items-center pl-6 font-bold text-white shadow-inner ${isVisitorRead ? "bg-amber-500" : "bg-emerald-500"}`}
+                    style={{ opacity: bgRightOpacity }}
+                >
+                    <motion.div style={{ scale: scaleRightIcon }} className="flex items-center gap-2 drop-shadow-md">
+                        <CheckCircle size={22} />
+                        <span className="text-sm tracking-wide">{isVisitorRead ? "Unread" : "Read"}</span>
+                    </motion.div>
+                </motion.div>
+                <motion.div
+                    className="absolute inset-y-0 right-0 w-1/2 flex items-center justify-end pr-6 font-bold text-white bg-blue-500 shadow-inner"
+                    style={{ opacity: bgLeftOpacity }}
+                >
+                    <motion.div style={{ scale: scaleLeftIcon }} className="flex items-center gap-2 drop-shadow-md">
+                        <span className="text-sm tracking-wide">{isVisitorBookmarked ? "Remove" : "Save"}</span>
+                        <Bookmark fill={isVisitorBookmarked ? "none" : "white"} size={22} className={isVisitorBookmarked ? "" : "fill-white"} />
+                    </motion.div>
+                </motion.div>
+            </div>
+
+            {/* Foreground Card */}
+            <motion.div
+                drag="x"
+                dragConstraints={{ left: 0, right: 0 }}
+                dragElastic={0.6}
+                onDragStart={() => setIsDragging(true)}
+                onDragEnd={handleDragEnd}
+                style={{ x }}
+                whileTap={{ cursor: "grabbing" }}
+                className="bg-white rounded-[1.5rem] border border-zinc-100 overflow-hidden shadow-[0_1px_3px_rgba(0,0,0,0.02)] hover:shadow-[0_4px_16px_rgba(0,0,0,0.04)] transition-all duration-300 p-4 relative z-10 cursor-grab touch-pan-y"
+            >
+                <Link
+                    href={`/curation/${article.id}`}
+                    onClick={(e) => {
+                        if (isDragging) { e.preventDefault(); e.stopPropagation(); } else { onClick(); }
+                    }}
+                    className="flex items-center gap-4 outline-none w-full"
+                    draggable={false}
+                >
+                    {/* Thumbnail */}
+                    <div className="w-[80px] h-[80px] rounded-2xl overflow-hidden bg-zinc-50 shrink-0 border border-zinc-100/60 relative pointer-events-none">
+                        {validImageUrl && !imgError ? (
+                            <img src={validImageUrl} alt="" draggable={false} className="w-full h-full object-cover" onError={onImgError} />
+                        ) : (
+                            <div className="w-full h-full flex items-center justify-center text-zinc-200 bg-gradient-to-br from-zinc-50 to-zinc-100">
+                                <FileText size={22} strokeWidth={1.5} />
+                            </div>
+                        )}
+                        <div className="absolute inset-0 ring-1 ring-inset ring-black/5 rounded-2xl" />
+                    </div>
+                    {/* Text */}
+                    <div className="flex-1 min-w-0 py-0.5 pointer-events-none">
+                        <div className="flex items-center gap-1.5 mb-2 flex-wrap">
+                            {isVisitorRead ? (
+                                <span className="text-[9px] font-bold uppercase tracking-[0.1em] bg-zinc-100 text-zinc-400 px-1.5 py-[2px] rounded">
+                                    READ
+                                </span>
+                            ) : (
+                                <span className="text-[9px] font-bold uppercase tracking-[0.1em] bg-blue-50 text-blue-500 px-1.5 py-[2px] rounded">
+                                    NEW
+                                </span>
+                            )}
+                            {article.qualityScore && article.qualityScore >= 75 && (
+                                <span className="text-[9px] font-bold uppercase tracking-[0.1em] bg-amber-50 text-amber-600 px-1.5 py-[2px] rounded">
+                                    ⭐ TOP
+                                </span>
+                            )}
+                            {article.category && (
+                                <>
+                                    <span className="text-zinc-200">•</span>
+                                    <span className="text-[10px] font-semibold text-zinc-400 truncate">
+                                        {article.category}
+                                    </span>
+                                </>
+                            )}
+                            {isVisitorBookmarked && (
+                                <>
+                                    <span className="text-zinc-200">•</span>
+                                    <Bookmark size={11} className="fill-blue-500 text-blue-500" />
+                                </>
+                            )}
+                        </div>
+                        <h3 className="text-[15px] font-bold tracking-[-0.01em] text-zinc-900 leading-[1.3] line-clamp-2 mb-1.5 group-hover/card:text-blue-600 transition-colors">
+                            {article.title}
+                        </h3>
+                        <div className="flex items-center gap-1.5 text-[11px] font-medium text-zinc-400">
+                            <span>
+                                {postDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                                {postDate.getFullYear() !== new Date().getFullYear() && `, ${postDate.getFullYear()}`}
+                            </span>
+                            <span className="w-1 h-1 rounded-full bg-zinc-200" />
+                            <span>{readTime} min</span>
+                        </div>
+                    </div>
+                </Link>
+            </motion.div>
         </div>
     );
 }

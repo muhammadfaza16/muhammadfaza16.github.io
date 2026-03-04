@@ -9,9 +9,35 @@ import { revalidatePath } from "next/cache";
 export async function getToReadArticles() {
     try {
         const articles = await prisma.article.findMany({
+            where: { category: { not: "__SUGGESTED__" } },
             orderBy: { createdAt: "desc" },
         });
         return { success: true, data: articles };
+    } catch (e: any) {
+        return { success: false, error: e.message };
+    }
+}
+
+export async function getSuggestedArticles() {
+    try {
+        const articles = await prisma.article.findMany({
+            where: { category: "__SUGGESTED__" },
+            orderBy: { createdAt: "desc" },
+        });
+        return { success: true, data: articles };
+    } catch (e: any) {
+        return { success: false, error: e.message };
+    }
+}
+
+export async function approveSuggestedArticle(id: string) {
+    try {
+        const article = await prisma.article.update({
+            where: { id },
+            data: { category: null }
+        });
+        revalidatePath('/curation');
+        return { success: true, data: article };
     } catch (e: any) {
         return { success: false, error: e.message };
     }
