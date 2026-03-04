@@ -254,6 +254,10 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
     // TTS Functions
     const startTTS = useCallback(() => {
         if (typeof speechSynthesis === 'undefined' || !article) return;
+        if (ttsUtteranceRef.current) {
+            ttsUtteranceRef.current.onend = null;
+            ttsUtteranceRef.current.onerror = null;
+        }
         speechSynthesis.cancel();
         const div = document.createElement('div');
         div.innerHTML = article.content;
@@ -314,6 +318,10 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
         const nextSpeed = speeds[(currentIdx + 1) % speeds.length];
         setTTSSpeed(nextSpeed);
         if (isTTSPlaying) {
+            if (ttsUtteranceRef.current) {
+                ttsUtteranceRef.current.onend = null;
+                ttsUtteranceRef.current.onerror = null;
+            }
             speechSynthesis.cancel();
             setTimeout(() => {
                 const utterance = new SpeechSynthesisUtterance(ttsTextRef.current);
