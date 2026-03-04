@@ -264,25 +264,28 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
             ttsUtteranceRef.current.onerror = null;
         }
         speechSynthesis.cancel();
-        const div = document.createElement('div');
-        div.innerHTML = article.content;
-        const text = div.textContent || div.innerText || '';
-        ttsTextRef.current = text;
-        const utterance = new SpeechSynthesisUtterance(text);
-        utterance.rate = ttsSpeed;
-        utterance.lang = 'en-US';
-        const voices = speechSynthesis.getVoices();
-        const preferred = voices.find(v => v.name.includes('Google') && v.lang.startsWith('en')) ||
-            voices.find(v => v.lang.startsWith('en'));
-        if (preferred) utterance.voice = preferred;
-        utterance.onboundary = (e) => {
-            if (e.charIndex && text.length) setTTSProgress(Math.round((e.charIndex / text.length) * 100));
-        };
-        utterance.onend = () => { setIsTTSPlaying(false); setTTSProgress(100); };
-        utterance.onerror = () => { setIsTTSPlaying(false); };
-        ttsUtteranceRef.current = utterance;
-        speechSynthesis.speak(utterance);
-        setIsTTSPlaying(true);
+
+        setTimeout(() => {
+            const div = document.createElement('div');
+            div.innerHTML = article.content;
+            const text = div.textContent || div.innerText || '';
+            ttsTextRef.current = text;
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.rate = ttsSpeed;
+            utterance.lang = 'en-US';
+            const voices = speechSynthesis.getVoices();
+            const preferred = voices.find(v => v.name.includes('Google') && v.lang.startsWith('en')) ||
+                voices.find(v => v.lang.startsWith('en'));
+            if (preferred) utterance.voice = preferred;
+            utterance.onboundary = (e) => {
+                if (e.charIndex && text.length) setTTSProgress(Math.round((e.charIndex / text.length) * 100));
+            };
+            utterance.onend = () => { setIsTTSPlaying(false); setTTSProgress(100); };
+            utterance.onerror = () => { setIsTTSPlaying(false); };
+            ttsUtteranceRef.current = utterance;
+            speechSynthesis.speak(utterance);
+            setIsTTSPlaying(true);
+        }, 50);
     }, [article, ttsSpeed]);
 
     const toggleTTS = useCallback(() => {
@@ -970,8 +973,8 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
                             Aa
                         </button>
                         <div className="w-[1px] h-6 bg-white/15" />
-                        <button onClick={isTTSPlaying ? stopTTS : startTTS} className={`p-2 active:scale-90 transition-transform flex items-center justify-center ${isTTSPlaying ? 'text-blue-400' : 'text-white/80 hover:text-white'}`} title={isTTSPlaying ? 'Stop TTS' : 'Listen'}>
-                            {isTTSPlaying ? <VolumeX size={18} /> : <Volume2 size={18} />}
+                        <button onClick={isTTSPlaying ? stopTTS : startTTS} className={`p-2 active:scale-90 transition-transform flex items-center justify-center ${isTTSPlaying ? 'text-red-400 hover:text-red-300' : 'text-white/80 hover:text-white'}`} title={isTTSPlaying ? 'Stop TTS' : 'Listen'}>
+                            {isTTSPlaying ? <X size={18} /> : <Volume2 size={18} />}
                         </button>
                         <div className="w-[1px] h-6 bg-white/15" />
                         <button onClick={() => setIsZenMode(true)} className="p-2 active:scale-90 transition-transform text-white/80 hover:text-white flex items-center justify-center" title="Zen Mode">
