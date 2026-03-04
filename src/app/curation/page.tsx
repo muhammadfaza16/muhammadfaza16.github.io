@@ -80,6 +80,7 @@ export default function CurationList() {
     // Cache Refs
     const hasRestoredCache = useRef(false);
     const skipFetchRef = useRef(false);
+    const skipExtraFetchRef = useRef(false);
     const scrollYRef = useRef(0);
     const tabsCache = useRef<Record<string, { articles: ArticleMeta[], nextCursor: string | null, scrollY: number }>>({});
     const loaderRef = useRef<HTMLDivElement>(null);
@@ -155,42 +156,6 @@ export default function CurationList() {
         setFormPublishedTime("");
         setFormCategory("");
     };
-
-    // Init
-    useEffect(() => {
-        setVisitorState(getVisitorState());
-
-        // Check admin status via secure cookie
-        fetch("/api/auth")
-            .then(res => res.json())
-            .then(data => setIsAdmin(data.isAdmin === true))
-            .catch(() => setIsAdmin(false));
-
-        // Restore cache
-        const cached = sessionStorage.getItem(CACHE_KEY);
-        if (cached) {
-            try {
-                const parsed = JSON.parse(cached);
-                tabsCache.current = parsed.tabs || {};
-                const key = getCacheKey(parsed.lastSort || "latest", parsed.lastCategories || []);
-                const tabData = tabsCache.current[key];
-                if (tabData) {
-                    setArticles(tabData.articles);
-                    setNextCursor(tabData.nextCursor);
-                    setSort(parsed.lastSort || "latest");
-                    setCategoryFilter(parsed.lastCategories || []);
-                    hasRestoredCache.current = true;
-                    skipFetchRef.current = true;
-                    setIsLoading(false);
-
-                    requestAnimationFrame(() => {
-                        const container = document.getElementById("curation-scroll-container");
-                        if (container) container.scrollTop = tabData.scrollY || 0;
-                    });
-                }
-            } catch { }
-        }
-    }, []);
 
     // Save handler
     const handleSave = async () => {
@@ -354,6 +319,55 @@ export default function CurationList() {
         toast.success(visitorState.bookmarked[articleId] ? "Removed bookmark" : "Bookmarked!");
     };
 
+    // Init
+    useEffect(() => {
+        setVisitorState(getVisitorState());
+
+        // Check admin status via secure cookie
+        fetch("/api/auth")
+            .then(res => res.json())
+            .then(data => setIsAdmin(data.isAdmin === true))
+            .catch(() => setIsAdmin(false));
+
+        // Restore cache
+        const cached = sessionStorage.getItem(CACHE_KEY);
+        if (cached) {
+            try {
+                const parsed = JSON.parse(cached);
+                tabsCache.current = parsed.tabs || {};
+                const restoredSort = parsed.lastSort || "latest";
+                const restoredCats = parsed.lastCategories || [];
+                const key = getCacheKey(restoredSort, restoredCats);
+                const tabData = tabsCache.current[key];
+                if (tabData) {
+                    setArticles(tabData.articles);
+                    setNextCursor(tabData.nextCursor);
+                    hasRestoredCache.current = true;
+                    setIsLoading(false);
+
+                    // Count how many times the fetch effect will fire
+                    // 1 for initial mount, +1 if sort/categories differ from defaults
+                    const willSortChange = restoredSort !== "latest";
+                    const willCatsChange = restoredCats.length > 0;
+                    skipFetchRef.current = true;
+                    if (willSortChange || willCatsChange) {
+                        // State changes will trigger a second effect run
+                        skipExtraFetchRef.current = true;
+                    }
+
+                    setSort(restoredSort);
+                    setCategoryFilter(restoredCats);
+
+                    requestAnimationFrame(() => {
+                        const container = document.getElementById("curation-scroll-container");
+                        if (container) container.scrollTop = tabData.scrollY || 0;
+                    });
+                }
+            } catch { }
+        }
+    }, []);
+
+    // Save handler
     const saveStateToSession = () => {
         const currentCacheKey = getCacheKey(sort, categoryFilter);
         tabsCache.current[currentCacheKey] = {
@@ -384,13 +398,13 @@ export default function CurationList() {
         setSort(s);
     };
 
-    const handleCategoryToggle = (cat: string) => {
+    const handleCategoryToggle = (catName: string) => {
         const currentKey = getCacheKey(sort, categoryFilter);
         tabsCache.current[currentKey] = { articles, nextCursor, scrollY: scrollYRef.current };
 
-        const newCats = categoryFilter.includes(cat)
-            ? categoryFilter.filter(c => c !== cat)
-            : [...categoryFilter, cat];
+        const newCats = categoryFilter.includes(catName)
+            ? categoryFilter.filter(c => c !== catName)
+            : [...categoryFilter, catName];
 
         const newKey = getCacheKey(sort, newCats);
         const cached = tabsCache.current[newKey];
@@ -419,7 +433,7 @@ export default function CurationList() {
         catch { return ""; }
     };
 
-    const getReadTime = (content?: string) => {
+    const estimateReadTime = (content?: string) => {
         if (!content) return 1;
         const text = content.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
         return Math.max(1, Math.ceil(text.split(/\s+/).length / 225));
@@ -628,7 +642,7 @@ export default function CurationList() {
                                 const validImageUrl = getImageUrl(article);
                                 const isHero = index === 0 && validImageUrl;
                                 const postDate = new Date(article.createdAt);
-                                const readTime = getReadTime(article.content);
+                                const readTime = estimateReadTime(article.content);
                                 const isVisitorRead = visitorState.read[article.id];
                                 const isVisitorBookmarked = visitorState.bookmarked[article.id];
 
