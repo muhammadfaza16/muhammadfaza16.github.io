@@ -11,6 +11,7 @@ export type RadioTrack = {
 
 export type RadioStation = {
     id: string;
+    slug: string;
     name: string;
     description: string;
     themeColor: string;
@@ -137,6 +138,9 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
         activeTargetStateRef.current = activeTargetState;
     }, [activeTargetState]);
 
+    // Track previous station ID to force audio reload on station switch
+    const prevStationRef = useRef<string | null>(null);
+
     // Seamless URL handoff and Drift Correction for the ACTIVE station
     useEffect(() => {
         // Don't try to play if paused by user
@@ -147,7 +151,10 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
         const targetUrl = activeTargetState.song.audioUrl;
         const targetTime = activeTargetState.progress;
 
-        const isSameSong = audio.src.endsWith(targetUrl);
+        // Force reload if station changed, even if audioUrl is identical
+        const stationChanged = prevStationRef.current !== activeStationId;
+        const isSameSong = !stationChanged && audio.src.endsWith(targetUrl);
+        prevStationRef.current = activeStationId;
 
         if (!isSameSong) {
             console.log(`Global Radio: Action [Switch Source] -> ${activeTargetState.song.title}`);
@@ -252,7 +259,7 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
                 audio.play().catch(() => { });
             }
         }
-    }, [activeStationId, setActivePlaybackMode]);
+    }, [activeStationId, setActivePlaybackMode, timelines]);
 
     // Full dismiss: clears everything, hides widget
     const turnOff = useCallback(() => {

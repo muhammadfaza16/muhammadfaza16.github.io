@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 
+export const dynamic = "force-dynamic";
+
 export async function GET() {
     try {
         const radios = await prisma.radio.findMany({
@@ -16,7 +18,8 @@ export async function GET() {
 
         // Format beautifully for the frontend RadioContext
         const formattedRadios = radios.map((r: any) => ({
-            id: r.slug,
+            id: r.id,
+            slug: r.slug,
             name: r.name,
             description: r.description || "",
             themeColor: r.themeColor,

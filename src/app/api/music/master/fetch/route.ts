@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@supabase/supabase-js";
 import { execFile } from "child_process";
 import { promisify } from "util";
 import path from "path";
@@ -12,6 +11,7 @@ const YT_DLP_PATH = path.join(process.cwd(), "bin", "yt-dlp.exe");
 const FFMPEG_PATH = "C:\\Users\\ThinkPad\\AppData\\Local\\Microsoft\\WinGet\\Packages\\Gyan.FFmpeg_Microsoft.Winget.Source_8wekyb3d8bbwe\\ffmpeg-8.0.1-full_build\\bin";
 const DENO_PATH = "C:\\Users\\ThinkPad\\.deno\\bin";
 const TMP_DIR = path.join(process.cwd(), "tmp");
+const PUBLIC_AUDIO_DIR = path.join(process.cwd(), "public", "audio");
 
 export const maxDuration = 120; // Allow up to 2 minutes for download + conversion
 
@@ -76,11 +76,11 @@ export async function POST(req: NextRequest) {
             if (allMp3.length === 0) throw new Error("MP3 file not found after conversion");
             // Use the most recent one
             const mp3Path = path.join(TMP_DIR, allMp3[allMp3.length - 1]);
-            return await uploadOnly(mp3Path, artist, title, duration);
+            return await saveToPublic(mp3Path, artist, title, duration);
         }
 
         const mp3Path = path.join(TMP_DIR, mp3File);
-        return await uploadOnly(mp3Path, artist, title, duration);
+        return await saveToPublic(mp3Path, artist, title, duration);
 
     } catch (error: any) {
         console.error("[MASTER] Fetch Error:", error);
@@ -91,55 +91,49 @@ export async function POST(req: NextRequest) {
     }
 }
 
-async function uploadOnly(mp3Path: string, artist: string, title: string, duration: number) {
-    // Read the MP3 buffer
-    const audioBuffer = await fs.readFile(mp3Path);
-    console.log(`[MASTER] MP3 ready. Size: ${audioBuffer.length} bytes. Uploading to Supabase...`);
+async function saveToPublic(mp3Path: string, artist: string, title: string, duration: number) {
+    // Ensure public/audio directory exists
+    await fs.mkdir(PUBLIC_AUDIO_DIR, { recursive: true });
 
-    // Setup Supabase
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-    const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-    if (!supabaseUrl || !supabaseKey) throw new Error("Missing Supabase credentials");
+    // Build filename matching existing convention: "Artist - Title.mp3"
+    const fullTitle = artist ? `${artist} - ${title}` : title;
 
-    const supabase = createClient(supabaseUrl, supabaseKey);
-
-    // Final full title for filename
-    const fullTitle = artist ? `${artist} — ${title}` : title;
-
-    // Sanitize filename for Supabase Storage
+    // Sanitize for filesystem — keep readable, strip dangerous chars
     const safeFileName = fullTitle
-        .replace(/\s*—\s*/g, "-")
-        .replace(/[^\w\s-]/g, "")
-        .replace(/\s+/g, "_")
-        .slice(0, 60);
-    const fileName = `audio/${Date.now()}-${safeFileName}.mp3`;
-    const bucketName = "images";
+        .replace(/[<>:"/\\|?*]/g, "")  // Remove filesystem-unsafe chars
+        .replace(/\s+/g, " ")          // Normalize whitespace
+        .trim()
+        .slice(0, 100);                // Cap length
 
-    const { error: uploadError } = await supabase.storage
-        .from(bucketName)
-        .upload(fileName, audioBuffer, { contentType: "audio/mpeg", upsert: true });
+    const finalFileName = `${safeFileName}.mp3`;
+    const destPath = path.join(PUBLIC_AUDIO_DIR, finalFileName);
 
-    if (uploadError) {
-        console.error("[MASTER] Upload Error:", uploadError);
-        throw new Error(`Upload Failed: ${uploadError.message}`);
+    // Check for name collision — append timestamp if needed
+    let actualDest = destPath;
+    try {
+        await fs.access(destPath);
+        // File exists — append timestamp
+        actualDest = path.join(PUBLIC_AUDIO_DIR, `${safeFileName} (${Date.now()}).mp3`);
+        console.log(`[MASTER] Name collision, saving as: ${path.basename(actualDest)}`);
+    } catch {
+        // File doesn't exist, use original name
     }
 
-    const { data: publicUrlData } = supabase.storage
-        .from(bucketName)
-        .getPublicUrl(fileName);
+    // Move MP3 from tmp to public/audio
+    await fs.rename(mp3Path, actualDest);
+    const savedFileName = path.basename(actualDest);
 
-    const publicUrl = publicUrlData.publicUrl;
-    console.log(`[MASTER] Upload success: ${publicUrl}`);
+    console.log(`[MASTER] Saved to public/audio/${savedFileName} (${(await fs.stat(actualDest)).size} bytes)`);
 
-    // Cleanup temp file
-    await fs.unlink(mp3Path).catch(() => { });
+    // Public URL served by Next.js static file serving
+    const audioUrl = `/audio/${encodeURIComponent(savedFileName)}`;
 
     // Return data WITHOUT saving to DB — let user edit title first
     return NextResponse.json({
         success: true,
         suggestedArtist: artist,
         suggestedTitle: title,
-        audioUrl: publicUrl,
+        audioUrl,
         duration
     });
 }

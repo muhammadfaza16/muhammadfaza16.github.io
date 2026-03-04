@@ -219,12 +219,13 @@ export function MiniPlayerWidget({ style: customStyle }: MiniPlayerProps) {
                     style={{
                         position: "fixed",
                         bottom: "min(24px, env(safe-area-inset-bottom, 24px))",
-                        left: "50%",
-                        transform: "translateX(-50%)",
+                        left: "0",
+                        right: "0",
                         zIndex: 50,
                         display: "flex",
                         justifyContent: "center",
-                        width: "100%",
+                        padding: "0 24px",
+                        boxSizing: "border-box",
                         pointerEvents: "none",
                         ...customStyle
                     }}
@@ -255,7 +256,7 @@ export function MiniPlayerWidget({ style: customStyle }: MiniPlayerProps) {
                                 ? "0 12px 32px rgba(0, 0, 0, 0.4), inset 0 0 20px rgba(255, 214, 10, 0.05)"
                                 : "0 8px 32px rgba(0, 0, 0, 0.3)",
                             cursor: "pointer",
-                            width: "calc(100vw - 48px)",
+                            width: "100%",
                             maxWidth: "400px",
                             position: "relative",
                             overflow: "hidden"

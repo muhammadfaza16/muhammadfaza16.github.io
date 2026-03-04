@@ -72,13 +72,19 @@ export function PlaylistModule({ addLog, isBusy, setIsBusy, insetBox }: Playlist
 
     const autoSlug = (title: string) => title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
 
+    // Issue 4: Exclude already-added songs from the add list
+    const availableSongs = useMemo(() => {
+        const currentIds = new Set(currentSongs.map(s => s.id));
+        return allSongs.filter(s => !currentIds.has(s.id));
+    }, [allSongs, currentSongs]);
+
+    // Issue 1: Remove hard cap — show all, search filters when query ≥ 2 chars
     const filteredSongs = useMemo(() => {
-        if (songSearch.length < 2) return allSongs.slice(0, 10);
+        if (songSearch.length < 2) return availableSongs;
         const query = songSearch.toLowerCase();
-        return allSongs
-            .filter(s => (s.title || "").toLowerCase().includes(query) || (s.artist || "").toLowerCase().includes(query))
-            .slice(0, 10);
-    }, [allSongs, songSearch]);
+        return availableSongs
+            .filter(s => (s.title || "").toLowerCase().includes(query) || (s.artist || "").toLowerCase().includes(query));
+    }, [availableSongs, songSearch]);
 
     useEffect(() => {
         fetchPlaylists();
@@ -124,7 +130,12 @@ export function PlaylistModule({ addLog, isBusy, setIsBusy, insetBox }: Playlist
         setIsBusy(true);
         try {
             const method = editingId ? "PUT" : "POST";
-            const body = editingId ? { id: editingId, ...formData } : formData;
+            // Issue 7: Convert vibes string to array before sending
+            const vibesArray = formData.vibes
+                ? formData.vibes.split(',').map((v: string) => v.trim()).filter(Boolean)
+                : [];
+            const payload = { ...formData, vibes: vibesArray };
+            const body = editingId ? { id: editingId, ...payload } : payload;
 
             const res = await fetch("/api/music/master/playlists", {
                 method,
@@ -166,6 +177,13 @@ export function PlaylistModule({ addLog, isBusy, setIsBusy, insetBox }: Playlist
 
     const addSongToPlaylist = async (songId: string, songTitle: string) => {
         if (!viewingPlaylist) return;
+
+        // Issue 3: Deduplicate — prevent visual dupes
+        if (currentSongs.some(s => s.id === songId)) {
+            addLog(`Already in playlist: ${songTitle}`, "info");
+            return;
+        }
+
         setIsBusy(true);
 
         // Optimistic UI Update
@@ -180,7 +198,7 @@ export function PlaylistModule({ addLog, isBusy, setIsBusy, insetBox }: Playlist
             });
             const data = await res.json();
             if (data.success) {
-                addLog(`Added to ${viewingPlaylist.title}: ${songTitle}`, "success");
+                addLog(`✓ Added: ${songTitle}`, "success");
             } else {
                 setCurrentSongs(prev => prev.filter(s => s.id !== songId)); // Revert
                 addLog(data.error || "Add failed", "error");
@@ -219,6 +237,27 @@ export function PlaylistModule({ addLog, isBusy, setIsBusy, insetBox }: Playlist
         }
     };
 
+    // Issue 6: Delete song from global library
+    const deleteSongFromLibrary = async (songId: string, songTitle: string) => {
+        if (!confirm(`Delete "${songTitle}" from library? This removes it from ALL playlists and radios.`)) return;
+        setIsBusy(true);
+        try {
+            const res = await fetch(`/api/music/songs/${songId}`, { method: "DELETE" });
+            const data = await res.json();
+            if (data.success) {
+                addLog(`Deleted from library: ${songTitle}`, "info");
+                setAllSongs(prev => prev.filter(s => s.id !== songId));
+                setCurrentSongs(prev => prev.filter(s => s.id !== songId));
+            } else {
+                addLog(data.error || "Delete failed", "error");
+            }
+        } catch (err) {
+            addLog("Delete failed", "error");
+        } finally {
+            setIsBusy(false);
+        }
+    };
+
     const resetForm = () => {
         setFormData({ title: "", slug: "", description: "", philosophy: "", schedule: "", vibes: "", coverImage: "", coverColor: "#3b82f6" });
         setEditingId(null);
@@ -243,7 +282,14 @@ export function PlaylistModule({ addLog, isBusy, setIsBusy, insetBox }: Playlist
     const openSongs = async (p: Playlist) => {
         setSongSearch("");
         setViewingPlaylist(p);
-        await fetchPlaylistSongs(p.id);
+        // Issue 5: Re-fetch allSongs so newly added songs are visible
+        await Promise.all([fetchPlaylistSongs(p.id), fetchAllSongs()]);
+    };
+
+    // Issue 2: Refetch playlists on BACK so counts are fresh
+    const closeSongs = async () => {
+        setViewingPlaylist(null);
+        await fetchPlaylists();
     };
 
     if (isLoading) return (
@@ -269,7 +315,7 @@ export function PlaylistModule({ addLog, isBusy, setIsBusy, insetBox }: Playlist
                 )}
                 {viewingPlaylist && (
                     <motion.button
-                        onClick={() => setViewingPlaylist(null)}
+                        onClick={closeSongs}
                         whileTap={{ scale: 0.95 }}
                         style={{ ...insetBox, padding: "4px 8px", color: "#666", display: "flex", alignItems: "center", gap: "4px", fontSize: "0.6rem", fontWeight: 800 }}
                     >
@@ -420,25 +466,35 @@ export function PlaylistModule({ addLog, isBusy, setIsBusy, insetBox }: Playlist
                                 <div style={{ color: "#333", fontSize: "0.6rem", textAlign: "center", padding: "1rem" }}>EMPTY PLAYLIST</div>
                             )}
 
-                            {/* Add Songs Section */}
-                            <div style={{ fontSize: "0.55rem", fontWeight: 800, color: "#444", margin: "1rem 0 0.2rem 0" }}>ADD SONGS</div>
+                            {/* Add Songs Section — Issue 4: only shows songs NOT already in playlist */}
+                            <div style={{ fontSize: "0.55rem", fontWeight: 800, color: "#444", margin: "1rem 0 0.2rem 0" }}>ADD SONGS ({filteredSongs.length} available)</div>
                             {filteredSongs.length > 0 ? filteredSongs.map(song => (
                                 <div key={song.id} style={{ ...insetBox, padding: "0.5rem 0.75rem", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                                     <div>
                                         <div style={{ color: "#aaa", fontSize: "0.65rem", fontWeight: 800 }}>{song.title}</div>
                                         <div style={{ color: "#555", fontSize: "0.5rem" }}>{song.artist}</div>
                                     </div>
-                                    <motion.button
-                                        onClick={() => addSongToPlaylist(song.id, song.title)}
-                                        disabled={currentSongs.some(cs => cs.id === song.id)}
-                                        whileTap={{ scale: 0.9 }}
-                                        style={{ color: currentSongs.some(cs => cs.id === song.id) ? "#222" : "#39ff14", fontSize: "0.55rem", fontWeight: 800 }}
-                                    >
-                                        {currentSongs.some(cs => cs.id === song.id) ? "ADDED" : <Plus size={16} />}
-                                    </motion.button>
+                                    <div style={{ display: "flex", gap: "0.4rem", alignItems: "center" }}>
+                                        <motion.button
+                                            onClick={() => addSongToPlaylist(song.id, song.title)}
+                                            whileTap={{ scale: 0.9 }}
+                                            style={{ color: "#39ff14", fontSize: "0.55rem", fontWeight: 800 }}
+                                        >
+                                            <Plus size={16} />
+                                        </motion.button>
+                                        <motion.button
+                                            onClick={(e) => { e.stopPropagation(); deleteSongFromLibrary(song.id, song.title); }}
+                                            whileTap={{ scale: 0.9 }}
+                                            style={{ color: "#ef444480", padding: "2px" }}
+                                        >
+                                            <Trash2 size={12} />
+                                        </motion.button>
+                                    </div>
                                 </div>
                             )) : (
-                                <div style={{ color: "#333", fontSize: "0.6rem", textAlign: "center", padding: "1rem" }}>No songs in library. Add songs via YouTube first.</div>
+                                <div style={{ color: "#333", fontSize: "0.6rem", textAlign: "center", padding: "1rem" }}>
+                                    {allSongs.length === 0 ? "No songs in library. Add songs via YouTube first." : "All songs already added!"}
+                                </div>
                             )}
                         </div>
                     </motion.div>
