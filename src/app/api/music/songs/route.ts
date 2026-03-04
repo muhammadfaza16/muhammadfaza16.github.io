@@ -10,13 +10,20 @@ export async function GET() {
         });
 
         // Transform to match the PLAYLIST format: { title, audioUrl }
-        const formatted = songs.map(song => ({
-            title: song.title,
-            audioUrl: song.audioUrl,
-            source: song.source,
-            duration: song.duration,
-            id: song.id
-        }));
+        // Song titles are stored as "Artist — Title", parse them apart
+        const formatted = songs.map(song => {
+            const parts = song.title.split(' — ');
+            const artist = parts.length > 1 ? parts[0].trim() : '';
+            const title = parts.length > 1 ? parts.slice(1).join(' — ').trim() : song.title;
+            return {
+                id: song.id,
+                title: song.title,  // Keep full title for display
+                artist,
+                audioUrl: song.audioUrl,
+                source: song.source,
+                duration: song.duration
+            };
+        });
 
         return NextResponse.json({ success: true, songs: formatted });
     } catch (error: any) {

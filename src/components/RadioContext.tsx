@@ -2,7 +2,6 @@
 
 import React, { createContext, useContext, useState, useEffect, useRef, useMemo, useCallback } from "react";
 import { useAudio } from "./AudioContext";
-import rawStations from "@/data/radioStations.json";
 
 export type RadioTrack = {
     title: string;
@@ -17,20 +16,6 @@ export type RadioStation = {
     themeColor: string;
     playlist: RadioTrack[];
 };
-
-const STATIONS = rawStations as RadioStation[];
-
-// Pre-calculate timelines for ALL stations
-const TIMELINES: Record<string, { tracks: (RadioTrack & { startOffset: number, endOffset: number })[], totalDuration: number }> = {};
-STATIONS.forEach(station => {
-    TIMELINES[station.id] = station.playlist.reduce((acc, song) => {
-        const start = acc.totalDuration;
-        const end = start + song.duration;
-        acc.tracks.push({ ...song, startOffset: start, endOffset: end });
-        acc.totalDuration = end;
-        return acc;
-    }, { tracks: [] as (RadioTrack & { startOffset: number, endOffset: number })[], totalDuration: 0 });
-});
 
 export type StationState = {
     song: RadioTrack;
@@ -61,6 +46,9 @@ export function useRadio() {
 }
 
 export function RadioProvider({ children }: { children: React.ReactNode }) {
+    const [stations, setStations] = useState<RadioStation[]>([]);
+    const [timelines, setTimelines] = useState<Record<string, { tracks: (RadioTrack & { startOffset: number, endOffset: number })[], totalDuration: number }>>({});
+
     const [currentTimeWorld, setCurrentTimeWorld] = useState(0);
     const [mounted, setMounted] = useState(false);
 
@@ -76,6 +64,29 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
     useEffect(() => {
         setMounted(true);
         setCurrentTimeWorld(Date.now() / 1000); // Initial snapshot for LIVE indicators
+
+        // Fetch Stations from API
+        fetch('/api/music/radios')
+            .then(res => res.json())
+            .then(data => {
+                if (data.success && data.radios) {
+                    setStations(data.radios);
+
+                    // Pre-calculate timelines
+                    const newTimelines: Record<string, { tracks: (RadioTrack & { startOffset: number, endOffset: number })[], totalDuration: number }> = {};
+                    data.radios.forEach((station: RadioStation) => {
+                        newTimelines[station.id] = station.playlist.reduce((acc, song) => {
+                            const start = acc.totalDuration;
+                            const end = start + song.duration;
+                            acc.tracks.push({ ...song, startOffset: start, endOffset: end });
+                            acc.totalDuration = end;
+                            return acc;
+                        }, { tracks: [] as (RadioTrack & { startOffset: number, endOffset: number })[], totalDuration: 0 });
+                    });
+                    setTimelines(newTimelines);
+                }
+            })
+            .catch(console.error);
     }, []);
 
     useEffect(() => {
@@ -84,14 +95,13 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
         return () => clearInterval(interval);
     }, [activeStationId, isRadioPaused]);
 
-    // Evaluate the timeline for ALL stations
     const stationsState = useMemo(() => {
-        if (!mounted) return {};
+        if (!mounted || stations.length === 0) return {};
         const state: Record<string, StationState | null> = {};
 
-        STATIONS.forEach(station => {
-            const timeline = TIMELINES[station.id];
-            if (timeline.totalDuration === 0) {
+        stations.forEach(station => {
+            const timeline = timelines[station.id];
+            if (!timeline || timeline.totalDuration === 0) {
                 state[station.id] = null;
                 return;
             }
@@ -118,7 +128,7 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
         });
 
         return state;
-    }, [currentTimeWorld, mounted]);
+    }, [currentTimeWorld, mounted, stations, timelines]);
 
     // Active station target state tracking for seamless audio handoff
     const activeTargetState = activeStationId ? stationsState[activeStationId] : null;
@@ -227,7 +237,7 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
         setIsRadioPaused(false);
         setActivePlaybackMode('radio');
         // Calculate current state from fresh time
-        const timeline = TIMELINES[activeStationId];
+        const timeline = timelines[activeStationId];
         if (timeline && timeline.totalDuration > 0) {
             const globalProgress = freshTime % timeline.totalDuration;
             const activeTrack = timeline.tracks.find(
@@ -258,7 +268,7 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
 
     return (
         <RadioContext.Provider value={{
-            stations: STATIONS,
+            stations,
             activeStationId,
             isSyncing,
             isBuffering,

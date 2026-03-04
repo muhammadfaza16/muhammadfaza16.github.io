@@ -1,0 +1,478 @@
+"use client";
+
+import { useState, useEffect, useMemo } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+    Plus,
+    Trash2,
+    Edit2,
+    Save,
+    X,
+    ListMusic,
+    Loader2,
+    Palette,
+    Music,
+    Search,
+    ChevronRight,
+    MinusCircle
+} from "lucide-react";
+import { inputStyle } from "./sharedStyles";
+
+interface Playlist {
+    id: string;
+    slug: string;
+    title: string;
+    description: string | null;
+    philosophy: string | null;
+    schedule: string | null;
+    vibes: string[];
+    coverImage: string | null;
+    coverColor: string;
+    _count?: {
+        songs: number;
+    };
+}
+
+interface Song {
+    id: string;
+    title: string;
+    artist: string;
+}
+
+interface PlaylistModuleProps {
+    addLog: (text: string, type?: "info" | "success" | "error") => void;
+    isBusy: boolean;
+    setIsBusy: (busy: boolean) => void;
+    insetBox: any;
+}
+
+export function PlaylistModule({ addLog, isBusy, setIsBusy, insetBox }: PlaylistModuleProps) {
+    const [playlists, setPlaylists] = useState<Playlist[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
+    const [editingId, setEditingId] = useState<string | null>(null);
+    const [viewingPlaylist, setViewingPlaylist] = useState<Playlist | null>(null);
+    const [isAdding, setIsAdding] = useState(false);
+
+    // Songs in current playlist
+    const [currentSongs, setCurrentSongs] = useState<Song[]>([]);
+    const [allSongs, setAllSongs] = useState<Song[]>([]);
+    const [songSearch, setSongSearch] = useState("");
+
+    // Form State
+    const [formData, setFormData] = useState({
+        title: "",
+        slug: "",
+        description: "",
+        philosophy: "",
+        schedule: "",
+        vibes: "",
+        coverImage: "",
+        coverColor: "#3b82f6"
+    });
+
+    const autoSlug = (title: string) => title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+
+    const filteredSongs = useMemo(() => {
+        if (songSearch.length < 2) return allSongs.slice(0, 10);
+        const query = songSearch.toLowerCase();
+        return allSongs
+            .filter(s => (s.title || "").toLowerCase().includes(query) || (s.artist || "").toLowerCase().includes(query))
+            .slice(0, 10);
+    }, [allSongs, songSearch]);
+
+    useEffect(() => {
+        fetchPlaylists();
+        fetchAllSongs();
+    }, []);
+
+    const fetchPlaylists = async () => {
+        setIsLoading(true);
+        try {
+            const res = await fetch("/api/music/master/playlists");
+            const data = await res.json();
+            if (data.success) setPlaylists(data.playlists);
+        } catch (err) {
+            addLog("Failed to fetch playlists", "error");
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const fetchAllSongs = async () => {
+        try {
+            const res = await fetch("/api/music/songs");
+            const data = await res.json();
+            if (data.success) setAllSongs(data.songs);
+        } catch (err) { }
+    };
+
+    const fetchPlaylistSongs = async (playlistId: string) => {
+        try {
+            const res = await fetch(`/api/music/master/playlists/${playlistId}/songs`);
+            const data = await res.json();
+            if (data.success) setCurrentSongs(data.songs);
+        } catch (err) {
+            addLog("Failed to fetch songs", "error");
+        }
+    };
+
+    const handleSave = async () => {
+        if (!formData.title || !formData.slug) {
+            addLog("Title and Slug are required", "error");
+            return;
+        }
+        setIsBusy(true);
+        try {
+            const method = editingId ? "PUT" : "POST";
+            const body = editingId ? { id: editingId, ...formData } : formData;
+
+            const res = await fetch("/api/music/master/playlists", {
+                method,
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(body)
+            });
+
+            const data = await res.json();
+            if (data.success) {
+                addLog(`Playlist ${editingId ? "updated" : "created"}: ${formData.title}`, "success");
+                await fetchPlaylists();
+                resetForm();
+            } else {
+                addLog(data.error || "Operation failed", "error");
+            }
+        } catch (err) {
+            addLog("Connection error", "error");
+        } finally {
+            setIsBusy(false);
+        }
+    };
+
+    const handleDelete = async (id: string, title: string) => {
+        if (!confirm(`Delete playlist "${title}"?`)) return;
+        setIsBusy(true);
+        try {
+            const res = await fetch(`/api/music/master/playlists?id=${id}`, { method: "DELETE" });
+            const data = await res.json();
+            if (data.success) {
+                addLog(`Playlist deleted: ${title}`, "info");
+                await fetchPlaylists();
+            }
+        } catch (err) {
+            addLog("Delete failed", "error");
+        } finally {
+            setIsBusy(false);
+        }
+    };
+
+    const addSongToPlaylist = async (songId: string, songTitle: string) => {
+        if (!viewingPlaylist) return;
+        setIsBusy(true);
+
+        // Optimistic UI Update
+        const targetSong = allSongs.find(s => s.id === songId);
+        if (targetSong) setCurrentSongs(prev => [targetSong, ...prev]);
+
+        try {
+            const res = await fetch(`/api/music/master/playlists/${viewingPlaylist.id}/songs`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ songId })
+            });
+            const data = await res.json();
+            if (data.success) {
+                addLog(`Added to ${viewingPlaylist.title}: ${songTitle}`, "success");
+            } else {
+                setCurrentSongs(prev => prev.filter(s => s.id !== songId)); // Revert
+                addLog(data.error || "Add failed", "error");
+            }
+        } catch (err) {
+            setCurrentSongs(prev => prev.filter(s => s.id !== songId)); // Revert
+            addLog("Add failed", "error");
+        } finally {
+            setIsBusy(false);
+        }
+    };
+
+    const removeSongFromPlaylist = async (songId: string, songTitle: string) => {
+        if (!viewingPlaylist) return;
+        setIsBusy(true);
+
+        const rollbackSongs = [...currentSongs]; // Copy for revert
+        setCurrentSongs(prev => prev.filter(s => s.id !== songId)); // Optimistic UI Update
+
+        try {
+            const res = await fetch(`/api/music/master/playlists/${viewingPlaylist.id}/songs?songId=${songId}`, {
+                method: "DELETE"
+            });
+            const data = await res.json();
+            if (data.success) {
+                addLog(`Removed from ${viewingPlaylist.title}: ${songTitle}`, "info");
+            } else {
+                setCurrentSongs(rollbackSongs); // Revert
+                addLog(data.error || "Remove failed", "error");
+            }
+        } catch (err) {
+            setCurrentSongs(rollbackSongs); // Revert
+            addLog("Remove failed", "error");
+        } finally {
+            setIsBusy(false);
+        }
+    };
+
+    const resetForm = () => {
+        setFormData({ title: "", slug: "", description: "", philosophy: "", schedule: "", vibes: "", coverImage: "", coverColor: "#3b82f6" });
+        setEditingId(null);
+        setIsAdding(false);
+    };
+
+    const startEdit = (p: Playlist) => {
+        setFormData({
+            title: p.title,
+            slug: p.slug,
+            description: p.description || "",
+            philosophy: p.philosophy || "",
+            schedule: p.schedule || "",
+            vibes: p.vibes && p.vibes.length > 0 ? p.vibes.join(', ') : "",
+            coverImage: p.coverImage || "",
+            coverColor: p.coverColor || "#3b82f6"
+        });
+        setEditingId(p.id);
+        setIsAdding(true);
+    };
+
+    const openSongs = async (p: Playlist) => {
+        setSongSearch("");
+        setViewingPlaylist(p);
+        await fetchPlaylistSongs(p.id);
+    };
+
+    if (isLoading) return (
+        <div style={{ padding: "2rem", textAlign: "center", color: "#444" }}>
+            <Loader2 size={24} className="animate-spin" />
+        </div>
+    );
+
+    return (
+        <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <h3 style={{ color: "#aaa", fontSize: "0.65rem", fontWeight: 800, letterSpacing: "1.5px", textTransform: "uppercase" }}>
+                    {viewingPlaylist ? viewingPlaylist.title : "Playlists"}
+                </h3>
+                {!isAdding && !viewingPlaylist && (
+                    <motion.button
+                        onClick={() => setIsAdding(true)}
+                        whileTap={{ scale: 0.95 }}
+                        style={{ ...insetBox, padding: "4px 8px", color: "#39ff14", display: "flex", alignItems: "center", gap: "4px", fontSize: "0.6rem", fontWeight: 800 }}
+                    >
+                        <Plus size={12} /> NEW LIST
+                    </motion.button>
+                )}
+                {viewingPlaylist && (
+                    <motion.button
+                        onClick={() => setViewingPlaylist(null)}
+                        whileTap={{ scale: 0.95 }}
+                        style={{ ...insetBox, padding: "4px 8px", color: "#666", display: "flex", alignItems: "center", gap: "4px", fontSize: "0.6rem", fontWeight: 800 }}
+                    >
+                        <ChevronRight size={12} className="rotate-180" /> BACK
+                    </motion.button>
+                )}
+            </div>
+
+            <AnimatePresence mode="wait">
+                {isAdding ? (
+                    <motion.div
+                        key="form"
+                        initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}
+                        style={{ ...insetBox, padding: "1rem", display: "flex", flexDirection: "column", gap: "0.75rem" }}
+                    >
+                        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.75rem" }}>
+                            <div style={{ display: "flex", flexDirection: "column", gap: "0.4rem" }}>
+                                <label style={{ color: "#555", fontSize: "0.55rem", fontWeight: 800 }}>TITLE</label>
+                                <input
+                                    value={formData.title}
+                                    onChange={e => {
+                                        const title = e.target.value;
+                                        setFormData(prev => ({ ...prev, title, slug: editingId ? prev.slug : autoSlug(title) }));
+                                    }}
+                                    style={{ ...inputStyle, padding: "0.5rem" }}
+                                    placeholder="Late Night Drives"
+                                />
+                            </div>
+                            <div style={{ display: "flex", flexDirection: "column", gap: "0.4rem" }}>
+                                <label style={{ color: "#555", fontSize: "0.55rem", fontWeight: 800 }}>SLUG</label>
+                                <input
+                                    value={formData.slug}
+                                    onChange={e => setFormData({ ...formData, slug: e.target.value.toLowerCase().replace(/\s+/g, '-') })}
+                                    style={{ ...inputStyle, padding: "0.5rem" }}
+                                    placeholder="late-night"
+                                />
+                            </div>
+                        </div>
+
+                        <div style={{ display: "flex", flexDirection: "column", gap: "0.4rem" }}>
+                            <label style={{ color: "#555", fontSize: "0.55rem", fontWeight: 800 }}>DESCRIPTION</label>
+                            <textarea
+                                value={formData.description}
+                                onChange={e => setFormData({ ...formData, description: e.target.value })}
+                                style={{ ...inputStyle, padding: "0.5rem", resize: "none", height: "50px", fontFamily: "inherit", fontWeight: 500 }}
+                                placeholder="The artistic intent..."
+                            />
+                        </div>
+
+                        <div style={{ display: "flex", flexDirection: "column", gap: "0.4rem" }}>
+                            <label style={{ color: "#555", fontSize: "0.55rem", fontWeight: 800 }}>PHILOSOPHY</label>
+                            <textarea
+                                value={formData.philosophy}
+                                onChange={e => setFormData({ ...formData, philosophy: e.target.value })}
+                                style={{ ...inputStyle, padding: "0.5rem", resize: "none", height: "50px", fontFamily: "inherit", fontWeight: 500 }}
+                                placeholder="The deeper meaning..."
+                            />
+                        </div>
+
+                        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.75rem" }}>
+                            <div style={{ display: "flex", flexDirection: "column", gap: "0.4rem" }}>
+                                <label style={{ color: "#555", fontSize: "0.55rem", fontWeight: 800 }}>VIBES (comma separated)</label>
+                                <input
+                                    value={formData.vibes}
+                                    onChange={e => setFormData({ ...formData, vibes: e.target.value })}
+                                    style={{ ...inputStyle, padding: "0.5rem" }}
+                                    placeholder="Lofi, Jazz, Rain"
+                                />
+                            </div>
+                            <div style={{ display: "flex", flexDirection: "column", gap: "0.4rem" }}>
+                                <label style={{ color: "#555", fontSize: "0.55rem", fontWeight: 800 }}>SCHEDULE</label>
+                                <input
+                                    value={formData.schedule}
+                                    onChange={e => setFormData({ ...formData, schedule: e.target.value })}
+                                    style={{ ...inputStyle, padding: "0.5rem" }}
+                                    placeholder="11 PM - 3 AM"
+                                />
+                            </div>
+                        </div>
+
+                        <div style={{ display: "grid", gridTemplateColumns: "1fr auto", gap: "0.75rem", alignItems: "end" }}>
+                            <div style={{ display: "flex", flexDirection: "column", gap: "0.4rem" }}>
+                                <label style={{ color: "#555", fontSize: "0.55rem", fontWeight: 800 }}>COVER IMAGE PATH</label>
+                                <input
+                                    value={formData.coverImage}
+                                    onChange={e => setFormData({ ...formData, coverImage: e.target.value })}
+                                    style={{ ...inputStyle, padding: "0.5rem" }}
+                                    placeholder="/images/playlists/..."
+                                />
+                            </div>
+                            <div style={{ display: "flex", flexDirection: "column", gap: "0.4rem" }}>
+                                <label style={{ color: "#555", fontSize: "0.55rem", fontWeight: 800 }}>COLOR</label>
+                                <div style={{ display: "flex", gap: "0.5rem", alignItems: "center", background: "#151515", border: "1.5px solid #222", borderRadius: "6px", padding: "0.3rem 0.6rem" }}>
+                                    <input
+                                        type="color"
+                                        value={formData.coverColor}
+                                        onChange={e => setFormData({ ...formData, coverColor: e.target.value })}
+                                        style={{ width: "20px", height: "20px", border: "none", background: "none", cursor: "pointer", padding: 0 }}
+                                    />
+                                    <span style={{ fontFamily: "monospace", fontSize: "0.6rem", color: "#666" }}>{formData.coverColor}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div style={{ display: "flex", justifyContent: "flex-end", gap: "0.5rem", marginTop: "0.5rem" }}>
+                            <motion.button onClick={resetForm} whileTap={{ scale: 0.95 }} style={{ ...insetBox, padding: "8px 16px", color: "#555", fontSize: "0.6rem", fontWeight: 800 }}>CANCEL</motion.button>
+                            <motion.button
+                                onClick={handleSave}
+                                disabled={isBusy}
+                                whileTap={{ scale: 0.95 }}
+                                style={{ ...insetBox, padding: "8px 16px", color: "#39ff14", fontSize: "0.65rem", fontWeight: 800, display: "flex", alignItems: "center", gap: "6px", opacity: isBusy ? 0.4 : 1, cursor: isBusy ? "not-allowed" : "pointer" }}
+                            >
+                                <Save size={14} /> {editingId ? "UPDATE" : "CREATE"}
+                            </motion.button>
+                        </div>
+                    </motion.div>
+                ) : viewingPlaylist ? (
+                    <motion.div
+                        key="songs"
+                        initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+                        style={{ display: "flex", flexDirection: "column", gap: "1rem" }}
+                    >
+                        <div style={{ ...insetBox, padding: "0.5rem", display: "flex", alignItems: "center", gap: "8px" }}>
+                            <Search size={14} color="#333" />
+                            <input
+                                value={songSearch}
+                                onChange={e => setSongSearch(e.target.value)}
+                                style={{ background: "none", border: "none", flex: 1, color: "#aaa", fontSize: "0.65rem", outline: "none" }}
+                                placeholder="Search all songs to add..."
+                            />
+                        </div>
+
+                        <div style={{ maxHeight: "50vh", overflowY: "auto", display: "flex", flexDirection: "column", gap: "0.4rem", paddingRight: "4px" }}>
+                            {/* Current Tracks Section */}
+                            <div style={{ fontSize: "0.55rem", fontWeight: 800, color: "#444", margin: "0.5rem 0 0.2rem 0" }}>CURRENT TRACKS ({currentSongs.length})</div>
+                            {currentSongs.map(song => (
+                                <div key={song.id} style={{ ...insetBox, padding: "0.5rem 0.75rem", display: "flex", justifyContent: "space-between", alignItems: "center", borderLeft: `2px solid ${viewingPlaylist.coverColor}` }}>
+                                    <div>
+                                        <div style={{ color: "#aaa", fontSize: "0.65rem", fontWeight: 800 }}>{song.title}</div>
+                                        <div style={{ color: "#555", fontSize: "0.5rem" }}>{song.artist}</div>
+                                    </div>
+                                    <motion.button onClick={() => removeSongFromPlaylist(song.id, song.title)} whileTap={{ scale: 0.9 }} style={{ color: "#ef4444" }}>
+                                        <MinusCircle size={14} />
+                                    </motion.button>
+                                </div>
+                            ))}
+                            {currentSongs.length === 0 && (
+                                <div style={{ color: "#333", fontSize: "0.6rem", textAlign: "center", padding: "1rem" }}>EMPTY PLAYLIST</div>
+                            )}
+
+                            {/* Add Songs Section */}
+                            <div style={{ fontSize: "0.55rem", fontWeight: 800, color: "#444", margin: "1rem 0 0.2rem 0" }}>ADD SONGS</div>
+                            {filteredSongs.length > 0 ? filteredSongs.map(song => (
+                                <div key={song.id} style={{ ...insetBox, padding: "0.5rem 0.75rem", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                                    <div>
+                                        <div style={{ color: "#aaa", fontSize: "0.65rem", fontWeight: 800 }}>{song.title}</div>
+                                        <div style={{ color: "#555", fontSize: "0.5rem" }}>{song.artist}</div>
+                                    </div>
+                                    <motion.button
+                                        onClick={() => addSongToPlaylist(song.id, song.title)}
+                                        disabled={currentSongs.some(cs => cs.id === song.id)}
+                                        whileTap={{ scale: 0.9 }}
+                                        style={{ color: currentSongs.some(cs => cs.id === song.id) ? "#222" : "#39ff14", fontSize: "0.55rem", fontWeight: 800 }}
+                                    >
+                                        {currentSongs.some(cs => cs.id === song.id) ? "ADDED" : <Plus size={16} />}
+                                    </motion.button>
+                                </div>
+                            )) : (
+                                <div style={{ color: "#333", fontSize: "0.6rem", textAlign: "center", padding: "1rem" }}>No songs in library. Add songs via YouTube first.</div>
+                            )}
+                        </div>
+                    </motion.div>
+                ) : (
+                    <motion.div
+                        key="list"
+                        initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+                        style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}
+                    >
+                        {playlists.map(p => (
+                            <div
+                                key={p.id}
+                                onClick={() => openSongs(p)}
+                                style={{ ...insetBox, padding: "0.75rem", display: "flex", alignItems: "center", gap: "0.75rem", cursor: "pointer" }}
+                            >
+                                <div style={{ width: "36px", height: "36px", borderRadius: "8px", background: p.coverColor + '20', display: "flex", alignItems: "center", justifyContent: "center", border: `1.5px solid ${p.coverColor}40` }}>
+                                    <ListMusic size={18} color={p.coverColor} />
+                                </div>
+                                <div style={{ flex: 1 }}>
+                                    <div style={{ color: "#aaa", fontSize: "0.75rem", fontWeight: 800 }}>{p.title}</div>
+                                    <div style={{ color: "#555", fontSize: "0.55rem", display: "flex", gap: "8px" }}>
+                                        <span>{p._count?.songs || 0} tracks</span>
+                                        {p.vibes && p.vibes.length > 0 && <span>• {p.vibes.join(', ')}</span>}
+                                    </div>
+                                </div>
+                                <div style={{ display: "flex", gap: "0.25rem" }} onClick={e => e.stopPropagation()}>
+                                    <motion.button onClick={() => startEdit(p)} whileTap={{ scale: 0.9 }} style={{ padding: "8px", color: "#666" }}><Edit2 size={14} /></motion.button>
+                                    <motion.button onClick={() => handleDelete(p.id, p.title)} whileTap={{ scale: 0.9 }} style={{ padding: "8px", color: "#ef4444" }}><Trash2 size={14} /></motion.button>
+                                </div>
+                            </div>
+                        ))}
+                    </motion.div>
+                )}
+            </AnimatePresence>
+        </div>
+    );
+}

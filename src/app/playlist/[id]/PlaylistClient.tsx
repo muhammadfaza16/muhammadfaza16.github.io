@@ -36,8 +36,8 @@ function TrackRow({ song, index, isActive, isPlaying, isBuffering, onPlay }: {
             style={{
                 display: "flex",
                 alignItems: "center",
-                gap: "18px",
-                padding: "18px 24px",
+                gap: "14px",
+                padding: "16px 12px",
                 backgroundColor: isActive ? "rgba(255,255,255,0.1)" : "transparent",
                 cursor: "pointer",
                 borderBottom: "1px solid rgba(255,255,255,0.03)"

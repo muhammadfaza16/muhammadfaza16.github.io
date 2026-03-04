@@ -188,7 +188,7 @@ export function PlaylistDrawer({
                     style={{
                         flex: 1,
                         overflowY: "auto",
-                        padding: "0 1rem 4rem 1rem", // Tighter padding, bottom padding for safe area
+                        padding: "0 1rem calc(4rem + env(safe-area-inset-bottom, 20px)) 1rem", // Account for iOS home bar and mini player
                         display: "flex",
                         flexDirection: "column",
                         gap: "2px", // Minimal gap

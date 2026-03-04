@@ -123,7 +123,7 @@ export default function LibraryClient({ songCount }: { songCount: number }) {
 
                 <div style={{
                     display: "grid",
-                    gridTemplateColumns: "repeat(2, 1fr)",
+                    gridTemplateColumns: "repeat(auto-fill, minmax(150px, 1fr))",
                     gap: "20px"
                 }}>
                     {filteredCategories.map((playlist) => {

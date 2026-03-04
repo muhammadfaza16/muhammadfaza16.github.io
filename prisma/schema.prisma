@@ -65,4 +65,50 @@ model Song {
   duration   Int?     // seconds
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
+  playlists  PlaylistSong[]
+  radios     RadioSong[]
+}
+
+model Radio {
+  id          String   @id @default(uuid())
+  slug        String   @unique
+  name        String
+  description String?
+  themeColor  String   @default("#3b82f6")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  songs       RadioSong[]
+}
+
+model RadioSong {
+  radioId String
+  songId  String
+  radio   Radio @relation(fields: [radioId], references: [id], onDelete: Cascade)
+  song    Song  @relation(fields: [songId], references: [id], onDelete: Cascade)
+
+  @@id([radioId, songId])
+}
+
+model Playlist {
+  id          String   @id @default(uuid())
+  slug        String   @unique
+  title       String
+  description String?
+  philosophy  String?
+  schedule    String?
+  vibes       String[]
+  coverColor  String?
+  coverImage  String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  songs       PlaylistSong[]
+}
+
+model PlaylistSong {
+  playlistId String
+  songId     String
+  playlist   Playlist @relation(fields: [playlistId], references: [id], onDelete: Cascade)
+  song       Song     @relation(fields: [songId], references: [id], onDelete: Cascade)
+
+  @@id([playlistId, songId])
 }

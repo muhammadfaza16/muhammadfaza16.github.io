@@ -218,9 +218,14 @@ export function MiniPlayerWidget({ style: customStyle }: MiniPlayerProps) {
                     transition={{ duration: 0.3, type: "spring", stiffness: 400, damping: 30 }}
                     style={{
                         position: "fixed",
-                        bottom: "24px",
-                        right: "24px",
+                        bottom: "min(24px, env(safe-area-inset-bottom, 24px))",
+                        left: "50%",
+                        transform: "translateX(-50%)",
                         zIndex: 50,
+                        display: "flex",
+                        justifyContent: "center",
+                        width: "100%",
+                        pointerEvents: "none",
                         ...customStyle
                     }}
                 >
@@ -234,6 +239,7 @@ export function MiniPlayerWidget({ style: customStyle }: MiniPlayerProps) {
                             }
                         }}
                         style={{
+                            pointerEvents: "auto",
                             background: isPlaying ? "rgba(10, 10, 12, 0.65)" : "rgba(20, 20, 22, 0.5)",
                             backdropFilter: "blur(24px) saturate(180%)",
                             WebkitBackdropFilter: "blur(24px) saturate(180%)",
@@ -249,8 +255,8 @@ export function MiniPlayerWidget({ style: customStyle }: MiniPlayerProps) {
                                 ? "0 12px 32px rgba(0, 0, 0, 0.4), inset 0 0 20px rgba(255, 214, 10, 0.05)"
                                 : "0 8px 32px rgba(0, 0, 0, 0.3)",
                             cursor: "pointer",
-                            minWidth: "200px",
-                            maxWidth: "280px",
+                            width: "calc(100vw - 48px)",
+                            maxWidth: "400px",
                             position: "relative",
                             overflow: "hidden"
                         }}
