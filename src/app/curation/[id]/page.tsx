@@ -197,10 +197,39 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
 
     if (isLoading) {
         return (
-            <div className="min-h-screen bg-white flex items-center justify-center p-4">
-                <div className="animate-pulse flex flex-col items-center gap-4">
-                    <div className="w-10 h-10 border-4 border-gray-100 border-t-zinc-900 rounded-full animate-spin"></div>
-                    <p className="text-zinc-500 font-medium tracking-tight">Loading article...</p>
+            <div className="min-h-screen bg-[#fafaf8] antialiased">
+                {/* Hero skeleton */}
+                <div className="w-full h-[55vh] bg-zinc-200 animate-pulse rounded-b-[2.5rem]" />
+
+                {/* Content skeleton */}
+                <div className="max-w-[65ch] mx-auto px-5 pt-10 space-y-6">
+                    {/* Title */}
+                    <div className="space-y-3">
+                        <div className="h-8 bg-zinc-200 rounded-xl animate-pulse w-[90%]" />
+                        <div className="h-8 bg-zinc-200 rounded-xl animate-pulse w-[60%]" />
+                    </div>
+
+                    {/* Meta bar */}
+                    <div className="flex items-center gap-3">
+                        <div className="h-5 w-32 bg-zinc-100 rounded-full animate-pulse" />
+                        <div className="h-5 w-20 bg-zinc-100 rounded-full animate-pulse" />
+                    </div>
+
+                    {/* Paragraph lines */}
+                    <div className="space-y-3 pt-4">
+                        <div className="h-4 bg-zinc-100 rounded animate-pulse w-full" />
+                        <div className="h-4 bg-zinc-100 rounded animate-pulse w-[95%]" />
+                        <div className="h-4 bg-zinc-100 rounded animate-pulse w-[88%]" />
+                        <div className="h-4 bg-zinc-100 rounded animate-pulse w-full" />
+                        <div className="h-4 bg-zinc-100 rounded animate-pulse w-[70%]" />
+                    </div>
+
+                    <div className="space-y-3 pt-2">
+                        <div className="h-4 bg-zinc-100 rounded animate-pulse w-full" />
+                        <div className="h-4 bg-zinc-100 rounded animate-pulse w-[92%]" />
+                        <div className="h-4 bg-zinc-100 rounded animate-pulse w-[85%]" />
+                        <div className="h-4 bg-zinc-100 rounded animate-pulse w-[50%]" />
+                    </div>
                 </div>
             </div>
         );
