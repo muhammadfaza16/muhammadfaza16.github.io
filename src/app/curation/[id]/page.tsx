@@ -813,7 +813,7 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
                 />
 
                 {/* Bookmark Button at bottom */}
-                <div className="mt-8 mb-24 flex justify-end">
+                <div className="mt-8 mb-24 flex justify-end snap-start scroll-my-24">
                     <button
                         onClick={handleToggleBookmark}
                         disabled={isTogglingBookmark}
@@ -833,7 +833,7 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
 
                 {/* Related Articles - Read Next */}
                 {relatedArticles.length > 0 && (
-                    <div className="mt-8 mb-4 border-t pt-10" style={{ borderColor: THEMES[readerSettings.theme].text + '20' }}>
+                    <div className="mt-8 mb-4 border-t pt-10 snap-start scroll-my-24" style={{ borderColor: THEMES[readerSettings.theme].text + '20' }}>
                         <div className="flex items-center gap-2 mb-6">
                             <h3 className="text-[18px] font-bold tracking-tight font-sans" style={{ color: THEMES[readerSettings.theme].text }}>
                                 Read Next
@@ -873,7 +873,7 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
                 )}
 
                 {/* Legacy Community Section: Comments */}
-                <div className="mt-16 mb-40 pt-16 border-t pb-10" style={{ borderColor: THEMES[readerSettings.theme].text + '20' }}>
+                <div className="mt-16 mb-40 pt-16 border-t pb-10 snap-start scroll-my-24" style={{ borderColor: THEMES[readerSettings.theme].text + '20' }}>
                     <div className="flex items-center gap-3 mb-8">
                         <MessageSquareQuote size={24} className="text-zinc-400" />
                         <h3 className="text-[20px] font-bold tracking-tight text-zinc-900 font-sans" style={{ color: THEMES[readerSettings.theme].text }}>
@@ -939,6 +939,8 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
                         )}
                     </div>
                 </div>
+
+                <div className="h-10 snap-end" />
             </main>
 
             {/* Bottom Action Bar */}
