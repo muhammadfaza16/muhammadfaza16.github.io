@@ -492,7 +492,7 @@ export default function CurationList() {
             <main
                 id="curation-scroll-container"
                 onScroll={(e) => scrollYRef.current = e.currentTarget.scrollTop}
-                className="flex-1 overflow-y-auto px-4 pt-6 pb-32 relative z-10 w-full max-w-2xl mx-auto"
+                className="flex-1 overflow-y-auto overflow-x-hidden px-4 pt-6 pb-32 relative z-10 w-full max-w-2xl mx-auto"
             >
                 {/* ═══ ONBOARDING / LANDING ZONE ═══ */}
                 <div className="mb-8 px-1">
@@ -515,7 +515,7 @@ export default function CurationList() {
                 </div>
 
                 {/* ═══ SORT PILLS ═══ */}
-                <div className="flex gap-2 px-1 mb-3">
+                <div className="flex gap-2 px-1 mb-3 overflow-x-auto no-scrollbar">
                     {([
                         { key: "latest" as SortType, label: "Latest" },
                         { key: "top" as SortType, label: "Top Rated" },
