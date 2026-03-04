@@ -234,8 +234,22 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
             window.removeEventListener('scroll', handleProgressSave);
             clearTimeout(saveTimer);
             if (typeof speechSynthesis !== 'undefined') speechSynthesis.cancel();
+            document.documentElement.style.scrollSnapType = '';
+            document.body.style.overscrollBehaviorY = '';
         };
     }, [id]);
+
+    // Apply Kindle-like scroll behavior on mount
+    useEffect(() => {
+        // "ga licin tapi ga terlalu heavy" -> proximity snap + no overscroll rubber-banding
+        document.documentElement.style.scrollSnapType = 'y proximity';
+        document.body.style.overscrollBehaviorY = 'none';
+
+        return () => {
+            document.documentElement.style.scrollSnapType = '';
+            document.body.style.overscrollBehaviorY = '';
+        };
+    }, []);
 
     // TTS Functions
     const startTTS = useCallback(() => {
@@ -612,7 +626,7 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
 
     return (
         <div
-            className="min-h-screen transition-colors duration-500 selection:bg-blue-200 antialiased pb-32 scroll-smooth overscroll-contain"
+            className="min-h-screen transition-colors duration-500 selection:bg-blue-200 antialiased pb-32 overscroll-none"
             style={{ backgroundColor: THEMES[readerSettings.theme].bg, color: THEMES[readerSettings.theme].text }}
         >
             {/* Top Reading Progress Bar */}
@@ -783,13 +797,13 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
             >
                 <article
                     className="reader-content prose max-w-[65ch] mx-auto select-text touch-auto
-                    prose-p:text-[19px] prose-p:leading-[1.9] prose-p:mb-7 prose-p:font-serif prose-p:text-slate-800
+                    prose-p:text-[19px] prose-p:leading-[1.9] prose-p:mb-7 prose-p:font-serif prose-p:text-slate-800 prose-p:snap-start prose-p:scroll-my-24
                     prose-li:text-[19px] prose-li:leading-[1.9] prose-li:font-serif prose-li:text-slate-800
-                    prose-headings:font-sans prose-headings:font-bold prose-headings:tracking-tight prose-headings:text-zinc-900
+                    prose-headings:font-sans prose-headings:font-bold prose-headings:tracking-tight prose-headings:text-zinc-900 prose-headings:snap-start prose-headings:scroll-my-24
                     prose-h2:text-[26px] prose-h2:font-semibold prose-h2:mt-10 prose-h2:mb-5
                     prose-h3:text-[22px] prose-h3:font-semibold prose-h3:mt-8 prose-h3:mb-4
                     prose-a:text-blue-600 hover:prose-a:text-blue-500 prose-a:transition-colors prose-a:underline-offset-4
-                    prose-img:rounded-3xl prose-img:border prose-img:border-gray-100 prose-img:shadow-sm prose-img:my-8
+                    prose-img:rounded-3xl prose-img:border prose-img:border-gray-100 prose-img:shadow-sm prose-img:my-8 prose-img:snap-center
                     prose-hr:border-gray-100 prose-hr:my-8
                     prose-blockquote:border-l-blue-500 prose-blockquote:bg-blue-50/50 prose-blockquote:px-6 prose-blockquote:py-4 prose-blockquote:rounded-r-2xl prose-blockquote:not-italic prose-blockquote:text-zinc-700
                     prose-code:text-rose-600 prose-code:bg-rose-50 prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded-md prose-code:before:content-none prose-code:after:content-none prose-code:font-medium
