@@ -76,6 +76,7 @@ export default function CurationList() {
     const [isAdmin, setIsAdmin] = useState(false);
     const [visitorState, setVisitorState] = useState<{ read: Record<string, boolean>; bookmarked: Record<string, boolean> }>({ read: {}, bookmarked: {} });
     const [articleCount, setArticleCount] = useState<number | null>(null);
+    const [weeklyReads, setWeeklyReads] = useState(0);
 
     // Cache Refs
     const hasRestoredCache = useRef(false);
@@ -323,6 +324,14 @@ export default function CurationList() {
     useEffect(() => {
         setVisitorState(getVisitorState());
 
+        // Calculate weekly reads streak
+        try {
+            const history = JSON.parse(localStorage.getItem('curation_read_history') || '[]');
+            const oneWeekAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
+            const recentReads = history.filter((h: any) => h.ts > oneWeekAgo);
+            setWeeklyReads(recentReads.length);
+        } catch { }
+
         // Check admin status via secure cookie
         fetch("/api/auth")
             .then(res => res.json())
@@ -525,13 +534,25 @@ export default function CurationList() {
                     </p>
 
                     {/* Stats line */}
-                    <div className="flex items-center gap-2 mt-5">
+                    <div className="flex items-center gap-3 mt-5 flex-wrap">
                         <span className="text-[12px] font-medium text-zinc-400">
                             {articles.length > 0 ? `${articles.length}+ reads` : ""} {categoryCount > 0 && articles.length > 0 ? `• ${categoryCount} topics` : ""}
                         </span>
+
+                        {weeklyReads > 0 && (
+                            <motion.div
+                                initial={{ opacity: 0, scale: 0.9, y: 5 }}
+                                animate={{ opacity: 1, scale: 1, y: 0 }}
+                                transition={{ type: "spring", stiffness: 400, damping: 25, delay: 0.2 }}
+                                className="flex items-center gap-1.5 bg-orange-50 text-orange-600 px-2.5 py-0.5 rounded-full border border-orange-100 shadow-[0_2px_10px_-4px_rgba(234,88,12,0.3)]"
+                            >
+                                <span className="text-[13px] inline-block animate-[bounce_2s_infinite]">🔥</span>
+                                <span className="text-[11px] font-bold tracking-wider uppercase">{weeklyReads} Read{weeklyReads !== 1 && 's'} This Week</span>
+                            </motion.div>
+                        )}
                     </div>
 
-                    <div className="w-10 h-[1px] bg-zinc-200 mt-5" />
+                    <div className="w-10 h-[1px] bg-zinc-200 mt-6" />
                 </div>
 
                 {/* ═══ SORT PILLS ═══ */}

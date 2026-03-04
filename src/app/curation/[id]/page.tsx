@@ -59,6 +59,10 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
     const [isZenMode, setIsZenMode] = useState(false);
     const [isAdmin, setIsAdmin] = useState(false);
 
+    // Related articles
+    const [relatedArticles, setRelatedArticles] = useState<any[]>([]);
+    const [isLoadingRelated, setIsLoadingRelated] = useState(false);
+
     // Appearance State — restore from localStorage
     const [isAppearanceSheetOpen, setIsAppearanceSheetOpen] = useState(false);
     const [readerSettings, setReaderSettings] = useState<{
@@ -212,6 +216,11 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
                         sessionStorage.setItem(`auto_read_${id}`, 'true');
                         try {
                             const vs = JSON.parse(localStorage.getItem('curation_visitor_state') || '{"read":{},"bookmarked":{}}');
+                            if (!vs.read[id]) {
+                                const history = JSON.parse(localStorage.getItem('curation_read_history') || '[]');
+                                history.push({ id, ts: Date.now() });
+                                localStorage.setItem('curation_read_history', JSON.stringify(history));
+                            }
                             vs.read[id] = true;
                             localStorage.setItem('curation_visitor_state', JSON.stringify(vs));
                         } catch { }
@@ -268,6 +277,22 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
         setIsTTSPlaying(false);
         setTTSProgress(0);
     }, []);
+
+    // Fetch related articles
+    useEffect(() => {
+        if (!article?.category) return;
+        setIsLoadingRelated(true);
+        fetch(`/api/curation?limit=4&category=${encodeURIComponent(article.category)}`)
+            .then(res => res.json())
+            .then(data => {
+                if (data.articles) {
+                    const filtered = data.articles.filter((a: any) => a.id !== article.id).slice(0, 2);
+                    setRelatedArticles(filtered);
+                }
+                setIsLoadingRelated(false);
+            })
+            .catch(() => setIsLoadingRelated(false));
+    }, [article?.category, article?.id]);
 
     const cycleTTSSpeed = useCallback(() => {
         const speeds = [0.75, 1, 1.25, 1.5, 2];
@@ -427,6 +452,21 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
             const res = await toggleReadStatus(article.id, article.isRead);
             if (res.success) {
                 toast.success(article.isRead ? "Marked as unread" : "Marked as read", { id: toastId });
+
+                if (!article.isRead) {
+                    // Recording read for streak
+                    try {
+                        const history = JSON.parse(localStorage.getItem('curation_read_history') || '[]');
+                        // only record if we haven't recorded this id today
+                        const todayStr = new Date().toDateString();
+                        const alreadyReadToday = history.some((h: any) => h.id === article.id && new Date(h.ts).toDateString() === todayStr);
+                        if (!alreadyReadToday) {
+                            history.push({ id: article.id, ts: Date.now() });
+                            localStorage.setItem('curation_read_history', JSON.stringify(history));
+                        }
+                    } catch { }
+                }
+
                 setArticle({ ...article, isRead: !article.isRead } as Article);
             } else {
                 throw new Error(res.error);
@@ -776,6 +816,47 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
                         {article.isBookmarked ? "Bookmarked" : "Bookmark"}
                     </button>
                 </div>
+
+                {/* Related Articles - Read Next */}
+                {relatedArticles.length > 0 && (
+                    <div className="mt-8 mb-4 border-t pt-10" style={{ borderColor: THEMES[readerSettings.theme].text + '20' }}>
+                        <div className="flex items-center gap-2 mb-6">
+                            <h3 className="text-[18px] font-bold tracking-tight font-sans" style={{ color: THEMES[readerSettings.theme].text }}>
+                                Read Next
+                            </h3>
+                            <span className="bg-zinc-100 text-zinc-500 text-[10px] uppercase tracking-wider font-bold px-2 py-0.5 rounded ml-2 dark:bg-zinc-800 dark:text-zinc-400">
+                                {article.category}
+                            </span>
+                        </div>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            {relatedArticles.map((rel) => (
+                                <Link href={`/curation/${rel.id}`} key={rel.id} className="block group h-full">
+                                    <div className="flex flex-col gap-3 rounded-2xl p-4 transition-all bg-black/[0.02] hover:bg-black/[0.04] dark:bg-white/[0.02] dark:hover:bg-white/[0.04] border border-transparent hover:border-black/5 dark:hover:border-white/5 h-full">
+                                        {rel.imageUrl && (
+                                            <div className="w-full h-32 rounded-xl overflow-hidden bg-zinc-200 dark:bg-zinc-800 mb-1 shrink-0">
+                                                {/* eslint-disable-next-line @next/next/no-img-element */}
+                                                <img
+                                                    src={rel.imageUrl.startsWith('http') ? rel.imageUrl : supabase ? supabase.storage.from('images').getPublicUrl(rel.imageUrl).data.publicUrl : ''}
+                                                    alt=""
+                                                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                                                />
+                                            </div>
+                                        )}
+                                        <div>
+                                            <h4 className="font-bold font-sans text-[15px] leading-snug mb-2 transition-colors line-clamp-2" style={{ color: THEMES[readerSettings.theme].text }}>
+                                                {rel.title}
+                                            </h4>
+                                            <div className="text-[12px] text-zinc-500 flex items-center gap-1.5 font-medium">
+                                                <Clock size={12} />
+                                                {new Date(rel.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </Link>
+                            ))}
+                        </div>
+                    </div>
+                )}
 
                 {/* Legacy Community Section: Comments */}
                 <div className="mt-16 mb-40 pt-16 border-t pb-10" style={{ borderColor: THEMES[readerSettings.theme].text + '20' }}>
