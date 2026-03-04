@@ -239,17 +239,22 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
         };
     }, [id]);
 
-    // Apply Kindle-like scroll behavior on mount
+    // Apply Kindle-like scroll behavior and sync body background on mount
     useEffect(() => {
         // "ga licin tapi ga terlalu heavy" -> proximity snap + no overscroll rubber-banding
         document.documentElement.style.scrollSnapType = 'y proximity';
         document.body.style.overscrollBehaviorY = 'none';
 
+        // Sync body bg to prevent "black blip" on fast overscroll
+        const originalBg = document.body.style.backgroundColor;
+        document.body.style.backgroundColor = THEMES[readerSettings.theme].bg;
+
         return () => {
             document.documentElement.style.scrollSnapType = '';
             document.body.style.overscrollBehaviorY = '';
+            document.body.style.backgroundColor = originalBg;
         };
-    }, []);
+    }, [readerSettings.theme]);
 
     // TTS Functions
     const startTTS = useCallback(() => {
@@ -897,7 +902,7 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
                                 onChange={(e) => setNewCommentText(e.target.value)}
                                 placeholder="Share your thoughts or legacy on this piece..."
                                 rows={3}
-                                className="w-full bg-white dark:bg-zinc-900/50 rounded-2xl px-5 py-4 text-[15px] text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 border border-transparent outline-none focus:border-blue-500/50 focus:bg-white transition-all resize-none shadow-sm"
+                                className="w-full bg-white dark:bg-zinc-900 rounded-2xl px-5 py-4 text-[15px] text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 border border-zinc-200 dark:border-zinc-800 outline-none focus:border-blue-500/50 focus:ring-4 focus:ring-blue-500/10 transition-all resize-none shadow-sm"
                             />
                             <div className="flex items-center justify-between gap-4">
                                 <input
@@ -905,7 +910,7 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
                                     value={newCommentName}
                                     onChange={(e) => setNewCommentName(e.target.value)}
                                     placeholder="Your Name (Optional)"
-                                    className="w-[180px] bg-white dark:bg-zinc-900/50 rounded-full px-4 text-[13px] font-medium h-10 border border-transparent outline-none focus:border-zinc-300 transition-all shadow-sm"
+                                    className="w-[180px] bg-white dark:bg-zinc-900 rounded-full px-4 text-[13px] font-medium h-10 border border-zinc-200 dark:border-zinc-800 outline-none focus:border-zinc-300 focus:ring-4 focus:ring-zinc-100 dark:focus:ring-zinc-800 transition-all shadow-sm"
                                 />
                                 <button
                                     type="submit"
@@ -965,8 +970,8 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
                             Aa
                         </button>
                         <div className="w-[1px] h-6 bg-white/15" />
-                        <button onClick={toggleTTS} className={`p-2 active:scale-90 transition-transform flex items-center justify-center ${isTTSPlaying ? 'text-blue-400' : 'text-white/80 hover:text-white'}`} title={isTTSPlaying ? 'Pause TTS' : 'Listen'}>
-                            {isTTSPlaying ? <Pause size={18} /> : <Volume2 size={18} />}
+                        <button onClick={isTTSPlaying ? stopTTS : startTTS} className={`p-2 active:scale-90 transition-transform flex items-center justify-center ${isTTSPlaying ? 'text-blue-400' : 'text-white/80 hover:text-white'}`} title={isTTSPlaying ? 'Stop TTS' : 'Listen'}>
+                            {isTTSPlaying ? <VolumeX size={18} /> : <Volume2 size={18} />}
                         </button>
                         <div className="w-[1px] h-6 bg-white/15" />
                         <button onClick={() => setIsZenMode(true)} className="p-2 active:scale-90 transition-transform text-white/80 hover:text-white flex items-center justify-center" title="Zen Mode">
