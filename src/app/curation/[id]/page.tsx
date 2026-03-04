@@ -1,9 +1,9 @@
 "use client";
 
-import { use, useEffect, useState, useRef } from "react";
+import { use, useEffect, useState, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { motion, useScroll, useSpring, useMotionValueEvent, AnimatePresence, useTransform } from "framer-motion";
-import { ArrowLeft, Clock, CheckCircle, Share, Trash2, Globe, Pencil, Loader2, Camera, X, Clipboard, ImageIcon, MessageSquareQuote, ChevronsDown, Maximize, Minimize, Minus, Plus, Type, Bookmark } from "lucide-react";
+import { ArrowLeft, Clock, CheckCircle, Share, Trash2, Globe, Pencil, Loader2, Camera, X, Clipboard, ImageIcon, MessageSquareQuote, ChevronsDown, Maximize, Minimize, Minus, Plus, Type, Bookmark, Volume2, VolumeX, Pause, Play } from "lucide-react";
 import Link from "next/link";
 import ReactMarkdown from "react-markdown";
 import { getSupabase } from "@/lib/supabase";
@@ -59,14 +59,37 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
     const [isZenMode, setIsZenMode] = useState(false);
     const [isAdmin, setIsAdmin] = useState(false);
 
-    // Appearance State
+    // Appearance State — restore from localStorage
     const [isAppearanceSheetOpen, setIsAppearanceSheetOpen] = useState(false);
-    const [readerSettings, setReaderSettings] = useState({
-        fontSize: 18,
-        lineHeight: 1.8,
-        theme: 'parchment' as ThemeKey,
-        fontFamily: 'serif' as 'serif' | 'sans'
+    const [readerSettings, setReaderSettings] = useState<{
+        fontSize: number;
+        lineHeight: number;
+        theme: ThemeKey;
+        fontFamily: 'serif' | 'sans';
+    }>(() => {
+        if (typeof window !== 'undefined') {
+            try {
+                const saved = localStorage.getItem('curation_reader_settings');
+                if (saved) return JSON.parse(saved);
+            } catch { }
+        }
+        return { fontSize: 18, lineHeight: 1.8, theme: 'parchment' as ThemeKey, fontFamily: 'serif' as 'serif' | 'sans' };
     });
+
+    // Persist reader settings
+    useEffect(() => {
+        try { localStorage.setItem('curation_reader_settings', JSON.stringify(readerSettings)); } catch { }
+    }, [readerSettings]);
+
+    // TTS State
+    const [isTTSPlaying, setIsTTSPlaying] = useState(false);
+    const [ttsSpeed, setTTSSpeed] = useState(1);
+    const ttsUtteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
+    const [ttsProgress, setTTSProgress] = useState(0); // 0-100
+    const ttsTextRef = useRef<string>('');
+
+    // Reading progress persistence
+    const [hasRestoredScroll, setHasRestoredScroll] = useState(false);
 
     // Edit Sheet State
     const [isEditSheetOpen, setIsEditSheetOpen] = useState(false);
@@ -126,12 +149,27 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
             })
             .then(data => {
                 setArticle(data);
-                // Pre-populate form state for edit action
                 setFormTitle(data.title || "");
-                setFormUrl(data.url || ""); // Schema mapping: url is stored in url
+                setFormUrl(data.url || "");
                 setFormNotes(data.content || "");
                 setFormImagePreview(data.imageUrl || null);
                 setIsLoading(false);
+
+                // Restore scroll position after article renders
+                setTimeout(() => {
+                    try {
+                        const progress = localStorage.getItem(`curation_progress_${id}`);
+                        if (progress) {
+                            const pct = parseFloat(progress);
+                            if (pct > 0.05 && pct < 0.95) {
+                                const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+                                window.scrollTo({ top: maxScroll * pct, behavior: 'auto' });
+                                toast('Resumed where you left off', { icon: '\ud83d\udcd6', duration: 2000 });
+                            }
+                        }
+                    } catch { }
+                    setHasRestoredScroll(true);
+                }, 400);
             })
             .catch(error => {
                 toast.error(error.message);
@@ -157,7 +195,100 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
                 setIsLoadingComments(false);
                 console.error("Failed to load comments");
             });
+
+        // Save reading progress on scroll (debounced)
+        let saveTimer: ReturnType<typeof setTimeout>;
+        const handleProgressSave = () => {
+            clearTimeout(saveTimer);
+            saveTimer = setTimeout(() => {
+                const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+                if (maxScroll <= 0) return;
+                const pct = window.scrollY / maxScroll;
+                try { localStorage.setItem(`curation_progress_${id}`, pct.toFixed(3)); } catch { }
+                // Auto-mark read at 90%
+                if (pct > 0.9) {
+                    const alreadyAutoMarked = sessionStorage.getItem(`auto_read_${id}`);
+                    if (!alreadyAutoMarked) {
+                        sessionStorage.setItem(`auto_read_${id}`, 'true');
+                        try {
+                            const vs = JSON.parse(localStorage.getItem('curation_visitor_state') || '{"read":{},"bookmarked":{}}');
+                            vs.read[id] = true;
+                            localStorage.setItem('curation_visitor_state', JSON.stringify(vs));
+                        } catch { }
+                    }
+                }
+            }, 500);
+        };
+        window.addEventListener('scroll', handleProgressSave, { passive: true });
+
+        return () => {
+            window.removeEventListener('scroll', handleProgressSave);
+            clearTimeout(saveTimer);
+            if (typeof speechSynthesis !== 'undefined') speechSynthesis.cancel();
+        };
     }, [id]);
+
+    // TTS Functions
+    const startTTS = useCallback(() => {
+        if (typeof speechSynthesis === 'undefined' || !article) return;
+        speechSynthesis.cancel();
+        const div = document.createElement('div');
+        div.innerHTML = article.content;
+        const text = div.textContent || div.innerText || '';
+        ttsTextRef.current = text;
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.rate = ttsSpeed;
+        utterance.lang = 'en-US';
+        const voices = speechSynthesis.getVoices();
+        const preferred = voices.find(v => v.name.includes('Google') && v.lang.startsWith('en')) ||
+            voices.find(v => v.lang.startsWith('en'));
+        if (preferred) utterance.voice = preferred;
+        utterance.onboundary = (e) => {
+            if (e.charIndex && text.length) setTTSProgress(Math.round((e.charIndex / text.length) * 100));
+        };
+        utterance.onend = () => { setIsTTSPlaying(false); setTTSProgress(100); };
+        utterance.onerror = () => { setIsTTSPlaying(false); };
+        ttsUtteranceRef.current = utterance;
+        speechSynthesis.speak(utterance);
+        setIsTTSPlaying(true);
+    }, [article, ttsSpeed]);
+
+    const toggleTTS = useCallback(() => {
+        if (typeof speechSynthesis === 'undefined') return;
+        if (isTTSPlaying) {
+            if (speechSynthesis.paused) { speechSynthesis.resume(); } else { speechSynthesis.pause(); }
+        } else {
+            if (speechSynthesis.paused) { speechSynthesis.resume(); setIsTTSPlaying(true); } else { startTTS(); }
+        }
+    }, [isTTSPlaying, startTTS]);
+
+    const stopTTS = useCallback(() => {
+        if (typeof speechSynthesis === 'undefined') return;
+        speechSynthesis.cancel();
+        setIsTTSPlaying(false);
+        setTTSProgress(0);
+    }, []);
+
+    const cycleTTSSpeed = useCallback(() => {
+        const speeds = [0.75, 1, 1.25, 1.5, 2];
+        const currentIdx = speeds.indexOf(ttsSpeed);
+        const nextSpeed = speeds[(currentIdx + 1) % speeds.length];
+        setTTSSpeed(nextSpeed);
+        if (isTTSPlaying) {
+            speechSynthesis.cancel();
+            setTimeout(() => {
+                const utterance = new SpeechSynthesisUtterance(ttsTextRef.current);
+                utterance.rate = nextSpeed;
+                utterance.lang = 'en-US';
+                utterance.onend = () => { setIsTTSPlaying(false); setTTSProgress(100); };
+                utterance.onboundary = (e) => {
+                    if (e.charIndex && ttsTextRef.current.length) setTTSProgress(Math.round((e.charIndex / ttsTextRef.current.length) * 100));
+                };
+                ttsUtteranceRef.current = utterance;
+                speechSynthesis.speak(utterance);
+            }, 100);
+        }
+    }, [ttsSpeed, isTTSPlaying]);
 
     // Auto-fetch metadata
     useEffect(() => {
@@ -524,6 +655,15 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
                 )}
             </AnimatePresence>
 
+            {/* Ambient Glow from Cover Image */}
+            {validImageUrl && (
+                <div className="fixed top-0 left-0 right-0 h-[40vh] pointer-events-none z-0 overflow-hidden opacity-30">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={validImageUrl} alt="" className="w-full h-full object-cover blur-[80px] scale-150 saturate-150" />
+                    <div className="absolute inset-0" style={{ background: `linear-gradient(to bottom, transparent 0%, ${THEMES[readerSettings.theme].bg} 100%)` }} />
+                </div>
+            )}
+
             {/* Hero Header */}
             <motion.div animate={{ filter: isZenMode ? "grayscale(30%) brightness(0.8)" : "grayscale(0%) brightness(1)" }} transition={{ duration: 0.8 }} className={isZenMode ? "pointer-events-none" : ""}>
                 {validImageUrl ? (
@@ -706,7 +846,7 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
                 </div>
             </main>
 
-            {/* Bottom Action Bar — 4 Buttons: Back, Zen, Open Web, Mark as Read */}
+            {/* Bottom Action Bar */}
             <AnimatePresence>
                 {!isZenMode && (
                     <motion.div
@@ -714,10 +854,14 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
                         animate={{ y: 0, opacity: 1 }}
                         exit={{ y: 100, opacity: 0 }}
                         transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                        className="fixed bottom-8 left-1/2 -translate-x-1/2 z-[60] flex items-center justify-between px-2 py-1.5 w-[90%] max-w-[340px] bg-zinc-900 rounded-full shadow-[0_8px_32px_rgba(0,0,0,0.35)] border border-zinc-700/50 text-white"
+                        className="fixed bottom-8 left-1/2 -translate-x-1/2 z-[60] flex items-center justify-between px-2 py-1.5 w-[90%] max-w-[380px] bg-zinc-900 rounded-full shadow-[0_8px_32px_rgba(0,0,0,0.35)] border border-zinc-700/50 text-white"
                     >
                         <button onClick={() => setIsAppearanceSheetOpen(true)} className="p-2 active:scale-90 transition-transform text-white/80 hover:text-white flex items-center justify-center font-serif font-bold text-[18px] leading-none" title="Appearance">
                             Aa
+                        </button>
+                        <div className="w-[1px] h-6 bg-white/15" />
+                        <button onClick={toggleTTS} className={`p-2 active:scale-90 transition-transform flex items-center justify-center ${isTTSPlaying ? 'text-blue-400' : 'text-white/80 hover:text-white'}`} title={isTTSPlaying ? 'Pause TTS' : 'Listen'}>
+                            {isTTSPlaying ? <Pause size={18} /> : <Volume2 size={18} />}
                         </button>
                         <div className="w-[1px] h-6 bg-white/15" />
                         <button onClick={() => setIsZenMode(true)} className="p-2 active:scale-90 transition-transform text-white/80 hover:text-white flex items-center justify-center" title="Zen Mode">
@@ -747,6 +891,32 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
                             title={article.isRead ? "Mark as unread" : "Mark as read"}
                         >
                             {isMarkingRead ? <Loader2 size={20} className="animate-spin" /> : <CheckCircle size={20} />}
+                        </button>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
+            {/* TTS Mini Player */}
+            <AnimatePresence>
+                {isTTSPlaying && (
+                    <motion.div
+                        initial={{ y: -60, opacity: 0 }}
+                        animate={{ y: 0, opacity: 1 }}
+                        exit={{ y: -60, opacity: 0 }}
+                        transition={{ type: "spring", stiffness: 400, damping: 30 }}
+                        className="fixed top-4 left-1/2 -translate-x-1/2 z-[70] flex items-center gap-3 px-4 py-2.5 bg-zinc-900 rounded-full shadow-[0_8px_32px_rgba(0,0,0,0.4)] border border-zinc-700/50 text-white"
+                    >
+                        <button onClick={toggleTTS} className="p-1.5 active:scale-90 transition-transform text-blue-400 hover:text-blue-300">
+                            {typeof speechSynthesis !== 'undefined' && speechSynthesis?.paused ? <Play size={16} /> : <Pause size={16} />}
+                        </button>
+                        <div className="w-24 h-1.5 bg-white/10 rounded-full overflow-hidden">
+                            <div className="h-full bg-blue-500 rounded-full transition-all duration-300" style={{ width: `${ttsProgress}%` }} />
+                        </div>
+                        <button onClick={cycleTTSSpeed} className="text-[11px] font-bold text-white/70 hover:text-white min-w-[32px] text-center">
+                            {ttsSpeed}x
+                        </button>
+                        <button onClick={stopTTS} className="p-1.5 active:scale-90 transition-transform text-white/50 hover:text-red-400">
+                            <VolumeX size={14} />
                         </button>
                     </motion.div>
                 )}
