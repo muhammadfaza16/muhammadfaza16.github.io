@@ -81,18 +81,27 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
         lineHeight: number;
         theme: ThemeKey;
         fontFamily: 'serif' | 'sans';
-    }>(() => {
-        if (typeof window !== 'undefined') {
-            try {
-                const saved = localStorage.getItem('curation_reader_settings');
-                if (saved) return JSON.parse(saved);
-            } catch { }
-        }
-        return { fontSize: 18, lineHeight: 1.8, theme: 'parchment' as ThemeKey, fontFamily: 'serif' as 'serif' | 'sans' };
-    });
+    }>({ fontSize: 18, lineHeight: 1.8, theme: 'parchment' as ThemeKey, fontFamily: 'serif' as 'serif' | 'sans' });
 
     // Persist reader settings
     useEffect(() => {
+        if (typeof window === 'undefined') return;
+        try {
+            const saved = localStorage.getItem('curation_reader_settings');
+            if (saved) {
+                const parsed = JSON.parse(saved);
+                setReaderSettings(prev => ({ ...prev, ...parsed }));
+            }
+        } catch { }
+    }, []);
+
+    // Save settings when changed
+    const mountedRef = useRef(false);
+    useEffect(() => {
+        if (!mountedRef.current) {
+            mountedRef.current = true;
+            return;
+        }
         try { localStorage.setItem('curation_reader_settings', JSON.stringify(readerSettings)); } catch { }
     }, [readerSettings]);
 
@@ -138,7 +147,10 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
     useEffect(() => {
         try {
             const saved = localStorage.getItem(`curation_highlights_${id}`);
-            if (saved) setHighlights(JSON.parse(saved));
+            if (saved) {
+                const parsed = JSON.parse(saved);
+                if (Array.isArray(parsed)) setHighlights(parsed);
+            }
         } catch { }
     }, [id]);
 
