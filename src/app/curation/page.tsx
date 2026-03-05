@@ -236,7 +236,7 @@ export default function CurationList() {
     };
 
     // Data Fetching
-    const fetchArticles = async (currentCursor: string | null, currentSort: string, categories: string[], isLoadMore = false) => {
+    const fetchArticles = async (currentCursor: string | null, currentSort: string, categories: string[], q: string, isLoadMore = false) => {
         if (isFetchingRef.current) return;
         isFetchingRef.current = true;
         try {
@@ -246,6 +246,9 @@ export default function CurationList() {
             let url = `/api/curation?limit=10&sort=${currentSort}`;
             if (categories.length > 0) {
                 url += `&category=${encodeURIComponent(categories.join(","))}`;
+            }
+            if (q.trim()) {
+                url += `&q=${encodeURIComponent(q.trim())}`;
             }
             if (currentCursor) url += `&cursor=${currentCursor}`;
 
@@ -283,9 +286,15 @@ export default function CurationList() {
             skipFetchRef.current = false;
             return;
         }
-        fetchArticles(null, sort, categoryFilter);
+
+        // Debounce search query fetches
+        const timeoutId = setTimeout(() => {
+            fetchArticles(null, sort, categoryFilter, searchQuery);
+        }, searchQuery ? 300 : 0);
+
+        return () => clearTimeout(timeoutId);
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [sort, categoryFilter]);
+    }, [sort, categoryFilter, searchQuery]);
 
     // Infinite scroll & Auto-fetch for sparse filtered views
     useEffect(() => {
@@ -297,7 +306,7 @@ export default function CurationList() {
             const { scrollTop, scrollHeight, clientHeight } = container;
             // Fetch if within 400px of bottom, OR if the content is entirely visible (not scrollable)
             if (scrollHeight <= clientHeight || scrollHeight - scrollTop - clientHeight < 400) {
-                fetchArticles(nextCursor, sort, categoryFilter, true);
+                fetchArticles(nextCursor, sort, categoryFilter, searchQuery, true);
             }
         };
 
@@ -457,8 +466,12 @@ export default function CurationList() {
         return Math.max(1, Math.ceil(text.split(/\s+/).length / 225));
     };
 
-    // Client-side filtering (search + status)
+    // Client-side filtering (search + status + instant category)
     const filteredArticles = articles.filter(a => {
+        // Strict category filter for instant UI reactivity before API fetch resolves
+        if (categoryFilter.length > 0 && (!a.category || !categoryFilter.includes(a.category))) {
+            return false;
+        }
         // Search filter
         if (searchQuery.trim() && !a.title.toLowerCase().includes(searchQuery.toLowerCase())) return false;
         // Status filter (against localStorage visitor state)
@@ -634,6 +647,31 @@ export default function CurationList() {
                         </button>
                     ))}
                 </div>
+
+                {/* ═══ ACTIVE CATEGORY PILLS (Only shown when browsing feed) ═══ */}
+                {isFiltering && (
+                    <motion.div
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: 'auto' }}
+                        className="flex gap-2 overflow-x-auto px-1 no-scrollbar pb-5 mb-1"
+                    >
+                        {CATEGORIES.map(cat => {
+                            const isActive = categoryFilter.includes(cat.name);
+                            return (
+                                <button
+                                    key={cat.name}
+                                    onClick={() => handleCategoryToggle(cat.name)}
+                                    className={`px-3 py-1.5 text-[11px] font-semibold rounded-full transition-all active:scale-[0.96] whitespace-nowrap shrink-0 border ${isActive
+                                        ? "bg-zinc-900 text-white border-zinc-900 shadow-sm"
+                                        : "bg-white text-zinc-400 border-zinc-200/60 hover:border-zinc-300"
+                                        }`}
+                                >
+                                    {isActive ? "✓" : cat.emoji} {cat.name}
+                                </button>
+                            );
+                        })}
+                    </motion.div>
+                )}
 
                 {/* ═══ ARTICLE FEED ═══ */}
                 <AnimatePresence mode="wait">

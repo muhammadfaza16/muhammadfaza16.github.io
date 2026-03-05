@@ -75,6 +75,7 @@ export async function GET(request: Request) {
         const { searchParams } = new URL(request.url);
         const cursor = searchParams.get("cursor");
         const filter = searchParams.get("filter") || "all";
+        const queryText = searchParams.get("q");
         const category = searchParams.get("category");
         const sort = searchParams.get("sort") || "date"; // "date" or "quality"
         const limitStr = searchParams.get("limit");
@@ -84,6 +85,10 @@ export async function GET(request: Request) {
         if (filter === "unread") where.isRead = false;
         if (filter === "read") where.isRead = true;
         if (filter === "bookmarked") where.isBookmarked = true;
+
+        if (queryText) {
+            where.title = { contains: queryText, mode: "insensitive" };
+        }
 
         if (category) {
             const categoriesContent = decodeURIComponent(category).split(",");
