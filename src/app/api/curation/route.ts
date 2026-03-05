@@ -74,36 +74,39 @@ export async function GET(request: Request) {
     try {
         const { searchParams } = new URL(request.url);
         const cursor = searchParams.get("cursor");
-        const filter = searchParams.get("filter") || "all";
         const queryText = searchParams.get("q");
         const category = searchParams.get("category");
-        const sort = searchParams.get("sort") || "date"; // "date" or "quality"
+        const sort = searchParams.get("sort") || "latest";
         const limitStr = searchParams.get("limit");
         const limit = limitStr ? parseInt(limitStr) : 10;
 
-        const where: any = {};
-        if (filter === "unread") where.isRead = false;
-        if (filter === "read") where.isRead = true;
-        if (filter === "bookmarked") where.isBookmarked = true;
+        // Build WHERE with a single explicit AND array — all conditions go here
+        const conditions: any[] = [];
 
-        if (queryText) {
-            where.title = { contains: queryText, mode: "insensitive" };
-        }
-
-        if (category) {
-            const categoriesContent = decodeURIComponent(category).split(",");
-            // Filter by selected categories AND exclude __SUGGESTED__
-            where.AND = [
-                { category: categoriesContent.length === 1 ? categoriesContent[0] : { in: categoriesContent } },
-                { category: { not: "__SUGGESTED__" } }
-            ];
-        } else {
-            // No category selected: exclude __SUGGESTED__ but include null & all others
-            where.OR = [
+        // Always exclude __SUGGESTED__ articles, but include null categories
+        conditions.push({
+            OR: [
                 { category: null },
                 { category: { not: "__SUGGESTED__" } }
-            ];
+            ]
+        });
+
+        // Category filter
+        if (category) {
+            const cats = decodeURIComponent(category).split(",");
+            conditions.push({
+                category: cats.length === 1 ? cats[0] : { in: cats }
+            });
         }
+
+        // Search by title
+        if (queryText) {
+            conditions.push({
+                title: { contains: queryText, mode: "insensitive" }
+            });
+        }
+
+        const where = conditions.length === 1 ? conditions[0] : { AND: conditions };
 
         const query: any = {
             take: limit + 1,

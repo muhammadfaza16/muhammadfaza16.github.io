@@ -75,21 +75,18 @@ export default function CurationList() {
     const [nextCursor, setNextCursor] = useState<string | null>(null);
     const [isAdmin, setIsAdmin] = useState(false);
     const [visitorState, setVisitorState] = useState<{ read: Record<string, boolean>; bookmarked: Record<string, boolean> }>({ read: {}, bookmarked: {} });
-    const [articleCount, setArticleCount] = useState<number | null>(null);
+
     const [weeklyReads, setWeeklyReads] = useState(0);
     const [navigatingId, setNavigatingId] = useState<string | null>(null);
 
-    // Cache Refs
+    // Refs
     const hasRestoredCache = useRef(false);
-    const skipFetchRef = useRef(false);
-    const isFetchingRef = useRef(false);
+    const abortControllerRef = useRef<AbortController | null>(null);
+    const lastFetchParamsRef = useRef({ sort: "latest", cats: [] as string[], q: "" });
     const scrollYRef = useRef(0);
-    const tabsCache = useRef<Record<string, { articles: ArticleMeta[], nextCursor: string | null, scrollY: number }>>({});
 
     const searchInputRef = useRef<HTMLInputElement>(null);
     const scrollContainerRef = useRef<HTMLDivElement>(null);
-
-    const getCacheKey = (sortType: string, cats: string[]) => `${sortType}-${cats.sort().join(",")}`;
 
     // Form State
     const [isSheetOpen, setIsSheetOpen] = useState(false);
@@ -237,8 +234,19 @@ export default function CurationList() {
 
     // Data Fetching
     const fetchArticles = async (currentCursor: string | null, currentSort: string, categories: string[], q: string, isLoadMore = false) => {
-        if (isFetchingRef.current) return;
-        isFetchingRef.current = true;
+        // Cancel any in-flight request for non-loadMore fetches
+        if (!isLoadMore && abortControllerRef.current) {
+            abortControllerRef.current.abort();
+        }
+
+        const controller = new AbortController();
+        if (!isLoadMore) abortControllerRef.current = controller;
+
+        // Track what we're fetching so isLoadMore can verify it's still relevant
+        if (!isLoadMore) {
+            lastFetchParamsRef.current = { sort: currentSort, cats: categories, q };
+        }
+
         try {
             if (isLoadMore) setIsLoadingMore(true);
             else setIsLoading(true);
@@ -252,8 +260,17 @@ export default function CurationList() {
             }
             if (currentCursor) url += `&cursor=${currentCursor}`;
 
-            const res = await fetch(url, { cache: 'no-store' });
+            const res = await fetch(url, { cache: 'no-store', signal: controller.signal });
             const data = await res.json();
+
+            // Guard: if filters changed while this loadMore was in-flight, discard the results
+            if (isLoadMore) {
+                const current = lastFetchParamsRef.current;
+                if (current.sort !== currentSort || current.q !== q ||
+                    JSON.stringify(current.cats) !== JSON.stringify(categories)) {
+                    return; // stale loadMore — discard
+                }
+            }
 
             if (data.articles) {
                 if (isLoadMore) {
@@ -266,31 +283,23 @@ export default function CurationList() {
                     setArticles(data.articles);
                 }
                 setNextCursor(data.nextCursor);
-
-                // Update count on first load
-                if (!isLoadMore && articleCount === null) {
-                    setArticleCount(data.articles.length + (data.nextCursor ? 10 : 0)); // Rough estimate
-                }
             }
-        } catch (error) {
-            console.error("Fetch failed:", error);
+        } catch (error: any) {
+            if (error?.name !== 'AbortError') {
+                console.error("Fetch failed:", error);
+            }
         } finally {
             setIsLoading(false);
             setIsLoadingMore(false);
-            isFetchingRef.current = false;
         }
     };
 
     useEffect(() => {
-        if (skipFetchRef.current) {
-            skipFetchRef.current = false;
-            return;
-        }
-
-        // Debounce search query fetches
+        // Debounce search queries, instant for sort/category changes
+        const delay = searchQuery ? 300 : 0;
         const timeoutId = setTimeout(() => {
             fetchArticles(null, sort, categoryFilter, searchQuery);
-        }, searchQuery ? 300 : 0);
+        }, delay);
 
         return () => clearTimeout(timeoutId);
         // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -302,7 +311,7 @@ export default function CurationList() {
         if (!container) return;
 
         const checkAndFetchMore = () => {
-            if (!nextCursor || isLoadingMore || isFetchingRef.current) return;
+            if (!nextCursor || isLoadingMore) return;
             const { scrollTop, scrollHeight, clientHeight } = container;
             // Fetch if within 400px of bottom, OR if the content is entirely visible (not scrollable)
             if (scrollHeight <= clientHeight || scrollHeight - scrollTop - clientHeight < 400) {
@@ -360,87 +369,19 @@ export default function CurationList() {
             .then(res => res.json())
             .then(data => setIsAdmin(data.isAdmin === true))
             .catch(() => setIsAdmin(false));
-
-        // Restore cache
-        const cached = sessionStorage.getItem(CACHE_KEY);
-        if (cached) {
-            try {
-                const parsed = JSON.parse(cached);
-                tabsCache.current = parsed.tabs || {};
-                const restoredSort = parsed.lastSort || "latest";
-                const restoredCats = parsed.lastCategories || [];
-                const key = getCacheKey(restoredSort, restoredCats);
-                const tabData = tabsCache.current[key];
-                if (tabData) {
-                    setArticles(tabData.articles);
-                    setNextCursor(tabData.nextCursor);
-                    hasRestoredCache.current = true;
-                    setIsLoading(false);
-
-                    // Count how many times the fetch effect will fire
-                    const willSortChange = restoredSort !== "latest";
-                    const willCatsChange = restoredCats.length > 0;
-                    skipFetchRef.current = true;
-
-                    setSort(restoredSort);
-                    setCategoryFilter(restoredCats);
-
-                    requestAnimationFrame(() => {
-                        const container = document.getElementById("curation-scroll-container");
-                        if (container) container.scrollTop = tabData.scrollY || 0;
-                    });
-                }
-            } catch { }
-        }
     }, []);
-
-    // Save handler
-    const saveStateToSession = () => {
-        const currentCacheKey = getCacheKey(sort, categoryFilter);
-        tabsCache.current[currentCacheKey] = {
-            articles,
-            nextCursor,
-            scrollY: scrollYRef.current
-        };
-
-        sessionStorage.setItem(CACHE_KEY, JSON.stringify({
-            tabs: tabsCache.current,
-            lastSort: sort,
-            lastCategories: categoryFilter,
-        }));
-    };
 
     const handleSortChange = (s: SortType) => {
         if (s === sort) return;
-        const currentKey = getCacheKey(sort, categoryFilter);
-        tabsCache.current[currentKey] = { articles, nextCursor, scrollY: scrollYRef.current };
-
-        const newKey = getCacheKey(s, categoryFilter);
-        const cached = tabsCache.current[newKey];
-        if (cached) {
-            setArticles(cached.articles);
-            setNextCursor(cached.nextCursor);
-            skipFetchRef.current = true;
-        }
         setSort(s);
     };
 
     const handleCategoryToggle = (catName: string) => {
-        const currentKey = getCacheKey(sort, categoryFilter);
-        tabsCache.current[currentKey] = { articles, nextCursor, scrollY: scrollYRef.current };
-
-        const newCats = categoryFilter.includes(catName)
-            ? categoryFilter.filter(c => c !== catName)
-            : [...categoryFilter, catName];
-
-        const newKey = getCacheKey(sort, newCats);
-        const cached = tabsCache.current[newKey];
-        if (cached) {
-            setArticles(cached.articles);
-            setNextCursor(cached.nextCursor);
-            skipFetchRef.current = true;
-        }
-        setCategoryFilter(newCats);
+        setCategoryFilter(prev =>
+            prev.includes(catName)
+                ? prev.filter(c => c !== catName)
+                : [...prev, catName]
+        );
     };
 
     // Helpers
@@ -466,14 +407,12 @@ export default function CurationList() {
         return Math.max(1, Math.ceil(text.split(/\s+/).length / 225));
     };
 
-    // Client-side filtering (search + status + instant category)
+    // Client-side filtering (category safety net + status)
     const filteredArticles = articles.filter(a => {
         // Strict category filter for instant UI reactivity before API fetch resolves
         if (categoryFilter.length > 0 && (!a.category || !categoryFilter.includes(a.category))) {
             return false;
         }
-        // Search filter
-        if (searchQuery.trim() && !a.title.toLowerCase().includes(searchQuery.toLowerCase())) return false;
         // Status filter (against localStorage visitor state)
         if (statusFilter === "unread" && visitorState.read[a.id]) return false;
         if (statusFilter === "bookmarked" && !visitorState.bookmarked[a.id]) return false;
@@ -739,7 +678,7 @@ export default function CurationList() {
                                             /* ═══ HERO CARD ═══ */
                                             <Link
                                                 href={`/curation/${article.id}`}
-                                                onClick={() => { setNavigatingId(article.id); saveStateToSession(); }}
+                                                onClick={() => { setNavigatingId(article.id); }}
                                                 className="block group"
                                             >
                                                 <div className="relative rounded-[2rem] overflow-hidden bg-zinc-900 shadow-lg active:scale-[0.97] transition-all duration-300 ease-out group/hero">
@@ -797,7 +736,7 @@ export default function CurationList() {
                                                 isVisitorBookmarked={!!isVisitorBookmarked}
                                                 imgError={!!imgErrors[article.id]}
                                                 onImgError={() => setImgErrors(prev => ({ ...prev, [article.id]: true }))}
-                                                onClick={() => { setNavigatingId(article.id); saveStateToSession(); }}
+                                                onClick={() => { setNavigatingId(article.id); }}
                                                 onSwipeRight={() => toggleVisitorRead(article.id)}
                                                 onSwipeLeft={() => toggleVisitorBookmark(article.id)}
                                                 isNavigating={navigatingId === article.id}
