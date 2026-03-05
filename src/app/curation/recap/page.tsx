@@ -22,7 +22,6 @@ const CATEGORIES = [
 export default function CurationRecapPage() {
     const [weeklyReads, setWeeklyReads] = useState(0);
     const [totalReads, setTotalReads] = useState(0);
-    const [totalBookmarks, setTotalBookmarks] = useState(0);
     const [streak, setStreak] = useState(0);
     const [topCategories, setTopCategories] = useState<{ name: string; emoji: string; count: number }[]>([]);
     const [recentReads, setRecentReads] = useState<{ id: string; title: string; ts: number }[]>([]);
@@ -36,7 +35,6 @@ export default function CurationRecapPage() {
 
             // Total stats
             setTotalReads(Object.keys(vs.read).length);
-            setTotalBookmarks(Object.keys(vs.bookmarked).length);
 
             // Weekly reads
             const oneWeekAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
