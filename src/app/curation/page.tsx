@@ -469,6 +469,7 @@ export default function CurationList() {
 
     // Category count
     const categoryCount = CATEGORIES.length;
+    const isFiltering = categoryFilter.length > 0 || searchQuery.length > 0 || statusFilter !== "all";
 
     return (
         <div className="h-screen w-full flex flex-col bg-[#fafaf8] text-zinc-900 font-sans antialiased overflow-hidden relative selection:bg-amber-100">
@@ -485,7 +486,7 @@ export default function CurationList() {
                 <Link href="/" className="w-10 h-10 flex items-center justify-center text-zinc-400 hover:text-zinc-900 active:scale-90 rounded-full transition-all">
                     <ChevronLeft size={20} />
                 </Link>
-                <h2 className="text-[15px] font-semibold tracking-[-0.01em] text-zinc-900">Curation</h2>
+                <h2 className="text-[16px] text-zinc-900 italic font-medium" style={{ fontFamily: "'Playfair Display', Georgia, serif" }}>Curated by Faza</h2>
                 <button
                     onClick={() => {
                         setIsSearchOpen(!isSearchOpen);
@@ -532,40 +533,78 @@ export default function CurationList() {
                 className="flex-1 overflow-y-auto overflow-x-hidden px-4 pt-6 pb-32 relative z-10 w-full max-w-2xl mx-auto"
                 style={{ WebkitOverflowScrolling: "touch", overscrollBehaviorY: "auto" } as React.CSSProperties}
             >
-                {/* ═══ ONBOARDING / LANDING ZONE ═══ */}
-                <div className="mb-8 px-1">
-                    <h1 className="text-[36px] md:text-[44px] leading-[1.05] tracking-[-0.03em] text-zinc-900 mb-4" style={{ fontFamily: "'Playfair Display', Georgia, serif" }}>
-                        Curated Knowledge<br />
-                        <span className="italic text-zinc-400" style={{ fontWeight: 400 }}>& Perspectives.</span>
-                    </h1>
-                    <p className="text-[15px] text-zinc-500 leading-relaxed max-w-[44ch]">
-                        A carefully assembled library of essays, frameworks, and ideas — for the curious mind. Explore, discover, contribute.
-                    </p>
+                {/* ═══ DASHBOARD INDEX (Hidden when filtering) ═══ */}
+                {!isFiltering && (
+                    <motion.div
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="mb-12"
+                    >
+                        {/* Hero Zone */}
+                        <div className="mb-8 px-1">
+                            <h1 className="text-[36px] md:text-[44px] leading-[1.05] tracking-[-0.03em] text-zinc-900 mb-4" style={{ fontFamily: "'Playfair Display', Georgia, serif" }}>
+                                Curated Knowledge<br />
+                                <span className="italic text-zinc-400" style={{ fontWeight: 400 }}>& Perspectives.</span>
+                            </h1>
+                            <p className="text-[15px] text-zinc-500 leading-relaxed max-w-[44ch]">
+                                A carefully assembled library of essays, frameworks, and ideas — for the curious mind. Explore, discover, contribute.
+                            </p>
 
-                    {/* Stats line */}
-                    <div className="flex items-center gap-3 mt-5 flex-wrap">
-                        <span className="text-[12px] font-medium text-zinc-400">
-                            {articles.length > 0 ? `${articles.length}+ reads` : ""} {categoryCount > 0 && articles.length > 0 ? `• ${categoryCount} topics` : ""}
-                        </span>
+                            {/* Stats */}
+                            <div className="flex items-center gap-3 mt-5 flex-wrap">
+                                <span className="text-[12px] font-medium text-zinc-400">
+                                    {articles.length > 0 ? `${articles.length}+ entries` : ""} {categoryCount > 0 && articles.length > 0 ? `• ${categoryCount} topics` : ""}
+                                </span>
 
-                        {weeklyReads > 0 && (
-                            <motion.div
-                                initial={{ opacity: 0, scale: 0.9, y: 5 }}
-                                animate={{ opacity: 1, scale: 1, y: 0 }}
-                                transition={{ type: "spring", stiffness: 400, damping: 25, delay: 0.2 }}
-                                className="flex items-center gap-1.5 bg-orange-50 text-orange-600 px-2.5 py-0.5 rounded-full border border-orange-100 shadow-[0_2px_10px_-4px_rgba(234,88,12,0.3)]"
-                            >
-                                <span className="text-[13px] inline-block animate-[bounce_2s_infinite]">🔥</span>
-                                <span className="text-[11px] font-bold tracking-wider uppercase">{weeklyReads} Read{weeklyReads !== 1 && 's'} This Week</span>
-                            </motion.div>
-                        )}
-                    </div>
+                                {weeklyReads > 0 && (
+                                    <div className="flex items-center gap-1.5 bg-orange-50 text-orange-600 px-2.5 py-0.5 rounded-full border border-orange-100 shadow-[0_2px_10px_-4px_rgba(234,88,12,0.3)]">
+                                        <span className="text-[13px] inline-block animate-[bounce_2s_infinite]">🔥</span>
+                                        <span className="text-[11px] font-bold tracking-wider uppercase">{weeklyReads} Read{weeklyReads !== 1 && 's'} This Week</span>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
 
-                    <div className="w-10 h-[1px] bg-zinc-200 mt-6" />
+                        {/* Topic Grid */}
+                        <div className="px-1">
+                            <h3 className="text-[11px] font-bold tracking-widest text-zinc-400 uppercase mb-4">Browse by Topic</h3>
+                            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                                {CATEGORIES.map(cat => (
+                                    <button
+                                        key={cat.name}
+                                        onClick={() => handleCategoryToggle(cat.name)}
+                                        className="flex flex-col items-start p-4 bg-white border border-zinc-200/80 rounded-[1.25rem] hover:border-zinc-300 hover:shadow-sm active:scale-[0.98] transition-all text-left"
+                                    >
+                                        <span className="text-2xl mb-2 grayscale opacity-90">{cat.emoji}</span>
+                                        <span className="text-[13px] font-bold text-zinc-800 leading-tight">{cat.name}</span>
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+                    </motion.div>
+                )}
+
+                {/* ═══ ARCHIVE LIST SECTION ═══ */}
+                <div className="flex items-end justify-between px-1 mb-4 mt-2">
+                    <h3 className="text-[20px] font-bold tracking-tight text-zinc-900" style={{ fontFamily: "'Playfair Display', Georgia, serif" }}>
+                        {searchQuery ? "Search Results" :
+                            categoryFilter.length > 0 ? `${categoryFilter.join(', ')}` :
+                                statusFilter !== "all" ? `${statusFilter.charAt(0).toUpperCase() + statusFilter.slice(1)} Articles` :
+                                    "All Entries"}
+                    </h3>
+
+                    {isFiltering && (
+                        <button
+                            onClick={() => { setCategoryFilter([]); setSearchQuery(''); setStatusFilter('all'); }}
+                            className="text-[12px] font-bold text-blue-600 hover:text-blue-700 active:scale-95 transition-all bg-blue-50 px-3 py-1.5 rounded-full"
+                        >
+                            Clear View
+                        </button>
+                    )}
                 </div>
 
-                {/* ═══ FILTER PILLS ═══ */}
-                <div className="flex items-center gap-2 overflow-x-auto px-1 pb-2 no-scrollbar mb-2">
+                {/* Utility Action Bar (Sort & Status) */}
+                <div className="flex items-center gap-2 overflow-x-auto px-1 pb-4 no-scrollbar mb-2 border-b border-zinc-200/60 w-full">
                     {/* Sort Toggle */}
                     <button
                         onClick={() => handleSortChange(sort === "latest" ? "oldest" : "latest")}
@@ -587,32 +626,13 @@ export default function CurationList() {
                             key={f.key}
                             onClick={() => setStatusFilter(f.key)}
                             className={`px-3 py-1.5 text-[12px] font-bold rounded-full transition-all active:scale-[0.96] whitespace-nowrap shrink-0 ${statusFilter === f.key
-                                ? "bg-blue-600 text-white shadow-sm"
-                                : "text-zinc-400 hover:text-zinc-600"
+                                ? "bg-zinc-800 text-white shadow-sm"
+                                : "text-zinc-400 hover:text-zinc-700 bg-white border border-zinc-200/50"
                                 }`}
                         >
                             {f.label}
                         </button>
                     ))}
-                </div>
-
-                {/* ═══ CATEGORY PILLS ═══ */}
-                <div className="flex gap-2 overflow-x-auto px-1 no-scrollbar pb-5 mb-3">
-                    {CATEGORIES.map(cat => {
-                        const isActive = categoryFilter.includes(cat.name);
-                        return (
-                            <button
-                                key={cat.name}
-                                onClick={() => handleCategoryToggle(cat.name)}
-                                className={`px-3 py-1.5 text-[11px] font-semibold rounded-full transition-all active:scale-[0.96] whitespace-nowrap shrink-0 border ${isActive
-                                    ? "bg-zinc-900 text-white border-zinc-900 shadow-sm"
-                                    : "bg-white text-zinc-400 border-zinc-200/60 hover:border-zinc-300"
-                                    }`}
-                            >
-                                {cat.emoji} {cat.name}
-                            </button>
-                        );
-                    })}
                 </div>
 
                 {/* ═══ ARTICLE FEED ═══ */}
