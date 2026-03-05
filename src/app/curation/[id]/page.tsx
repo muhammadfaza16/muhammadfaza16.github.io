@@ -128,6 +128,60 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
     const [newCommentText, setNewCommentText] = useState("");
     const [isSubmittingComment, setIsSubmittingComment] = useState(false);
 
+    // Highlights State
+    type Highlight = { text: string; ts: number };
+    const [highlights, setHighlights] = useState<Highlight[]>([]);
+    const [selectionTooltip, setSelectionTooltip] = useState<{ x: number; y: number; text: string } | null>(null);
+    const [showHighlightsPanel, setShowHighlightsPanel] = useState(false);
+
+    // Load highlights from localStorage
+    useEffect(() => {
+        try {
+            const saved = localStorage.getItem(`curation_highlights_${id}`);
+            if (saved) setHighlights(JSON.parse(saved));
+        } catch { }
+    }, [id]);
+
+    const saveHighlight = (text: string) => {
+        const newHighlight = { text, ts: Date.now() };
+        const updated = [...highlights, newHighlight];
+        setHighlights(updated);
+        try { localStorage.setItem(`curation_highlights_${id}`, JSON.stringify(updated)); } catch { }
+        setSelectionTooltip(null);
+        window.getSelection()?.removeAllRanges();
+        toast.success('Highlighted!');
+    };
+
+    const removeHighlight = (index: number) => {
+        const updated = highlights.filter((_, i) => i !== index);
+        setHighlights(updated);
+        try { localStorage.setItem(`curation_highlights_${id}`, JSON.stringify(updated)); } catch { }
+    };
+
+    // Text selection listener for highlight tooltip
+    useEffect(() => {
+        const handleSelectionChange = () => {
+            const sel = window.getSelection();
+            if (!sel || sel.isCollapsed || !sel.toString().trim()) {
+                // Delay hiding to allow button click
+                setTimeout(() => setSelectionTooltip(null), 200);
+                return;
+            }
+            const text = sel.toString().trim();
+            if (text.length < 5) return;
+            const range = sel.getRangeAt(0);
+            const rect = range.getBoundingClientRect();
+            setSelectionTooltip({
+                x: rect.left + rect.width / 2,
+                y: rect.top - 8,
+                text
+            });
+        };
+
+        document.addEventListener('selectionchange', handleSelectionChange);
+        return () => document.removeEventListener('selectionchange', handleSelectionChange);
+    }, []);
+
     const supabase = getSupabase();
 
     // 1. Scroll Progress & Hide-On-Scroll Logic (Must be above early returns)
@@ -913,7 +967,19 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
                 />
 
                 {/* Bookmark Button at bottom */}
-                <div className="mt-8 mb-24 flex justify-end snap-start scroll-my-24">
+                <div className="mt-8 mb-8 flex items-center justify-end gap-3 snap-start scroll-my-24">
+                    {highlights.length > 0 && (
+                        <button
+                            onClick={() => setShowHighlightsPanel(!showHighlightsPanel)}
+                            className={`flex items-center gap-2 px-4 py-2.5 rounded-full font-bold text-[13px] transition-all active:scale-95 border shadow-sm ${showHighlightsPanel
+                                ? "bg-amber-50 text-amber-700 border-amber-200"
+                                : "bg-white text-zinc-500 border-zinc-200 hover:bg-zinc-50"
+                                }`}
+                        >
+                            <span className="text-[14px]">✨</span>
+                            {highlights.length} Highlight{highlights.length !== 1 ? 's' : ''}
+                        </button>
+                    )}
                     <button
                         onClick={handleToggleBookmark}
                         disabled={isTogglingBookmark}
@@ -930,6 +996,67 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
                         {article.isBookmarked ? "Bookmarked" : "Bookmark"}
                     </button>
                 </div>
+
+                {/* Highlights Panel */}
+                <AnimatePresence>
+                    {showHighlightsPanel && highlights.length > 0 && (
+                        <motion.div
+                            initial={{ opacity: 0, height: 0 }}
+                            animate={{ opacity: 1, height: 'auto' }}
+                            exit={{ opacity: 0, height: 0 }}
+                            className="mb-8 overflow-hidden"
+                        >
+                            <div className="bg-amber-50/50 rounded-2xl border border-amber-200/50 p-5">
+                                <h4 className="text-[12px] font-bold uppercase tracking-widest text-amber-700/60 mb-4">Your Highlights</h4>
+                                <div className="flex flex-col gap-3">
+                                    {highlights.map((h, i) => (
+                                        <div key={i} className="flex gap-3 group">
+                                            <div className="w-1 rounded-full bg-amber-300 shrink-0" />
+                                            <div className="flex-1 min-w-0">
+                                                <p className="text-[14px] leading-relaxed" style={{ color: THEMES[readerSettings.theme].text }}>
+                                                    &ldquo;{h.text}&rdquo;
+                                                </p>
+                                                <p className="text-[11px] text-zinc-400 mt-1">
+                                                    {new Date(h.ts).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                                                </p>
+                                            </div>
+                                            <button
+                                                onClick={() => removeHighlight(i)}
+                                                className="opacity-0 group-hover:opacity-100 p-1.5 rounded-full hover:bg-amber-100 transition-all shrink-0 self-start"
+                                            >
+                                                <X size={14} className="text-amber-600" />
+                                            </button>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        </motion.div>
+                    )}
+                </AnimatePresence>
+
+                {/* Floating Highlight Tooltip */}
+                <AnimatePresence>
+                    {selectionTooltip && (
+                        <motion.div
+                            initial={{ opacity: 0, y: 5 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: 5 }}
+                            className="fixed z-[100] pointer-events-auto"
+                            style={{
+                                left: `${Math.min(Math.max(selectionTooltip.x - 50, 16), window.innerWidth - 116)}px`,
+                                top: `${selectionTooltip.y - 44}px`
+                            }}
+                        >
+                            <button
+                                onMouseDown={(e) => { e.preventDefault(); saveHighlight(selectionTooltip.text); }}
+                                className="flex items-center gap-1.5 px-3.5 py-2 bg-zinc-900 text-white rounded-xl text-[12px] font-bold shadow-xl hover:bg-zinc-800 active:scale-95 transition-all"
+                            >
+                                <span>✨</span> Highlight
+                            </button>
+                            <div className="w-3 h-3 bg-zinc-900 rotate-45 mx-auto -mt-1.5" />
+                        </motion.div>
+                    )}
+                </AnimatePresence>
 
                 {/* Related Articles - Read Next */}
                 {relatedArticles.length > 0 && (
