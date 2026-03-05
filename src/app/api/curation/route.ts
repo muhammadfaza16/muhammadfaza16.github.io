@@ -28,6 +28,7 @@ export async function POST(request: Request) {
                 category: category || null,
                 isRead: false,
             } as any,
+            select: { id: true, title: true, url: true }
         });
 
         // Auto-score the new article

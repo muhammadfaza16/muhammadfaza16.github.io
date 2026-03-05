@@ -21,6 +21,7 @@ export async function POST(request: Request) {
                 category: "__SUGGESTED__",
                 isRead: false,
             } as any,
+            select: { id: true, title: true, url: true }
         });
 
         return NextResponse.json({ success: true, article: newSuggestion }, { status: 201 });

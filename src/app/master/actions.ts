@@ -6,11 +6,13 @@ import { revalidatePath } from "next/cache";
 // ==========================================
 // TO READ (Article Model)
 // ==========================================
+const SAFE_ARTICLE_SELECT = { id: true, title: true, content: true, url: true, imageUrl: true, category: true, isRead: true, isBookmarked: true, createdAt: true, updatedAt: true, scheduledFor: true };
 export async function getToReadArticles() {
     try {
         const articles = await prisma.article.findMany({
             where: { category: { not: "__SUGGESTED__" } },
             orderBy: { createdAt: "desc" },
+            select: SAFE_ARTICLE_SELECT
         });
         return { success: true, data: articles };
     } catch (e: any) {
@@ -23,6 +25,7 @@ export async function getSuggestedArticles() {
         const articles = await prisma.article.findMany({
             where: { category: "__SUGGESTED__" },
             orderBy: { createdAt: "desc" },
+            select: SAFE_ARTICLE_SELECT
         });
         return { success: true, data: articles };
     } catch (e: any) {
@@ -34,7 +37,8 @@ export async function approveSuggestedArticle(id: string) {
     try {
         const article = await prisma.article.update({
             where: { id },
-            data: { category: null }
+            data: { category: null },
+            select: SAFE_ARTICLE_SELECT
         });
         revalidatePath('/curation');
         return { success: true, data: article };
@@ -64,7 +68,8 @@ export async function createToReadArticle(title: string, url: string, notes: str
         }
 
         const article = await prisma.article.create({
-            data: dataPayload
+            data: dataPayload,
+            select: SAFE_ARTICLE_SELECT
         });
         revalidatePath('/curation');
         return { success: true, data: article };
@@ -77,7 +82,8 @@ export async function toggleReadStatus(id: string, currentStatus: boolean) {
     try {
         const article = await prisma.article.update({
             where: { id },
-            data: { isRead: !currentStatus }
+            data: { isRead: !currentStatus },
+            select: SAFE_ARTICLE_SELECT
         });
         revalidatePath('/curation');
         return { success: true, data: article };
@@ -90,7 +96,8 @@ export async function toggleBookmarkStatus(id: string, currentStatus: boolean) {
     try {
         const article = await prisma.article.update({
             where: { id },
-            data: { isBookmarked: !currentStatus } as any
+            data: { isBookmarked: !currentStatus } as any,
+            select: SAFE_ARTICLE_SELECT
         });
         revalidatePath('/curation');
         return { success: true, data: article };
@@ -111,7 +118,8 @@ export async function updateToReadArticle(id: string, title: string, url: string
         }
         const article = await prisma.article.update({
             where: { id },
-            data: dataPayload
+            data: dataPayload,
+            select: SAFE_ARTICLE_SELECT
         });
         revalidatePath('/curation');
         return { success: true, data: article };
@@ -120,7 +128,7 @@ export async function updateToReadArticle(id: string, title: string, url: string
 
 export async function deleteToReadArticle(id: string) {
     try {
-        await prisma.article.delete({ where: { id } });
+        await prisma.article.delete({ where: { id }, select: SAFE_ARTICLE_SELECT });
         revalidatePath('/curation');
         return { success: true };
     } catch (e: any) {
