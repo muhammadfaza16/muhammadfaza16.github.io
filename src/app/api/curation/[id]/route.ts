@@ -5,7 +5,18 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
     try {
         const id = (await params).id;
         const article = await prisma.article.findUnique({
-            where: { id }
+            where: { id },
+            select: {
+                id: true,
+                title: true,
+                content: true,
+                url: true,
+                imageUrl: true,
+                category: true,
+                isRead: true,
+                isBookmarked: true,
+                createdAt: true,
+            }
         });
 
         if (!article) {
