@@ -516,7 +516,7 @@ export default function CurationList() {
                 id="curation-scroll-container"
                 ref={scrollContainerRef}
                 onScroll={(e) => scrollYRef.current = e.currentTarget.scrollTop}
-                className="flex-1 overflow-y-auto overflow-x-hidden px-4 pt-6 pb-32 relative z-10 w-full max-w-2xl mx-auto"
+                className="flex-1 overflow-y-auto overflow-x-hidden px-4 pt-6 pb-32 relative z-10 w-full max-w-2xl md:max-w-5xl mx-auto"
                 style={{ WebkitOverflowScrolling: "touch", overscrollBehaviorY: "auto" } as React.CSSProperties}
             >
                 {/* ═══ DASHBOARD INDEX (Hidden when filtering) ═══ */}
@@ -543,10 +543,13 @@ export default function CurationList() {
                                 </span>
 
                                 {weeklyReads > 0 && (
-                                    <div className="flex items-center gap-1.5 bg-orange-50 text-orange-600 px-2.5 py-0.5 rounded-full border border-orange-100 shadow-[0_2px_10px_-4px_rgba(234,88,12,0.3)]">
+                                    <Link
+                                        href="/curation/recap"
+                                        className="flex items-center gap-1.5 bg-orange-50 text-orange-600 px-2.5 py-0.5 rounded-full border border-orange-100 shadow-[0_2px_10px_-4px_rgba(234,88,12,0.3)] hover:shadow-md transition-all active:scale-95"
+                                    >
                                         <span className="text-[13px] inline-block animate-[bounce_2s_infinite]">🔥</span>
                                         <span className="text-[11px] font-bold tracking-wider uppercase">{weeklyReads} Read{weeklyReads !== 1 && 's'} This Week</span>
-                                    </div>
+                                    </Link>
                                 )}
                             </div>
                         </div>
@@ -729,7 +732,7 @@ export default function CurationList() {
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
                             exit={{ opacity: 0 }}
-                            className="flex flex-col gap-5"
+                            className="flex flex-col gap-5 md:grid md:grid-cols-2 md:gap-5"
                         >
                             {filteredArticles.map((article, index) => {
                                 const validImageUrl = getImageUrl(article);
@@ -746,6 +749,7 @@ export default function CurationList() {
                                         animate={{ opacity: 1, y: 0 }}
                                         exit={{ opacity: 0, scale: 0.97 }}
                                         transition={{ duration: 0.3, delay: Math.min(index * 0.04, 0.4) }}
+                                        className={isHero ? "md:col-span-2" : ""}
                                     >
                                         {isHero ? (
                                             /* ═══ HERO CARD ═══ */

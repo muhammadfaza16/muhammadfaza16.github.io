@@ -172,6 +172,20 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
                 setFormImagePreview(data.imageUrl || null);
                 setIsLoading(false);
 
+                // Fetch related articles by same category
+                if (data.category) {
+                    setIsLoadingRelated(true);
+                    fetch(`/api/curation?limit=5&category=${encodeURIComponent(data.category)}`)
+                        .then(r => r.json())
+                        .then(relData => {
+                            if (relData.articles) {
+                                setRelatedArticles(relData.articles.filter((a: any) => a.id !== id).slice(0, 4));
+                            }
+                            setIsLoadingRelated(false);
+                        })
+                        .catch(() => setIsLoadingRelated(false));
+                }
+
                 // Restore scroll position after article renders
                 setTimeout(() => {
                     try {
