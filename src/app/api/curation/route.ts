@@ -103,7 +103,7 @@ export async function GET(request: Request) {
         const query: any = {
             take: limit + 1,
             where,
-            orderBy: { createdAt: "desc" },
+            orderBy: sort === "oldest" ? { createdAt: "asc" } : { createdAt: "desc" },
             select: {
                 id: true,
                 title: true,
@@ -149,11 +149,6 @@ export async function GET(request: Request) {
                 substanceScore: score?.substance || null,
             };
         });
-
-        // Sort by quality if requested (client-side reorder of the page)
-        if (sort === "quality") {
-            enriched.sort((a: any, b: any) => (b.qualityScore || 0) - (a.qualityScore || 0));
-        }
 
         return NextResponse.json({ articles: enriched, nextCursor });
     } catch (error) {

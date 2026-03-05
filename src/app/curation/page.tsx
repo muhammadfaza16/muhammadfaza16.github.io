@@ -3,7 +3,7 @@
 import { useEffect, useState, useRef, useCallback } from "react";
 import { motion, AnimatePresence, useMotionValue, useTransform } from "framer-motion";
 import Link from "next/link";
-import { Search, ChevronLeft, Bookmark, FileText, Plus, Loader2, CheckCircle, Send, X, ArrowUpRight, Sparkles } from "lucide-react";
+import { Search, ChevronLeft, Bookmark, FileText, Plus, Loader2, CheckCircle, Send, X, ArrowUpRight, ArrowDown, ArrowUp } from "lucide-react";
 import { Toaster, toast } from 'react-hot-toast';
 import { createToReadArticle, updateToReadArticle } from "@/app/master/actions";
 import { uploadImageToSupabase } from "@/lib/uploadImage";
@@ -26,7 +26,7 @@ interface ArticleMeta {
     substanceScore: number | null;
 }
 
-type SortType = "latest" | "top";
+type SortType = "latest" | "oldest";
 
 // ─── Constants ───
 
@@ -77,14 +77,15 @@ export default function CurationList() {
     const [visitorState, setVisitorState] = useState<{ read: Record<string, boolean>; bookmarked: Record<string, boolean> }>({ read: {}, bookmarked: {} });
     const [articleCount, setArticleCount] = useState<number | null>(null);
     const [weeklyReads, setWeeklyReads] = useState(0);
+    const [navigatingId, setNavigatingId] = useState<string | null>(null);
 
     // Cache Refs
     const hasRestoredCache = useRef(false);
     const skipFetchRef = useRef(false);
-    const skipExtraFetchRef = useRef(false);
+    const isFetchingRef = useRef(false);
     const scrollYRef = useRef(0);
     const tabsCache = useRef<Record<string, { articles: ArticleMeta[], nextCursor: string | null, scrollY: number }>>({});
-    const loaderRef = useRef<HTMLDivElement>(null);
+
     const searchInputRef = useRef<HTMLInputElement>(null);
     const scrollContainerRef = useRef<HTMLDivElement>(null);
 
@@ -190,7 +191,7 @@ export default function CurationList() {
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({
                         title: payload.title,
-                        content: payload.notes || "No description",
+                        notes: payload.notes || "No description",
                         url: payload.url,
                         imageUrl: payload.imageUrl,
                         category: payload.category,
@@ -210,7 +211,7 @@ export default function CurationList() {
                     if (res.success && res.data) {
                         toast.success("Article updated");
                         setArticles(prev => prev.map(a => a.id === editingId ? { ...(res.data as any), createdAt: res.data!.createdAt.toISOString() } : a));
-                        setIsSheetOpen(false);
+                        handleCloseSheet();
                     } else {
                         toast.error(res.error || "Failed to update");
                     }
@@ -219,7 +220,7 @@ export default function CurationList() {
                     if (res.success && res.data) {
                         toast.success("Saved to Curation");
                         setArticles(prev => [{ ...(res.data as any), createdAt: res.data!.createdAt.toISOString() }, ...prev]);
-                        setIsSheetOpen(false);
+                        handleCloseSheet();
                     } else {
                         toast.error(res.error || "Failed to save");
                     }
@@ -236,11 +237,13 @@ export default function CurationList() {
 
     // Data Fetching
     const fetchArticles = async (currentCursor: string | null, currentSort: string, categories: string[], isLoadMore = false) => {
+        if (isFetchingRef.current) return;
+        isFetchingRef.current = true;
         try {
             if (isLoadMore) setIsLoadingMore(true);
             else setIsLoading(true);
 
-            let url = `/api/curation?limit=10&sort=${currentSort === "top" ? "quality" : "date"}`;
+            let url = `/api/curation?limit=10&sort=${currentSort}`;
             if (categories.length > 0) {
                 url += `&category=${encodeURIComponent(categories.join(","))}`;
             }
@@ -251,7 +254,11 @@ export default function CurationList() {
 
             if (data.articles) {
                 if (isLoadMore) {
-                    setArticles(prev => [...prev, ...data.articles]);
+                    setArticles(prev => {
+                        const existingIds = new Set(prev.map(a => a.id));
+                        const newUnique = data.articles.filter((a: any) => !existingIds.has(a.id));
+                        return [...prev, ...newUnique];
+                    });
                 } else {
                     setArticles(data.articles);
                 }
@@ -267,6 +274,7 @@ export default function CurationList() {
         } finally {
             setIsLoading(false);
             setIsLoadingMore(false);
+            isFetchingRef.current = false;
         }
     };
 
@@ -279,26 +287,31 @@ export default function CurationList() {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [sort, categoryFilter]);
 
-    // Infinite scroll via scroll event
+    // Infinite scroll & Auto-fetch for sparse filtered views
     useEffect(() => {
         const container = scrollContainerRef.current;
         if (!container) return;
 
-        const handleScroll = () => {
-            if (!nextCursor || isLoadingMore) return;
+        const checkAndFetchMore = () => {
+            if (!nextCursor || isLoadingMore || isFetchingRef.current) return;
             const { scrollTop, scrollHeight, clientHeight } = container;
-            if (scrollHeight - scrollTop - clientHeight < 400) {
+            // Fetch if within 400px of bottom, OR if the content is entirely visible (not scrollable)
+            if (scrollHeight <= clientHeight || scrollHeight - scrollTop - clientHeight < 400) {
                 fetchArticles(nextCursor, sort, categoryFilter, true);
             }
         };
 
-        container.addEventListener('scroll', handleScroll, { passive: true });
-        return () => container.removeEventListener('scroll', handleScroll);
+        // Check immediately on render/filter changes
+        checkAndFetchMore();
+
+        container.addEventListener('scroll', checkAndFetchMore, { passive: true });
+        return () => container.removeEventListener('scroll', checkAndFetchMore);
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [nextCursor, isLoadingMore, sort, categoryFilter]);
+    }, [nextCursor, isLoadingMore, sort, categoryFilter, articles.length, searchQuery]);
 
     // Visitor state actions
     const toggleVisitorRead = (articleId: string) => {
+        const wasRead = !!visitorState.read[articleId];
         setVisitorState(prev => {
             const updated = { ...prev, read: { ...prev.read, [articleId]: !prev.read[articleId] } };
             if (!updated.read[articleId]) delete updated.read[articleId];
@@ -306,10 +319,11 @@ export default function CurationList() {
             return updated;
         });
         try { if (navigator.vibrate) navigator.vibrate([10, 30, 10]); } catch { }
-        toast.success(visitorState.read[articleId] ? "Marked unread" : "Marked read");
+        toast.success(wasRead ? "Marked unread" : "Marked read");
     };
 
     const toggleVisitorBookmark = (articleId: string) => {
+        const wasBookmarked = !!visitorState.bookmarked[articleId];
         setVisitorState(prev => {
             const updated = { ...prev, bookmarked: { ...prev.bookmarked, [articleId]: !prev.bookmarked[articleId] } };
             if (!updated.bookmarked[articleId]) delete updated.bookmarked[articleId];
@@ -317,7 +331,7 @@ export default function CurationList() {
             return updated;
         });
         try { if (navigator.vibrate) navigator.vibrate([15, 30, 15]); } catch { }
-        toast.success(visitorState.bookmarked[articleId] ? "Removed bookmark" : "Bookmarked!");
+        toast.success(wasBookmarked ? "Removed bookmark" : "Bookmarked!");
     };
 
     // Init
@@ -355,14 +369,9 @@ export default function CurationList() {
                     setIsLoading(false);
 
                     // Count how many times the fetch effect will fire
-                    // 1 for initial mount, +1 if sort/categories differ from defaults
                     const willSortChange = restoredSort !== "latest";
                     const willCatsChange = restoredCats.length > 0;
                     skipFetchRef.current = true;
-                    if (willSortChange || willCatsChange) {
-                        // State changes will trigger a second effect run
-                        skipExtraFetchRef.current = true;
-                    }
 
                     setSort(restoredSort);
                     setCategoryFilter(restoredCats);
@@ -555,43 +564,36 @@ export default function CurationList() {
                     <div className="w-10 h-[1px] bg-zinc-200 mt-6" />
                 </div>
 
-                {/* ═══ SORT PILLS ═══ */}
-                <div className="flex gap-2 px-1 mb-3">
+                {/* ═══ FILTER PILLS ═══ */}
+                <div className="flex items-center gap-2 overflow-x-auto px-1 pb-2 no-scrollbar mb-2">
+                    {/* Sort Toggle */}
+                    <button
+                        onClick={() => handleSortChange(sort === "latest" ? "oldest" : "latest")}
+                        className="px-3 py-1.5 text-[12px] font-bold rounded-full transition-all active:scale-[0.96] whitespace-nowrap bg-white text-zinc-600 border border-zinc-200 hover:border-zinc-300 flex items-center gap-1.5 shrink-0 shadow-sm"
+                    >
+                        {sort === "latest" ? <ArrowDown size={14} className="text-zinc-400" strokeWidth={2.5} /> : <ArrowUp size={14} className="text-zinc-400" strokeWidth={2.5} />}
+                        {sort === "latest" ? "Latest" : "Oldest"}
+                    </button>
+
+                    <div className="w-[1px] h-4 bg-zinc-200 mx-1 shrink-0" />
+
+                    {/* Status Filter Pills */}
                     {([
-                        { key: "latest" as SortType, label: "Latest" },
-                        { key: "top" as SortType, label: "Top Rated" },
-                    ]).map(s => (
+                        { key: "all" as const, label: "All" },
+                        { key: "unread" as const, label: "Unread" },
+                        { key: "bookmarked" as const, label: "Saved" },
+                    ]).map(f => (
                         <button
-                            key={s.key}
-                            onClick={() => handleSortChange(s.key)}
-                            className={`px-4 py-1.5 text-[12px] font-bold rounded-full transition-all active:scale-[0.96] whitespace-nowrap ${sort === s.key
-                                ? "bg-zinc-900 text-white shadow-sm"
-                                : "bg-white text-zinc-400 border border-zinc-200/80 hover:border-zinc-300"
+                            key={f.key}
+                            onClick={() => setStatusFilter(f.key)}
+                            className={`px-3 py-1.5 text-[12px] font-bold rounded-full transition-all active:scale-[0.96] whitespace-nowrap shrink-0 ${statusFilter === f.key
+                                ? "bg-blue-600 text-white shadow-sm"
+                                : "text-zinc-400 hover:text-zinc-600"
                                 }`}
                         >
-                            {s.key === "top" && "⭐ "}{s.label}
+                            {f.label}
                         </button>
                     ))}
-
-                    {/* Status Filter Pills — same row, right side */}
-                    <div className="flex gap-2 ml-auto">
-                        {([
-                            { key: "all" as const, label: "All" },
-                            { key: "unread" as const, label: "Unread" },
-                            { key: "bookmarked" as const, label: "Saved" },
-                        ]).map(f => (
-                            <button
-                                key={f.key}
-                                onClick={() => setStatusFilter(f.key)}
-                                className={`px-3 py-1.5 text-[12px] font-bold rounded-full transition-all active:scale-[0.96] whitespace-nowrap ${statusFilter === f.key
-                                    ? "bg-blue-600 text-white shadow-sm"
-                                    : "text-zinc-400 hover:text-zinc-600"
-                                    }`}
-                            >
-                                {f.label}
-                            </button>
-                        ))}
-                    </div>
                 </div>
 
                 {/* ═══ CATEGORY PILLS ═══ */}
@@ -679,7 +681,7 @@ export default function CurationList() {
                                             /* ═══ HERO CARD ═══ */
                                             <Link
                                                 href={`/curation/${article.id}`}
-                                                onClick={saveStateToSession}
+                                                onClick={() => { setNavigatingId(article.id); saveStateToSession(); }}
                                                 className="block group"
                                             >
                                                 <div className="relative rounded-[2rem] overflow-hidden bg-zinc-900 shadow-lg active:scale-[0.97] transition-all duration-300 ease-out group/hero">
@@ -719,6 +721,11 @@ export default function CurationList() {
                                                             <span>{readTime} min read</span>
                                                         </div>
                                                     </div>
+                                                    {navigatingId === article.id && (
+                                                        <div className="absolute inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center">
+                                                            <Loader2 size={36} className="animate-spin text-white" />
+                                                        </div>
+                                                    )}
                                                 </div>
                                             </Link>
                                         ) : (
@@ -732,9 +739,10 @@ export default function CurationList() {
                                                 isVisitorBookmarked={!!isVisitorBookmarked}
                                                 imgError={!!imgErrors[article.id]}
                                                 onImgError={() => setImgErrors(prev => ({ ...prev, [article.id]: true }))}
-                                                onClick={saveStateToSession}
+                                                onClick={() => { setNavigatingId(article.id); saveStateToSession(); }}
                                                 onSwipeRight={() => toggleVisitorRead(article.id)}
                                                 onSwipeLeft={() => toggleVisitorBookmark(article.id)}
+                                                isNavigating={navigatingId === article.id}
                                             />
                                         )}
                                     </motion.div>
@@ -758,6 +766,7 @@ export default function CurationList() {
                                     <span className="text-[11px] font-medium text-zinc-300 block">
                                         You&apos;ve reached the end
                                     </span>
+                                    {/* Hiding Suggest CTA for now
                                     {!isAdmin && (
                                         <button
                                             onClick={() => setIsSheetOpen(true)}
@@ -766,7 +775,7 @@ export default function CurationList() {
                                             <Send size={14} />
                                             Know something we should read? Suggest it.
                                         </button>
-                                    )}
+                                    )} */}
                                 </div>
                             )}
 
@@ -870,7 +879,8 @@ function SwipeableArticleCard({
     onImgError,
     onClick,
     onSwipeRight,
-    onSwipeLeft
+    onSwipeLeft,
+    isNavigating
 }: {
     article: ArticleMeta,
     validImageUrl: string | null,
@@ -882,7 +892,8 @@ function SwipeableArticleCard({
     onImgError: () => void,
     onClick: () => void,
     onSwipeRight: () => void,
-    onSwipeLeft: () => void
+    onSwipeLeft: () => void,
+    isNavigating?: boolean
 }) {
     const x = useMotionValue(0);
     const [isDragging, setIsDragging] = useState(false);
@@ -942,9 +953,14 @@ function SwipeableArticleCard({
                     onClick={(e) => {
                         if (isDragging) { e.preventDefault(); e.stopPropagation(); } else { onClick(); }
                     }}
-                    className="flex items-center gap-4 outline-none w-full"
+                    className="flex items-center gap-4 outline-none w-full relative"
                     draggable={false}
                 >
+                    {isNavigating && (
+                        <div className="absolute inset-0 bg-white/60 backdrop-blur-[2px] z-50 flex items-center justify-center rounded-xl" style={{ margin: '-8px', padding: '8px' }}>
+                            <Loader2 size={24} className="animate-spin text-blue-600" />
+                        </div>
+                    )}
                     {/* Thumbnail */}
                     <div className="w-[80px] h-[80px] rounded-2xl overflow-hidden bg-zinc-50 shrink-0 border border-zinc-100/60 relative pointer-events-none">
                         {validImageUrl && !imgError ? (

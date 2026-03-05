@@ -44,6 +44,17 @@ type ThemeKey = keyof typeof THEMES;
 
 const LABEL_CLASS = "text-[12px] font-bold uppercase tracking-wider text-zinc-500 ml-1";
 
+const CATEGORIES = [
+    { name: "AI & Tools", emoji: "🤖" },
+    { name: "Wealth & Business", emoji: "💰" },
+    { name: "Mindset & Philosophy", emoji: "🧠" },
+    { name: "Self-Improvement & Productivity", emoji: "⚡" },
+    { name: "Career & Skills", emoji: "🎯" },
+    { name: "Marketing & Growth", emoji: "📈" },
+    { name: "Building & Design", emoji: "🔨" },
+    { name: "Health & Lifestyle", emoji: "🌱" },
+];
+
 import { uploadImageToSupabase } from "@/lib/uploadImage";
 import { BottomSheet, ImagePicker, QuickPasteInput, RichTextEditor } from "@/components/sanctuary";
 
@@ -87,6 +98,7 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
 
     // TTS State
     const [isTTSPlaying, setIsTTSPlaying] = useState(false);
+    const [isTTSPaused, setIsTTSPaused] = useState(false);
     const [ttsSpeed, setTTSSpeed] = useState(1);
     const ttsUtteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
     const [ttsProgress, setTTSProgress] = useState(0); // 0-100
@@ -103,6 +115,7 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
     const [formImageFile, setFormImageFile] = useState<File | null>(null);
     const [formImagePreview, setFormImagePreview] = useState<string | null>(null);
     const [formPublishedTime, setFormPublishedTime] = useState("");
+    const [formCategory, setFormCategory] = useState("");
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [uploadStatus, setUploadStatus] = useState<"idle" | "uploading" | "saving">("idle");
     const [isFetchingMetadata, setIsFetchingMetadata] = useState(false);
@@ -224,6 +237,8 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
                             vs.read[id] = true;
                             localStorage.setItem('curation_visitor_state', JSON.stringify(vs));
                         } catch { }
+                        // Also persist to DB (fire-and-forget)
+                        toggleReadStatus(id, false).catch(() => { });
                     }
                 }
             }, 500);
@@ -280,27 +295,36 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
             utterance.onboundary = (e) => {
                 if (e.charIndex && text.length) setTTSProgress(Math.round((e.charIndex / text.length) * 100));
             };
-            utterance.onend = () => { setIsTTSPlaying(false); setTTSProgress(100); };
-            utterance.onerror = () => { setIsTTSPlaying(false); };
+            utterance.onend = () => { setIsTTSPlaying(false); setIsTTSPaused(false); setTTSProgress(100); };
+            utterance.onerror = () => { setIsTTSPlaying(false); setIsTTSPaused(false); };
             ttsUtteranceRef.current = utterance;
             speechSynthesis.speak(utterance);
             setIsTTSPlaying(true);
+            setIsTTSPaused(false);
         }, 50);
     }, [article, ttsSpeed]);
 
     const toggleTTS = useCallback(() => {
         if (typeof speechSynthesis === 'undefined') return;
-        if (isTTSPlaying) {
-            if (speechSynthesis.paused) { speechSynthesis.resume(); } else { speechSynthesis.pause(); }
+        if (isTTSPlaying && !isTTSPaused) {
+            // Currently playing → pause
+            speechSynthesis.pause();
+            setIsTTSPaused(true);
+        } else if (isTTSPlaying && isTTSPaused) {
+            // Currently paused → resume
+            speechSynthesis.resume();
+            setIsTTSPaused(false);
         } else {
-            if (speechSynthesis.paused) { speechSynthesis.resume(); setIsTTSPlaying(true); } else { startTTS(); }
+            // Stopped → start fresh
+            startTTS();
         }
-    }, [isTTSPlaying, startTTS]);
+    }, [isTTSPlaying, isTTSPaused, startTTS]);
 
     const stopTTS = useCallback(() => {
         if (typeof speechSynthesis === 'undefined') return;
         speechSynthesis.cancel();
         setIsTTSPlaying(false);
+        setIsTTSPaused(false);
         setTTSProgress(0);
     }, []);
 
@@ -335,12 +359,13 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
                 const utterance = new SpeechSynthesisUtterance(ttsTextRef.current);
                 utterance.rate = nextSpeed;
                 utterance.lang = 'en-US';
-                utterance.onend = () => { setIsTTSPlaying(false); setTTSProgress(100); };
+                utterance.onend = () => { setIsTTSPlaying(false); setIsTTSPaused(false); setTTSProgress(100); };
                 utterance.onboundary = (e) => {
                     if (e.charIndex && ttsTextRef.current.length) setTTSProgress(Math.round((e.charIndex / ttsTextRef.current.length) * 100));
                 };
                 ttsUtteranceRef.current = utterance;
                 speechSynthesis.speak(utterance);
+                setIsTTSPaused(false);
             }, 100);
         }
     }, [ttsSpeed, isTTSPlaying]);
@@ -442,6 +467,10 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
 
     // 3. Action Handlers
     const handleAnnotateClick = () => {
+        if (!isAdmin) {
+            toast.error("Only admins can annotate articles.");
+            return;
+        }
         const selectedText = window.getSelection()?.toString().trim();
 
         if (selectedText) {
@@ -451,6 +480,7 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
                 setFormTitle(article.title || "");
                 setFormUrl(article.url || "");
                 setFormImagePreview(article.imageUrl || null);
+                setFormCategory(article.category || "");
                 const existingNotes = article.content || "";
                 setFormNotes(existingNotes ? `${existingNotes}<br>${newNote}` : newNote);
             }
@@ -468,6 +498,7 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
             setFormUrl(article.url || "");
             setFormNotes(article.content || "");
             setFormImagePreview(article.imageUrl || null);
+            setFormCategory(article.category || "");
             setFormImageFile(null); // Fix: Reset any lingering file selection
         }
         setIsEditSheetOpen(true);
@@ -487,7 +518,6 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
                     // Recording read for streak
                     try {
                         const history = JSON.parse(localStorage.getItem('curation_read_history') || '[]');
-                        // only record if we haven't recorded this id today
                         const todayStr = new Date().toDateString();
                         const alreadyReadToday = history.some((h: any) => h.id === article.id && new Date(h.ts).toDateString() === todayStr);
                         if (!alreadyReadToday) {
@@ -496,6 +526,17 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
                         }
                     } catch { }
                 }
+
+                // Sync to visitor localStorage so feed page reflects this
+                try {
+                    const vs = JSON.parse(localStorage.getItem('curation_visitor_state') || '{"read":{},"bookmarked":{}}');
+                    if (article.isRead) {
+                        delete vs.read[article.id];
+                    } else {
+                        vs.read[article.id] = true;
+                    }
+                    localStorage.setItem('curation_visitor_state', JSON.stringify(vs));
+                } catch { }
 
                 setArticle({ ...article, isRead: !article.isRead } as Article);
             } else {
@@ -517,6 +558,18 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
             const res = await toggleBookmarkStatus(article.id, article.isBookmarked);
             if (res.success) {
                 toast.success(article.isBookmarked ? "Removed from bookmarks" : "Saved to bookmarks", { id: toastId });
+
+                // Sync to visitor localStorage so feed page reflects this
+                try {
+                    const vs = JSON.parse(localStorage.getItem('curation_visitor_state') || '{"read":{},"bookmarked":{}}');
+                    if (article.isBookmarked) {
+                        delete vs.bookmarked[article.id];
+                    } else {
+                        vs.bookmarked[article.id] = true;
+                    }
+                    localStorage.setItem('curation_visitor_state', JSON.stringify(vs));
+                } catch { }
+
                 setArticle({ ...article, isBookmarked: !article.isBookmarked } as Article);
             } else {
                 throw new Error(res.error);
@@ -579,7 +632,15 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
         }
 
         setUploadStatus("saving");
-        const res = await updateToReadArticle(article.id, formTitle, formUrl, formNotes, updatedImageUrl, formPublishedTime);
+        const res = await updateToReadArticle(
+            article.id,
+            formTitle,
+            formUrl,
+            formNotes,
+            updatedImageUrl,
+            formCategory || undefined,
+            formPublishedTime || undefined
+        );
 
         if (res.success) {
             toast.success("Article updated");
@@ -813,18 +874,27 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
             >
                 <article
                     className="reader-content prose max-w-[65ch] mx-auto select-text touch-auto
-                    prose-p:text-[19px] prose-p:leading-[1.9] prose-p:mb-7 prose-p:font-serif prose-p:text-slate-800 prose-p:snap-start prose-p:scroll-my-24
-                    prose-li:text-[19px] prose-li:leading-[1.9] prose-li:font-serif prose-li:text-slate-800
-                    prose-headings:font-sans prose-headings:font-bold prose-headings:tracking-tight prose-headings:text-zinc-900 prose-headings:snap-start prose-headings:scroll-my-24
+                    prose-p:mb-7 prose-p:snap-start prose-p:scroll-my-24
+                    prose-headings:font-sans prose-headings:font-bold prose-headings:tracking-tight prose-headings:snap-start prose-headings:scroll-my-24
                     prose-h2:text-[26px] prose-h2:font-semibold prose-h2:mt-10 prose-h2:mb-5
                     prose-h3:text-[22px] prose-h3:font-semibold prose-h3:mt-8 prose-h3:mb-4
-                    prose-a:text-blue-600 hover:prose-a:text-blue-500 prose-a:transition-colors prose-a:underline-offset-4
-                    prose-img:rounded-3xl prose-img:border prose-img:border-gray-100 prose-img:shadow-sm prose-img:my-8 prose-img:snap-center
-                    prose-hr:border-gray-100 prose-hr:my-8
-                    prose-blockquote:border-l-blue-500 prose-blockquote:bg-blue-50/50 prose-blockquote:px-6 prose-blockquote:py-4 prose-blockquote:rounded-r-2xl prose-blockquote:not-italic prose-blockquote:text-zinc-700
-                    prose-code:text-rose-600 prose-code:bg-rose-50 prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded-md prose-code:before:content-none prose-code:after:content-none prose-code:font-medium
+                    prose-a:transition-colors prose-a:underline-offset-4
+                    prose-img:rounded-3xl prose-img:border prose-img:shadow-sm prose-img:my-8 prose-img:snap-center
+                    prose-hr:my-8
+                    prose-blockquote:px-6 prose-blockquote:py-4 prose-blockquote:rounded-r-2xl prose-blockquote:not-italic
+                    prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded-md prose-code:before:content-none prose-code:after:content-none prose-code:font-medium
                     prose-pre:bg-zinc-900 prose-pre:text-zinc-100 prose-pre:border prose-pre:border-zinc-800 prose-pre:rounded-2xl prose-pre:shadow-sm"
-                    style={{ WebkitUserSelect: 'text', userSelect: 'text' } as React.CSSProperties}
+                    style={{
+                        WebkitUserSelect: 'text',
+                        userSelect: 'text',
+                        fontSize: `${readerSettings.fontSize}px`,
+                        lineHeight: readerSettings.lineHeight,
+                        fontFamily: readerSettings.fontFamily === 'serif'
+                            ? 'ui-serif, Georgia, Cambria, "Times New Roman", Times, serif'
+                            : 'ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif',
+                        color: THEMES[readerSettings.theme].text,
+                        '--theme-accent': readerSettings.theme === 'night' ? '#60a5fa' : '#2563eb',
+                    } as React.CSSProperties}
                     dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(article.content) }}
                 />
 
@@ -905,7 +975,13 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
                                 onChange={(e) => setNewCommentText(e.target.value)}
                                 placeholder="Share your thoughts on this piece..."
                                 rows={3}
-                                className="w-full bg-white dark:bg-zinc-900 rounded-2xl px-5 py-4 text-[15px] text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 border border-zinc-200 dark:border-zinc-800 outline-none focus:border-blue-500/50 focus:ring-4 focus:ring-blue-500/10 transition-all resize-none shadow-sm"
+                                className="w-full rounded-2xl px-5 py-4 text-[15px] placeholder:text-inherit placeholder:opacity-40 outline-none focus:ring-4 focus:ring-blue-500/10 transition-all resize-none shadow-[inset_0_2px_4px_rgba(0,0,0,0.02)]"
+                                style={{
+                                    backgroundColor: THEMES[readerSettings.theme].text + '08',
+                                    color: THEMES[readerSettings.theme].text,
+                                    borderColor: THEMES[readerSettings.theme].text + '15',
+                                    borderWidth: '1px'
+                                }}
                             />
                             <div className="flex items-center justify-between gap-4">
                                 <input
@@ -913,7 +989,13 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
                                     value={newCommentName}
                                     onChange={(e) => setNewCommentName(e.target.value)}
                                     placeholder="Your Name (Optional)"
-                                    className="w-[180px] bg-white dark:bg-zinc-900 rounded-full px-4 text-[13px] font-medium h-10 border border-zinc-200 dark:border-zinc-800 outline-none focus:border-zinc-300 focus:ring-4 focus:ring-zinc-100 dark:focus:ring-zinc-800 transition-all shadow-sm"
+                                    className="w-[180px] rounded-full px-4 text-[13px] font-medium h-10 placeholder:text-inherit placeholder:opacity-40 outline-none focus:ring-4 focus:ring-blue-500/10 transition-all shadow-[inset_0_2px_4px_rgba(0,0,0,0.02)]"
+                                    style={{
+                                        backgroundColor: THEMES[readerSettings.theme].text + '08',
+                                        color: THEMES[readerSettings.theme].text,
+                                        borderColor: THEMES[readerSettings.theme].text + '15',
+                                        borderWidth: '1px'
+                                    }}
                                 />
                                 <button
                                     type="submit"
@@ -948,7 +1030,10 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
                                             {new Date(comment.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
                                         </span>
                                     </div>
-                                    <p className="text-[15px] leading-relaxed font-serif text-zinc-700 dark:text-zinc-300">
+                                    <p
+                                        className="text-[15px] leading-relaxed font-serif"
+                                        style={{ color: THEMES[readerSettings.theme].text, opacity: 0.85 }}
+                                    >
                                         {comment.content}
                                     </p>
                                 </div>
@@ -974,8 +1059,8 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
                             Aa
                         </button>
                         <div className="w-[1px] h-6 bg-white/15" />
-                        <button onClick={isTTSPlaying ? stopTTS : startTTS} className={`p-2 active:scale-90 transition-transform flex items-center justify-center ${isTTSPlaying ? 'text-red-400 hover:text-red-300' : 'text-white/80 hover:text-white'}`} title={isTTSPlaying ? 'Stop TTS' : 'Listen'}>
-                            {isTTSPlaying ? <X size={18} /> : <Volume2 size={18} />}
+                        <button onClick={toggleTTS} className={`p-2 active:scale-90 transition-transform flex items-center justify-center ${isTTSPlaying ? (isTTSPaused ? 'text-blue-400 hover:text-blue-300' : 'text-amber-400 hover:text-amber-300') : 'text-white/80 hover:text-white'}`} title={isTTSPlaying ? (isTTSPaused ? 'Resume' : 'Pause') : 'Listen'}>
+                            {isTTSPlaying ? (isTTSPaused ? <Play size={18} /> : <Pause size={18} />) : <Volume2 size={18} />}
                         </button>
                         <div className="w-[1px] h-6 bg-white/15" />
                         <button onClick={() => setIsZenMode(true)} className="p-2 active:scale-90 transition-transform text-white/80 hover:text-white flex items-center justify-center" title="Zen Mode">
@@ -1021,7 +1106,7 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
                         className="fixed top-4 left-1/2 -translate-x-1/2 z-[70] flex items-center gap-3 px-4 py-2.5 bg-zinc-900 rounded-full shadow-[0_8px_32px_rgba(0,0,0,0.4)] border border-zinc-700/50 text-white"
                     >
                         <button onClick={toggleTTS} className="p-1.5 active:scale-90 transition-transform text-blue-400 hover:text-blue-300">
-                            {typeof speechSynthesis !== 'undefined' && speechSynthesis?.paused ? <Play size={16} /> : <Pause size={16} />}
+                            {isTTSPaused ? <Play size={16} /> : <Pause size={16} />}
                         </button>
                         <div className="w-24 h-1.5 bg-white/10 rounded-full overflow-hidden">
                             <div className="h-full bg-blue-500 rounded-full transition-all duration-300" style={{ width: `${ttsProgress}%` }} />
@@ -1130,6 +1215,7 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
                         setFormUrl(article.url || "");
                         setFormNotes(article.content || "");
                         setFormImagePreview(article.imageUrl || null);
+                        setFormCategory(article.category || "");
                         setFormPublishedTime(article.createdAt ? String(article.createdAt) : "");
                         setFormImageFile(null);
                     }
@@ -1192,6 +1278,22 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
                 <div className="flex flex-col gap-1.5">
                     <label className={LABEL_CLASS}>Notes</label>
                     <RichTextEditor value={formNotes} onChange={setFormNotes} placeholder="Quick notes or summary…" />
+                </div>
+                <div className="flex flex-col gap-1.5">
+                    <label className={LABEL_CLASS}>Category</label>
+                    <select
+                        value={formCategory}
+                        onChange={e => setFormCategory(e.target.value)}
+                        className="h-12 bg-zinc-50 rounded-xl border border-zinc-200/80 px-4 text-[14px] outline-none focus:border-zinc-300 appearance-none"
+                    >
+                        <option value="">None</option>
+                        {CATEGORIES.map(c => <option key={c.name} value={c.name}>{c.emoji} {c.name}</option>)}
+                    </select>
+                </div>
+                <div className="flex flex-col gap-1.5">
+                    <label className={LABEL_CLASS}>Published Date</label>
+                    <input type="date" value={formPublishedTime} onChange={e => setFormPublishedTime(e.target.value)}
+                        className="h-12 bg-zinc-50 rounded-xl border border-zinc-200/80 px-4 text-[14px] outline-none focus:border-zinc-300 appearance-none" />
                 </div>
             </BottomSheet>
         </div>

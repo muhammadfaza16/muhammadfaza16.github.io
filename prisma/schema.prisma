@@ -20,6 +20,7 @@ model Article {
   isRead       Boolean  @default(false)
   isBookmarked Boolean  @default(false)
   scheduledFor DateTime?
+  score        ArticleScore?
 }
 
 model Comment {
@@ -34,6 +35,7 @@ model Comment {
 model ArticleScore {
   id            String   @id @default(uuid())
   articleId     String   @unique
+  article       Article  @relation(fields: [articleId], references: [id], onDelete: Cascade)
   substance     Int      @default(0)
   depth         Int      @default(0)
   structure     Int      @default(0)

@@ -6,7 +6,7 @@ export const dynamic = 'force-dynamic';
 export async function POST(request: Request) {
     try {
         const data = await request.json();
-        const { url, title, notes } = data;
+        const { url, title, notes, imageUrl, category } = data;
 
         if (!url) {
             return NextResponse.json({ error: "Missing required URL field" }, { status: 400 });
@@ -17,9 +17,10 @@ export async function POST(request: Request) {
                 title: title || "Suggested Article",
                 content: notes || "No additional context provided.",
                 url,
+                imageUrl: imageUrl || null,
                 category: "__SUGGESTED__",
                 isRead: false,
-            },
+            } as any,
         });
 
         return NextResponse.json({ success: true, article: newSuggestion }, { status: 201 });
