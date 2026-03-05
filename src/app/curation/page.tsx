@@ -3,7 +3,7 @@
 import { useEffect, useState, useRef, useCallback } from "react";
 import { motion, AnimatePresence, useMotionValue, useTransform } from "framer-motion";
 import Link from "next/link";
-import { Search, ChevronLeft, Bookmark, FileText, Plus, Loader2, CheckCircle, Send, X, ArrowUpRight, ArrowDown, ArrowUp } from "lucide-react";
+import { Search, ChevronLeft, Bookmark, FileText, Plus, Loader2, CheckCircle, Send, X, ArrowUpRight, ArrowDown, ArrowUp, Share2 } from "lucide-react";
 import { Toaster, toast } from 'react-hot-toast';
 import { createToReadArticle, updateToReadArticle } from "@/app/master/actions";
 import { uploadImageToSupabase } from "@/lib/uploadImage";
@@ -78,6 +78,7 @@ export default function CurationList() {
 
     const [weeklyReads, setWeeklyReads] = useState(0);
     const [navigatingId, setNavigatingId] = useState<string | null>(null);
+    const [readingProgress, setReadingProgress] = useState<Record<string, number>>({});
 
     // Refs
     const hasRestoredCache = useRef(false);
@@ -352,9 +353,42 @@ export default function CurationList() {
         toast.success(wasBookmarked ? "Removed bookmark" : "Bookmarked!");
     };
 
+    // Share handler
+    const handleShareArticle = async (article: ArticleMeta) => {
+        const shareUrl = `${window.location.origin}/curation/${article.id}`;
+        const shareData = { title: article.title, url: shareUrl };
+        try {
+            if (navigator.share) {
+                await navigator.share(shareData);
+            } else {
+                await navigator.clipboard.writeText(shareUrl);
+                toast.success('Link copied!');
+            }
+        } catch (err: any) {
+            if (err?.name !== 'AbortError') {
+                await navigator.clipboard.writeText(shareUrl);
+                toast.success('Link copied!');
+            }
+        }
+    };
+
     // Init
     useEffect(() => {
         setVisitorState(getVisitorState());
+
+        // Load reading progress from localStorage
+        try {
+            const progressMap: Record<string, number> = {};
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                if (key?.startsWith('curation_progress_')) {
+                    const articleId = key.replace('curation_progress_', '');
+                    const pct = parseFloat(localStorage.getItem(key) || '0');
+                    if (pct > 0.05) progressMap[articleId] = pct;
+                }
+            }
+            setReadingProgress(progressMap);
+        } catch { }
 
         // Calculate weekly reads streak
         try {
@@ -516,6 +550,45 @@ export default function CurationList() {
                                 )}
                             </div>
                         </div>
+
+                        {/* ═══ CONTINUE READING ═══ */}
+                        {(() => {
+                            const inProgress = articles.filter(a => {
+                                const pct = readingProgress[a.id];
+                                return pct && pct > 0.05 && pct < 0.95;
+                            });
+                            if (inProgress.length === 0) return null;
+                            return (
+                                <div className="mb-10 px-1">
+                                    <h3 className="text-[11px] font-bold tracking-widest text-zinc-400 uppercase mb-4">📖 Continue Reading</h3>
+                                    <div className="flex gap-3 overflow-x-auto no-scrollbar pb-2">
+                                        {inProgress.map(article => (
+                                            <Link
+                                                key={article.id}
+                                                href={`/curation/${article.id}`}
+                                                onClick={() => setNavigatingId(article.id)}
+                                                className="shrink-0 w-[220px] bg-white border border-zinc-200/80 rounded-2xl p-3.5 active:scale-[0.97] transition-all hover:shadow-sm group"
+                                            >
+                                                <h4 className="text-[13px] font-bold text-zinc-800 leading-tight line-clamp-2 mb-2 group-hover:text-blue-600 transition-colors">
+                                                    {article.title}
+                                                </h4>
+                                                <div className="flex items-center gap-2 mb-2.5">
+                                                    <span className="text-[10px] font-medium text-zinc-400">
+                                                        {Math.round((readingProgress[article.id] || 0) * 100)}% read
+                                                    </span>
+                                                </div>
+                                                <div className="w-full h-1.5 bg-zinc-100 rounded-full overflow-hidden">
+                                                    <div
+                                                        className="h-full bg-gradient-to-r from-blue-400 to-blue-500 rounded-full transition-all"
+                                                        style={{ width: `${Math.round((readingProgress[article.id] || 0) * 100)}%` }}
+                                                    />
+                                                </div>
+                                            </Link>
+                                        ))}
+                                    </div>
+                                </div>
+                            );
+                        })()}
 
                         {/* Topic Grid */}
                         <div className="px-1">
@@ -740,6 +813,8 @@ export default function CurationList() {
                                                 onSwipeRight={() => toggleVisitorRead(article.id)}
                                                 onSwipeLeft={() => toggleVisitorBookmark(article.id)}
                                                 isNavigating={navigatingId === article.id}
+                                                progress={readingProgress[article.id] || 0}
+                                                onShare={() => handleShareArticle(article)}
                                             />
                                         )}
                                     </motion.div>
@@ -877,7 +952,9 @@ function SwipeableArticleCard({
     onClick,
     onSwipeRight,
     onSwipeLeft,
-    isNavigating
+    isNavigating,
+    progress = 0,
+    onShare
 }: {
     article: ArticleMeta,
     validImageUrl: string | null,
@@ -890,7 +967,9 @@ function SwipeableArticleCard({
     onClick: () => void,
     onSwipeRight: () => void,
     onSwipeLeft: () => void,
-    isNavigating?: boolean
+    isNavigating?: boolean,
+    progress?: number,
+    onShare?: () => void
 }) {
     const x = useMotionValue(0);
     const [isDragging, setIsDragging] = useState(false);
@@ -1014,6 +1093,27 @@ function SwipeableArticleCard({
                         </div>
                     </div>
                 </Link>
+
+                {/* Share button */}
+                {onShare && (
+                    <button
+                        onClick={(e) => { e.stopPropagation(); onShare(); }}
+                        className="absolute top-3 right-3 z-20 p-2 rounded-full bg-white/90 border border-zinc-100 shadow-sm opacity-0 group-hover/card:opacity-100 transition-opacity active:scale-90 pointer-events-auto"
+                        aria-label="Share"
+                    >
+                        <Share2 size={14} className="text-zinc-500" />
+                    </button>
+                )}
+
+                {/* Reading progress bar */}
+                {progress > 0.05 && (
+                    <div className="mt-2 w-full h-1 bg-zinc-100 rounded-full overflow-hidden">
+                        <div
+                            className={`h-full rounded-full transition-all ${progress >= 0.95 ? 'bg-emerald-400' : 'bg-gradient-to-r from-blue-400 to-blue-500'}`}
+                            style={{ width: `${Math.min(Math.round(progress * 100), 100)}%` }}
+                        />
+                    </div>
+                )}
             </motion.div>
         </div>
     );
