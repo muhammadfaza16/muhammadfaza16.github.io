@@ -58,20 +58,31 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
             return;
         }
 
-        // Use View Transition API with flushSync to eliminate async React render delays
-        document.startViewTransition(() => {
-            flushSync(() => {
-                setTheme(newTheme);
-            });
+        // Blur the currently active element (the toggle button) to prevent its active/focus state
+        // from being captured and permanently frozen in the view transition snapshot.
+        if (document.activeElement instanceof HTMLElement) {
+            document.activeElement.blur();
+        }
 
-            // Eager fallback just in case flushSync doesn't catch root early enough
-            const root = document.documentElement;
-            if (newTheme === "dark") {
-                root.classList.add("dark");
-            } else {
-                root.classList.remove("dark");
-            }
-        });
+        // We wrap the transition trigger inside a setTimeout to allow the current click event
+        // to finish propagating and bubbling completely. Without this, the synchronous DOM
+        // freezing of startViewTransition can swallow the browser's subsequent pointer events,
+        // causing the "unresponsive button requiring a second click to wake up" bug.
+        setTimeout(() => {
+            document.startViewTransition(() => {
+                flushSync(() => {
+                    setTheme(newTheme);
+                });
+
+                // Eager fallback just in case flushSync doesn't catch root early enough
+                const root = document.documentElement;
+                if (newTheme === "dark") {
+                    root.classList.add("dark");
+                } else {
+                    root.classList.remove("dark");
+                }
+            });
+        }, 0);
     };
 
     return (

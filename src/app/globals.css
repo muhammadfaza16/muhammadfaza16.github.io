@@ -28,29 +28,29 @@
 /* Modern Editorial Theme Definition */
 :root {
   /* Bases - Warm Off-White */
-  --background: #FAFAFA;
+  --background: #fafafa;
   --background-rgb: 250, 250, 250;
-  --foreground: #1A1A1A;
+  --foreground: #1a1a1a;
 
   /* Fonts - Accessible Variables */
-  --font-serif: 'Playfair Display', serif;
-  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
-  --font-mono: 'Space Mono', monospace;
+  --font-serif: "Playfair Display", serif;
+  --font-sans: "Inter", system-ui, -apple-system, sans-serif;
+  --font-mono: "Space Mono", monospace;
 
   /* Text - Softer Blacks */
-  --text-primary: #1A1A1A;
+  --text-primary: #1a1a1a;
   --text-secondary: #525252;
   --text-muted: #737373;
 
   /* Accents - Editorial Blue */
-  --accent: #2563EB;
+  --accent: #2563eb;
 
   /* UI Elements */
-  --border: #E5E5E5;
-  --border-strong: #D4D4D4;
-  --card-bg: #FFFFFF;
-  --card-hover: #F8F8F8;
-  --hover-bg: #F5F5F5;
+  --border: #e5e5e5;
+  --border-strong: #d4d4d4;
+  --card-bg: #ffffff;
+  --card-hover: #f8f8f8;
+  --hover-bg: #f5f5f5;
   --glow: rgba(0, 0, 0, 0.03);
 }
 
@@ -58,22 +58,22 @@
   /* Bases - Deep Ink */
   --background: #111111;
   --background-rgb: 17, 17, 17;
-  --foreground: #FAFAFA;
+  --foreground: #fafafa;
 
   /* Text */
-  --text-primary: #FAFAFA;
-  --text-secondary: #A3A3A3;
+  --text-primary: #fafafa;
+  --text-secondary: #a3a3a3;
   --text-muted: #737373;
 
   /* Accents - Softer Blue */
-  --accent: #60A5FA;
+  --accent: #60a5fa;
 
   /* UI Elements */
   --border: #262626;
   --border-strong: #404040;
-  --card-bg: #1A1A1A;
+  --card-bg: #1a1a1a;
   --card-hover: #262626;
-  --hover-bg: #1F1F1F;
+  --hover-bg: #1f1f1f;
   --glow: rgba(255, 255, 255, 0.05);
 }
 
@@ -103,7 +103,9 @@
     /* Generous leading */
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    transition: background-color 1.5s ease, color 1.5s ease;
+    transition:
+      background-color 1.5s ease,
+      color 1.5s ease;
   }
 
   /* Zen Mode Styles - Enhanced Reading Experience */
@@ -252,7 +254,8 @@
   /* Background Grid Pattern */
   .bg-grid {
     background-size: 40px 40px;
-    background-image: linear-gradient(to right, var(--border) 1px, transparent 1px),
+    background-image:
+      linear-gradient(to right, var(--border) 1px, transparent 1px),
       linear-gradient(to bottom, var(--border) 1px, transparent 1px);
     mask-image: linear-gradient(to bottom, black 40%, transparent 100%);
     -webkit-mask-image: linear-gradient(to bottom, black 40%, transparent 100%);
@@ -260,7 +263,7 @@
   }
 
   .text-mono {
-    font-family: 'JetBrains Mono', 'Fira Code', monospace;
+    font-family: "JetBrains Mono", "Fira Code", monospace;
     letter-spacing: -0.02em;
   }
 
@@ -272,7 +275,7 @@
   }
 
   .link-underline::after {
-    content: '';
+    content: "";
     position: absolute;
     bottom: -2px;
     left: 0;
@@ -293,7 +296,8 @@
 
   /* Card hover effect */
   .card-hover {
-    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+    transition:
+      transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
       box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1),
       background-color 0.3s ease;
   }
@@ -313,18 +317,21 @@
     position: relative;
     overflow: hidden;
     transition: all 0.3s ease;
-    font-family: 'Playfair Display', serif;
+    font-family: "Playfair Display", serif;
     letter-spacing: 0.02em;
   }
 
   .btn-primary::before {
-    content: '';
+    content: "";
     position: absolute;
     top: 0;
     left: -100%;
     width: 100%;
     height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    background: linear-gradient(90deg,
+        transparent,
+        rgba(255, 255, 255, 0.2),
+        transparent);
     transition: left 0.5s ease;
   }
 
@@ -352,7 +359,7 @@
   .prose-editorial h2 {
     margin-top: 3.5rem;
     margin-bottom: 1.5rem;
-    font-family: 'Playfair Display', serif;
+    font-family: "Playfair Display", serif;
     font-weight: 600;
     font-size: 2.25rem;
     line-height: 1.2;
@@ -363,7 +370,7 @@
   .prose-editorial h3 {
     margin-top: 2.5rem;
     margin-bottom: 1rem;
-    font-family: 'Playfair Display', serif;
+    font-family: "Playfair Display", serif;
     font-weight: 500;
     font-size: 1.75rem;
     color: var(--foreground);
@@ -371,7 +378,7 @@
 
   .prose-editorial p {
     margin-bottom: 2rem;
-    font-family: 'Source Serif 4', serif;
+    font-family: "Source Serif 4", serif;
     font-weight: 400;
   }
 
@@ -381,7 +388,7 @@
     /* Remove harsh border */
     padding: 2rem 3rem;
     margin: 3.5rem 0;
-    font-family: 'Playfair Display', serif;
+    font-family: "Playfair Display", serif;
     font-size: 1.8rem;
     font-style: italic;
     font-weight: 500;
@@ -405,7 +412,7 @@
   /* Drop Cap - The "Steve Jobs" opening */
   .drop-cap::first-letter {
     float: left;
-    font-family: 'Playfair Display', serif;
+    font-family: "Playfair Display", serif;
     font-size: 5.5rem;
     /* Massive */
     line-height: 0.8;
@@ -438,7 +445,7 @@
   }
 
   .prose-editorial code {
-    font-family: 'Space Mono', monospace;
+    font-family: "Space Mono", monospace;
     background: rgba(0, 0, 0, 0.05);
     padding: 0.2em 0.4em;
     border-radius: 4px;
@@ -506,7 +513,10 @@
     line-height: var(--reader-line-height, 1.8) !important;
     font-family: var(--reader-font-family, inherit) !important;
     color: var(--theme-text, inherit) !important;
-    transition: font-size 0.3s ease, line-height 0.3s ease, color 0.5s ease;
+    transition:
+      font-size 0.3s ease,
+      line-height 0.3s ease,
+      color 0.5s ease;
   }
 
   .reader-content h1,
@@ -893,7 +903,9 @@
 
   /* Gradient text utility */
   .gradient-text {
-    background: linear-gradient(135deg, var(--foreground), var(--text-secondary));
+    background: linear-gradient(135deg,
+        var(--foreground),
+        var(--text-secondary));
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -944,7 +956,9 @@
   /* Emoji styles - colorful and vibrant */
   .emoji,
   [data-emoji="true"] {
-    font-family: "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", "Android Emoji", "EmojiSymbols", sans-serif;
+    font-family:
+      "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji",
+      "Android Emoji", "EmojiSymbols", sans-serif;
     font-style: normal;
   }
 }
@@ -1059,13 +1073,199 @@
   z-index: 1000;
 }
 
+.stagger-children>*:nth-child(6) {
+  animation-delay: 0.6s;
+}
+
+/* No Scrollbar Utility */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Focus states for accessibility */
+:focus-visible {
+  outline: 2px solid var(--foreground);
+  outline-offset: 2px;
+}
+
+/* Gradient text utility */
+.gradient-text {
+  background: linear-gradient(135deg, var(--foreground), var(--text-secondary));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Glass effect */
+.glass {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.dark .glass {
+  background: rgba(0, 0, 0, 0.7);
+}
+
+/* Hover glow effect */
+.hover-glow {
+  transition: box-shadow 0.3s ease;
+}
+
+.hover-glow:hover {
+  box-shadow: 0 0 30px var(--glow);
+}
+
+/* Line clamp utility */
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Dropdown item hover */
+.dropdown-item-hover:hover {
+  background-color: var(--hover-bg) !important;
+  color: var(--foreground) !important;
+}
+
+/* Link card hover effect */
+.link-card-hover:hover {
+  border-color: var(--border-strong) !important;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px var(--glow);
+}
+
+/* Emoji styles - colorful and vibrant */
+.emoji,
+[data-emoji="true"] {
+  font-family:
+    "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", "Android Emoji",
+    "EmojiSymbols", sans-serif;
+  font-style: normal;
+}
+
+/* Special Day Guest 28 Ambient Keyframes - Performance Optimized */
+@keyframes floatParticle {
+  0% {
+    transform: translateY(0) scale(0.8);
+    opacity: 0;
+  }
+
+  25% {
+    opacity: 0.3;
+  }
+
+  50% {
+    transform: translateY(-80px) scale(1.2);
+    opacity: 0.3;
+  }
+
+  100% {
+    transform: translateY(-160px) scale(0.8);
+    opacity: 0;
+  }
+}
+
+@keyframes fallPetal {
+  0% {
+    transform: translateY(-5vh) translateX(0) rotate(0deg);
+    opacity: 0;
+  }
+
+  10% {
+    opacity: 0.5;
+  }
+
+  25% {
+    transform: translateY(20vh) translateX(20px) rotate(45deg);
+    opacity: 0.5;
+  }
+
+  50% {
+    transform: translateY(50vh) translateX(-15px) rotate(90deg);
+    opacity: 0.3;
+  }
+
+  75% {
+    transform: translateY(80vh) translateX(25px) rotate(135deg);
+    opacity: 0.1;
+  }
+
+  100% {
+    transform: translateY(105vh) translateX(0) rotate(180deg);
+    opacity: 0;
+  }
+}
+
+@keyframes twinkleStar {
+
+  0%,
+  100% {
+    opacity: 0.2;
+    transform: scale(0.8);
+  }
+
+  50% {
+    opacity: 0.8;
+    transform: scale(1.2);
+  }
+}
+
+@keyframes glowPulse {
+
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 0.25;
+  }
+
+  50% {
+    transform: scale(1.05);
+    opacity: 0.35;
+  }
+}
+
+/* ═══ DARK MODE RADIAL WIPE TRANSITION ═══ */
+::view-transition-group(root) {
+  animation-duration: 2.5s;
+  animation-timing-function: cubic-bezier(0.5, 0, 0, 1);
+}
+
+::view-transition-new(root) {
+  animation: radial-wipe-in 2.5s cubic-bezier(0.5, 0, 0, 1) forwards;
+  mix-blend-mode: normal;
+  z-index: 1000;
+}
+
+::view-transition-old(root) {
+  animation: none;
+  z-index: -1;
+}
+
+.dark::view-transition-old(root) {
+  animation: none;
+  z-index: -1;
+}
+
+.dark::view-transition-new(root) {
+  animation: radial-wipe-in 2.5s cubic-bezier(0.5, 0, 0, 1) forwards;
+  z-index: 1000;
+}
+
 @keyframes radial-wipe-in {
   from {
     clip-path: circle(0px at 100% 0%);
   }
 
   to {
-    /* 250% ensures it fully covers the diagonal of large screens */
     clip-path: circle(250% at 100% 0%);
   }
 }
