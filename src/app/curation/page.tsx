@@ -97,6 +97,19 @@ function saveVisitorState(state: {
 }
 
 // ─── Helpers ───
+function useDebounce<T>(value: T, delay: number): T {
+  const [debouncedValue, setDebouncedValue] = useState<T>(value);
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedValue(value);
+    }, delay);
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [value, delay]);
+  return debouncedValue;
+}
+
 const HighlightText = ({ text, query }: { text: string; query: string }) => {
   if (!query) return <>{text}</>;
   const regex = new RegExp(`(${query})`, "gi");
@@ -130,6 +143,7 @@ export default function CurationList() {
     "all" | "unread" | "bookmarked"
   >("all");
   const [searchQuery, setSearchQuery] = useState("");
+  const debouncedSearchQuery = useDebounce(searchQuery, 300);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [imgErrors, setImgErrors] = useState<Record<string, boolean>>({});
   const [isLoadingMore, setIsLoadingMore] = useState(false);
@@ -421,15 +435,10 @@ export default function CurationList() {
   };
 
   useEffect(() => {
-    // Debounce search queries, instant for sort/category changes
-    const delay = searchQuery ? 300 : 0;
-    const timeoutId = setTimeout(() => {
-      fetchArticles(null, sort, categoryFilter, searchQuery);
-    }, delay);
-
-    return () => clearTimeout(timeoutId);
+    // Instant for sort/category, debounced by useDebounce for search
+    fetchArticles(null, sort, categoryFilter, debouncedSearchQuery);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [sort, categoryFilter, searchQuery]);
+  }, [sort, categoryFilter, debouncedSearchQuery]);
 
   // Infinite scroll & Auto-fetch for sparse filtered views
   useEffect(() => {
@@ -460,7 +469,7 @@ export default function CurationList() {
     sort,
     categoryFilter,
     articles.length,
-    searchQuery,
+    debouncedSearchQuery,
   ]);
 
   // Visitor state actions
@@ -617,7 +626,7 @@ export default function CurationList() {
   const categoryCount = CATEGORIES.length;
   const isFiltering =
     categoryFilter.length > 0 ||
-    searchQuery.length > 0 ||
+    debouncedSearchQuery.length > 0 ||
     statusFilter !== "all";
 
   return (
@@ -870,7 +879,7 @@ export default function CurationList() {
             className="text-[20px] font-bold tracking-tight text-zinc-900 dark:text-zinc-100"
             style={{ fontFamily: "'Playfair Display', Georgia, serif" }}
           >
-            {searchQuery
+            {debouncedSearchQuery
               ? "Search Results"
               : categoryFilter.length > 0
                 ? `${categoryFilter.join(", ")}`
