@@ -179,15 +179,23 @@ const FormFields = ({
     formTitle, setFormTitle,
     formExtra, setFormExtra,
     formUrl, setFormUrl,
+    formCategory, setFormCategory,
     formNotes, setFormNotes,
+    formLikes, setFormLikes,
+    formReposts, setFormReposts,
+    formReplies, setFormReplies,
 }: {
     category: CategoryId;
     formTitle: string; setFormTitle: (v: string) => void;
     formExtra: string; setFormExtra: (v: string) => void;
+    formCategory: string; setFormCategory: (v: string) => void;
     formUrl: string; setFormUrl: (v: string) => void;
     formNotes: string; setFormNotes: (v: string) => void;
+    formLikes: string; setFormLikes: (v: string) => void;
+    formReposts: string; setFormReposts: (v: string) => void;
+    formReplies: string; setFormReplies: (v: string) => void;
 }) => {
-    if (category === "writing" || category === "toread") {
+    if (category === "writing" || category === "toread" || category === "suggestions") {
         return (
             <>
                 <div className="flex flex-col gap-1.5">
@@ -195,9 +203,29 @@ const FormFields = ({
                     <QuickPasteInput value={formTitle} onChange={setFormTitle} placeholder="Article or page title" />
                 </div>
                 <div className="flex flex-col gap-1.5">
+                    <label className={LABEL_CLASS}>Category</label>
+                    <QuickPasteInput value={formCategory} onChange={setFormCategory} placeholder="Category (e.g. Tech, Finance)" />
+                </div>
+                <div className="flex flex-col gap-1.5">
                     <label className={LABEL_CLASS}>URL / Link</label>
                     <QuickPasteInput value={formUrl} onChange={setFormUrl} placeholder="https://example.com" type="url" />
                 </div>
+                {(category === "toread" || category === "suggestions") && (
+                    <div className="grid grid-cols-3 gap-3">
+                        <div className="flex flex-col gap-1.5">
+                            <label className={LABEL_CLASS}>Likes</label>
+                            <input type="number" value={formLikes} onChange={e => setFormLikes(e.target.value)} placeholder="0" className={INPUT_CLASS} />
+                        </div>
+                        <div className="flex flex-col gap-1.5">
+                            <label className={LABEL_CLASS}>RTs</label>
+                            <input type="number" value={formReposts} onChange={e => setFormReposts(e.target.value)} placeholder="0" className={INPUT_CLASS} />
+                        </div>
+                        <div className="flex flex-col gap-1.5">
+                            <label className={LABEL_CLASS}>Replies</label>
+                            <input type="number" value={formReplies} onChange={e => setFormReplies(e.target.value)} placeholder="0" className={INPUT_CLASS} />
+                        </div>
+                    </div>
+                )}
                 <div className="flex flex-col gap-1.5">
                     <label className={LABEL_CLASS}>Notes</label>
                     <RichTextEditor value={formNotes} onChange={setFormNotes} placeholder="Quick notes or summary…" />
@@ -266,8 +294,12 @@ export default function PersonalCMS() {
     const [editItemId, setEditItemId] = useState<string | null>(null);
     const [formTitle, setFormTitle] = useState("");
     const [formUrl, setFormUrl] = useState("");
+    const [formCategory, setFormCategory] = useState("");
     const [formNotes, setFormNotes] = useState("");
     const [formExtra, setFormExtra] = useState(""); // Author (books) or Price (wishlist)
+    const [formLikes, setFormLikes] = useState("");
+    const [formReposts, setFormReposts] = useState("");
+    const [formReplies, setFormReplies] = useState("");
     const [formImageFile, setFormImageFile] = useState<File | null>(null);
     const [formImagePreview, setFormImagePreview] = useState<string | null>(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -301,7 +333,8 @@ export default function PersonalCMS() {
 
     // --- Form Handlers ---
     const resetForm = () => {
-        setFormTitle(""); setFormUrl(""); setFormNotes(""); setFormExtra("");
+        setFormTitle(""); setFormUrl(""); setFormNotes(""); setFormExtra(""); setFormCategory("");
+        setFormLikes(""); setFormReposts(""); setFormReplies("");
         setFormImageFile(null); setFormImagePreview(null);
         setEditItemId(null); setUploadStatus("idle");
     };
@@ -312,8 +345,12 @@ export default function PersonalCMS() {
         setEditItemId(item.id);
         setFormTitle(item.title || item.name || "");
         setFormNotes(item.content || item.review || "");
+        setFormCategory(item.category || "");
         setFormImageFile(null);
         setFormImagePreview(item.imageUrl || null);
+        setFormLikes(item.likes?.toString() || "");
+        setFormReposts(item.reposts?.toString() || "");
+        setFormReplies(item.replies?.toString() || "");
 
         // Context-aware field mapping for Edit
         if (activeCategory === "writing" || activeCategory === "toread" || activeCategory === "suggestions") {
@@ -367,8 +404,8 @@ export default function PersonalCMS() {
         if (activeCategory === "toread" || activeCategory === "suggestions") {
             if (!formUrl) { toast.error("URL is required"); setIsSubmitting(false); setUploadStatus("idle"); return; }
             const res = editItemId
-                ? await updateToReadArticle(editItemId, formTitle, formUrl, formNotes, imageUrl)
-                : await createToReadArticle(formTitle, formUrl, formNotes, imageUrl);
+                ? await updateToReadArticle(editItemId, formTitle, formUrl, formNotes, imageUrl, formCategory, undefined, Number(formLikes), Number(formReposts), Number(formReplies))
+                : await createToReadArticle(formTitle, formUrl, formNotes, imageUrl, formCategory, undefined, Number(formLikes), Number(formReposts), Number(formReplies));
             success = res.success; data = res.data; errorMsg = res.error || errorMsg;
         } else if (activeCategory === "writing") {
             const res = editItemId
@@ -654,8 +691,12 @@ export default function PersonalCMS() {
                         category={activeCategory}
                         formTitle={formTitle} setFormTitle={setFormTitle}
                         formExtra={formExtra} setFormExtra={setFormExtra}
+                        formCategory={formCategory} setFormCategory={setFormCategory}
                         formUrl={formUrl} setFormUrl={setFormUrl}
                         formNotes={formNotes} setFormNotes={setFormNotes}
+                        formLikes={formLikes} setFormLikes={setFormLikes}
+                        formReposts={formReposts} setFormReposts={setFormReposts}
+                        formReplies={formReplies} setFormReplies={setFormReplies}
                     />
                 </BottomSheet>
             </div>

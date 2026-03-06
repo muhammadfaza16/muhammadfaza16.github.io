@@ -5,23 +5,25 @@ generator client {
 datasource db {
   provider  = "postgresql"
   url       = env("DATABASE_URL")
-  // directUrl = env("DIRECT_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 model Article {
-  id           String   @id @default(uuid())
+  id           String        @id @default(uuid())
   title        String
-  content      String   @db.Text
-  summary      String?  @db.Text
+  content      String        @db.Text
   url          String?
-  imageUrl     String?  @map("image_url")
+  imageUrl     String?       @map("image_url")
   category     String?
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
-  isRead       Boolean  @default(false)
-  isBookmarked Boolean  @default(false)
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  isRead       Boolean       @default(false)
+  isBookmarked Boolean       @default(false)
   scheduledFor DateTime?
   score        ArticleScore?
+
+  @@index([category])
+  @@index([createdAt])
 }
 
 model Comment {
@@ -31,6 +33,8 @@ model Comment {
   content    String   @db.Text
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
+
+  @@index([articleId])
 }
 
 model ArticleScore {
@@ -46,79 +50,83 @@ model ArticleScore {
   actionability Int      @default(0)
   engagement    Int      @default(0)
   total         Int      @default(0)
+  socialScore   Int      @default(0)
   updatedAt     DateTime @default(now())
+
+  @@index([socialScore])
+  @@index([total])
 }
 
 model Post {
-  id         String   @id @default(uuid())
-  slug       String   @unique
-  title      String
-  content    String   @db.Text
-  url        String?
-  imageUrl   String?  @map("image_url")
-  published  Boolean  @default(false)
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  id        String   @id @default(uuid())
+  slug      String   @unique
+  title     String
+  content   String   @db.Text
+  url       String?
+  imageUrl  String?  @map("image_url")
+  published Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Book {
-  id         String   @id @default(uuid())
-  title      String
-  author     String
-  url        String?
-  imageUrl   String?  @map("image_url")
-  review     String?  @db.Text
-  rating     Int      @default(0)
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  id        String   @id @default(uuid())
+  title     String
+  author    String
+  url       String?
+  imageUrl  String?  @map("image_url")
+  review    String?  @db.Text
+  rating    Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model WishlistItem {
-  id         String   @id @default(uuid())
-  name       String
-  price      String?
-  url        String?
-  imageUrl   String?  @map("image_url")
-  priority   String   @default("Low")
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  id        String   @id @default(uuid())
+  name      String
+  price     String?
+  url       String?
+  imageUrl  String?  @map("image_url")
+  priority  String   @default("Low")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Song {
-  id         String   @id @default(uuid())
-  title      String
-  audioUrl   String   @map("audio_url")
-  source     String   @default("youtube") // youtube, local, etc
-  duration   Int?     // seconds
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-  playlists  PlaylistSong[]
-  radios     RadioSong[]
+  id        String         @id @default(uuid())
+  title     String
+  audioUrl  String         @map("audio_url")
+  source    String         @default("youtube") // youtube, local, etc
+  duration  Int? // seconds
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+  playlists PlaylistSong[]
+  radios    RadioSong[]
 }
 
 model Radio {
-  id          String   @id @default(uuid())
-  slug        String   @unique
+  id          String      @id @default(uuid())
+  slug        String      @unique
   name        String
   description String?
-  themeColor  String   @default("#3b82f6")
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  themeColor  String      @default("#3b82f6")
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
   songs       RadioSong[]
 }
 
 model RadioSong {
   radioId String
   songId  String
-  radio   Radio @relation(fields: [radioId], references: [id], onDelete: Cascade)
-  song    Song  @relation(fields: [songId], references: [id], onDelete: Cascade)
+  radio   Radio  @relation(fields: [radioId], references: [id], onDelete: Cascade)
+  song    Song   @relation(fields: [songId], references: [id], onDelete: Cascade)
 
   @@id([radioId, songId])
 }
 
 model Playlist {
-  id          String   @id @default(uuid())
-  slug        String   @unique
+  id          String         @id @default(uuid())
+  slug        String         @unique
   title       String
   description String?
   philosophy  String?
@@ -126,8 +134,8 @@ model Playlist {
   vibes       String[]
   coverColor  String?
   coverImage  String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
   songs       PlaylistSong[]
 }
 

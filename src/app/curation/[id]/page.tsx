@@ -3,7 +3,7 @@
 import { use, useEffect, useState, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { motion, useScroll, useSpring, useMotionValueEvent, AnimatePresence, useTransform } from "framer-motion";
-import { ArrowLeft, Clock, CheckCircle, Share, Trash2, Globe, Pencil, Loader2, Camera, X, Clipboard, ImageIcon, MessageSquareQuote, ChevronsDown, Maximize, Minimize, Minus, Plus, Type, Bookmark, Volume2, VolumeX, Pause, Play } from "lucide-react";
+import { ArrowLeft, Clock, CheckCircle, Share, Trash2, Globe, Pencil, Loader2, Camera, X, Clipboard, ImageIcon, MessageSquareQuote, ChevronsDown, Maximize, Minimize, Minus, Plus, Type, Bookmark, Volume2, VolumeX, Pause, Play, FolderPlus, FolderCheck, Check } from "lucide-react";
 import Link from "next/link";
 import ReactMarkdown from "react-markdown";
 import { getSupabase } from "@/lib/supabase";
@@ -140,6 +140,38 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
     // Highlights State
     type Highlight = { text: string; ts: number };
     const [highlights, setHighlights] = useState<Highlight[]>([]);
+
+    // Collections State
+    type Collection = { id: string; name: string; description: string; articleIds: string[]; createdAt: number };
+    const [collections, setCollections] = useState<Collection[]>([]);
+    const [isCollectionsSheetOpen, setIsCollectionsSheetOpen] = useState(false);
+
+    const openCollectionsSheet = () => {
+        try {
+            const saved = localStorage.getItem('curation_collections');
+            if (saved) setCollections(JSON.parse(saved));
+        } catch { }
+        setIsCollectionsSheetOpen(true);
+    };
+
+    const toggleArticleInCollection = (collectionId: string) => {
+        if (!article) return;
+        const updated = collections.map(c => {
+            if (c.id === collectionId) {
+                const hasIt = c.articleIds.includes(article.id);
+                return {
+                    ...c,
+                    articleIds: hasIt
+                        ? c.articleIds.filter(id => id !== article.id)
+                        : [...c.articleIds, article.id]
+                };
+            }
+            return c;
+        });
+        setCollections(updated);
+        try { localStorage.setItem('curation_collections', JSON.stringify(updated)); } catch { }
+        toast.success('Collection updated');
+    };
     const [selectionTooltip, setSelectionTooltip] = useState<{ x: number; y: number; text: string } | null>(null);
     const [showHighlightsPanel, setShowHighlightsPanel] = useState(false);
 
@@ -990,6 +1022,12 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
                         </button>
                     )}
                     <button
+                        onClick={openCollectionsSheet}
+                        className={`flex items-center gap-2 px-5 py-2.5 rounded-full font-bold text-[13px] transition-all active:scale-95 border shadow-sm bg-white text-zinc-700 border-gray-200 hover:bg-gray-50`}
+                    >
+                        <FolderPlus size={16} /> Save to Collection
+                    </button>
+                    <button
                         onClick={handleToggleBookmark}
                         disabled={isTogglingBookmark}
                         className={`flex items-center gap-2 px-5 py-2.5 rounded-full font-bold text-[13px] transition-all active:scale-95 border shadow-sm ${article.isBookmarked
@@ -1444,6 +1482,54 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
                     <label className={LABEL_CLASS}>Published Date</label>
                     <input type="date" value={formPublishedTime} onChange={e => setFormPublishedTime(e.target.value)}
                         className="h-12 bg-zinc-50 rounded-xl border border-zinc-200/80 px-4 text-[14px] outline-none focus:border-zinc-300 appearance-none" />
+                </div>
+            </BottomSheet>
+
+            {/* Collections Sheet */}
+            <BottomSheet
+                isOpen={isCollectionsSheetOpen}
+                onClose={() => setIsCollectionsSheetOpen(false)}
+                title="Save to Collection"
+            >
+                <div className="flex flex-col gap-3 py-2 pb-6">
+                    {collections.length === 0 ? (
+                        <div className="text-center py-8">
+                            <p className="text-[14px] text-zinc-500 mb-4">You don't have any collections yet.</p>
+                            <Link
+                                href="/curation/collections"
+                                className="inline-flex items-center justify-center px-4 py-2 bg-black text-white text-[13px] font-bold rounded-full active:scale-95 transition-all"
+                            >
+                                <FolderPlus size={16} className="mr-2" />
+                                Create Collection
+                            </Link>
+                        </div>
+                    ) : (
+                        collections.map(collection => {
+                            const isSaved = article && collection.articleIds.includes(article.id);
+                            return (
+                                <button
+                                    key={collection.id}
+                                    onClick={() => toggleArticleInCollection(collection.id)}
+                                    className="flex items-center justify-between p-4 rounded-xl border border-zinc-200/80 hover:bg-zinc-50 transition-all text-left group"
+                                >
+                                    <div className="flex items-center gap-3">
+                                        <div className={`w-10 h-10 rounded-lg flex items-center justify-center shrink-0 transition-colors ${isSaved ? 'bg-blue-50 text-blue-600 border border-blue-200' : 'bg-zinc-100 text-zinc-400 group-hover:text-zinc-600'}`}>
+                                            {isSaved ? <FolderCheck size={18} /> : <FolderPlus size={18} />}
+                                        </div>
+                                        <div className="flex flex-col">
+                                            <span className="text-[14px] font-bold text-zinc-900 leading-tight mb-0.5">{collection.name}</span>
+                                            <span className="text-[12px] text-zinc-500">{collection.articleIds.length} article{collection.articleIds.length !== 1 ? 's' : ''}</span>
+                                        </div>
+                                    </div>
+                                    {isSaved && (
+                                        <div className="w-6 h-6 rounded-full bg-blue-600 flex items-center justify-center text-white">
+                                            <Check size={14} strokeWidth={3} />
+                                        </div>
+                                    )}
+                                </button>
+                            );
+                        })
+                    )}
                 </div>
             </BottomSheet>
         </div>

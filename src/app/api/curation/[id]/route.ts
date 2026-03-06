@@ -16,6 +16,13 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
                 isRead: true,
                 isBookmarked: true,
                 createdAt: true,
+                score: {
+                    select: {
+                        engagement: true,
+                        actionability: true,
+                        specificity: true
+                    }
+                }
             }
         });
 
@@ -23,7 +30,15 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
             return NextResponse.json({ error: "Article not found" }, { status: 404 });
         }
 
-        return NextResponse.json(article);
+        const response = {
+            ...article,
+            likes: article.score?.engagement || 0,
+            reposts: article.score?.actionability || 0,
+            replies: article.score?.specificity || 0,
+        };
+        delete (response as any).score;
+
+        return NextResponse.json(response);
     } catch (error) {
         console.error("Failed to fetch article:", error);
         return NextResponse.json({ error: "Failed to fetch article" }, { status: 500 });

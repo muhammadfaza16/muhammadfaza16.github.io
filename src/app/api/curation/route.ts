@@ -144,7 +144,7 @@ export async function GET(request: Request) {
         let scoreMap = new Map();
         if (articleIds.length > 0) {
             const scores: any[] = await prisma.$queryRawUnsafe(
-                `SELECT "articleId", "total", "substance" FROM "ArticleScore" WHERE "articleId" = ANY($1::text[])`,
+                `SELECT "articleId", "total", "substance", "engagement", "actionability", "specificity" FROM "ArticleScore" WHERE "articleId" = ANY($1::text[])`,
                 articleIds
             );
             scoreMap = new Map(scores.map((s: any) => [s.articleId, s]));
@@ -152,10 +152,19 @@ export async function GET(request: Request) {
 
         const enriched = articles.map((a: any) => {
             const score = scoreMap.get(a.id);
+            const likes = score?.engagement || 0;
+            const reposts = score?.actionability || 0;
+            const replies = score?.specificity || 0;
+            const socialScore = (likes * 1) + (reposts * 2) + (replies * 3);
+
             return {
                 ...a,
                 qualityScore: score?.total || null,
                 substanceScore: score?.substance || null,
+                likes,
+                reposts,
+                replies,
+                socialScore
             };
         });
 

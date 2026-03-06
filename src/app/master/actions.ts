@@ -10,7 +10,12 @@ const SAFE_ARTICLE_SELECT = { id: true, title: true, content: true, url: true, i
 export async function getToReadArticles() {
     try {
         const articles = await prisma.article.findMany({
-            where: { category: { not: "__SUGGESTED__" } },
+            where: {
+                OR: [
+                    { category: null },
+                    { category: { not: "__SUGGESTED__" } }
+                ]
+            },
             orderBy: { createdAt: "desc" },
             select: SAFE_ARTICLE_SELECT
         });
@@ -47,7 +52,7 @@ export async function approveSuggestedArticle(id: string) {
     }
 }
 
-export async function createToReadArticle(title: string, url: string, notes: string, imageUrl?: string, category?: string, createdAt?: string) {
+export async function createToReadArticle(title: string, url: string, notes: string, imageUrl?: string, category?: string, createdAt?: string, likes: number = 0, reposts: number = 0, replies: number = 0) {
     if (!title || !url) {
         return { success: false, error: "Title and URL are required" };
     }
@@ -71,8 +76,26 @@ export async function createToReadArticle(title: string, url: string, notes: str
             data: dataPayload,
             select: SAFE_ARTICLE_SELECT
         });
+
+        if (likes > 0 || reposts > 0 || replies > 0) {
+            await prisma.articleScore.upsert({
+                where: { articleId: article.id },
+                create: {
+                    articleId: article.id,
+                    engagement: likes,
+                    actionability: reposts,
+                    specificity: replies
+                },
+                update: {
+                    engagement: likes,
+                    actionability: reposts,
+                    specificity: replies
+                }
+            });
+        }
+
         revalidatePath('/curation');
-        return { success: true, data: article };
+        return { success: true, data: { ...article, likes, reposts, replies } };
     } catch (e: any) {
         return { success: false, error: e.message };
     }
@@ -106,10 +129,15 @@ export async function toggleBookmarkStatus(id: string, currentStatus: boolean) {
     }
 }
 
-export async function updateToReadArticle(id: string, title: string, url: string, notes: string, imageUrl?: string, category?: string, createdAt?: string) {
+export async function updateToReadArticle(id: string, title: string, url: string, notes: string, imageUrl?: string, category?: string, createdAt?: string, likes: number = 0, reposts: number = 0, replies: number = 0) {
     if (!title || !url) return { success: false, error: "Title and URL are required" };
     try {
-        const dataPayload: any = { title, url, content: notes || "No notes provided.", imageUrl: imageUrl || null, category: category || null };
+        const dataPayload: any = {
+            title, url, content: notes || "No notes provided.", imageUrl: imageUrl || null
+        };
+        if (category !== undefined) {
+            dataPayload.category = category === "" ? null : category;
+        }
         if (createdAt) {
             const parsedDate = new Date(createdAt);
             if (!isNaN(parsedDate.getTime())) {
@@ -121,8 +149,15 @@ export async function updateToReadArticle(id: string, title: string, url: string
             data: dataPayload,
             select: SAFE_ARTICLE_SELECT
         });
+
+        await prisma.articleScore.upsert({
+            where: { articleId: id },
+            create: { articleId: id, engagement: likes, actionability: reposts, specificity: replies },
+            update: { engagement: likes, actionability: reposts, specificity: replies }
+        });
+
         revalidatePath('/curation');
-        return { success: true, data: article };
+        return { success: true, data: { ...article, likes, reposts, replies } };
     } catch (e: any) { return { success: false, error: e.message }; }
 }
 

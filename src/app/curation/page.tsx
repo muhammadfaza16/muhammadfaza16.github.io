@@ -24,6 +24,9 @@ import {
   Share2,
   Sun,
   Moon,
+  Flame,
+  Highlighter,
+  Library,
 } from "lucide-react";
 import { Toaster, toast } from "react-hot-toast";
 import { updateToReadArticle, createToReadArticle } from "@/app/master/actions";
@@ -51,6 +54,7 @@ interface ArticleMeta {
   createdAt: string;
   qualityScore: number | null;
   substanceScore: number | null;
+  socialScore?: number;
 }
 
 type SortType = "latest" | "oldest";
@@ -58,14 +62,14 @@ type SortType = "latest" | "oldest";
 // ─── Constants ───
 
 const CATEGORIES = [
-  { name: "AI & Tools", emoji: "🤖" },
-  { name: "Wealth & Business", emoji: "💰" },
-  { name: "Mindset & Philosophy", emoji: "🧠" },
-  { name: "Self-Improvement & Productivity", emoji: "⚡" },
-  { name: "Career & Skills", emoji: "🎯" },
-  { name: "Marketing & Growth", emoji: "📈" },
-  { name: "Building & Design", emoji: "🔨" },
-  { name: "Health & Lifestyle", emoji: "🌱" },
+  { name: "AI & Tools", emoji: "🤖", desc: "Frameworks & future of computing" },
+  { name: "Wealth & Business", emoji: "💰", desc: "Strategies for leverage & scale" },
+  { name: "Mindset & Philosophy", emoji: "🧠", desc: "Mental models for clarity" },
+  { name: "Self-Improvement & Productivity", emoji: "⚡", desc: "Systems for deep work" },
+  { name: "Career & Skills", emoji: "🎯", desc: "Navigating the new economy" },
+  { name: "Marketing & Growth", emoji: "📈", desc: "Acquisition & audience building" },
+  { name: "Building & Design", emoji: "🔨", desc: "Creating digital experiences" },
+  { name: "Health & Lifestyle", emoji: "🌱", desc: "Performance & longevity" },
 ];
 
 const LABEL_CLASS =
@@ -136,7 +140,9 @@ const HighlightText = ({ text, query }: { text: string; query: string }) => {
 
 export default function CurationList() {
   const [articles, setArticles] = useState<ArticleMeta[]>([]);
+  const [topArticles, setTopArticles] = useState<ArticleMeta[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isLoadingTop, setIsLoadingTop] = useState(true);
   const [sort, setSort] = useState<SortType>("latest");
   const [categoryFilter, setCategoryFilter] = useState<string[]>([]);
   const [statusFilter, setStatusFilter] = useState<
@@ -153,6 +159,7 @@ export default function CurationList() {
     read: Record<string, boolean>;
     bookmarked: Record<string, boolean>;
   }>({ read: {}, bookmarked: {} });
+  const [isTopicsExpanded, setIsTopicsExpanded] = useState(false);
 
   const [weeklyReads, setWeeklyReads] = useState(0);
   const [navigatingId, setNavigatingId] = useState<string | null>(null);
@@ -315,9 +322,9 @@ export default function CurationList() {
               prev.map((a) =>
                 a.id === editingId
                   ? {
-                      ...(res.data as any),
-                      createdAt: res.data!.createdAt.toISOString(),
-                    }
+                    ...(res.data as any),
+                    createdAt: res.data!.createdAt.toISOString(),
+                  }
                   : a,
               ),
             );
@@ -486,7 +493,7 @@ export default function CurationList() {
     });
     try {
       if (navigator.vibrate) navigator.vibrate([10, 30, 10]);
-    } catch {}
+    } catch { }
     toast.success(wasRead ? "Marked unread" : "Marked read");
   };
 
@@ -506,7 +513,7 @@ export default function CurationList() {
     });
     try {
       if (navigator.vibrate) navigator.vibrate([15, 30, 15]);
-    } catch {}
+    } catch { }
     toast.success(wasBookmarked ? "Removed bookmark" : "Bookmarked!");
   };
 
@@ -545,7 +552,7 @@ export default function CurationList() {
         }
       }
       setReadingProgress(progressMap);
-    } catch {}
+    } catch { }
 
     // Calculate weekly reads streak
     try {
@@ -555,27 +562,37 @@ export default function CurationList() {
       const oneWeekAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
       const recentReads = history.filter((h: any) => h.ts > oneWeekAgo);
       setWeeklyReads(recentReads.length);
-    } catch {}
+    } catch { }
 
     // Check admin status via secure cookie
     fetch("/api/auth")
       .then((res) => res.json())
       .then((data) => setIsAdmin(data.isAdmin === true))
       .catch(() => setIsAdmin(false));
+
+    // Fetch Top Articles specifically for the Hero Carousel
+    fetch("/api/curation/top?limit=5")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success) setTopArticles(data.articles);
+      })
+      .catch(console.error)
+      .finally(() => setIsLoadingTop(false));
+
   }, []);
 
-  const handleSortChange = (s: SortType) => {
+  const handleSortChange = useCallback((s: SortType) => {
     if (s === sort) return;
     setSort(s);
-  };
+  }, [sort]);
 
-  const handleCategoryToggle = (catName: string) => {
+  const handleCategoryToggle = useCallback((catName: string) => {
     setCategoryFilter((prev) =>
       prev.includes(catName)
         ? prev.filter((c) => c !== catName)
         : [...prev, catName],
     );
-  };
+  }, []);
 
   // Helpers
   const getImageUrl = (article: ArticleMeta): string | null => {
@@ -802,108 +819,126 @@ export default function CurationList() {
               </div>
             </div>
 
-            {/* ═══ FEATURED EDITORIAL CARD ═══ */}
+            {/* ═══ HERO CAROUSEL (Top 5 Articles Globally) ═══ */}
             {(() => {
-              const featuredArticle = articles.find((a) => getImageUrl(a));
-              if (!featuredArticle) return null;
+              if (isLoadingTop) {
+                return (
+                  <div className="mb-14 pl-5">
+                    <div className="flex gap-4 overflow-x-auto no-scrollbar pb-6 pr-5">
+                      {[1, 2, 3].map((skeleton) => (
+                        <div key={skeleton} className="shrink-0 w-[85vw] md:w-[600px] h-[450px] bg-zinc-200/50 dark:bg-zinc-800/50 animate-pulse rounded-[2rem]" />
+                      ))}
+                    </div>
+                  </div>
+                )
+              }
 
-              const postDate = new Date(featuredArticle.createdAt);
-              const readTime = estimateReadTime(featuredArticle.content);
-              const validImageUrl = getImageUrl(featuredArticle);
-              const rawSummary =
-                (featuredArticle as any).summary ||
-                featuredArticle.content ||
-                "";
-              const plainSummary = rawSummary.replace(/<[^>]+>/g, "").trim();
+              if (topArticles.length === 0) return null;
 
               return (
-                <div className="mb-14 px-5">
-                  <Link
-                    href={`/curation/${featuredArticle.id}`}
-                    onClick={() => {
-                      setNavigatingId(featuredArticle.id);
-                    }}
-                    className="block group relative rounded-[2rem] overflow-hidden bg-white dark:bg-zinc-900 border border-zinc-200/60 dark:border-zinc-800/60 shadow-sm hover:shadow-md hover:border-zinc-300 dark:hover:border-zinc-700 active:scale-[0.98] transition-all duration-400 flex flex-col"
-                  >
-                    {/* Top Image Section */}
-                    <div className="relative w-full h-[240px] md:h-[320px] overflow-hidden bg-zinc-100 dark:bg-zinc-800 shrink-0">
-                      {!imgErrors[featuredArticle.id] ? (
-                        <img
-                          src={validImageUrl!}
-                          alt=""
-                          className="w-full h-full object-cover object-top opacity-90 group-hover:opacity-100 group-hover:scale-105 transition-all duration-700"
-                          onError={() =>
-                            setImgErrors((prev) => ({
-                              ...prev,
-                              [featuredArticle.id]: true,
-                            }))
-                          }
-                        />
-                      ) : (
-                        <div className="w-full h-full bg-gradient-to-br from-zinc-200 to-zinc-300 dark:from-zinc-800 dark:to-zinc-900" />
-                      )}
-                      {/* Subtle Inner Shadow overlay on image */}
-                      <div className="absolute inset-0 shadow-[inset_0_0_0_1px_rgba(0,0,0,0.05)] dark:shadow-[inset_0_0_0_1px_rgba(255,255,255,0.05)] z-10" />
-                    </div>
+                <div className="mb-14 pl-5">
+                  <div className="flex gap-4 overflow-x-auto no-scrollbar pb-6 snap-x snap-mandatory pr-5">
+                    {topArticles.map((featuredArticle) => {
+                      const postDate = new Date(featuredArticle.createdAt);
+                      const readTime = estimateReadTime(featuredArticle.content);
+                      const validImageUrl = getImageUrl(featuredArticle);
+                      const rawSummary = featuredArticle.content || "";
+                      const plainSummary = rawSummary.replace(/<[^>]+>/g, "").trim();
 
-                    {/* Bottom Content Section */}
-                    <div className="p-6 md:p-8 flex flex-col relative z-20">
-                      <div className="flex items-center gap-2 mb-3 flex-wrap">
-                        <span className="text-[10px] font-bold uppercase tracking-[0.15em] bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 px-2 py-0.5 rounded-sm">
-                          Featured
-                        </span>
-                        {featuredArticle.category && (
-                          <span className="text-[10px] font-bold uppercase tracking-[0.1em] text-blue-600 dark:text-blue-400 ml-1">
-                            {featuredArticle.category}
-                          </span>
-                        )}
-                      </div>
+                      return (
+                        <Link
+                          key={featuredArticle.id}
+                          href={`/curation/${featuredArticle.id}`}
+                          onClick={() => {
+                            setNavigatingId(featuredArticle.id);
+                          }}
+                          className="shrink-0 w-[85vw] md:w-[600px] snap-center group relative rounded-[2rem] overflow-hidden bg-white dark:bg-zinc-900 border border-zinc-200/60 dark:border-zinc-800/60 shadow-sm hover:shadow-md hover:border-zinc-300 dark:hover:border-zinc-700 active:scale-[0.98] transition-all duration-400 flex flex-col"
+                        >
+                          {/* Top Image Section */}
+                          <div className="relative w-full h-[240px] md:h-[280px] overflow-hidden bg-zinc-100 dark:bg-zinc-800 shrink-0">
+                            {!imgErrors[featuredArticle.id] ? (
+                              <img
+                                src={validImageUrl!}
+                                alt=""
+                                className="w-full h-full object-cover object-top opacity-90 group-hover:opacity-100 group-hover:scale-105 transition-all duration-700"
+                                onError={() =>
+                                  setImgErrors((prev) => ({
+                                    ...prev,
+                                    [featuredArticle.id]: true,
+                                  }))
+                                }
+                              />
+                            ) : (
+                              <div className="w-full h-full bg-gradient-to-br from-zinc-200 to-zinc-300 dark:from-zinc-800 dark:to-zinc-900" />
+                            )}
+                            {/* Subtle Inner Shadow overlay on image */}
+                            <div className="absolute inset-0 shadow-[inset_0_0_0_1px_rgba(0,0,0,0.05)] dark:shadow-[inset_0_0_0_1px_rgba(255,255,255,0.05)] z-10" />
+                          </div>
 
-                      <h3
-                        className="text-[24px] md:text-[32px] font-bold tracking-[-0.02em] text-zinc-900 dark:text-zinc-100 leading-[1.2] line-clamp-3 mb-3 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors duration-300"
-                        style={{
-                          fontFamily: "'Playfair Display', Georgia, serif",
-                        }}
-                      >
-                        {featuredArticle.title}
-                      </h3>
+                          {/* Bottom Content Section */}
+                          <div className="p-6 md:p-8 flex flex-col relative z-20 h-full">
+                            <div className="flex items-center gap-2 mb-3 flex-wrap">
+                              <span className="text-[10px] font-bold uppercase tracking-[0.15em] bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 px-2 py-0.5 rounded-sm">
+                                TRENDING
+                              </span>
+                              {featuredArticle.category && (
+                                <span className="text-[10px] font-bold uppercase tracking-[0.1em] text-blue-600 dark:text-blue-400 ml-1">
+                                  {featuredArticle.category}
+                                </span>
+                              )}
+                            </div>
 
-                      {/* Only show summary if it exists to add more context */}
-                      {plainSummary && (
-                        <p className="text-[14px] text-zinc-500 dark:text-zinc-400 leading-relaxed line-clamp-2 mb-5">
-                          {plainSummary}
-                        </p>
-                      )}
-                      {!plainSummary && <div className="mb-2" />}
+                            <h3
+                              className="text-[24px] md:text-[28px] font-bold tracking-[-0.02em] text-zinc-900 dark:text-zinc-100 leading-[1.2] line-clamp-3 mb-3 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors duration-300"
+                              style={{
+                                fontFamily: "'Playfair Display', Georgia, serif",
+                              }}
+                            >
+                              {featuredArticle.title}
+                            </h3>
 
-                      <div className="flex items-center gap-3 text-[12px] font-medium text-zinc-400 dark:text-zinc-500 mt-auto">
-                        <span>
-                          {postDate.toLocaleDateString("en-US", {
-                            month: "short",
-                            day: "numeric",
-                            year: "numeric",
-                          })}
-                        </span>
-                        <span className="w-1 h-1 rounded-full bg-zinc-300 dark:bg-zinc-700" />
-                        <span>{readTime} min read</span>
-                      </div>
-                    </div>
+                            {/* Only show summary if it exists to add more context */}
+                            {plainSummary && (
+                              <p className="text-[14px] text-zinc-500 dark:text-zinc-400 leading-relaxed line-clamp-2 mb-2">
+                                {plainSummary}
+                              </p>
+                            )}
+                            {!plainSummary && <div className="mb-2" />}
 
-                    {/* Navigation overlay */}
-                    {navigatingId === featuredArticle.id && (
-                      <div className="absolute inset-0 bg-white/60 dark:bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center">
-                        <div className="flex flex-col items-center gap-3">
-                          <Loader2
-                            size={36}
-                            className="animate-spin text-zinc-800 dark:text-white"
-                          />
-                          <span className="text-zinc-800 dark:text-white text-xs font-bold tracking-widest uppercase">
-                            Opening
-                          </span>
-                        </div>
-                      </div>
-                    )}
-                  </Link>
+                            {/* Removed mt-auto so it doesn't push the date way far down if the card is tall */}
+                            <div className="flex items-center gap-3 text-[12px] font-medium text-zinc-400 dark:text-zinc-500 mt-2">
+                              <span>
+                                {postDate.toLocaleDateString("en-US", {
+                                  month: "short",
+                                  day: "numeric",
+                                  year: "numeric",
+                                })}
+                              </span>
+                              <span className="w-1 h-1 rounded-full bg-zinc-300 dark:bg-zinc-700" />
+                              <span>{readTime} min read</span>
+
+
+                            </div>
+                          </div>
+
+                          {/* Navigation overlay */}
+                          {navigatingId === featuredArticle.id && (
+                            <div className="absolute inset-0 bg-white/60 dark:bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center">
+                              <div className="flex flex-col items-center gap-3">
+                                <Loader2
+                                  size={36}
+                                  className="animate-spin text-zinc-800 dark:text-white"
+                                />
+                                <span className="text-zinc-800 dark:text-white text-xs font-bold tracking-widest uppercase">
+                                  Opening
+                                </span>
+                              </div>
+                            </div>
+                          )}
+                        </Link>
+                      );
+                    })}
+                  </div>
                 </div>
               );
             })()}
@@ -916,8 +951,8 @@ export default function CurationList() {
               });
               if (inProgress.length === 0) return null;
               return (
-                <div className="mb-14 px-5">
-                  <h3 className="text-[11px] font-bold tracking-widest text-zinc-400 dark:text-zinc-500 uppercase mb-5">
+                <div className="mb-10 px-5">
+                  <h3 className="text-[11px] font-bold tracking-widest text-zinc-400 dark:text-zinc-500 uppercase mb-4">
                     📖 Continue Reading
                   </h3>
                   <div className="flex gap-3 overflow-x-auto no-scrollbar pb-2">
@@ -954,26 +989,133 @@ export default function CurationList() {
               );
             })()}
 
-            {/* Topic Grid */}
+            {/* ═══ READING ROOM (Quick Access) ═══ */}
             <div className="px-5 mb-10">
-              <h3 className="text-[11px] font-bold tracking-widest text-zinc-400 dark:text-zinc-500 uppercase mb-5">
-                Browse by Topic
+              <h3 className="text-[11px] font-bold tracking-widest text-zinc-400 dark:text-zinc-500 uppercase mb-4">
+                Reading Room
               </h3>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                {CATEGORIES.map((cat) => (
-                  <button
-                    key={cat.name}
-                    onClick={() => handleCategoryToggle(cat.name)}
-                    className="flex flex-col items-start p-4 bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800 rounded-[1.25rem] hover:border-zinc-300 dark:hover:border-zinc-700 hover:shadow-sm active:scale-[0.98] transition-all text-left"
-                  >
-                    <span className="text-2xl mb-2 grayscale opacity-90">
-                      {cat.emoji}
-                    </span>
-                    <span className="text-[13px] font-bold text-zinc-800 dark:text-zinc-200 leading-tight">
-                      {cat.name}
-                    </span>
-                  </button>
-                ))}
+              <div className="grid grid-cols-2 gap-3 mb-3">
+                <Link
+                  href="/curation/highlights"
+                  onClick={() => setNavigatingId("highlights")}
+                  className="flex flex-col p-4 bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800 rounded-2xl hover:border-zinc-300 dark:hover:border-zinc-700 hover:shadow-sm active:scale-[0.98] transition-all relative overflow-hidden group"
+                >
+                  <div className="absolute top-0 right-0 w-16 h-16 bg-gradient-to-br from-yellow-400/20 to-transparent blur-xl rounded-bl-full pointer-events-none" />
+                  <Highlighter size={20} className="text-yellow-500 mb-3" />
+                  <span className="text-[14px] font-bold text-zinc-900 dark:text-zinc-100">Highlights</span>
+                  <span className="text-[11px] text-zinc-500">Saved snippets</span>
+                </Link>
+                <Link
+                  href="/curation/collections"
+                  onClick={() => setNavigatingId("collections")}
+                  className="flex flex-col p-4 bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800 rounded-2xl hover:border-zinc-300 dark:hover:border-zinc-700 hover:shadow-sm active:scale-[0.98] transition-all relative overflow-hidden group"
+                >
+                  <div className="absolute top-0 right-0 w-16 h-16 bg-gradient-to-br from-blue-400/20 to-transparent blur-xl rounded-bl-full pointer-events-none" />
+                  <Library size={20} className="text-blue-500 mb-3" />
+                  <span className="text-[14px] font-bold text-zinc-900 dark:text-zinc-100">Collections</span>
+                  <span className="text-[11px] text-zinc-500">Your folders</span>
+                </Link>
+              </div>
+              <Link
+                href="/curation/recap"
+                onClick={() => setNavigatingId("recap")}
+                className="w-full flex items-center justify-between p-4 bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800 rounded-2xl hover:border-zinc-300 dark:hover:border-zinc-700 hover:shadow-sm active:scale-[0.98] transition-all group"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-full bg-orange-50 dark:bg-orange-500/10 flex items-center justify-center">
+                    <Flame size={16} className="text-orange-500 dark:text-orange-600" />
+                  </div>
+                  <div className="flex flex-col">
+                    <span className="text-[14px] font-bold text-zinc-900 dark:text-zinc-100 leading-tight">Weekly Recap</span>
+                    <span className="text-[11px] text-zinc-500">Your reading history</span>
+                  </div>
+                </div>
+                <ChevronLeft size={16} className="text-zinc-400 dark:text-zinc-500 rotate-180 group-hover:translate-x-0.5 transition-transform" />
+              </Link>
+            </div>
+
+            {/* ═══ LIBRARY SHELVES (Topics) ═══ */}
+            <div className="px-5 mb-10">
+              <h3 className="text-[11px] font-bold tracking-widest text-zinc-400 dark:text-zinc-500 uppercase mb-4 flex items-center gap-2">
+                Library Shelves
+                <div className="h-px bg-zinc-200/60 dark:bg-zinc-800/60 flex-1 ml-2" />
+              </h3>
+
+              <div>
+                <div className="flex flex-col gap-3">
+                  {CATEGORIES.slice(0, 3).map((cat) => (
+                    <button
+                      key={cat.name}
+                      onClick={() => handleCategoryToggle(cat.name)}
+                      className="flex items-center w-full p-3.5 bg-white dark:bg-zinc-900/40 border border-zinc-200/80 dark:border-zinc-800/80 rounded-[1.25rem] hover:bg-zinc-50 dark:hover:bg-zinc-800/50 hover:border-zinc-300 dark:hover:border-zinc-700 hover:shadow-sm active:scale-[0.98] transition-colors text-left group"
+                    >
+                      <div className="w-12 h-12 rounded-xl bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center shrink-0 border border-zinc-200/50 dark:border-zinc-700/50 group-hover:scale-105 transition-transform">
+                        <span className="text-2xl grayscale opacity-80 group-hover:grayscale-0 group-hover:opacity-100 transition-all">
+                          {cat.emoji}
+                        </span>
+                      </div>
+                      <div className="ml-4 flex flex-col justify-center">
+                        <span className="text-[15px] font-bold text-zinc-900 dark:text-zinc-100 leading-tight mb-1">
+                          {cat.name}
+                        </span>
+                        <span className="text-[12px] text-zinc-500 dark:text-zinc-400 leading-snug line-clamp-1">
+                          {cat.desc}
+                        </span>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+
+                <AnimatePresence initial={false}>
+                  {isTopicsExpanded && (
+                    <motion.div
+                      key="topics-expander"
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: "auto", opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      transition={{
+                        height: { duration: 0.7, ease: [0.19, 1.0, 0.22, 1.0] },
+                        opacity: { duration: 0.5 }
+                      }}
+                      className="overflow-hidden"
+                    >
+                      <div className="flex flex-col gap-3 pt-3">
+                        {CATEGORIES.slice(3).map((cat) => (
+                          <button
+                            key={cat.name}
+                            onClick={() => handleCategoryToggle(cat.name)}
+                            className="flex items-center w-full p-3.5 bg-white dark:bg-zinc-900/40 border border-zinc-200/80 dark:border-zinc-800/80 rounded-[1.25rem] hover:bg-zinc-50 dark:hover:bg-zinc-800/50 hover:border-zinc-300 dark:hover:border-zinc-700 hover:shadow-sm active:scale-[0.98] transition-colors text-left group"
+                          >
+                            <div className="w-12 h-12 rounded-xl bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center shrink-0 border border-zinc-200/50 dark:border-zinc-700/50 group-hover:scale-105 transition-transform">
+                              <span className="text-2xl grayscale opacity-80 group-hover:grayscale-0 group-hover:opacity-100 transition-all">
+                                {cat.emoji}
+                              </span>
+                            </div>
+                            <div className="ml-4 flex flex-col justify-center">
+                              <span className="text-[15px] font-bold text-zinc-900 dark:text-zinc-100 leading-tight mb-1">
+                                {cat.name}
+                              </span>
+                              <span className="text-[12px] text-zinc-500 dark:text-zinc-400 leading-snug line-clamp-1">
+                                {cat.desc}
+                              </span>
+                            </div>
+                          </button>
+                        ))}
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+
+                <button
+                  onClick={() => setIsTopicsExpanded(!isTopicsExpanded)}
+                  className="w-full mt-2 py-3.5 rounded-[1.25rem] border border-dashed border-zinc-300 dark:border-zinc-700 hover:border-zinc-400 dark:hover:border-zinc-600 hover:bg-zinc-50 dark:hover:bg-zinc-800/30 text-[13px] font-bold text-zinc-500 dark:text-zinc-400 transition-all flex items-center justify-center gap-2 active:scale-[0.98]"
+                >
+                  {isTopicsExpanded ? "Show Less" : "Explore All Topics"}
+                  <ArrowDown
+                    size={14}
+                    className={`transition-transform duration-300 ${isTopicsExpanded ? "rotate-180" : ""}`}
+                  />
+                </button>
               </div>
             </div>
           </motion.div>
@@ -1036,11 +1178,10 @@ export default function CurationList() {
             <button
               key={f.key}
               onClick={() => setStatusFilter(f.key)}
-              className={`px-3 py-1.5 text-[12px] font-bold rounded-full transition-all active:scale-[0.96] whitespace-nowrap shrink-0 ${
-                statusFilter === f.key
-                  ? "bg-zinc-800 dark:bg-zinc-100 text-white dark:text-zinc-900 shadow-sm"
-                  : "text-zinc-400 dark:text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300 bg-white dark:bg-zinc-900 border border-zinc-200/50 dark:border-zinc-800/80"
-              }`}
+              className={`px-3 py-1.5 text-[12px] font-bold rounded-full transition-all active:scale-[0.96] whitespace-nowrap shrink-0 ${statusFilter === f.key
+                ? "bg-zinc-800 dark:bg-zinc-100 text-white dark:text-zinc-900 shadow-sm"
+                : "text-zinc-400 dark:text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300 bg-white dark:bg-zinc-900 border border-zinc-200/50 dark:border-zinc-800/80"
+                }`}
             >
               {f.label}
             </button>
@@ -1060,11 +1201,10 @@ export default function CurationList() {
                 <button
                   key={cat.name}
                   onClick={() => handleCategoryToggle(cat.name)}
-                  className={`px-3 py-1.5 text-[11px] font-semibold rounded-full transition-all active:scale-[0.96] whitespace-nowrap shrink-0 border ${
-                    isActive
-                      ? "bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 border-zinc-900 dark:border-zinc-100 shadow-sm"
-                      : "bg-white dark:bg-zinc-900 text-zinc-400 dark:text-zinc-500 border-zinc-200/60 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700"
-                  }`}
+                  className={`px-3 py-1.5 text-[11px] font-semibold rounded-full transition-all active:scale-[0.96] whitespace-nowrap shrink-0 border ${isActive
+                    ? "bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 border-zinc-900 dark:border-zinc-100 shadow-sm"
+                    : "bg-white dark:bg-zinc-900 text-zinc-400 dark:text-zinc-500 border-zinc-200/60 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700"
+                    }`}
                 >
                   {isActive ? "✓" : cat.emoji} {cat.name}
                 </button>
@@ -1135,14 +1275,7 @@ export default function CurationList() {
               {filteredArticles.map((article, index) => {
                 const validImageUrl = getImageUrl(article);
 
-                // Skip the featured article if we are on the global feed (no search, no filters)
-                if (
-                  !isFiltering &&
-                  validImageUrl &&
-                  article.id === articles.find((a) => getImageUrl(a))?.id
-                ) {
-                  return null;
-                }
+                // The article will render normally below the Hero Carousel.
 
                 const postDate = new Date(article.createdAt);
                 const readTime = estimateReadTime(article.content);
@@ -1603,7 +1736,7 @@ function SwipeableArticleCard({
                   NEW
                 </span>
               )}
-              {article.qualityScore && article.qualityScore >= 75 && (
+              {article.socialScore && article.socialScore >= 1000 && (
                 <span className="text-[9px] font-bold uppercase tracking-[0.1em] bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-500 px-1.5 py-[2px] rounded">
                   ⭐ TOP
                 </span>
