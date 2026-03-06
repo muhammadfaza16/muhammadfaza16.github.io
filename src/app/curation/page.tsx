@@ -742,7 +742,7 @@ export default function CurationList() {
         id="curation-scroll-container"
         ref={scrollContainerRef}
         onScroll={(e) => (scrollYRef.current = e.currentTarget.scrollTop)}
-        className="flex-1 overflow-y-auto overflow-x-hidden pt-8 md:pt-14 pb-32 relative z-10 w-full max-w-2xl md:max-w-5xl mx-auto"
+        className="flex-1 overflow-y-auto overflow-x-hidden pt-20 md:pt-24 pb-32 relative z-10 w-full max-w-2xl md:max-w-5xl mx-auto"
         style={
           {
             WebkitOverflowScrolling: "touch",
@@ -1009,7 +1009,9 @@ export default function CurationList() {
                 strokeWidth={1.5}
               />
               <p className="text-base font-semibold tracking-tight text-zinc-400 dark:text-zinc-500">
-                {searchQuery ? "No matching articles." : "Nothing here yet."}
+                {debouncedSearchQuery
+                  ? "No matching articles."
+                  : "Nothing here yet."}
               </p>
             </motion.div>
           ) : (
@@ -1019,20 +1021,21 @@ export default function CurationList() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               className={
-                searchQuery
+                debouncedSearchQuery
                   ? "flex flex-col gap-3 px-5 mb-10"
                   : "flex flex-col gap-6 md:grid md:grid-cols-2 md:gap-6 px-5 mb-10"
               }
             >
               {filteredArticles.map((article, index) => {
                 const validImageUrl = getImageUrl(article);
-                const isHero = index === 0 && validImageUrl && !searchQuery;
+                const isHero =
+                  index === 0 && validImageUrl && !debouncedSearchQuery;
                 const postDate = new Date(article.createdAt);
                 const readTime = estimateReadTime(article.content);
                 const isVisitorRead = visitorState.read[article.id];
                 const isVisitorBookmarked = visitorState.bookmarked[article.id];
 
-                if (searchQuery) {
+                if (debouncedSearchQuery) {
                   // ═══ COMPACT SEARCH RESULT ROW ═══
                   const rawSummary =
                     (article as any).summary || article.content || "";
