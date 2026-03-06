@@ -1029,3 +1029,42 @@
     opacity: 0.35;
   }
 }
+
+/* ═══ DARK MODE RADIAL WIPE TRANSITION ═══ */
+::view-transition-group(root) {
+  animation-duration: 1.2s;
+  animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+::view-transition-new(root) {
+  animation-name: radial-wipe-in;
+  /* mix-blend-mode prevents visual artifacts during transition */
+  mix-blend-mode: normal;
+  z-index: 1000;
+}
+
+::view-transition-old(root) {
+  animation: none;
+  z-index: -1;
+}
+
+/* Ensure consistent behavior regardless of toggle direction */
+.dark::view-transition-old(root) {
+  animation: none;
+  z-index: -1;
+}
+
+.dark::view-transition-new(root) {
+  animation-name: radial-wipe-in;
+  z-index: 1000;
+}
+
+@keyframes radial-wipe-in {
+  from {
+    clip-path: circle(0px at 100% 0%);
+  }
+  to {
+    /* 250% ensures it fully covers the diagonal of large screens */
+    clip-path: circle(250% at 100% 0%);
+  }
+}

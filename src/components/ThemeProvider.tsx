@@ -1,6 +1,7 @@
 "use client";
 
 import { createContext, useContext, useEffect, useState } from "react";
+import { flushSync } from "react-dom";
 
 type Theme = "light" | "dark";
 
@@ -49,7 +50,28 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     }, [theme, mounted]);
 
     const toggleTheme = () => {
-        setTheme((prev) => (prev === "light" ? "dark" : "light"));
+        const newTheme = theme === "light" ? "dark" : "light";
+
+        // Fallback for browsers that don't support View Transitions
+        if (!document.startViewTransition) {
+            setTheme(newTheme);
+            return;
+        }
+
+        // Use View Transition API with flushSync to eliminate async React render delays
+        document.startViewTransition(() => {
+            flushSync(() => {
+                setTheme(newTheme);
+            });
+
+            // Eager fallback just in case flushSync doesn't catch root early enough
+            const root = document.documentElement;
+            if (newTheme === "dark") {
+                root.classList.add("dark");
+            } else {
+                root.classList.remove("dark");
+            }
+        });
     };
 
     return (

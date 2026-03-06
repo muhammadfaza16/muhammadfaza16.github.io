@@ -481,9 +481,20 @@ export default function CurationList() {
                 <div className="flex items-center gap-1">
                     <button
                         onClick={toggleTheme}
-                        className="w-10 h-10 flex items-center justify-center text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 active:scale-90 rounded-full transition-all"
+                        className="w-10 h-10 flex items-center justify-center text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 active:scale-90 rounded-full transition-all relative overflow-hidden"
                     >
-                        {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
+                        <AnimatePresence mode="wait" initial={false}>
+                            <motion.div
+                                key={theme}
+                                initial={{ y: -24, opacity: 0, scale: 0.5, rotate: -90 }}
+                                animate={{ y: 0, opacity: 1, scale: 1, rotate: 0 }}
+                                exit={{ y: 24, opacity: 0, scale: 0.5, rotate: 90 }}
+                                transition={{ type: "spring", stiffness: 350, damping: 25 }}
+                                className="absolute flex items-center justify-center"
+                            >
+                                {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
+                            </motion.div>
+                        </AnimatePresence>
                     </button>
                     <button
                         onClick={() => {
