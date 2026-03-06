@@ -778,7 +778,7 @@ export default function CurationList() {
               </p>
 
               {/* Stats */}
-              <div className="flex items-center gap-4 mt-8 flex-wrap">
+              <div className="flex items-center gap-4 mt-12 md:mt-16 flex-wrap">
                 <span className="text-[12px] font-medium text-zinc-400 dark:text-zinc-500">
                   {articles.length > 0 ? `${articles.length}+ entries` : ""}{" "}
                   {categoryCount > 0 && articles.length > 0
@@ -801,6 +801,112 @@ export default function CurationList() {
                 )}
               </div>
             </div>
+
+            {/* ═══ FEATURED EDITORIAL CARD ═══ */}
+            {(() => {
+              const featuredArticle = articles.find((a) => getImageUrl(a));
+              if (!featuredArticle) return null;
+
+              const postDate = new Date(featuredArticle.createdAt);
+              const readTime = estimateReadTime(featuredArticle.content);
+              const validImageUrl = getImageUrl(featuredArticle);
+              const rawSummary =
+                (featuredArticle as any).summary ||
+                featuredArticle.content ||
+                "";
+              const plainSummary = rawSummary.replace(/<[^>]+>/g, "").trim();
+
+              return (
+                <div className="mb-14 px-5">
+                  <Link
+                    href={`/curation/${featuredArticle.id}`}
+                    onClick={() => {
+                      setNavigatingId(featuredArticle.id);
+                    }}
+                    className="block group relative rounded-[2rem] overflow-hidden bg-white dark:bg-zinc-900 border border-zinc-200/60 dark:border-zinc-800/60 shadow-sm hover:shadow-md hover:border-zinc-300 dark:hover:border-zinc-700 active:scale-[0.98] transition-all duration-400 flex flex-col"
+                  >
+                    {/* Top Image Section */}
+                    <div className="relative w-full h-[240px] md:h-[320px] overflow-hidden bg-zinc-100 dark:bg-zinc-800 shrink-0">
+                      {!imgErrors[featuredArticle.id] ? (
+                        <img
+                          src={validImageUrl!}
+                          alt=""
+                          className="w-full h-full object-cover object-top opacity-90 group-hover:opacity-100 group-hover:scale-105 transition-all duration-700"
+                          onError={() =>
+                            setImgErrors((prev) => ({
+                              ...prev,
+                              [featuredArticle.id]: true,
+                            }))
+                          }
+                        />
+                      ) : (
+                        <div className="w-full h-full bg-gradient-to-br from-zinc-200 to-zinc-300 dark:from-zinc-800 dark:to-zinc-900" />
+                      )}
+                      {/* Subtle Inner Shadow overlay on image */}
+                      <div className="absolute inset-0 shadow-[inset_0_0_0_1px_rgba(0,0,0,0.05)] dark:shadow-[inset_0_0_0_1px_rgba(255,255,255,0.05)] z-10" />
+                    </div>
+
+                    {/* Bottom Content Section */}
+                    <div className="p-6 md:p-8 flex flex-col relative z-20">
+                      <div className="flex items-center gap-2 mb-3 flex-wrap">
+                        <span className="text-[10px] font-bold uppercase tracking-[0.15em] bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 px-2 py-0.5 rounded-sm">
+                          Featured
+                        </span>
+                        {featuredArticle.category && (
+                          <span className="text-[10px] font-bold uppercase tracking-[0.1em] text-blue-600 dark:text-blue-400 ml-1">
+                            {featuredArticle.category}
+                          </span>
+                        )}
+                      </div>
+
+                      <h3
+                        className="text-[24px] md:text-[32px] font-bold tracking-[-0.02em] text-zinc-900 dark:text-zinc-100 leading-[1.2] line-clamp-3 mb-3 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors duration-300"
+                        style={{
+                          fontFamily: "'Playfair Display', Georgia, serif",
+                        }}
+                      >
+                        {featuredArticle.title}
+                      </h3>
+
+                      {/* Only show summary if it exists to add more context */}
+                      {plainSummary && (
+                        <p className="text-[14px] text-zinc-500 dark:text-zinc-400 leading-relaxed line-clamp-2 mb-5">
+                          {plainSummary}
+                        </p>
+                      )}
+                      {!plainSummary && <div className="mb-2" />}
+
+                      <div className="flex items-center gap-3 text-[12px] font-medium text-zinc-400 dark:text-zinc-500 mt-auto">
+                        <span>
+                          {postDate.toLocaleDateString("en-US", {
+                            month: "short",
+                            day: "numeric",
+                            year: "numeric",
+                          })}
+                        </span>
+                        <span className="w-1 h-1 rounded-full bg-zinc-300 dark:bg-zinc-700" />
+                        <span>{readTime} min read</span>
+                      </div>
+                    </div>
+
+                    {/* Navigation overlay */}
+                    {navigatingId === featuredArticle.id && (
+                      <div className="absolute inset-0 bg-white/60 dark:bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center">
+                        <div className="flex flex-col items-center gap-3">
+                          <Loader2
+                            size={36}
+                            className="animate-spin text-zinc-800 dark:text-white"
+                          />
+                          <span className="text-zinc-800 dark:text-white text-xs font-bold tracking-widest uppercase">
+                            Opening
+                          </span>
+                        </div>
+                      </div>
+                    )}
+                  </Link>
+                </div>
+              );
+            })()}
 
             {/* ═══ CONTINUE READING ═══ */}
             {(() => {
@@ -1028,8 +1134,16 @@ export default function CurationList() {
             >
               {filteredArticles.map((article, index) => {
                 const validImageUrl = getImageUrl(article);
-                const isHero =
-                  index === 0 && validImageUrl && !debouncedSearchQuery;
+
+                // Skip the featured article if we are on the global feed (no search, no filters)
+                if (
+                  !isFiltering &&
+                  validImageUrl &&
+                  article.id === articles.find((a) => getImageUrl(a))?.id
+                ) {
+                  return null;
+                }
+
                 const postDate = new Date(article.createdAt);
                 const readTime = estimateReadTime(article.content);
                 const isVisitorRead = visitorState.read[article.id];
@@ -1126,7 +1240,6 @@ export default function CurationList() {
                     </motion.div>
                   );
                 }
-
                 return (
                   <motion.div
                     key={article.id}
@@ -1137,108 +1250,31 @@ export default function CurationList() {
                       duration: 0.3,
                       delay: Math.min(index * 0.04, 0.4),
                     }}
-                    className={isHero ? "md:col-span-2" : ""}
                   >
-                    {isHero ? (
-                      /* ═══ HERO CARD ═══ */
-                      <Link
-                        href={`/curation/${article.id}`}
-                        onClick={() => {
-                          setNavigatingId(article.id);
-                        }}
-                        className="block group"
-                      >
-                        <div className="relative rounded-[2rem] overflow-hidden bg-zinc-900 shadow-lg active:scale-[0.97] transition-all duration-300 ease-out group/hero">
-                          {!imgErrors[article.id] ? (
-                            <img
-                              src={validImageUrl!}
-                              alt=""
-                              className="w-full h-[300px] md:h-[380px] object-cover object-top opacity-80 group-hover/hero:opacity-90 transition-opacity duration-500"
-                              onError={() =>
-                                setImgErrors((prev) => ({
-                                  ...prev,
-                                  [article.id]: true,
-                                }))
-                              }
-                            />
-                          ) : (
-                            <div className="w-full h-[300px] md:h-[380px] bg-gradient-to-br from-zinc-800 to-zinc-900" />
-                          )}
-                          <div className="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-transparent" />
-                          <div className="absolute bottom-0 left-0 right-0 p-6 md:p-8">
-                            <div className="flex items-center gap-2 mb-3 flex-wrap">
-                              {article.qualityScore &&
-                                article.qualityScore >= 75 && (
-                                  <span className="text-[10px] font-bold uppercase tracking-[0.12em] bg-amber-500/20 text-amber-200 px-2 py-0.5 rounded-full border border-amber-400/30 backdrop-blur-sm">
-                                    ⭐ Top Read
-                                  </span>
-                                )}
-                              {article.category && (
-                                <>
-                                  <span className="text-white/30">•</span>
-                                  <span className="text-[10px] font-bold uppercase tracking-[0.12em] text-blue-200/80">
-                                    {article.category}
-                                  </span>
-                                </>
-                              )}
-                            </div>
-                            <h3
-                              className="text-[22px] md:text-[26px] font-bold tracking-[-0.02em] text-white leading-[1.2] line-clamp-2 md:line-clamp-3 mb-3"
-                              style={{
-                                fontFamily:
-                                  "'Playfair Display', Georgia, serif",
-                              }}
-                            >
-                              {article.title}
-                            </h3>
-                            <div className="flex items-center gap-2 text-[12px] font-medium text-white/50">
-                              <span>
-                                {postDate.toLocaleDateString("en-US", {
-                                  month: "short",
-                                  day: "numeric",
-                                  year: "numeric",
-                                })}
-                              </span>
-                              <span className="w-1 h-1 rounded-full bg-white/25" />
-                              <span>{readTime} min read</span>
-                            </div>
-                          </div>
-                          {navigatingId === article.id && (
-                            <div className="absolute inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center">
-                              <Loader2
-                                size={36}
-                                className="animate-spin text-white"
-                              />
-                            </div>
-                          )}
-                        </div>
-                      </Link>
-                    ) : (
-                      /* ═══ SWIPEABLE ARTICLE CARD ═══ */
-                      <SwipeableArticleCard
-                        article={article}
-                        validImageUrl={validImageUrl}
-                        postDate={postDate}
-                        readTime={readTime}
-                        isVisitorRead={!!isVisitorRead}
-                        isVisitorBookmarked={!!isVisitorBookmarked}
-                        imgError={!!imgErrors[article.id]}
-                        onImgError={() =>
-                          setImgErrors((prev) => ({
-                            ...prev,
-                            [article.id]: true,
-                          }))
-                        }
-                        onClick={() => {
-                          setNavigatingId(article.id);
-                        }}
-                        onSwipeRight={() => toggleVisitorRead(article.id)}
-                        onSwipeLeft={() => toggleVisitorBookmark(article.id)}
-                        isNavigating={navigatingId === article.id}
-                        progress={readingProgress[article.id] || 0}
-                        onShare={() => handleShareArticle(article)}
-                      />
-                    )}
+                    {/* ═══ SWIPEABLE ARTICLE CARD ═══ */}
+                    <SwipeableArticleCard
+                      article={article}
+                      validImageUrl={validImageUrl}
+                      postDate={postDate}
+                      readTime={readTime}
+                      isVisitorRead={!!isVisitorRead}
+                      isVisitorBookmarked={!!isVisitorBookmarked}
+                      imgError={!!imgErrors[article.id]}
+                      onImgError={() =>
+                        setImgErrors((prev) => ({
+                          ...prev,
+                          [article.id]: true,
+                        }))
+                      }
+                      onClick={() => {
+                        setNavigatingId(article.id);
+                      }}
+                      onSwipeRight={() => toggleVisitorRead(article.id)}
+                      onSwipeLeft={() => toggleVisitorBookmark(article.id)}
+                      isNavigating={navigatingId === article.id}
+                      progress={readingProgress[article.id] || 0}
+                      onShare={() => handleShareArticle(article)}
+                    />
                   </motion.div>
                 );
               })}
