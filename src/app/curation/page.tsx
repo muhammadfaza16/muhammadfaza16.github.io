@@ -722,12 +722,12 @@ export default function CurationList() {
                       setSearchQuery("");
                       searchInputRef.current?.focus();
                     }}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-zinc-400 hover:text-zinc-600 dark:text-zinc-500 dark:hover:text-zinc-300 transition-colors"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 p-2 text-zinc-400 hover:text-zinc-600 dark:text-zinc-500 dark:hover:text-zinc-300 transition-colors flex items-center justify-center group"
                   >
                     <X
                       size={14}
                       strokeWidth={2.5}
-                      className="bg-zinc-200/50 dark:bg-zinc-700/50 rounded-full"
+                      className="opacity-70 group-hover:opacity-100"
                     />
                   </button>
                 )}
@@ -742,7 +742,7 @@ export default function CurationList() {
         id="curation-scroll-container"
         ref={scrollContainerRef}
         onScroll={(e) => (scrollYRef.current = e.currentTarget.scrollTop)}
-        className="flex-1 overflow-y-auto overflow-x-hidden px-4 pt-6 pb-32 relative z-10 w-full max-w-2xl md:max-w-5xl mx-auto"
+        className="flex-1 overflow-y-auto overflow-x-hidden pt-8 md:pt-14 pb-32 relative z-10 w-full max-w-2xl md:max-w-5xl mx-auto"
         style={
           {
             WebkitOverflowScrolling: "touch",
@@ -758,9 +758,9 @@ export default function CurationList() {
             className="mb-12"
           >
             {/* Hero Zone */}
-            <div className="mb-8 px-1">
+            <div className="mb-14 px-5">
               <h1
-                className="text-[36px] md:text-[44px] leading-[1.05] tracking-[-0.03em] text-zinc-900 dark:text-zinc-100 mb-4"
+                className="text-[38px] md:text-[48px] leading-[1.1] tracking-[-0.03em] text-zinc-900 dark:text-zinc-100 mb-6"
                 style={{ fontFamily: "'Playfair Display', Georgia, serif" }}
               >
                 Curated Knowledge
@@ -772,13 +772,13 @@ export default function CurationList() {
                   & Perspectives.
                 </span>
               </h1>
-              <p className="text-[15px] text-zinc-500 dark:text-zinc-400 leading-relaxed max-w-[44ch]">
+              <p className="text-[16px] text-zinc-500 dark:text-zinc-400 leading-[1.7] max-w-[48ch]">
                 A carefully assembled library of essays, frameworks, and ideas —
                 for the curious mind. Explore, discover, contribute.
               </p>
 
               {/* Stats */}
-              <div className="flex items-center gap-3 mt-5 flex-wrap">
+              <div className="flex items-center gap-4 mt-8 flex-wrap">
                 <span className="text-[12px] font-medium text-zinc-400 dark:text-zinc-500">
                   {articles.length > 0 ? `${articles.length}+ entries` : ""}{" "}
                   {categoryCount > 0 && articles.length > 0
@@ -810,8 +810,8 @@ export default function CurationList() {
               });
               if (inProgress.length === 0) return null;
               return (
-                <div className="mb-10 px-1">
-                  <h3 className="text-[11px] font-bold tracking-widest text-zinc-400 dark:text-zinc-500 uppercase mb-4">
+                <div className="mb-14 px-5">
+                  <h3 className="text-[11px] font-bold tracking-widest text-zinc-400 dark:text-zinc-500 uppercase mb-5">
                     📖 Continue Reading
                   </h3>
                   <div className="flex gap-3 overflow-x-auto no-scrollbar pb-2">
@@ -849,8 +849,8 @@ export default function CurationList() {
             })()}
 
             {/* Topic Grid */}
-            <div className="px-1">
-              <h3 className="text-[11px] font-bold tracking-widest text-zinc-400 dark:text-zinc-500 uppercase mb-4">
+            <div className="px-5 mb-10">
+              <h3 className="text-[11px] font-bold tracking-widest text-zinc-400 dark:text-zinc-500 uppercase mb-5">
                 Browse by Topic
               </h3>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
@@ -874,7 +874,7 @@ export default function CurationList() {
         )}
 
         {/* ═══ ARCHIVE LIST SECTION ═══ */}
-        <div className="flex items-end justify-between px-1 mb-4 mt-2">
+        <div className="flex items-end justify-between px-5 mb-5 mt-4">
           <h3
             className="text-[20px] font-bold tracking-tight text-zinc-900 dark:text-zinc-100"
             style={{ fontFamily: "'Playfair Display', Georgia, serif" }}
@@ -903,7 +903,7 @@ export default function CurationList() {
         </div>
 
         {/* Utility Action Bar (Sort & Status) */}
-        <div className="flex items-center gap-2 overflow-x-auto px-1 pb-4 no-scrollbar mb-2 border-b border-zinc-200/60 dark:border-zinc-800/60 w-full">
+        <div className="flex items-center gap-2 overflow-x-auto px-5 pb-5 no-scrollbar mb-4 border-b border-zinc-200/60 dark:border-zinc-800/60 w-full">
           {/* Sort Toggle */}
           <button
             onClick={() =>
@@ -946,7 +946,7 @@ export default function CurationList() {
           <motion.div
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: "auto" }}
-            className="flex gap-2 overflow-x-auto px-1 no-scrollbar pb-5 mb-1"
+            className="flex gap-2 overflow-x-auto px-5 no-scrollbar pb-6 mb-2"
           >
             {CATEGORIES.map((cat) => {
               const isActive = categoryFilter.includes(cat.name);
@@ -1020,8 +1020,8 @@ export default function CurationList() {
               exit={{ opacity: 0 }}
               className={
                 searchQuery
-                  ? "flex flex-col gap-3"
-                  : "flex flex-col gap-5 md:grid md:grid-cols-2 md:gap-5"
+                  ? "flex flex-col gap-3 px-5 mb-10"
+                  : "flex flex-col gap-6 md:grid md:grid-cols-2 md:gap-6 px-5 mb-10"
               }
             >
               {filteredArticles.map((article, index) => {
