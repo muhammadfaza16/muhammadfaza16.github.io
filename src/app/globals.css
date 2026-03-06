@@ -1032,8 +1032,8 @@
 
 /* ═══ DARK MODE RADIAL WIPE TRANSITION ═══ */
 ::view-transition-group(root) {
-  animation-duration: 1.2s;
-  animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  animation-duration: 2.5s;
+  animation-timing-function: cubic-bezier(0.5, 0, 0, 1);
 }
 
 ::view-transition-new(root) {
@@ -1063,6 +1063,7 @@
   from {
     clip-path: circle(0px at 100% 0%);
   }
+
   to {
     /* 250% ensures it fully covers the diagonal of large screens */
     clip-path: circle(250% at 100% 0%);
