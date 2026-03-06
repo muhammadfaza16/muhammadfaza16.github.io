@@ -3,12 +3,13 @@
 import { useEffect, useState, useRef, useCallback } from "react";
 import { motion, AnimatePresence, useMotionValue, useTransform } from "framer-motion";
 import Link from "next/link";
-import { Search, ChevronLeft, Bookmark, FileText, Plus, Loader2, CheckCircle, Send, X, ArrowUpRight, ArrowDown, ArrowUp, Share2 } from "lucide-react";
+import { Search, ChevronLeft, Bookmark, FileText, Plus, Loader2, CheckCircle, Send, X, ArrowUpRight, ArrowDown, ArrowUp, Share2, Sun, Moon } from "lucide-react";
 import { Toaster, toast } from 'react-hot-toast';
-import { createToReadArticle, updateToReadArticle } from "@/app/master/actions";
+import { updateToReadArticle, createToReadArticle } from "@/app/master/actions";
 import { uploadImageToSupabase } from "@/lib/uploadImage";
 import { getSupabase } from "@/lib/supabase";
 import { BottomSheet, ImagePicker, QuickPasteInput, RichTextEditor } from "@/components/sanctuary";
+import { useTheme } from "@/components/ThemeProvider";
 
 // ─── Types ───
 
@@ -103,6 +104,9 @@ export default function CurationList() {
     const [isFetchingMetadata, setIsFetchingMetadata] = useState(false);
     const [editingId, setEditingId] = useState<string | null>(null);
     const supabase = getSupabase();
+
+    // Theme
+    const { theme, toggleTheme } = useTheme();
 
     // Auto-fetch metadata
     useEffect(() => {
@@ -458,7 +462,7 @@ export default function CurationList() {
     const isFiltering = categoryFilter.length > 0 || searchQuery.length > 0 || statusFilter !== "all";
 
     return (
-        <div className="h-screen w-full flex flex-col bg-[#fafaf8] text-zinc-900 font-sans antialiased overflow-hidden relative selection:bg-amber-100">
+        <div className="h-screen w-full flex flex-col bg-[#fafaf8] dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100 font-sans antialiased overflow-hidden relative selection:bg-amber-100 dark:selection:bg-amber-900/30 transition-colors duration-500">
             <Toaster
                 position="bottom-center"
                 toastOptions={{
@@ -468,20 +472,29 @@ export default function CurationList() {
             />
 
             {/* ═══ MINIMAL HEADER ═══ */}
-            <header className="sticky top-0 z-50 bg-[#fafaf8]/80 backdrop-blur-xl border-b border-zinc-200/40 shrink-0 px-5 py-3.5 flex items-center justify-between">
-                <Link href="/" className="w-10 h-10 flex items-center justify-center text-zinc-400 hover:text-zinc-900 active:scale-90 rounded-full transition-all">
+            <header className="sticky top-0 z-50 bg-[#fafaf8]/80 dark:bg-zinc-950/80 backdrop-blur-xl border-b border-zinc-200/40 dark:border-zinc-800/40 shrink-0 px-5 py-3.5 flex items-center justify-between transition-colors duration-500">
+                <Link href="/" className="w-10 h-10 flex items-center justify-center text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 active:scale-90 rounded-full transition-all">
                     <ChevronLeft size={20} />
                 </Link>
-                <h2 className="text-[16px] text-zinc-900 italic font-medium" style={{ fontFamily: "'Playfair Display', Georgia, serif" }}>Curated by Faza</h2>
-                <button
-                    onClick={() => {
-                        setIsSearchOpen(!isSearchOpen);
-                        if (!isSearchOpen) setTimeout(() => searchInputRef.current?.focus(), 100);
-                    }}
-                    className="w-10 h-10 flex items-center justify-center text-zinc-400 hover:text-zinc-900 active:scale-90 rounded-full transition-all"
-                >
-                    {isSearchOpen ? <X size={18} /> : <Search size={18} />}
-                </button>
+                <h2 className="text-[16px] text-zinc-900 dark:text-zinc-100 italic font-medium" style={{ fontFamily: "'Playfair Display', Georgia, serif" }}>Curated by Faza</h2>
+
+                <div className="flex items-center gap-1">
+                    <button
+                        onClick={toggleTheme}
+                        className="w-10 h-10 flex items-center justify-center text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 active:scale-90 rounded-full transition-all"
+                    >
+                        {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
+                    </button>
+                    <button
+                        onClick={() => {
+                            setIsSearchOpen(!isSearchOpen);
+                            if (!isSearchOpen) setTimeout(() => searchInputRef.current?.focus(), 100);
+                        }}
+                        className="w-10 h-10 flex items-center justify-center text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 active:scale-90 rounded-full transition-all"
+                    >
+                        {isSearchOpen ? <X size={18} /> : <Search size={18} />}
+                    </button>
+                </div>
             </header>
 
             {/* ═══ SEARCH BAR (expandable) ═══ */}
@@ -503,7 +516,7 @@ export default function CurationList() {
                                     placeholder="Search articles..."
                                     value={searchQuery}
                                     onChange={e => setSearchQuery(e.target.value)}
-                                    className="w-full h-11 bg-white rounded-xl border border-zinc-200/80 pl-10 pr-4 text-[14px] text-zinc-900 placeholder:text-zinc-300 outline-none focus:border-zinc-300 focus:ring-2 focus:ring-zinc-100 transition-all"
+                                    className="w-full h-11 bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200/80 dark:border-zinc-800/80 pl-10 pr-4 text-[14px] text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 dark:placeholder:text-zinc-500 outline-none focus:border-zinc-300 dark:focus:border-zinc-700 focus:ring-2 focus:ring-zinc-100 dark:focus:ring-zinc-800 transition-all"
                                 />
                             </div>
                         </div>
@@ -528,24 +541,24 @@ export default function CurationList() {
                     >
                         {/* Hero Zone */}
                         <div className="mb-8 px-1">
-                            <h1 className="text-[36px] md:text-[44px] leading-[1.05] tracking-[-0.03em] text-zinc-900 mb-4" style={{ fontFamily: "'Playfair Display', Georgia, serif" }}>
+                            <h1 className="text-[36px] md:text-[44px] leading-[1.05] tracking-[-0.03em] text-zinc-900 dark:text-zinc-100 mb-4" style={{ fontFamily: "'Playfair Display', Georgia, serif" }}>
                                 Curated Knowledge<br />
-                                <span className="italic text-zinc-400" style={{ fontWeight: 400 }}>& Perspectives.</span>
+                                <span className="italic text-zinc-400 dark:text-zinc-500" style={{ fontWeight: 400 }}>& Perspectives.</span>
                             </h1>
-                            <p className="text-[15px] text-zinc-500 leading-relaxed max-w-[44ch]">
+                            <p className="text-[15px] text-zinc-500 dark:text-zinc-400 leading-relaxed max-w-[44ch]">
                                 A carefully assembled library of essays, frameworks, and ideas — for the curious mind. Explore, discover, contribute.
                             </p>
 
                             {/* Stats */}
                             <div className="flex items-center gap-3 mt-5 flex-wrap">
-                                <span className="text-[12px] font-medium text-zinc-400">
+                                <span className="text-[12px] font-medium text-zinc-400 dark:text-zinc-500">
                                     {articles.length > 0 ? `${articles.length}+ entries` : ""} {categoryCount > 0 && articles.length > 0 ? `• ${categoryCount} topics` : ""}
                                 </span>
 
                                 {weeklyReads > 0 && (
                                     <Link
                                         href="/curation/recap"
-                                        className="flex items-center gap-1.5 bg-orange-50 text-orange-600 px-2.5 py-0.5 rounded-full border border-orange-100 shadow-[0_2px_10px_-4px_rgba(234,88,12,0.3)] hover:shadow-md transition-all active:scale-95"
+                                        className="flex items-center gap-1.5 bg-orange-50 dark:bg-orange-500/10 text-orange-600 dark:text-orange-400 px-2.5 py-0.5 rounded-full border border-orange-100 dark:border-orange-500/20 shadow-[0_2px_10px_-4px_rgba(234,88,12,0.3)] hover:shadow-md transition-all active:scale-95"
                                     >
                                         <span className="text-[13px] inline-block animate-[bounce_2s_infinite]">🔥</span>
                                         <span className="text-[11px] font-bold tracking-wider uppercase">{weeklyReads} Read{weeklyReads !== 1 && 's'} This Week</span>
@@ -563,24 +576,24 @@ export default function CurationList() {
                             if (inProgress.length === 0) return null;
                             return (
                                 <div className="mb-10 px-1">
-                                    <h3 className="text-[11px] font-bold tracking-widest text-zinc-400 uppercase mb-4">📖 Continue Reading</h3>
+                                    <h3 className="text-[11px] font-bold tracking-widest text-zinc-400 dark:text-zinc-500 uppercase mb-4">📖 Continue Reading</h3>
                                     <div className="flex gap-3 overflow-x-auto no-scrollbar pb-2">
                                         {inProgress.map(article => (
                                             <Link
                                                 key={article.id}
                                                 href={`/curation/${article.id}`}
                                                 onClick={() => setNavigatingId(article.id)}
-                                                className="shrink-0 w-[220px] bg-white border border-zinc-200/80 rounded-2xl p-3.5 active:scale-[0.97] transition-all hover:shadow-sm group"
+                                                className="shrink-0 w-[220px] bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800 rounded-2xl p-3.5 active:scale-[0.97] transition-all hover:shadow-sm group"
                                             >
-                                                <h4 className="text-[13px] font-bold text-zinc-800 leading-tight line-clamp-2 mb-2 group-hover:text-blue-600 transition-colors">
+                                                <h4 className="text-[13px] font-bold text-zinc-800 dark:text-zinc-200 leading-tight line-clamp-2 mb-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
                                                     {article.title}
                                                 </h4>
                                                 <div className="flex items-center gap-2 mb-2.5">
-                                                    <span className="text-[10px] font-medium text-zinc-400">
+                                                    <span className="text-[10px] font-medium text-zinc-400 dark:text-zinc-500">
                                                         {Math.round((readingProgress[article.id] || 0) * 100)}% read
                                                     </span>
                                                 </div>
-                                                <div className="w-full h-1.5 bg-zinc-100 rounded-full overflow-hidden">
+                                                <div className="w-full h-1.5 bg-zinc-100 dark:bg-zinc-800/80 rounded-full overflow-hidden">
                                                     <div
                                                         className="h-full bg-gradient-to-r from-blue-400 to-blue-500 rounded-full transition-all"
                                                         style={{ width: `${Math.round((readingProgress[article.id] || 0) * 100)}%` }}
@@ -595,16 +608,16 @@ export default function CurationList() {
 
                         {/* Topic Grid */}
                         <div className="px-1">
-                            <h3 className="text-[11px] font-bold tracking-widest text-zinc-400 uppercase mb-4">Browse by Topic</h3>
+                            <h3 className="text-[11px] font-bold tracking-widest text-zinc-400 dark:text-zinc-500 uppercase mb-4">Browse by Topic</h3>
                             <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                                 {CATEGORIES.map(cat => (
                                     <button
                                         key={cat.name}
                                         onClick={() => handleCategoryToggle(cat.name)}
-                                        className="flex flex-col items-start p-4 bg-white border border-zinc-200/80 rounded-[1.25rem] hover:border-zinc-300 hover:shadow-sm active:scale-[0.98] transition-all text-left"
+                                        className="flex flex-col items-start p-4 bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800 rounded-[1.25rem] hover:border-zinc-300 dark:hover:border-zinc-700 hover:shadow-sm active:scale-[0.98] transition-all text-left"
                                     >
                                         <span className="text-2xl mb-2 grayscale opacity-90">{cat.emoji}</span>
-                                        <span className="text-[13px] font-bold text-zinc-800 leading-tight">{cat.name}</span>
+                                        <span className="text-[13px] font-bold text-zinc-800 dark:text-zinc-200 leading-tight">{cat.name}</span>
                                     </button>
                                 ))}
                             </div>
@@ -614,7 +627,7 @@ export default function CurationList() {
 
                 {/* ═══ ARCHIVE LIST SECTION ═══ */}
                 <div className="flex items-end justify-between px-1 mb-4 mt-2">
-                    <h3 className="text-[20px] font-bold tracking-tight text-zinc-900" style={{ fontFamily: "'Playfair Display', Georgia, serif" }}>
+                    <h3 className="text-[20px] font-bold tracking-tight text-zinc-900 dark:text-zinc-100" style={{ fontFamily: "'Playfair Display', Georgia, serif" }}>
                         {searchQuery ? "Search Results" :
                             categoryFilter.length > 0 ? `${categoryFilter.join(', ')}` :
                                 statusFilter !== "all" ? `${statusFilter.charAt(0).toUpperCase() + statusFilter.slice(1)} Articles` :
@@ -624,7 +637,7 @@ export default function CurationList() {
                     {isFiltering && (
                         <button
                             onClick={() => { setCategoryFilter([]); setSearchQuery(''); setStatusFilter('all'); }}
-                            className="text-[12px] font-bold text-blue-600 hover:text-blue-700 active:scale-95 transition-all bg-blue-50 px-3 py-1.5 rounded-full"
+                            className="text-[12px] font-bold text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 active:scale-95 transition-all bg-blue-50 dark:bg-blue-900/30 px-3 py-1.5 rounded-full"
                         >
                             Clear View
                         </button>
@@ -632,17 +645,17 @@ export default function CurationList() {
                 </div>
 
                 {/* Utility Action Bar (Sort & Status) */}
-                <div className="flex items-center gap-2 overflow-x-auto px-1 pb-4 no-scrollbar mb-2 border-b border-zinc-200/60 w-full">
+                <div className="flex items-center gap-2 overflow-x-auto px-1 pb-4 no-scrollbar mb-2 border-b border-zinc-200/60 dark:border-zinc-800/60 w-full">
                     {/* Sort Toggle */}
                     <button
                         onClick={() => handleSortChange(sort === "latest" ? "oldest" : "latest")}
-                        className="px-3 py-1.5 text-[12px] font-bold rounded-full transition-all active:scale-[0.96] whitespace-nowrap bg-white text-zinc-600 border border-zinc-200 hover:border-zinc-300 flex items-center gap-1.5 shrink-0 shadow-sm"
+                        className="px-3 py-1.5 text-[12px] font-bold rounded-full transition-all active:scale-[0.96] whitespace-nowrap bg-white dark:bg-zinc-900 text-zinc-600 dark:text-zinc-400 border border-zinc-200 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700 flex items-center gap-1.5 shrink-0 shadow-sm"
                     >
-                        {sort === "latest" ? <ArrowDown size={14} className="text-zinc-400" strokeWidth={2.5} /> : <ArrowUp size={14} className="text-zinc-400" strokeWidth={2.5} />}
+                        {sort === "latest" ? <ArrowDown size={14} strokeWidth={2.5} /> : <ArrowUp size={14} strokeWidth={2.5} />}
                         {sort === "latest" ? "Latest" : "Oldest"}
                     </button>
 
-                    <div className="w-[1px] h-4 bg-zinc-200 mx-1 shrink-0" />
+                    <div className="w-[1px] h-4 bg-zinc-200 dark:bg-zinc-800 mx-1 shrink-0" />
 
                     {/* Status Filter Pills */}
                     {([
@@ -654,8 +667,8 @@ export default function CurationList() {
                             key={f.key}
                             onClick={() => setStatusFilter(f.key)}
                             className={`px-3 py-1.5 text-[12px] font-bold rounded-full transition-all active:scale-[0.96] whitespace-nowrap shrink-0 ${statusFilter === f.key
-                                ? "bg-zinc-800 text-white shadow-sm"
-                                : "text-zinc-400 hover:text-zinc-700 bg-white border border-zinc-200/50"
+                                ? "bg-zinc-800 dark:bg-zinc-100 text-white dark:text-zinc-900 shadow-sm"
+                                : "text-zinc-400 dark:text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300 bg-white dark:bg-zinc-900 border border-zinc-200/50 dark:border-zinc-800/80"
                                 }`}
                         >
                             {f.label}
@@ -677,8 +690,8 @@ export default function CurationList() {
                                     key={cat.name}
                                     onClick={() => handleCategoryToggle(cat.name)}
                                     className={`px-3 py-1.5 text-[11px] font-semibold rounded-full transition-all active:scale-[0.96] whitespace-nowrap shrink-0 border ${isActive
-                                        ? "bg-zinc-900 text-white border-zinc-900 shadow-sm"
-                                        : "bg-white text-zinc-400 border-zinc-200/60 hover:border-zinc-300"
+                                        ? "bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 border-zinc-900 dark:border-zinc-100 shadow-sm"
+                                        : "bg-white dark:bg-zinc-900 text-zinc-400 dark:text-zinc-500 border-zinc-200/60 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700"
                                         }`}
                                 >
                                     {isActive ? "✓" : cat.emoji} {cat.name}
@@ -699,16 +712,16 @@ export default function CurationList() {
                             className="flex flex-col gap-4"
                         >
                             {/* Hero skeleton */}
-                            <div className="rounded-[2rem] bg-zinc-300/60 h-[280px] animate-pulse" />
+                            <div className="rounded-[2rem] bg-zinc-300/60 dark:bg-zinc-800/60 h-[280px] animate-pulse" />
                             {/* Card skeletons */}
                             {[1, 2, 3].map(i => (
-                                <div key={i} className="bg-white rounded-[1.5rem] border border-zinc-200 p-4 flex items-center gap-4">
-                                    <div className="w-[80px] h-[80px] rounded-2xl bg-zinc-200 animate-pulse shrink-0" />
+                                <div key={i} className="bg-white dark:bg-zinc-900 rounded-[1.5rem] border border-zinc-200 dark:border-zinc-800 p-4 flex items-center gap-4">
+                                    <div className="w-[80px] h-[80px] rounded-2xl bg-zinc-200 dark:bg-zinc-800 animate-pulse shrink-0" />
                                     <div className="flex-1 space-y-2">
-                                        <div className="h-3 bg-zinc-200 rounded animate-pulse w-1/3" />
-                                        <div className="h-4 bg-zinc-300/50 rounded animate-pulse w-full" />
-                                        <div className="h-4 bg-zinc-300/50 rounded animate-pulse w-2/3" />
-                                        <div className="h-3 bg-zinc-200 rounded animate-pulse w-1/4 mt-1" />
+                                        <div className="h-3 bg-zinc-200 dark:bg-zinc-800 rounded animate-pulse w-1/3" />
+                                        <div className="h-4 bg-zinc-300/50 dark:bg-zinc-700/50 rounded animate-pulse w-full" />
+                                        <div className="h-4 bg-zinc-300/50 dark:bg-zinc-700/50 rounded animate-pulse w-2/3" />
+                                        <div className="h-3 bg-zinc-200 dark:bg-zinc-800 rounded animate-pulse w-1/4 mt-1" />
                                     </div>
                                 </div>
                             ))}
@@ -719,10 +732,10 @@ export default function CurationList() {
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
                             exit={{ opacity: 0 }}
-                            className="flex flex-col items-center justify-center py-24 text-zinc-300 w-full"
+                            className="flex flex-col items-center justify-center py-24 w-full"
                         >
-                            <FileText size={44} className="mb-4" strokeWidth={1.5} />
-                            <p className="text-base font-semibold tracking-tight text-zinc-400">
+                            <FileText size={44} className="mb-4 text-zinc-300 dark:text-zinc-700" strokeWidth={1.5} />
+                            <p className="text-base font-semibold tracking-tight text-zinc-400 dark:text-zinc-500">
                                 {searchQuery ? "No matching articles." : "Nothing here yet."}
                             </p>
                         </motion.div>
@@ -1026,7 +1039,7 @@ function SwipeableArticleCard({
                 onDragEnd={handleDragEnd}
                 style={{ x }}
                 whileTap={{ cursor: "grabbing" }}
-                className="bg-white rounded-[1.5rem] border border-zinc-100 overflow-hidden shadow-[0_1px_3px_rgba(0,0,0,0.02)] hover:shadow-[0_4px_16px_rgba(0,0,0,0.04)] transition-all duration-300 p-4 relative z-10 cursor-grab touch-pan-y"
+                className="bg-white dark:bg-zinc-900 rounded-[1.5rem] border border-zinc-100 dark:border-zinc-800 overflow-hidden shadow-[0_1px_3px_rgba(0,0,0,0.02)] hover:shadow-[0_4px_16px_rgba(0,0,0,0.04)] transition-all duration-300 p-4 relative z-10 cursor-grab touch-pan-y"
             >
                 <Link
                     href={`/curation/${article.id}`}
@@ -1037,62 +1050,62 @@ function SwipeableArticleCard({
                     draggable={false}
                 >
                     {isNavigating && (
-                        <div className="absolute inset-0 bg-white/60 backdrop-blur-[2px] z-50 flex items-center justify-center rounded-xl" style={{ margin: '-8px', padding: '8px' }}>
-                            <Loader2 size={24} className="animate-spin text-blue-600" />
+                        <div className="absolute inset-0 bg-white/60 dark:bg-zinc-900/60 backdrop-blur-[2px] z-50 flex items-center justify-center rounded-xl" style={{ margin: '-8px', padding: '8px' }}>
+                            <Loader2 size={24} className="animate-spin text-blue-600 dark:text-blue-400" />
                         </div>
                     )}
                     {/* Thumbnail */}
-                    <div className="w-[80px] h-[80px] rounded-2xl overflow-hidden bg-zinc-50 shrink-0 border border-zinc-100/60 relative pointer-events-none">
+                    <div className="w-[80px] h-[80px] rounded-2xl overflow-hidden bg-zinc-50 dark:bg-zinc-800 shrink-0 border border-zinc-100/60 dark:border-zinc-700/60 relative pointer-events-none">
                         {validImageUrl && !imgError ? (
                             <img src={validImageUrl} alt="" draggable={false} className="w-full h-full object-cover" onError={onImgError} />
                         ) : (
-                            <div className="w-full h-full flex items-center justify-center text-zinc-200 bg-gradient-to-br from-zinc-50 to-zinc-100">
+                            <div className="w-full h-full flex items-center justify-center text-zinc-200 dark:text-zinc-700 bg-gradient-to-br from-zinc-50 dark:from-zinc-800 to-zinc-100 dark:to-zinc-900">
                                 <FileText size={22} strokeWidth={1.5} />
                             </div>
                         )}
-                        <div className="absolute inset-0 ring-1 ring-inset ring-black/5 rounded-2xl" />
+                        <div className="absolute inset-0 ring-1 ring-inset ring-black/5 dark:ring-white/5 rounded-2xl" />
                     </div>
                     {/* Text */}
                     <div className="flex-1 min-w-0 py-0.5 pointer-events-none">
                         <div className="flex items-center gap-1.5 mb-2 flex-wrap">
                             {isVisitorRead ? (
-                                <span className="text-[9px] font-bold uppercase tracking-[0.1em] bg-zinc-100 text-zinc-400 px-1.5 py-[2px] rounded">
+                                <span className="text-[9px] font-bold uppercase tracking-[0.1em] bg-zinc-100 dark:bg-zinc-800 text-zinc-400 dark:text-zinc-500 px-1.5 py-[2px] rounded">
                                     READ
                                 </span>
                             ) : (
-                                <span className="text-[9px] font-bold uppercase tracking-[0.1em] bg-blue-50 text-blue-500 px-1.5 py-[2px] rounded">
+                                <span className="text-[9px] font-bold uppercase tracking-[0.1em] bg-blue-50 dark:bg-blue-900/30 text-blue-500 dark:text-blue-400 px-1.5 py-[2px] rounded">
                                     NEW
                                 </span>
                             )}
                             {article.qualityScore && article.qualityScore >= 75 && (
-                                <span className="text-[9px] font-bold uppercase tracking-[0.1em] bg-amber-50 text-amber-600 px-1.5 py-[2px] rounded">
+                                <span className="text-[9px] font-bold uppercase tracking-[0.1em] bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-500 px-1.5 py-[2px] rounded">
                                     ⭐ TOP
                                 </span>
                             )}
                             {article.category && (
                                 <>
-                                    <span className="text-zinc-200">•</span>
-                                    <span className="text-[10px] font-semibold text-zinc-400 truncate">
+                                    <span className="text-zinc-200 dark:text-zinc-700">•</span>
+                                    <span className="text-[10px] font-semibold text-zinc-400 dark:text-zinc-500 truncate">
                                         {article.category}
                                     </span>
                                 </>
                             )}
                             {isVisitorBookmarked && (
                                 <>
-                                    <span className="text-zinc-200">•</span>
-                                    <Bookmark size={11} className="fill-blue-500 text-blue-500" />
+                                    <span className="text-zinc-200 dark:text-zinc-700">•</span>
+                                    <Bookmark size={11} className="fill-blue-500 text-blue-500 dark:fill-blue-400 dark:text-blue-400" />
                                 </>
                             )}
                         </div>
-                        <h3 className="text-[15px] font-bold tracking-[-0.01em] text-zinc-900 leading-[1.3] line-clamp-2 mb-1.5 group-hover/card:text-blue-600 transition-colors">
+                        <h3 className="text-[15px] font-bold tracking-[-0.01em] text-zinc-900 dark:text-zinc-100 leading-[1.3] line-clamp-2 mb-1.5 group-hover/card:text-blue-600 dark:group-hover/card:text-blue-400 transition-colors">
                             {article.title}
                         </h3>
-                        <div className="flex items-center gap-1.5 text-[11px] font-medium text-zinc-400">
+                        <div className="flex items-center gap-1.5 text-[11px] font-medium text-zinc-400 dark:text-zinc-500">
                             <span>
                                 {postDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
                                 {postDate.getFullYear() !== new Date().getFullYear() && `, ${postDate.getFullYear()}`}
                             </span>
-                            <span className="w-1 h-1 rounded-full bg-zinc-200" />
+                            <span className="w-1 h-1 rounded-full bg-zinc-200 dark:bg-zinc-700" />
                             <span>{readTime} min</span>
                         </div>
                     </div>
@@ -1102,16 +1115,16 @@ function SwipeableArticleCard({
                 {onShare && (
                     <button
                         onClick={(e) => { e.stopPropagation(); onShare(); }}
-                        className="absolute top-3 right-3 z-20 p-2 rounded-full bg-white/90 border border-zinc-100 shadow-sm opacity-0 group-hover/card:opacity-100 transition-opacity active:scale-90 pointer-events-auto"
+                        className="absolute top-3 right-3 z-20 p-2 rounded-full bg-white/90 dark:bg-zinc-800/90 border border-zinc-100 dark:border-zinc-700 shadow-sm opacity-0 group-hover/card:opacity-100 transition-opacity active:scale-90 pointer-events-auto"
                         aria-label="Share"
                     >
-                        <Share2 size={14} className="text-zinc-500" />
+                        <Share2 size={14} className="text-zinc-500 dark:text-zinc-400" />
                     </button>
                 )}
 
                 {/* Reading progress bar */}
                 {progress > 0.05 && (
-                    <div className="mt-2 w-full h-1 bg-zinc-100 rounded-full overflow-hidden">
+                    <div className="mt-2 w-full h-1 bg-zinc-100 dark:bg-zinc-800 rounded-full overflow-hidden">
                         <div
                             className={`h-full rounded-full transition-all ${progress >= 0.95 ? 'bg-emerald-400' : 'bg-gradient-to-r from-blue-400 to-blue-500'}`}
                             style={{ width: `${Math.min(Math.round(progress * 100), 100)}%` }}

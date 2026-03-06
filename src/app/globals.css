@@ -2,6 +2,8 @@
 @plugin "@tailwindcss/typography";
 @source "../";
 
+@variant dark (&:where(.dark, .dark *));
+
 @theme {
   --spacing-0: 0px;
   --spacing-1: 0.25rem;
