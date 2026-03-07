@@ -991,7 +991,7 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
             >
                 {/* Refined Sophisticated Metadata Section */}
                 {article && (article.summary || (article.toc && article.toc.length > 0)) && (
-                    <section className="mb-14 animate-in fade-in slide-in-from-bottom-4 duration-700">
+                    <section className="mb-7 animate-in fade-in slide-in-from-bottom-4 duration-700">
                         {/* Tab Header */}
                         <div
                             className="flex items-center justify-between border-b pb-3 mb-6 transition-colors duration-500"
@@ -1075,7 +1075,7 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
                                     animate={{ opacity: 1, y: 0 }}
                                     exit={{ opacity: 0, y: -4 }}
                                     transition={{ duration: 0.35, ease: "easeOut" }}
-                                    className="pt-1 pb-10"
+                                    className="pt-1"
                                 >
                                     {activeMetadataTab === 'tldr' && article.summary && (
                                         <div
