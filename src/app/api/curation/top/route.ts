@@ -2,8 +2,8 @@ import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { unstable_cache } from "next/cache";
 
-// Cache for 1 hour
-export const revalidate = 3600;
+// Force dynamic to avoid build-time static generation errors with request.url
+export const dynamic = 'force-dynamic';
 
 export async function GET(request: Request) {
     try {

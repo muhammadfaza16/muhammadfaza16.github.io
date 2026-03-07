@@ -4,6 +4,8 @@ import { isAdminRequest } from "@/lib/auth";
 import { scoreArticle } from "@/lib/scoring";
 import { unstable_cache } from "next/cache";
 
+export const dynamic = 'force-dynamic';
+
 export async function POST(request: Request) {
     try {
         // Admin-only: direct article creation
