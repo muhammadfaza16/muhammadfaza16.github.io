@@ -469,10 +469,40 @@ export default function CurationList() {
   };
 
   useEffect(() => {
+    if (hasRestoredCache.current) {
+      hasRestoredCache.current = false;
+      return;
+    }
     // Instant for sort/category, debounced by useDebounce for search
     fetchArticles(null, sort, categoryFilter, debouncedSearchQuery);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sort, categoryFilter, debouncedSearchQuery]);
+
+  // Save cache when data changes
+  useEffect(() => {
+    if (articles.length === 0 && !nextCursor) return; // Ignore initial empty state
+    sessionStorage.setItem(CACHE_KEY, JSON.stringify({
+      articles,
+      nextCursor,
+      sort,
+      categoryFilter,
+      scrollY: scrollYRef.current || 0
+    }));
+  }, [articles, nextCursor, sort, categoryFilter]);
+
+  // Save scroll position on unmount before navigating away
+  useEffect(() => {
+    return () => {
+      try {
+        const cached = sessionStorage.getItem(CACHE_KEY);
+        if (cached) {
+          const parsed = JSON.parse(cached);
+          parsed.scrollY = scrollYRef.current;
+          sessionStorage.setItem(CACHE_KEY, JSON.stringify(parsed));
+        }
+      } catch { }
+    };
+  }, []);
 
   // Infinite scroll & Auto-fetch for sparse filtered views
   useEffect(() => {
@@ -565,6 +595,31 @@ export default function CurationList() {
 
   // Init
   useEffect(() => {
+    // Restore primary cache
+    try {
+      const cached = sessionStorage.getItem(CACHE_KEY);
+      if (cached) {
+        const parsed = JSON.parse(cached);
+        if (parsed.articles?.length > 0) {
+          setArticles(parsed.articles);
+          setNextCursor(parsed.nextCursor || null);
+          setSort(parsed.sort || "latest");
+          setCategoryFilter(parsed.categoryFilter || []);
+          hasRestoredCache.current = true;
+          setIsLoading(false);
+
+          if (parsed.scrollY) {
+            setTimeout(() => {
+              if (scrollContainerRef.current) {
+                scrollContainerRef.current.scrollTop = parsed.scrollY;
+                scrollYRef.current = parsed.scrollY;
+              }
+            }, 100);
+          }
+        }
+      }
+    } catch { }
+
     setVisitorState(getVisitorState());
 
     // Load reading progress from localStorage
