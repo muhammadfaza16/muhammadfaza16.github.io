@@ -2,6 +2,7 @@
 
 import prisma from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
+import { scoreArticle } from "@/lib/scoring";
 
 // ==========================================
 // TO READ (Article Model)
@@ -77,22 +78,37 @@ export async function createToReadArticle(title: string, url: string, notes: str
             select: SAFE_ARTICLE_SELECT
         });
 
-        if (likes > 0 || reposts > 0 || replies > 0) {
-            await prisma.articleScore.upsert({
-                where: { articleId: article.id },
-                create: {
-                    articleId: article.id,
-                    engagement: likes,
-                    actionability: reposts,
-                    specificity: replies
-                },
-                update: {
-                    engagement: likes,
-                    actionability: reposts,
-                    specificity: replies
-                }
-            });
-        }
+        let autoScores = { substance: 0, depth: 0, structure: 0, vocabulary: 0, readability: 0, composite: 0 };
+        try {
+            autoScores = scoreArticle(title, dataPayload.content);
+        } catch (e) { console.error("Auto-scoring failed:", e); }
+
+        await prisma.articleScore.upsert({
+            where: { articleId: article.id },
+            create: {
+                articleId: article.id,
+                substance: autoScores.substance,
+                depth: autoScores.depth,
+                structure: autoScores.structure,
+                vocabulary: autoScores.vocabulary,
+                readability: autoScores.readability,
+                total: autoScores.composite,
+                engagement: likes,
+                actionability: reposts,
+                specificity: replies
+            },
+            update: {
+                substance: autoScores.substance,
+                depth: autoScores.depth,
+                structure: autoScores.structure,
+                vocabulary: autoScores.vocabulary,
+                readability: autoScores.readability,
+                total: autoScores.composite,
+                engagement: likes,
+                actionability: reposts,
+                specificity: replies
+            }
+        });
 
         revalidatePath('/curation');
         return { success: true, data: { ...article, likes, reposts, replies } };
@@ -150,10 +166,36 @@ export async function updateToReadArticle(id: string, title: string, url: string
             select: SAFE_ARTICLE_SELECT
         });
 
+        let autoScores = { substance: 0, depth: 0, structure: 0, vocabulary: 0, readability: 0, composite: 0 };
+        try {
+            autoScores = scoreArticle(title, dataPayload.content);
+        } catch (e) { console.error("Auto-scoring failed:", e); }
+
         await prisma.articleScore.upsert({
             where: { articleId: id },
-            create: { articleId: id, engagement: likes, actionability: reposts, specificity: replies },
-            update: { engagement: likes, actionability: reposts, specificity: replies }
+            create: {
+                articleId: id,
+                substance: autoScores.substance,
+                depth: autoScores.depth,
+                structure: autoScores.structure,
+                vocabulary: autoScores.vocabulary,
+                readability: autoScores.readability,
+                total: autoScores.composite,
+                engagement: likes,
+                actionability: reposts,
+                specificity: replies
+            },
+            update: {
+                substance: autoScores.substance,
+                depth: autoScores.depth,
+                structure: autoScores.structure,
+                vocabulary: autoScores.vocabulary,
+                readability: autoScores.readability,
+                total: autoScores.composite,
+                engagement: likes,
+                actionability: reposts,
+                specificity: replies
+            }
         });
 
         revalidatePath('/curation');
