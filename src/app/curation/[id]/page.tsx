@@ -3,7 +3,7 @@
 import { use, useEffect, useState, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { motion, useScroll, useSpring, useMotionValueEvent, AnimatePresence, useTransform } from "framer-motion";
-import { ArrowLeft, Clock, CheckCircle, Share, Trash2, Globe, Pencil, Loader2, Camera, X, Clipboard, ImageIcon, MessageSquareQuote, ChevronsDown, Maximize, Minimize, Minus, Plus, Type, Bookmark, Volume2, VolumeX, Pause, Play, FolderPlus, FolderCheck, Check } from "lucide-react";
+import { ArrowLeft, Clock, CheckCircle, Share, Trash2, Globe, Pencil, Loader2, Camera, X, Clipboard, ImageIcon, MessageSquareQuote, ChevronsDown, Maximize, Minimize, Minus, Plus, Type, Bookmark, Volume2, VolumeX, Pause, Play, FolderPlus, FolderCheck, Check, Sparkles, ChevronDown, ChevronUp } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import ReactMarkdown from "react-markdown";
@@ -25,6 +25,8 @@ type Article = {
     isRead: boolean;
     isBookmarked: boolean;
     category?: string | null;
+    summary?: string | null;
+    toc?: any[] | null;
 };
 
 type Comment = {
@@ -46,14 +48,11 @@ type ThemeKey = keyof typeof THEMES;
 const LABEL_CLASS = "text-[12px] font-bold uppercase tracking-wider text-zinc-500 ml-1";
 
 const CATEGORIES = [
-    { name: "AI & Tools", emoji: "🤖" },
-    { name: "Wealth & Business", emoji: "💰" },
-    { name: "Mindset & Philosophy", emoji: "🧠" },
-    { name: "Self-Improvement & Productivity", emoji: "⚡" },
-    { name: "Career & Skills", emoji: "🎯" },
-    { name: "Marketing & Growth", emoji: "📈" },
-    { name: "Building & Design", emoji: "🔨" },
-    { name: "Health & Lifestyle", emoji: "🌱" },
+    { name: "AI & Automation", emoji: "🤖" },
+    { name: "Wealth & Leverage", emoji: "💰" },
+    { name: "Philosophy & Mental Models", emoji: "🧠" },
+    { name: "Peak Performance", emoji: "⚡" },
+    { name: "Growth & Systems", emoji: "📈" },
 ];
 
 import { uploadImageToSupabase } from "@/lib/uploadImage";
@@ -248,6 +247,18 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
             lastYRef.current = latest;
         }
     });
+
+    const [activeMetadataTab, setActiveMetadataTab] = useState<'tldr' | 'toc'>('toc');
+    const [isMetadataExpanded, setIsMetadataExpanded] = useState(false);
+
+    // Sync active tab when article data arrives
+    useEffect(() => {
+        if (article) {
+            // Default to toc if available, otherwise tldr
+            if (article.toc && article.toc.length > 0) setActiveMetadataTab('toc');
+            else if (article.summary) setActiveMetadataTab('tldr');
+        }
+    }, [article]);
 
     const scaleX = useSpring(scrollYProgress, {
         stiffness: 100,
@@ -917,20 +928,19 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
                             <h1 className="text-[32px] md:text-5xl font-bold font-sans tracking-tight leading-tight mb-4 text-white drop-shadow-lg">
                                 {article.title}
                             </h1>
-                            <div className="flex flex-wrap items-center gap-3 text-white/90 font-medium text-[13px] tracking-wide">
-                                <span className="flex items-center gap-1.5 bg-black/50 backdrop-blur-md px-3 py-1.5 rounded-full border border-white/20">
-                                    <Clock size={14} />
+                            <div className="flex flex-wrap items-center gap-3 text-white/50 font-sans text-[11px] font-bold tracking-[0.2em] uppercase">
+                                <span>
                                     {new Date(article.createdAt).toLocaleDateString('en-US', {
                                         year: 'numeric', month: 'short', day: 'numeric'
                                     })}
-                                    <span className="mx-1 text-white/50">•</span>
-                                    {readingTime} min read
                                 </span>
+                                <span className="text-white/20">•</span>
+                                <span>{readingTime} min read</span>
                                 {article.category && (
-                                    <span className="flex items-center gap-1.5 bg-blue-500/20 text-blue-50 backdrop-blur-md px-3 py-1.5 rounded-full border border-blue-400/30">
-                                        <Bookmark size={14} />
-                                        {article.category}
-                                    </span>
+                                    <>
+                                        <span className="text-white/20">•</span>
+                                        <span className="text-blue-400">{article.category}</span>
+                                    </>
                                 )}
                             </div>
                         </div>
@@ -946,20 +956,19 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
                         >
                             {article.title}
                         </h1>
-                        <div className="flex flex-wrap items-center gap-3 text-zinc-500 font-medium text-[13px] tracking-wide">
-                            <span className="flex items-center gap-1.5 bg-gray-50 px-3 py-1.5 rounded-full border border-gray-200">
-                                <Clock size={14} />
+                        <div className="flex flex-wrap items-center gap-3 text-zinc-400 font-sans text-[11px] font-bold tracking-[0.2em] uppercase">
+                            <span>
                                 {new Date(article.createdAt).toLocaleDateString('en-US', {
                                     year: 'numeric', month: 'short', day: 'numeric'
                                 })}
-                                <span className="mx-1 text-zinc-300">•</span>
-                                {readingTime} min read
                             </span>
+                            <span className="text-zinc-200 dark:text-zinc-800">•</span>
+                            <span>{readingTime} min read</span>
                             {article.category && (
-                                <span className="flex items-center gap-1.5 bg-blue-50 text-blue-600 px-3 py-1.5 rounded-full border border-blue-100">
-                                    <Bookmark size={14} />
-                                    {article.category}
-                                </span>
+                                <>
+                                    <span className="text-zinc-200 dark:text-zinc-800">•</span>
+                                    <span className="text-blue-500">{article.category}</span>
+                                </>
                             )}
                         </div>
                     </div>
@@ -980,6 +989,135 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
                     '--theme-accent': readerSettings.theme === 'night' ? '#60a5fa' : '#2563eb'
                 } as React.CSSProperties}
             >
+                {/* Refined Sophisticated Metadata Section */}
+                {article && (article.summary || (article.toc && article.toc.length > 0)) && (
+                    <section className="mb-14 animate-in fade-in slide-in-from-bottom-4 duration-700">
+                        {/* Tab Header */}
+                        <div
+                            className="flex items-center justify-between border-b pb-3 mb-6 transition-colors duration-500"
+                            style={{ borderColor: readerSettings.theme === 'night' ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)' }}
+                        >
+                            <div className="flex items-center gap-7">
+                                {article.toc && article.toc.length > 0 && (
+                                    <button
+                                        onClick={() => {
+                                            setActiveMetadataTab('toc');
+                                            if (!isMetadataExpanded) setIsMetadataExpanded(true);
+                                        }}
+                                        className="font-sans text-[11px] font-bold tracking-[0.18em] uppercase transition-all duration-300 relative py-1"
+                                        style={{
+                                            color: THEMES[readerSettings.theme].text,
+                                            opacity: activeMetadataTab === 'toc' ? 1 : 0.25
+                                        }}
+                                    >
+                                        Contents
+                                        {activeMetadataTab === 'toc' && (
+                                            <motion.div
+                                                layoutId="activeMetadataUnderline"
+                                                className="absolute -bottom-[13px] left-0 right-0 h-[1.5px] bg-blue-500"
+                                                transition={{ type: "spring", stiffness: 350, damping: 30 }}
+                                            />
+                                        )}
+                                    </button>
+                                )}
+                                {article.summary && (
+                                    <button
+                                        onClick={() => {
+                                            setActiveMetadataTab('tldr');
+                                            if (!isMetadataExpanded) setIsMetadataExpanded(true);
+                                        }}
+                                        className="font-sans text-[11px] font-bold tracking-[0.18em] uppercase transition-all duration-300 relative py-1"
+                                        style={{
+                                            color: THEMES[readerSettings.theme].text,
+                                            opacity: activeMetadataTab === 'tldr' ? 1 : 0.25
+                                        }}
+                                    >
+                                        TL;DR
+                                        {activeMetadataTab === 'tldr' && (
+                                            <motion.div
+                                                layoutId="activeMetadataUnderline"
+                                                className="absolute -bottom-[13px] left-0 right-0 h-[1.5px] bg-blue-500"
+                                                transition={{ type: "spring", stiffness: 350, damping: 30 }}
+                                            />
+                                        )}
+                                    </button>
+                                )}
+                            </div>
+
+                            <button
+                                onClick={() => setIsMetadataExpanded(!isMetadataExpanded)}
+                                className="flex items-center gap-2 opacity-30 hover:opacity-100 transition-opacity"
+                                style={{ color: THEMES[readerSettings.theme].text }}
+                            >
+                                <span className="font-sans text-[10px] font-bold tracking-[0.2em] uppercase">
+                                    {isMetadataExpanded ? "Hide" : "Show"}
+                                </span>
+                                <motion.div
+                                    animate={{ rotate: isMetadataExpanded ? 180 : 0 }}
+                                    transition={{ duration: 0.4, ease: [0.23, 1, 0.32, 1] }}
+                                >
+                                    <ChevronDown size={12} />
+                                </motion.div>
+                            </button>
+                        </div>
+
+                        {/* Content Area with smooth height and cross-fade */}
+                        <motion.div
+                            animate={{ height: isMetadataExpanded ? "auto" : 0, opacity: isMetadataExpanded ? 1 : 0 }}
+                            initial={false}
+                            className="overflow-hidden"
+                            transition={{ duration: 0.5, ease: [0.23, 1, 0.32, 1] }}
+                        >
+                            <AnimatePresence mode="wait">
+                                <motion.div
+                                    key={activeMetadataTab}
+                                    initial={{ opacity: 0, y: 8 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    exit={{ opacity: 0, y: -4 }}
+                                    transition={{ duration: 0.35, ease: "easeOut" }}
+                                    className="pt-1 pb-10"
+                                >
+                                    {activeMetadataTab === 'tldr' && article.summary && (
+                                        <div
+                                            className="prose dark:prose-invert max-w-none font-serif text-[17px] leading-[1.8] opacity-90 prose-p:mb-5"
+                                            style={{
+                                                color: THEMES[readerSettings.theme].text,
+                                                '--tw-prose-body': THEMES[readerSettings.theme].text,
+                                                '--tw-prose-headings': THEMES[readerSettings.theme].text,
+                                                '--tw-prose-links': '#3b82f6',
+                                                '--tw-prose-bold': THEMES[readerSettings.theme].text,
+                                                '--tw-prose-bullets': '#3b82f6'
+                                            } as any}
+                                        >
+                                            <ReactMarkdown>{article.summary}</ReactMarkdown>
+                                        </div>
+                                    )}
+                                    {activeMetadataTab === 'toc' && article.toc && (
+                                        <ul className="space-y-3.5 font-serif text-[16px] leading-relaxed">
+                                            {article.toc.map((t: any, idx: number) => (
+                                                <li key={idx} className="grid grid-cols-[2rem_1fr] group items-start">
+                                                    <span
+                                                        className="font-sans text-[11px] font-bold opacity-20 pt-[6px] tracking-tighter"
+                                                        style={{ color: THEMES[readerSettings.theme].text }}
+                                                    >
+                                                        {(idx + 1).toString().padStart(2, '0')}
+                                                    </span>
+                                                    <span
+                                                        className="opacity-70 transition-all duration-300 leading-snug group-hover:opacity-100 group-hover:translate-x-1"
+                                                        style={{ color: THEMES[readerSettings.theme].text }}
+                                                    >
+                                                        {t.title}
+                                                    </span>
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    )}
+                                </motion.div>
+                            </AnimatePresence>
+                        </motion.div>
+                    </section>
+                )}
+
                 <article
                     className="reader-content prose max-w-[65ch] mx-auto select-text touch-auto
                     prose-p:mb-7

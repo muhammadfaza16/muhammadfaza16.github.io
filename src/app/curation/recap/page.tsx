@@ -9,14 +9,11 @@ type ReadEntry = { id: string; ts: number };
 type VisitorState = { read: Record<string, boolean>; bookmarked: Record<string, boolean> };
 
 const CATEGORIES = [
-    { name: "AI & Tools", emoji: "🤖" },
-    { name: "Wealth & Business", emoji: "💰" },
-    { name: "Mindset & Philosophy", emoji: "🧠" },
-    { name: "Self-Improvement & Productivity", emoji: "⚡" },
-    { name: "Career & Skills", emoji: "🎯" },
-    { name: "Marketing & Growth", emoji: "📈" },
-    { name: "Building & Design", emoji: "🔨" },
-    { name: "Health & Lifestyle", emoji: "🌱" },
+    { name: "AI & Automation", emoji: "🤖" },
+    { name: "Wealth & Leverage", emoji: "💰" },
+    { name: "Philosophy & Mental Models", emoji: "🧠" },
+    { name: "Peak Performance", emoji: "⚡" },
+    { name: "Growth & Systems", emoji: "📈" },
 ];
 
 export default function CurationRecapPage() {

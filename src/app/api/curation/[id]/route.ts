@@ -1,7 +1,11 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 
-export const revalidate = 300; // Cache individual article fetching for 5 minutes
+import aiDataRaw from "@/data/curation_ai.json";
+
+const aiData: Record<string, { summary?: string, toc?: any[] }> = aiDataRaw;
+
+export const revalidate = 0; // Disable cache to instantly reflect DB taxonomy updates
 
 export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
     try {
@@ -37,6 +41,8 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
             likes: article.score?.engagement || 0,
             reposts: article.score?.actionability || 0,
             replies: article.score?.specificity || 0,
+            summary: aiData[id]?.summary || null,
+            toc: aiData[id]?.toc || null,
         };
         delete (response as any).score;
 

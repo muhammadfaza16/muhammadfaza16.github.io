@@ -108,7 +108,7 @@ export async function GET(request: Request) {
 
         const where = conditions.length === 1 ? conditions[0] : { AND: conditions };
 
-        const getArticlesCacheKey = `curation-feed-${sort}-${limit}-${category || 'none'}-${queryText || 'none'}-${cursor || 'none'}`;
+        const getArticlesCacheKey = `curation-feed-v2-${sort}-${limit}-${category || 'none'}-${queryText || 'none'}-${cursor || 'none'}`;
 
         const getCachedArticles = unstable_cache(
             async () => {

@@ -43,7 +43,7 @@ export async function GET(request: Request) {
                     }
                 });
             },
-            [`top-articles-cache-${limit || 'all'}`],
+            [`top-articles-cache-v2-${limit || 'all'}`],
             { revalidate: 3600 }
         );
 

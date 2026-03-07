@@ -41,6 +41,9 @@ import {
 } from "@/components/sanctuary";
 import { useTheme } from "@/components/ThemeProvider";
 import { predictCategory } from "@/lib/scoring";
+import aiDataRaw from "@/data/curation_ai.json";
+
+const aiData: Record<string, { summary?: string, toc?: any[] }> = aiDataRaw;
 
 // ─── Types ───
 
@@ -69,19 +72,16 @@ type SortType = "latest" | "oldest";
 // ─── Constants ───
 
 const CATEGORIES = [
-  { name: "AI & Tools", emoji: "🤖", desc: "Frameworks & future of computing" },
-  { name: "Wealth & Business", emoji: "💰", desc: "Strategies for leverage & scale" },
-  { name: "Mindset & Philosophy", emoji: "🧠", desc: "Mental models for clarity" },
-  { name: "Self-Improvement & Productivity", emoji: "⚡", desc: "Systems for deep work" },
-  { name: "Career & Skills", emoji: "🎯", desc: "Navigating the new economy" },
-  { name: "Marketing & Growth", emoji: "📈", desc: "Acquisition & audience building" },
-  { name: "Building & Design", emoji: "🔨", desc: "Creating digital experiences" },
-  { name: "Health & Lifestyle", emoji: "🌱", desc: "Performance & longevity" },
+  { name: "AI & Automation", emoji: "🤖", desc: "Frameworks & future of computing" },
+  { name: "Wealth & Leverage", emoji: "💰", desc: "Strategies for asymmetric scale" },
+  { name: "Philosophy & Mental Models", emoji: "🧠", desc: "Mental frames for clarity" },
+  { name: "Peak Performance", emoji: "⚡", desc: "Systems for deep elite work" },
+  { name: "Growth & Systems", emoji: "📈", desc: "Acquisition & compounding systems" },
 ];
 
 const LABEL_CLASS =
   "text-[12px] font-bold uppercase tracking-wider text-zinc-500 ml-1";
-const CACHE_KEY = "curationTabsPerFeedCache";
+const CACHE_KEY = "curationFeedCache_v2";
 const VISITOR_STATE_KEY = "curation_visitor_state";
 
 // ─── Visitor State (localStorage) ───
@@ -1053,7 +1053,7 @@ export default function CurationList() {
                       const postDate = new Date(featuredArticle.createdAt);
                       const readTime = estimateReadTime(featuredArticle.content);
                       const validImageUrl = getImageUrl(featuredArticle);
-                      const rawSummary = featuredArticle.content || "";
+                      const rawSummary = aiData[featuredArticle.id]?.summary || featuredArticle.content || "";
                       const plainSummary = rawSummary.replace(/<[^>]+>/g, "").trim();
 
                       return (
@@ -1493,6 +1493,7 @@ export default function CurationList() {
 
                 const postDate = new Date(article.createdAt);
                 const readTime = estimateReadTime(article.content);
+                const rawSummary = aiData[article.id]?.summary || article.content.substring(0, 160);
                 const isVisitorRead = visitorState.read[article.id];
                 const isVisitorBookmarked = visitorState.bookmarked[article.id];
 

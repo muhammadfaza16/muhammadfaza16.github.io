@@ -212,49 +212,36 @@ export function scoreArticle(title: string, content: string): ArticleScores {
 // ─── Category Prediction (Client & Server) ───
 
 const CATEGORY_DICTIONARY: Record<string, Record<string, number>> = {
-    "AI & Tools": {
+    "AI & Automation": {
         "ai": 6, "llm": 6, "chatgpt": 5, "prompt": 4, "machine": 3, "learning": 3,
         "neural": 4, "framework": 2, "api": 2, "gpt": 5, "claude": 5, "openai": 5,
-        "anthropic": 4, "agent": 4, "models": 2, "inference": 3, "rag": 4, "token": 2
+        "anthropic": 4, "agent": 4, "models": 2, "inference": 3, "rag": 4, "token": 2,
+        "automation": 5, "autonomous": 4, "bot": 3
     },
-    "Wealth & Business": {
+    "Wealth & Leverage": {
         "startup": 5, "saas": 5, "revenue": 4, "arr": 5, "mrr": 5, "margin": 3,
         "investment": 4, "venture": 4, "capital": 3, "business": 3, "founder": 4,
         "profit": 3, "sales": 3, "b2b": 4, "b2c": 3, "equity": 3, "bootstrapped": 5,
-        "monetization": 4, "funding": 4, "valuation": 4
+        "monetization": 4, "funding": 4, "valuation": 4, "leverage": 6, "scale": 5, "wealth": 6
     },
-    "Mindset & Philosophy": {
-        "mindset": 6, "philosophy": 6, "stoicism": 5, "stoic": 5, "mental": 4,
-        "model": 2, "clarity": 4, "wisdom": 4, "truth": 3, "perspective": 3,
-        "paradigm": 4, "ego": 4, "meditation": 4, "awareness": 3, "psychology": 4
+    "Philosophy & Mental Models": {
+        "mindset": 6, "philosophy": 6, "stoicism": 5, "stoic": 5, "mental": 6,
+        "model": 5, "clarity": 4, "wisdom": 4, "truth": 3, "perspective": 3,
+        "paradigm": 4, "ego": 4, "meditation": 4, "awareness": 3, "psychology": 4,
+        "heuristic": 5, "framework": 3
     },
-    "Self-Improvement & Productivity": {
+    "Peak Performance": {
         "productivity": 6, "habit": 5, "routine": 5, "deep": 4, "work": 2,
         "focus": 5, "time": 3, "management": 2, "system": 2, "goal": 3,
         "discipline": 5, "procrastination": 5, "efficiency": 4, "optimize": 3,
-        "flow": 3, "pomodoro": 4
+        "flow": 3, "pomodoro": 4, "performance": 6, "health": 4, "fitness": 4,
+        "sleep": 4, "longevity": 4, "energy": 5
     },
-    "Career & Skills": {
-        "career": 6, "resume": 5, "interview": 5, "job": 4, "hiring": 4,
-        "skills": 4, "promotion": 4, "manager": 3, "leadership": 4, "senior": 3,
-        "junior": 3, "portfolio": 4, "networking": 3, "salary": 5, "remote": 3
-    },
-    "Marketing & Growth": {
-        "marketing": 6, "growth": 5, "acquisition": 5, "audience": 4, "seo": 6,
+    "Growth & Systems": {
+        "marketing": 6, "growth": 6, "acquisition": 5, "audience": 4, "seo": 6,
         "content": 3, "viral": 4, "conversion": 5, "funnel": 5, "brand": 4,
         "advertising": 4, "social": 2, "campaign": 4, "retention": 4, "churn": 4,
-        "copywriting": 5, "ctr": 4
-    },
-    "Building & Design": {
-        "ux": 6, "ui": 6, "frontend": 5, "backend": 5, "code": 4, "deploy": 4,
-        "design": 4, "system": 2, "figma": 6, "architecture": 4, "react": 5,
-        "nextjs": 5, "tailwind": 5, "database": 4, "css": 4, "html": 3, "typescript": 5,
-        "dev": 3, "developer": 3, "software": 3
-    },
-    "Health & Lifestyle": {
-        "health": 6, "lifestyle": 5, "fitness": 5, "diet": 5, "sleep": 5,
-        "nutrition": 5, "workout": 4, "longevity": 5, "cardio": 4, "muscle": 4,
-        "recovery": 4, "wellness": 5, "supplement": 4, "biohacking": 5
+        "copywriting": 5, "career": 5, "skills": 5, "system": 5, "scale": 4
     }
 };
 
