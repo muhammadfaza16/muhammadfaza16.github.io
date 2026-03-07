@@ -1456,16 +1456,15 @@ export default function CurationList() {
                   <span className="text-[11px] font-medium text-zinc-300 block">
                     You&apos;ve reached the end
                   </span>
-                  {/* Hiding Suggest CTA for now
-                                    {!isAdmin && (
-                                        <button
-                                            onClick={() => setIsSheetOpen(true)}
-                                            className="inline-flex items-center gap-2 px-5 py-2.5 bg-white text-zinc-500 text-[13px] font-semibold rounded-full border border-zinc-200/80 hover:border-zinc-300 hover:text-zinc-700 active:scale-[0.97] transition-all"
-                                        >
-                                            <Send size={14} />
-                                            Know something we should read? Suggest it.
-                                        </button>
-                                    )} */}
+                  {!isAdmin && (
+                    <button
+                      onClick={() => setIsSheetOpen(true)}
+                      className="inline-flex items-center gap-2 px-5 py-2.5 bg-white text-zinc-500 text-[13px] font-semibold rounded-full border border-zinc-200/80 hover:border-zinc-300 hover:text-zinc-700 active:scale-[0.97] transition-all"
+                    >
+                      <Send size={14} />
+                      Know something we should read? Suggest it.
+                    </button>
+                  )}
                 </div>
               )}
             </motion.div>
@@ -1474,14 +1473,12 @@ export default function CurationList() {
       </main>
 
       {/* ═══ FAB — Admin: Add, Visitor: Suggest ═══ */}
-      {isAdmin ? (
-        <button
-          onClick={() => setIsSheetOpen(true)}
-          className="fixed bottom-6 right-6 w-14 h-14 bg-zinc-900 text-white rounded-full flex items-center justify-center shadow-[0_8px_30px_rgba(0,0,0,0.15)] active:scale-90 transition-transform z-40"
-        >
-          <Plus size={24} />
-        </button>
-      ) : null}
+      <button
+        onClick={() => setIsSheetOpen(true)}
+        className="fixed bottom-6 right-6 w-14 h-14 bg-zinc-900 text-white rounded-full flex items-center justify-center shadow-[0_8px_30px_rgba(0,0,0,0.15)] active:scale-90 transition-transform z-40"
+      >
+        {isAdmin ? <Plus size={24} /> : <Send size={22} className="ml-0.5" />}
+      </button>
 
       {/* ═══ BOTTOM SHEET ═══ */}
       <BottomSheet

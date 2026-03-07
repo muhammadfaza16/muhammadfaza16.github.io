@@ -46,6 +46,39 @@ export async function approveSuggestedArticle(id: string) {
             data: { category: null },
             select: SAFE_ARTICLE_SELECT
         });
+
+        // Run heuristic scoring on approval
+        let autoScores = { substance: 0, depth: 0, structure: 0, vocabulary: 0, readability: 0, composite: 0 };
+        try {
+            autoScores = scoreArticle(article.title || "", article.content || "");
+        } catch (e) { console.error("Auto-scoring failed on approval:", e); }
+
+        // Start with 0 social metrics since it's fresh
+        await prisma.articleScore.upsert({
+            where: { articleId: id },
+            create: {
+                articleId: id,
+                substance: autoScores.substance,
+                depth: autoScores.depth,
+                structure: autoScores.structure,
+                vocabulary: autoScores.vocabulary,
+                readability: autoScores.readability,
+                total: autoScores.composite,
+                engagement: 0,
+                actionability: 0,
+                specificity: 0,
+                socialScore: 0
+            },
+            update: {
+                // Keep existing social metrics if they somehow exist
+                substance: autoScores.substance,
+                depth: autoScores.depth,
+                structure: autoScores.structure,
+                vocabulary: autoScores.vocabulary,
+                readability: autoScores.readability,
+                total: autoScores.composite
+            }
+        });
         revalidatePath('/curation');
         return { success: true, data: article };
     } catch (e: any) {
@@ -83,6 +116,8 @@ export async function createToReadArticle(title: string, url: string, notes: str
             autoScores = scoreArticle(title, dataPayload.content);
         } catch (e) { console.error("Auto-scoring failed:", e); }
 
+        const computedSocialScore = (likes * 1) + (reposts * 2) + (replies * 3);
+
         await prisma.articleScore.upsert({
             where: { articleId: article.id },
             create: {
@@ -95,7 +130,8 @@ export async function createToReadArticle(title: string, url: string, notes: str
                 total: autoScores.composite,
                 engagement: likes,
                 actionability: reposts,
-                specificity: replies
+                specificity: replies,
+                socialScore: computedSocialScore
             },
             update: {
                 substance: autoScores.substance,
@@ -106,7 +142,8 @@ export async function createToReadArticle(title: string, url: string, notes: str
                 total: autoScores.composite,
                 engagement: likes,
                 actionability: reposts,
-                specificity: replies
+                specificity: replies,
+                socialScore: computedSocialScore
             }
         });
 
@@ -171,6 +208,8 @@ export async function updateToReadArticle(id: string, title: string, url: string
             autoScores = scoreArticle(title, dataPayload.content);
         } catch (e) { console.error("Auto-scoring failed:", e); }
 
+        const computedSocialScore = (likes * 1) + (reposts * 2) + (replies * 3);
+
         await prisma.articleScore.upsert({
             where: { articleId: id },
             create: {
@@ -183,7 +222,8 @@ export async function updateToReadArticle(id: string, title: string, url: string
                 total: autoScores.composite,
                 engagement: likes,
                 actionability: reposts,
-                specificity: replies
+                specificity: replies,
+                socialScore: computedSocialScore
             },
             update: {
                 substance: autoScores.substance,
@@ -194,7 +234,8 @@ export async function updateToReadArticle(id: string, title: string, url: string
                 total: autoScores.composite,
                 engagement: likes,
                 actionability: reposts,
-                specificity: replies
+                specificity: replies,
+                socialScore: computedSocialScore
             }
         });
 
