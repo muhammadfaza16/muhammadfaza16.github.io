@@ -8,6 +8,7 @@ import {
   useTransform,
 } from "framer-motion";
 import Link from "next/link";
+import Image from "next/image";
 import {
   Search,
   ChevronLeft,
@@ -185,6 +186,7 @@ export default function CurationList() {
 
   const searchInputRef = useRef<HTMLInputElement>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const heroCarouselRef = useRef<HTMLDivElement>(null);
 
   // Form State
   const [isSheetOpen, setIsSheetOpen] = useState(false);
@@ -260,6 +262,101 @@ export default function CurationList() {
     return () => clearTimeout(timer);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [formUrl]);
+
+  // Auto-scrolling Hero Carousel
+  useEffect(() => {
+    if (topArticles.length <= 1) return;
+
+    let isPaused = false;
+    let resumeTimeout: NodeJS.Timeout;
+    const carousel = heroCarouselRef.current;
+
+    const handlePause = () => {
+      isPaused = true;
+      clearTimeout(resumeTimeout);
+    };
+
+    const handleResume = () => {
+      isPaused = false;
+    };
+
+    const handleTouchEnd = () => {
+      // Give users a 3-second grace period on mobile after swiping before auto-scroll takes over again
+      clearTimeout(resumeTimeout);
+      resumeTimeout = setTimeout(() => {
+        isPaused = false;
+      }, 3000);
+    };
+
+    if (carousel) {
+      carousel.addEventListener('mouseenter', handlePause);
+      carousel.addEventListener('mouseleave', handleResume);
+      carousel.addEventListener('touchstart', handlePause, { passive: true });
+      carousel.addEventListener('touchend', handleTouchEnd, { passive: true });
+    }
+
+    // Easing function for a luxurious, slow swipe (easeInOutCubic)
+    const smoothScroll = (element: HTMLElement, targetLeft: number, duration: number) => {
+      const startLeft = element.scrollLeft;
+      const distance = targetLeft - startLeft;
+      let startTime: number | null = null;
+
+      // Disable disruptive CSS snap physics during the JS animation
+      element.style.scrollSnapType = 'none';
+
+      const animation = (currentTime: number) => {
+        if (startTime === null) startTime = currentTime;
+        const timeElapsed = currentTime - startTime;
+        const progress = Math.min(timeElapsed / duration, 1);
+
+        // easeInOutCubic formula
+        const ease = progress < 0.5
+          ? 4 * progress * progress * progress
+          : 1 - Math.pow(-2 * progress + 2, 3) / 2;
+
+        element.scrollLeft = startLeft + distance * ease;
+
+        if (timeElapsed < duration) {
+          requestAnimationFrame(animation);
+        } else {
+          // Restore snap physics immediately after frame completes
+          element.style.scrollSnapType = 'x mandatory';
+        }
+      };
+
+      requestAnimationFrame(animation);
+    };
+
+    const interval = setInterval(() => {
+      if (!carousel || isPaused) return;
+
+      const { scrollLeft, scrollWidth, clientWidth } = carousel;
+      // Buffer of 10px to account for rounding errors
+      const isEnd = scrollLeft + clientWidth >= scrollWidth - 10;
+
+      if (isEnd) {
+        // Slow rewind to start (1.5 seconds)
+        smoothScroll(carousel, 0, 1500);
+      } else {
+        // Dynamically get the width of the first card + gap
+        const firstCard = carousel.children[0] as HTMLElement;
+        const scrollAmount = firstCard ? firstCard.offsetWidth + 16 : 400; // 16px is gap-4
+        // Slow cinematic swipe to next card (1.2 seconds)
+        smoothScroll(carousel, scrollLeft + scrollAmount, 1200);
+      }
+    }, 5000); // 5 seconds duration between slides
+
+    return () => {
+      clearInterval(interval);
+      clearTimeout(resumeTimeout);
+      if (carousel) {
+        carousel.removeEventListener('mouseenter', handlePause);
+        carousel.removeEventListener('mouseleave', handleResume);
+        carousel.removeEventListener('touchstart', handlePause);
+        carousel.removeEventListener('touchend', handleTouchEnd);
+      }
+    };
+  }, [topArticles]);
 
   const handleEditArticle = (article: ArticleMeta) => {
     setEditingId(article.id);
@@ -667,7 +764,7 @@ export default function CurationList() {
       .catch(() => setIsAdmin(false));
 
     // Fetch Top Articles specifically for the Hero Carousel (cached)
-    const topCacheKey = "curation_hero_top_cache";
+    const topCacheKey = "curation_hero_top_cache_v4";
     try {
       const cachedTop = sessionStorage.getItem(topCacheKey);
       if (cachedTop) {
@@ -677,7 +774,7 @@ export default function CurationList() {
       }
     } catch { }
 
-    fetch("/api/curation/top?limit=5")
+    fetch("/api/curation/top")
       .then((res) => res.json())
       .then((data) => {
         if (data.success) {
@@ -870,7 +967,7 @@ export default function CurationList() {
         id="curation-scroll-container"
         ref={scrollContainerRef}
         onScroll={(e) => (scrollYRef.current = e.currentTarget.scrollTop)}
-        className="flex-1 overflow-y-auto overflow-x-hidden pt-20 md:pt-24 pb-32 relative z-10 w-full max-w-2xl md:max-w-5xl mx-auto"
+        className="flex-1 overflow-y-auto overflow-x-hidden pt-20 md:pt-24 pb-8 relative z-10 w-full max-w-2xl md:max-w-5xl mx-auto"
         style={
           {
             WebkitOverflowScrolling: "touch",
@@ -948,7 +1045,10 @@ export default function CurationList() {
 
               return (
                 <div className="mb-14 pl-5">
-                  <div className="flex gap-4 overflow-x-auto no-scrollbar pb-6 snap-x snap-mandatory pr-5">
+                  <div
+                    ref={heroCarouselRef}
+                    className="flex gap-4 overflow-x-auto no-scrollbar pb-6 snap-x snap-mandatory pr-5"
+                  >
                     {topArticles.map((featuredArticle) => {
                       const postDate = new Date(featuredArticle.createdAt);
                       const readTime = estimateReadTime(featuredArticle.content);
@@ -967,11 +1067,14 @@ export default function CurationList() {
                         >
                           {/* Top Image Section */}
                           <div className="relative w-full h-[240px] md:h-[280px] overflow-hidden bg-zinc-100 dark:bg-zinc-800 shrink-0">
-                            {!imgErrors[featuredArticle.id] ? (
-                              <img
-                                src={validImageUrl!}
+                            {validImageUrl && !imgErrors[featuredArticle.id] ? (
+                              <Image
+                                src={validImageUrl}
                                 alt=""
-                                className="w-full h-full object-cover object-top opacity-90 group-hover:opacity-100 group-hover:scale-105 transition-all duration-700"
+                                fill
+                                priority={true}
+                                sizes="(max-width: 768px) 100vw, 600px"
+                                className="object-cover object-top opacity-90 group-hover:opacity-100 group-hover:scale-105 transition-all duration-700"
                                 onError={() =>
                                   setImgErrors((prev) => ({
                                     ...prev,
@@ -1380,7 +1483,7 @@ export default function CurationList() {
               className={
                 debouncedSearchQuery
                   ? "flex flex-col gap-3 px-5 mb-10"
-                  : "flex flex-col gap-6 md:grid md:grid-cols-2 md:gap-6 px-5 mb-10"
+                  : "flex flex-col gap-4 md:grid md:grid-cols-2 md:gap-4 px-5 mb-10"
               }
             >
               {filteredArticles.map((article, index) => {
@@ -1419,11 +1522,13 @@ export default function CurationList() {
                       >
                         {/* Left Thumbnail (Optional but nice) */}
                         {validImageUrl && !imgErrors[article.id] ? (
-                          <div className="shrink-0 w-20 h-20 md:w-24 md:h-24 rounded-xl overflow-hidden bg-zinc-100 dark:bg-zinc-800">
-                            <img
+                          <div className="shrink-0 w-20 h-20 md:w-24 md:h-24 rounded-xl overflow-hidden relative bg-zinc-100 dark:bg-zinc-800">
+                            <Image
                               src={validImageUrl}
                               alt=""
-                              className="w-full h-full object-cover opacity-90 group-hover/row:opacity-100 group-hover/row:scale-105 transition-all duration-500"
+                              fill
+                              sizes="96px"
+                              className="object-cover opacity-90 group-hover/row:opacity-100 group-hover/row:scale-105 transition-all duration-500"
                               onError={() =>
                                 setImgErrors((prev) => ({
                                   ...prev,
@@ -1854,11 +1959,13 @@ function SwipeableArticleCard({
           {/* Thumbnail */}
           <div className="w-[80px] h-[80px] rounded-2xl overflow-hidden bg-zinc-50 dark:bg-zinc-800 shrink-0 border border-zinc-100/60 dark:border-zinc-700/60 relative pointer-events-none">
             {validImageUrl && !imgError ? (
-              <img
+              <Image
                 src={validImageUrl}
                 alt=""
+                fill
+                sizes="80px"
                 draggable={false}
-                className="w-full h-full object-cover"
+                className="object-cover"
                 onError={onImgError}
               />
             ) : (
@@ -1875,11 +1982,11 @@ function SwipeableArticleCard({
                 <span className="text-[9px] font-bold uppercase tracking-[0.1em] bg-zinc-100 dark:bg-zinc-800 text-zinc-400 dark:text-zinc-500 px-1.5 py-[2px] rounded">
                   READ
                 </span>
-              ) : (
+              ) : (Date.now() - postDate.getTime() <= 7 * 24 * 60 * 60 * 1000) ? (
                 <span className="text-[9px] font-bold uppercase tracking-[0.1em] bg-blue-50 dark:bg-blue-900/30 text-blue-500 dark:text-blue-400 px-1.5 py-[2px] rounded">
                   NEW
                 </span>
-              )}
+              ) : null}
               {article.socialScore && article.socialScore >= 1000 && (
                 <span className="text-[9px] font-bold uppercase tracking-[0.1em] bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-500 px-1.5 py-[2px] rounded">
                   ⭐ TOP

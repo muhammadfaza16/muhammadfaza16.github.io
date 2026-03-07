@@ -2,8 +2,7 @@ import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { isAdminRequest } from "@/lib/auth";
 import { scoreArticle } from "@/lib/scoring";
-
-export const dynamic = 'force-dynamic';
+import { unstable_cache } from "next/cache";
 
 export async function POST(request: Request) {
     try {
@@ -109,73 +108,85 @@ export async function GET(request: Request) {
 
         const where = conditions.length === 1 ? conditions[0] : { AND: conditions };
 
-        const query: any = {
-            take: limit + 1,
-            where,
-            orderBy: sort === "oldest" ? { createdAt: "asc" } : { createdAt: "desc" },
-            select: {
-                id: true,
-                title: true,
-                content: true,
-                url: true,
-                imageUrl: true,
-                category: true,
-                isRead: true,
-                isBookmarked: true,
-                createdAt: true,
-                score: {
+        const getArticlesCacheKey = `curation-feed-${sort}-${limit}-${category || 'none'}-${queryText || 'none'}-${cursor || 'none'}`;
+
+        const getCachedArticles = unstable_cache(
+            async () => {
+                const query: any = {
+                    take: limit + 1,
+                    where,
+                    orderBy: sort === "oldest" ? { createdAt: "asc" } : { createdAt: "desc" },
                     select: {
-                        engagement: true, // likes
-                        actionability: true, // reposts
-                        specificity: true // replies
-                    }
+                        id: true,
+                        title: true,
+                        content: true,
+                        url: true,
+                        imageUrl: true,
+                        category: true,
+                        isRead: true,
+                        isBookmarked: true,
+                        createdAt: true,
+                        score: {
+                            select: {
+                                engagement: true, // likes
+                                actionability: true, // reposts
+                                specificity: true // replies
+                            }
+                        }
+                    },
+                };
+
+                if (cursor) {
+                    query.cursor = { id: cursor };
+                    query.skip = 1;
                 }
+
+                let articles = await prisma.article.findMany(query);
+
+                let nextCursor = null;
+                if (articles.length > limit) {
+                    articles.pop();
+                    nextCursor = articles[articles.length - 1].id;
+                }
+
+                // Enrich with quality scores (raw SQL to avoid Prisma client cache issues)
+                const articleIds = articles.map((a: any) => a.id);
+                let scoreMap = new Map();
+                if (articleIds.length > 0) {
+                    const scores: any[] = await prisma.$queryRawUnsafe(
+                        `SELECT "articleId", "total", "substance", "engagement", "actionability", "specificity" FROM "ArticleScore" WHERE "articleId" = ANY($1::text[])`,
+                        articleIds
+                    );
+                    scoreMap = new Map(scores.map((s: any) => [s.articleId, s]));
+                }
+
+                const enriched = articles.map((a: any) => {
+                    const score = scoreMap.get(a.id);
+                    const likes = score?.engagement || 0;
+                    const reposts = score?.actionability || 0;
+                    const replies = score?.specificity || 0;
+                    const socialScore = (likes * 1) + (reposts * 2) + (replies * 3);
+
+                    return {
+                        ...a,
+                        qualityScore: score?.total || null,
+                        substanceScore: score?.substance || null,
+                        likes,
+                        reposts,
+                        replies,
+                        socialScore
+                    };
+                });
+
+                return { articles: enriched, nextCursor };
             },
-        };
+            [getArticlesCacheKey],
+            { revalidate: 60 } // Cache DB result for 1 minute
+        );
 
-        if (cursor) {
-            query.cursor = { id: cursor };
-            query.skip = 1;
-        }
+        const { articles, nextCursor } = await getCachedArticles();
 
-        let articles = await prisma.article.findMany(query);
-
-        let nextCursor = null;
-        if (articles.length > limit) {
-            articles.pop();
-            nextCursor = articles[articles.length - 1].id;
-        }
-
-        // Enrich with quality scores (raw SQL to avoid Prisma client cache issues)
-        const articleIds = articles.map((a: any) => a.id);
-        let scoreMap = new Map();
-        if (articleIds.length > 0) {
-            const scores: any[] = await prisma.$queryRawUnsafe(
-                `SELECT "articleId", "total", "substance", "engagement", "actionability", "specificity" FROM "ArticleScore" WHERE "articleId" = ANY($1::text[])`,
-                articleIds
-            );
-            scoreMap = new Map(scores.map((s: any) => [s.articleId, s]));
-        }
-
-        const enriched = articles.map((a: any) => {
-            const score = scoreMap.get(a.id);
-            const likes = score?.engagement || 0;
-            const reposts = score?.actionability || 0;
-            const replies = score?.specificity || 0;
-            const socialScore = (likes * 1) + (reposts * 2) + (replies * 3);
-
-            return {
-                ...a,
-                qualityScore: score?.total || null,
-                substanceScore: score?.substance || null,
-                likes,
-                reposts,
-                replies,
-                socialScore
-            };
-        });
-
-        return NextResponse.json({ articles: enriched, nextCursor });
+        return NextResponse.json({ articles, nextCursor });
     } catch (error) {
         console.error("Failed to fetch curation articles:", error);
         return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });

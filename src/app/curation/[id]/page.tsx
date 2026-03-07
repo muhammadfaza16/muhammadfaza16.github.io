@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { motion, useScroll, useSpring, useMotionValueEvent, AnimatePresence, useTransform } from "framer-motion";
 import { ArrowLeft, Clock, CheckCircle, Share, Trash2, Globe, Pencil, Loader2, Camera, X, Clipboard, ImageIcon, MessageSquareQuote, ChevronsDown, Maximize, Minimize, Minus, Plus, Type, Bookmark, Volume2, VolumeX, Pause, Play, FolderPlus, FolderCheck, Check } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 import ReactMarkdown from "react-markdown";
 import { getSupabase } from "@/lib/supabase";
 import DOMPurify from 'dompurify';
@@ -812,7 +813,7 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
 
     return (
         <div
-            className="min-h-screen transition-colors duration-500 selection:bg-blue-200 antialiased pb-32 overscroll-none"
+            className="min-h-screen transition-colors duration-500 selection:bg-blue-200 antialiased pb-8 overscroll-none"
             style={{ backgroundColor: THEMES[readerSettings.theme].bg, color: THEMES[readerSettings.theme].text }}
         >
             {/* Top Reading Progress Bar */}
@@ -898,8 +899,7 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
             {/* Ambient Glow from Cover Image */}
             {validImageUrl && (
                 <div className="fixed top-0 left-0 right-0 h-[40vh] pointer-events-none z-0 overflow-hidden opacity-30">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={validImageUrl} alt="" className="w-full h-full object-cover blur-[80px] scale-150 saturate-150" />
+                    <Image src={validImageUrl} alt="" fill sizes="100vw" className="object-cover blur-[80px] scale-150 saturate-150" />
                     <div className="absolute inset-0" style={{ background: `linear-gradient(to bottom, transparent 0%, ${THEMES[readerSettings.theme].bg} 100%)` }} />
                 </div>
             )}
@@ -908,8 +908,7 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
             <motion.div animate={{ filter: isZenMode ? "grayscale(30%) brightness(0.8)" : "grayscale(0%) brightness(1)" }} transition={{ duration: 0.8 }} className={isZenMode ? "pointer-events-none" : ""}>
                 {validImageUrl ? (
                     <div className="w-full min-h-[50vh] sm:min-h-[60vh] relative overflow-hidden bg-zinc-900 mb-8 rounded-b-[2.5rem] shadow-sm flex flex-col justify-end">
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img src={validImageUrl} alt="Cover" className="absolute inset-0 w-full h-full object-cover object-top" />
+                        <Image src={validImageUrl} alt="Cover" fill sizes="100vw" priority className="object-cover object-top" />
                         {/* Gradient Overlay for Text Readability - Always Above Image */}
                         <div className="absolute inset-0 bg-gradient-to-t from-black via-black/70 to-black/20 pointer-events-none z-10"></div>
 
@@ -1121,12 +1120,13 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
                                 <Link href={`/curation/${rel.id}`} key={rel.id} className="block group h-full">
                                     <div className="flex flex-col gap-3 rounded-2xl p-4 transition-all bg-black/[0.02] hover:bg-black/[0.04] dark:bg-white/[0.02] dark:hover:bg-white/[0.04] border border-transparent hover:border-black/5 dark:hover:border-white/5 h-full">
                                         {rel.imageUrl && (
-                                            <div className="w-full h-32 rounded-xl overflow-hidden bg-zinc-200 dark:bg-zinc-800 mb-1 shrink-0">
-                                                {/* eslint-disable-next-line @next/next/no-img-element */}
-                                                <img
+                                            <div className="w-full h-32 rounded-xl overflow-hidden relative bg-zinc-200 dark:bg-zinc-800 mb-1 shrink-0">
+                                                <Image
                                                     src={rel.imageUrl.startsWith('http') ? rel.imageUrl : supabase ? supabase.storage.from('images').getPublicUrl(rel.imageUrl).data.publicUrl : ''}
-                                                    alt=""
-                                                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                                                    alt={rel.title || "Related article"}
+                                                    fill
+                                                    sizes="(max-width: 768px) 100vw, 33vw"
+                                                    className="object-cover group-hover:scale-105 transition-transform duration-500"
                                                 />
                                             </div>
                                         )}

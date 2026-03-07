@@ -4,6 +4,7 @@ import React, { useState, useEffect, useRef, useMemo, useCallback } from "react"
 import { motion, AnimatePresence } from "framer-motion";
 import { Cloud, CloudSun, Sun, CloudRain, Calendar as CalIcon, GitBranch, Quote, Thermometer, Droplets, Wind, Disc, Play, Pause, SkipBack, SkipForward, Radio as RadioIcon, ChevronLeft, ChevronRight } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 import { useAudio } from "@/components/AudioContext";
 import { useRadio } from "@/components/RadioContext";
 import { useLyrics } from "@/hooks/useLyrics";
@@ -1196,7 +1197,7 @@ export function CleanHomeHero() {
                                                 onMouseLeave={(e) => { e.currentTarget.style.background = "linear-gradient(145deg, rgba(0,0,0,0.12) 0%, rgba(0,0,0,0.06) 100%)"; e.currentTarget.style.borderColor = "rgba(0,0,0,0.08)"; }}
                                             >
                                                 {pulse.book?.coverImage ? (
-                                                    <img src={pulse.book.coverImage} alt="Cover" style={{ width: "45px", height: "65px", borderRadius: "6px", objectFit: "cover", boxShadow: "0 2px 8px rgba(0,0,0,0.3)", flexShrink: 0 }} />
+                                                    <Image src={pulse.book.coverImage} alt="Cover" width={45} height={65} style={{ borderRadius: "6px", objectFit: "cover", boxShadow: "0 2px 8px rgba(0,0,0,0.3)", flexShrink: 0 }} />
                                                 ) : (
                                                     <div style={{ width: "45px", height: "65px", borderRadius: "6px", background: "rgba(255,255,255,0.1)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "1.2rem", flexShrink: 0 }}>📘</div>
                                                 )}

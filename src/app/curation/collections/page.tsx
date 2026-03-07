@@ -22,6 +22,7 @@ function saveCollections(collections: Collection[]) {
 export default function CollectionsPage() {
     const [collections, setCollections] = useState<Collection[]>([]);
     const [articleMap, setArticleMap] = useState<Map<string, ArticleInfo>>(new Map());
+    const [isLoading, setIsLoading] = useState(true);
     const [isCreating, setIsCreating] = useState(false);
     const [newName, setNewName] = useState('');
     const [newDesc, setNewDesc] = useState('');
@@ -30,17 +31,39 @@ export default function CollectionsPage() {
 
     useEffect(() => {
         setCollections(getCollections());
+
+        const cacheKey = "curation_collections_articles_cache";
+        try {
+            const cached = sessionStorage.getItem(cacheKey);
+            if (cached) {
+                const parsed = JSON.parse(cached);
+                const map = new Map<string, ArticleInfo>();
+                parsed.forEach((a: any) => map.set(a.id, a));
+                setArticleMap(map);
+                setIsLoading(false);
+                return;
+            }
+        } catch { }
+
+        setIsLoading(true);
         // Fetch article data for display
         fetch('/api/curation?limit=100&sort=latest')
             .then(r => r.json())
             .then(data => {
                 if (data.articles) {
                     const map = new Map<string, ArticleInfo>();
-                    data.articles.forEach((a: any) => map.set(a.id, { id: a.id, title: a.title, imageUrl: a.imageUrl }));
+                    const arrayToCache: ArticleInfo[] = [];
+                    data.articles.forEach((a: any) => {
+                        const info = { id: a.id, title: a.title, imageUrl: a.imageUrl };
+                        map.set(a.id, info);
+                        arrayToCache.push(info);
+                    });
                     setArticleMap(map);
+                    try { sessionStorage.setItem(cacheKey, JSON.stringify(arrayToCache)); } catch { }
                 }
             })
-            .catch(() => { });
+            .catch(() => { })
+            .finally(() => setIsLoading(false));
     }, []);
 
     const createCollection = () => {
@@ -97,7 +120,7 @@ export default function CollectionsPage() {
                 </div>
             </header>
 
-            <main className="max-w-2xl mx-auto px-4 py-8 pb-32">
+            <main className="max-w-2xl mx-auto px-4 py-8 pb-8">
                 <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-8">
                     <h2 className="text-[28px] font-bold tracking-[-0.03em] mb-2" style={{ fontFamily: "'Playfair Display', Georgia, serif" }}>
                         Your Collections

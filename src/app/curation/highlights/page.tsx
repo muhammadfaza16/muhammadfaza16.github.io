@@ -11,8 +11,20 @@ type ArticleHighlights = { articleId: string; title: string; highlights: Highlig
 
 export default function HighlightsPage() {
     const [allHighlights, setAllHighlights] = useState<ArticleHighlights[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
+        const cacheKey = "curation_highlights_cache";
+        try {
+            const cached = sessionStorage.getItem(cacheKey);
+            if (cached) {
+                setAllHighlights(JSON.parse(cached));
+                setIsLoading(false);
+                return;
+            }
+        } catch { }
+
+        setIsLoading(true);
         try {
             const results: ArticleHighlights[] = [];
             for (let i = 0; i < localStorage.length; i++) {
@@ -36,13 +48,23 @@ export default function HighlightsPage() {
                             data.articles.forEach((a: any) => titleMap.set(a.id, a.title));
                             results.forEach(r => r.title = titleMap.get(r.articleId) || 'Untitled');
                         }
-                        setAllHighlights(results.sort((a, b) =>
+                        const final = results.sort((a, b) =>
                             Math.max(...b.highlights.map(h => h.ts)) - Math.max(...a.highlights.map(h => h.ts))
-                        ));
+                        );
+                        setAllHighlights(final);
+                        try { sessionStorage.setItem(cacheKey, JSON.stringify(final)); } catch { }
                     })
-                    .catch(() => setAllHighlights(results));
+                    .catch(() => {
+                        setAllHighlights(results);
+                        try { sessionStorage.setItem(cacheKey, JSON.stringify(results)); } catch { }
+                    })
+                    .finally(() => setIsLoading(false));
+            } else {
+                setIsLoading(false);
             }
-        } catch { }
+        } catch {
+            setIsLoading(false);
+        }
     }, []);
 
     const removeHighlight = (articleId: string, index: number) => {
@@ -50,7 +72,10 @@ export default function HighlightsPage() {
             const updated = prev.map(a => {
                 if (a.articleId !== articleId) return a;
                 const newHighlights = a.highlights.filter((_, i) => i !== index);
-                try { localStorage.setItem(`curation_highlights_${articleId}`, JSON.stringify(newHighlights)); } catch { }
+                try {
+                    localStorage.setItem(`curation_highlights_${articleId}`, JSON.stringify(newHighlights));
+                    sessionStorage.removeItem("curation_highlights_cache"); // Invalidate memory cache
+                } catch { }
                 return { ...a, highlights: newHighlights };
             }).filter(a => a.highlights.length > 0);
             return updated;
@@ -59,7 +84,10 @@ export default function HighlightsPage() {
     };
 
     const clearArticleHighlights = (articleId: string) => {
-        try { localStorage.removeItem(`curation_highlights_${articleId}`); } catch { }
+        try {
+            localStorage.removeItem(`curation_highlights_${articleId}`);
+            sessionStorage.removeItem("curation_highlights_cache"); // Invalidate memory cache
+        } catch { }
         setAllHighlights(prev => prev.filter(a => a.articleId !== articleId));
         toast.success('All highlights cleared');
     };
@@ -82,7 +110,7 @@ export default function HighlightsPage() {
                 </div>
             </header>
 
-            <main className="max-w-2xl mx-auto px-4 py-8 pb-32">
+            <main className="max-w-2xl mx-auto px-4 py-8 pb-8">
                 <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-8">
                     <h2 className="text-[28px] font-bold tracking-[-0.03em] mb-2" style={{ fontFamily: "'Playfair Display', Georgia, serif" }}>
                         <Sparkles size={24} className="inline-block mr-2 text-amber-500" />

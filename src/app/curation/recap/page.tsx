@@ -26,8 +26,26 @@ export default function CurationRecapPage() {
     const [topCategories, setTopCategories] = useState<{ name: string; emoji: string; count: number }[]>([]);
     const [recentReads, setRecentReads] = useState<{ id: string; title: string; ts: number }[]>([]);
     const [totalReadingTimeMins, setTotalReadingTimeMins] = useState(0);
+    const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
+        const cacheKey = "curation_recap_cache";
+        try {
+            const cached = sessionStorage.getItem(cacheKey);
+            if (cached) {
+                const parsed = JSON.parse(cached);
+                setWeeklyReads(parsed.weeklyReads);
+                setTotalReads(parsed.totalReads);
+                setStreak(parsed.streak);
+                setTopCategories(parsed.topCategories);
+                setRecentReads(parsed.recentReads);
+                setTotalReadingTimeMins(parsed.totalReadingTimeMins);
+                setIsLoading(false);
+                return;
+            }
+        } catch { }
+
+        setIsLoading(true);
         // Load all data from localStorage
         try {
             const vs: VisitorState = JSON.parse(localStorage.getItem('curation_visitor_state') || '{"read":{},"bookmarked":{}}');
@@ -95,10 +113,25 @@ export default function CurationRecapPage() {
                     setRecentReads(recent);
 
                     // Estimate total reading time (average 5 min per article)
-                    setTotalReadingTimeMins(Object.keys(vs.read).length * 5);
+                    const readingMins = Object.keys(vs.read).length * 5;
+                    setTotalReadingTimeMins(readingMins);
+
+                    try {
+                        sessionStorage.setItem(cacheKey, JSON.stringify({
+                            weeklyReads: recentHistory.length,
+                            totalReads: Object.keys(vs.read).length,
+                            streak: currentStreak,
+                            topCategories: sorted,
+                            recentReads: recent,
+                            totalReadingTimeMins: readingMins
+                        }));
+                    } catch { }
                 })
-                .catch(() => { });
-        } catch { }
+                .catch(() => { })
+                .finally(() => setIsLoading(false));
+        } catch {
+            setIsLoading(false);
+        }
     }, []);
 
     const formatRelativeTime = (ts: number) => {
@@ -126,7 +159,7 @@ export default function CurationRecapPage() {
                 </div>
             </header>
 
-            <main className="max-w-2xl mx-auto px-4 py-8 pb-32">
+            <main className="max-w-2xl mx-auto px-4 py-8 pb-8">
                 {/* Hero Stats */}
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
@@ -151,7 +184,11 @@ export default function CurationRecapPage() {
                                     <BookOpen size={16} className="text-blue-500" />
                                 </div>
                             </div>
-                            <p className="text-[28px] font-bold tracking-tight text-zinc-900">{totalReads}</p>
+                            {isLoading ? (
+                                <div className="h-[34px] w-16 bg-zinc-100 rounded animate-pulse" />
+                            ) : (
+                                <p className="text-[28px] font-bold tracking-tight text-zinc-900">{totalReads}</p>
+                            )}
                             <p className="text-[12px] font-medium text-zinc-400 uppercase tracking-wider">Articles Read</p>
                         </motion.div>
 
@@ -166,7 +203,11 @@ export default function CurationRecapPage() {
                                     <Flame size={16} className="text-orange-500" />
                                 </div>
                             </div>
-                            <p className="text-[28px] font-bold tracking-tight text-zinc-900">{weeklyReads}</p>
+                            {isLoading ? (
+                                <div className="h-[34px] w-16 bg-zinc-100 rounded animate-pulse" />
+                            ) : (
+                                <p className="text-[28px] font-bold tracking-tight text-zinc-900">{weeklyReads}</p>
+                            )}
                             <p className="text-[12px] font-medium text-zinc-400 uppercase tracking-wider">This Week</p>
                         </motion.div>
 
@@ -181,7 +222,11 @@ export default function CurationRecapPage() {
                                     <Trophy size={16} className="text-purple-500" />
                                 </div>
                             </div>
-                            <p className="text-[28px] font-bold tracking-tight text-zinc-900">{streak}</p>
+                            {isLoading ? (
+                                <div className="h-[34px] w-12 bg-zinc-100 rounded animate-pulse" />
+                            ) : (
+                                <p className="text-[28px] font-bold tracking-tight text-zinc-900">{streak}</p>
+                            )}
                             <p className="text-[12px] font-medium text-zinc-400 uppercase tracking-wider">Day Streak</p>
                         </motion.div>
 
@@ -196,14 +241,25 @@ export default function CurationRecapPage() {
                                     <Clock size={16} className="text-emerald-500" />
                                 </div>
                             </div>
-                            <p className="text-[28px] font-bold tracking-tight text-zinc-900">~{totalReadingTimeMins}</p>
+                            {isLoading ? (
+                                <div className="h-[34px] w-20 bg-zinc-100 rounded animate-pulse" />
+                            ) : (
+                                <p className="text-[28px] font-bold tracking-tight text-zinc-900">~{totalReadingTimeMins}</p>
+                            )}
                             <p className="text-[12px] font-medium text-zinc-400 uppercase tracking-wider">Min Read</p>
                         </motion.div>
                     </div>
                 </motion.div>
 
                 {/* Top Categories */}
-                {topCategories.length > 0 && (
+                {isLoading ? (
+                    <div className="mb-10 animate-pulse">
+                        <div className="h-4 w-32 bg-zinc-200 rounded mb-4"></div>
+                        <div className="space-y-2">
+                            {[1, 2, 3].map(i => <div key={i} className="h-16 w-full bg-zinc-100 rounded-xl"></div>)}
+                        </div>
+                    </div>
+                ) : topCategories.length > 0 && (
                     <motion.div
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}

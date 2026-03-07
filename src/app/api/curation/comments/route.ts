@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
-
-export const dynamic = 'force-dynamic';
+import { unstable_cache } from "next/cache";
 
 export async function POST(request: Request) {
     try {
@@ -36,10 +35,18 @@ export async function GET(request: Request) {
             return NextResponse.json({ error: "articleId is required" }, { status: 400 });
         }
 
-        const comments = await prisma.comment.findMany({
-            where: { articleId },
-            orderBy: { createdAt: "desc" },
-        });
+        const getCachedComments = unstable_cache(
+            async (aId: string) => {
+                return await prisma.comment.findMany({
+                    where: { articleId: aId },
+                    orderBy: { createdAt: "desc" },
+                });
+            },
+            [`curation-comments-${articleId}`],
+            { revalidate: 30 } // 30 second cache for near real-time feel with low DB strain
+        );
+
+        const comments = await getCachedComments(articleId);
 
         return NextResponse.json({ success: true, data: comments });
     } catch (error) {

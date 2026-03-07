@@ -5,44 +5,49 @@ import { unstable_cache } from "next/cache";
 // Cache for 1 hour
 export const revalidate = 3600;
 
-const getTopArticles = unstable_cache(
-    async (limit: number) => {
-        return await prisma.article.findMany({
-            take: limit,
-            where: {
-                OR: [
-                    { category: null },
-                    { category: { not: "__SUGGESTED__" } }
-                ],
-                score: {
-                    isNot: null
-                }
-            },
-            orderBy: {
-                score: {
-                    socialScore: 'desc'
-                }
-            },
-            include: {
-                score: {
-                    select: {
-                        socialScore: true,
-                    }
-                }
-            }
-        });
-    },
-    ['top-articles-cache'],
-    { revalidate: 3600 }
-);
-
 export async function GET(request: Request) {
     try {
         const { searchParams } = new URL(request.url);
         const limitStr = searchParams.get("limit");
-        const limit = limitStr ? parseInt(limitStr) : 5;
+        const limit = limitStr ? parseInt(limitStr) : undefined;
 
-        const topArticles = await getTopArticles(limit);
+        const getCachedTopArticles = unstable_cache(
+            async () => {
+                const twoWeeksAgo = new Date();
+                twoWeeksAgo.setDate(twoWeeksAgo.getDate() - 14);
+
+                return await prisma.article.findMany({
+                    take: limit,
+                    where: {
+                        OR: [
+                            { category: null },
+                            { category: { not: "__SUGGESTED__" } }
+                        ],
+                        score: {
+                            socialScore: {
+                                gte: 10000
+                            }
+                        }
+                    },
+                    orderBy: {
+                        score: {
+                            socialScore: 'desc'
+                        }
+                    },
+                    include: {
+                        score: {
+                            select: {
+                                socialScore: true,
+                            }
+                        }
+                    }
+                });
+            },
+            [`top-articles-cache-${limit || 'all'}`],
+            { revalidate: 3600 }
+        );
+
+        const topArticles = await getCachedTopArticles();
 
         // Flatten the score into the object format the frontend expects
         const enriched = topArticles.map(a => ({

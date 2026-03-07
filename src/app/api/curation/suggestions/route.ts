@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
-
-export const dynamic = 'force-dynamic';
+import { unstable_cache } from "next/cache";
 
 export async function POST(request: Request) {
     try {
@@ -33,17 +32,25 @@ export async function POST(request: Request) {
 
 export async function GET(request: Request) {
     try {
-        const suggestions = await prisma.article.findMany({
-            where: { category: "__SUGGESTED__" },
-            orderBy: { createdAt: "desc" },
-            select: {
-                id: true,
-                title: true,
-                url: true,
-                content: true,
-                createdAt: true,
+        const getCachedSuggestions = unstable_cache(
+            async () => {
+                return await prisma.article.findMany({
+                    where: { category: "__SUGGESTED__" },
+                    orderBy: { createdAt: "desc" },
+                    select: {
+                        id: true,
+                        title: true,
+                        url: true,
+                        content: true,
+                        createdAt: true,
+                    },
+                });
             },
-        });
+            ['curation-suggestions-list'],
+            { revalidate: 30 }
+        );
+
+        const suggestions = await getCachedSuggestions();
         return NextResponse.json({ success: true, data: suggestions });
     } catch (error) {
         console.error("Failed to fetch suggestions:", error);

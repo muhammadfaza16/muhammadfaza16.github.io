@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 
+export const revalidate = 300; // Cache individual article fetching for 5 minutes
+
 export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
     try {
         const id = (await params).id;
