@@ -39,6 +39,7 @@ import {
   RichTextEditor,
 } from "@/components/sanctuary";
 import { useTheme } from "@/components/ThemeProvider";
+import { predictCategory } from "@/lib/scoring";
 
 // ─── Types ───
 
@@ -234,6 +235,19 @@ export default function CurationList() {
           if (!formPublishedTime && publishedTime) {
             const d = new Date(publishedTime);
             if (!isNaN(d.getTime())) setFormPublishedTime(d.toISOString().split('T')[0]);
+          }
+
+          // Auto-Category Prediction
+          if (!formCategory && (title || description)) {
+            try {
+              const predicted = predictCategory(title || "", description || "");
+              if (predicted) {
+                setFormCategory(predicted);
+                toast.success(`Category auto-filled: ${predicted}`);
+              }
+            } catch (e) {
+              console.error("Auto-category failed:", e);
+            }
           }
         }
       } catch (error) {

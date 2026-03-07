@@ -208,3 +208,98 @@ export function scoreArticle(title: string, content: string): ArticleScores {
 
     return { ...scores, composite, wordCount };
 }
+
+// ─── Category Prediction (Client & Server) ───
+
+const CATEGORY_DICTIONARY: Record<string, Record<string, number>> = {
+    "AI & Tools": {
+        "ai": 6, "llm": 6, "chatgpt": 5, "prompt": 4, "machine": 3, "learning": 3,
+        "neural": 4, "framework": 2, "api": 2, "gpt": 5, "claude": 5, "openai": 5,
+        "anthropic": 4, "agent": 4, "models": 2, "inference": 3, "rag": 4, "token": 2
+    },
+    "Wealth & Business": {
+        "startup": 5, "saas": 5, "revenue": 4, "arr": 5, "mrr": 5, "margin": 3,
+        "investment": 4, "venture": 4, "capital": 3, "business": 3, "founder": 4,
+        "profit": 3, "sales": 3, "b2b": 4, "b2c": 3, "equity": 3, "bootstrapped": 5,
+        "monetization": 4, "funding": 4, "valuation": 4
+    },
+    "Mindset & Philosophy": {
+        "mindset": 6, "philosophy": 6, "stoicism": 5, "stoic": 5, "mental": 4,
+        "model": 2, "clarity": 4, "wisdom": 4, "truth": 3, "perspective": 3,
+        "paradigm": 4, "ego": 4, "meditation": 4, "awareness": 3, "psychology": 4
+    },
+    "Self-Improvement & Productivity": {
+        "productivity": 6, "habit": 5, "routine": 5, "deep": 4, "work": 2,
+        "focus": 5, "time": 3, "management": 2, "system": 2, "goal": 3,
+        "discipline": 5, "procrastination": 5, "efficiency": 4, "optimize": 3,
+        "flow": 3, "pomodoro": 4
+    },
+    "Career & Skills": {
+        "career": 6, "resume": 5, "interview": 5, "job": 4, "hiring": 4,
+        "skills": 4, "promotion": 4, "manager": 3, "leadership": 4, "senior": 3,
+        "junior": 3, "portfolio": 4, "networking": 3, "salary": 5, "remote": 3
+    },
+    "Marketing & Growth": {
+        "marketing": 6, "growth": 5, "acquisition": 5, "audience": 4, "seo": 6,
+        "content": 3, "viral": 4, "conversion": 5, "funnel": 5, "brand": 4,
+        "advertising": 4, "social": 2, "campaign": 4, "retention": 4, "churn": 4,
+        "copywriting": 5, "ctr": 4
+    },
+    "Building & Design": {
+        "ux": 6, "ui": 6, "frontend": 5, "backend": 5, "code": 4, "deploy": 4,
+        "design": 4, "system": 2, "figma": 6, "architecture": 4, "react": 5,
+        "nextjs": 5, "tailwind": 5, "database": 4, "css": 4, "html": 3, "typescript": 5,
+        "dev": 3, "developer": 3, "software": 3
+    },
+    "Health & Lifestyle": {
+        "health": 6, "lifestyle": 5, "fitness": 5, "diet": 5, "sleep": 5,
+        "nutrition": 5, "workout": 4, "longevity": 5, "cardio": 4, "muscle": 4,
+        "recovery": 4, "wellness": 5, "supplement": 4, "biohacking": 5
+    }
+};
+
+/**
+ * Predicts the category of an article based on its title and description.
+ * Utilizes a weighted dictionary approach. Title hits are weighted 3x.
+ */
+export function predictCategory(title: string, description: string): string | null {
+    const titleWords = getWords(title.toLowerCase().replace(/[^a-z0-9\s]/g, ''));
+    const descWords = getWords(description.toLowerCase().replace(/[^a-z0-9\s]/g, ''));
+
+    const scores: Record<string, number> = {};
+
+    for (const category of Object.keys(CATEGORY_DICTIONARY)) {
+        scores[category] = 0;
+        const dict = CATEGORY_DICTIONARY[category];
+
+        // Title has 3x multiplier
+        for (const word of titleWords) {
+            if (dict[word]) {
+                scores[category] += dict[word] * 3;
+            }
+        }
+
+        // Description has 1x multiplier
+        for (const word of descWords) {
+            if (dict[word]) {
+                scores[category] += dict[word];
+            }
+        }
+    }
+
+    let topCategory: string | null = null;
+    let maxScore = 0;
+
+    for (const [category, score] of Object.entries(scores)) {
+        if (score > maxScore) {
+            maxScore = score;
+            topCategory = category;
+        }
+    }
+
+    // Confidence threshold, must score at least 6 points to "guess"
+    if (maxScore >= 6) {
+        return topCategory;
+    }
+    return null;
+}
