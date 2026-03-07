@@ -27,7 +27,7 @@ export const RichTextEditor = ({ value, onChange, placeholder }: RichTextEditorP
         onUpdate: ({ editor }) => onChange(editor.getHTML()),
         editorProps: {
             attributes: {
-                class: 'w-full bg-gray-50 rounded-2xl min-h-[112px] p-5 pt-8 text-[16px] font-medium text-zinc-900 border border-transparent outline-none focus:bg-white focus:border-zinc-200 focus:shadow-sm transition-all prose prose-sm max-w-none [&_img]:rounded-xl [&_img]:max-w-full [&_img]:my-2',
+                class: 'w-full bg-gray-50 rounded-2xl min-h-[112px] p-5 pt-8 text-[16px] font-medium text-zinc-900 border border-transparent outline-none focus:bg-white focus:border-zinc-200 focus:shadow-sm transition-all prose prose-sm max-w-none prose-blockquote:before:content-none prose-blockquote:after:content-none [&_img]:rounded-xl [&_img]:max-w-full [&_img]:my-2',
             },
             handlePaste: (_view, event) => {
                 const items = event.clipboardData?.items;

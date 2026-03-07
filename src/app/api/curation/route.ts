@@ -123,6 +123,13 @@ export async function GET(request: Request) {
                 isRead: true,
                 isBookmarked: true,
                 createdAt: true,
+                score: {
+                    select: {
+                        engagement: true, // likes
+                        actionability: true, // reposts
+                        specificity: true // replies
+                    }
+                }
             },
         };
 

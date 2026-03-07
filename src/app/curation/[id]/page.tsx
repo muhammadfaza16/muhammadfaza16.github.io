@@ -990,7 +990,7 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
                     prose-a:transition-colors prose-a:underline-offset-4
                     prose-img:rounded-3xl prose-img:border prose-img:shadow-sm prose-img:my-8
                     prose-hr:my-8
-                    prose-blockquote:px-6 prose-blockquote:py-4 prose-blockquote:rounded-r-2xl prose-blockquote:not-italic
+                    prose-blockquote:px-6 prose-blockquote:py-4 prose-blockquote:rounded-r-2xl prose-blockquote:not-italic prose-blockquote:before:content-none prose-blockquote:after:content-none
                     prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded-md prose-code:before:content-none prose-code:after:content-none prose-code:font-medium
                     prose-pre:bg-zinc-900 prose-pre:text-zinc-100 prose-pre:border prose-pre:border-zinc-800 prose-pre:rounded-2xl prose-pre:shadow-sm"
                     style={{

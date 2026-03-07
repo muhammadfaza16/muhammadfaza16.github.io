@@ -55,6 +55,11 @@ interface ArticleMeta {
   qualityScore: number | null;
   substanceScore: number | null;
   socialScore?: number;
+  score?: {
+    engagement: number;
+    actionability: number;
+    specificity: number;
+  } | null;
 }
 
 type SortType = "latest" | "oldest";
@@ -189,6 +194,9 @@ export default function CurationList() {
   const [formImagePreview, setFormImagePreview] = useState<string | null>(null);
   const [formPublishedTime, setFormPublishedTime] = useState("");
   const [formCategory, setFormCategory] = useState("");
+  const [formLikes, setFormLikes] = useState(0);
+  const [formReposts, setFormReposts] = useState(0);
+  const [formReplies, setFormReplies] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [uploadStatus, setUploadStatus] = useState<
     "idle" | "uploading" | "saving"
@@ -223,8 +231,10 @@ export default function CurationList() {
           }
           if (!formImageFile && !formImagePreview && image)
             setFormImagePreview(image);
-          if (!formPublishedTime && publishedTime)
-            setFormPublishedTime(publishedTime);
+          if (!formPublishedTime && publishedTime) {
+            const d = new Date(publishedTime);
+            if (!isNaN(d.getTime())) setFormPublishedTime(d.toISOString().split('T')[0]);
+          }
         }
       } catch (error) {
         console.error("Failed to fetch metadata:", error);
@@ -244,6 +254,14 @@ export default function CurationList() {
     setFormNotes(article.content || "");
     setFormImagePreview(article.imageUrl || null);
     setFormCategory(article.category || "");
+    if (article.createdAt) {
+      setFormPublishedTime(new Date(article.createdAt).toISOString().split('T')[0]);
+    } else {
+      setFormPublishedTime("");
+    }
+    setFormLikes(article.score?.engagement || 0);
+    setFormReposts(article.score?.actionability || 0);
+    setFormReplies(article.score?.specificity || 0);
     setIsSheetOpen(true);
   };
 
@@ -257,6 +275,9 @@ export default function CurationList() {
     setFormImagePreview(null);
     setFormPublishedTime("");
     setFormCategory("");
+    setFormLikes(0);
+    setFormReposts(0);
+    setFormReplies(0);
   };
 
   // Save handler
@@ -315,6 +336,9 @@ export default function CurationList() {
             payload.imageUrl ?? undefined,
             payload.category ?? undefined,
             payload.createdAt?.toISOString(),
+            formLikes,
+            formReposts,
+            formReplies
           );
           if (res.success && res.data) {
             toast.success("Article updated");
@@ -340,6 +364,9 @@ export default function CurationList() {
             payload.imageUrl ?? undefined,
             payload.category ?? undefined,
             payload.createdAt?.toISOString(),
+            formLikes,
+            formReposts,
+            formReplies
           );
           if (res.success && res.data) {
             toast.success("Saved to Curation");
@@ -1508,6 +1535,22 @@ export default function CurationList() {
           />
         </div>
 
+        {isAdmin && (
+          <div className="flex flex-col gap-1.5">
+            <ImagePicker
+              preview={formImagePreview}
+              onSelect={(file: File) => {
+                setFormImageFile(file);
+                setFormImagePreview(URL.createObjectURL(file));
+              }}
+              onClear={() => {
+                setFormImageFile(null);
+                setFormImagePreview(null);
+              }}
+            />
+          </div>
+        )}
+
         <div className="flex flex-col gap-1.5">
           <label className={LABEL_CLASS}>Title</label>
           <input
@@ -1519,58 +1562,78 @@ export default function CurationList() {
         </div>
 
         {isAdmin && (
-          <>
-            <div className="flex flex-col gap-1.5">
-              <label className={LABEL_CLASS}>Notes / Summary</label>
-              <RichTextEditor
-                value={formNotes}
-                onChange={setFormNotes}
-                placeholder="Add a summary..."
-              />
-            </div>
-
-            <div className="flex flex-col gap-1.5">
-              <label className={LABEL_CLASS}>Cover Image</label>
-              <ImagePicker
-                preview={formImagePreview}
-                onSelect={(file: File) => {
-                  setFormImageFile(file);
-                  setFormImagePreview(URL.createObjectURL(file));
-                }}
-                onClear={() => {
-                  setFormImageFile(null);
-                  setFormImagePreview(null);
-                }}
-              />
-            </div>
-
-            <div className="flex flex-col gap-1.5">
-              <label className={LABEL_CLASS}>Category</label>
-              <select
-                value={formCategory}
-                onChange={(e) => setFormCategory(e.target.value)}
-                className="h-12 bg-zinc-50 rounded-xl border border-zinc-200/80 px-4 text-[14px] outline-none focus:border-zinc-300 appearance-none"
-              >
-                <option value="">None</option>
-                {CATEGORIES.map((c) => (
-                  <option key={c.name} value={c.name}>
-                    {c.emoji} {c.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div className="flex flex-col gap-1.5">
-              <label className={LABEL_CLASS}>Published Date</label>
-              <input
-                type="date"
-                value={formPublishedTime}
-                onChange={(e) => setFormPublishedTime(e.target.value)}
-                className="h-12 bg-zinc-50 rounded-xl border border-zinc-200/80 px-4 text-[14px] outline-none focus:border-zinc-300 appearance-none"
-              />
-            </div>
-          </>
+          <div className="flex flex-col gap-1.5">
+            <label className={LABEL_CLASS}>Published Date</label>
+            <input
+              type="date"
+              value={formPublishedTime}
+              onChange={(e) => setFormPublishedTime(e.target.value)}
+              className="h-12 bg-zinc-50 rounded-xl border border-zinc-200/80 px-4 text-[14px] outline-none focus:border-zinc-300 appearance-none"
+            />
+          </div>
         )}
+
+        {isAdmin && (
+          <div className="grid grid-cols-3 gap-3">
+            <div className="flex flex-col gap-1.5">
+              <label className={LABEL_CLASS}>Likes</label>
+              <input
+                type="number"
+                value={formLikes || ""}
+                onChange={(e) => setFormLikes(parseInt(e.target.value) || 0)}
+                className="h-12 bg-zinc-50 rounded-xl border border-zinc-200/80 px-4 text-[14px] outline-none focus:border-zinc-300 transition-all font-mono"
+                placeholder="0"
+              />
+            </div>
+            <div className="flex flex-col gap-1.5">
+              <label className={LABEL_CLASS}>Reposts</label>
+              <input
+                type="number"
+                value={formReposts || ""}
+                onChange={(e) => setFormReposts(parseInt(e.target.value) || 0)}
+                className="h-12 bg-zinc-50 rounded-xl border border-zinc-200/80 px-4 text-[14px] outline-none focus:border-zinc-300 transition-all font-mono"
+                placeholder="0"
+              />
+            </div>
+            <div className="flex flex-col gap-1.5">
+              <label className={LABEL_CLASS}>Replies</label>
+              <input
+                type="number"
+                value={formReplies || ""}
+                onChange={(e) => setFormReplies(parseInt(e.target.value) || 0)}
+                className="h-12 bg-zinc-50 rounded-xl border border-zinc-200/80 px-4 text-[14px] outline-none focus:border-zinc-300 transition-all font-mono"
+                placeholder="0"
+              />
+            </div>
+          </div>
+        )}
+
+        {isAdmin && (
+          <div className="flex flex-col gap-1.5">
+            <label className={LABEL_CLASS}>Category</label>
+            <select
+              value={formCategory}
+              onChange={(e) => setFormCategory(e.target.value)}
+              className="h-12 bg-zinc-50 rounded-xl border border-zinc-200/80 px-4 text-[14px] outline-none focus:border-zinc-300 appearance-none"
+            >
+              <option value="">None</option>
+              {CATEGORIES.map((c) => (
+                <option key={c.name} value={c.name}>
+                  {c.emoji} {c.name}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
+
+        <div className="flex flex-col gap-1.5">
+          <label className={LABEL_CLASS}>Content</label>
+          <RichTextEditor
+            value={formNotes}
+            onChange={setFormNotes}
+            placeholder={isAdmin ? "Add the article content here..." : "Why are you suggesting this?"}
+          />
+        </div>
       </BottomSheet>
 
       {/* ═══ GOOGLE FONTS ═══ */}
