@@ -127,16 +127,35 @@ export function CleanHomeHero() {
         };
     }, []);
 
-    // Fetch API data
+    // Helper for 5-minute client-side API caching
+    const fetchCached = async (url: string, setter: (data: any) => void, expiryMs = 300000) => {
+        try {
+            const cacheKey = `hero_api_cache_${url.split('?')[0]}`;
+            const cached = sessionStorage.getItem(cacheKey);
+            if (cached) {
+                const { data, timestamp } = JSON.parse(cached);
+                if (Date.now() - timestamp < expiryMs) {
+                    setter(data);
+                    return;
+                }
+            }
+            const res = await fetch(url);
+            const data = await res.json();
+            setter(data);
+            sessionStorage.setItem(cacheKey, JSON.stringify({ data, timestamp: Date.now() }));
+        } catch { }
+    };
+
+    // Fetch API data with 5-min caching to prevent back-navigation freezes
     useEffect(() => {
-        fetch('/api/weather').then(r => r.json()).then(setWeather).catch(() => { });
-        fetch('/api/quote').then(r => r.json()).then(setQuote).catch(() => { });
-        fetch('/api/github').then(r => r.json()).then(setGithub).catch(() => { });
-        fetch(`/api/holidays?year=${new Date().getFullYear()}`).then(r => r.json()).then(d => setHolidays(d.holidays || [])).catch(() => { });
-        fetch('/api/prayer').then(r => r.json()).then(setPrayer).catch(() => { });
-        fetch('/api/news').then(r => r.json()).then(setNews).catch(() => { });
-        fetch('/api/crypto').then(r => r.json()).then(d => setCryptoData(d)).catch(() => { });
-        fetch('/api/pulse').then(r => r.json()).then(setPulse).catch(() => { });
+        fetchCached('/api/weather', setWeather);
+        fetchCached('/api/quote', setQuote);
+        fetchCached('/api/github', setGithub);
+        fetchCached(`/api/holidays?year=${new Date().getFullYear()}`, (d) => setHolidays(d.holidays || []));
+        fetchCached('/api/prayer', setPrayer);
+        fetchCached('/api/news', setNews);
+        fetchCached('/api/crypto', setCryptoData);
+        fetchCached('/api/pulse', setPulse);
     }, []);
 
     // Live Football Polling - sync every 45s
@@ -153,28 +172,41 @@ export function CleanHomeHero() {
         return () => clearInterval(id);
     }, []);
 
-    // Fetch AI greeting after weather loads (to pass weather context)
+    // Fetch AI greeting after weather loads (30 min cache to save LLM tokens and prevent UI freezes)
     useEffect(() => {
         if (!weather) return;
+        const cacheKey = "hero_greeting_cache";
+        try {
+            const cached = sessionStorage.getItem(cacheKey);
+            if (cached) {
+                const { text, timestamp } = JSON.parse(cached);
+                if (Date.now() - timestamp < 30 * 60 * 1000) {
+                    setGreeting(text);
+                    return;
+                }
+            }
+        } catch { }
+
         const h = new Date().getHours();
         const m = new Date().getMinutes();
         const dayN = DAYS_FULL[new Date().getDay()];
-        const bust = new Date().getTime(); // Anti-cache mechanism to prevent stale old prompts
+        const bust = new Date().getTime(); // Anti-API-cache, but client caches it below
         fetch(`/api/greeting?weather=${encodeURIComponent(weather.label)}&temp=${weather.temp}&day=${dayN}&hour=${h}&minute=${m}&t=${bust}`)
             .then(r => r.json())
-            .then(d => setGreeting(d.greeting || ''))
+            .then(d => {
+                const text = d.greeting || '';
+                setGreeting(text);
+                sessionStorage.setItem(cacheKey, JSON.stringify({ text, timestamp: Date.now() }));
+            })
             .catch(() => { });
     }, [weather]);
 
-    // Fetch Curation Reminder
+    // Fetch Curation Reminder (5 min cache)
     useEffect(() => {
         const h = new Date().getHours();
-        fetch(`/api/curation/reminder?hour=${h}`)
-            .then(res => res.json())
-            .then(data => {
-                if (data.active) setCurationReminder(data);
-            })
-            .catch(() => { });
+        fetchCached(`/api/curation/reminder?hour=${h}`, (data) => {
+            if (data.active) setCurationReminder(data);
+        });
     }, []);
 
     // Build event lookup maps for current month

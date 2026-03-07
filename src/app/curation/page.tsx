@@ -666,11 +666,26 @@ export default function CurationList() {
       .then((data) => setIsAdmin(data.isAdmin === true))
       .catch(() => setIsAdmin(false));
 
-    // Fetch Top Articles specifically for the Hero Carousel
+    // Fetch Top Articles specifically for the Hero Carousel (cached)
+    const topCacheKey = "curation_hero_top_cache";
+    try {
+      const cachedTop = sessionStorage.getItem(topCacheKey);
+      if (cachedTop) {
+        setTopArticles(JSON.parse(cachedTop));
+        setIsLoadingTop(false);
+        return; // Skip fetch if cached
+      }
+    } catch { }
+
     fetch("/api/curation/top?limit=5")
       .then((res) => res.json())
       .then((data) => {
-        if (data.success) setTopArticles(data.articles);
+        if (data.success) {
+          setTopArticles(data.articles);
+          try {
+            sessionStorage.setItem(topCacheKey, JSON.stringify(data.articles));
+          } catch { }
+        }
       })
       .catch(console.error)
       .finally(() => setIsLoadingTop(false));

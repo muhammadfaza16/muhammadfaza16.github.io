@@ -1,18 +1,13 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
+import { unstable_cache } from "next/cache";
 
-export const dynamic = 'force-dynamic';
-export const revalidate = 3600; // Cache for 1 hour, revalidate implicitly
+// Cache for 1 hour
+export const revalidate = 3600;
 
-export async function GET(request: Request) {
-    try {
-        const { searchParams } = new URL(request.url);
-        const limitStr = searchParams.get("limit");
-        const limit = limitStr ? parseInt(limitStr) : 5;
-
-        // Fetch top scoring articles by joining ArticleScore using the new socialScore index
-        // We exclude __SUGGESTED__ category articles 
-        const topArticles = await prisma.article.findMany({
+const getTopArticles = unstable_cache(
+    async (limit: number) => {
+        return await prisma.article.findMany({
             take: limit,
             where: {
                 OR: [
@@ -36,6 +31,18 @@ export async function GET(request: Request) {
                 }
             }
         });
+    },
+    ['top-articles-cache'],
+    { revalidate: 3600 }
+);
+
+export async function GET(request: Request) {
+    try {
+        const { searchParams } = new URL(request.url);
+        const limitStr = searchParams.get("limit");
+        const limit = limitStr ? parseInt(limitStr) : 5;
+
+        const topArticles = await getTopArticles(limit);
 
         // Flatten the score into the object format the frontend expects
         const enriched = topArticles.map(a => ({
