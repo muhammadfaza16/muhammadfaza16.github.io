@@ -7,7 +7,8 @@ import {
     Clock,
     Sparkles,
     Music,
-    BookOpen
+    BookOpen,
+    FlaskConical
 } from "lucide-react";
 
 interface DockIconProps {
@@ -148,6 +149,13 @@ export function RoomBentoGrid({ onGuardedClick }: RoomBentoGridProps) {
             href: "/music",
             icon: <Music />,
             iconColor: "#FFD60A", // Vivid Yellow
+            guarded: true,
+        },
+        {
+            title: "Lab",
+            href: "/music-v2",
+            icon: <FlaskConical />,
+            iconColor: "#FF3B30", // Vivid Red
             guarded: true,
         }
     ];
