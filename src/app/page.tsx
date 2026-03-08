@@ -9,7 +9,7 @@ import { Lock } from "lucide-react";
 
 import "./home-journal.css";
 
-const CORRECT_PIN = "231298";
+const CORRECT_PIN = "231299";
 const PIN_LENGTH = 6;
 
 export default function HomePage() {
