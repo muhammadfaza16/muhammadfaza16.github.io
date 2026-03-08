@@ -7,7 +7,8 @@ import {
     Clock,
     Sparkles,
     Music,
-    BookOpen
+    BookOpen,
+    Zap
 } from "lucide-react";
 
 interface DockIconProps {
@@ -149,6 +150,13 @@ export function RoomBentoGrid({ onGuardedClick }: RoomBentoGridProps) {
             icon: <Music />,
             iconColor: "#FFD60A", // Vivid Yellow
             guarded: true,
+        },
+        {
+            title: "Curation Hub",
+            href: "/curation",
+            icon: <Zap />,
+            iconColor: "#BF5AF2",
+            guarded: false,
         }
     ];
 

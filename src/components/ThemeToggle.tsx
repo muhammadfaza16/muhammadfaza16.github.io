@@ -69,7 +69,7 @@ export function ThemeToggle() {
             >
                 {/* Sun Icon */}
                 <svg
-                    className={`absolute w-5 h-5 transition-all duration-500 ease-[cubic-bezier(0.23,1,0.32,1)] ${theme === "light"
+                    className={`absolute w-5 h-5 transition-all duration-[2500ms] ease-[cubic-bezier(0.4,0,0,1)] ${theme === "light"
                         ? "opacity-100 rotate-0 scale-100"
                         : "opacity-0 rotate-90 scale-0"
                         }`}
@@ -87,7 +87,7 @@ export function ThemeToggle() {
 
                 {/* Moon Icon */}
                 <svg
-                    className={`absolute w-5 h-5 transition-all duration-500 ease-[cubic-bezier(0.23,1,0.32,1)] ${theme === "dark"
+                    className={`absolute w-5 h-5 transition-all duration-[2500ms] ease-[cubic-bezier(0.4,0,0,1)] ${theme === "dark"
                         ? "opacity-100 rotate-0 scale-100"
                         : "opacity-0 -rotate-90 scale-0"
                         }`}

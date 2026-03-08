@@ -33,7 +33,7 @@ export function LobbyHeader() {
                             }}
                             className="group flex items-center gap-2"
                         >
-                            <div className="w-8 h-8 rounded-full bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center transition-transform group-hover:scale-110">
+                            <div className="w-8 h-8 rounded-full bg-white/5 backdrop-blur-xl border border-white/20 flex items-center justify-center transition-transform group-hover:scale-110">
                                 <span className="text-[0.6rem] font-bold tracking-widest text-white/90">AF</span>
                             </div>
                         </Link>
@@ -42,7 +42,7 @@ export function LobbyHeader() {
                     {/* Theme Toggle Area */}
                     <div style={{ pointerEvents: "auto" }} className="flex items-center gap-4">
                         <MusicRecall />
-                        <div className="bg-white/5 backdrop-blur-md border border-white/10 rounded-full p-1 shadow-lg">
+                        <div className="bg-white/2 backdrop-blur-xl border border-white/10 rounded-full p-1 shadow-lg">
                             <ThemeToggle />
                         </div>
                     </div>

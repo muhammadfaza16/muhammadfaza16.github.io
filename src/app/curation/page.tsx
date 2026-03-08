@@ -872,19 +872,24 @@ export default function CurationList() {
       />
 
       {/* ═══ MINIMAL HEADER ═══ */}
-      <header className="sticky top-0 z-50 bg-[#fafaf8]/80 dark:bg-zinc-950/80 backdrop-blur-xl border-b border-zinc-200/40 dark:border-zinc-800/40 shrink-0 px-5 py-3.5 flex items-center justify-between transition-colors duration-500">
+      <header className="sticky top-0 z-50 bg-[#fafaf8]/15 dark:bg-[#050505]/20 backdrop-blur-xl border-b border-zinc-200/40 dark:border-zinc-800/40 shrink-0 px-5 py-4 flex items-center justify-between transition-colors duration-500">
         <Link
           href="/"
           className="w-10 h-10 flex items-center justify-center text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 active:scale-90 rounded-full transition-all"
         >
           <ChevronLeft size={20} />
         </Link>
-        <h2
-          className="text-[16px] text-zinc-900 dark:text-zinc-100 italic font-medium"
-          style={{ fontFamily: "'Playfair Display', Georgia, serif" }}
-        >
-          Curated by Faza
-        </h2>
+        <div className="flex items-center gap-2">
+          <h2
+            className="text-[16px] text-zinc-900 dark:text-zinc-100 italic font-medium leading-none"
+            style={{ fontFamily: "'Playfair Display', Georgia, serif" }}
+          >
+            Curated by Faza
+          </h2>
+          <span className="px-1.5 py-0.5 rounded-md bg-zinc-100 dark:bg-zinc-800/60 border border-zinc-200/50 dark:border-zinc-700/50 text-[9px] font-bold tracking-wider text-zinc-400 dark:text-zinc-500 uppercase leading-none transform translate-y-[2px]">
+            Beta
+          </span>
+        </div>
 
         <div className="flex items-center gap-1">
           <button
@@ -925,7 +930,7 @@ export default function CurationList() {
             animate={{ height: "auto", opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
             transition={{ duration: 0.2 }}
-            className="overflow-hidden bg-[#fafaf8] dark:bg-zinc-950 border-b border-zinc-200/40 dark:border-zinc-800/40 px-5 z-40"
+            className="overflow-hidden bg-[#fafaf8]/15 dark:bg-[#050505]/20 backdrop-blur-xl border-b border-zinc-200/40 dark:border-zinc-800/40 px-5 z-40"
           >
             <div className="py-3">
               <div className="relative">
@@ -939,7 +944,7 @@ export default function CurationList() {
                   placeholder="Search articles..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full h-11 bg-white dark:bg-zinc-900/50 rounded-xl border border-zinc-200/80 dark:border-zinc-800/80 pl-10 pr-10 text-[14px] text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 dark:placeholder:text-zinc-500 outline-none focus:outline-none focus-visible:outline-none focus:border-zinc-300 dark:focus:border-zinc-700 focus:ring-0 transition-all"
+                  className="w-full h-11 bg-white dark:bg-zinc-900/40 rounded-xl border border-zinc-200/60 dark:border-zinc-800/60 pl-10 pr-10 text-[14px] text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 dark:placeholder:text-zinc-500 outline-none focus:border-zinc-300 dark:focus:border-zinc-700 transition-all"
                 />
                 {searchQuery && (
                   <button
@@ -963,7 +968,7 @@ export default function CurationList() {
       </AnimatePresence>
 
       {/* ═══ SCROLLABLE CONTENT ═══ */}
-      <main
+      <div
         id="curation-scroll-container"
         ref={scrollContainerRef}
         onScroll={(e) => (scrollYRef.current = e.currentTarget.scrollTop)}
@@ -1027,6 +1032,16 @@ export default function CurationList() {
               </div>
             </div>
 
+            {/* ═══ HERO CAROUSEL HEADER ═══ */}
+            <div className="mb-6 px-5">
+              <h2 className="text-[11px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-[0.25em] mb-1">
+                YEARLY PICKS
+              </h2>
+              <p className="text-[14px] text-zinc-400/80 dark:text-zinc-500/80 font-medium">
+                The most definitive insights and frameworks of the year.
+              </p>
+            </div>
+
             {/* ═══ HERO CAROUSEL (Top 5 Articles Globally) ═══ */}
             {(() => {
               if (isLoadingTop) {
@@ -1063,7 +1078,7 @@ export default function CurationList() {
                           onClick={() => {
                             setNavigatingId(featuredArticle.id);
                           }}
-                          className="shrink-0 w-[85vw] md:w-[600px] snap-center group relative rounded-[2rem] overflow-hidden bg-white dark:bg-zinc-900 border border-zinc-200/60 dark:border-zinc-800/60 shadow-sm hover:shadow-md hover:border-zinc-300 dark:hover:border-zinc-700 active:scale-[0.98] transition-all duration-400 flex flex-col"
+                          className="shrink-0 w-[85vw] md:w-[600px] snap-start group relative rounded-[2rem] overflow-hidden bg-white dark:bg-zinc-900 border border-zinc-200/60 dark:border-zinc-800/60 shadow-sm hover:shadow-md hover:border-zinc-300 dark:hover:border-zinc-700 active:scale-[0.98] transition-all duration-400 flex flex-col"
                         >
                           {/* Top Image Section */}
                           <div className="relative w-full h-[240px] md:h-[280px] overflow-hidden bg-zinc-100 dark:bg-zinc-800 shrink-0">
@@ -1093,7 +1108,7 @@ export default function CurationList() {
                           <div className="p-6 md:p-8 flex flex-col relative z-20 h-full">
                             <div className="flex items-center gap-2 mb-3 flex-wrap">
                               <span className="text-[10px] font-bold uppercase tracking-[0.15em] bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 px-2 py-0.5 rounded-sm">
-                                TRENDING
+                                TOP PICK
                               </span>
                               {featuredArticle.category && (
                                 <span className="text-[10px] font-bold uppercase tracking-[0.1em] text-blue-600 dark:text-blue-400 ml-1">
@@ -1428,7 +1443,7 @@ export default function CurationList() {
         )}
 
         {/* ═══ ARTICLE FEED ═══ */}
-        <AnimatePresence mode="wait">
+        <>
           {isLoading ? (
             <motion.div
               key="skeleton"
@@ -1659,16 +1674,10 @@ export default function CurationList() {
               )}
             </motion.div>
           )}
-        </AnimatePresence>
-      </main>
+        </>
+      </div>
 
-      {/* ═══ FAB — Admin: Add, Visitor: Suggest ═══ */}
-      <button
-        onClick={() => setIsSheetOpen(true)}
-        className="fixed bottom-6 right-6 w-14 h-14 bg-zinc-900 text-white rounded-full flex items-center justify-center shadow-[0_8px_30px_rgba(0,0,0,0.15)] active:scale-90 transition-transform z-40"
-      >
-        {isAdmin ? <Plus size={24} /> : <Send size={22} className="ml-0.5" />}
-      </button>
+
 
       {/* ═══ BOTTOM SHEET ═══ */}
       <BottomSheet

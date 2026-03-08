@@ -241,9 +241,9 @@ export function MiniPlayerWidget({ style: customStyle }: MiniPlayerProps) {
                         }}
                         style={{
                             pointerEvents: "auto",
-                            background: isPlaying ? "rgba(10, 10, 12, 0.65)" : "rgba(20, 20, 22, 0.5)",
-                            backdropFilter: "blur(24px) saturate(180%)",
-                            WebkitBackdropFilter: "blur(24px) saturate(180%)",
+                            background: isPlaying ? "rgba(10, 10, 12, 0.15)" : "rgba(20, 20, 22, 0.1)",
+                            backdropFilter: "blur(16px) saturate(180%)",
+                            WebkitBackdropFilter: "blur(16px) saturate(180%)",
                             border: "1px solid rgba(255, 255, 255, 0.1)",
                             borderTop: "1px solid rgba(255, 255, 255, 0.15)",
                             borderLeft: "1px solid rgba(255, 255, 255, 0.12)",
