@@ -1285,7 +1285,8 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
                 )}
 
                 {/* Community Section: Comments */}
-                <div className="mt-16 mb-40 pt-16 border-t pb-10 snap-start scroll-my-24" style={{ borderColor: THEMES[readerSettings.theme].text + '20' }}>
+                {/* Community Section: Comments */}
+                <div className="mt-16 pt-16 border-t pb-10 snap-start scroll-my-24" style={{ borderColor: THEMES[readerSettings.theme].text + '20' }}>
                     <div className="flex items-center gap-3 mb-8">
                         <MessageSquareQuote size={24} className="text-zinc-400" />
                         <h3 className="text-[20px] font-bold tracking-tight text-zinc-900 font-sans" style={{ color: THEMES[readerSettings.theme].text }}>
