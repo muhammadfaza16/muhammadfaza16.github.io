@@ -84,7 +84,7 @@ export default function ExplorePage() {
                 const [tR, lR, aR] = await Promise.all([
                     fetch("/api/curation?limit=8&sort=popularity"),
                     fetch("/api/curation?limit=5&sort=latest"),
-                    fetch("/api/curation?limit=100&sort=latest"),
+                    fetch("/api/curation?limit=999&sort=latest"),
                 ]);
                 const [tD, lD, aD] = await Promise.all([tR.json(), lR.json(), aR.json()]);
                 const trending = tD.articles || [], latest = lD.articles || [], all = aD.articles || [];
@@ -231,7 +231,22 @@ export default function ExplorePage() {
                                 {isLoading ? <Skeleton n={3} /> : <div>{forYouArticles.map((a, i) => <ArticleRow key={a.id} article={a} i={i} />)}</div>}
                             </section>
 
-                            {/* Topics — compact inline rows, no cards */}
+                            {/* Latest */}
+                            <section>
+                                <Label><Clock size={11} className="inline mr-1 -mt-px" />Newly Added</Label>
+                                {isLoading ? <Skeleton n={4} /> : <div>{latestArticles.map((a, i) => <ArticleRow key={a.id} article={a} i={i} />)}</div>}
+                            </section>
+
+                            {/* Trending */}
+                            <section>
+                                <div className="flex items-center justify-between mb-2">
+                                    <Label><Flame size={11} className="inline mr-1 -mt-px" />Trending</Label>
+                                    <span className="text-[10px] text-zinc-400">by popularity</span>
+                                </div>
+                                {isLoading ? <Skeleton n={5} /> : <div>{trendingArticles.map((a, i) => <ArticleRow key={a.id} article={a} i={i} rank />)}</div>}
+                            </section>
+
+                            {/* Topics — compact inline rows */}
                             <section>
                                 <Label><Hash size={11} className="inline mr-1 -mt-px" />Topics</Label>
                                 <div className="space-y-0">
@@ -275,21 +290,6 @@ export default function ExplorePage() {
                                         </button>
                                     ))}
                                 </div>
-                            </section>
-
-                            {/* Trending */}
-                            <section>
-                                <div className="flex items-center justify-between mb-2">
-                                    <Label><Flame size={11} className="inline mr-1 -mt-px" />Trending</Label>
-                                    <span className="text-[10px] text-zinc-400">by popularity</span>
-                                </div>
-                                {isLoading ? <Skeleton n={5} /> : <div>{trendingArticles.map((a, i) => <ArticleRow key={a.id} article={a} i={i} rank />)}</div>}
-                            </section>
-
-                            {/* Latest */}
-                            <section>
-                                <Label><Clock size={11} className="inline mr-1 -mt-px" />Latest</Label>
-                                {isLoading ? <Skeleton n={4} /> : <div>{latestArticles.map((a, i) => <ArticleRow key={a.id} article={a} i={i} />)}</div>}
                             </section>
 
                         </motion.div>
