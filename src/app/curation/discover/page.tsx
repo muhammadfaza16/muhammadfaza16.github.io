@@ -34,7 +34,10 @@ const TOPICS = [
 const STARTER_PACKS = [
     { title: "Mastering Focus", category: "Productivity & Deep Work", color: "from-blue-500/20 to-indigo-500/20", icon: Zap },
     { title: "Naval's Anthology", category: "Philosophy & Psychology", color: "from-amber-500/20 to-orange-500/20", icon: Coffee },
-    { title: "Future of Agentic Tech", category: "AI & Tech", color: "from-emerald-500/20 to-teal-500/20", icon: Brain },
+    { title: "Agentic Future", category: "AI & Tech", color: "from-emerald-500/20 to-teal-500/20", icon: Brain },
+    { title: "Growth Vault", category: "Growth & Systems", color: "from-purple-500/20 to-pink-500/20", icon: TrendingUp },
+    { title: "Wealth Wisdom", category: "Wealth & Business", icon: Rocket, color: "from-emerald-600/20 to-green-600/20" },
+    { title: "Deep Work", category: "Productivity & Deep Work", icon: BookOpen, color: "from-cyan-500/20 to-blue-500/20" },
 ];
 
 export default function ExplorePage() {
@@ -178,8 +181,8 @@ export default function ExplorePage() {
     return (
         <div className="min-h-screen bg-[#fafaf8] dark:bg-[#050505] text-zinc-900 dark:text-zinc-100 selection:bg-blue-100 dark:selection:bg-blue-900/30">
             {/* ═══ TOP STICKY SEARCH BAR + FILTERS ═══ */}
-            <header className="sticky top-0 z-50 bg-[#fafaf8]/80 dark:bg-[#050505]/80 backdrop-blur-xl border-b border-zinc-200/40 dark:border-zinc-800/40 pb-3">
-                <div className="px-5 pt-4 max-w-2xl mx-auto flex items-center gap-4">
+            <header className="sticky top-0 z-50 bg-[#fafaf8]/80 dark:bg-[#050505]/80 backdrop-blur-xl border-b border-zinc-200/40 dark:border-zinc-800/40 pb-2">
+                <div className="px-5 pt-3 max-w-2xl mx-auto flex items-center gap-4">
                     <Link href="/curation" className="w-10 h-10 flex items-center justify-center text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 active:scale-90 rounded-full transition-all">
                         <ArrowLeft size={20} />
                     </Link>
@@ -204,7 +207,7 @@ export default function ExplorePage() {
                 </div>
 
                 {/* Filter Chips - Horizontal Scroll */}
-                <div className="px-5 mt-3 max-w-2xl mx-auto flex gap-2 overflow-x-auto no-scrollbar mask-linear-right pb-1">
+                <div className="px-5 mt-2 max-w-2xl mx-auto flex gap-2 overflow-x-auto no-scrollbar mask-linear-right pb-1">
                     <button className="flex items-center justify-center w-8 h-8 shrink-0 rounded-full bg-zinc-100 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400 border border-zinc-200 dark:border-zinc-700">
                         <SlidersHorizontal size={14} />
                     </button>
@@ -234,7 +237,7 @@ export default function ExplorePage() {
                     <Loader2 className="animate-spin text-zinc-400" size={24} />
                 </div>
             ) : (
-                <main className="max-w-2xl mx-auto px-5 py-8 space-y-10">
+                <main className="max-w-2xl mx-auto px-5 py-5 space-y-8">
 
                     {/* SEARCH RESULTS MODE vs DISCOVER MODE */}
                     {searchQuery.trim() || activeFilter !== 'popularity' ? (
