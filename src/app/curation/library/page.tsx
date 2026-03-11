@@ -6,15 +6,13 @@ import {
     Bookmark, BookOpen, ChevronRight, Clock, FileText,
     Hash, Loader2, ArrowLeft, TrendingUp,
     Brain, Rocket, Coffee, Zap, BarChart3, Calendar,
-    Star, Award
+    Star, Award, X, FolderPlus, FolderCheck
 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
+import { getVisitorState, getReadHistoryAsync, removeFromReadHistoryAsync, getCollectionsAsync, saveCollectionsAsync, VisitorState, ReadEntry, Collection } from "@/lib/storage";
 
 // ─── Types ───
-
-type ReadEntry = { id: string; ts: number };
-type VisitorState = { read: Record<string, boolean>; bookmarked: Record<string, boolean> };
 
 const CATEGORIES: Record<string, { icon: React.ComponentType<any> }> = {
     "AI & Tech": { icon: Brain },
@@ -26,16 +24,6 @@ const CATEGORIES: Record<string, { icon: React.ComponentType<any> }> = {
 
 // ─── Helpers ───
 
-function getLocalState(): VisitorState {
-    try { return JSON.parse(localStorage.getItem("curation_visitor_state") || '{"read":{},"bookmarked":{}}'); }
-    catch { return { read: {}, bookmarked: {} }; }
-}
-
-function getReadHistory(): ReadEntry[] {
-    try { return JSON.parse(localStorage.getItem("curation_read_history") || "[]"); }
-    catch { return []; }
-}
-
 function calcStreak(history: ReadEntry[]): number {
     if (!history.length) return 0;
     const today = new Date(); today.setHours(0, 0, 0, 0);
@@ -44,7 +32,7 @@ function calcStreak(history: ReadEntry[]): number {
     for (let i = 0; i < 365; i++) {
         const dayStart = today.getTime() - i * dayMs;
         const dayEnd = dayStart + dayMs;
-        const hasRead = history.some(h => h.ts >= dayStart && h.ts < dayEnd);
+        const hasRead = history.some(h => h.timestamp >= dayStart && h.timestamp < dayEnd);
         if (hasRead) streak++;
         else if (i > 0) break;
     }
@@ -58,7 +46,7 @@ function getWeeklyActivity(history: ReadEntry[]): number[] {
     for (let i = 6; i >= 0; i--) {
         const dayStart = today.getTime() - i * dayMs;
         const dayEnd = dayStart + dayMs;
-        days.push(history.filter(h => h.ts >= dayStart && h.ts < dayEnd).length);
+        days.push(history.filter(h => h.timestamp >= dayStart && h.timestamp < dayEnd).length);
     }
     return days;
 }
@@ -94,13 +82,22 @@ export default function LibraryPage() {
 
     const [localState, setLocalState] = useState<VisitorState>({ read: {}, bookmarked: {} });
     const [history, setHistory] = useState<ReadEntry[]>([]);
+    const [collections, setCollections] = useState<Collection[]>([]);
+    const [activeCollection, setActiveCollection] = useState<Collection | null>(null);
+    const [isCreatingCollection, setIsCreatingCollection] = useState(false);
+    const [newCollectionName, setNewCollectionName] = useState("");
 
     useEffect(() => {
         setMounted(true);
-        const vs = getLocalState();
-        const hist = getReadHistory();
-        setLocalState(vs);
-        setHistory(hist);
+
+        (async () => {
+            const vs = await getVisitorState();
+            const hist = await getReadHistoryAsync();
+            const colls = await getCollectionsAsync();
+            setLocalState(vs);
+            setHistory(hist);
+            setCollections(colls);
+        })();
 
         (async () => {
             try {
@@ -113,6 +110,12 @@ export default function LibraryPage() {
             finally { setIsLoading(false); }
         })();
     }, []);
+
+    // ─── Actions ───
+    const handleRemoveHistory = async (id: string) => {
+        setHistory(prev => prev.filter(h => h.id !== id));
+        await removeFromReadHistoryAsync(id);
+    };
 
     // ─── Derived Data ───
 
@@ -137,7 +140,7 @@ export default function LibraryPage() {
     }, [readArticles]);
 
     // Sort read articles by read timestamp (most recent first)
-    const historyMap = useMemo(() => new Map(history.map(h => [h.id, h.ts])), [history]);
+    const historyMap = useMemo(() => new Map(history.map(h => [h.id, h.timestamp])), [history]);
     const sortedReadArticles = useMemo(() => {
         return [...readArticles].sort((a, b) => (historyMap.get(b.id) || 0) - (historyMap.get(a.id) || 0));
     }, [readArticles, historyMap]);
@@ -161,9 +164,9 @@ export default function LibraryPage() {
 
     // ─── Renderers ───
 
-    const ArticleRow = ({ article, i, showTime }: { article: any; i: number; showTime?: boolean }) => (
-        <motion.div key={article.id} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.2, delay: i * 0.02 }}>
-            <Link href={`/curation/${article.id}`} className="group flex items-center gap-2.5 py-2 border-b border-zinc-100 dark:border-zinc-800/50 last:border-0 transition-colors">
+    const ArticleRow = ({ article, i, showTime, onRemove }: { article: any; i: number; showTime?: boolean; onRemove?: (id: string) => void }) => (
+        <motion.div key={article.id} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.2, delay: i * 0.02 }} className="group relative">
+            <Link href={`/curation/${article.id}`} className="flex items-center gap-2.5 py-2 border-b border-zinc-100 dark:border-zinc-800/50 last:border-0 transition-colors pr-6">
                 <div className="w-10 h-10 rounded-md overflow-hidden bg-zinc-100 dark:bg-zinc-800/80 shrink-0 relative">
                     {article.imageUrl ? <Image src={article.imageUrl} alt="" fill className="object-cover" /> : <div className="w-full h-full flex items-center justify-center text-zinc-400"><FileText size={14} /></div>}
                 </div>
@@ -187,8 +190,17 @@ export default function LibraryPage() {
                         )}
                     </div>
                 </div>
-                <ChevronRight size={12} className="text-zinc-300 dark:text-zinc-700 shrink-0" />
+                {!onRemove && <ChevronRight size={12} className="text-zinc-300 dark:text-zinc-700 shrink-0" />}
             </Link>
+            {onRemove && (
+                <button
+                    onClick={(e) => { e.preventDefault(); e.stopPropagation(); onRemove(article.id); }}
+                    className="absolute right-0 top-1/2 -translate-y-1/2 p-2 text-zinc-300 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-full transition-all opacity-0 group-hover:opacity-100"
+                    title="Remove from history"
+                >
+                    <X size={14} />
+                </button>
+            )}
         </motion.div>
     );
 
@@ -348,7 +360,7 @@ export default function LibraryPage() {
                             <section>
                                 <Label><BookOpen size={11} className="inline mr-1 -mt-px" />Reading History</Label>
                                 {isLoading ? <Skeleton n={5} /> : sortedReadArticles.length > 0 ? (
-                                    <div>{sortedReadArticles.slice(0, 20).map((a, i) => <ArticleRow key={a.id} article={a} i={i} showTime />)}</div>
+                                    <div>{sortedReadArticles.slice(0, 20).map((a, i) => <ArticleRow key={a.id} article={a} i={i} showTime onRemove={handleRemoveHistory} />)}</div>
                                 ) : (
                                     <div className="py-12 text-center">
                                         <BookOpen size={24} className="mx-auto text-zinc-300 dark:text-zinc-700 mb-2" />
@@ -361,22 +373,107 @@ export default function LibraryPage() {
                         </motion.div>
                     ) : (
                         <motion.div key="saved" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.15 }} className="space-y-6">
+                            {activeCollection ? (
+                                <div className="space-y-6 animate-in fade-in slide-in-from-right-2">
+                                    <div className="flex items-center justify-between pb-4 border-b border-zinc-200/50 dark:border-zinc-800/50 pt-2">
+                                        <div className="flex items-center gap-3">
+                                            <button onClick={() => setActiveCollection(null)} className="p-1.5 -ml-1.5 text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 rounded-full transition-colors active:scale-90">
+                                                <ArrowLeft size={16} />
+                                            </button>
+                                            <h2 className="text-[16px] font-bold text-zinc-900 dark:text-zinc-100">{activeCollection.name}</h2>
+                                        </div>
+                                        <span className="text-[10px] text-zinc-500 font-medium">
+                                            {activeCollection.articleIds.length} items
+                                        </span>
+                                    </div>
+                                    <div className="space-y-0">
+                                        {activeCollection.articleIds.length === 0 ? (
+                                            <div className="py-16 text-center">
+                                                <FolderCheck size={28} className="mx-auto text-zinc-300 dark:text-zinc-700 mb-3" />
+                                                <p className="text-[13px] font-semibold text-zinc-800 dark:text-zinc-200">This collection is empty</p>
+                                                <p className="text-[11px] text-zinc-500 mt-1">Save articles from the reader to add them here.</p>
+                                            </div>
+                                        ) : (
+                                            activeCollection.articleIds.map((id, i) => {
+                                                const a = allArticles.find(x => x.id === id);
+                                                if (!a) return null;
+                                                return <ArticleRow key={id} article={a} i={i} />;
+                                            })
+                                        )}
+                                    </div>
+                                </div>
+                            ) : (
+                                <>
+                                    {/* Saved summary */}
+                                    <div className="flex items-center bg-zinc-50 dark:bg-zinc-900/60 rounded-xl border border-zinc-200/50 dark:border-zinc-800/50 divide-x divide-zinc-200/60 dark:divide-zinc-800/60">
+                                        <div className="flex-1 text-center py-0.5">
+                                            <span className="text-[16px] font-bold text-zinc-900 dark:text-zinc-100 tabular-nums">{savedArticles.length}</span>
+                                            <span className="text-[9px] text-zinc-500 ml-1.5">saved</span>
+                                        </div>
+                                        <div className="flex-1 text-center py-0.5">
+                                            <span className="text-[16px] font-bold text-zinc-900 dark:text-zinc-100 tabular-nums">{savedByCategory.length}</span>
+                                            <span className="text-[9px] text-zinc-500 ml-1.5">categories</span>
+                                        </div>
+                                        <div className="flex-1 text-center py-0.5">
+                                            <span className="text-[16px] font-bold text-zinc-900 dark:text-zinc-100 tabular-nums">{savedArticles.reduce((s, a) => s + readTime(a.content), 0)}</span>
+                                            <span className="text-[9px] text-zinc-500 ml-1.5">min total</span>
+                                        </div>
+                                    </div>
 
-                            {/* Saved summary */}
-                            <div className="flex items-center bg-zinc-50 dark:bg-zinc-900/60 rounded-xl border border-zinc-200/50 dark:border-zinc-800/50 divide-x divide-zinc-200/60 dark:divide-zinc-800/60">
-                                <div className="flex-1 text-center py-0.5">
-                                    <span className="text-[16px] font-bold text-zinc-900 dark:text-zinc-100 tabular-nums">{savedArticles.length}</span>
-                                    <span className="text-[9px] text-zinc-500 ml-1.5">saved</span>
-                                </div>
-                                <div className="flex-1 text-center py-0.5">
-                                    <span className="text-[16px] font-bold text-zinc-900 dark:text-zinc-100 tabular-nums">{savedByCategory.length}</span>
-                                    <span className="text-[9px] text-zinc-500 ml-1.5">categories</span>
-                                </div>
-                                <div className="flex-1 text-center py-0.5">
-                                    <span className="text-[16px] font-bold text-zinc-900 dark:text-zinc-100 tabular-nums">{savedArticles.reduce((s, a) => s + readTime(a.content), 0)}</span>
-                                    <span className="text-[9px] text-zinc-500 ml-1.5">min total</span>
-                                </div>
-                            </div>
+                                    {/* Collections Folders */}
+                                    <section className="mb-8">
+                                        <div className="flex items-center justify-between mb-3">
+                                            <Label><FolderCheck size={11} className="inline mr-1 -mt-px" /> Collections</Label>
+                                            <button onClick={() => setIsCreatingCollection(true)} className="text-[9px] text-blue-500 font-bold hover:text-blue-600 uppercase tracking-widest active:scale-95 transition-all">+ New Folder</button>
+                                        </div>
+                                        <div className="grid grid-cols-2 gap-3">
+                                            {collections.map(c => (
+                                                <button
+                                                    key={c.id}
+                                                    onClick={() => setActiveCollection(c)}
+                                                    className="flex flex-col text-left p-4 rounded-xl border border-zinc-200/60 dark:border-zinc-800/60 bg-white dark:bg-zinc-900/40 hover:border-zinc-300 dark:hover:border-zinc-700 transition-all group"
+                                                >
+                                                    <div className="w-8 h-8 rounded-lg bg-blue-50 dark:bg-blue-500/10 text-blue-500 mb-3 flex items-center justify-center group-hover:scale-110 transition-transform">
+                                                        <FolderCheck size={16} />
+                                                    </div>
+                                                    <h3 className="text-[13px] font-bold text-zinc-900 dark:text-zinc-100 mb-0.5 leading-snug">{c.name}</h3>
+                                                    <span className="text-[10px] text-zinc-500 font-medium">{c.articleIds.length} items</span>
+                                                </button>
+                                            ))}
+                                            {isCreatingCollection && (
+                                                <div className="flex flex-col text-left p-4 rounded-xl border-2 border-dashed border-blue-200 dark:border-blue-500/30 bg-blue-50/30 dark:bg-blue-500/5">
+                                                    <input
+                                                        autoFocus
+                                                        value={newCollectionName}
+                                                        onChange={e => setNewCollectionName(e.target.value)}
+                                                        onKeyDown={async e => {
+                                                            if (e.key === 'Enter' && newCollectionName.trim()) {
+                                                                const newColl: Collection = {
+                                                                    id: `coll_${Date.now()}`,
+                                                                    name: newCollectionName.trim(),
+                                                                    description: "",
+                                                                    articleIds: [],
+                                                                    createdAt: Date.now()
+                                                                };
+                                                                const updated = [newColl, ...collections];
+                                                                setCollections(updated);
+                                                                await saveCollectionsAsync(updated);
+                                                                setNewCollectionName("");
+                                                                setIsCreatingCollection(false);
+                                                            } else if (e.key === 'Escape') {
+                                                                setIsCreatingCollection(false);
+                                                                setNewCollectionName("");
+                                                            }
+                                                        }}
+                                                        onBlur={() => { setIsCreatingCollection(false); setNewCollectionName(""); }}
+                                                        placeholder="Name..."
+                                                        className="bg-transparent border-b border-blue-200 dark:border-blue-800 text-[13px] font-bold text-zinc-900 dark:text-zinc-100 placeholder:text-blue-300/60 outline-none pb-1 w-full"
+                                                    />
+                                                    <span className="text-[9px] text-blue-400 font-medium mt-2">Press Enter to save</span>
+                                                </div>
+                                            )}
+                                        </div>
+                                    </section>
 
                             {/* Saved articles grouped by category */}
                             {isLoading ? <Skeleton n={5} /> : savedArticles.length > 0 ? (
@@ -401,6 +498,8 @@ export default function LibraryPage() {
                                 </div>
                             )}
 
+                                </>
+                            )}
                         </motion.div>
                     )}
                 </AnimatePresence>

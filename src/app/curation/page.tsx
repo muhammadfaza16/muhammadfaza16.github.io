@@ -28,6 +28,7 @@ import {
 } from "lucide-react";
 import { Toaster, toast } from "react-hot-toast";
 import { updateToReadArticle, createToReadArticle } from "@/app/master/actions";
+import { getVisitorState, saveVisitorStateAsync, getReadHistoryAsync } from "@/lib/storage";
 import { uploadImageToSupabase } from "@/lib/uploadImage";
 import { getSupabase } from "@/lib/supabase";
 import {
@@ -81,28 +82,7 @@ const LABEL_CLASS =
 const CACHE_KEY = "curationFeedCache_v2";
 const VISITOR_STATE_KEY = "curation_visitor_state";
 
-// ─── Visitor State (localStorage) ───
-
-function getVisitorState(): {
-  read: Record<string, boolean>;
-  bookmarked: Record<string, boolean>;
-} {
-  if (typeof window === "undefined") return { read: {}, bookmarked: {} };
-  try {
-    const raw = localStorage.getItem(VISITOR_STATE_KEY);
-    return raw ? JSON.parse(raw) : { read: {}, bookmarked: {} };
-  } catch {
-    return { read: {}, bookmarked: {} };
-  }
-}
-
-function saveVisitorState(state: {
-  read: Record<string, boolean>;
-  bookmarked: Record<string, boolean>;
-}) {
-  if (typeof window === "undefined") return;
-  localStorage.setItem(VISITOR_STATE_KEY, JSON.stringify(state));
-}
+// ─── Helpers ───
 
 // ─── Helpers ───
 function useDebounce<T>(value: T, delay: number): T {
@@ -143,37 +123,13 @@ const HighlightText = ({ text, query }: { text: string; query: string }) => {
 // ─── Main Component ───
 
 export default function CurationList() {
-  const [articles, setArticles] = useState<ArticleMeta[]>(() => {
-    if (typeof window !== 'undefined') {
-      try {
-        const cached = sessionStorage.getItem(CACHE_KEY);
-        if (cached) return JSON.parse(cached).articles || [];
-      } catch { }
-    }
-    return [];
-  });
+  const [articles, setArticles] = useState<ArticleMeta[]>([]);
   const [topArticles, setTopArticles] = useState<ArticleMeta[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isLoadingTop, setIsLoadingTop] = useState(true);
   const [totalCount, setTotalCount] = useState(0);
-  const [sort, setSort] = useState<SortType>(() => {
-    if (typeof window !== 'undefined') {
-      try {
-        const cached = sessionStorage.getItem(CACHE_KEY);
-        if (cached) return JSON.parse(cached).sort || "latest";
-      } catch { }
-    }
-    return "latest";
-  });
-  const [categoryFilter, setCategoryFilter] = useState<string[]>(() => {
-    if (typeof window !== 'undefined') {
-      try {
-        const cached = sessionStorage.getItem(CACHE_KEY);
-        if (cached) return JSON.parse(cached).categoryFilter || [];
-      } catch { }
-    }
-    return [];
-  });
+  const [sort, setSort] = useState<SortType>("latest");
+  const [categoryFilter, setCategoryFilter] = useState<string[]>([]);
   const [statusFilter, setStatusFilter] = useState<
     "all" | "unread" | "bookmarked"
   >("all");
@@ -182,15 +138,7 @@ export default function CurationList() {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [imgErrors, setImgErrors] = useState<Record<string, boolean>>({});
   const [isLoadingMore, setIsLoadingMore] = useState(false);
-  const [nextCursor, setNextCursor] = useState<string | null>(() => {
-    if (typeof window !== 'undefined') {
-      try {
-        const cached = sessionStorage.getItem(CACHE_KEY);
-        if (cached) return JSON.parse(cached).nextCursor || null;
-      } catch { }
-    }
-    return null;
-  });
+  const [nextCursor, setNextCursor] = useState<string | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
   const [visitorState, setVisitorState] = useState<{
     read: Record<string, boolean>;
@@ -697,7 +645,7 @@ export default function CurationList() {
         read: { ...prev.read, [articleId]: !prev.read[articleId] },
       };
       if (!updated.read[articleId]) delete updated.read[articleId];
-      saveVisitorState(updated);
+      saveVisitorStateAsync(updated);
       return updated;
     });
     try {
@@ -717,7 +665,7 @@ export default function CurationList() {
         },
       };
       if (!updated.bookmarked[articleId]) delete updated.bookmarked[articleId];
-      saveVisitorState(updated);
+      saveVisitorStateAsync(updated);
       return updated;
     });
     try {
@@ -754,6 +702,11 @@ export default function CurationList() {
       if (cached) {
         const parsed = JSON.parse(cached);
         if (parsed.articles?.length > 0) {
+          abortControllerRef.current?.abort(); // Cancel the initial latest fetch
+          setArticles(parsed.articles);
+          setNextCursor(parsed.nextCursor || null);
+          setSort(parsed.sort || "latest");
+          setCategoryFilter(parsed.categoryFilter || []);
           hasRestoredCache.current = true;
           setIsLoading(false);
 
@@ -769,9 +722,10 @@ export default function CurationList() {
       }
     } catch { }
 
-    setVisitorState(getVisitorState());
+    // Load visitor state
+    getVisitorState().then(setVisitorState);
 
-    // Load reading progress from localStorage
+    // Load reading progress from localStorage (Keep progress in local storage for now as it updates very rapidly on scroll)
     try {
       const progressMap: Record<string, number> = {};
       for (let i = 0; i < localStorage.length; i++) {
@@ -786,14 +740,11 @@ export default function CurationList() {
     } catch { }
 
     // Calculate weekly reads streak
-    try {
-      const history = JSON.parse(
-        localStorage.getItem("curation_read_history") || "[]",
-      );
+    getReadHistoryAsync().then(history => {
       const oneWeekAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
-      const recentReads = history.filter((h: any) => h.ts > oneWeekAgo);
+      const recentReads = history.filter(h => h.timestamp > oneWeekAgo);
       setWeeklyReads(recentReads.length);
-    } catch { }
+    }).catch(() => {});
 
     // Check admin status via secure cookie
     fetch("/api/auth")

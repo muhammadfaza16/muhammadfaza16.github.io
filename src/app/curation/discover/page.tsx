@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
+import { getVisitorState, getReadHistoryAsync } from "@/lib/storage";
 
 // ─── Constants ───
 
@@ -31,15 +32,6 @@ const READING_LISTS = [
 ];
 
 // ─── Helpers ───
-
-function getReadingStats() {
-    try {
-        const vs = JSON.parse(localStorage.getItem("curation_visitor_state") || '{"read":{},"bookmarked":{}}');
-        const readIds = new Set(Object.keys(vs.read || {}).filter((k: string) => vs.read[k]));
-        const savedIds = new Set(Object.keys(vs.bookmarked || {}).filter((k: string) => vs.bookmarked[k]));
-        return { readCount: readIds.size, bookmarkCount: savedIds.size, readIds, savedIds };
-    } catch { return { readCount: 0, bookmarkCount: 0, readIds: new Set<string>(), savedIds: new Set<string>() }; }
-}
 
 function getTopCategoryFromHistory(articles: any[]): string | null {
     const c: Record<string, number> = {};
@@ -81,9 +73,13 @@ export default function ExplorePage() {
 
     useEffect(() => {
         setMounted(true);
-        setReadStats(getReadingStats());
         (async () => {
             try {
+                const vs = await getVisitorState();
+                const readIds = new Set(Object.keys(vs.read || {}).filter(k => vs.read[k]));
+                const savedIds = new Set(Object.keys(vs.bookmarked || {}).filter(k => vs.bookmarked[k]));
+                setReadStats({ readCount: readIds.size, bookmarkCount: savedIds.size, readIds, savedIds });
+
                 const [tR, lR, aR] = await Promise.all([
                     fetch("/api/curation?limit=8&sort=popularity"),
                     fetch("/api/curation?limit=5&sort=latest"),
@@ -99,13 +95,14 @@ export default function ExplorePage() {
                 const stats: Record<string, number> = {};
                 all.forEach((a: any) => { if (a.category) stats[a.category] = (stats[a.category] || 0) + 1; });
                 setCategoryStats(stats);
+                
                 try {
-                    const history: any[] = JSON.parse(localStorage.getItem("curation_read_history") || "[]");
-                    const readIds = new Set(history.map((h: any) => h.id));
-                    const readArticles = all.filter((a: any) => readIds.has(a.id));
+                    const history = await getReadHistoryAsync();
+                    const readHistIds = new Set(history.map(h => h.id));
+                    const readArticles = all.filter((a: any) => readHistIds.has(a.id));
                     const favCat = getTopCategoryFromHistory(readArticles);
                     if (favCat) {
-                        const unread = all.filter((a: any) => a.category === favCat && !readIds.has(a.id));
+                        const unread = all.filter((a: any) => a.category === favCat && !readHistIds.has(a.id));
                         setForYouArticles(unread.length >= 3 ? unread.slice(0, 4) : trending.slice(0, 4));
                     } else { setForYouArticles(trending.slice(0, 4)); }
                 } catch { setForYouArticles(trending.slice(0, 4)); }
@@ -262,11 +259,40 @@ export default function ExplorePage() {
 
                             {/* Picked For You */}
                             <section>
-                                <div className="flex items-center justify-between mb-2">
-                                    <Label><Sparkles size={11} className="inline mr-1 -mt-px" />Picked For You</Label>
+                                <div className="flex items-center justify-between mb-3">
+                                    <Label><Sparkles size={11} className="inline mr-1 -mt-px text-blue-500" />Picked For You</Label>
                                     <span className="text-[10px] text-zinc-400">personalized</span>
                                 </div>
-                                {isLoading ? <Skeleton n={3} /> : <div>{forYouArticles.map((a, i) => <ArticleRow key={a.id} article={a} i={i} />)}</div>}
+                                {isLoading ? <Skeleton n={3} /> : readStats.readCount === 0 ? (
+                                    <div className="bg-gradient-to-br from-blue-50/50 to-indigo-50/50 dark:from-blue-500/5 dark:to-indigo-500/5 border border-blue-100/50 dark:border-blue-500/10 rounded-2xl p-6 text-center shadow-sm relative overflow-hidden group">
+                                        <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                                            <Brain size={64} className="text-blue-500 transform rotate-12" />
+                                        </div>
+                                        <div className="relative z-10">
+                                            <div className="w-10 h-10 bg-white dark:bg-zinc-800 rounded-full shadow-sm flex items-center justify-center mx-auto mb-3 border border-zinc-100 dark:border-zinc-700">
+                                                <Sparkles size={16} className="text-blue-500" />
+                                            </div>
+                                            <h3 className="text-[14px] font-bold text-zinc-900 dark:text-zinc-100 mb-1.5">Your feed is waiting</h3>
+                                            <p className="text-[11.5px] text-zinc-500 dark:text-zinc-400 mb-4 max-w-[240px] mx-auto leading-relaxed">
+                                                Read a few articles to teach the algorithm what you like. We'll curate the best pieces for you.
+                                            </p>
+                                            <button
+                                                onClick={() => {
+                                                    const trendingSection = document.getElementById('trending-section');
+                                                    if (trendingSection) {
+                                                        const y = trendingSection.getBoundingClientRect().top + window.scrollY - 100;
+                                                        window.scrollTo({ top: y, behavior: 'smooth' });
+                                                    }
+                                                }}
+                                                className="inline-flex items-center bg-blue-600 hover:bg-blue-700 text-white text-[11.5px] font-bold px-4 py-2 rounded-full transition-colors active:scale-95"
+                                            >
+                                                Explore Trending <ChevronRight size={14} className="ml-0.5 -mr-1" />
+                                            </button>
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <div>{forYouArticles.map((a, i) => <ArticleRow key={a.id} article={a} i={i} />)}</div>
+                                )}
                             </section>
 
                             {/* Latest */}
@@ -279,7 +305,7 @@ export default function ExplorePage() {
                             </section>
 
                             {/* Trending */}
-                            <section>
+                            <section id="trending-section">
                                 <div className="flex items-center justify-between mb-2">
                                     <Label><Flame size={11} className="inline mr-1 -mt-px" />Trending</Label>
                                     <span className="text-[10px] text-zinc-400">by popularity</span>

@@ -3,16 +3,22 @@
 import { use, useEffect, useState, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { motion, useScroll, useSpring, useMotionValueEvent, AnimatePresence, useTransform } from "framer-motion";
-import { ArrowLeft, Clock, CheckCircle, Share, Trash2, Globe, Pencil, Loader2, Camera, X, Clipboard, ImageIcon, MessageSquareQuote, ChevronsDown, Maximize, Minimize, Minus, Plus, Type, Bookmark, Volume2, VolumeX, Pause, Play, FolderPlus, FolderCheck, Check, Sparkles, ChevronDown, ChevronUp, Heart, RefreshCw, MessageSquare } from "lucide-react";
+import { ArrowLeft, Clock, CheckCircle, Share, Trash2, Globe, Pencil, Loader2, Camera, X, Clipboard, ImageIcon, MessageSquareQuote, ChevronsDown, Maximize, Minimize, Minus, Plus, Type, Bookmark, Volume2, VolumeX, Pause, Play, FolderPlus, FolderCheck, Check, Sparkles, ChevronDown, ChevronUp, Heart, RefreshCw, MessageSquare, Download } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import ReactMarkdown from "react-markdown";
 import { getSupabase } from "@/lib/supabase";
 import DOMPurify from 'dompurify';
 import { toggleReadStatus, updateToReadArticle, deleteToReadArticle, toggleBookmarkStatus } from "@/app/master/actions";
+import { 
+    getVisitorState, saveVisitorStateAsync, appendToReadHistoryAsync, updateToReadArticleAsync, toggleBookmarkedArticleAsync,
+    getReaderSettingsAsync, saveReaderSettingsAsync, getCollectionsAsync, saveCollectionsAsync,
+    getHighlightsAsync, saveHighlightsAsync 
+} from "@/lib/storage";
 import { toast } from "react-hot-toast";
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
+import { toPng } from 'html-to-image';
 import { Image as TiptapImage } from '@tiptap/extension-image';
 
 type Article = {
@@ -91,19 +97,15 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
         fontSize: number;
         lineHeight: number;
         theme: ThemeKey;
-        fontFamily: 'serif' | 'sans';
-    }>({ fontSize: 18, lineHeight: 1.8, theme: 'parchment' as ThemeKey, fontFamily: 'serif' as 'serif' | 'sans' });
+        fontFamily: 'serif' | 'sans' | 'mono';
+    }>({ fontSize: 18, lineHeight: 1.8, theme: 'parchment' as ThemeKey, fontFamily: 'serif' as 'serif' | 'sans' | 'mono' });
 
     // Persist reader settings
     useEffect(() => {
         if (typeof window === 'undefined') return;
-        try {
-            const saved = localStorage.getItem('curation_reader_settings');
-            if (saved) {
-                const parsed = JSON.parse(saved);
-                setReaderSettings(prev => ({ ...prev, ...parsed }));
-            }
-        } catch { }
+        getReaderSettingsAsync().then(settings => {
+            if (settings) setReaderSettings(prev => ({ ...prev, ...settings as any }));
+        });
     }, []);
 
     // Save settings when changed
@@ -113,7 +115,7 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
             mountedRef.current = true;
             return;
         }
-        try { localStorage.setItem('curation_reader_settings', JSON.stringify(readerSettings)); } catch { }
+        saveReaderSettingsAsync(readerSettings as any);
     }, [readerSettings]);
 
     // TTS State
@@ -156,12 +158,12 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
     type Collection = { id: string; name: string; description: string; articleIds: string[]; createdAt: number };
     const [collections, setCollections] = useState<Collection[]>([]);
     const [isCollectionsSheetOpen, setIsCollectionsSheetOpen] = useState(false);
+    const [isCreatingCollection, setIsCreatingCollection] = useState(false);
+    const [newCollectionName, setNewCollectionName] = useState("");
 
-    const openCollectionsSheet = () => {
-        try {
-            const saved = localStorage.getItem('curation_collections');
-            if (saved) setCollections(JSON.parse(saved));
-        } catch { }
+    const openCollectionsSheet = async () => {
+        const saved = await getCollectionsAsync();
+        setCollections(saved as any);
         setIsCollectionsSheetOpen(true);
     };
 
@@ -180,28 +182,55 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
             return c;
         });
         setCollections(updated);
-        try { localStorage.setItem('curation_collections', JSON.stringify(updated)); } catch { }
+        saveCollectionsAsync(updated as any);
         toast.success('Collection updated');
     };
     const [selectionTooltip, setSelectionTooltip] = useState<{ x: number; y: number; text: string } | null>(null);
     const [showHighlightsPanel, setShowHighlightsPanel] = useState(false);
 
-    // Load highlights from localStorage
-    useEffect(() => {
+    // Quote Card State
+    const [quoteCardText, setQuoteCardText] = useState<string | null>(null);
+    const [isGeneratingQuote, setIsGeneratingQuote] = useState(false);
+    const quoteCardRef = useRef<HTMLDivElement>(null);
+
+    const handleCreateQuoteCard = (text: string) => {
+        setQuoteCardText(text);
+        setSelectionTooltip(null);
+        window.getSelection()?.removeAllRanges();
+    };
+
+    const downloadQuoteCard = async () => {
+        if (!quoteCardRef.current) return;
+        setIsGeneratingQuote(true);
         try {
-            const saved = localStorage.getItem(`curation_highlights_${id}`);
-            if (saved) {
-                const parsed = JSON.parse(saved);
-                if (Array.isArray(parsed)) setHighlights(parsed);
-            }
-        } catch { }
+            await new Promise(r => setTimeout(r, 150));
+            const dataUrl = await toPng(quoteCardRef.current, { cacheBust: true, pixelRatio: 3, skipFonts: true });
+            const link = document.createElement('a');
+            link.download = `quote-${article?.id || 'card'}.png`;
+            link.href = dataUrl;
+            link.click();
+            toast.success("Quote card saved!");
+            setQuoteCardText(null);
+        } catch (err) {
+            console.error("Failed to generate quote card", err);
+            toast.error("Failed to generate image");
+        } finally {
+            setIsGeneratingQuote(false);
+        }
+    };
+
+    // Load highlights from IndexedDB
+    useEffect(() => {
+        getHighlightsAsync(id as string).then(saved => {
+            if (saved && Array.isArray(saved)) setHighlights(saved);
+        }).catch(() => {});
     }, [id]);
 
     const saveHighlight = (text: string) => {
         const newHighlight = { text, ts: Date.now() };
         const updated = [...highlights, newHighlight];
         setHighlights(updated);
-        try { localStorage.setItem(`curation_highlights_${id}`, JSON.stringify(updated)); } catch { }
+        saveHighlightsAsync(id as string, updated);
         setSelectionTooltip(null);
         window.getSelection()?.removeAllRanges();
         toast.success('Highlighted!');
@@ -210,7 +239,7 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
     const removeHighlight = (index: number) => {
         const updated = highlights.filter((_, i) => i !== index);
         setHighlights(updated);
-        try { localStorage.setItem(`curation_highlights_${id}`, JSON.stringify(updated)); } catch { }
+        saveHighlightsAsync(id as string, updated);
     };
 
     // Text selection listener for highlight tooltip
@@ -362,16 +391,7 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
                     const alreadyAutoMarked = sessionStorage.getItem(`auto_read_${id}`);
                     if (!alreadyAutoMarked) {
                         sessionStorage.setItem(`auto_read_${id}`, 'true');
-                        try {
-                            const vs = JSON.parse(localStorage.getItem('curation_visitor_state') || '{"read":{},"bookmarked":{}}');
-                            if (!vs.read[id]) {
-                                const history = JSON.parse(localStorage.getItem('curation_read_history') || '[]');
-                                history.push({ id, ts: Date.now() });
-                                localStorage.setItem('curation_read_history', JSON.stringify(history));
-                            }
-                            vs.read[id] = true;
-                            localStorage.setItem('curation_visitor_state', JSON.stringify(vs));
-                        } catch { }
+                        updateToReadArticleAsync(id as string).then(() => appendToReadHistoryAsync(id as string));
                         // Also persist to DB (fire-and-forget)
                         toggleReadStatus(id, false).catch(() => { });
                     }
@@ -647,28 +667,15 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
                 toast.success(article.isRead ? "Marked as unread" : "Marked as read", { id: toastId });
 
                 if (!article.isRead) {
-                    // Recording read for streak
-                    try {
-                        const history = JSON.parse(localStorage.getItem('curation_read_history') || '[]');
-                        const todayStr = new Date().toDateString();
-                        const alreadyReadToday = history.some((h: any) => h.id === article.id && new Date(h.ts).toDateString() === todayStr);
-                        if (!alreadyReadToday) {
-                            history.push({ id: article.id, ts: Date.now() });
-                            localStorage.setItem('curation_read_history', JSON.stringify(history));
-                        }
-                    } catch { }
+                    appendToReadHistoryAsync(article.id);
                 }
 
-                // Sync to visitor localStorage so feed page reflects this
-                try {
-                    const vs = JSON.parse(localStorage.getItem('curation_visitor_state') || '{"read":{},"bookmarked":{}}');
-                    if (article.isRead) {
-                        delete vs.read[article.id];
-                    } else {
-                        vs.read[article.id] = true;
-                    }
-                    localStorage.setItem('curation_visitor_state', JSON.stringify(vs));
-                } catch { }
+                // Sync to visitor IndexedDB so feed page reflects this
+                getVisitorState().then(vs => {
+                    if (article.isRead) delete vs.read[article.id];
+                    else vs.read[article.id] = true;
+                    saveVisitorStateAsync(vs);
+                });
 
                 setArticle({ ...article, isRead: !article.isRead } as Article);
             } else {
@@ -691,16 +698,8 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
             if (res.success) {
                 toast.success(article.isBookmarked ? "Removed from bookmarks" : "Saved to bookmarks", { id: toastId });
 
-                // Sync to visitor localStorage so feed page reflects this
-                try {
-                    const vs = JSON.parse(localStorage.getItem('curation_visitor_state') || '{"read":{},"bookmarked":{}}');
-                    if (article.isBookmarked) {
-                        delete vs.bookmarked[article.id];
-                    } else {
-                        vs.bookmarked[article.id] = true;
-                    }
-                    localStorage.setItem('curation_visitor_state', JSON.stringify(vs));
-                } catch { }
+                // Sync to visitor IndexedDB so feed page reflects this
+                toggleBookmarkedArticleAsync(article.id);
 
                 setArticle({ ...article, isBookmarked: !article.isBookmarked } as Article);
             } else {
@@ -1035,7 +1034,7 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
                     WebkitUserSelect: 'text', userSelect: 'text', WebkitTouchCallout: 'default',
                     '--reader-font-size': `${readerSettings.fontSize}px`,
                     '--reader-line-height': readerSettings.lineHeight,
-                    '--reader-font-family': readerSettings.fontFamily === 'serif' ? 'ui-serif, Georgia, Cambria, "Times New Roman", Times, serif' : 'ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif',
+                    '--reader-font-family': readerSettings.fontFamily === 'serif' ? 'ui-serif, Georgia, Cambria, "Times New Roman", Times, serif' : readerSettings.fontFamily === 'mono' ? 'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace' : 'ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif',
                     '--theme-text': THEMES[readerSettings.theme].text,
                     '--theme-quote-border': readerSettings.theme === 'night' ? '#333' : '#cbd5e1',
                     '--theme-quote-bg': readerSettings.theme === 'night' ? '#1e1e1e' : '#f8fafc',
@@ -1284,12 +1283,20 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
                                 top: `${selectionTooltip.y - 44}px`
                             }}
                         >
-                            <button
-                                onMouseDown={(e) => { e.preventDefault(); saveHighlight(selectionTooltip.text); }}
-                                className="flex items-center gap-1.5 px-3.5 py-2 bg-zinc-900 text-white rounded-xl text-[12px] font-bold shadow-xl hover:bg-zinc-800 active:scale-95 transition-all"
-                            >
-                                <span>✨</span> Highlight
-                            </button>
+                            <div className="flex items-center bg-zinc-900 rounded-xl shadow-xl overflow-hidden divide-x divide-zinc-700 pointer-events-auto">
+                                <button
+                                    onMouseDown={(e) => { e.preventDefault(); saveHighlight(selectionTooltip.text); }}
+                                    className="flex items-center gap-1.5 px-3.5 py-2 text-white text-[12px] font-bold hover:bg-zinc-800 active:bg-zinc-700 transition-all font-sans"
+                                >
+                                    <span>✨</span> Highlight
+                                </button>
+                                <button
+                                    onMouseDown={(e) => { e.preventDefault(); handleCreateQuoteCard(selectionTooltip.text); }}
+                                    className="flex items-center gap-1.5 px-3.5 py-2 text-white text-[12px] font-bold hover:bg-zinc-800 active:bg-zinc-700 transition-all font-sans"
+                                >
+                                    <span>📸</span> Quote
+                                </button>
+                            </div>
                             <div className="w-3 h-3 bg-zinc-900 rotate-45 mx-auto -mt-1.5" />
                         </motion.div>
                     )}
@@ -1561,6 +1568,12 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
                             >
                                 Sans
                             </button>
+                            <button
+                                onClick={() => setReaderSettings(prev => ({ ...prev, fontFamily: 'mono' }))}
+                                className={`flex-1 py-3 text-[14px] font-mono rounded-xl transition-all ${readerSettings.fontFamily === 'mono' ? 'bg-white shadow-sm text-blue-600' : 'text-zinc-500 hover:text-zinc-700'}`}
+                            >
+                                Mono
+                            </button>
                         </div>
                     </div>
 
@@ -1680,20 +1693,55 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
             {/* Collections Sheet */}
             <BottomSheet
                 isOpen={isCollectionsSheetOpen}
-                onClose={() => setIsCollectionsSheetOpen(false)}
+                onClose={() => { setIsCollectionsSheetOpen(false); setIsCreatingCollection(false); setNewCollectionName(""); }}
                 title="Save to Collection"
             >
                 <div className="flex flex-col gap-3 py-2 pb-6">
-                    {collections.length === 0 ? (
-                        <div className="text-center py-8">
-                            <p className="text-[14px] text-zinc-500 mb-4">You don't have any collections yet.</p>
-                            <Link
-                                href="/curation/collections"
-                                className="inline-flex items-center justify-center px-4 py-2 bg-black text-white text-[13px] font-bold rounded-full active:scale-95 transition-all"
-                            >
-                                <FolderPlus size={16} className="mr-2" />
-                                Create Collection
-                            </Link>
+                    {!isCreatingCollection && (
+                        <button
+                            onClick={() => setIsCreatingCollection(true)}
+                            className="flex items-center justify-center p-3 rounded-xl border border-dashed border-zinc-300 dark:border-zinc-700 hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-all text-blue-500 font-bold text-[13px] active:scale-95"
+                        >
+                            <FolderPlus size={16} className="mr-2" />
+                            Create New Folder
+                        </button>
+                    )}
+                    {isCreatingCollection && (
+                        <div className="flex flex-col p-4 rounded-xl border-2 border-dashed border-blue-200 dark:border-blue-500/30 bg-blue-50/50 dark:bg-blue-500/5">
+                            <input
+                                autoFocus
+                                value={newCollectionName}
+                                onChange={e => setNewCollectionName(e.target.value)}
+                                onKeyDown={async e => {
+                                    if (e.key === 'Enter' && newCollectionName.trim()) {
+                                        const newColl: Collection = {
+                                            id: `coll_${Date.now()}`,
+                                            name: newCollectionName.trim(),
+                                            description: "",
+                                            articleIds: article ? [article.id] : [],
+                                            createdAt: Date.now()
+                                        };
+                                        const updated = [newColl, ...collections];
+                                        setCollections(updated);
+                                        await saveCollectionsAsync(updated as any);
+                                        setNewCollectionName("");
+                                        setIsCreatingCollection(false);
+                                        toast.success('Folder created & article saved');
+                                    } else if (e.key === 'Escape') {
+                                        setIsCreatingCollection(false);
+                                        setNewCollectionName("");
+                                    }
+                                }}
+                                onBlur={() => { setIsCreatingCollection(false); setNewCollectionName(""); }}
+                                placeholder="Folder Name..."
+                                className="bg-transparent border-b border-blue-200 dark:border-blue-800 text-[14px] font-bold text-zinc-900 dark:text-zinc-100 placeholder:text-blue-300 dark:placeholder:text-blue-700 outline-none pb-1 w-full"
+                            />
+                            <span className="text-[10px] text-blue-400 font-medium mt-2">Press Enter to save</span>
+                        </div>
+                    )}
+                    {collections.length === 0 && !isCreatingCollection ? (
+                        <div className="text-center py-6">
+                            <p className="text-[13px] text-zinc-500">You don't have any folders yet.</p>
                         </div>
                     ) : (
                         collections.map(collection => {
@@ -1722,6 +1770,78 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
                             );
                         })
                     )}
+                </div>
+            </BottomSheet>
+
+            {/* Quote Card Sheet */}
+            <BottomSheet
+                isOpen={!!quoteCardText}
+                onClose={() => setQuoteCardText(null)}
+                title="Create Quote Card"
+                footer={
+                    <div className="flex justify-center w-full">
+                        <button
+                            onClick={downloadQuoteCard}
+                            disabled={isGeneratingQuote}
+                            className="w-full max-w-[280px] h-12 bg-black rounded-full flex items-center justify-center text-white font-semibold text-base shadow-lg active:scale-95 transition-all disabled:opacity-50"
+                        >
+                            {isGeneratingQuote ? (
+                                <Loader2 size={18} className="animate-spin" />
+                            ) : (
+                                <span className="flex items-center gap-2">
+                                    <Download size={18} /> Save Image
+                                </span>
+                            )}
+                        </button>
+                    </div>
+                }
+            >
+                <div className="py-4 flex flex-col items-center justify-center min-h-[300px]">
+                    {/* The Quote Card Canvas */}
+                    <div
+                        ref={quoteCardRef}
+                        className="w-[320px] aspect-[4/5] rounded-3xl p-8 flex flex-col items-start justify-center relative overflow-hidden shadow-2xl"
+                        style={{
+                            backgroundColor: readerSettings.theme === 'night' ? '#111015' : THEMES[readerSettings.theme].bg,
+                            color: THEMES[readerSettings.theme].text,
+                            backgroundImage: `linear-gradient(135deg, ${THEMES[readerSettings.theme].text}05 0%, ${THEMES[readerSettings.theme].bg} 100%)`,
+                        }}
+                    >
+                        {/* Decorative Quote Icon */}
+                        <MessageSquareQuote size={40} className="mb-6 opacity-20" style={{ color: THEMES[readerSettings.theme].text }} />
+                        
+                        {/* Quote Text */}
+                        <p
+                            className={`text-[20px] leading-[1.6] mb-8 relative z-10 ${readerSettings.fontFamily === 'serif' ? 'font-serif' : readerSettings.fontFamily === 'mono' ? 'font-mono' : 'font-sans'}`}
+                            style={{ fontWeight: readerSettings.fontFamily === 'serif' ? 500 : 700 }}
+                        >
+                            &ldquo;{quoteCardText}&rdquo;
+                        </p>
+                        
+                        {/* Attribution / Article Info */}
+                        <div className="mt-auto flex items-center gap-3 relative z-10 text-left w-full border-t pt-5" style={{ borderColor: `${THEMES[readerSettings.theme].text}22` }}>
+                            {article?.imageUrl && (
+                                <div className="w-9 h-9 rounded-full overflow-hidden relative shrink-0 shadow-sm">
+                                    <Image
+                                        src={article.imageUrl.startsWith('http') ? article.imageUrl : supabase ? supabase.storage.from('images').getPublicUrl(article.imageUrl).data.publicUrl : ''}
+                                        alt="Thumbnail"
+                                        fill
+                                        sizes="36px"
+                                        className="object-cover"
+                                        unoptimized
+                                    />
+                                </div>
+                            )}
+                            <div className="flex flex-col flex-1 min-w-0">
+                                <span className={`text-[12px] font-bold truncate line-clamp-1 leading-snug ${readerSettings.fontFamily === 'serif' ? 'font-serif' : readerSettings.fontFamily === 'mono' ? 'font-mono' : 'font-sans'}`}>
+                                    {article?.title}
+                                </span>
+                                <span className="text-[9px] uppercase tracking-widest font-bold opacity-40 font-sans mt-0.5">
+                                    {article?.category || 'Curation'}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </BottomSheet>
         </div>
