@@ -95,7 +95,7 @@ export default function ExplorePage() {
                 const trending = tD.articles || [], latest = lD.articles || [], all = aD.articles || [];
                 setTrendingArticles(trending);
                 setLatestArticles(latest);
-                setAllCount(all.length);
+                setAllCount(aD.totalCount || all.length);
                 const stats: Record<string, number> = {};
                 all.forEach((a: any) => { if (a.category) stats[a.category] = (stats[a.category] || 0) + 1; });
                 setCategoryStats(stats);
