@@ -1,11 +1,12 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
     Search, ArrowLeft, X, Loader2, FileText, Clock,
     ChevronRight, Flame, BookOpen, BarChart3, Hash,
-    Brain, Rocket, Coffee, Zap, TrendingUp, Sparkles
+    Brain, Rocket, Coffee, Zap, TrendingUp, Sparkles,
+    Star, Eye, CheckCheck
 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
@@ -34,8 +35,10 @@ const READING_LISTS = [
 function getReadingStats() {
     try {
         const vs = JSON.parse(localStorage.getItem("curation_visitor_state") || '{"read":{},"bookmarked":{}}');
-        return { readCount: Object.keys(vs.read || {}).length, bookmarkCount: Object.keys(vs.bookmarked || {}).length };
-    } catch { return { readCount: 0, bookmarkCount: 0 }; }
+        const readIds = new Set(Object.keys(vs.read || {}).filter((k: string) => vs.read[k]));
+        const savedIds = new Set(Object.keys(vs.bookmarked || {}).filter((k: string) => vs.bookmarked[k]));
+        return { readCount: readIds.size, bookmarkCount: savedIds.size, readIds, savedIds };
+    } catch { return { readCount: 0, bookmarkCount: 0, readIds: new Set<string>(), savedIds: new Set<string>() }; }
 }
 
 function getTopCategoryFromHistory(articles: any[]): string | null {
@@ -69,7 +72,7 @@ export default function ExplorePage() {
     const [isLoading, setIsLoading] = useState(true);
     const [isSearchingApi, setIsSearchingApi] = useState(false);
     const [mounted, setMounted] = useState(false);
-    const [readStats, setReadStats] = useState({ readCount: 0, bookmarkCount: 0 });
+    const [readStats, setReadStats] = useState<{ readCount: number; bookmarkCount: number; readIds: Set<string>; savedIds: Set<string> }>({ readCount: 0, bookmarkCount: 0, readIds: new Set(), savedIds: new Set() });
 
     const searchRef = useRef<HTMLInputElement>(null);
     const isShowingSearch = searchQuery.trim().length > 0 || activeCategory !== null;
@@ -126,27 +129,49 @@ export default function ExplorePage() {
         return () => clearTimeout(t);
     }, [searchQuery, activeCategory, activeSort]);
 
+    // Completion percentage
+    const completionPct = useMemo(() => {
+        if (!allCount) return 0;
+        return Math.round((readStats.readCount / allCount) * 100);
+    }, [readStats.readCount, allCount]);
+
     // ─── Renderers ───
 
-    const ArticleRow = ({ article, i, rank }: { article: any; i: number; rank?: boolean }) => (
-        <motion.div key={article.id} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.2, delay: i * 0.02 }}>
-            <Link href={`/curation/${article.id}`} className="group flex items-center gap-2.5 py-2 border-b border-zinc-100 dark:border-zinc-800/50 last:border-0 transition-colors">
-                {rank && <span className="text-[15px] font-bold text-zinc-200 dark:text-zinc-800 w-5 text-center shrink-0 tabular-nums">{i + 1}</span>}
-                <div className="w-10 h-10 rounded-md overflow-hidden bg-zinc-100 dark:bg-zinc-800/80 shrink-0 relative">
-                    {article.imageUrl ? <Image src={article.imageUrl} alt="" fill className="object-cover" /> : <div className="w-full h-full flex items-center justify-center text-zinc-400"><FileText size={14} /></div>}
-                </div>
-                <div className="flex-1 min-w-0">
-                    <h3 className="text-[12.5px] font-medium text-zinc-900 dark:text-zinc-100 leading-snug line-clamp-2">{article.title}</h3>
-                    <div className="flex items-center gap-1.5 mt-0.5">
-                        <span className="text-[10px] text-zinc-500">{article.category || "General"}</span>
-                        <span className="text-zinc-300 dark:text-zinc-700 text-[7px]">·</span>
-                        <span className="text-[10px] text-zinc-400">{readTime(article.content)}m</span>
+    const ArticleRow = ({ article, i, rank }: { article: any; i: number; rank?: boolean }) => {
+        const isRead = readStats.readIds.has(article.id);
+        const isSaved = readStats.savedIds.has(article.id);
+        return (
+            <motion.div key={article.id} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.2, delay: i * 0.02 }}>
+                <Link href={`/curation/${article.id}`} className={`group flex items-center gap-2.5 py-2 border-b border-zinc-100 dark:border-zinc-800/50 last:border-0 transition-colors ${isRead ? "opacity-60" : ""}`}>
+                    {rank && <span className="text-[15px] font-bold text-zinc-200 dark:text-zinc-800 w-5 text-center shrink-0 tabular-nums">{i + 1}</span>}
+                    <div className="w-10 h-10 rounded-md overflow-hidden bg-zinc-100 dark:bg-zinc-800/80 shrink-0 relative">
+                        {article.imageUrl ? <Image src={article.imageUrl} alt="" fill className="object-cover" /> : <div className="w-full h-full flex items-center justify-center text-zinc-400"><FileText size={14} /></div>}
                     </div>
-                </div>
-                <ChevronRight size={12} className="text-zinc-300 dark:text-zinc-700 shrink-0" />
-            </Link>
-        </motion.div>
-    );
+                    <div className="flex-1 min-w-0">
+                        <h3 className="text-[12.5px] font-medium text-zinc-900 dark:text-zinc-100 leading-snug line-clamp-2">{article.title}</h3>
+                        <div className="flex items-center gap-1.5 mt-0.5">
+                            <span className="text-[10px] text-zinc-500">{article.category || "General"}</span>
+                            <span className="text-zinc-300 dark:text-zinc-700 text-[7px]">·</span>
+                            <span className="text-[10px] text-zinc-400">{readTime(article.content)}m</span>
+                            {article.qualityScore != null && article.qualityScore >= 70 && (
+                                <>
+                                    <span className="text-zinc-300 dark:text-zinc-700 text-[7px]">·</span>
+                                    <span className="text-[10px] text-zinc-400 flex items-center gap-0.5"><Star size={8} />{article.qualityScore}</span>
+                                </>
+                            )}
+                            {isRead && (
+                                <>
+                                    <span className="text-zinc-300 dark:text-zinc-700 text-[7px]">·</span>
+                                    <span className="text-[10px] text-zinc-400 flex items-center gap-0.5"><CheckCheck size={9} />read</span>
+                                </>
+                            )}
+                        </div>
+                    </div>
+                    <ChevronRight size={12} className="text-zinc-300 dark:text-zinc-700 shrink-0" />
+                </Link>
+            </motion.div>
+        );
+    };
 
     const Skeleton = ({ n }: { n: number }) => (<>{Array(n).fill(0).map((_, i) => (
         <div key={i} className="flex items-center gap-2.5 py-2">
@@ -193,7 +218,7 @@ export default function ExplorePage() {
             </header>
 
             {/* ═══ CONTENT ═══ */}
-            <main className="max-w-2xl mx-auto px-4 pt-4 pb-32">
+            <main className="max-w-2xl mx-auto px-4 pt-6 pb-32">
                 <AnimatePresence mode="wait">
                     {isShowingSearch ? (
                         <motion.div key="search" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.15 }}>
@@ -211,16 +236,27 @@ export default function ExplorePage() {
                             )}
                         </motion.div>
                     ) : (
-                        <motion.div key="discover" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.15 }} className="space-y-6">
+                        <motion.div key="discover" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.15 }} className="space-y-8">
 
-                            {/* Reading Pulse */}
-                            {readStats.readCount > 0 && (
-                                <div className="flex items-center gap-2.5 py-2 px-3 rounded-lg bg-zinc-100/80 dark:bg-zinc-900/60 text-[11px]">
-                                    <BarChart3 size={13} className="text-zinc-400 shrink-0" />
-                                    <span className="text-zinc-600 dark:text-zinc-400">{readStats.readCount} read · {readStats.bookmarkCount} saved</span>
-                                    <span className="text-zinc-400 ml-auto text-[10px]">{allCount} total</span>
+                            {/* Reading Pulse — stats row style */}
+                            <div className="flex items-center bg-zinc-50 dark:bg-zinc-900/60 rounded-xl border border-zinc-200/50 dark:border-zinc-800/50 divide-x divide-zinc-200/60 dark:divide-zinc-800/60">
+                                <div className="flex-1 text-center py-0.5">
+                                    <span className="text-[16px] font-bold text-zinc-900 dark:text-zinc-100 tabular-nums">{allCount}</span>
+                                    <span className="text-[9px] text-zinc-500 ml-1.5">articles</span>
                                 </div>
-                            )}
+                                <div className="flex-1 text-center py-0.5">
+                                    <span className="text-[16px] font-bold text-zinc-900 dark:text-zinc-100 tabular-nums">{readStats.readCount}</span>
+                                    <span className="text-[9px] text-zinc-500 ml-1.5">read</span>
+                                </div>
+                                <div className="flex-1 text-center py-0.5">
+                                    <span className="text-[16px] font-bold text-zinc-900 dark:text-zinc-100 tabular-nums">{readStats.bookmarkCount}</span>
+                                    <span className="text-[9px] text-zinc-500 ml-1.5">saved</span>
+                                </div>
+                                <div className="flex-1 text-center py-0.5">
+                                    <span className="text-[16px] font-bold text-zinc-900 dark:text-zinc-100 tabular-nums">{completionPct}%</span>
+                                    <span className="text-[9px] text-zinc-500 ml-1.5">done</span>
+                                </div>
+                            </div>
 
                             {/* Picked For You */}
                             <section>
@@ -233,7 +269,10 @@ export default function ExplorePage() {
 
                             {/* Latest */}
                             <section>
-                                <Label><Clock size={11} className="inline mr-1 -mt-px" />Newly Added</Label>
+                                <div className="flex items-center justify-between mb-2">
+                                    <Label><Clock size={11} className="inline mr-1 -mt-px" />Newly Added</Label>
+                                    <span className="text-[10px] text-zinc-400">recent</span>
+                                </div>
                                 {isLoading ? <Skeleton n={4} /> : <div>{latestArticles.map((a, i) => <ArticleRow key={a.id} article={a} i={i} />)}</div>}
                             </section>
 
