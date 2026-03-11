@@ -5,7 +5,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
     Bookmark, BookOpen, ChevronRight, Clock, FileText,
     Flame, Hash, Loader2, ArrowLeft, TrendingUp,
-    Brain, Rocket, Coffee, Zap, Eye, BarChart3, Calendar
+    Brain, Rocket, Coffee, Zap, Eye, BarChart3, Calendar,
+    Star, Award
 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
@@ -67,6 +68,19 @@ function readTime(content?: string): number {
     return Math.max(1, Math.round(content.split(/\s+/).length / 200));
 }
 
+function timeAgo(ts: number): string {
+    const diff = Date.now() - ts;
+    const mins = Math.floor(diff / 60000);
+    if (mins < 1) return "just now";
+    if (mins < 60) return `${mins}m ago`;
+    const hrs = Math.floor(mins / 60);
+    if (hrs < 24) return `${hrs}h ago`;
+    const days = Math.floor(hrs / 24);
+    if (days < 7) return `${days}d ago`;
+    const weeks = Math.floor(days / 7);
+    return `${weeks}w ago`;
+}
+
 const DAY_LABELS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
 // ─── Component ───
@@ -120,14 +134,31 @@ export default function LibraryPage() {
     }, [readArticles]);
 
     // Sort read articles by read timestamp (most recent first)
+    const historyMap = useMemo(() => new Map(history.map(h => [h.id, h.ts])), [history]);
     const sortedReadArticles = useMemo(() => {
-        const historyMap = new Map(history.map(h => [h.id, h.ts]));
         return [...readArticles].sort((a, b) => (historyMap.get(b.id) || 0) - (historyMap.get(a.id) || 0));
-    }, [readArticles, history]);
+    }, [readArticles, historyMap]);
+
+    // Best article (highest quality score read)
+    const bestArticle = useMemo(() => {
+        if (!readArticles.length) return null;
+        return readArticles.reduce((best, a) => (a.qualityScore || 0) > (best.qualityScore || 0) ? a : best, readArticles[0]);
+    }, [readArticles]);
+
+    // Group saved by category
+    const savedByCategory = useMemo(() => {
+        const grouped: Record<string, any[]> = {};
+        savedArticles.forEach(a => {
+            const cat = a.category || "General";
+            if (!grouped[cat]) grouped[cat] = [];
+            grouped[cat].push(a);
+        });
+        return Object.entries(grouped).sort(([, a], [, b]) => b.length - a.length);
+    }, [savedArticles]);
 
     // ─── Renderers ───
 
-    const ArticleRow = ({ article, i }: { article: any; i: number }) => (
+    const ArticleRow = ({ article, i, showTime }: { article: any; i: number; showTime?: boolean }) => (
         <motion.div key={article.id} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.2, delay: i * 0.02 }}>
             <Link href={`/curation/${article.id}`} className="group flex items-center gap-2.5 py-2 border-b border-zinc-100 dark:border-zinc-800/50 last:border-0 transition-colors">
                 <div className="w-10 h-10 rounded-md overflow-hidden bg-zinc-100 dark:bg-zinc-800/80 shrink-0 relative">
@@ -138,7 +169,19 @@ export default function LibraryPage() {
                     <div className="flex items-center gap-1.5 mt-0.5">
                         <span className="text-[10px] text-zinc-500">{article.category || "General"}</span>
                         <span className="text-zinc-300 dark:text-zinc-700 text-[7px]">·</span>
-                        <span className="text-[10px] text-zinc-400">{readTime(article.content)}m read</span>
+                        <span className="text-[10px] text-zinc-400">{readTime(article.content)}m</span>
+                        {showTime && historyMap.has(article.id) && (
+                            <>
+                                <span className="text-zinc-300 dark:text-zinc-700 text-[7px]">·</span>
+                                <span className="text-[10px] text-zinc-400">{timeAgo(historyMap.get(article.id)!)}</span>
+                            </>
+                        )}
+                        {article.qualityScore != null && article.qualityScore >= 70 && (
+                            <>
+                                <span className="text-zinc-300 dark:text-zinc-700 text-[7px]">·</span>
+                                <span className="text-[10px] text-zinc-400 flex items-center gap-0.5"><Star size={8} />{article.qualityScore}</span>
+                            </>
+                        )}
                     </div>
                 </div>
                 <ChevronRight size={12} className="text-zinc-300 dark:text-zinc-700 shrink-0" />
@@ -217,27 +260,51 @@ export default function LibraryPage() {
                             {/* ── Weekly Activity ── */}
                             <section>
                                 <Label><Calendar size={11} className="inline mr-1 -mt-px" />This Week</Label>
-                                <div className="flex items-end gap-1.5 h-16 px-1">
+                                <div className="flex items-end gap-1.5 px-1">
                                     {weeklyActivity.map((count, i) => {
                                         const maxCount = Math.max(...weeklyActivity, 1);
-                                        const heightPct = Math.max(8, (count / maxCount) * 100);
+                                        const heightPct = Math.max(10, (count / maxCount) * 100);
                                         const today = new Date().getDay();
-                                        // Shift labels so today is last
                                         const dayIdx = (today - 6 + i + 7) % 7;
+                                        const isToday = i === 6;
                                         return (
                                             <div key={i} className="flex-1 flex flex-col items-center gap-1">
-                                                <div className="w-full relative flex items-end justify-center" style={{ height: "40px" }}>
+                                                {count > 0 && (
+                                                    <span className="text-[8px] text-zinc-500 tabular-nums font-medium">{count}</span>
+                                                )}
+                                                <div className="w-full flex items-end justify-center" style={{ height: "32px" }}>
                                                     <div
-                                                        className={`w-full rounded-sm transition-all ${count > 0 ? "bg-zinc-800 dark:bg-zinc-200" : "bg-zinc-200 dark:bg-zinc-800"}`}
-                                                        style={{ height: `${heightPct}%`, minHeight: "3px" }}
+                                                        className={`w-full rounded-[3px] transition-all ${count > 0 ? (isToday ? "bg-zinc-900 dark:bg-zinc-100" : "bg-zinc-600 dark:bg-zinc-400") : "bg-zinc-200 dark:bg-zinc-800"}`}
+                                                        style={{ height: `${heightPct}%`, minHeight: "4px" }}
                                                     />
                                                 </div>
-                                                <span className="text-[8px] text-zinc-400 uppercase">{DAY_LABELS[dayIdx]}</span>
+                                                <span className={`text-[8px] uppercase ${isToday ? "text-zinc-900 dark:text-zinc-100 font-semibold" : "text-zinc-400"}`}>{DAY_LABELS[dayIdx]}</span>
                                             </div>
                                         );
                                     })}
                                 </div>
                             </section>
+
+                            {/* ── Best Read ── */}
+                            {bestArticle && bestArticle.qualityScore >= 50 && (
+                                <section>
+                                    <Label><Award size={11} className="inline mr-1 -mt-px" />Highest Rated Read</Label>
+                                    <Link href={`/curation/${bestArticle.id}`} className="flex items-center gap-3 p-3 rounded-xl bg-zinc-50 dark:bg-zinc-900/50 border border-zinc-200/50 dark:border-zinc-800/50 group hover:border-zinc-300 dark:hover:border-zinc-700 transition-all">
+                                        <div className="w-12 h-12 rounded-lg overflow-hidden bg-zinc-100 dark:bg-zinc-800 shrink-0 relative">
+                                            {bestArticle.imageUrl ? <Image src={bestArticle.imageUrl} alt="" fill className="object-cover" /> : <div className="w-full h-full flex items-center justify-center text-zinc-400"><FileText size={16} /></div>}
+                                        </div>
+                                        <div className="flex-1 min-w-0">
+                                            <h3 className="text-[13px] font-semibold text-zinc-900 dark:text-zinc-100 leading-snug line-clamp-2">{bestArticle.title}</h3>
+                                            <div className="flex items-center gap-1.5 mt-0.5">
+                                                <span className="text-[10px] text-zinc-500">{bestArticle.category || "General"}</span>
+                                                <span className="text-zinc-300 dark:text-zinc-700 text-[7px]">·</span>
+                                                <span className="text-[10px] text-zinc-400 flex items-center gap-0.5"><Star size={8} /> {bestArticle.qualityScore} quality</span>
+                                            </div>
+                                        </div>
+                                        <ChevronRight size={14} className="text-zinc-300 dark:text-zinc-700 shrink-0" />
+                                    </Link>
+                                </section>
+                            )}
 
                             {/* ── Category Breakdown ── */}
                             {categoryBreakdown.length > 0 && (
@@ -259,7 +326,12 @@ export default function LibraryPage() {
                                                             <span className="text-[10px] text-zinc-400 tabular-nums">{count} · {pct}%</span>
                                                         </div>
                                                         <div className="h-1 bg-zinc-100 dark:bg-zinc-800 rounded-full overflow-hidden">
-                                                            <div className="h-full bg-zinc-700 dark:bg-zinc-300 rounded-full transition-all" style={{ width: `${pct}%` }} />
+                                                            <motion.div
+                                                                initial={{ width: 0 }}
+                                                                animate={{ width: `${pct}%` }}
+                                                                transition={{ duration: 0.6, delay: 0.1, ease: "easeOut" }}
+                                                                className="h-full bg-zinc-700 dark:bg-zinc-300 rounded-full"
+                                                            />
                                                         </div>
                                                     </div>
                                                 </div>
@@ -269,11 +341,11 @@ export default function LibraryPage() {
                                 </section>
                             )}
 
-                            {/* ── Recently Read ── */}
+                            {/* ── Reading History ── */}
                             <section>
                                 <Label><BookOpen size={11} className="inline mr-1 -mt-px" />Reading History</Label>
                                 {isLoading ? <Skeleton n={5} /> : sortedReadArticles.length > 0 ? (
-                                    <div>{sortedReadArticles.slice(0, 15).map((a, i) => <ArticleRow key={a.id} article={a} i={i} />)}</div>
+                                    <div>{sortedReadArticles.slice(0, 20).map((a, i) => <ArticleRow key={a.id} article={a} i={i} showTime />)}</div>
                                 ) : (
                                     <div className="py-12 text-center">
                                         <BookOpen size={24} className="mx-auto text-zinc-300 dark:text-zinc-700 mb-2" />
@@ -285,15 +357,38 @@ export default function LibraryPage() {
 
                         </motion.div>
                     ) : (
-                        <motion.div key="saved" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.15 }} className="space-y-4">
+                        <motion.div key="saved" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.15 }} className="space-y-6">
 
-                            {/* Saved count */}
-                            <div className="flex items-center justify-between px-1">
-                                <span className="text-[11px] text-zinc-400">{savedArticles.length} saved articles</span>
+                            {/* Saved summary */}
+                            <div className="flex items-center bg-zinc-50 dark:bg-zinc-900/60 rounded-xl border border-zinc-200/50 dark:border-zinc-800/50 divide-x divide-zinc-200/60 dark:divide-zinc-800/60">
+                                <div className="flex-1 text-center py-0.5">
+                                    <span className="text-[16px] font-bold text-zinc-900 dark:text-zinc-100 tabular-nums">{savedArticles.length}</span>
+                                    <span className="text-[9px] text-zinc-500 ml-1.5">saved</span>
+                                </div>
+                                <div className="flex-1 text-center py-0.5">
+                                    <span className="text-[16px] font-bold text-zinc-900 dark:text-zinc-100 tabular-nums">{savedByCategory.length}</span>
+                                    <span className="text-[9px] text-zinc-500 ml-1.5">categories</span>
+                                </div>
+                                <div className="flex-1 text-center py-0.5">
+                                    <span className="text-[16px] font-bold text-zinc-900 dark:text-zinc-100 tabular-nums">{savedArticles.reduce((s, a) => s + readTime(a.content), 0)}</span>
+                                    <span className="text-[9px] text-zinc-500 ml-1.5">min total</span>
+                                </div>
                             </div>
 
+                            {/* Saved articles grouped by category */}
                             {isLoading ? <Skeleton n={5} /> : savedArticles.length > 0 ? (
-                                <div>{savedArticles.map((a, i) => <ArticleRow key={a.id} article={a} i={i} />)}</div>
+                                savedByCategory.map(([cat, articles]) => (
+                                    <section key={cat}>
+                                        <div className="flex items-center justify-between mb-2">
+                                            <Label>
+                                                {CATEGORIES[cat] ? React.createElement(CATEGORIES[cat].icon, { size: 11, className: "inline mr-1 -mt-px" }) : null}
+                                                {cat}
+                                            </Label>
+                                            <span className="text-[10px] text-zinc-400 tabular-nums">{articles.length}</span>
+                                        </div>
+                                        <div>{articles.map((a: any, i: number) => <ArticleRow key={a.id} article={a} i={i} />)}</div>
+                                    </section>
+                                ))
                             ) : (
                                 <div className="py-16 text-center">
                                     <Bookmark size={24} className="mx-auto text-zinc-300 dark:text-zinc-700 mb-2" />
