@@ -104,6 +104,7 @@ export default function LibraryPage() {
         (async () => {
             try {
                 const res = await fetch("/api/curation?limit=999&sort=latest");
+                if (!res.ok) throw new Error(`API ${res.status}`);
                 const data = await res.json();
                 if (data.articles) setAllArticles(data.articles);
             } catch (err) { console.error("Library fetch error:", err); }
