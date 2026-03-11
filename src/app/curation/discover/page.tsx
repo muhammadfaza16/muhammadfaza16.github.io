@@ -1,24 +1,25 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import {
     Search,
     TrendingUp,
-    Sparkles,
     ChevronRight,
-    Hash,
     Zap,
     Brain,
     Rocket,
-    Globe,
     Coffee,
     ArrowLeft,
     X,
     Loader2,
-    FileText
+    FileText,
+    SlidersHorizontal,
+    BookOpen,
+    Clock,
+    Sparkles,
+    Flame
 } from "lucide-react";
-import { DevPlaceholder } from "@/components/curation/DevPlaceholder";
 import Link from "next/link";
 import Image from "next/image";
 
@@ -30,35 +31,61 @@ const TOPICS = [
     { name: "Growth & Systems", icon: TrendingUp },
 ];
 
+const STARTER_PACKS = [
+    { title: "Mastering Focus", category: "Productivity & Deep Work", color: "from-blue-500/20 to-indigo-500/20", icon: Zap },
+    { title: "Naval's Anthology", category: "Philosophy & Psychology", color: "from-amber-500/20 to-orange-500/20", icon: Coffee },
+    { title: "Future of Agentic Tech", category: "AI & Tech", color: "from-emerald-500/20 to-teal-500/20", icon: Brain },
+];
+
 export default function ExplorePage() {
     const [searchQuery, setSearchQuery] = useState("");
     const [isSearching, setIsSearching] = useState(false);
-    const [trendingArticles, setTrendingArticles] = useState<any[]>([]);
-    const [isLoading, setIsLoading] = useState(true);
+
+    // Data States
+    const [forYouArticles, setForYouArticles] = useState<any[]>([]);
+    const [searchResults, setSearchResults] = useState<any[]>([]);
+
+    // UI States
+    const [isLoadingInit, setIsLoadingInit] = useState(true);
+    const [isSearchingApi, setIsSearchingApi] = useState(false);
+    const [mounted, setMounted] = useState(false);
+    const [activeFilter, setActiveFilter] = useState<'popularity' | 'latest'>('popularity');
+
     const searchRef = useRef<HTMLInputElement>(null);
 
+    // Initial Data Fetch (For You)
     useEffect(() => {
-        // Mock fetch trending
-        const fetchTrending = async () => {
+        setMounted(true);
+        const fetchInitialData = async () => {
             try {
-                const res = await fetch("/api/curation?limit=4&sort=popularity");
+                // 1. Check Local Storage for tastes
+                let topCategory = "Wealth & Business"; // Default fallback
+                const raw = localStorage.getItem("curation_visitor_state");
+                if (raw) {
+                    const state = JSON.parse(raw);
+                    // Mocking simple category pref logic for now. 
+                    // If they have reads, assume they like the default or we could hit an API that calculates it. 
+                    // For the sake of this UI, we just fetch popular items and label them "For You" based on a generic check, or we literally pass a category.
+                    // Let's just fetch top popularity for now to simulate personalized top picks
+                }
+
+                // 2. Fetch "For You"
+                const res = await fetch(`/api/curation?limit=4&sort=popularity`);
                 const data = await res.json();
-                if (data.articles) setTrendingArticles(data.articles);
+                if (data.articles) setForYouArticles(data.articles);
             } catch (err) {
-                console.error("Failed to fetch trending:", err);
+                console.error("Failed to fetch initial explore data:", err);
             } finally {
-                setIsLoading(false);
+                setIsLoadingInit(false);
             }
         };
-        fetchTrending();
+        fetchInitialData();
     }, []);
 
-    // --- Search Logic ---
-    const [searchResults, setSearchResults] = useState<any[]>([]);
-    const [isSearchingApi, setIsSearchingApi] = useState(false);
-
+    // Search Logic
     useEffect(() => {
-        if (!searchQuery.trim()) {
+        if (!searchQuery.trim() && activeFilter === 'popularity') {
+            // If empty and default filter, no need to show search results over original UI
             setSearchResults([]);
             return;
         }
@@ -66,15 +93,16 @@ export default function ExplorePage() {
         const delayDebounceFn = setTimeout(async () => {
             setIsSearchingApi(true);
             try {
-                // Fetch up to 10 articles based on search/category
                 const isTopic = TOPICS.some(t => t.name.toLowerCase() === searchQuery.toLowerCase()) ||
                     searchQuery.startsWith("AI") || searchQuery.startsWith("Wealth") || searchQuery.startsWith("Philosophy") || searchQuery.startsWith("Productivity") || searchQuery.startsWith("Growth");
 
-                let url = `/api/curation?limit=10&sort=popularity`;
-                if (isTopic) {
-                    url += `&category=${encodeURIComponent(searchQuery)}`;
-                } else {
-                    url += `&q=${encodeURIComponent(searchQuery)}`;
+                let url = `/api/curation?limit=10&sort=${activeFilter}`;
+                if (searchQuery.trim()) {
+                    if (isTopic) {
+                        url += `&category=${encodeURIComponent(searchQuery)}`;
+                    } else {
+                        url += `&q=${encodeURIComponent(searchQuery)}`;
+                    }
                 }
 
                 const res = await fetch(url);
@@ -85,43 +113,70 @@ export default function ExplorePage() {
             } finally {
                 setIsSearchingApi(false);
             }
-        }, 300); // 300ms debounce
+        }, 300);
 
         return () => clearTimeout(delayDebounceFn);
-    }, [searchQuery]);
+    }, [searchQuery, activeFilter]);
 
+    // Animation Variants
     const containerVariants = {
         hidden: { opacity: 0 },
-        visible: {
-            opacity: 1,
-            transition: {
-                staggerChildren: 0.1,
-                delayChildren: 0.2
-            }
-        }
+        visible: { opacity: 1, transition: { staggerChildren: 0.1 } }
+    };
+    const itemVariants = {
+        hidden: { opacity: 0, y: 10 },
+        visible: { opacity: 1, y: 0, transition: { duration: 0.4 } }
     };
 
-    const itemVariants = {
-        hidden: { opacity: 0, y: 20 },
-        visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: "easeOut" } }
-    };
+    // Helper to render compact article cards
+    const renderCompactArticle = (article: any, i: number) => (
+        <motion.div
+            key={article.id}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3, delay: i * 0.05 }}
+        >
+            <Link
+                href={`/curation/${article.id}`}
+                className="group flex gap-4 p-3 m-1 bg-white dark:bg-zinc-900/40 border border-zinc-200/60 dark:border-zinc-800/60 rounded-2xl hover:border-zinc-300 dark:hover:border-zinc-700 transition-all active:scale-[0.99]"
+            >
+                <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-xl overflow-hidden bg-zinc-100 dark:bg-zinc-800 shrink-0 relative border border-zinc-200/40 dark:border-zinc-700/40">
+                    {article.imageUrl ? (
+                        <Image src={article.imageUrl} alt="" fill className="object-cover group-hover:scale-105 transition-transform duration-700" />
+                    ) : (
+                        <div className="w-full h-full flex items-center justify-center text-zinc-400">
+                            <FileText size={20} />
+                        </div>
+                    )}
+                </div>
+                <div className="flex-1 min-w-0 pr-2 flex flex-col justify-center">
+                    <div className="flex items-center gap-2 mb-1.5 line-clamp-1">
+                        <span className="text-[9px] sm:text-[10px] font-medium uppercase tracking-[0.05em] text-blue-600 dark:text-blue-400">
+                            {article.category || "General"}
+                        </span>
+                        <span className="text-zinc-300 dark:text-zinc-700">•</span>
+                        <span className="text-[9px] sm:text-[10px] font-medium text-zinc-400 flex items-center gap-1">
+                            <Clock size={10} /> 5 min read
+                        </span>
+                    </div>
+                    <h3 className="text-[14px] sm:text-[15px] font-medium text-zinc-900 dark:text-zinc-100 leading-snug line-clamp-2" style={{ fontFamily: "'Playfair Display', serif" }}>
+                        {article.title}
+                    </h3>
+                </div>
+            </Link>
+        </motion.div>
+    );
 
     return (
         <div className="min-h-screen bg-[#fafaf8] dark:bg-[#050505] text-zinc-900 dark:text-zinc-100 selection:bg-blue-100 dark:selection:bg-blue-900/30">
-            {/* ═══ TOP STICKY SEARCH BAR ═══ */}
-            <header className="sticky top-0 z-50 bg-[#fafaf8]/15 dark:bg-[#050505]/20 backdrop-blur-xl px-5 py-4 border-b border-zinc-200/40 dark:border-zinc-800/40">
-                <div className="max-w-2xl mx-auto flex items-center gap-4">
-                    <Link
-                        href="/curation"
-                        className="w-10 h-10 flex items-center justify-center text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 active:scale-90 rounded-full transition-all"
-                    >
+            {/* ═══ TOP STICKY SEARCH BAR + FILTERS ═══ */}
+            <header className="sticky top-0 z-50 bg-[#fafaf8]/80 dark:bg-[#050505]/80 backdrop-blur-xl border-b border-zinc-200/40 dark:border-zinc-800/40 pb-3">
+                <div className="px-5 pt-4 max-w-2xl mx-auto flex items-center gap-4">
+                    <Link href="/curation" className="w-10 h-10 flex items-center justify-center text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 active:scale-90 rounded-full transition-all">
                         <ArrowLeft size={20} />
                     </Link>
                     <div className="relative flex-1 group">
-                        <Search
-                            size={18}
-                            className={`absolute left-4 top-1/2 -translate-y-1/2 transition-colors duration-300 ${isSearching ? 'text-zinc-900 dark:text-zinc-100' : 'text-zinc-400'}`}
-                        />
+                        <Search size={18} className={`absolute left-4 top-1/2 -translate-y-1/2 transition-colors duration-300 ${isSearching ? 'text-zinc-900 dark:text-zinc-100' : 'text-zinc-400'}`} />
                         <input
                             ref={searchRef}
                             type="text"
@@ -130,213 +185,130 @@ export default function ExplorePage() {
                             onChange={(e) => setSearchQuery(e.target.value)}
                             onFocus={() => setIsSearching(true)}
                             onBlur={() => setIsSearching(false)}
-                            className="w-full h-11 pl-11 pr-4 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl text-[14px] outline-none focus:border-zinc-300 dark:focus:border-zinc-700 transition-all placeholder:text-zinc-400"
+                            className="w-full h-11 pl-11 pr-4 bg-white dark:bg-zinc-900/80 border border-zinc-200 dark:border-zinc-800 rounded-xl text-[14px] outline-none focus:border-zinc-300 dark:focus:border-zinc-700 transition-all placeholder:text-zinc-400 shadow-sm"
                         />
                         {searchQuery && (
-                            <button
-                                onClick={() => setSearchQuery("")}
-                                className="absolute right-4 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 p-1"
-                            >
+                            <button onClick={() => setSearchQuery("")} className="absolute right-4 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 p-1">
                                 <X size={16} />
                             </button>
                         )}
                     </div>
                 </div>
+
+                {/* Filter Chips - Horizontal Scroll */}
+                <div className="px-5 mt-3 max-w-2xl mx-auto flex gap-2 overflow-x-auto no-scrollbar mask-linear-right pb-1">
+                    <button className="flex items-center justify-center w-8 h-8 shrink-0 rounded-full bg-zinc-100 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400 border border-zinc-200 dark:border-zinc-700">
+                        <SlidersHorizontal size={14} />
+                    </button>
+                    <button
+                        onClick={() => setActiveFilter('popularity')}
+                        className={`flex items-center gap-1.5 px-3.5 h-8 shrink-0 rounded-full text-[12px] font-medium transition-colors border ${activeFilter === 'popularity' ? 'bg-zinc-900 text-white border-zinc-900 dark:bg-white dark:text-zinc-900 dark:border-white' : 'bg-white text-zinc-600 border-zinc-200 dark:bg-zinc-900/50 dark:text-zinc-400 dark:border-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-800'}`}
+                    >
+                        <Flame size={12} className={activeFilter === 'popularity' ? 'animate-pulse' : ''} /> Popular
+                    </button>
+                    <button
+                        onClick={() => setActiveFilter('latest')}
+                        className={`flex items-center gap-1.5 px-3.5 h-8 shrink-0 rounded-full text-[12px] font-medium transition-colors border ${activeFilter === 'latest' ? 'bg-zinc-900 text-white border-zinc-900 dark:bg-white dark:text-zinc-900 dark:border-white' : 'bg-white text-zinc-600 border-zinc-200 dark:bg-zinc-900/50 dark:text-zinc-400 dark:border-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-800'}`}
+                    >
+                        <Clock size={12} /> Latest
+                    </button>
+                    <div className="w-[1px] h-4 bg-zinc-200 dark:bg-zinc-800 my-auto mx-1 shrink-0" />
+                    {TOPICS.map(topic => (
+                        <button key={topic.name} onClick={() => setSearchQuery(topic.name)} className="flex items-center gap-1.5 px-3.5 h-8 shrink-0 rounded-full bg-white dark:bg-zinc-900/50 text-zinc-600 dark:text-zinc-400 border border-zinc-200 dark:border-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors text-[12px] font-medium">
+                            {topic.name}
+                        </button>
+                    ))}
+                </div>
             </header>
 
-            <main className="max-w-2xl mx-auto px-5 py-8 space-y-12">
-                <DevPlaceholder />
-                {/* ═══ TRENDING TOPICS (Horizontal Scroll) ═══ */}
-                <motion.section
-                    initial="hidden"
-                    animate="visible"
-                    variants={containerVariants as any}
-                    className="space-y-4"
-                >
-                    <div className="flex items-center justify-between">
-                        <h2 className="text-[13px] font-medium text-zinc-500 flex items-center gap-2 px-1">
-                            Discover Topics
-                        </h2>
-                    </div>
-                    <div className="flex gap-2 overflow-x-auto no-scrollbar pb-2 mask-linear">
-                        {TOPICS.map((topic, i) => (
-                            <motion.button
-                                key={topic.name}
-                                variants={itemVariants as any}
-                                whileHover={{ scale: 1.01 }}
-                                whileTap={{ scale: 0.98 }}
-                                onClick={() => setSearchQuery(topic.name)}
-                                className={`flex items-center gap-2.5 px-4 py-3 rounded-xl whitespace-nowrap border border-zinc-200/60 dark:border-zinc-800/60 transition-all bg-white dark:bg-zinc-900/40 hover:bg-zinc-50 dark:hover:bg-zinc-800`}
-                            >
-                                <topic.icon size={16} className="text-zinc-400" />
-                                <span className="text-[14px] font-medium text-zinc-800 dark:text-zinc-200">{topic.name}</span>
-                            </motion.button>
-                        ))}
-                    </div>
-                </motion.section>
+            {!mounted ? (
+                <div className="min-h-[50vh] flex items-center justify-center">
+                    <Loader2 className="animate-spin text-zinc-400" size={24} />
+                </div>
+            ) : (
+                <main className="max-w-2xl mx-auto px-5 py-8 space-y-10">
 
-                {/* ═══ SEARCH RESULTS OR DEFAULT CURATED ═══ */}
-                {searchQuery.trim() ? (
-                    <section className="space-y-5">
-                        <div className="flex items-center justify-between px-1">
-                            <h2 className="text-[13px] font-medium text-zinc-500">
-                                Search Results
+                    {/* SEARCH RESULTS MODE vs DISCOVER MODE */}
+                    {searchQuery.trim() || activeFilter !== 'popularity' ? (
+                        <motion.section initial="hidden" animate="visible" variants={containerVariants as any} className="space-y-4">
+                            <h2 className="text-[13px] font-medium text-zinc-500 px-1 mb-2 flex items-center justify-between">
+                                <span>Search Results</span>
+                                <span className="text-[11px] font-normal text-zinc-400">{searchResults.length} articles</span>
                             </h2>
-                        </div>
-
-                        <div className="space-y-4">
                             {isSearchingApi ? (
-                                Array(3).fill(0).map((_, i) => (
-                                    <div key={i} className="h-24 bg-white dark:bg-zinc-900 rounded-3xl border border-zinc-100 dark:border-zinc-800 animate-pulse" />
-                                ))
+                                Array(4).fill(0).map((_, i) => <div key={i} className="h-24 m-1 bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-100 dark:border-zinc-800 animate-pulse" />)
                             ) : searchResults.length > 0 ? (
-                                searchResults.map((article, i) => (
-                                    <motion.div
-                                        key={article.id}
-                                        initial={{ opacity: 0, x: -10 }}
-                                        animate={{ opacity: 1, x: 0 }}
-                                        transition={{ delay: i * 0.05 }}
-                                    >
-                                        <Link
-                                            href={`/curation/${article.id}`}
-                                            className="group block p-3.5 bg-white dark:bg-zinc-900/40 border border-zinc-200/60 dark:border-zinc-800/60 rounded-2xl hover:border-zinc-300 dark:hover:border-zinc-700 transition-all relative overflow-hidden active:scale-[0.99]"
-                                        >
-                                            <div className="flex gap-5 items-center">
-                                                <div className="w-16 h-16 rounded-xl overflow-hidden bg-zinc-100 dark:bg-zinc-800 shrink-0 relative border border-zinc-200/40 dark:border-zinc-700/40">
-                                                    {article.imageUrl ? (
-                                                        <Image
-                                                            src={article.imageUrl}
-                                                            alt=""
-                                                            fill
-                                                            className="object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
-                                                        />
-                                                    ) : (
-                                                        <div className="w-full h-full flex items-center justify-center text-zinc-400">
-                                                            <FileText size={20} />
-                                                        </div>
-                                                    )}
-                                                </div>
-                                                <div className="flex-1 min-w-0 pr-4">
-                                                    <div className="flex items-center gap-2 mb-1">
-                                                        <span className="text-[10px] font-medium uppercase tracking-[0.1em] text-zinc-500">
-                                                            {article.category || "General"}
-                                                        </span>
-                                                        <span className="text-zinc-200 dark:text-zinc-800">•</span>
-                                                        <span className="text-[10px] font-medium text-zinc-400">
-                                                            {new Date(article.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
-                                                        </span>
-                                                    </div>
-                                                    <h3 className="text-[15px] font-medium text-zinc-900 dark:text-zinc-100 leading-snug line-clamp-2" style={{ fontFamily: "'Playfair Display', serif" }}>
-                                                        {article.title}
-                                                    </h3>
-                                                </div>
-                                                <div className="absolute right-4 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all">
-                                                    <ChevronRight className="text-zinc-400" />
-                                                </div>
-                                            </div>
-                                        </Link>
-                                    </motion.div>
-                                ))
+                                searchResults.map(renderCompactArticle)
                             ) : (
-                                <div className="py-10 text-center text-zinc-500 text-[14px]">
+                                <div className="py-16 text-center text-zinc-500 text-[14px] flex flex-col items-center gap-3">
+                                    <Search size={32} className="text-zinc-300 dark:text-zinc-700" />
                                     No results found for "{searchQuery}"
                                 </div>
                             )}
-                        </div>
-                    </section>
-                ) : (
-                    <>
-                        {/* ═══ RECENTLY CURATED ═══ */}
-                        <section className="space-y-5">
-                            <div className="flex items-center justify-between px-1">
-                                <h2 className="text-[13px] font-medium text-zinc-500">
-                                    Recently Curated
+                        </motion.section>
+                    ) : (
+                        <motion.div initial="hidden" animate="visible" variants={containerVariants as any} className="space-y-12">
+
+                            {/* ═══ FOR YOU / PERSONALIZED ═══ */}
+                            <section>
+                                <h2 className="text-[13px] font-medium text-zinc-900 dark:text-zinc-100 px-1 mb-4 flex items-center gap-2">
+                                    <Sparkles size={16} className="text-yellow-500" />
+                                    Picked For You
                                 </h2>
-                                <Link href="/curation" className="text-[12px] font-medium text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 flex items-center gap-1 group transition-colors">
-                                    View all <ChevronRight size={14} className="group-hover:translate-x-0.5 transition-transform" />
-                                </Link>
-                            </div>
+                                <div className="space-y-2">
+                                    {isLoadingInit ? (
+                                        Array(3).fill(0).map((_, i) => <div key={i} className="h-24 m-1 bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-100 dark:border-zinc-800 animate-pulse" />)
+                                    ) : (
+                                        forYouArticles.slice(0, 3).map(renderCompactArticle)
+                                    )}
+                                </div>
+                            </section>
 
-                            <div className="space-y-4">
-                                {isLoading ? (
-                                    Array(3).fill(0).map((_, i) => (
-                                        <div key={i} className="h-24 bg-white dark:bg-zinc-900 rounded-3xl border border-zinc-100 dark:border-zinc-800 animate-pulse" />
-                                    ))
-                                ) : (
-                                    trendingArticles.map((article, i) => (
-                                        <motion.div
-                                            key={article.id}
-                                            initial={{ opacity: 0, x: -10 }}
-                                            animate={{ opacity: 1, x: 0 }}
-                                            transition={{ delay: i * 0.1 }}
+                            {/* ═══ CURATED COLLECTIONS ═══ */}
+                            <section>
+                                <h2 className="text-[13px] font-medium text-zinc-500 px-1 mb-4">
+                                    Curated Collections
+                                </h2>
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 px-1">
+                                    {STARTER_PACKS.map((pack, i) => (
+                                        <button
+                                            key={pack.title}
+                                            onClick={() => setSearchQuery(pack.category)}
+                                            className="group relative overflow-hidden rounded-2xl border border-zinc-200/60 dark:border-zinc-800/60 bg-white dark:bg-zinc-900/40 p-5 text-left transition-all hover:border-zinc-400 dark:hover:border-zinc-600 hover:shadow-sm"
                                         >
-                                            <Link
-                                                href={`/curation/${article.id}`}
-                                                className="group block p-3.5 bg-white dark:bg-zinc-900/40 border border-zinc-200/60 dark:border-zinc-800/60 rounded-2xl hover:border-zinc-300 dark:hover:border-zinc-700 transition-all relative overflow-hidden active:scale-[0.99]"
-                                            >
-                                                <div className="flex gap-5 items-center">
-                                                    <div className="w-16 h-16 rounded-xl overflow-hidden bg-zinc-100 dark:bg-zinc-800 shrink-0 relative border border-zinc-200/40 dark:border-zinc-700/40">
-                                                        {article.imageUrl ? (
-                                                            <Image
-                                                                src={article.imageUrl}
-                                                                alt=""
-                                                                fill
-                                                                className="object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
-                                                            />
-                                                        ) : (
-                                                            <div className="w-full h-full flex items-center justify-center text-zinc-400">
-                                                                <FileText size={20} />
-                                                            </div>
-                                                        )}
-                                                    </div>
-                                                    <div className="flex-1 min-w-0 pr-4">
-                                                        <div className="flex items-center gap-2 mb-1">
-                                                            <span className="text-[10px] font-medium uppercase tracking-[0.1em] text-zinc-500">
-                                                                {article.category || "General"}
-                                                            </span>
-                                                            <span className="text-zinc-200 dark:text-zinc-800">•</span>
-                                                            <span className="text-[10px] font-medium text-zinc-400">
-                                                                {new Date(article.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
-                                                            </span>
-                                                        </div>
-                                                        <h3 className="text-[15px] font-medium text-zinc-900 dark:text-zinc-100 leading-snug line-clamp-2 italic" style={{ fontFamily: "'Playfair Display', serif" }}>
-                                                            {article.title}
-                                                        </h3>
-                                                    </div>
-                                                    <div className="absolute right-4 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all">
-                                                        <ChevronRight className="text-zinc-400" />
-                                                    </div>
+                                            <div className={`absolute top-0 right-0 w-32 h-32 bg-gradient-to-br ${pack.color} rounded-full blur-3xl -mr-10 -mt-10 opacity-50 group-hover:opacity-100 transition-opacity`} />
+                                            <div className="relative z-10">
+                                                <div className="w-10 h-10 rounded-full bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center mb-4 text-zinc-600 dark:text-zinc-300">
+                                                    <pack.icon size={18} />
                                                 </div>
-                                            </Link>
-                                        </motion.div>
-                                    ))
-                                )}
-                            </div>
-                        </section>
+                                                <h3 className="text-[15px] font-medium text-zinc-900 dark:text-zinc-100 mb-1">{pack.title}</h3>
+                                                <p className="text-[12px] text-zinc-500 dark:text-zinc-400 flex items-center gap-1">
+                                                    {pack.category} <ChevronRight size={12} className="group-hover:translate-x-0.5 transition-transform" />
+                                                </p>
+                                            </div>
+                                        </button>
+                                    ))}
+                                </div>
+                            </section>
 
-                        {/* ═══ QUICK TAGS ═══ */}
-                        <section className="space-y-4">
-                            <h2 className="text-[13px] font-medium text-zinc-500 px-1">
-                                Quick Browse
-                            </h2>
-                            <div className="flex flex-wrap gap-2">
-                                {["Automation", "Self-Improvement", "Intelligence", "Leverage", "Flow", "Mental Models", "Wealth", "Productivity"].map((tag) => (
-                                    <button
-                                        key={tag}
-                                        onClick={() => setSearchQuery(tag)}
-                                        className="px-3.5 py-1.5 rounded-full border border-zinc-200/80 dark:border-zinc-800/80 text-[12px] font-medium text-zinc-500 dark:text-zinc-400 hover:bg-white dark:hover:bg-zinc-900 hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors active:scale-95"
-                                    >
-                                        # {tag}
-                                    </button>
-                                ))}
-                            </div>
-                        </section>
-                    </>
-                )}
-            </main>
+                            {/* ═══ POPULAR IN NETWORK ═══ */}
+                            <section>
+                                <h2 className="text-[13px] font-medium text-zinc-500 px-1 mb-4 flex items-center justify-between">
+                                    Network Popular
+                                    <button onClick={() => setActiveFilter('popularity')} className="text-[11px] text-blue-500 hover:text-blue-600">See All</button>
+                                </h2>
+                                <div className="space-y-2">
+                                    {!isLoadingInit && forYouArticles.slice(3).map(renderCompactArticle)}
+                                </div>
+                            </section>
+
+                        </motion.div>
+                    )}
+                </main>
+            )}
 
             {/* Empty space for dock */}
-            <div className="h-24" />
+            <div className="h-28" />
         </div>
     );
 }
