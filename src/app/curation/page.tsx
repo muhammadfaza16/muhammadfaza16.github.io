@@ -187,6 +187,8 @@ export default function CurationList() {
   const searchInputRef = useRef<HTMLInputElement>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const heroCarouselRef = useRef<HTMLDivElement>(null);
+  const loadMoreRef = useRef<HTMLDivElement>(null);
+  const isLoadingMoreRef = useRef(false);
 
   // Form State
   const [isSheetOpen, setIsSheetOpen] = useState(false);
@@ -525,8 +527,12 @@ export default function CurationList() {
     }
 
     try {
-      if (isLoadMore) setIsLoadingMore(true);
-      else setIsLoading(true);
+      if (isLoadMore) {
+        setIsLoadingMore(true);
+        isLoadingMoreRef.current = true;
+      } else {
+        setIsLoading(true);
+      }
 
       let url = `/api/curation?limit=10&sort=${currentSort}`;
       if (categories.length > 0) {
@@ -576,6 +582,7 @@ export default function CurationList() {
     } finally {
       setIsLoading(false);
       setIsLoadingMore(false);
+      isLoadingMoreRef.current = false;
     }
   };
 
@@ -615,37 +622,29 @@ export default function CurationList() {
     };
   }, []);
 
-  // Infinite scroll & Auto-fetch for sparse filtered views
+  // Infinite scroll using IntersectionObserver
   useEffect(() => {
-    const container = scrollContainerRef.current;
-    if (!container) return;
+    if (!nextCursor || isLoadingMoreRef.current) return;
 
-    const checkAndFetchMore = () => {
-      if (!nextCursor || isLoadingMore) return;
-      const { scrollTop, scrollHeight, clientHeight } = container;
-      // Fetch if within 400px of bottom, OR if the content is entirely visible (not scrollable)
-      if (
-        scrollHeight <= clientHeight ||
-        scrollHeight - scrollTop - clientHeight < 400
-      ) {
-        fetchArticles(nextCursor, sort, categoryFilter, searchQuery, true);
-      }
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && nextCursor && !isLoadingMoreRef.current) {
+          fetchArticles(nextCursor, sort, categoryFilter, searchQuery, true);
+        }
+      },
+      { root: scrollContainerRef.current, rootMargin: "600px" }
+    );
+
+    const currentLoadMore = loadMoreRef.current;
+    if (currentLoadMore) {
+      observer.observe(currentLoadMore);
+    }
+
+    return () => {
+      if (currentLoadMore) observer.unobserve(currentLoadMore);
     };
-
-    // Check immediately on render/filter changes
-    checkAndFetchMore();
-
-    container.addEventListener("scroll", checkAndFetchMore, { passive: true });
-    return () => container.removeEventListener("scroll", checkAndFetchMore);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [
-    nextCursor,
-    isLoadingMore,
-    sort,
-    categoryFilter,
-    articles.length,
-    debouncedSearchQuery,
-  ]);
+  }, [nextCursor, sort, categoryFilter, debouncedSearchQuery]);
 
   // Visitor state actions
   const toggleVisitorRead = (articleId: string) => {
@@ -1647,7 +1646,7 @@ export default function CurationList() {
 
               {/* Load More Indicator */}
               {nextCursor && (
-                <div className="flex justify-center py-6">
+                <div ref={loadMoreRef} className="flex justify-center py-6 w-full h-20">
                   {isLoadingMore ? (
                     <Loader2 className="animate-spin text-zinc-400 w-5 h-5" />
                   ) : (
