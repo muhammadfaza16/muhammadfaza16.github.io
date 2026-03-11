@@ -248,7 +248,7 @@ export default function LibraryPage() {
                             {/* ── Stats Row ── */}
                             <div className="flex items-center bg-zinc-50 dark:bg-zinc-900/60 rounded-xl border border-zinc-200/50 dark:border-zinc-800/50 divide-x divide-zinc-200/60 dark:divide-zinc-800/60">
                                 {[
-                                    { label: "articles", value: totalCount || allArticles.length },
+                                    { label: "read", value: readIds.size },
                                     { label: "day streak", value: streak },
                                     { label: "this week", value: weeklyTotal },
                                     { label: "min read", value: totalReadingMins },

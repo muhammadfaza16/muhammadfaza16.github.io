@@ -5,16 +5,10 @@ import { motion } from "framer-motion";
 import {
     User,
     Settings,
-    ShieldCheck,
-    CreditCard,
     LogOut,
-    Mail,
-    Bell,
-    Fingerprint,
     ChevronRight,
     Moon,
     Sun,
-    Monitor,
     DatabaseZap,
     Wrench
 } from "lucide-react";
