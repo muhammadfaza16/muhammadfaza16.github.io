@@ -4,9 +4,9 @@ import React, { useState, useEffect, useRef, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
     Search, ArrowLeft, X, Loader2, FileText, Clock,
-    ChevronRight, Flame, BookOpen, BarChart3, Hash,
+    ChevronRight, Flame, BookOpen, Hash,
     Brain, Rocket, Coffee, Zap, TrendingUp, Sparkles,
-    Star, Eye, CheckCheck
+    Star, CheckCheck
 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
@@ -203,7 +203,7 @@ export default function ExplorePage() {
                             {searchQuery && <button onClick={() => { setSearchQuery(""); setActiveCategory(null); }} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-600"><X size={13} /></button>}
                         </div>
                     </div>
-                    <div className="flex items-center gap-1.5 mt-2.5 overflow-x-auto no-scrollbar">
+                    <div className="flex items-center gap-1.5 mt-4 overflow-x-auto no-scrollbar">
                         {[{ key: "popularity" as const, label: "Popular", Icon: Flame }, { key: "latest" as const, label: "Latest", Icon: Clock }].map(s => (
                             <button key={s.key} onClick={() => setActiveSort(s.key)} className={`flex items-center gap-1 px-2.5 py-1 shrink-0 rounded-full text-[10.5px] font-medium transition-all ${activeSort === s.key ? "bg-zinc-800 text-zinc-100 dark:bg-zinc-200 dark:text-zinc-900" : "bg-zinc-100 dark:bg-zinc-800/80 text-zinc-500"}`}>
                                 <s.Icon size={10} /> {s.label}

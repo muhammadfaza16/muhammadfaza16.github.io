@@ -190,9 +190,12 @@ export async function GET(request: Request) {
             { revalidate: 60 } // Cache DB result for 1 minute
         );
 
-        const { articles, nextCursor } = await getCachedArticles();
+        const [{ articles, nextCursor }, totalCount] = await Promise.all([
+            getCachedArticles(),
+            prisma.article.count({ where }),
+        ]);
 
-        return NextResponse.json({ articles, nextCursor });
+        return NextResponse.json({ articles, nextCursor, totalCount });
     } catch (error) {
         console.error("Failed to fetch curation articles:", error);
         return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
