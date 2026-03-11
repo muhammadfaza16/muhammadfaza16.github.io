@@ -14,14 +14,11 @@ import {
   ChevronLeft,
   Bookmark,
   FileText,
-  Plus,
   Loader2,
   CheckCircle,
   Send,
   X,
-  ArrowUpRight,
   ArrowDown,
-  ArrowUp,
   Share2,
   Sun,
   Moon,
@@ -158,6 +155,7 @@ export default function CurationList() {
   const [topArticles, setTopArticles] = useState<ArticleMeta[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isLoadingTop, setIsLoadingTop] = useState(true);
+  const [totalCount, setTotalCount] = useState(0);
   const [sort, setSort] = useState<SortType>(() => {
     if (typeof window !== 'undefined') {
       try {
@@ -199,6 +197,7 @@ export default function CurationList() {
     bookmarked: Record<string, boolean>;
   }>({ read: {}, bookmarked: {} });
   const [isTopicsExpanded, setIsTopicsExpanded] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
   const [weeklyReads, setWeeklyReads] = useState(0);
   const [navigatingId, setNavigatingId] = useState<string | null>(null);
@@ -215,6 +214,11 @@ export default function CurationList() {
     q: "",
   });
   const scrollYRef = useRef(0);
+
+  // Live refs so IntersectionObserver always reads current values
+  const sortRef = useRef(sort);
+  const categoryFilterRef = useRef(categoryFilter);
+  const searchQueryRef = useRef(debouncedSearchQuery);
 
   const searchInputRef = useRef<HTMLInputElement>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
@@ -566,7 +570,7 @@ export default function CurationList() {
         setIsLoading(true);
       }
 
-      let url = `/api/curation?limit=10&sort=${currentSort}`;
+      let url = `/api/curation?limit=5&sort=${currentSort}`;
       if (categories.length > 0) {
         url += `&category=${encodeURIComponent(categories.join(","))}`;
       }
@@ -606,6 +610,7 @@ export default function CurationList() {
           setArticles(data.articles);
         }
         setNextCursor(data.nextCursor);
+        if (data.totalCount != null) setTotalCount(data.totalCount);
       }
     } catch (error: any) {
       if (error?.name !== "AbortError") {
@@ -623,6 +628,10 @@ export default function CurationList() {
       hasRestoredCache.current = false;
       return;
     }
+    // Keep refs in sync so IntersectionObserver reads current values
+    sortRef.current = sort;
+    categoryFilterRef.current = categoryFilter;
+    searchQueryRef.current = debouncedSearchQuery;
     // Instant for sort/category, debounced by useDebounce for search
     fetchArticles(null, sort, categoryFilter, debouncedSearchQuery);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -661,7 +670,8 @@ export default function CurationList() {
     const observer = new IntersectionObserver(
       (entries) => {
         if (entries[0].isIntersecting && nextCursor && !isLoadingMoreRef.current) {
-          fetchArticles(nextCursor, sort, categoryFilter, searchQuery, true);
+          // Read from refs to avoid stale closure values
+          fetchArticles(nextCursor, sortRef.current, categoryFilterRef.current, searchQueryRef.current, true);
         }
       },
       { root: scrollContainerRef.current, rootMargin: "600px" }
@@ -737,6 +747,7 @@ export default function CurationList() {
 
   // Init
   useEffect(() => {
+    setMounted(true);
     // Restore primary cache scroll position if we loaded from cache
     try {
       const cached = sessionStorage.getItem(CACHE_KEY);
@@ -1037,8 +1048,8 @@ export default function CurationList() {
               {/* Stats */}
               <div className="flex items-center gap-4 mt-12 md:mt-16 flex-wrap">
                 <span className="text-[12px] font-medium text-zinc-400 dark:text-zinc-500">
-                  {articles.length > 0 ? `${articles.length}+ entries` : ""}{" "}
-                  {categoryCount > 0 && articles.length > 0
+                  {totalCount > 0 ? `${totalCount} entries` : ""}{" "}
+                  {categoryCount > 0 && totalCount > 0
                     ? `• ${categoryCount} topics`
                     : ""}
                 </span>
