@@ -712,6 +712,7 @@ export default function CurationList() {
       if (cached) {
         const parsed = JSON.parse(cached);
         if (parsed.articles?.length > 0) {
+          abortControllerRef.current?.abort(); // Cancel the initial 'latest' fetch
           setArticles(parsed.articles);
           setNextCursor(parsed.nextCursor || null);
           setSort(parsed.sort || "latest");
