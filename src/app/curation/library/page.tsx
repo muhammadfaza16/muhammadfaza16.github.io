@@ -202,14 +202,14 @@ export default function LibraryPage() {
                             {/* ── Stats Row ── */}
                             <div className="flex items-center bg-zinc-50 dark:bg-zinc-900/60 rounded-xl border border-zinc-200/50 dark:border-zinc-800/50 divide-x divide-zinc-200/60 dark:divide-zinc-800/60">
                                 {[
-                                    { label: "Articles", value: readIds.size },
-                                    { label: "Streak", value: `${streak}d` },
-                                    { label: "Week", value: weeklyTotal },
-                                    { label: "Read time", value: `${totalReadingMins}m` },
+                                    { label: "articles", value: readIds.size },
+                                    { label: "day streak", value: streak },
+                                    { label: "this week", value: weeklyTotal },
+                                    { label: "min read", value: totalReadingMins },
                                 ].map(stat => (
-                                    <div key={stat.label} className="flex-1 flex flex-col items-center py-1.5">
-                                        <p className="text-[15px] font-bold text-zinc-900 dark:text-zinc-100 leading-none tabular-nums">{stat.value}</p>
-                                        <p className="text-[8px] text-zinc-500 uppercase tracking-wider leading-none mt-1">{stat.label}</p>
+                                    <div key={stat.label} className="flex-1 text-center py-0.5">
+                                        <span className="text-[16px] font-bold text-zinc-900 dark:text-zinc-100 tabular-nums">{stat.value}</span>
+                                        <span className="text-[9px] text-zinc-500 ml-1.5">{stat.label}</span>
                                     </div>
                                 ))}
                             </div>
