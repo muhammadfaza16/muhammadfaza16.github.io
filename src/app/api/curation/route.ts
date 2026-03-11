@@ -118,10 +118,10 @@ export async function GET(request: Request) {
                     take: limit + 1,
                     where,
                     orderBy: sort === "oldest"
-                        ? { createdAt: "asc" }
+                        ? [{ createdAt: "asc" }, { id: "asc" }]
                         : sort === "popularity"
-                            ? { score: { socialScore: "desc" } }
-                            : { createdAt: "desc" },
+                            ? [{ score: { socialScore: "desc" } }, { id: "desc" }]
+                            : [{ createdAt: "desc" }, { id: "desc" }],
                     select: {
                         id: true,
                         title: true,
