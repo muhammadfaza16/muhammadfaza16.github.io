@@ -197,7 +197,7 @@ export default function LibraryPage() {
             <main className="max-w-2xl mx-auto px-4 pt-4 pb-32">
                 <AnimatePresence mode="wait">
                     {tab === "activity" ? (
-                        <motion.div key="activity" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.15 }} className="space-y-6">
+                        <motion.div key="activity" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.15 }} className="space-y-8">
 
                             {/* ── Stats Row ── */}
                             <div className="flex items-center bg-zinc-50 dark:bg-zinc-900/60 rounded-xl border border-zinc-200/50 dark:border-zinc-800/50 divide-x divide-zinc-200/60 dark:divide-zinc-800/60">
