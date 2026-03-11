@@ -181,7 +181,7 @@ export default function LibraryPage() {
                             <button
                                 key={t.key}
                                 onClick={() => setTab(t.key)}
-                                className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-md text-[11px] font-medium transition-all ${tab === t.key ? "bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 shadow-sm" : "text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300"}`}
+                                className={`flex-1 flex items-center justify-center gap-[5px] py-1.5 rounded-md text-[11px] font-medium transition-all ${tab === t.key ? "bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 shadow-sm" : "text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300"}`}
                             >
                                 <t.icon size={11} /> {t.label}
                                 {t.key === "saved" && savedIds.size > 0 && (
@@ -200,17 +200,16 @@ export default function LibraryPage() {
                         <motion.div key="activity" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.15 }} className="space-y-6">
 
                             {/* ── Stats Row ── */}
-                            <div className="grid grid-cols-4 gap-2">
+                            <div className="flex items-center bg-zinc-50 dark:bg-zinc-900/60 rounded-xl border border-zinc-200/50 dark:border-zinc-800/50 divide-x divide-zinc-200/60 dark:divide-zinc-800/60">
                                 {[
-                                    { label: "Read", value: readIds.size, icon: Eye },
-                                    { label: "Streak", value: `${streak}d`, icon: Flame },
-                                    { label: "This week", value: weeklyTotal, icon: Calendar },
-                                    { label: "Time", value: `${totalReadingMins}m`, icon: Clock },
+                                    { label: "Articles", value: readIds.size },
+                                    { label: "Streak", value: `${streak}d` },
+                                    { label: "Week", value: weeklyTotal },
+                                    { label: "Read time", value: `${totalReadingMins}m` },
                                 ].map(stat => (
-                                    <div key={stat.label} className="bg-zinc-50 dark:bg-zinc-900/50 rounded-lg p-2.5 text-center">
-                                        <stat.icon size={13} className="text-zinc-400 mx-auto mb-1.5" />
-                                        <p className="text-[16px] font-semibold text-zinc-900 dark:text-zinc-100 leading-none">{stat.value}</p>
-                                        <p className="text-[9px] text-zinc-400 uppercase tracking-wider mt-1">{stat.label}</p>
+                                    <div key={stat.label} className="flex-1 flex flex-col items-center py-1.5">
+                                        <p className="text-[15px] font-bold text-zinc-900 dark:text-zinc-100 leading-none tabular-nums">{stat.value}</p>
+                                        <p className="text-[8px] text-zinc-500 uppercase tracking-wider leading-none mt-1">{stat.label}</p>
                                     </div>
                                 ))}
                             </div>
