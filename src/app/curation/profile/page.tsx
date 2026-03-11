@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import {
     User,
@@ -11,13 +11,52 @@ import {
     Mail,
     Bell,
     Fingerprint,
-    ChevronRight
+    ChevronRight,
+    Moon,
+    Sun,
+    Monitor,
+    DatabaseZap,
+    Wrench
 } from "lucide-react";
-import { DevPlaceholder } from "@/components/curation/DevPlaceholder";
+import { useTheme } from "@/components/ThemeProvider";
+import { Toaster, toast } from "react-hot-toast";
 
 export default function ProfilePage() {
+    const { theme, setTheme } = useTheme();
+    const [isAdmin, setIsAdmin] = useState(false);
+
+    useEffect(() => {
+        setIsAdmin(localStorage.getItem("curation_admin") === "true");
+    }, []);
+
+    const handleThemeToggle = () => {
+        setTheme(theme === 'light' ? 'dark' : 'light');
+    };
+
+    const handleClearData = () => {
+        if (window.confirm("Are you sure you want to clear all your local reading history and bookmarks?")) {
+            localStorage.clear();
+            sessionStorage.clear();
+            toast.success("All local data cleared successfully.");
+            window.location.reload();
+        }
+    };
+
+    const handleAdminToggle = () => {
+        const newValue = !isAdmin;
+        setIsAdmin(newValue);
+        if (newValue) {
+            localStorage.setItem("curation_admin", "true");
+            toast.success("Admin mode enabled.");
+        } else {
+            localStorage.removeItem("curation_admin");
+            toast.success("Admin mode disabled.");
+        }
+    };
+
     return (
         <div className="max-w-2xl mx-auto px-6 pt-12 pb-20">
+            <Toaster position="top-center" />
             <header className="mb-10 flex flex-col items-center">
                 <div className="w-20 h-20 rounded-[1.75rem] bg-white dark:bg-zinc-800/40 flex items-center justify-center text-zinc-900 dark:text-white mb-5 border border-zinc-200/50 dark:border-zinc-800/50">
                     <User size={32} strokeWidth={1.5} />
@@ -35,9 +74,8 @@ export default function ProfilePage() {
                 </div>
             </header>
 
-            <div className="mb-10">
-                <DevPlaceholder />
-            </div>
+            {/* Empty block for spacing where dev placeholder was */}
+            <div className="mb-8" />
 
             <section className="space-y-4">
                 <h2 className="text-[12px] font-medium text-zinc-400 mb-6 ml-0.5">
@@ -45,20 +83,33 @@ export default function ProfilePage() {
                 </h2>
 
                 <div className="bg-white dark:bg-zinc-900/40 rounded-2xl border border-zinc-200/60 dark:border-zinc-800/60 overflow-hidden divide-y divide-zinc-100 dark:divide-zinc-800/40">
-                    {[
-                        { label: "Security & Privacy", icon: ShieldCheck },
-                        { label: "Notifications", icon: Bell },
-                        { label: "Subscription", icon: CreditCard },
-                        { label: "Reader Identity", icon: Fingerprint },
-                    ].map((item, i) => (
-                        <button key={i} className="w-full flex items-center gap-4 p-4 hover:bg-zinc-50 dark:hover:bg-zinc-800/60 transition-colors group">
-                            <div className={`text-zinc-400 group-hover:text-zinc-900 dark:group-hover:text-zinc-100 transition-colors`}>
-                                <item.icon size={18} />
-                            </div>
-                            <span className="flex-1 text-[14px] font-medium text-left text-zinc-700 dark:text-zinc-300">{item.label}</span>
-                            <ChevronRight size={14} className="text-zinc-300 transition-transform group-hover:translate-x-0.5" />
-                        </button>
-                    ))}
+                    <button onClick={handleThemeToggle} className="w-full flex items-center gap-4 p-4 hover:bg-zinc-50 dark:hover:bg-zinc-800/60 transition-colors group">
+                        <div className={`text-zinc-400 group-hover:text-zinc-900 dark:group-hover:text-zinc-100 transition-colors`}>
+                            {theme === 'light' ? <Sun size={18} /> : <Moon size={18} />}
+                        </div>
+                        <span className="flex-1 text-[14px] font-medium text-left text-zinc-700 dark:text-zinc-300">
+                            Theme: {theme === 'light' ? 'Light' : 'Dark'}
+                        </span>
+                        <ChevronRight size={14} className="text-zinc-300 transition-transform group-hover:translate-x-0.5" />
+                    </button>
+
+                    <button onClick={handleAdminToggle} className="w-full flex items-center gap-4 p-4 hover:bg-zinc-50 dark:hover:bg-zinc-800/60 transition-colors group">
+                        <div className={`text-zinc-400 group-hover:text-zinc-900 dark:group-hover:text-zinc-100 transition-colors`}>
+                            <Wrench size={18} />
+                        </div>
+                        <span className="flex-1 text-[14px] font-medium text-left text-zinc-700 dark:text-zinc-300">
+                            Admin Mode: {isAdmin ? "Enabled" : "Disabled"}
+                        </span>
+                        <ChevronRight size={14} className="text-zinc-300 transition-transform group-hover:translate-x-0.5" />
+                    </button>
+
+                    <button onClick={handleClearData} className="w-full flex items-center gap-4 p-4 hover:bg-red-50 dark:hover:bg-red-900/10 transition-colors group">
+                        <div className={`text-red-400 group-hover:text-red-600 dark:group-hover:text-red-400 transition-colors`}>
+                            <DatabaseZap size={18} />
+                        </div>
+                        <span className="flex-1 text-[14px] font-medium text-left text-red-500 dark:text-red-400">Clear Local Data</span>
+                        <ChevronRight size={14} className="text-red-300 transition-transform group-hover:translate-x-0.5" />
+                    </button>
                 </div>
             </section>
 
