@@ -146,12 +146,36 @@ const HighlightText = ({ text, query }: { text: string; query: string }) => {
 // ─── Main Component ───
 
 export default function CurationList() {
-  const [articles, setArticles] = useState<ArticleMeta[]>([]);
+  const [articles, setArticles] = useState<ArticleMeta[]>(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const cached = sessionStorage.getItem(CACHE_KEY);
+        if (cached) return JSON.parse(cached).articles || [];
+      } catch { }
+    }
+    return [];
+  });
   const [topArticles, setTopArticles] = useState<ArticleMeta[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isLoadingTop, setIsLoadingTop] = useState(true);
-  const [sort, setSort] = useState<SortType>("latest");
-  const [categoryFilter, setCategoryFilter] = useState<string[]>([]);
+  const [sort, setSort] = useState<SortType>(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const cached = sessionStorage.getItem(CACHE_KEY);
+        if (cached) return JSON.parse(cached).sort || "latest";
+      } catch { }
+    }
+    return "latest";
+  });
+  const [categoryFilter, setCategoryFilter] = useState<string[]>(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const cached = sessionStorage.getItem(CACHE_KEY);
+        if (cached) return JSON.parse(cached).categoryFilter || [];
+      } catch { }
+    }
+    return [];
+  });
   const [statusFilter, setStatusFilter] = useState<
     "all" | "unread" | "bookmarked"
   >("all");
@@ -160,7 +184,15 @@ export default function CurationList() {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [imgErrors, setImgErrors] = useState<Record<string, boolean>>({});
   const [isLoadingMore, setIsLoadingMore] = useState(false);
-  const [nextCursor, setNextCursor] = useState<string | null>(null);
+  const [nextCursor, setNextCursor] = useState<string | null>(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const cached = sessionStorage.getItem(CACHE_KEY);
+        if (cached) return JSON.parse(cached).nextCursor || null;
+      } catch { }
+    }
+    return null;
+  });
   const [isAdmin, setIsAdmin] = useState(false);
   const [visitorState, setVisitorState] = useState<{
     read: Record<string, boolean>;
@@ -187,6 +219,8 @@ export default function CurationList() {
   const searchInputRef = useRef<HTMLInputElement>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const heroCarouselRef = useRef<HTMLDivElement>(null);
+  const loadMoreRef = useRef<HTMLDivElement>(null);
+  const isLoadingMoreRef = useRef(false);
 
   // Form State
   const [isSheetOpen, setIsSheetOpen] = useState(false);
@@ -525,8 +559,12 @@ export default function CurationList() {
     }
 
     try {
-      if (isLoadMore) setIsLoadingMore(true);
-      else setIsLoading(true);
+      if (isLoadMore) {
+        setIsLoadingMore(true);
+        isLoadingMoreRef.current = true;
+      } else {
+        setIsLoading(true);
+      }
 
       let url = `/api/curation?limit=10&sort=${currentSort}`;
       if (categories.length > 0) {
@@ -576,6 +614,7 @@ export default function CurationList() {
     } finally {
       setIsLoading(false);
       setIsLoadingMore(false);
+      isLoadingMoreRef.current = false;
     }
   };
 
@@ -615,37 +654,29 @@ export default function CurationList() {
     };
   }, []);
 
-  // Infinite scroll & Auto-fetch for sparse filtered views
+  // Infinite scroll using IntersectionObserver
   useEffect(() => {
-    const container = scrollContainerRef.current;
-    if (!container) return;
+    if (!nextCursor || isLoadingMoreRef.current) return;
 
-    const checkAndFetchMore = () => {
-      if (!nextCursor || isLoadingMore) return;
-      const { scrollTop, scrollHeight, clientHeight } = container;
-      // Fetch if within 400px of bottom, OR if the content is entirely visible (not scrollable)
-      if (
-        scrollHeight <= clientHeight ||
-        scrollHeight - scrollTop - clientHeight < 400
-      ) {
-        fetchArticles(nextCursor, sort, categoryFilter, searchQuery, true);
-      }
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && nextCursor && !isLoadingMoreRef.current) {
+          fetchArticles(nextCursor, sort, categoryFilter, searchQuery, true);
+        }
+      },
+      { root: scrollContainerRef.current, rootMargin: "600px" }
+    );
+
+    const currentLoadMore = loadMoreRef.current;
+    if (currentLoadMore) {
+      observer.observe(currentLoadMore);
+    }
+
+    return () => {
+      if (currentLoadMore) observer.unobserve(currentLoadMore);
     };
-
-    // Check immediately on render/filter changes
-    checkAndFetchMore();
-
-    container.addEventListener("scroll", checkAndFetchMore, { passive: true });
-    return () => container.removeEventListener("scroll", checkAndFetchMore);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [
-    nextCursor,
-    isLoadingMore,
-    sort,
-    categoryFilter,
-    articles.length,
-    debouncedSearchQuery,
-  ]);
+  }, [nextCursor, sort, categoryFilter, debouncedSearchQuery]);
 
   // Visitor state actions
   const toggleVisitorRead = (articleId: string) => {
@@ -706,17 +737,12 @@ export default function CurationList() {
 
   // Init
   useEffect(() => {
-    // Restore primary cache
+    // Restore primary cache scroll position if we loaded from cache
     try {
       const cached = sessionStorage.getItem(CACHE_KEY);
       if (cached) {
         const parsed = JSON.parse(cached);
         if (parsed.articles?.length > 0) {
-          abortControllerRef.current?.abort(); // Cancel the initial 'latest' fetch
-          setArticles(parsed.articles);
-          setNextCursor(parsed.nextCursor || null);
-          setSort(parsed.sort || "latest");
-          setCategoryFilter(parsed.categoryFilter || []);
           hasRestoredCache.current = true;
           setIsLoading(false);
 
@@ -1648,7 +1674,7 @@ export default function CurationList() {
 
               {/* Load More Indicator */}
               {nextCursor && (
-                <div className="flex justify-center py-6">
+                <div ref={loadMoreRef} className="flex justify-center py-6 w-full h-20">
                   {isLoadingMore ? (
                     <Loader2 className="animate-spin text-zinc-400 w-5 h-5" />
                   ) : (
