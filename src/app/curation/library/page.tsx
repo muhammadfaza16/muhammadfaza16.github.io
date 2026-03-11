@@ -1,190 +1,313 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-    Flame,
-    Sparkles,
-    Library,
-    Star,
-    Folder,
-    ChevronRight,
-    Share2,
-    LayoutGrid,
-    BookOpen,
-    Trophy,
-    History
+    Bookmark, BookOpen, ChevronRight, Clock, FileText,
+    Flame, Hash, Loader2, ArrowLeft, TrendingUp,
+    Brain, Rocket, Coffee, Zap, Eye, BarChart3, Calendar
 } from "lucide-react";
-import { DevPlaceholder } from "@/components/curation/DevPlaceholder";
-
 import Link from "next/link";
 import Image from "next/image";
 
-export default function MyLibraryPage() {
-    const [activeSegment, setActiveSegment] = useState<'stats' | 'vault'>('stats');
-    const [readArticles, setReadArticles] = useState<any[]>([]);
-    const [savedArticles, setSavedArticles] = useState<any[]>([]);
+// ─── Types ───
+
+type ReadEntry = { id: string; ts: number };
+type VisitorState = { read: Record<string, boolean>; bookmarked: Record<string, boolean> };
+
+const CATEGORIES: Record<string, { icon: React.ComponentType<any> }> = {
+    "AI & Tech": { icon: Brain },
+    "Wealth & Business": { icon: Rocket },
+    "Philosophy & Psychology": { icon: Coffee },
+    "Productivity & Deep Work": { icon: Zap },
+    "Growth & Systems": { icon: TrendingUp },
+};
+
+// ─── Helpers ───
+
+function getLocalState(): VisitorState {
+    try { return JSON.parse(localStorage.getItem("curation_visitor_state") || '{"read":{},"bookmarked":{}}'); }
+    catch { return { read: {}, bookmarked: {} }; }
+}
+
+function getReadHistory(): ReadEntry[] {
+    try { return JSON.parse(localStorage.getItem("curation_read_history") || "[]"); }
+    catch { return []; }
+}
+
+function calcStreak(history: ReadEntry[]): number {
+    if (!history.length) return 0;
+    const today = new Date(); today.setHours(0, 0, 0, 0);
+    const dayMs = 86400000;
+    let streak = 0;
+    for (let i = 0; i < 365; i++) {
+        const dayStart = today.getTime() - i * dayMs;
+        const dayEnd = dayStart + dayMs;
+        const hasRead = history.some(h => h.ts >= dayStart && h.ts < dayEnd);
+        if (hasRead) streak++;
+        else if (i > 0) break;
+    }
+    return streak;
+}
+
+function getWeeklyActivity(history: ReadEntry[]): number[] {
+    const today = new Date(); today.setHours(0, 0, 0, 0);
+    const dayMs = 86400000;
+    const days: number[] = [];
+    for (let i = 6; i >= 0; i--) {
+        const dayStart = today.getTime() - i * dayMs;
+        const dayEnd = dayStart + dayMs;
+        days.push(history.filter(h => h.ts >= dayStart && h.ts < dayEnd).length);
+    }
+    return days;
+}
+
+function readTime(content?: string): number {
+    if (!content) return 5;
+    return Math.max(1, Math.round(content.split(/\s+/).length / 200));
+}
+
+const DAY_LABELS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+
+// ─── Component ───
+
+export default function LibraryPage() {
+    const [tab, setTab] = useState<"activity" | "saved">("activity");
+    const [allArticles, setAllArticles] = useState<any[]>([]);
     const [isLoading, setIsLoading] = useState(true);
+    const [mounted, setMounted] = useState(false);
+
+    const [localState, setLocalState] = useState<VisitorState>({ read: {}, bookmarked: {} });
+    const [history, setHistory] = useState<ReadEntry[]>([]);
 
     useEffect(() => {
-        const fetchUserData = async () => {
-            setIsLoading(true);
+        setMounted(true);
+        const vs = getLocalState();
+        const hist = getReadHistory();
+        setLocalState(vs);
+        setHistory(hist);
+
+        (async () => {
             try {
-                let localState = { read: {}, bookmarked: {} };
-                const raw = localStorage.getItem("curation_visitor_state");
-                if (raw) localState = JSON.parse(raw);
-
-                const readIds = Object.keys(localState.read).filter(k => localState.read[k as keyof typeof localState.read]);
-                const savedIds = Object.keys(localState.bookmarked).filter(k => localState.bookmarked[k as keyof typeof localState.bookmarked]);
-
-                // Fetch all at once if we want, or just rely on API search
-                // We will fetch Top 10 latest articles and filter, or hit our API (since we don't have an ID array query built-in, we just fetch 50 and filter for now)
-                // Or better yet, we can't easily fetch IN(ids) without modifying API, so let's hit API without limit and filter locally for Library. (For scale, API needs updating, but works for now locally).
-                const res = await fetch("/api/curation?limit=100");
+                const res = await fetch("/api/curation?limit=999&sort=latest");
                 const data = await res.json();
-
-                if (data.articles) {
-                    const read = data.articles.filter((a: any) => readIds.includes(a.id));
-                    const saved = data.articles.filter((a: any) => savedIds.includes(a.id));
-                    setReadArticles(read);
-                    setSavedArticles(saved);
-                }
-            } catch (err) {
-                console.error("Failed to fetch library data", err);
-            } finally {
-                setIsLoading(false);
-            }
-        };
-        fetchUserData();
+                if (data.articles) setAllArticles(data.articles);
+            } catch (err) { console.error("Library fetch error:", err); }
+            finally { setIsLoading(false); }
+        })();
     }, []);
 
+    // ─── Derived Data ───
+
+    const readIds = useMemo(() => new Set(Object.keys(localState.read).filter(k => localState.read[k])), [localState]);
+    const savedIds = useMemo(() => new Set(Object.keys(localState.bookmarked).filter(k => localState.bookmarked[k])), [localState]);
+
+    const readArticles = useMemo(() => allArticles.filter(a => readIds.has(a.id)), [allArticles, readIds]);
+    const savedArticles = useMemo(() => allArticles.filter(a => savedIds.has(a.id)), [allArticles, savedIds]);
+
+    const streak = useMemo(() => calcStreak(history), [history]);
+    const weeklyActivity = useMemo(() => getWeeklyActivity(history), [history]);
+    const weeklyTotal = useMemo(() => weeklyActivity.reduce((a, b) => a + b, 0), [weeklyActivity]);
+
+    const categoryBreakdown = useMemo(() => {
+        const counts: Record<string, number> = {};
+        readArticles.forEach(a => { if (a.category) counts[a.category] = (counts[a.category] || 0) + 1; });
+        return Object.entries(counts).sort(([, a], [, b]) => b - a);
+    }, [readArticles]);
+
+    const totalReadingMins = useMemo(() => {
+        return readArticles.reduce((sum, a) => sum + readTime(a.content), 0);
+    }, [readArticles]);
+
+    // Sort read articles by read timestamp (most recent first)
+    const sortedReadArticles = useMemo(() => {
+        const historyMap = new Map(history.map(h => [h.id, h.ts]));
+        return [...readArticles].sort((a, b) => (historyMap.get(b.id) || 0) - (historyMap.get(a.id) || 0));
+    }, [readArticles, history]);
+
+    // ─── Renderers ───
+
+    const ArticleRow = ({ article, i }: { article: any; i: number }) => (
+        <motion.div key={article.id} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.2, delay: i * 0.02 }}>
+            <Link href={`/curation/${article.id}`} className="group flex items-center gap-2.5 py-2 border-b border-zinc-100 dark:border-zinc-800/50 last:border-0 transition-colors">
+                <div className="w-10 h-10 rounded-md overflow-hidden bg-zinc-100 dark:bg-zinc-800/80 shrink-0 relative">
+                    {article.imageUrl ? <Image src={article.imageUrl} alt="" fill className="object-cover" /> : <div className="w-full h-full flex items-center justify-center text-zinc-400"><FileText size={14} /></div>}
+                </div>
+                <div className="flex-1 min-w-0">
+                    <h3 className="text-[12.5px] font-medium text-zinc-900 dark:text-zinc-100 leading-snug line-clamp-2">{article.title}</h3>
+                    <div className="flex items-center gap-1.5 mt-0.5">
+                        <span className="text-[10px] text-zinc-500">{article.category || "General"}</span>
+                        <span className="text-zinc-300 dark:text-zinc-700 text-[7px]">·</span>
+                        <span className="text-[10px] text-zinc-400">{readTime(article.content)}m read</span>
+                    </div>
+                </div>
+                <ChevronRight size={12} className="text-zinc-300 dark:text-zinc-700 shrink-0" />
+            </Link>
+        </motion.div>
+    );
+
+    const Skeleton = ({ n }: { n: number }) => (<>{Array(n).fill(0).map((_, i) => (
+        <div key={i} className="flex items-center gap-2.5 py-2">
+            <div className="w-10 h-10 rounded-md bg-zinc-100 dark:bg-zinc-800 animate-pulse shrink-0" />
+            <div className="flex-1 space-y-1.5"><div className="h-2.5 bg-zinc-100 dark:bg-zinc-800 rounded animate-pulse w-3/4" /><div className="h-2 bg-zinc-100 dark:bg-zinc-800 rounded animate-pulse w-1/2" /></div>
+        </div>
+    ))}</>);
+
+    const Label = ({ children }: { children: React.ReactNode }) => (
+        <h2 className="text-[11px] font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-widest mb-2.5">{children}</h2>
+    );
+
+    if (!mounted) return <div className="min-h-screen bg-[#fafaf8] dark:bg-[#050505] flex items-center justify-center"><Loader2 className="animate-spin text-zinc-400" size={24} /></div>;
+
     return (
-        <div className="max-w-2xl mx-auto px-6 pt-12">
-            <header className="mb-8">
-                <h1 className="text-2xl font-medium tracking-tight mb-1 text-zinc-900 dark:text-zinc-100">Library</h1>
-                <p className="text-zinc-400 text-[13px] font-medium">Activity, collections, and wisdom.</p>
+        <div className="min-h-screen bg-[#fafaf8] dark:bg-[#050505] text-zinc-900 dark:text-zinc-100">
+
+            {/* ═══ HEADER ═══ */}
+            <header className="sticky top-0 z-50 bg-[#fafaf8]/85 dark:bg-[#050505]/85 backdrop-blur-xl border-b border-zinc-200/40 dark:border-zinc-800/40">
+                <div className="px-4 pt-3 pb-2.5 max-w-2xl mx-auto">
+                    <div className="flex items-center gap-3 mb-3">
+                        <Link href="/curation" className="w-9 h-9 flex items-center justify-center text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 active:scale-90 rounded-full transition-all shrink-0">
+                            <ArrowLeft size={20} />
+                        </Link>
+                        <h1 className="text-[16px] font-semibold">Library</h1>
+                    </div>
+
+                    {/* Tab Switcher */}
+                    <div className="flex gap-1 bg-zinc-100 dark:bg-zinc-900 rounded-lg p-0.5">
+                        {[
+                            { key: "activity" as const, label: "Activity", icon: BarChart3 },
+                            { key: "saved" as const, label: "Saved", icon: Bookmark },
+                        ].map(t => (
+                            <button
+                                key={t.key}
+                                onClick={() => setTab(t.key)}
+                                className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-md text-[11px] font-medium transition-all ${tab === t.key ? "bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 shadow-sm" : "text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300"}`}
+                            >
+                                <t.icon size={11} /> {t.label}
+                                {t.key === "saved" && savedIds.size > 0 && (
+                                    <span className="text-[9px] bg-zinc-200 dark:bg-zinc-700 text-zinc-600 dark:text-zinc-300 px-1.5 py-px rounded-full">{savedIds.size}</span>
+                                )}
+                            </button>
+                        ))}
+                    </div>
+                </div>
             </header>
 
-            {/* Segment Switcher */}
-            <div className="flex p-1 bg-zinc-100/50 dark:bg-zinc-900/50 rounded-xl mb-8 w-full">
-                {[
-                    { id: 'stats', label: 'Activity', icon: History },
-                    { id: 'vault', label: 'Vault', icon: Library },
-                ].map((tab) => (
-                    <button
-                        key={tab.id}
-                        onClick={() => setActiveSegment(tab.id as any)}
-                        className={`
-              flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-xs font-medium transition-all flex-1
-              ${activeSegment === tab.id
-                                ? 'bg-white dark:bg-zinc-800 text-zinc-900 dark:text-white shadow-sm'
-                                : 'text-zinc-400 hover:text-zinc-500 dark:hover:text-zinc-400'}
-            `}
-                    >
-                        <tab.icon size={12} />
-                        {tab.label}
-                    </button>
-                ))}
-            </div>
+            {/* ═══ CONTENT ═══ */}
+            <main className="max-w-2xl mx-auto px-4 pt-4 pb-32">
+                <AnimatePresence mode="wait">
+                    {tab === "activity" ? (
+                        <motion.div key="activity" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.15 }} className="space-y-6">
 
-            {/* Removing dev placeholder */}
-
-            <AnimatePresence mode="wait">
-                {activeSegment === 'stats' && (
-                    <motion.div
-                        key="stats"
-                        initial={{ opacity: 0, scale: 0.98 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        className="space-y-8"
-                    >
-                        {/* Stats Overview */}
-                        <div className="grid grid-cols-2 gap-3">
-                            <div className="bg-white dark:bg-zinc-900/40 p-5 rounded-2xl border border-zinc-200/60 dark:border-zinc-800/60 shadow-none">
-                                <History size={16} className="text-zinc-400 mb-3" />
-                                <p className="text-[10px] font-medium uppercase tracking-[0.1em] text-zinc-400">Streak</p>
-                                <div className="flex items-baseline gap-1">
-                                    <span className="text-3xl font-medium text-zinc-900 dark:text-white">1</span>
-                                    <span className="text-[10px] font-medium text-zinc-400 uppercase">Days</span>
-                                </div>
+                            {/* ── Stats Row ── */}
+                            <div className="grid grid-cols-4 gap-2">
+                                {[
+                                    { label: "Read", value: readIds.size, icon: Eye },
+                                    { label: "Streak", value: `${streak}d`, icon: Flame },
+                                    { label: "This week", value: weeklyTotal, icon: Calendar },
+                                    { label: "Time", value: `${totalReadingMins}m`, icon: Clock },
+                                ].map(stat => (
+                                    <div key={stat.label} className="bg-zinc-50 dark:bg-zinc-900/50 rounded-lg p-2.5 text-center">
+                                        <stat.icon size={13} className="text-zinc-400 mx-auto mb-1.5" />
+                                        <p className="text-[16px] font-semibold text-zinc-900 dark:text-zinc-100 leading-none">{stat.value}</p>
+                                        <p className="text-[9px] text-zinc-400 uppercase tracking-wider mt-1">{stat.label}</p>
+                                    </div>
+                                ))}
                             </div>
-                            <div className="bg-white dark:bg-zinc-900/40 p-5 rounded-2xl border border-zinc-200/60 dark:border-zinc-800/60 shadow-none">
-                                <Sparkles size={16} className="text-zinc-400 mb-3" />
-                                <p className="text-[10px] font-medium uppercase tracking-[0.1em] text-zinc-400">Total Read</p>
-                                <div className="flex items-baseline gap-1">
-                                    <span className="text-3xl font-medium text-zinc-900 dark:text-white">{readArticles.length}</span>
-                                    <span className="text-[10px] font-medium text-zinc-400 uppercase">Items</span>
-                                </div>
-                            </div>
-                        </div>
 
-                        {/* Recent Activity */}
-                        <section>
-                            <h2 className="text-[12px] font-medium text-zinc-400 mb-4 ml-0.5">
-                                Recently Read
-                            </h2>
-                            <div className="space-y-2.5">
-                                {isLoading ? (
-                                    <div className="text-[13px] text-zinc-500 py-4 text-center">Loading...</div>
-                                ) : readArticles.length > 0 ? (
-                                    readArticles.map((item) => (
-                                        <Link href={`/curation/${item.id}`} key={item.id} className="flex items-center gap-3 p-3.5 rounded-2xl bg-white dark:bg-zinc-900/40 border border-zinc-200/60 dark:border-zinc-800/60 group hover:border-zinc-300 transition-colors">
-                                            <div className="w-10 h-10 rounded-xl bg-zinc-50 dark:bg-zinc-800/50 flex items-center justify-center text-zinc-400 relative overflow-hidden">
-                                                {item.imageUrl ? <Image src={item.imageUrl} alt="" fill className="object-cover" /> : <BookOpen size={16} />}
-                                            </div>
-                                            <div className="flex-1 min-w-0">
-                                                <h4 className="text-[14px] font-medium text-zinc-800 dark:text-zinc-200 truncate">{item.title}</h4>
-                                                <div className="flex items-center gap-2 mt-0.5">
-                                                    <span className="text-[10px] font-medium text-zinc-400 uppercase">{item.category || "General"}</span>
+                            {/* ── Weekly Activity ── */}
+                            <section>
+                                <Label><Calendar size={11} className="inline mr-1 -mt-px" />This Week</Label>
+                                <div className="flex items-end gap-1.5 h-16 px-1">
+                                    {weeklyActivity.map((count, i) => {
+                                        const maxCount = Math.max(...weeklyActivity, 1);
+                                        const heightPct = Math.max(8, (count / maxCount) * 100);
+                                        const today = new Date().getDay();
+                                        // Shift labels so today is last
+                                        const dayIdx = (today - 6 + i + 7) % 7;
+                                        return (
+                                            <div key={i} className="flex-1 flex flex-col items-center gap-1">
+                                                <div className="w-full relative flex items-end justify-center" style={{ height: "40px" }}>
+                                                    <div
+                                                        className={`w-full rounded-sm transition-all ${count > 0 ? "bg-zinc-800 dark:bg-zinc-200" : "bg-zinc-200 dark:bg-zinc-800"}`}
+                                                        style={{ height: `${heightPct}%`, minHeight: "3px" }}
+                                                    />
                                                 </div>
+                                                <span className="text-[8px] text-zinc-400 uppercase">{DAY_LABELS[dayIdx]}</span>
                                             </div>
-                                            <ChevronRight size={14} className="text-zinc-300 group-hover:text-zinc-500" />
-                                        </Link>
-                                    ))
+                                        );
+                                    })}
+                                </div>
+                            </section>
+
+                            {/* ── Category Breakdown ── */}
+                            {categoryBreakdown.length > 0 && (
+                                <section>
+                                    <Label><Hash size={11} className="inline mr-1 -mt-px" />Reading Breakdown</Label>
+                                    <div className="space-y-0">
+                                        {categoryBreakdown.map(([cat, count]) => {
+                                            const total = readArticles.length;
+                                            const pct = Math.round((count / total) * 100);
+                                            const CatIcon = CATEGORIES[cat]?.icon || BookOpen;
+                                            return (
+                                                <div key={cat} className="flex items-center gap-2.5 py-2 border-b border-zinc-100 dark:border-zinc-800/50 last:border-0">
+                                                    <div className="w-7 h-7 rounded-md bg-zinc-100 dark:bg-zinc-800/80 flex items-center justify-center shrink-0 text-zinc-500 dark:text-zinc-400">
+                                                        <CatIcon size={13} />
+                                                    </div>
+                                                    <div className="flex-1 min-w-0">
+                                                        <div className="flex items-center justify-between mb-1">
+                                                            <span className="text-[11.5px] font-medium text-zinc-900 dark:text-zinc-100">{cat}</span>
+                                                            <span className="text-[10px] text-zinc-400 tabular-nums">{count} · {pct}%</span>
+                                                        </div>
+                                                        <div className="h-1 bg-zinc-100 dark:bg-zinc-800 rounded-full overflow-hidden">
+                                                            <div className="h-full bg-zinc-700 dark:bg-zinc-300 rounded-full transition-all" style={{ width: `${pct}%` }} />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+                                </section>
+                            )}
+
+                            {/* ── Recently Read ── */}
+                            <section>
+                                <Label><BookOpen size={11} className="inline mr-1 -mt-px" />Reading History</Label>
+                                {isLoading ? <Skeleton n={5} /> : sortedReadArticles.length > 0 ? (
+                                    <div>{sortedReadArticles.slice(0, 15).map((a, i) => <ArticleRow key={a.id} article={a} i={i} />)}</div>
                                 ) : (
-                                    <div className="text-[13px] text-zinc-500 py-4 text-center border border-dashed border-zinc-200 dark:border-zinc-800 rounded-xl">
-                                        No reading history yet.
+                                    <div className="py-12 text-center">
+                                        <BookOpen size={24} className="mx-auto text-zinc-300 dark:text-zinc-700 mb-2" />
+                                        <p className="text-[12px] text-zinc-500">No reading history yet</p>
+                                        <Link href="/curation/discover" className="text-[11px] text-blue-500 hover:text-blue-600 mt-1 inline-block">Start exploring →</Link>
                                     </div>
                                 )}
-                            </div>
-                        </section>
-                    </motion.div>
-                )}
+                            </section>
 
-                {activeSegment === 'vault' && (
-                    <motion.div
-                        key="vault"
-                        initial={{ opacity: 0, scale: 0.98 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        className="space-y-4"
-                    >
-                        <h2 className="text-[12px] font-medium text-zinc-400 mb-4 ml-0.5">
-                            Saved Articles
-                        </h2>
-                        {isLoading ? (
-                            <div className="text-[13px] text-zinc-500 py-4 text-center">Loading...</div>
-                        ) : savedArticles.length > 0 ? (
-                            savedArticles.map((article) => (
-                                <Link key={article.id} href={`/curation/${article.id}`} className="flex items-center gap-4 p-4 bg-white dark:bg-zinc-900/40 rounded-2xl border border-zinc-200/60 dark:border-zinc-800/60 group hover:border-zinc-300 dark:hover:border-zinc-700 transition-all cursor-pointer">
-                                    <div className={`w-12 h-12 rounded-xl bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center text-zinc-400 relative overflow-hidden`}>
-                                        {article.imageUrl ? <Image src={article.imageUrl} alt="" fill className="object-cover" /> : <Folder size={18} />}
-                                    </div>
-                                    <div className="flex-1">
-                                        <h4 className="text-[14px] font-medium text-zinc-800 dark:text-zinc-200 line-clamp-1">{article.title}</h4>
-                                        <p className="text-[10px] font-medium text-zinc-400 tracking-wider mt-0.5">{article.category || "General"}</p>
-                                    </div>
-                                    <div className="w-8 h-8 rounded-full flex items-center justify-center text-zinc-300 group-hover:text-zinc-600 dark:group-hover:text-zinc-200 transition-colors">
-                                        <ChevronRight size={16} />
-                                    </div>
-                                </Link>
-                            ))
-                        ) : (
-                            <div className="text-[13px] text-zinc-500 py-10 text-center border border-dashed border-zinc-200 dark:border-zinc-800 rounded-xl">
-                                No saved articles found. <Link href="/curation" className="text-blue-500 hover:underline">Explore</Link>
+                        </motion.div>
+                    ) : (
+                        <motion.div key="saved" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.15 }} className="space-y-4">
+
+                            {/* Saved count */}
+                            <div className="flex items-center justify-between px-1">
+                                <span className="text-[11px] text-zinc-400">{savedArticles.length} saved articles</span>
                             </div>
-                        )}
-                    </motion.div>
-                )}
-            </AnimatePresence>
+
+                            {isLoading ? <Skeleton n={5} /> : savedArticles.length > 0 ? (
+                                <div>{savedArticles.map((a, i) => <ArticleRow key={a.id} article={a} i={i} />)}</div>
+                            ) : (
+                                <div className="py-16 text-center">
+                                    <Bookmark size={24} className="mx-auto text-zinc-300 dark:text-zinc-700 mb-2" />
+                                    <p className="text-[12px] text-zinc-500">No saved articles yet</p>
+                                    <p className="text-[10px] text-zinc-400 mt-1">Bookmark articles while reading to save them here</p>
+                                    <Link href="/curation/discover" className="text-[11px] text-blue-500 hover:text-blue-600 mt-2 inline-block">Discover articles →</Link>
+                                </div>
+                            )}
+
+                        </motion.div>
+                    )}
+                </AnimatePresence>
+            </main>
         </div>
     );
 }
