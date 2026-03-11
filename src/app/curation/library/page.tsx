@@ -4,8 +4,8 @@ import React, { useState, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
     Bookmark, BookOpen, ChevronRight, Clock, FileText,
-    Flame, Hash, Loader2, ArrowLeft, TrendingUp,
-    Brain, Rocket, Coffee, Zap, Eye, BarChart3, Calendar,
+    Hash, Loader2, ArrowLeft, TrendingUp,
+    Brain, Rocket, Coffee, Zap, BarChart3, Calendar,
     Star, Award
 } from "lucide-react";
 import Link from "next/link";
@@ -90,6 +90,7 @@ export default function LibraryPage() {
     const [allArticles, setAllArticles] = useState<any[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [mounted, setMounted] = useState(false);
+    const [totalCount, setTotalCount] = useState(0);
 
     const [localState, setLocalState] = useState<VisitorState>({ read: {}, bookmarked: {} });
     const [history, setHistory] = useState<ReadEntry[]>([]);
@@ -107,6 +108,7 @@ export default function LibraryPage() {
                 if (!res.ok) throw new Error(`API ${res.status}`);
                 const data = await res.json();
                 if (data.articles) setAllArticles(data.articles);
+                if (data.totalCount != null) setTotalCount(data.totalCount);
             } catch (err) { console.error("Library fetch error:", err); }
             finally { setIsLoading(false); }
         })();
@@ -246,7 +248,7 @@ export default function LibraryPage() {
                             {/* ── Stats Row ── */}
                             <div className="flex items-center bg-zinc-50 dark:bg-zinc-900/60 rounded-xl border border-zinc-200/50 dark:border-zinc-800/50 divide-x divide-zinc-200/60 dark:divide-zinc-800/60">
                                 {[
-                                    { label: "articles", value: readIds.size },
+                                    { label: "articles", value: totalCount || allArticles.length },
                                     { label: "day streak", value: streak },
                                     { label: "this week", value: weeklyTotal },
                                     { label: "min read", value: totalReadingMins },
