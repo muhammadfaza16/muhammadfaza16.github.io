@@ -9,10 +9,10 @@ type ReadEntry = { id: string; ts: number };
 type VisitorState = { read: Record<string, boolean>; bookmarked: Record<string, boolean> };
 
 const CATEGORIES = [
-    { name: "AI & Automation", emoji: "🤖" },
-    { name: "Wealth & Leverage", emoji: "💰" },
-    { name: "Philosophy & Mental Models", emoji: "🧠" },
-    { name: "Peak Performance", emoji: "⚡" },
+    { name: "AI & Tech", emoji: "🤖" },
+    { name: "Wealth & Business", emoji: "💰" },
+    { name: "Philosophy & Psychology", emoji: "🧠" },
+    { name: "Productivity & Deep Work", emoji: "⚡" },
     { name: "Growth & Systems", emoji: "📈" },
 ];
 

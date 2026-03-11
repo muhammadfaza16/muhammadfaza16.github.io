@@ -3,7 +3,7 @@
 import { use, useEffect, useState, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { motion, useScroll, useSpring, useMotionValueEvent, AnimatePresence, useTransform } from "framer-motion";
-import { ArrowLeft, Clock, CheckCircle, Share, Trash2, Globe, Pencil, Loader2, Camera, X, Clipboard, ImageIcon, MessageSquareQuote, ChevronsDown, Maximize, Minimize, Minus, Plus, Type, Bookmark, Volume2, VolumeX, Pause, Play, FolderPlus, FolderCheck, Check, Sparkles, ChevronDown, ChevronUp } from "lucide-react";
+import { ArrowLeft, Clock, CheckCircle, Share, Trash2, Globe, Pencil, Loader2, Camera, X, Clipboard, ImageIcon, MessageSquareQuote, ChevronsDown, Maximize, Minimize, Minus, Plus, Type, Bookmark, Volume2, VolumeX, Pause, Play, FolderPlus, FolderCheck, Check, Sparkles, ChevronDown, ChevronUp, Heart, RefreshCw, MessageSquare } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import ReactMarkdown from "react-markdown";
@@ -27,6 +27,9 @@ type Article = {
     category?: string | null;
     summary?: string | null;
     toc?: any[] | null;
+    likes?: number;
+    reposts?: number;
+    replies?: number;
 };
 
 type Comment = {
@@ -48,15 +51,23 @@ type ThemeKey = keyof typeof THEMES;
 const LABEL_CLASS = "text-[12px] font-bold uppercase tracking-wider text-zinc-500 ml-1";
 
 const CATEGORIES = [
-    { name: "AI & Automation", emoji: "🤖" },
-    { name: "Wealth & Leverage", emoji: "💰" },
-    { name: "Philosophy & Mental Models", emoji: "🧠" },
-    { name: "Peak Performance", emoji: "⚡" },
+    { name: "AI & Tech", emoji: "🤖" },
+    { name: "Wealth & Business", emoji: "💰" },
+    { name: "Philosophy & Psychology", emoji: "🧠" },
+    { name: "Productivity & Deep Work", emoji: "⚡" },
     { name: "Growth & Systems", emoji: "📈" },
 ];
 
 import { uploadImageToSupabase } from "@/lib/uploadImage";
 import { BottomSheet, ImagePicker, QuickPasteInput, RichTextEditor } from "@/components/sanctuary";
+
+const formatMetrics = (num: number | undefined): string | number => {
+    if (num === undefined || num === 0) return 0;
+    if (num >= 1000) {
+        return (num / 1000).toFixed(1).replace(/\.0$/, '') + 'k';
+    }
+    return num.toLocaleString();
+};
 
 
 
@@ -928,19 +939,39 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
                             <h1 className="text-[32px] md:text-5xl font-bold font-sans tracking-tight leading-tight mb-4 text-white drop-shadow-lg">
                                 {article.title}
                             </h1>
-                            <div className="flex flex-wrap items-center gap-3 text-white/50 font-sans text-[11px] font-bold tracking-[0.2em] uppercase">
-                                <span>
-                                    {new Date(article.createdAt).toLocaleDateString('en-US', {
-                                        year: 'numeric', month: 'short', day: 'numeric'
-                                    })}
-                                </span>
-                                <span className="text-white/20">•</span>
-                                <span>{readingTime} min read</span>
-                                {article.category && (
-                                    <>
-                                        <span className="text-white/20">•</span>
-                                        <span className="text-blue-400">{article.category}</span>
-                                    </>
+                            <div className="flex flex-col gap-4">
+                                <div className="flex flex-wrap items-center gap-3 text-white/50 font-sans text-[11px] font-bold tracking-[0.2em] uppercase">
+                                    <span>
+                                        {new Date(article.createdAt).toLocaleDateString('en-US', {
+                                            year: 'numeric', month: 'short', day: 'numeric'
+                                        })}
+                                    </span>
+                                    <span className="text-white/20">•</span>
+                                    <span>{readingTime} min read</span>
+                                    {article.category && (
+                                        <>
+                                            <span className="text-white/20">•</span>
+                                            <span className="text-blue-400">{article.category}</span>
+                                        </>
+                                    )}
+                                </div>
+
+                                {/* Engagement Metrics */}
+                                {(article.likes !== undefined) && (
+                                    <div className="flex items-center gap-4 text-[12px] font-bold font-sans tracking-wide text-white/60 drop-shadow-md">
+                                        <div className="flex items-center gap-1.5" title="Likes">
+                                            <Heart size={14} className="text-white/60 stroke-[2.5]" />
+                                            <span>{formatMetrics(article.likes)}</span>
+                                        </div>
+                                        <div className="flex items-center gap-1.5" title="Reposts">
+                                            <RefreshCw size={14} className="text-white/60 stroke-[2.5]" />
+                                            <span>{formatMetrics(article.reposts)}</span>
+                                        </div>
+                                        <div className="flex items-center gap-1.5" title="Replies">
+                                            <MessageSquare size={14} className="text-white/60 stroke-[2.5]" />
+                                            <span>{formatMetrics(article.replies)}</span>
+                                        </div>
+                                    </div>
                                 )}
                             </div>
                         </div>
@@ -956,19 +987,41 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
                         >
                             {article.title}
                         </h1>
-                        <div className="flex flex-wrap items-center gap-3 text-zinc-400 font-sans text-[11px] font-bold tracking-[0.2em] uppercase">
-                            <span>
-                                {new Date(article.createdAt).toLocaleDateString('en-US', {
-                                    year: 'numeric', month: 'short', day: 'numeric'
-                                })}
-                            </span>
-                            <span className="text-zinc-200 dark:text-zinc-800">•</span>
-                            <span>{readingTime} min read</span>
-                            {article.category && (
-                                <>
-                                    <span className="text-zinc-200 dark:text-zinc-800">•</span>
-                                    <span className="text-blue-500">{article.category}</span>
-                                </>
+
+                        <div className="flex flex-col gap-4">
+                            {/* Primary Meta (Date, Time, Category) */}
+                            <div className="flex flex-wrap items-center gap-3 text-zinc-400 font-sans text-[11px] font-bold tracking-[0.2em] uppercase">
+                                <span>
+                                    {new Date(article.createdAt).toLocaleDateString('en-US', {
+                                        year: 'numeric', month: 'short', day: 'numeric'
+                                    })}
+                                </span>
+                                <span className="text-zinc-200 dark:text-zinc-800">•</span>
+                                <span>{readingTime} min read</span>
+                                {article.category && (
+                                    <>
+                                        <span className="text-zinc-200 dark:text-zinc-800">•</span>
+                                        <span className="text-blue-500">{article.category}</span>
+                                    </>
+                                )}
+                            </div>
+
+                            {/* Engagement Metrics */}
+                            {(article.likes !== undefined) && (
+                                <div className="flex items-center gap-4 text-[12px] font-bold font-sans tracking-wide text-zinc-400">
+                                    <div className="flex items-center gap-1.5 text-zinc-500" title="Likes">
+                                        <Heart size={14} className="stroke-[2.5]" />
+                                        <span>{formatMetrics(article.likes)}</span>
+                                    </div>
+                                    <div className="flex items-center gap-1.5 text-zinc-500" title="Reposts">
+                                        <RefreshCw size={14} className="stroke-[2.5]" />
+                                        <span>{formatMetrics(article.reposts)}</span>
+                                    </div>
+                                    <div className="flex items-center gap-1.5 text-zinc-500" title="Replies">
+                                        <MessageSquare size={14} className="stroke-[2.5]" />
+                                        <span>{formatMetrics(article.replies)}</span>
+                                    </div>
+                                </div>
                             )}
                         </div>
                     </div>

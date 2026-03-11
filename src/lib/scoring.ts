@@ -212,25 +212,25 @@ export function scoreArticle(title: string, content: string): ArticleScores {
 // ─── Category Prediction (Client & Server) ───
 
 const CATEGORY_DICTIONARY: Record<string, Record<string, number>> = {
-    "AI & Automation": {
+    "AI & Tech": {
         "ai": 6, "llm": 6, "chatgpt": 5, "prompt": 4, "machine": 3, "learning": 3,
         "neural": 4, "framework": 2, "api": 2, "gpt": 5, "claude": 5, "openai": 5,
         "anthropic": 4, "agent": 4, "models": 2, "inference": 3, "rag": 4, "token": 2,
-        "automation": 5, "autonomous": 4, "bot": 3
+        "automation": 5, "autonomous": 4, "bot": 3, "tech": 4
     },
-    "Wealth & Leverage": {
+    "Wealth & Business": {
         "startup": 5, "saas": 5, "revenue": 4, "arr": 5, "mrr": 5, "margin": 3,
         "investment": 4, "venture": 4, "capital": 3, "business": 3, "founder": 4,
         "profit": 3, "sales": 3, "b2b": 4, "b2c": 3, "equity": 3, "bootstrapped": 5,
         "monetization": 4, "funding": 4, "valuation": 4, "leverage": 6, "scale": 5, "wealth": 6
     },
-    "Philosophy & Mental Models": {
+    "Philosophy & Psychology": {
         "mindset": 6, "philosophy": 6, "stoicism": 5, "stoic": 5, "mental": 6,
         "model": 5, "clarity": 4, "wisdom": 4, "truth": 3, "perspective": 3,
-        "paradigm": 4, "ego": 4, "meditation": 4, "awareness": 3, "psychology": 4,
+        "paradigm": 4, "ego": 4, "meditation": 4, "awareness": 3, "psychology": 5,
         "heuristic": 5, "framework": 3
     },
-    "Peak Performance": {
+    "Productivity & Deep Work": {
         "productivity": 6, "habit": 5, "routine": 5, "deep": 4, "work": 2,
         "focus": 5, "time": 3, "management": 2, "system": 2, "goal": 3,
         "discipline": 5, "procrastination": 5, "efficiency": 4, "optimize": 3,

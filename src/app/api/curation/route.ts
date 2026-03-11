@@ -117,7 +117,11 @@ export async function GET(request: Request) {
                 const query: any = {
                     take: limit + 1,
                     where,
-                    orderBy: sort === "oldest" ? { createdAt: "asc" } : { createdAt: "desc" },
+                    orderBy: sort === "oldest"
+                        ? { createdAt: "asc" }
+                        : sort === "popularity"
+                            ? { score: { socialScore: "desc" } }
+                            : { createdAt: "desc" },
                     select: {
                         id: true,
                         title: true,

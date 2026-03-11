@@ -72,10 +72,10 @@ type SortType = "latest" | "oldest";
 // ─── Constants ───
 
 const CATEGORIES = [
-  { name: "AI & Automation", emoji: "🤖", desc: "Frameworks & future of computing" },
-  { name: "Wealth & Leverage", emoji: "💰", desc: "Strategies for asymmetric scale" },
-  { name: "Philosophy & Mental Models", emoji: "🧠", desc: "Mental frames for clarity" },
-  { name: "Peak Performance", emoji: "⚡", desc: "Systems for deep elite work" },
+  { name: "AI & Tech", emoji: "🤖", desc: "Frameworks & future of computing" },
+  { name: "Wealth & Business", emoji: "💰", desc: "Strategies for asymmetric scale" },
+  { name: "Philosophy & Psychology", emoji: "🧠", desc: "Mental frames for clarity" },
+  { name: "Productivity & Deep Work", emoji: "⚡", desc: "Systems for deep elite work" },
   { name: "Growth & Systems", emoji: "📈", desc: "Acquisition & compounding systems" },
 ];
 
@@ -1382,19 +1382,20 @@ export default function CurationList() {
         {/* Utility Action Bar (Sort & Status) */}
         <div className="flex items-center gap-2 overflow-x-auto px-5 pb-5 no-scrollbar mb-4 border-b border-zinc-200/60 dark:border-zinc-800/60 w-full">
           {/* Sort Toggle */}
-          <button
-            onClick={() =>
-              handleSortChange(sort === "latest" ? "oldest" : "latest")
-            }
-            className="px-3 py-1.5 text-[12px] font-bold rounded-full transition-all active:scale-[0.96] whitespace-nowrap bg-white dark:bg-zinc-900 text-zinc-600 dark:text-zinc-400 border border-zinc-200 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700 flex items-center gap-1.5 shrink-0 shadow-sm"
-          >
-            {sort === "latest" ? (
-              <ArrowDown size={14} strokeWidth={2.5} />
-            ) : (
-              <ArrowUp size={14} strokeWidth={2.5} />
-            )}
-            {sort === "latest" ? "Latest" : "Oldest"}
-          </button>
+          <div className="flex bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-full overflow-hidden shrink-0 shadow-sm p-0.5 relative">
+            {['latest', 'oldest', 'popularity'].map((s) => (
+              <button
+                key={s}
+                onClick={() => handleSortChange(s as SortType)}
+                className={`px-3 py-1.5 text-[11px] font-bold rounded-full transition-all whitespace-nowrap z-10 ${sort === s
+                  ? "bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 shadow-sm"
+                  : "text-zinc-400 dark:text-zinc-500 hover:text-zinc-600 dark:hover:text-zinc-300 bg-transparent"
+                  }`}
+              >
+                {s.charAt(0).toUpperCase() + s.slice(1)}
+              </button>
+            ))}
+          </div>
 
           <div className="w-[1px] h-4 bg-zinc-200 dark:bg-zinc-800 mx-1 shrink-0" />
 
