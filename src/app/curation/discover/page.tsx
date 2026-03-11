@@ -43,6 +43,7 @@ export default function ExplorePage() {
 
     // Data States
     const [forYouArticles, setForYouArticles] = useState<any[]>([]);
+    const [trendingArticles, setTrendingArticles] = useState<any[]>([]);
     const [searchResults, setSearchResults] = useState<any[]>([]);
 
     // UI States
@@ -69,10 +70,17 @@ export default function ExplorePage() {
                     // Let's just fetch top popularity for now to simulate personalized top picks
                 }
 
-                // 2. Fetch "For You"
-                const res = await fetch(`/api/curation?limit=4&sort=popularity`);
-                const data = await res.json();
-                if (data.articles) setForYouArticles(data.articles);
+                // 2. Fetch "For You" and "Trending" concurrently
+                const [topRes, trendingRes] = await Promise.all([
+                    fetch(`/api/curation?limit=3&sort=latest`),
+                    fetch(`/api/curation?limit=5&sort=popularity`)
+                ]);
+
+                const topData = await topRes.json();
+                const trendingData = await trendingRes.json();
+
+                if (topData.articles) setForYouArticles(topData.articles);
+                if (trendingData.articles) setTrendingArticles(trendingData.articles);
             } catch (err) {
                 console.error("Failed to fetch initial explore data:", err);
             } finally {
@@ -251,15 +259,16 @@ export default function ExplorePage() {
 
                             {/* ═══ FOR YOU / PERSONALIZED ═══ */}
                             <section>
-                                <h2 className="text-[13px] font-medium text-zinc-900 dark:text-zinc-100 px-1 mb-4 flex items-center gap-2">
+                                <h2 className="text-[13px] font-medium text-zinc-900 dark:text-zinc-100 px-1 mb-1 flex items-center gap-2">
                                     <Sparkles size={16} className="text-yellow-500" />
                                     Picked For You
                                 </h2>
+                                <p className="text-[11px] text-zinc-500 px-1 mb-3">Based on your recent activity and reading history</p>
                                 <div className="space-y-2">
                                     {isLoadingInit ? (
                                         Array(3).fill(0).map((_, i) => <div key={i} className="h-24 m-1 bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-100 dark:border-zinc-800 animate-pulse" />)
                                     ) : (
-                                        forYouArticles.slice(0, 3).map(renderCompactArticle)
+                                        forYouArticles.map(renderCompactArticle)
                                     )}
                                 </div>
                             </section>
@@ -269,24 +278,20 @@ export default function ExplorePage() {
                                 <h2 className="text-[13px] font-medium text-zinc-500 px-1 mb-4">
                                     Curated Collections
                                 </h2>
-                                <div className="flex gap-3 px-1 overflow-x-auto no-scrollbar mask-linear-right pb-4">
+                                <div className="grid grid-cols-2 gap-2 px-1">
                                     {STARTER_PACKS.map((pack, i) => (
                                         <button
                                             key={pack.title}
                                             onClick={() => setSearchQuery(pack.category)}
-                                            className="group relative overflow-hidden rounded-2xl border border-zinc-200/60 dark:border-zinc-800/60 bg-white dark:bg-zinc-900/40 p-5 text-left transition-all hover:border-zinc-400 dark:hover:border-zinc-600 hover:shadow-sm w-[260px] shrink-0"
+                                            className="group relative overflow-hidden rounded-xl border border-zinc-200/60 dark:border-zinc-800/60 bg-white dark:bg-zinc-900/40 p-3 text-left transition-all hover:border-zinc-400 dark:hover:border-zinc-600 hover:shadow-sm flex items-center gap-3"
                                         >
-                                            <div className={`absolute top-0 right-0 w-32 h-32 bg-gradient-to-br ${pack.color} rounded-full blur-3xl -mr-10 -mt-10 opacity-50 group-hover:opacity-100 transition-opacity`} />
-                                            <div className="relative z-10 flex flex-col h-full justify-between">
-                                                <div className="w-10 h-10 rounded-full bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center mb-6 text-zinc-600 dark:text-zinc-300">
-                                                    <pack.icon size={18} />
-                                                </div>
-                                                <div>
-                                                    <h3 className="text-[15px] font-medium text-zinc-900 dark:text-zinc-100 mb-1">{pack.title}</h3>
-                                                    <p className="text-[12px] text-zinc-500 dark:text-zinc-400 flex items-center gap-1">
-                                                        {pack.category} <ChevronRight size={12} className="group-hover:translate-x-0.5 transition-transform" />
-                                                    </p>
-                                                </div>
+                                            <div className={`absolute top-0 right-0 w-24 h-24 bg-gradient-to-br ${pack.color} rounded-full blur-2xl -mr-8 -mt-8 opacity-40 group-hover:opacity-100 transition-opacity`} />
+                                            <div className="relative z-10 w-8 h-8 rounded-full bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center shrink-0 text-zinc-600 dark:text-zinc-300">
+                                                <pack.icon size={14} />
+                                            </div>
+                                            <div className="relative z-10 flex-1 min-w-0 pr-1">
+                                                <h3 className="text-[13px] font-semibold text-zinc-900 dark:text-zinc-100 mb-0.5 truncate">{pack.title}</h3>
+                                                <p className="text-[10px] text-zinc-500 dark:text-zinc-400 truncate">{pack.category}</p>
                                             </div>
                                         </button>
                                     ))}
@@ -296,11 +301,11 @@ export default function ExplorePage() {
                             {/* ═══ POPULAR IN NETWORK ═══ */}
                             <section>
                                 <h2 className="text-[13px] font-medium text-zinc-500 px-1 mb-4 flex items-center justify-between">
-                                    Network Popular
+                                    Trending Now
                                     <button onClick={() => setActiveFilter('popularity')} className="text-[11px] text-blue-500 hover:text-blue-600">See All</button>
                                 </h2>
                                 <div className="space-y-2">
-                                    {!isLoadingInit && forYouArticles.slice(3).map(renderCompactArticle)}
+                                    {!isLoadingInit && trendingArticles.map(renderCompactArticle)}
                                 </div>
                             </section>
 
