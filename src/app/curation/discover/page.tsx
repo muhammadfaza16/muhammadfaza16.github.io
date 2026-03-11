@@ -87,7 +87,7 @@ export default function ExplorePage() {
                 const [tR, lR, aR] = await Promise.all([
                     fetch("/api/curation?limit=8&sort=popularity"),
                     fetch("/api/curation?limit=5&sort=latest"),
-                    fetch("/api/curation?limit=999&sort=latest"),
+                    fetch("/api/curation?limit=100&sort=latest"),
                 ]);
                 const tD = tR.ok ? await tR.json() : { articles: [] };
                 const lD = lR.ok ? await lR.json() : { articles: [] };
