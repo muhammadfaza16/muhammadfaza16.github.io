@@ -146,12 +146,36 @@ const HighlightText = ({ text, query }: { text: string; query: string }) => {
 // ─── Main Component ───
 
 export default function CurationList() {
-  const [articles, setArticles] = useState<ArticleMeta[]>([]);
+  const [articles, setArticles] = useState<ArticleMeta[]>(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const cached = sessionStorage.getItem(CACHE_KEY);
+        if (cached) return JSON.parse(cached).articles || [];
+      } catch { }
+    }
+    return [];
+  });
   const [topArticles, setTopArticles] = useState<ArticleMeta[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isLoadingTop, setIsLoadingTop] = useState(true);
-  const [sort, setSort] = useState<SortType>("latest");
-  const [categoryFilter, setCategoryFilter] = useState<string[]>([]);
+  const [sort, setSort] = useState<SortType>(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const cached = sessionStorage.getItem(CACHE_KEY);
+        if (cached) return JSON.parse(cached).sort || "latest";
+      } catch { }
+    }
+    return "latest";
+  });
+  const [categoryFilter, setCategoryFilter] = useState<string[]>(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const cached = sessionStorage.getItem(CACHE_KEY);
+        if (cached) return JSON.parse(cached).categoryFilter || [];
+      } catch { }
+    }
+    return [];
+  });
   const [statusFilter, setStatusFilter] = useState<
     "all" | "unread" | "bookmarked"
   >("all");
@@ -160,7 +184,15 @@ export default function CurationList() {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [imgErrors, setImgErrors] = useState<Record<string, boolean>>({});
   const [isLoadingMore, setIsLoadingMore] = useState(false);
-  const [nextCursor, setNextCursor] = useState<string | null>(null);
+  const [nextCursor, setNextCursor] = useState<string | null>(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const cached = sessionStorage.getItem(CACHE_KEY);
+        if (cached) return JSON.parse(cached).nextCursor || null;
+      } catch { }
+    }
+    return null;
+  });
   const [isAdmin, setIsAdmin] = useState(false);
   const [visitorState, setVisitorState] = useState<{
     read: Record<string, boolean>;
@@ -705,16 +737,12 @@ export default function CurationList() {
 
   // Init
   useEffect(() => {
-    // Restore primary cache
+    // Restore primary cache scroll position if we loaded from cache
     try {
       const cached = sessionStorage.getItem(CACHE_KEY);
       if (cached) {
         const parsed = JSON.parse(cached);
         if (parsed.articles?.length > 0) {
-          setArticles(parsed.articles);
-          setNextCursor(parsed.nextCursor || null);
-          setSort(parsed.sort || "latest");
-          setCategoryFilter(parsed.categoryFilter || []);
           hasRestoredCache.current = true;
           setIsLoading(false);
 
