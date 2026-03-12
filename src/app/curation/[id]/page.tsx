@@ -3,7 +3,7 @@
 import { use, useEffect, useState, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { motion, useScroll, useSpring, useMotionValueEvent, AnimatePresence, useTransform } from "framer-motion";
-import { ArrowLeft, ChevronLeft, Headphones, Clock, CheckCircle, Share, Trash2, Globe, Pencil, Loader2, Camera, X, Clipboard, ImageIcon, MessageSquareQuote, ChevronsUp, Maximize, Minimize, Type, Volume2, VolumeX, Pause, Play, FolderPlus, FolderCheck, Check, Sparkles, ChevronDown, ChevronUp, RefreshCw, MessageSquare, Download } from "lucide-react";
+import { ArrowLeft, ChevronLeft, Headphones, Clock, CheckCircle, Share, Trash2, Globe, Pencil, Loader2, Camera, X, Clipboard, ImageIcon, MessageSquareQuote, ChevronsUp, Maximize, Minimize, Minus, Plus, Type, Bookmark, Volume2, VolumeX, Pause, Play, FolderPlus, FolderCheck, Check, Sparkles, ChevronDown, ChevronUp, Heart, RefreshCw, MessageSquare, Download } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import ReactMarkdown from "react-markdown";
