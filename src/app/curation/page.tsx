@@ -25,7 +25,11 @@ import {
   Flame,
   Highlighter,
   Library,
+  Heart,
+  Repeat,
+  MessageCircle,
 } from "lucide-react";
+import { formatTitle } from "@/lib/utils";
 import { Toaster, toast } from "react-hot-toast";
 import { updateToReadArticle, createToReadArticle } from "@/app/master/actions";
 import { getVisitorState, saveVisitorStateAsync, getReadHistoryAsync } from "@/lib/storage";
@@ -63,9 +67,13 @@ interface ArticleMeta {
     actionability: number;
     specificity: number;
   } | null;
+  likes?: number;
+  reposts?: number;
+  replies?: number;
 }
 
-type SortType = "latest" | "oldest";
+type SortBy = "date" | "popularity";
+type SortOrder = "asc" | "desc";
 
 // ─── Constants ───
 
@@ -120,6 +128,14 @@ const HighlightText = ({ text, query }: { text: string; query: string }) => {
   );
 };
 
+const formatMetric = (count?: number): string => {
+  if (!count) return "0";
+  if (count >= 1000) {
+    return (count / 1000).toFixed(1).replace(/\.0$/, "") + "k";
+  }
+  return count.toString();
+};
+
 // ─── Main Component ───
 
 export default function CurationList() {
@@ -128,7 +144,8 @@ export default function CurationList() {
   const [isLoading, setIsLoading] = useState(true);
   const [isLoadingTop, setIsLoadingTop] = useState(true);
   const [totalCount, setTotalCount] = useState(0);
-  const [sort, setSort] = useState<SortType>("latest");
+  const [sortBy, setSortBy] = useState<SortBy>("date");
+  const [sortOrder, setSortOrder] = useState<SortOrder>("desc");
   const [categoryFilter, setCategoryFilter] = useState<string[]>([]);
   const [statusFilter, setStatusFilter] = useState<
     "all" | "unread" | "bookmarked"
@@ -157,14 +174,16 @@ export default function CurationList() {
   const hasRestoredCache = useRef(false);
   const abortControllerRef = useRef<AbortController | null>(null);
   const lastFetchParamsRef = useRef({
-    sort: "latest",
+    sortBy: "date",
+    sortOrder: "desc" as SortOrder,
     cats: [] as string[],
     q: "",
   });
   const scrollYRef = useRef(0);
 
   // Live refs so IntersectionObserver always reads current values
-  const sortRef = useRef(sort);
+  const sortByRef = useRef(sortBy);
+  const sortOrderRef = useRef(sortOrder);
   const categoryFilterRef = useRef(categoryFilter);
   const searchQueryRef = useRef(debouncedSearchQuery);
 
@@ -492,7 +511,8 @@ export default function CurationList() {
   // Data Fetching
   const fetchArticles = async (
     currentCursor: string | null,
-    currentSort: string,
+    currentSortBy: SortBy,
+    currentSortOrder: SortOrder,
     categories: string[],
     q: string,
     isLoadMore = false,
@@ -507,7 +527,7 @@ export default function CurationList() {
 
     // Track what we're fetching so isLoadMore can verify it's still relevant
     if (!isLoadMore) {
-      lastFetchParamsRef.current = { sort: currentSort, cats: categories, q };
+      lastFetchParamsRef.current = { sortBy: currentSortBy, sortOrder: currentSortOrder, cats: categories, q };
     }
 
     try {
@@ -518,7 +538,7 @@ export default function CurationList() {
         setIsLoading(true);
       }
 
-      let url = `/api/curation?limit=5&sort=${currentSort}`;
+      let url = `/api/curation?limit=5&sortBy=${currentSortBy}&sortOrder=${currentSortOrder}`;
       if (categories.length > 0) {
         url += `&category=${encodeURIComponent(categories.join(","))}`;
       }
@@ -537,7 +557,8 @@ export default function CurationList() {
       if (isLoadMore) {
         const current = lastFetchParamsRef.current;
         if (
-          current.sort !== currentSort ||
+          current.sortBy !== currentSortBy ||
+          current.sortOrder !== currentSortOrder ||
           current.q !== q ||
           JSON.stringify(current.cats) !== JSON.stringify(categories)
         ) {
@@ -576,14 +597,15 @@ export default function CurationList() {
       hasRestoredCache.current = false;
       return;
     }
-    // Keep refs in sync so IntersectionObserver reads current values
-    sortRef.current = sort;
+    // Keep refs in sync so IntersectionObserver always reads current values
+    sortByRef.current = sortBy;
+    sortOrderRef.current = sortOrder;
     categoryFilterRef.current = categoryFilter;
     searchQueryRef.current = debouncedSearchQuery;
     // Instant for sort/category, debounced by useDebounce for search
-    fetchArticles(null, sort, categoryFilter, debouncedSearchQuery);
+    fetchArticles(null, sortBy, sortOrder, categoryFilter, debouncedSearchQuery);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [sort, categoryFilter, debouncedSearchQuery]);
+  }, [sortBy, sortOrder, categoryFilter, debouncedSearchQuery]);
 
   // Save cache when data changes
   useEffect(() => {
@@ -591,11 +613,12 @@ export default function CurationList() {
     sessionStorage.setItem(CACHE_KEY, JSON.stringify({
       articles,
       nextCursor,
-      sort,
+      sortBy,
+      sortOrder,
       categoryFilter,
       scrollY: scrollYRef.current || 0
     }));
-  }, [articles, nextCursor, sort, categoryFilter]);
+  }, [articles, nextCursor, sortBy, sortOrder, categoryFilter]);
 
   // Save scroll position on unmount before navigating away
   useEffect(() => {
@@ -619,7 +642,7 @@ export default function CurationList() {
       (entries) => {
         if (entries[0].isIntersecting && nextCursor && !isLoadingMoreRef.current) {
           // Read from refs to avoid stale closure values
-          fetchArticles(nextCursor, sortRef.current, categoryFilterRef.current, searchQueryRef.current, true);
+          fetchArticles(nextCursor, sortByRef.current, sortOrderRef.current, categoryFilterRef.current, searchQueryRef.current, true);
         }
       },
       { root: scrollContainerRef.current, rootMargin: "600px" }
@@ -634,7 +657,7 @@ export default function CurationList() {
       if (currentLoadMore) observer.unobserve(currentLoadMore);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [nextCursor, sort, categoryFilter, debouncedSearchQuery]);
+  }, [nextCursor, sortBy, sortOrder, categoryFilter, debouncedSearchQuery]);
 
   // Visitor state actions
   const toggleVisitorRead = (articleId: string) => {
@@ -705,7 +728,8 @@ export default function CurationList() {
           abortControllerRef.current?.abort(); // Cancel the initial latest fetch
           setArticles(parsed.articles);
           setNextCursor(parsed.nextCursor || null);
-          setSort(parsed.sort || "latest");
+          setSortBy(parsed.sortBy || "date");
+          setSortOrder(parsed.sortOrder || "desc");
           setCategoryFilter(parsed.categoryFilter || []);
           hasRestoredCache.current = true;
           setIsLoading(false);
@@ -778,10 +802,14 @@ export default function CurationList() {
 
   }, []);
 
-  const handleSortChange = useCallback((s: SortType) => {
-    if (s === sort) return;
-    setSort(s);
-  }, [sort]);
+  const handleSortDimensionClick = useCallback((dim: SortBy) => {
+    if (sortBy === dim) {
+      setSortOrder((prev) => (prev === "desc" ? "asc" : "desc"));
+    } else {
+      setSortBy(dim);
+      setSortOrder("desc"); // Default to desc when switching dimensions
+    }
+  }, [sortBy]);
 
   const handleCategoryToggle = useCallback((catName: string) => {
     setCategoryFilter((prev) =>
@@ -978,22 +1006,30 @@ export default function CurationList() {
           >
             {/* Hero Zone */}
             <div className="mb-14 px-5">
-              <h1
-                className="text-[38px] md:text-[48px] leading-[1.1] tracking-[-0.03em] text-zinc-900 dark:text-zinc-100 mb-6"
-                style={{ fontFamily: "'Playfair Display', Georgia, serif" }}
+              <motion.div 
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+                className="relative inline-block mb-8"
               >
-                Curated Knowledge
-                <br />
-                <span
-                  className="italic text-zinc-400 dark:text-zinc-500"
-                  style={{ fontWeight: 400 }}
+                <div className="absolute -inset-1 bg-gradient-to-r from-blue-500/20 to-emerald-500/20 blur-2xl rounded-full opacity-50 dark:opacity-30" />
+                <h1
+                  className="text-[44px] md:text-[56px] leading-[1.1] tracking-[-0.03em] text-zinc-900 dark:text-zinc-100 relative"
+                  style={{ fontFamily: "'Playfair Display', serif" }}
                 >
-                  & Perspectives.
-                </span>
-              </h1>
-              <p className="text-[16px] text-zinc-500 dark:text-zinc-400 leading-[1.7] max-w-[48ch]">
-                A carefully assembled library of essays, frameworks, and ideas —
-                for the curious mind. Explore, discover, contribute.
+                  Curated Knowledge
+                  <br />
+                  <span
+                    className="italic text-zinc-400/80 dark:text-zinc-500/80 font-serif font-light"
+                  >
+                    & Perspectives.
+                  </span>
+                </h1>
+              </motion.div>
+              
+              <p className="text-[17px] text-zinc-500 dark:text-zinc-400 leading-relaxed max-w-[42ch]">
+                The definitive index of high-signal frameworks, essays, and deep-dives — 
+                <span className="text-zinc-900 dark:text-zinc-200 font-medium"> hand-picked for the modern mind.</span>
               </p>
 
               {/* Stats */}
@@ -1112,7 +1148,7 @@ export default function CurationList() {
                                 fontFamily: "'Playfair Display', Georgia, serif",
                               }}
                             >
-                              {featuredArticle.title}
+                              {formatTitle(featuredArticle.title)}
                             </h3>
 
                             {/* Only show summary if it exists to add more context */}
@@ -1124,18 +1160,42 @@ export default function CurationList() {
                             {!plainSummary && <div className="mb-2" />}
 
                             {/* Removed mt-auto so it doesn't push the date way far down if the card is tall */}
-                            <div className="flex items-center gap-3 text-[12px] font-medium text-zinc-400 dark:text-zinc-500 mt-2">
-                              <span>
-                                {postDate.toLocaleDateString("en-US", {
-                                  month: "short",
-                                  day: "numeric",
-                                  year: "numeric",
-                                })}
-                              </span>
-                              <span className="w-1 h-1 rounded-full bg-zinc-300 dark:bg-zinc-700" />
-                              <span>{readTime} min read</span>
+                            <div className="flex items-center justify-between mt-2">
+                              <div className="flex items-center gap-2 text-[12px] font-medium text-zinc-400 dark:text-zinc-500">
+                                <span>
+                                  {postDate.toLocaleDateString("en-US", {
+                                    month: "short",
+                                    day: "numeric",
+                                    year: "numeric",
+                                  })}
+                                </span>
+                                <span className="text-zinc-200 dark:text-zinc-800">•</span>
+                                <span>{readTime}m read</span>
+                              </div>
 
-
+                              {/* Hero Metrics (Monochrome, Right-aligned) */}
+                              {(featuredArticle.likes || featuredArticle.reposts || featuredArticle.replies) ? (
+                                <div className="flex items-center gap-3.5">
+                                  {featuredArticle.likes ? (
+                                    <div className="flex items-center gap-1.5 group/metric">
+                                      <Heart size={12} strokeWidth={2.5} className="text-zinc-400 group-hover:text-zinc-900 dark:group-hover:text-zinc-100 transition-colors" />
+                                      <span className="text-[11px] tabular-nums font-bold text-zinc-500 dark:text-zinc-400">{formatMetric(featuredArticle.likes)}</span>
+                                    </div>
+                                  ) : null}
+                                  {featuredArticle.reposts ? (
+                                    <div className="flex items-center gap-1.5 group/metric">
+                                      <Repeat size={12} strokeWidth={2.5} className="text-zinc-400 group-hover:text-zinc-900 dark:group-hover:text-zinc-100 transition-colors" />
+                                      <span className="text-[11px] tabular-nums font-bold text-zinc-500 dark:text-zinc-400">{formatMetric(featuredArticle.reposts)}</span>
+                                    </div>
+                                  ) : null}
+                                  {featuredArticle.replies ? (
+                                    <div className="flex items-center gap-1.5 group/metric">
+                                      <MessageCircle size={12} strokeWidth={2.5} className="text-zinc-400 group-hover:text-zinc-900 dark:group-hover:text-zinc-100 transition-colors" />
+                                      <span className="text-[11px] tabular-nums font-bold text-zinc-500 dark:text-zinc-400">{formatMetric(featuredArticle.replies)}</span>
+                                    </div>
+                                  ) : null}
+                                </div>
+                              ) : null}
                             </div>
                           </div>
 
@@ -1182,7 +1242,7 @@ export default function CurationList() {
                         className="shrink-0 w-[220px] bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800 rounded-2xl p-3.5 active:scale-[0.97] transition-all hover:shadow-sm group"
                       >
                         <h4 className="text-[13px] font-bold text-zinc-800 dark:text-zinc-200 leading-tight line-clamp-2 mb-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
-                          {article.title}
+                          {formatTitle(article.title)}
                         </h4>
                         <div className="flex items-center gap-2 mb-2.5">
                           <span className="text-[10px] font-medium text-zinc-400 dark:text-zinc-500">
@@ -1370,20 +1430,36 @@ export default function CurationList() {
 
         {/* Utility Action Bar (Sort & Status) */}
         <div className="flex items-center gap-2 overflow-x-auto px-5 pb-5 no-scrollbar mb-4 border-b border-zinc-200/60 dark:border-zinc-800/60 w-full">
-          {/* Sort Toggle */}
+          {/* Integrated Sort Dimension & Order Toggles */}
           <div className="flex bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-full overflow-hidden shrink-0 shadow-sm p-0.5 relative">
-            {['latest', 'oldest', 'popularity'].map((s) => (
-              <button
-                key={s}
-                onClick={() => handleSortChange(s as SortType)}
-                className={`px-3 py-1.5 text-[11px] font-bold rounded-full transition-all whitespace-nowrap z-10 ${sort === s
-                  ? "bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 shadow-sm"
-                  : "text-zinc-400 dark:text-zinc-500 hover:text-zinc-600 dark:hover:text-zinc-300 bg-transparent"
-                  }`}
-              >
-                {s.charAt(0).toUpperCase() + s.slice(1)}
-              </button>
-            ))}
+            {[
+              { id: "date" as const, label: "Date" },
+              { id: "popularity" as const, label: "Popularity" }
+            ].map((dim) => {
+              const isActive = sortBy === dim.id;
+              return (
+                <button
+                  key={dim.id}
+                  onClick={() => handleSortDimensionClick(dim.id)}
+                  className={`flex items-center gap-2 px-4 py-1.5 text-[12px] font-bold rounded-full transition-all whitespace-nowrap z-10 active:scale-95 ${isActive
+                    ? "bg-zinc-800 dark:bg-zinc-100 text-white dark:text-zinc-900 shadow-sm"
+                    : "text-zinc-400 dark:text-zinc-500 hover:text-zinc-600 dark:hover:text-zinc-300 bg-transparent"
+                    }`}
+                >
+                  <span>{dim.label}</span>
+                  {isActive && (
+                    <motion.div
+                      initial={{ scale: 0, opacity: 0 }}
+                      animate={{ scale: 1, opacity: 1, rotate: sortOrder === "asc" ? 180 : 0 }}
+                      transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                      className="flex items-center justify-center ml-0.5"
+                    >
+                      <ArrowDown size={14} strokeWidth={2.5} />
+                    </motion.div>
+                  )}
+                </button>
+              );
+            })}
           </div>
 
           <div className="w-[1px] h-4 bg-zinc-200 dark:bg-zinc-800 mx-1 shrink-0" />
@@ -1554,20 +1630,51 @@ export default function CurationList() {
 
                         {/* Right Content */}
                         <div className="flex-1 min-w-0 flex flex-col justify-center">
-                          <div className="flex items-center gap-2 mb-1.5 flex-wrap">
-                            {article.category && (
-                              <span className="text-[10px] font-bold uppercase tracking-[0.1em] text-blue-600 dark:text-blue-400">
-                                {article.category}
+                          <div className="flex items-center justify-between mt-auto">
+                            <div className="flex items-center gap-1.5 overflow-hidden">
+                              {article.category && (
+                                <>
+                                  <span className="text-[10px] font-bold uppercase tracking-[0.1em] text-blue-600 dark:text-blue-400 shrink-0">
+                                    {article.category}
+                                  </span>
+                                  <span className="text-zinc-200 dark:text-zinc-800 shrink-0">•</span>
+                                </>
+                              )}
+                              <span className="text-[10px] font-medium text-zinc-400 dark:text-zinc-500 shrink-0">
+                                {postDate.toLocaleDateString("en-US", {
+                                  month: "short",
+                                  day: "numeric",
+                                })}
                               </span>
-                            )}
-                            <span className="text-[10px] font-medium text-zinc-400 dark:text-zinc-500">
-                              •{" "}
-                              {postDate.toLocaleDateString("en-US", {
-                                month: "short",
-                                day: "numeric",
-                                year: "numeric",
-                              })}
-                            </span>
+                              <span className="text-zinc-200 dark:text-zinc-800 shrink-0">•</span>
+                              <span className="text-[10px] font-medium text-zinc-400 dark:text-zinc-500 shrink-0">
+                                {readTime}m
+                              </span>
+                            </div>
+
+                            {/* Search Result Metrics (Monochrome, Right-aligned) */}
+                            {(article.likes || article.reposts || article.replies) ? (
+                              <div className="flex items-center gap-2.5">
+                                {article.likes ? (
+                                  <div className="flex items-center gap-1 group/metric">
+                                    <Heart size={9} className="text-zinc-400 group-hover/metric:text-zinc-900 dark:group-hover/metric:text-zinc-100 transition-colors" />
+                                    <span className="text-[10px] text-zinc-400 tabular-nums">{formatMetric(article.likes)}</span>
+                                  </div>
+                                ) : null}
+                                {article.reposts ? (
+                                  <div className="flex items-center gap-1 group/metric">
+                                    <Repeat size={9} className="text-zinc-400 group-hover/metric:text-zinc-900 dark:group-hover/metric:text-zinc-100 transition-colors" />
+                                    <span className="text-[10px] text-zinc-400 tabular-nums">{formatMetric(article.reposts)}</span>
+                                  </div>
+                                ) : null}
+                                {article.replies ? (
+                                  <div className="flex items-center gap-1 group/metric">
+                                    <MessageCircle size={9} className="text-zinc-400 group-hover/metric:text-zinc-900 dark:group-hover/metric:text-zinc-100 transition-colors" />
+                                    <span className="text-[10px] text-zinc-400 tabular-nums">{formatMetric(article.replies)}</span>
+                                  </div>
+                                ) : null}
+                              </div>
+                            ) : null}
                           </div>
                           <h4 className="text-[15px] md:text-[17px] font-bold text-zinc-900 dark:text-zinc-100 leading-snug line-clamp-2 mb-1 group-hover/row:text-blue-600 dark:group-hover/row:text-blue-400 transition-colors">
                             <HighlightText
@@ -2013,17 +2120,43 @@ function SwipeableArticleCard({
             <h3 className="text-[15px] font-bold tracking-[-0.01em] text-zinc-900 dark:text-zinc-100 leading-[1.3] line-clamp-2 mb-1.5 group-hover/card:text-blue-600 dark:group-hover/card:text-blue-400 transition-colors">
               {article.title}
             </h3>
-            <div className="flex items-center gap-1.5 text-[11px] font-medium text-zinc-400 dark:text-zinc-500">
-              <span>
-                {postDate.toLocaleDateString("en-US", {
-                  month: "short",
-                  day: "numeric",
-                })}
-                {postDate.getFullYear() !== new Date().getFullYear() &&
-                  `, ${postDate.getFullYear()}`}
-              </span>
-              <span className="w-1 h-1 rounded-full bg-zinc-200 dark:bg-zinc-700" />
-              <span>{readTime} min</span>
+            <div className="flex items-center justify-between mt-auto">
+              <div className="flex items-center gap-1.5 text-[11px] font-medium text-zinc-400 dark:text-zinc-500">
+                <span>
+                  {postDate.toLocaleDateString("en-US", {
+                    month: "short",
+                    day: "numeric",
+                  })}
+                  {postDate.getFullYear() !== new Date().getFullYear() &&
+                    `, ${postDate.getFullYear()}`}
+                </span>
+                <span className="text-zinc-200 dark:text-zinc-800">•</span>
+                <span>{readTime}m read</span>
+              </div>
+
+              {/* Subtle Metrics (Strict Monochrome, Right-aligned) */}
+              {(article.likes || article.reposts || article.replies) ? (
+                <div className="flex items-center gap-3">
+                  {article.likes ? (
+                    <div className="flex items-center gap-1 group/metric">
+                      <Heart size={10} className="text-zinc-400 group-hover/metric:text-zinc-900 dark:group-hover/metric:text-zinc-200 transition-colors" />
+                      <span className="text-[10px] text-zinc-400 dark:text-zinc-500 tabular-nums">{formatMetric(article.likes)}</span>
+                    </div>
+                  ) : null}
+                  {article.reposts ? (
+                    <div className="flex items-center gap-1 group/metric">
+                      <Repeat size={10} className="text-zinc-400 group-hover/metric:text-zinc-900 dark:group-hover/metric:text-zinc-200 transition-colors" />
+                      <span className="text-[10px] text-zinc-400 dark:text-zinc-500 tabular-nums">{formatMetric(article.reposts)}</span>
+                    </div>
+                  ) : null}
+                  {article.replies ? (
+                    <div className="flex items-center gap-1 group/metric">
+                      <MessageCircle size={10} className="text-zinc-400 group-hover/metric:text-zinc-900 dark:group-hover/metric:text-zinc-200 transition-colors" />
+                      <span className="text-[10px] text-zinc-400 dark:text-zinc-500 tabular-nums">{formatMetric(article.replies)}</span>
+                    </div>
+                  ) : null}
+                </div>
+              ) : null}
             </div>
           </div>
         </Link>

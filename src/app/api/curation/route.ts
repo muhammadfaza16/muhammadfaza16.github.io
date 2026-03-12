@@ -78,7 +78,8 @@ export async function GET(request: Request) {
         const cursor = searchParams.get("cursor");
         const queryText = searchParams.get("q");
         const category = searchParams.get("category");
-        const sort = searchParams.get("sort") || "latest";
+        const sortBy = searchParams.get("sortBy") || "date";
+        const sortOrder = (searchParams.get("sortOrder") as "asc" | "desc") || "desc";
         const limitStr = searchParams.get("limit");
         const limit = limitStr ? parseInt(limitStr) : 10;
 
@@ -110,18 +111,16 @@ export async function GET(request: Request) {
 
         const where = conditions.length === 1 ? conditions[0] : { AND: conditions };
 
-        const getArticlesCacheKey = `curation-feed-v2-${sort}-${limit}-${category || 'none'}-${queryText || 'none'}-${cursor || 'none'}`;
+        const getArticlesCacheKey = `curation-feed-v3-${sortBy}-${sortOrder}-${limit}-${category || 'none'}-${queryText || 'none'}-${cursor || 'none'}`;
 
         const getCachedArticles = unstable_cache(
             async () => {
                 const query: any = {
                     take: limit + 1,
                     where,
-                    orderBy: sort === "oldest"
-                        ? [{ createdAt: "asc" }, { id: "asc" }]
-                        : sort === "popularity"
-                            ? [{ score: { socialScore: "desc" } }, { id: "desc" }]
-                            : [{ createdAt: "desc" }, { id: "desc" }],
+                    orderBy: sortBy === "popularity"
+                        ? [{ score: { socialScore: sortOrder } }, { id: sortOrder }]
+                        : [{ createdAt: sortOrder }, { id: sortOrder }],
                     select: {
                         id: true,
                         title: true,

@@ -3,7 +3,7 @@
 import { use, useEffect, useState, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { motion, useScroll, useSpring, useMotionValueEvent, AnimatePresence, useTransform } from "framer-motion";
-import { ArrowLeft, Clock, CheckCircle, Share, Trash2, Globe, Pencil, Loader2, Camera, X, Clipboard, ImageIcon, MessageSquareQuote, ChevronsDown, Maximize, Minimize, Minus, Plus, Type, Bookmark, Volume2, VolumeX, Pause, Play, FolderPlus, FolderCheck, Check, Sparkles, ChevronDown, ChevronUp, Heart, RefreshCw, MessageSquare, Download } from "lucide-react";
+import { ArrowLeft, ChevronLeft, Headphones, Clock, CheckCircle, Share, Trash2, Globe, Pencil, Loader2, Camera, X, Clipboard, ImageIcon, MessageSquareQuote, ChevronsUp, Maximize, Minimize, Type, Volume2, VolumeX, Pause, Play, FolderPlus, FolderCheck, Check, Sparkles, ChevronDown, ChevronUp, RefreshCw, MessageSquare, Download } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import ReactMarkdown from "react-markdown";
@@ -20,6 +20,7 @@ import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import { toPng } from 'html-to-image';
 import { Image as TiptapImage } from '@tiptap/extension-image';
+import { cn, formatTitle } from "@/lib/utils";
 
 type Article = {
     id: string;
@@ -558,6 +559,30 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [formUrl]);
 
+    const scrollToTop = useCallback(() => {
+        const duration = 1500; // Deliberate duration for "don't rush"
+        const startPosition = window.pageYOffset;
+        const startTime = performance.now();
+
+        const easeInOutCubic = (t: number) => {
+            return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+        };
+
+        const animate = (currentTime: number) => {
+            const elapsedTime = currentTime - startTime;
+            const progress = Math.min(elapsedTime / duration, 1);
+            const easedProgress = easeInOutCubic(progress);
+
+            window.scrollTo(0, startPosition * (1 - easedProgress));
+
+            if (progress < 1) {
+                requestAnimationFrame(animate);
+            }
+        };
+
+        requestAnimationFrame(animate);
+    }, []);
+
     if (isLoading) {
         return (
             <div className="min-h-screen bg-[#fafaf8] antialiased">
@@ -801,6 +826,15 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
         }
     };
 
+    const getDisplayDomain = (url?: string | null) => {
+        if (!url) return "";
+        try {
+            return new URL(url).hostname.replace("www.", "");
+        } catch {
+            return "Source";
+        }
+    };
+
     const handleCommentSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!newCommentText.trim() || !article) return;
@@ -897,139 +931,154 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
                 )}
             </AnimatePresence>
 
-            {/* Floating Back Button (Hide on Scroll Down) */}
-            <AnimatePresence>
-                {isNavVisible && !isZenMode && (
-                    <motion.div
-                        initial={{ y: -100, opacity: 0 }}
-                        animate={{ y: 0, opacity: 1 }}
-                        exit={{ y: -100, opacity: 0 }}
-                        transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                        className="fixed top-5 left-5 z-50"
+
+
+
+            <motion.div 
+                animate={{ filter: isZenMode ? "grayscale(30%) brightness(0.8)" : "grayscale(0%) brightness(1)" }} 
+                transition={{ duration: 0.8 }} 
+                className={isZenMode ? "pointer-events-none" : ""}
+            >
+                {/* Back Button Row - Balanced & Minimal */}
+                <div className="max-w-3xl mx-auto px-5 md:px-12 py-3 flex items-center">
+                    <Link
+                        href="/curation"
+                        className="flex items-center gap-2 text-zinc-400 hover:text-zinc-900 transition-colors group"
+                        title="Back to Feed"
                     >
-                        <Link
-                            href="/curation"
-                            className="w-11 h-11 flex items-center justify-center text-zinc-900 active:scale-90 rounded-full transition-all bg-white/70 backdrop-blur-xl shadow-sm border border-gray-200/50"
-                        >
-                            <ArrowLeft size={24} />
-                        </Link>
-                    </motion.div>
-                )}
-            </AnimatePresence>
-
-            {/* Ambient Glow from Cover Image */}
-            {validImageUrl && (
-                <div className="fixed top-0 left-0 right-0 h-[40vh] pointer-events-none z-0 overflow-hidden opacity-30">
-                    <Image src={validImageUrl} alt="" fill sizes="100vw" className="object-cover blur-[80px] scale-150 saturate-150" />
-                    <div className="absolute inset-0" style={{ background: `linear-gradient(to bottom, transparent 0%, ${THEMES[readerSettings.theme].bg} 100%)` }} />
+                        <div className="w-8 h-8 flex items-center justify-center -ml-2">
+                            <ChevronLeft size={22} className="group-hover:-translate-x-1 transition-transform" />
+                        </div>
+                        <span className="text-[10px] font-bold uppercase tracking-[0.2em] opacity-0 group-hover:opacity-100 transition-opacity">Back</span>
+                    </Link>
                 </div>
-            )}
 
-            {/* Hero Header */}
-            <motion.div animate={{ filter: isZenMode ? "grayscale(30%) brightness(0.8)" : "grayscale(0%) brightness(1)" }} transition={{ duration: 0.8 }} className={isZenMode ? "pointer-events-none" : ""}>
+                {/* 1. Pure Cover Image Banner (No Overlays) */}
                 {validImageUrl ? (
-                    <div className="w-full min-h-[50vh] sm:min-h-[60vh] relative overflow-hidden bg-zinc-900 mb-8 rounded-b-[2.5rem] shadow-sm flex flex-col justify-end">
-                        <Image src={validImageUrl} alt="Cover" fill sizes="100vw" priority className="object-cover object-top" />
-                        {/* Gradient Overlay for Text Readability - Always Above Image */}
-                        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/70 to-black/20 pointer-events-none z-10"></div>
+                    <div className="w-full relative overflow-hidden bg-transparent mb-4 flex flex-col items-center group/cover">
+                        <img 
+                            src={validImageUrl} 
+                            alt="" 
+                            className="w-full h-auto opacity-0 invisible pointer-events-none" 
+                            aria-hidden="true" 
+                        />
+                        <Image 
+                            src={validImageUrl} 
+                            alt="Cover" 
+                            fill 
+                            sizes="100vw" 
+                            priority 
+                            className="object-contain" 
+                        />
 
-                        {/* Title overlay inside the image */}
-                        <div className="relative z-20 w-full px-5 pb-8 pt-28 md:px-12 md:pb-12 max-w-3xl mx-auto mt-auto">
-                            <h1 className="text-[32px] md:text-5xl font-bold font-sans tracking-tight leading-tight mb-4 text-white drop-shadow-lg">
-                                {article.title}
-                            </h1>
-                            <div className="flex flex-col gap-4">
-                                <div className="flex flex-wrap items-center gap-3 text-white/50 font-sans text-[11px] font-bold tracking-[0.2em] uppercase">
-                                    <span>
-                                        {new Date(article.createdAt).toLocaleDateString('en-US', {
-                                            year: 'numeric', month: 'short', day: 'numeric'
-                                        })}
-                                    </span>
-                                    <span className="text-white/20">•</span>
-                                    <span>{readingTime} min read</span>
-                                    {article.category && (
-                                        <>
-                                            <span className="text-white/20">•</span>
-                                            <span className="text-blue-400">{article.category}</span>
-                                        </>
-                                    )}
-                                </div>
-
-                                {/* Engagement Metrics */}
-                                {(article.likes !== undefined) && (
-                                    <div className="flex items-center gap-4 text-[12px] font-bold font-sans tracking-wide text-white/60 drop-shadow-md">
-                                        <div className="flex items-center gap-1.5" title="Likes">
-                                            <Heart size={14} className="text-white/60 stroke-[2.5]" />
-                                            <span>{formatMetrics(article.likes)}</span>
-                                        </div>
-                                        <div className="flex items-center gap-1.5" title="Reposts">
-                                            <RefreshCw size={14} className="text-white/60 stroke-[2.5]" />
-                                            <span>{formatMetrics(article.reposts)}</span>
-                                        </div>
-                                        <div className="flex items-center gap-1.5" title="Replies">
-                                            <MessageSquare size={14} className="text-white/60 stroke-[2.5]" />
-                                            <span>{formatMetrics(article.replies)}</span>
-                                        </div>
-                                    </div>
-                                )}
-                            </div>
+                        {/* Floating TTS Control - Contextual on Cover (Mobile Polish) */}
+                        <div className="absolute top-4 right-4 z-40 opacity-0 group-hover/cover:opacity-100 transition-opacity duration-300">
+                            <button 
+                                onClick={toggleTTS} 
+                                className={`w-11 h-11 rounded-full flex items-center justify-center backdrop-blur-xl border border-white/20 shadow-xl transition-all active:scale-95 ring-1 ring-white/10 ${isTTSPlaying ? (isTTSPaused ? 'bg-blue-500/80 text-white' : 'bg-amber-500/80 text-white') : 'bg-black/40 text-white/80 hover:bg-black/60'}`}
+                                title={isTTSPlaying ? (isTTSPaused ? 'Resume' : 'Pause') : 'Listen'}
+                            >
+                                {isTTSPlaying ? (isTTSPaused ? <Play size={20} /> : <Pause size={20} />) : <Headphones size={20} />}
+                            </button>
                         </div>
                     </div>
                 ) : (
-                    <div
-                        className="w-full px-5 pt-24 pb-8 md:px-12 md:pt-32 md:pb-12 max-w-3xl mx-auto border-b transition-colors duration-500"
-                        style={{ borderColor: readerSettings.theme === 'night' ? '#333' : '#f3f4f6' }}
-                    >
-                        <h1
-                            className="text-[32px] md:text-5xl font-bold font-sans tracking-tight leading-tight mb-6 transition-colors duration-500"
+                    <div className="pt-24" />
+                )}
+
+                {/* 2. Separate Metadata "Label" Block Below */}
+                <div 
+                    className={`max-w-3xl mx-auto px-5 md:px-12 pb-4 transition-colors duration-500 relative`}
+                >
+                    {/* TTS Control for Non-Image articles (Contextual Mobile Polish) */}
+                    {!validImageUrl && (
+                        <div className="absolute top-0 right-5 md:right-12 z-40">
+                            <button 
+                                onClick={toggleTTS} 
+                                className={`w-11 h-11 rounded-full flex items-center justify-center backdrop-blur-xl border shadow-xl transition-all active:scale-95 ring-1 ${isTTSPlaying ? (isTTSPaused ? 'bg-blue-500/80 text-white border-blue-400 ring-blue-400/20' : 'bg-amber-500/80 text-white border-amber-400 ring-amber-400/20') : 'bg-zinc-100/60 dark:bg-zinc-800/60 text-zinc-500 dark:text-zinc-400 hover:bg-zinc-200/80 dark:hover:bg-zinc-700/80 border-zinc-200 dark:border-zinc-700 ring-zinc-500/5'}`}
+                                title={isTTSPlaying ? (isTTSPaused ? 'Resume' : 'Pause') : 'Listen'}
+                            >
+                                {isTTSPlaying ? (isTTSPaused ? <Play size={20} /> : <Pause size={20} />) : <Headphones size={20} />}
+                            </button>
+                        </div>
+                    )}
+
+                    <div className="flex flex-col gap-3">
+                        {/* Separated Title - Refined */}
+                        <h1 
+                            className="text-[32px] md:text-[40px] font-bold font-sans tracking-[-0.03em] leading-[1.1] mb-1"
                             style={{ color: THEMES[readerSettings.theme].text }}
                         >
-                            {article.title}
+                            {formatTitle(article.title)}
                         </h1>
 
-                        <div className="flex flex-col gap-4">
-                            {/* Primary Meta (Date, Time, Category) */}
-                            <div className="flex flex-wrap items-center gap-3 text-zinc-400 font-sans text-[11px] font-bold tracking-[0.2em] uppercase">
+                        <div className="flex flex-col gap-2.5">
+                            {/* Category Highlight */}
+                            {article.category && (
+                                <div className="text-[11px] font-bold uppercase tracking-[0.25em] text-blue-500/80">
+                                    {article.category}
+                                </div>
+                            )}
+
+                            {/* Primary Meta Cluster */}
+                            <div className="flex flex-wrap items-center gap-3 text-zinc-400 font-sans text-[10px] font-bold tracking-[0.2em] uppercase">
                                 <span>
                                     {new Date(article.createdAt).toLocaleDateString('en-US', {
                                         year: 'numeric', month: 'short', day: 'numeric'
                                     })}
                                 </span>
-                                <span className="text-zinc-200 dark:text-zinc-800">•</span>
+                                <span className="opacity-20">•</span>
                                 <span>{readingTime} min read</span>
-                                {article.category && (
-                                    <>
-                                        <span className="text-zinc-200 dark:text-zinc-800">•</span>
-                                        <span className="text-blue-500">{article.category}</span>
-                                    </>
-                                )}
-                            </div>
 
-                            {/* Engagement Metrics */}
-                            {(article.likes !== undefined) && (
-                                <div className="flex items-center gap-4 text-[12px] font-bold font-sans tracking-wide text-zinc-400">
-                                    <div className="flex items-center gap-1.5 text-zinc-500" title="Likes">
-                                        <Heart size={14} className="stroke-[2.5]" />
-                                        <span>{formatMetrics(article.likes)}</span>
-                                    </div>
-                                    <div className="flex items-center gap-1.5 text-zinc-500" title="Reposts">
-                                        <RefreshCw size={14} className="stroke-[2.5]" />
-                                        <span>{formatMetrics(article.reposts)}</span>
-                                    </div>
-                                    <div className="flex items-center gap-1.5 text-zinc-500" title="Replies">
-                                        <MessageSquare size={14} className="stroke-[2.5]" />
-                                        <span>{formatMetrics(article.replies)}</span>
-                                    </div>
-                                </div>
+                            {article.url && (
+                                <>
+                                    <span className="opacity-30">•</span>
+                                    <a
+                                        href={article.url}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="flex items-center gap-1.5 hover:text-blue-500 transition-colors"
+                                    >
+                                        <Globe size={11} className="stroke-[2.5]" />
+                                        <span>{getDisplayDomain(article.url)}</span>
+                                    </a>
+                                </>
                             )}
                         </div>
+
+                        {/* Engagement Metrics */}
+                        {(article.likes !== undefined) && (
+                            <div className="flex items-center gap-4 text-[12px] font-bold font-sans tracking-wide text-zinc-400">
+                                <div className="flex items-center gap-1.5 opacity-60" title="Likes">
+                                    <Heart size={14} className="stroke-[2.5]" />
+                                    <span>{formatMetrics(article.likes)}</span>
+                                </div>
+                                <div className="flex items-center gap-1.5 opacity-60" title="Reposts">
+                                    <RefreshCw size={14} className="stroke-[2.5]" />
+                                    <span>{formatMetrics(article.reposts)}</span>
+                                </div>
+                                <div className="flex items-center gap-1.5 opacity-60" title="Replies">
+                                    <MessageSquare size={14} className="stroke-[2.5]" />
+                                    <span>{formatMetrics(article.replies)}</span>
+                                </div>
+                            </div>
+                        )}
                     </div>
-                )}
+                </div>
+            </div>
+
+                {/* Subtle Near Full-Width Separator */}
+                <div className="max-w-3xl mx-auto px-5 md:px-12">
+                    <div 
+                        className="w-full h-[1px] opacity-10 transition-colors duration-500" 
+                        style={{ backgroundColor: THEMES[readerSettings.theme].text }}
+                    />
+                </div>
             </motion.div>
 
             {/* HTML / Rich Text Content */}
             <main
-                className="max-w-3xl mx-auto px-5 relative z-20 select-text cursor-text touch-auto pt-8 md:px-12"
+                className="max-w-3xl mx-auto px-5 relative z-20 select-text cursor-text touch-auto pt-4 md:px-12"
                 style={{
                     WebkitUserSelect: 'text', userSelect: 'text', WebkitTouchCallout: 'default',
                     '--reader-font-size': `${readerSettings.fontSize}px`,
@@ -1158,7 +1207,7 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
                                                         className="opacity-70 transition-all duration-300 leading-snug group-hover:opacity-100 group-hover:translate-x-1"
                                                         style={{ color: THEMES[readerSettings.theme].text }}
                                                     >
-                                                        {t.title}
+                                                        {formatTitle(t.title)}
                                                     </span>
                                                 </li>
                                             ))}
@@ -1330,7 +1379,7 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
                                         )}
                                         <div>
                                             <h4 className="font-bold font-sans text-[15px] leading-snug mb-2 transition-colors line-clamp-2" style={{ color: THEMES[readerSettings.theme].text }}>
-                                                {rel.title}
+                                                {formatTitle(rel.title)}
                                             </h4>
                                             <div className="text-[12px] text-zinc-500 flex items-center gap-1.5 font-medium">
                                                 <Clock size={12} />
@@ -1440,44 +1489,64 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
                         animate={{ y: 0, opacity: 1 }}
                         exit={{ y: 100, opacity: 0 }}
                         transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                        className="fixed bottom-8 left-1/2 -translate-x-1/2 z-[60] flex items-center justify-between px-2 py-1.5 w-[90%] max-w-[380px] bg-zinc-900 rounded-full shadow-[0_8px_32px_rgba(0,0,0,0.35)] border border-zinc-700/50 text-white"
+                        className="fixed bottom-8 left-1/2 -translate-x-1/2 z-[60] flex items-center justify-between px-2 py-1.5 w-max max-w-[90%] bg-black/60 dark:bg-zinc-900/40 backdrop-blur-xl saturate-150 rounded-full shadow-[0_12px_40px_rgba(0,0,0,0.5),inset_0_1px_1px_rgba(255,255,255,0.1)] border border-white/10 dark:border-white/5 ring-1 ring-white/10 text-white gap-1 overflow-hidden"
                     >
-                        <button onClick={() => setIsAppearanceSheetOpen(true)} className="p-2 active:scale-90 transition-transform text-white/80 hover:text-white flex items-center justify-center font-serif font-bold text-[18px] leading-none" title="Appearance">
+                        {/* Top Edge Highlight for Glass Feel */}
+                        <div className="absolute top-0 left-4 right-4 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />
+
+                        <Link
+                            href="/curation"
+                            className="p-2.5 active:scale-95 transition-transform text-white/80 hover:text-white flex items-center justify-center transform translate-y-[1px]"
+                            title="Back to Feed"
+                        >
+                            <ArrowLeft size={18} />
+                        </Link>
+                        <div className="w-[1px] h-6 bg-white/10 mx-0.5" />
+
+                        {/* Back to Top - Graceful Transition */}
+                        <button 
+                            onClick={scrollToTop} 
+                            className="p-2.5 active:scale-95 transition-transform text-white/80 hover:text-white flex items-center justify-center" 
+                            title="Back to Top"
+                        >
+                            <ChevronsUp size={18} />
+                        </button>
+                        <div className="w-[1px] h-6 bg-white/10 mx-0.5" />
+
+                        <button onClick={() => setIsAppearanceSheetOpen(true)} className="p-2.5 active:scale-95 transition-transform text-white/80 hover:text-white flex items-center justify-center font-serif font-bold text-[18px] leading-none" title="Appearance">
                             Aa
                         </button>
-                        <div className="w-[1px] h-6 bg-white/15" />
-                        <button onClick={toggleTTS} className={`p-2 active:scale-90 transition-transform flex items-center justify-center ${isTTSPlaying ? (isTTSPaused ? 'text-blue-400 hover:text-blue-300' : 'text-amber-400 hover:text-amber-300') : 'text-white/80 hover:text-white'}`} title={isTTSPlaying ? (isTTSPaused ? 'Resume' : 'Pause') : 'Listen'}>
-                            {isTTSPlaying ? (isTTSPaused ? <Play size={18} /> : <Pause size={18} />) : <Volume2 size={18} />}
-                        </button>
-                        <div className="w-[1px] h-6 bg-white/15" />
-                        <button onClick={() => setIsZenMode(true)} className="p-2 active:scale-90 transition-transform text-white/80 hover:text-white flex items-center justify-center" title="Zen Mode">
+                        <div className="w-[1px] h-6 bg-white/10 mx-0.5" />
+                        <button onClick={() => setIsZenMode(true)} className="p-2.5 active:scale-95 transition-transform text-white/80 hover:text-white flex items-center justify-center" title="Zen Mode">
                             <Maximize size={18} />
                         </button>
+                        <div className="w-[1px] h-6 bg-white/10 mx-0.5" />
+                        <button onClick={handleShare} className="p-2.5 active:scale-95 transition-transform text-white/80 hover:text-white flex items-center justify-center" title="Share">
+                            <Share size={18} />
+                        </button>
+                        <div className="w-[1px] h-6 bg-white/10 mx-0.5" />
+                        <button
+                            onClick={handleMarkAsRead}
+                            disabled={isMarkingRead}
+                            className={`p-2.5 active:scale-95 transition-transform flex items-center justify-center disabled:opacity-50 ${article.isRead ? "text-emerald-400" : "text-white/80 hover:text-white"}`}
+                            title={article.isRead ? "Mark as unread" : "Mark as read"}
+                        >
+                            {isMarkingRead ? <Loader2 size={18} className="animate-spin" /> : <CheckCircle size={18} />}
+                        </button>
+
+                        {/* Edit Button Back on Pill Float */}
                         {isAdmin && (
                             <>
-                                <div className="w-[1px] h-6 bg-white/15" />
-                                <button onClick={handleEditClick} className="p-2 active:scale-90 transition-transform text-white/80 hover:text-white flex items-center justify-center" title="Edit Article">
+                                <div className="w-[1px] h-6 bg-white/10 mx-0.5" />
+                                <button
+                                    onClick={() => setIsEditSheetOpen(true)}
+                                    className="p-2.5 active:scale-95 transition-transform text-white/80 hover:text-blue-400 flex items-center justify-center"
+                                    title="Edit Article"
+                                >
                                     <Pencil size={18} />
                                 </button>
                             </>
                         )}
-                        <div className="w-[1px] h-6 bg-white/15" />
-                        <button onClick={handleShare} className="p-2 active:scale-90 transition-transform text-white/80 hover:text-white flex items-center justify-center" title="Share">
-                            <Share size={18} />
-                        </button>
-                        <div className="w-[1px] h-6 bg-white/15" />
-                        <button onClick={handleOpenWeb} className="p-2 active:scale-90 transition-transform text-white/80 hover:text-white flex items-center justify-center" title="Open Source">
-                            <Globe size={18} />
-                        </button>
-                        <div className="w-[1px] h-6 bg-white/15" />
-                        <button
-                            onClick={handleMarkAsRead}
-                            disabled={isMarkingRead}
-                            className={`p-2 active:scale-90 transition-transform flex items-center justify-center disabled:opacity-50 ${article.isRead ? "text-emerald-400" : "text-white/80 hover:text-white"}`}
-                            title={article.isRead ? "Mark as unread" : "Mark as read"}
-                        >
-                            {isMarkingRead ? <Loader2 size={20} className="animate-spin" /> : <CheckCircle size={20} />}
-                        </button>
                     </motion.div>
                 )}
             </AnimatePresence>
@@ -1834,7 +1903,7 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
                             )}
                             <div className="flex flex-col flex-1 min-w-0">
                                 <span className={`text-[12px] font-bold truncate line-clamp-1 leading-snug ${readerSettings.fontFamily === 'serif' ? 'font-serif' : readerSettings.fontFamily === 'mono' ? 'font-mono' : 'font-sans'}`}>
-                                    {article?.title}
+                                    {formatTitle(article?.title)}
                                 </span>
                                 <span className="text-[9px] uppercase tracking-widest font-bold opacity-40 font-sans mt-0.5">
                                     {article?.category || 'Curation'}
