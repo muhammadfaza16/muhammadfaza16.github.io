@@ -11,6 +11,7 @@ import {
 import Link from "next/link";
 import Image from "next/image";
 import { getVisitorState, getReadHistoryAsync, removeFromReadHistoryAsync, getCollectionsAsync, saveCollectionsAsync, VisitorState, ReadEntry, Collection } from "@/lib/storage";
+import { formatTitle } from "@/lib/utils";
 
 // ─── Types ───
 
@@ -171,7 +172,7 @@ export default function LibraryPage() {
                     {article.imageUrl ? <Image src={article.imageUrl} alt="" fill className="object-cover" /> : <div className="w-full h-full flex items-center justify-center text-zinc-400"><FileText size={14} /></div>}
                 </div>
                 <div className="flex-1 min-w-0">
-                    <h3 className="text-[12.5px] font-medium text-zinc-900 dark:text-zinc-100 leading-snug line-clamp-2">{article.title}</h3>
+                    <h3 className="text-[12.5px] font-medium text-zinc-900 dark:text-zinc-100 leading-snug line-clamp-2">{formatTitle(article.title)}</h3>
                     <div className="flex items-center gap-1.5 mt-0.5">
                         <span className="text-[10px] text-zinc-500">{article.category || "General"}</span>
                         <span className="text-zinc-300 dark:text-zinc-700 text-[7px]">·</span>
@@ -309,7 +310,7 @@ export default function LibraryPage() {
                                             {bestArticle.imageUrl ? <Image src={bestArticle.imageUrl} alt="" fill className="object-cover" /> : <div className="w-full h-full flex items-center justify-center text-zinc-400"><FileText size={16} /></div>}
                                         </div>
                                         <div className="flex-1 min-w-0">
-                                            <h3 className="text-[13px] font-semibold text-zinc-900 dark:text-zinc-100 leading-snug line-clamp-2">{bestArticle.title}</h3>
+                                            <h3 className="text-[13px] font-semibold text-zinc-900 dark:text-zinc-100 leading-snug line-clamp-2">{formatTitle(bestArticle.title)}</h3>
                                             <div className="flex items-center gap-1.5 mt-0.5">
                                                 <span className="text-[10px] text-zinc-500">{bestArticle.category || "General"}</span>
                                                 <span className="text-zinc-300 dark:text-zinc-700 text-[7px]">·</span>

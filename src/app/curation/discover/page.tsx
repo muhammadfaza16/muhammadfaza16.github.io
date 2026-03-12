@@ -68,6 +68,7 @@ export default function ExplorePage() {
     const [readStats, setReadStats] = useState<{ readCount: number; bookmarkCount: number; readIds: Set<string>; savedIds: Set<string> }>({ readCount: 0, bookmarkCount: 0, readIds: new Set(), savedIds: new Set() });
 
     const searchRef = useRef<HTMLInputElement>(null);
+    const resultsRef = useRef<HTMLDivElement>(null);
     const isShowingSearch = searchQuery.trim().length > 0 || activeCategory !== null;
 
     // ─── Fetch ───
@@ -116,6 +117,12 @@ export default function ExplorePage() {
 
     useEffect(() => {
         if (!searchQuery.trim() && !activeCategory) { setSearchResults([]); return; }
+
+        // Scroll to results when search/filter changed
+        if (mounted) {
+            resultsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
         const t = setTimeout(async () => {
             setIsSearchingApi(true);
             try {
@@ -127,7 +134,7 @@ export default function ExplorePage() {
             } catch { } finally { setIsSearchingApi(false); }
         }, 250);
         return () => clearTimeout(t);
-    }, [searchQuery, activeCategory, activeSort]);
+    }, [searchQuery, activeCategory, activeSort, mounted]);
 
     // Completion percentage
     const completionPct = useMemo(() => {
@@ -221,8 +228,8 @@ export default function ExplorePage() {
             <main className="max-w-2xl mx-auto px-4 pt-6 pb-32">
                 <AnimatePresence mode="wait">
                     {isShowingSearch ? (
-                        <motion.div key="search" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.15 }}>
-                            <div className="flex items-center justify-between mb-2">
+                        <motion.div key="search" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.15 }} className="min-h-[400px]">
+                            <div ref={resultsRef} className="flex items-center justify-between mb-2 scroll-mt-24">
                                 <div className="flex items-center gap-2">
                                     {activeCategory && <button onClick={() => setActiveCategory(null)} className="text-[10px] bg-zinc-800 dark:bg-zinc-200 text-zinc-100 dark:text-zinc-900 px-2 py-0.5 rounded-full font-medium flex items-center gap-1">{activeCategory} <X size={9} /></button>}
                                     <span className="text-[11px] text-zinc-400">{isSearchingApi ? "Searching..." : `${searchResults.length} results`}</span>

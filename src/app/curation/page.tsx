@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useRef, useCallback } from "react";
+import { useEffect, useState, useRef, useCallback, useMemo } from "react";
 import {
   motion,
   AnimatePresence,
@@ -180,6 +180,7 @@ export default function CurationList() {
     q: "",
   });
   const scrollYRef = useRef(0);
+  const fetchCacheRef = useRef<Record<string, ArticleMeta[]>>({});
 
   // Live refs so IntersectionObserver always reads current values
   const sortByRef = useRef(sortBy);
@@ -189,6 +190,7 @@ export default function CurationList() {
 
   const searchInputRef = useRef<HTMLInputElement>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const resultsRef = useRef<HTMLDivElement>(null);
   const heroCarouselRef = useRef<HTMLDivElement>(null);
   const loadMoreRef = useRef<HTMLDivElement>(null);
   const isLoadingMoreRef = useRef(false);
@@ -535,7 +537,8 @@ export default function CurationList() {
         setIsLoadingMore(true);
         isLoadingMoreRef.current = true;
       } else {
-        setIsLoading(true);
+        // Only set loading if we don't have results yet (SWR style)
+        if (articles.length === 0) setIsLoading(true);
       }
 
       let url = `/api/curation?limit=5&sortBy=${currentSortBy}&sortOrder=${currentSortOrder}`;
@@ -577,6 +580,9 @@ export default function CurationList() {
           });
         } else {
           setArticles(data.articles);
+          // Store in cache
+          const cacheKey = `${currentSortBy}_${currentSortOrder}_${categories.join(",")}_${q}`;
+          fetchCacheRef.current[cacheKey] = data.articles;
         }
         setNextCursor(data.nextCursor);
         if (data.totalCount != null) setTotalCount(data.totalCount);
@@ -595,17 +601,37 @@ export default function CurationList() {
   useEffect(() => {
     if (hasRestoredCache.current) {
       hasRestoredCache.current = false;
-      return;
+      // Don't return here! We want to proceed and trigger a background fetch (SWR pattern)
+      // but we skip the "instant clear" below if we have restored data.
     }
     // Keep refs in sync so IntersectionObserver always reads current values
     sortByRef.current = sortBy;
     sortOrderRef.current = sortOrder;
     categoryFilterRef.current = categoryFilter;
     searchQueryRef.current = debouncedSearchQuery;
+
+    // Simplified: No automatic scrolling or gimmicks. Persisting user coordinate naturally.
+    if (mounted && !hasRestoredCache.current) {
+        // We no longer force a scroll to resultsRef. 
+        // This keeps the user at their current scroll position even when filters change.
+    }
+
+    const cacheKey = `${sortBy}_${sortOrder}_${categoryFilter.join(",")}_${debouncedSearchQuery}`;
+    const cachedData = fetchCacheRef.current[cacheKey];
+
+    if (cachedData) {
+      setArticles(cachedData);
+      setIsLoading(false);
+    } else {
+      // Clear articles and show skeleton for a fresh re-fetch
+      setArticles([]);
+      setIsLoading(true);
+    }
+
     // Instant for sort/category, debounced by useDebounce for search
     fetchArticles(null, sortBy, sortOrder, categoryFilter, debouncedSearchQuery);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [sortBy, sortOrder, categoryFilter, debouncedSearchQuery]);
+  }, [sortBy, sortOrder, categoryFilter, debouncedSearchQuery, statusFilter]);
 
   // Save cache when data changes
   useEffect(() => {
@@ -734,6 +760,10 @@ export default function CurationList() {
           hasRestoredCache.current = true;
           setIsLoading(false);
 
+          // Populate fetchCacheRef so subsequent filter changes can use it
+          const cacheKey = `${parsed.sortBy || "date"}_${parsed.sortOrder || "desc"}_${(parsed.categoryFilter || []).join(",")}_${""}`;
+          fetchCacheRef.current[cacheKey] = parsed.articles;
+
           if (parsed.scrollY) {
             setTimeout(() => {
               if (scrollContainerRef.current) {
@@ -849,20 +879,22 @@ export default function CurationList() {
   };
 
   // Client-side filtering (category safety net + status)
-  const filteredArticles = articles.filter((a) => {
-    // Strict category filter for instant UI reactivity before API fetch resolves
-    if (
-      categoryFilter.length > 0 &&
-      (!a.category || !categoryFilter.includes(a.category))
-    ) {
-      return false;
-    }
-    // Status filter (against localStorage visitor state)
-    if (statusFilter === "unread" && visitorState.read[a.id]) return false;
-    if (statusFilter === "bookmarked" && !visitorState.bookmarked[a.id])
-      return false;
-    return true;
-  });
+  const filteredArticles = useMemo(() => {
+    return articles.filter((a) => {
+      // Strict category filter for instant UI reactivity before API fetch resolves
+      if (
+        categoryFilter.length > 0 &&
+        (!a.category || !categoryFilter.includes(a.category))
+      ) {
+        return false;
+      }
+      // Status filter (against localStorage visitor state)
+      if (statusFilter === "unread" && visitorState.read[a.id]) return false;
+      if (statusFilter === "bookmarked" && !visitorState.bookmarked[a.id])
+        return false;
+      return true;
+    });
+  }, [articles, categoryFilter, statusFilter, visitorState]);
 
   // Category count
   const categoryCount = CATEGORIES.length;
@@ -997,13 +1029,12 @@ export default function CurationList() {
           } as React.CSSProperties
         }
       >
-        {/* ═══ DASHBOARD INDEX (Hidden when filtering) ═══ */}
-        {!isFiltering && (
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="mb-12"
-          >
+        {/* ═══ DASHBOARD INDEX (Consistently Visible) ═══ */}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mb-12"
+        >
             {/* Hero Zone */}
             <div className="mb-14 px-5">
               <motion.div 
@@ -1397,10 +1428,9 @@ export default function CurationList() {
               </div>
             </div>
           </motion.div>
-        )}
 
         {/* ═══ ARCHIVE LIST SECTION ═══ */}
-        <div className="flex items-end justify-between px-5 mb-5 mt-4">
+        <div ref={resultsRef} className="flex items-end justify-between px-5 mb-2 mt-2 scroll-mt-24">
           <h3
             className="text-[20px] font-bold tracking-tight text-zinc-900 dark:text-zinc-100"
             style={{ fontFamily: "'Playfair Display', Georgia, serif" }}
@@ -1414,22 +1444,10 @@ export default function CurationList() {
                   : "All Entries"}
           </h3>
 
-          {isFiltering && (
-            <button
-              onClick={() => {
-                setCategoryFilter([]);
-                setSearchQuery("");
-                setStatusFilter("all");
-              }}
-              className="text-[12px] font-bold text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 active:scale-95 transition-all bg-blue-50 dark:bg-blue-900/30 px-3 py-1.5 rounded-full"
-            >
-              Clear View
-            </button>
-          )}
         </div>
 
-        {/* Utility Action Bar (Sort & Status) */}
-        <div className="flex items-center gap-2 overflow-x-auto px-5 pb-5 no-scrollbar mb-4 border-b border-zinc-200/60 dark:border-zinc-800/60 w-full">
+        {/* ═══ MAIN PILLS (Sort & Status) ═══ */}
+        <div className="flex items-center gap-2 overflow-x-auto px-5 pb-2 no-scrollbar mb-1 w-full">
           {/* Integrated Sort Dimension & Order Toggles */}
           <div className="flex bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-full overflow-hidden shrink-0 shadow-sm p-0.5 relative">
             {[
@@ -1482,56 +1500,64 @@ export default function CurationList() {
             </button>
           ))}
         </div>
-
-        {/* ═══ ACTIVE CATEGORY PILLS (Only shown when browsing feed) ═══ */}
-        {isFiltering && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
-            className="flex gap-2 overflow-x-auto px-5 no-scrollbar pb-6 mb-2"
-          >
+        {/* ═══ CATEGORY PILLS (Always Available) ═══ */}
+        <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="flex gap-1.5 overflow-x-auto px-5 no-scrollbar pb-2 mb-1"
+        >
             {CATEGORIES.map((cat) => {
-              const isActive = categoryFilter.includes(cat.name);
-              return (
-                <button
-                  key={cat.name}
-                  onClick={() => handleCategoryToggle(cat.name)}
-                  className={`px-3 py-1.5 text-[11px] font-semibold rounded-full transition-all active:scale-[0.96] whitespace-nowrap shrink-0 border ${isActive
-                    ? "bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 border-zinc-900 dark:border-zinc-100 shadow-sm"
-                    : "bg-white dark:bg-zinc-900 text-zinc-400 dark:text-zinc-500 border-zinc-200/60 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700"
-                    }`}
-                >
-                  {isActive ? "✓" : cat.emoji} {cat.name}
-                </button>
-              );
+                const isActive = categoryFilter.includes(cat.name);
+                return (
+                    <button
+                        key={cat.name}
+                        onClick={() => handleCategoryToggle(cat.name)}
+                        className={`px-2 py-0.5 text-[10px] font-semibold rounded-full transition-all active:scale-[0.96] whitespace-nowrap shrink-0 border ${isActive
+                            ? "bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 border-zinc-900 dark:border-zinc-100 shadow-sm"
+                            : "bg-white dark:bg-zinc-900 text-zinc-400 dark:text-zinc-500 border-zinc-200/60 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700"
+                            }`}
+                    >
+                        {isActive ? "✓" : cat.emoji} {cat.name}
+                    </button>
+                );
             })}
-          </motion.div>
-        )}
+        </motion.div>
+
+        {/* Separator Line (Almost Full Width) */}
+        <div className="px-5 mb-5 mt-1">
+          <div className="h-px bg-zinc-200/60 dark:bg-zinc-800/60 w-full" />
+        </div>
 
         {/* ═══ ARTICLE FEED ═══ */}
-        <>
+        <div className="min-h-[100vh]">
           {isLoading ? (
             <motion.div
               key="skeleton"
-              initial={{ opacity: 1 }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.3 }}
-              className="flex flex-col gap-4"
+              className={
+                debouncedSearchQuery
+                  ? "flex flex-col gap-3 px-5 mb-10"
+                  : "flex flex-col gap-4 md:grid md:grid-cols-2 md:gap-4 px-5 mb-10"
+              }
             >
-              {/* Hero skeleton */}
-              <div className="rounded-[2rem] bg-zinc-300/60 dark:bg-zinc-800/60 h-[280px] animate-pulse" />
-              {/* Card skeletons */}
-              {[1, 2, 3].map((i) => (
+              {!debouncedSearchQuery && (
+                <div className="md:col-span-2 rounded-[2rem] bg-zinc-200/50 dark:bg-zinc-800/40 h-[280px] animate-pulse relative overflow-hidden">
+                   <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full animate-[shimmer_2s_infinite]" />
+                </div>
+              )}
+              {[1, 2, 3, 4, 5, 6].map((i) => (
                 <div
                   key={i}
-                  className="bg-white dark:bg-zinc-900 rounded-[1.5rem] border border-zinc-200 dark:border-zinc-800 p-4 flex items-center gap-4"
+                  className="bg-white dark:bg-zinc-900 rounded-[1.5rem] border border-zinc-100 dark:border-zinc-800/60 p-4 flex items-center gap-4 h-[120px]"
                 >
-                  <div className="w-[80px] h-[80px] rounded-2xl bg-zinc-200 dark:bg-zinc-800 animate-pulse shrink-0" />
-                  <div className="flex-1 space-y-2">
-                    <div className="h-3 bg-zinc-200 dark:bg-zinc-800 rounded animate-pulse w-1/3" />
-                    <div className="h-4 bg-zinc-300/50 dark:bg-zinc-700/50 rounded animate-pulse w-full" />
-                    <div className="h-4 bg-zinc-300/50 dark:bg-zinc-700/50 rounded animate-pulse w-2/3" />
-                    <div className="h-3 bg-zinc-200 dark:bg-zinc-800 rounded animate-pulse w-1/4 mt-1" />
+                  <div className="w-20 h-20 md:w-24 md:h-24 rounded-xl bg-zinc-100 dark:bg-zinc-800/80 animate-pulse shrink-0" />
+                  <div className="flex-1 space-y-2.5">
+                    <div className="h-2.5 bg-zinc-100 dark:bg-zinc-800 rounded-full animate-pulse w-1/3" />
+                    <div className="h-4 bg-zinc-200/60 dark:bg-zinc-800/60 rounded-lg animate-pulse w-full" />
+                    <div className="h-4 bg-zinc-200/60 dark:bg-zinc-800/60 rounded-lg animate-pulse w-2/3" />
                   </div>
                 </div>
               ))}
@@ -1567,7 +1593,7 @@ export default function CurationList() {
                   : "flex flex-col gap-4 md:grid md:grid-cols-2 md:gap-4 px-5 mb-10"
               }
             >
-              {filteredArticles.map((article, index) => {
+              {filteredArticles.map((article: ArticleMeta, index: number) => {
                 const validImageUrl = getImageUrl(article);
 
                 // The article will render normally below the Hero Carousel.
@@ -1637,7 +1663,7 @@ export default function CurationList() {
                                   <span className="text-[10px] font-bold uppercase tracking-[0.1em] text-blue-600 dark:text-blue-400 shrink-0">
                                     {article.category}
                                   </span>
-                                  <span className="text-zinc-200 dark:text-zinc-800 shrink-0">•</span>
+                                  <div className="w-[3px] h-[3px] rounded-full bg-zinc-200 dark:bg-zinc-800 shrink-0" />
                                 </>
                               )}
                               <span className="text-[10px] font-medium text-zinc-400 dark:text-zinc-500 shrink-0">
@@ -1646,7 +1672,7 @@ export default function CurationList() {
                                   day: "numeric",
                                 })}
                               </span>
-                              <span className="text-zinc-200 dark:text-zinc-800 shrink-0">•</span>
+                              <div className="w-[3px] h-[3px] rounded-full bg-zinc-200 dark:bg-zinc-800 shrink-0" />
                               <span className="text-[10px] font-medium text-zinc-400 dark:text-zinc-500 shrink-0">
                                 {readTime}m
                               </span>
@@ -1678,7 +1704,7 @@ export default function CurationList() {
                           </div>
                           <h4 className="text-[15px] md:text-[17px] font-bold text-zinc-900 dark:text-zinc-100 leading-snug line-clamp-2 mb-1 group-hover/row:text-blue-600 dark:group-hover/row:text-blue-400 transition-colors">
                             <HighlightText
-                              text={article.title}
+                              text={formatTitle(article.title)}
                               query={searchQuery}
                             />
                           </h4>
@@ -1771,7 +1797,7 @@ export default function CurationList() {
               )}
             </motion.div>
           )}
-        </>
+        </div>
       </div>
 
 
@@ -2094,14 +2120,17 @@ function SwipeableArticleCard({
                   NEW
                 </span>
               ) : null}
-              {article.socialScore && article.socialScore >= 1000 && (
-                <span className="text-[9px] font-bold uppercase tracking-[0.1em] bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-500 px-1.5 py-[2px] rounded">
-                  ⭐ TOP
-                </span>
+              {typeof article.socialScore === 'number' && article.socialScore >= 1000 && (
+                <>
+                  <div className="w-[3px] h-[3px] rounded-full bg-zinc-200 dark:bg-zinc-700 shrink-0" />
+                  <span className="text-[9px] font-bold uppercase tracking-[0.1em] bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-500 px-1.5 py-[2px] rounded">
+                    ⭐ TOP
+                  </span>
+                </>
               )}
               {article.category && (
                 <>
-                  <span className="text-zinc-200 dark:text-zinc-700">•</span>
+                  <div className="w-[3px] h-[3px] rounded-full bg-zinc-200 dark:bg-zinc-700 shrink-0" />
                   <span className="text-[10px] font-semibold text-zinc-400 dark:text-zinc-500 truncate">
                     {article.category}
                   </span>
@@ -2109,7 +2138,7 @@ function SwipeableArticleCard({
               )}
               {isVisitorBookmarked && (
                 <>
-                  <span className="text-zinc-200 dark:text-zinc-700">•</span>
+                  <div className="w-[3px] h-[3px] rounded-full bg-zinc-200 dark:bg-zinc-700 shrink-0" />
                   <Bookmark
                     size={11}
                     className="fill-blue-500 text-blue-500 dark:fill-blue-400 dark:text-blue-400"
@@ -2118,7 +2147,7 @@ function SwipeableArticleCard({
               )}
             </div>
             <h3 className="text-[15px] font-bold tracking-[-0.01em] text-zinc-900 dark:text-zinc-100 leading-[1.3] line-clamp-2 mb-1.5 group-hover/card:text-blue-600 dark:group-hover/card:text-blue-400 transition-colors">
-              {article.title}
+              {formatTitle(article.title)}
             </h3>
             <div className="flex items-center justify-between mt-auto">
               <div className="flex items-center gap-1.5 text-[11px] font-medium text-zinc-400 dark:text-zinc-500">
@@ -2130,7 +2159,7 @@ function SwipeableArticleCard({
                   {postDate.getFullYear() !== new Date().getFullYear() &&
                     `, ${postDate.getFullYear()}`}
                 </span>
-                <span className="text-zinc-200 dark:text-zinc-800">•</span>
+                <div className="w-[3px] h-[3px] rounded-full bg-zinc-200 dark:bg-zinc-800 shrink-0" />
                 <span>{readTime}m read</span>
               </div>
 

@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import { ArrowLeft, Plus, Trash2, FolderOpen, X, ChevronRight } from "lucide-react";
 import { toast, Toaster } from "react-hot-toast";
+import { formatTitle } from "@/lib/utils";
 
 type Collection = { id: string; name: string; description: string; articleIds: string[]; createdAt: number };
 type ArticleInfo = { id: string; title: string; imageUrl?: string | null };
@@ -235,7 +236,7 @@ export default function CollectionsPage() {
                                                                             href={`/curation/${aid}`}
                                                                             className="flex-1 text-[14px] font-medium text-zinc-700 hover:text-blue-600 transition-colors truncate"
                                                                         >
-                                                                            {info?.title || aid}
+                                                                            {info?.title ? formatTitle(info.title) : aid}
                                                                         </Link>
                                                                         <button
                                                                             onClick={() => removeArticle(collection.id, aid)}

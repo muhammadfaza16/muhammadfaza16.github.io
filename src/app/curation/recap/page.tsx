@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { ArrowLeft, BookOpen, Flame, Trophy, Clock, TrendingUp } from "lucide-react";
+import { formatTitle } from "@/lib/utils";
 
 type ReadEntry = { id: string; ts: number };
 type VisitorState = { read: Record<string, boolean>; bookmarked: Record<string, boolean> };
@@ -300,7 +301,7 @@ export default function CurationRecapPage() {
                                     <span className="text-[13px] font-bold text-zinc-200 w-6 text-right shrink-0">{i + 1}</span>
                                     <div className="flex-1 min-w-0">
                                         <p className="text-[14px] font-semibold text-zinc-700 truncate group-hover:text-blue-600 transition-colors">
-                                            {entry.title}
+                                            {formatTitle(entry.title)}
                                         </p>
                                     </div>
                                     <span className="text-[11px] text-zinc-400 shrink-0">

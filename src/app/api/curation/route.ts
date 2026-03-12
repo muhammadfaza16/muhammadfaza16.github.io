@@ -133,9 +133,12 @@ export async function GET(request: Request) {
                         createdAt: true,
                         score: {
                             select: {
+                                total: true,
+                                substance: true,
                                 engagement: true, // likes
                                 actionability: true, // reposts
-                                specificity: true // replies
+                                specificity: true, // replies
+                                socialScore: true,
                             }
                         }
                     },
@@ -146,36 +149,36 @@ export async function GET(request: Request) {
                     query.skip = 1;
                 }
 
-                let articles = await prisma.article.findMany(query);
+                const articles = await prisma.article.findMany(query);
 
                 let nextCursor = null;
                 if (articles.length > limit) {
-                    articles.pop();
+                    const lastItem = articles.pop();
                     nextCursor = articles[articles.length - 1].id;
                 }
 
-                // Enrich with quality scores (raw SQL to avoid Prisma client cache issues)
-                const articleIds = articles.map((a: any) => a.id);
-                let scoreMap = new Map();
-                if (articleIds.length > 0) {
-                    const scores: any[] = await prisma.$queryRawUnsafe(
-                        `SELECT "articleId", "total", "substance", "engagement", "actionability", "specificity" FROM "ArticleScore" WHERE "articleId" = ANY($1::text[])`,
-                        articleIds
-                    );
-                    scoreMap = new Map(scores.map((s: any) => [s.articleId, s]));
-                }
-
                 const enriched = articles.map((a: any) => {
-                    const score = scoreMap.get(a.id);
-                    const likes = score?.engagement || 0;
-                    const reposts = score?.actionability || 0;
-                    const replies = score?.specificity || 0;
-                    const socialScore = (likes * 1) + (reposts * 2) + (replies * 3);
+                    const s = a.score;
+                    const likes = s?.engagement || 0;
+                    const reposts = s?.actionability || 0;
+                    const replies = s?.specificity || 0;
+                    
+                    // We use the stored socialScore if available, otherwise fallback to on-the-fly calc
+                    // (Though ideally scoring logic should have already updated socialScore)
+                    const socialScore = s?.socialScore ?? ((likes * 1) + (reposts * 2) + (replies * 3));
 
                     return {
-                        ...a,
-                        qualityScore: score?.total || null,
-                        substanceScore: score?.substance || null,
+                        id: a.id,
+                        title: a.title,
+                        content: a.content,
+                        url: a.url,
+                        imageUrl: a.imageUrl,
+                        category: a.category,
+                        isRead: a.isRead,
+                        isBookmarked: a.isBookmarked,
+                        createdAt: a.createdAt,
+                        qualityScore: s?.total || null,
+                        substanceScore: s?.substance || null,
                         likes,
                         reposts,
                         replies,

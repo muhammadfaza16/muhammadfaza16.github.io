@@ -21,10 +21,30 @@ export function formatTitle(title: string | undefined | null): string {
         .replace(/\s*;\s*/g, '; ')             // Fix semicolon spacing
         .trim();
 
-    // Words that should remain lowercase (unless first or last)
     const lowerCaseWords = new Set([
         'a', 'an', 'the', 'and', 'but', 'for', 'at', 'by', 'from', 'in', 'into', 'of', 'on', 'to', 'with', 'is', 'as', 'via'
     ]);
+
+    // Technical acronyms that should preserve their casing
+    const ACRONYMS: Record<string, string> = {
+        'ai': 'AI',
+        'llm': 'LLM',
+        'saas': 'SaaS',
+        'ui': 'UI',
+        'ux': 'UX',
+        'api': 'API',
+        'seo': 'SEO',
+        'url': 'URL',
+        'html': 'HTML',
+        'css': 'CSS',
+        'js': 'JS',
+        'ts': 'TS',
+        'rss': 'RSS',
+        'gpt': 'GPT',
+        'b2b': 'B2B',
+        'b2c': 'B2C',
+        'tts': 'TTS',
+    };
 
     const words = cleanTitle.split(' ');
     const formattedWords = words.map((word, index) => {
@@ -40,6 +60,10 @@ export function formatTitle(title: string | undefined | null): string {
             index === words.length - 1 || 
             afterPunctuation ||
             !lowerCaseWords.has(lowerWord);
+
+        if (ACRONYMS[lowerWord]) {
+            return ACRONYMS[lowerWord];
+        }
 
         if (shouldCapitalize) {
             return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();

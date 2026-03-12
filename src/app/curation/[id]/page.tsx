@@ -919,11 +919,14 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
             <AnimatePresence>
                 {isZenMode && (
                     <motion.button
-                        initial={{ y: 50, opacity: 0 }}
+                        initial={{ y: 60, opacity: 0 }}
                         animate={{ y: 0, opacity: 1 }}
-                        exit={{ y: 50, opacity: 0 }}
+                        exit={{ y: 60, opacity: 0 }}
+                        transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                        whileHover={{ scale: 1.1, opacity: 1 }}
+                        whileTap={{ scale: 0.9 }}
                         onClick={() => setIsZenMode(false)}
-                        className="fixed bottom-8 right-8 w-12 h-12 bg-black/5 dark:bg-white/5 backdrop-blur-md rounded-full flex items-center justify-center text-zinc-500 dark:text-zinc-400 opacity-40 hover:opacity-100 hover:bg-black/10 dark:hover:bg-white/10 transition-all duration-300 z-[70] cursor-pointer"
+                        className="fixed bottom-8 right-8 w-12 h-12 bg-black/5 dark:bg-white/5 backdrop-blur-md rounded-full flex items-center justify-center text-zinc-500 dark:text-zinc-400 opacity-40 z-[70] cursor-pointer border border-white/10 dark:border-white/5"
                         title="Exit Zen Mode"
                     >
                         <Minimize size={20} />
@@ -1006,8 +1009,12 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
                     <div className="flex flex-col gap-3">
                         {/* Separated Title - Refined */}
                         <h1 
-                            className="text-[32px] md:text-[40px] font-bold font-sans tracking-[-0.03em] leading-[1.1] mb-1"
-                            style={{ color: THEMES[readerSettings.theme].text }}
+                            className="text-[34px] md:text-[46px] font-bold tracking-tight leading-[1.1] mb-2"
+                            style={{ 
+                                color: THEMES[readerSettings.theme].text,
+                                fontFamily: "'Playfair Display', Georgia, serif",
+                                letterSpacing: "-0.02em"
+                            }}
                         >
                             {formatTitle(article.title)}
                         </h1>
@@ -1015,35 +1022,35 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
                         <div className="flex flex-col gap-2.5">
                             {/* Category Highlight */}
                             {article.category && (
-                                <div className="text-[11px] font-bold uppercase tracking-[0.25em] text-blue-500/80">
+                                <div className="text-[12px] font-bold tracking-[0.1em] text-blue-600/90 dark:text-blue-400/90 mb-1">
                                     {article.category}
                                 </div>
                             )}
 
-                            {/* Primary Meta Cluster */}
-                            <div className="flex flex-wrap items-center gap-3 text-zinc-400 font-sans text-[10px] font-bold tracking-[0.2em] uppercase">
-                                <span>
+                            <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-zinc-400 dark:text-zinc-500 font-sans text-[13px] font-medium">
+                                <span className="text-zinc-500 dark:text-zinc-400">
                                     {new Date(article.createdAt).toLocaleDateString('en-US', {
-                                        year: 'numeric', month: 'short', day: 'numeric'
+                                        year: 'numeric', month: 'long', day: 'numeric'
                                     })}
                                 </span>
-                                <span className="opacity-20">•</span>
+                                <span className="w-1 h-1 rounded-full bg-zinc-300 dark:bg-zinc-700" />
                                 <span>{readingTime} min read</span>
-
-                            {article.url && (
-                                <>
-                                    <span className="opacity-30">•</span>
-                                    <a
-                                        href={article.url}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="flex items-center gap-1.5 hover:text-blue-500 transition-colors"
-                                    >
-                                        <Globe size={11} className="stroke-[2.5]" />
-                                        <span>{getDisplayDomain(article.url)}</span>
-                                    </a>
-                                </>
-                            )}
+                                
+                                {article.url && (
+                                    <>
+                                        <span className="w-1 h-1 rounded-full bg-zinc-300 dark:bg-zinc-700" />
+                                        <a
+                                            href={article.url}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="flex items-center gap-1.5 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                                        >
+                                            <Globe size={13} className="stroke-[2]" />
+                                            <span>{getDisplayDomain(article.url)}</span>
+                                        </a>
+                                    </>
+                                )}
+                            </div>
                         </div>
 
                         {/* Engagement Metrics */}
@@ -1065,7 +1072,6 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
                         )}
                     </div>
                 </div>
-            </div>
 
                 {/* Subtle Near Full-Width Separator */}
                 <div className="max-w-3xl mx-auto px-5 md:px-12">
@@ -1221,24 +1227,26 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
 
                 <article
                     className="reader-content prose max-w-[65ch] mx-auto select-text touch-auto
-                    prose-p:mb-7
+                    prose-p:mb-8 prose-p:leading-[1.75]
                     prose-headings:font-sans prose-headings:font-bold prose-headings:tracking-tight
-                    prose-h2:text-[26px] prose-h2:font-semibold prose-h2:mt-10 prose-h2:mb-5
-                    prose-h3:text-[22px] prose-h3:font-semibold prose-h3:mt-8 prose-h3:mb-4
-                    prose-a:transition-colors prose-a:underline-offset-4
-                    prose-img:rounded-3xl prose-img:border prose-img:shadow-sm prose-img:my-8
-                    prose-hr:my-8
-                    prose-blockquote:px-6 prose-blockquote:py-4 prose-blockquote:rounded-r-2xl prose-blockquote:not-italic prose-blockquote:before:content-none prose-blockquote:after:content-none
-                    prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded-md prose-code:before:content-none prose-code:after:content-none prose-code:font-medium
-                    prose-pre:bg-zinc-900 prose-pre:text-zinc-100 prose-pre:border prose-pre:border-zinc-800 prose-pre:rounded-2xl prose-pre:shadow-sm"
+                    prose-h2:text-[30px] md:text-[34px] prose-h2:font-bold prose-h2:mt-14 prose-h2:mb-6 prose-h2:tracking-tight
+                    prose-h3:text-[24px] md:text-[26px] prose-h3:font-bold prose-h3:mt-10 prose-h3:mb-4 prose-h3:tracking-tight
+                    prose-a:text-blue-600 dark:text-blue-400 prose-a:font-medium prose-a:transition-colors prose-a:underline-offset-4 prose-a:decoration-blue-500/30 hover:prose-a:decoration-blue-500
+                    prose-img:rounded-[2.5rem] prose-img:border prose-img:border-zinc-200/50 dark:prose-img:border-zinc-800/50 prose-img:shadow-xl prose-img:my-10
+                    prose-hr:my-12 prose-hr:border-zinc-200/60 dark:prose-hr:border-zinc-800/60
+                    prose-blockquote:border-l-[2px] prose-blockquote:border-blue-500/40 prose-blockquote:pl-6 prose-blockquote:font-serif prose-blockquote:italic prose-blockquote:text-[1.1em] prose-blockquote:text-zinc-600 dark:prose-blockquote:text-zinc-400 prose-blockquote:bg-transparent prose-blockquote:my-10 prose-blockquote:py-1
+                    prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded-md prose-code:bg-zinc-100 dark:prose-code:bg-zinc-800/60 prose-code:text-rose-500 dark:prose-code:text-rose-400 prose-code:font-medium prose-code:before:content-none prose-code:after:content-none
+                    prose-pre:bg-zinc-900 prose-pre:text-zinc-100 prose-pre:border prose-pre:border-zinc-800 prose-pre:rounded-2xl prose-pre:shadow-sm prose-pre:p-6"
                     style={{
                         WebkitUserSelect: 'text',
                         userSelect: 'text',
                         fontSize: `${readerSettings.fontSize}px`,
                         lineHeight: readerSettings.lineHeight,
                         fontFamily: readerSettings.fontFamily === 'serif'
-                            ? 'ui-serif, Georgia, Cambria, "Times New Roman", Times, serif'
-                            : 'ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif',
+                            ? 'ui-serif, -apple-system-ui-serif, Georgia, "Times New Roman", Times, serif'
+                            : readerSettings.fontFamily === 'mono'
+                                ? 'ui-monospace, "SF Mono", Menlo, Monaco, Consolas, monospace'
+                                : '-apple-system, ui-sans-serif, system-ui, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
                         color: THEMES[readerSettings.theme].text,
                         '--theme-accent': readerSettings.theme === 'night' ? '#60a5fa' : '#2563eb',
                     } as React.CSSProperties}
