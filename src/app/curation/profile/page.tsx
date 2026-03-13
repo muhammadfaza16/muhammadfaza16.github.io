@@ -81,9 +81,9 @@ export default function ProfilePage() {
                     <div className="w-12 h-12 rounded-full bg-white dark:bg-zinc-800 flex items-center justify-center text-zinc-400 mb-4 shadow-sm">
                         <Construction size={20} />
                     </div>
-                    <h2 className="text-[15px] font-bold text-zinc-900 dark:text-zinc-100 mb-2">Lagi Gw Beresin</h2>
+                    <h2 className="text-[15px] font-bold text-zinc-900 dark:text-zinc-100 mb-2">Under Development</h2>
                     <p className="text-[13px] text-zinc-500 max-w-[280px] leading-relaxed">
-                        Fitur personalisasi feed, interests, sama digest lagi dibuat. Santai aja, semuanya gratis selamanya.
+                        Personalized feeds, topic interests, and weekly digests are currently being built. This project will remain free for everyone, forever.
                     </p>
                 </div>
             </section>
@@ -100,7 +100,7 @@ export default function ProfilePage() {
                         </div>
                         <div className="flex-1 text-left">
                             <span className="block text-[14px] font-medium text-zinc-700 dark:text-zinc-300">Content Interests</span>
-                            <span className="block text-[11px] text-zinc-500 mt-0.5">Filter topik sesuai kemauan lo (Coming soon)</span>
+                            <span className="block text-[11px] text-zinc-500 mt-0.5">Customize your feed based on preferred topics (Development)</span>
                         </div>
                     </div>
                     <div className="w-full flex items-center gap-4 p-4 select-none">
@@ -109,7 +109,7 @@ export default function ProfilePage() {
                         </div>
                         <div className="flex-1 text-left">
                             <span className="block text-[14px] font-medium text-zinc-700 dark:text-zinc-300">Email Digest</span>
-                            <span className="block text-[11px] text-zinc-500 mt-0.5">Update mingguan artikel pilihan (Coming soon)</span>
+                            <span className="block text-[11px] text-zinc-500 mt-0.5">Weekly curated updates delivered to your inbox (Development)</span>
                         </div>
                     </div>
                 </div>
