@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useRef, useCallback, useMemo } from "react";
+import { useEffect, useState, useRef, useCallback, useMemo, memo } from "react";
 import {
   motion,
   AnimatePresence,
@@ -538,6 +538,7 @@ export default function CurationList() {
     if (!isLoadMore) {
       fetchGenRef.current += 1;
       localGen = fetchGenRef.current;
+      setIsLoading(true); // Always show loading for fresh fetches (including background/SWR)
     }
 
     try {
@@ -1537,7 +1538,33 @@ export default function CurationList() {
         </div>
 
         {/* ═══ ARTICLE FEED ═══ */}
-        <div className="min-h-[100vh]">
+        <div className="min-h-[100vh] relative">
+          {/* SWR / Background Loading Bar */}
+          <AnimatePresence>
+            {isLoading && articles.length > 0 && (
+              <motion.div
+                initial={{ opacity: 0, scaleX: 0 }}
+                animate={{ opacity: 1, scaleX: 1 }}
+                exit={{ opacity: 0 }}
+                className="absolute top-0 left-5 right-5 h-[2px] bg-blue-500/30 dark:bg-blue-400/20 origin-left z-10 rounded-full"
+                transition={{ duration: 0.3 }}
+              >
+                <motion.div 
+                  className="h-full bg-blue-500 dark:bg-blue-400 rounded-full"
+                  animate={{ 
+                    x: ["-100%", "100%"],
+                  }}
+                  transition={{ 
+                    repeat: Infinity, 
+                    duration: 1.5, 
+                    ease: "easeInOut" 
+                  }}
+                  style={{ width: "30%" }}
+                />
+              </motion.div>
+            )}
+          </AnimatePresence>
+
           {isLoading && filteredArticles.length === 0 ? (
             <motion.div
               key="skeleton"
@@ -1739,6 +1766,7 @@ export default function CurationList() {
                 return (
                   <motion.div
                     key={article.id}
+                    layout
                     initial={{ opacity: 0, y: 16 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, scale: 0.97 }}
@@ -1751,7 +1779,7 @@ export default function CurationList() {
                     <SwipeableArticleCard
                       article={article}
                       validImageUrl={validImageUrl}
-                      postDate={postDate}
+                      createdAt={article.createdAt}
                       readTime={readTime}
                       isVisitorRead={!!isVisitorRead}
                       isVisitorBookmarked={!!isVisitorBookmarked}
@@ -1975,10 +2003,10 @@ export default function CurationList() {
 
 // ═══ SWIPEABLE ARTICLE CARD ═══
 
-function SwipeableArticleCard({
+const SwipeableArticleCard = memo(({
   article,
   validImageUrl,
-  postDate,
+  createdAt,
   readTime,
   isVisitorRead,
   isVisitorBookmarked,
@@ -1993,7 +2021,7 @@ function SwipeableArticleCard({
 }: {
   article: ArticleMeta;
   validImageUrl: string | null;
-  postDate: Date;
+  createdAt: string;
   readTime: number;
   isVisitorRead: boolean;
   isVisitorBookmarked: boolean;
@@ -2005,7 +2033,8 @@ function SwipeableArticleCard({
   isNavigating?: boolean;
   progress?: number;
   onShare?: () => void;
-}) {
+}) => {
+  const postDate = new Date(createdAt);
   const x = useMotionValue(0);
   const [isDragging, setIsDragging] = useState(false);
 
@@ -2224,4 +2253,6 @@ function SwipeableArticleCard({
       </motion.div>
     </div>
   );
-}
+});
+
+SwipeableArticleCard.displayName = "SwipeableArticleCard";
