@@ -11,10 +11,9 @@ import {
     Sun,
     DatabaseZap,
     Wrench,
-    CreditCard,
-    Sparkles,
     Hash,
-    Bell
+    Bell,
+    Construction
 } from "lucide-react";
 import { useTheme } from "@/components/ThemeProvider";
 import { Toaster, toast } from "react-hot-toast";
@@ -60,7 +59,11 @@ export default function ProfilePage() {
                     <User size={32} strokeWidth={1.5} />
                 </div>
                 <h1 className="text-2xl font-medium tracking-tight mb-0.5 text-zinc-900 dark:text-white" style={{ fontFamily: "'Playfair Display', serif" }}>Muhammad Faza</h1>
-                <p className="text-zinc-400 text-[10px] font-medium uppercase tracking-[0.2em] mb-5">Software Engineer</p>
+                <div className="flex items-center gap-2 mb-5">
+                    <p className="text-zinc-400 text-[10px] font-medium uppercase tracking-[0.2em]">Software Engineer</p>
+                    <div className="w-1 h-1 rounded-full bg-zinc-300 dark:bg-zinc-700" />
+                    <span className="text-blue-500 dark:text-blue-400 text-[9px] font-bold uppercase tracking-wider">Free Forever</span>
+                </div>
 
                 <div className="flex gap-2">
                     <button className="px-5 py-2 rounded-lg bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 text-[10px] font-medium uppercase tracking-widest active:scale-95 transition-all">
@@ -72,58 +75,41 @@ export default function ProfilePage() {
                 </div>
             </header>
 
-            {/* Subscription & Plan */}
-            <section className="space-y-4 mb-10">
-                <div className="flex items-center justify-between ml-0.5 mb-2">
-                    <h2 className="text-[12px] font-medium text-zinc-400">Subscription</h2>
-                    <span className="text-[10px] text-zinc-400 uppercase tracking-widest bg-zinc-100 dark:bg-zinc-800/80 px-2 py-0.5 rounded-md">Coming Soon</span>
-                </div>
-                <div className="bg-white dark:bg-zinc-900/40 rounded-2xl border border-zinc-200/60 dark:border-zinc-800/60 p-5 relative overflow-hidden group">
-                    <div className="flex items-start justify-between">
-                        <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-full bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center text-zinc-500">
-                                <CreditCard size={18} />
-                            </div>
-                            <div>
-                                <h3 className="text-[14px] font-bold text-zinc-900 dark:text-zinc-100 leading-none mb-1">Free Tier</h3>
-                                <p className="text-[12px] text-zinc-500">Basic curation features</p>
-                            </div>
-                        </div>
-                        <button className="text-[11px] font-bold text-blue-600 bg-blue-50 dark:bg-blue-500/10 px-3 py-1.5 rounded-full flex items-center gap-1 opacity-50 cursor-not-allowed">
-                            <Sparkles size={12} />
-                            Upgrade
-                        </button>
+            {/* Roadmap / Under Construction */}
+            <section className="mb-10">
+                <div className="bg-zinc-50 dark:bg-zinc-900/30 rounded-2xl border border-dashed border-zinc-200 dark:border-zinc-800 p-6 flex flex-col items-center text-center">
+                    <div className="w-12 h-12 rounded-full bg-white dark:bg-zinc-800 flex items-center justify-center text-zinc-400 mb-4 shadow-sm">
+                        <Construction size={20} />
                     </div>
+                    <h2 className="text-[15px] font-bold text-zinc-900 dark:text-zinc-100 mb-2">Lagi Gw Beresin</h2>
+                    <p className="text-[13px] text-zinc-500 max-w-[280px] leading-relaxed">
+                        Fitur personalisasi feed, interests, sama digest lagi dibuat. Santai aja, semuanya gratis selamanya.
+                    </p>
                 </div>
             </section>
 
-            {/* Preferences */}
-            <section className="space-y-4 mb-10">
+            {/* Preferences Roadmap */}
+            <section className="space-y-4 mb-10 opacity-60">
                 <div className="flex items-center justify-between ml-0.5 mb-2">
-                    <h2 className="text-[12px] font-medium text-zinc-400">Preferences</h2>
-                    <span className="text-[10px] text-zinc-400 uppercase tracking-widest bg-zinc-100 dark:bg-zinc-800/80 px-2 py-0.5 rounded-md">Coming Soon</span>
+                    <h2 className="text-[12px] font-medium text-zinc-400 uppercase tracking-widest">Roadmap</h2>
                 </div>
                 <div className="bg-white dark:bg-zinc-900/40 rounded-2xl border border-zinc-200/60 dark:border-zinc-800/60 overflow-hidden divide-y divide-zinc-100 dark:divide-zinc-800/40">
-                    <div className="w-full flex items-center gap-4 p-4 opacity-50 select-none">
+                    <div className="w-full flex items-center gap-4 p-4 select-none">
                         <div className="text-zinc-400">
                             <Hash size={18} />
                         </div>
                         <div className="flex-1 text-left">
                             <span className="block text-[14px] font-medium text-zinc-700 dark:text-zinc-300">Content Interests</span>
-                            <span className="block text-[11px] text-zinc-500 mt-0.5">Manage which topics appear in your feed</span>
+                            <span className="block text-[11px] text-zinc-500 mt-0.5">Filter topik sesuai kemauan lo (Coming soon)</span>
                         </div>
-                        <ChevronRight size={14} className="text-zinc-300" />
                     </div>
-                    <div className="w-full flex items-center gap-4 p-4 opacity-50 select-none">
+                    <div className="w-full flex items-center gap-4 p-4 select-none">
                         <div className="text-zinc-400">
                             <Bell size={18} />
                         </div>
                         <div className="flex-1 text-left">
                             <span className="block text-[14px] font-medium text-zinc-700 dark:text-zinc-300">Email Digest</span>
-                            <span className="block text-[11px] text-zinc-500 mt-0.5">Weekly summary of your top unread articles</span>
-                        </div>
-                        <div className="w-8 h-4 bg-zinc-200 dark:bg-zinc-800 rounded-full relative">
-                            <div className="absolute top-0.5 left-0.5 w-3 h-3 bg-white dark:bg-zinc-500 rounded-full" />
+                            <span className="block text-[11px] text-zinc-500 mt-0.5">Update mingguan artikel pilihan (Coming soon)</span>
                         </div>
                     </div>
                 </div>
