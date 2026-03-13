@@ -1003,8 +1003,7 @@ export default function CurationList() {
               </motion.div>
               
               <p className="text-[17px] text-zinc-500 dark:text-zinc-400 leading-relaxed max-w-[42ch]">
-                A definitive index of high-signal frameworks, essays, and deep-dives.
-                <span className="text-zinc-900 dark:text-zinc-200 font-medium"> Hand-picked for the modern mind.</span>
+                A definitive index of high-signal frameworks, essays, and deep-dives. Hand-picked for the modern mind.
               </p>
 
               {/* Stats */}
