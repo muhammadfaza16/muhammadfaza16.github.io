@@ -181,6 +181,7 @@ export default function CurationList() {
   });
   const scrollYRef = useRef(0);
   const fetchCacheRef = useRef<Record<string, ArticleMeta[]>>({});
+  const fetchGenRef = useRef(0);
 
   // Live refs so IntersectionObserver always reads current values
   const sortByRef = useRef(sortBy);
@@ -532,13 +533,17 @@ export default function CurationList() {
       lastFetchParamsRef.current = { sortBy: currentSortBy, sortOrder: currentSortOrder, cats: categories, q };
     }
 
+    // Generation counter: prevent aborted fetches from resetting isLoading
+    let localGen = fetchGenRef.current;
+    if (!isLoadMore) {
+      fetchGenRef.current += 1;
+      localGen = fetchGenRef.current;
+    }
+
     try {
       if (isLoadMore) {
         setIsLoadingMore(true);
         isLoadingMoreRef.current = true;
-      } else {
-        // Only set loading if we don't have results yet (SWR style)
-        if (articles.length === 0) setIsLoading(true);
       }
 
       let url = `/api/curation?limit=5&sortBy=${currentSortBy}&sortOrder=${currentSortOrder}`;
@@ -592,7 +597,10 @@ export default function CurationList() {
         console.error("Fetch failed:", error);
       }
     } finally {
-      setIsLoading(false);
+      // Only update loading states if this fetch is still the latest one
+      if (localGen === fetchGenRef.current) {
+        setIsLoading(false);
+      }
       setIsLoadingMore(false);
       isLoadingMoreRef.current = false;
     }
@@ -623,8 +631,8 @@ export default function CurationList() {
       setArticles(cachedData);
       setIsLoading(false);
     } else {
-      // Clear articles and show skeleton for a fresh re-fetch
-      setArticles([]);
+      // SWR-style: keep current articles visible while loading new ones.
+      // This prevents DOM height collapse and scroll position jump.
       setIsLoading(true);
     }
 
@@ -1530,7 +1538,7 @@ export default function CurationList() {
 
         {/* ═══ ARTICLE FEED ═══ */}
         <div className="min-h-[100vh]">
-          {isLoading ? (
+          {isLoading && filteredArticles.length === 0 ? (
             <motion.div
               key="skeleton"
               initial={{ opacity: 0 }}
@@ -1562,7 +1570,7 @@ export default function CurationList() {
                 </div>
               ))}
             </motion.div>
-          ) : filteredArticles.length === 0 ? (
+          ) : !isLoading && filteredArticles.length === 0 ? (
             <motion.div
               key="empty"
               initial={{ opacity: 0, y: 20 }}
