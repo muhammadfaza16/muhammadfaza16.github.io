@@ -55,6 +55,16 @@ export default function ProfilePage() {
         toast.error("This feature is currently under development.", {
             icon: '🚧',
             duration: 2000,
+            style: {
+                borderRadius: '12px',
+                background: '#18181b',
+                color: '#fafafa',
+                border: '1px solid rgba(255,255,255,0.1)',
+                fontSize: '13px',
+                fontWeight: '500',
+                padding: '12px 16px',
+                boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.3)',
+            },
         });
     };
 
