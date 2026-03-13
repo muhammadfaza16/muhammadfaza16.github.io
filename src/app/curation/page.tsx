@@ -196,6 +196,132 @@ export default function CurationList() {
   const loadMoreRef = useRef<HTMLDivElement>(null);
   const isLoadingMoreRef = useRef(false);
 
+  // Define critical handlers early for dependency stability
+  const toggleVisitorRead = useCallback(async (id: string) => {
+    setVisitorState((prev) => {
+      const isRead = !!prev.read[id];
+      const newState = {
+        ...prev,
+        read: { ...prev.read, [id]: !isRead },
+      };
+      saveVisitorStateAsync(newState);
+      return newState;
+    });
+  }, []);
+
+  const toggleVisitorBookmark = useCallback(async (id: string) => {
+    setVisitorState((prev) => {
+      const isBookmarked = !!prev.bookmarked[id];
+      const newState = {
+        ...prev,
+        bookmarked: { ...prev.bookmarked, [id]: !isBookmarked },
+      };
+      saveVisitorStateAsync(newState);
+      toast.success(!isBookmarked ? "Saved to Sanctuary" : "Removed from Sanctuary", {
+        icon: !isBookmarked ? "🔖" : "🗑️",
+      });
+      return newState;
+    });
+  }, []);
+
+  const handleShareArticle = useCallback(async (article: ArticleMeta) => {
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: article.title,
+          url: article.url || window.location.href,
+        });
+      } catch { }
+    } else {
+      const url = article.url || window.location.href;
+      navigator.clipboard.writeText(url);
+      toast.success("Link copied to clipboard");
+    }
+  }, []);
+
+  const fetchArticles = useCallback(
+    async (
+      limit = 15,
+      cursor: string | null = null,
+      isLoadMore = false,
+    ) => {
+      const currentSortBy = sortByRef.current;
+      const currentSortOrder = sortOrderRef.current;
+      const currentCategories = categoryFilterRef.current;
+      const currentQ = searchQueryRef.current;
+
+      // Abort in-flight request if starting a fresh fetch
+      if (!isLoadMore && abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
+      const controller = new AbortController();
+      if (!isLoadMore) abortControllerRef.current = controller;
+
+      // Track what we're fetching so isLoadMore can verify it's still relevant
+      if (!isLoadMore) {
+        lastFetchParamsRef.current = { sortBy: currentSortBy, sortOrder: currentSortOrder, cats: currentCategories, q: currentQ };
+      }
+
+      // Generation counter: prevent aborted fetches from resetting isLoading
+      let localGen = fetchGenRef.current;
+      if (!isLoadMore) {
+        fetchGenRef.current += 1;
+        localGen = fetchGenRef.current;
+        setIsLoading(true);
+      }
+
+      try {
+        if (isLoadMore) {
+          setIsLoadingMore(true);
+          isLoadingMoreRef.current = true;
+        }
+
+        let url = `/api/curation?limit=${limit}&sortBy=${currentSortBy}&sortOrder=${currentSortOrder}`;
+        if (currentCategories.length > 0) url += `&category=${encodeURIComponent(currentCategories.join(","))}`;
+        if (currentQ.trim()) url += `&q=${encodeURIComponent(currentQ.trim())}`;
+        if (cursor) url += `&cursor=${cursor}`;
+
+        const res = await fetch(url, { cache: "no-store", signal: controller.signal });
+        const data = await res.json();
+
+        // Guard: if filters changed while this loadMore was in-flight, discard the results
+        if (isLoadMore) {
+          const current = lastFetchParamsRef.current;
+          if (
+            current.sortBy !== currentSortBy ||
+            current.sortOrder !== currentSortOrder ||
+            current.q !== currentQ ||
+            JSON.stringify(current.cats) !== JSON.stringify(currentCategories)
+          ) {
+            return; // stale loadMore
+          }
+        }
+
+        if (data.articles) {
+          if (isLoadMore) {
+            setArticles((prev) => {
+              const ids = new Set(prev.map((a) => a.id));
+              return [...prev, ...data.articles.filter((a: any) => !ids.has(a.id))];
+            });
+          } else {
+            setArticles(data.articles);
+            const cacheKey = `${currentSortBy}_${currentSortOrder}_${currentCategories.join(",")}_${currentQ}`;
+            fetchCacheRef.current[cacheKey] = data.articles;
+          }
+          setNextCursor(data.nextCursor);
+          if (data.totalCount != null) setTotalCount(data.totalCount);
+        }
+      } catch (error: any) {
+        if (error?.name !== "AbortError") console.error("Fetch failed:", error);
+      } finally {
+        if (localGen === fetchGenRef.current) setIsLoading(false);
+        setIsLoadingMore(false);
+        isLoadingMoreRef.current = false;
+      }
+    },
+    [],
+  );
+
   // Form State
   const [isSheetOpen, setIsSheetOpen] = useState(false);
   const [formTitle, setFormTitle] = useState("");
@@ -511,136 +637,55 @@ export default function CurationList() {
     }
   };
 
-  // Data Fetching
-  const fetchArticles = async (
-    currentCursor: string | null,
-    currentSortBy: SortBy,
-    currentSortOrder: SortOrder,
-    categories: string[],
-    q: string,
-    isLoadMore = false,
-  ) => {
-    // Cancel any in-flight request for non-loadMore fetches
-    if (!isLoadMore && abortControllerRef.current) {
-      abortControllerRef.current.abort();
-    }
-
-    const controller = new AbortController();
-    if (!isLoadMore) abortControllerRef.current = controller;
-
-    // Track what we're fetching so isLoadMore can verify it's still relevant
-    if (!isLoadMore) {
-      lastFetchParamsRef.current = { sortBy: currentSortBy, sortOrder: currentSortOrder, cats: categories, q };
-    }
-
-    // Generation counter: prevent aborted fetches from resetting isLoading
-    let localGen = fetchGenRef.current;
-    if (!isLoadMore) {
-      fetchGenRef.current += 1;
-      localGen = fetchGenRef.current;
-      setIsLoading(true); // Always show loading for fresh fetches (including background/SWR)
-    }
-
-    try {
-      if (isLoadMore) {
-        setIsLoadingMore(true);
-        isLoadingMoreRef.current = true;
-      }
-
-      let url = `/api/curation?limit=5&sortBy=${currentSortBy}&sortOrder=${currentSortOrder}`;
-      if (categories.length > 0) {
-        url += `&category=${encodeURIComponent(categories.join(","))}`;
-      }
-      if (q.trim()) {
-        url += `&q=${encodeURIComponent(q.trim())}`;
-      }
-      if (currentCursor) url += `&cursor=${currentCursor}`;
-
-      const res = await fetch(url, {
-        cache: "no-store",
-        signal: controller.signal,
-      });
-      const data = await res.json();
-
-      // Guard: if filters changed while this loadMore was in-flight, discard the results
-      if (isLoadMore) {
-        const current = lastFetchParamsRef.current;
-        if (
-          current.sortBy !== currentSortBy ||
-          current.sortOrder !== currentSortOrder ||
-          current.q !== q ||
-          JSON.stringify(current.cats) !== JSON.stringify(categories)
-        ) {
-          return; // stale loadMore — discard
-        }
-      }
-
-      if (data.articles) {
-        if (isLoadMore) {
-          setArticles((prev) => {
-            const existingIds = new Set(prev.map((a) => a.id));
-            const newUnique = data.articles.filter(
-              (a: any) => !existingIds.has(a.id),
-            );
-            return [...prev, ...newUnique];
-          });
-        } else {
-          setArticles(data.articles);
-          // Store in cache
-          const cacheKey = `${currentSortBy}_${currentSortOrder}_${categories.join(",")}_${q}`;
-          fetchCacheRef.current[cacheKey] = data.articles;
-        }
-        setNextCursor(data.nextCursor);
-        if (data.totalCount != null) setTotalCount(data.totalCount);
-      }
-    } catch (error: any) {
-      if (error?.name !== "AbortError") {
-        console.error("Fetch failed:", error);
-      }
-    } finally {
-      // Only update loading states if this fetch is still the latest one
-      if (localGen === fetchGenRef.current) {
-        setIsLoading(false);
-      }
-      setIsLoadingMore(false);
-      isLoadingMoreRef.current = false;
-    }
-  };
+  // No changes here, just capturing for move
 
   useEffect(() => {
-    if (hasRestoredCache.current) {
-      hasRestoredCache.current = false;
-      // Don't return here! We want to proceed and trigger a background fetch (SWR pattern)
-      // but we skip the "instant clear" below if we have restored data.
-    }
     // Keep refs in sync so IntersectionObserver always reads current values
     sortByRef.current = sortBy;
     sortOrderRef.current = sortOrder;
     categoryFilterRef.current = categoryFilter;
     searchQueryRef.current = debouncedSearchQuery;
 
-    // Simplified: No automatic scrolling or gimmicks. Persisting user coordinate naturally.
-    if (mounted && !hasRestoredCache.current) {
-        // We no longer force a scroll to resultsRef. 
-        // This keeps the user at their current scroll position even when filters change.
+    if (mounted) {
+      const cacheKey = `${sortBy}_${sortOrder}_${categoryFilter.join(",")}_${debouncedSearchQuery}`;
+      const cachedData = fetchCacheRef.current[cacheKey];
+
+      if (cachedData) {
+        setArticles(cachedData);
+        setIsLoading(false);
+      } else {
+        // Hijack UI: clear old list instantly to show skeleton
+        setArticles([]); 
+        setIsLoading(true);
+      }
+      
+      fetchArticles(15, null, false);
     }
+  }, [
+    sortBy,
+    sortOrder,
+    categoryFilter,
+    debouncedSearchQuery,
+    mounted,
+    fetchArticles,
+  ]);
 
-    const cacheKey = `${sortBy}_${sortOrder}_${categoryFilter.join(",")}_${debouncedSearchQuery}`;
-    const cachedData = fetchCacheRef.current[cacheKey];
+  // Stable handlers for memoized cards
+  const handleCardClick = useCallback((id: string) => {
+    setNavigatingId(id);
+  }, []);
 
-    if (cachedData) {
-      setArticles(cachedData);
-      setIsLoading(false);
-    } else {
-      // SWR-style: keep current articles visible while loading new ones.
-      // This prevents DOM height collapse and scroll position jump.
-      setIsLoading(true);
-    }
+  const handleCardRead = useCallback((id: string) => {
+    toggleVisitorRead(id);
+  }, [toggleVisitorRead]);
 
-    // Instant for sort/category, debounced by useDebounce for search
-    fetchArticles(null, sortBy, sortOrder, categoryFilter, debouncedSearchQuery);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [sortBy, sortOrder, categoryFilter, debouncedSearchQuery, statusFilter]);
+  const handleCardBookmark = useCallback((id: string) => {
+    toggleVisitorBookmark(id);
+  }, [toggleVisitorBookmark]);
+
+  const handleCardShare = useCallback((article: ArticleMeta) => {
+    handleShareArticle(article);
+  }, [handleShareArticle]);
 
   // Save cache when data changes
   useEffect(() => {
@@ -677,7 +722,7 @@ export default function CurationList() {
       (entries) => {
         if (entries[0].isIntersecting && nextCursor && !isLoadingMoreRef.current) {
           // Read from refs to avoid stale closure values
-          fetchArticles(nextCursor, sortByRef.current, sortOrderRef.current, categoryFilterRef.current, searchQueryRef.current, true);
+          fetchArticles(15, nextCursor, true);
         }
       },
       { root: scrollContainerRef.current, rootMargin: "600px" }
@@ -694,62 +739,7 @@ export default function CurationList() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [nextCursor, sortBy, sortOrder, categoryFilter, debouncedSearchQuery]);
 
-  // Visitor state actions
-  const toggleVisitorRead = (articleId: string) => {
-    const wasRead = !!visitorState.read[articleId];
-    setVisitorState((prev) => {
-      const updated = {
-        ...prev,
-        read: { ...prev.read, [articleId]: !prev.read[articleId] },
-      };
-      if (!updated.read[articleId]) delete updated.read[articleId];
-      saveVisitorStateAsync(updated);
-      return updated;
-    });
-    try {
-      if (navigator.vibrate) navigator.vibrate([10, 30, 10]);
-    } catch { }
-    toast.success(wasRead ? "Marked unread" : "Marked read");
-  };
-
-  const toggleVisitorBookmark = (articleId: string) => {
-    const wasBookmarked = !!visitorState.bookmarked[articleId];
-    setVisitorState((prev) => {
-      const updated = {
-        ...prev,
-        bookmarked: {
-          ...prev.bookmarked,
-          [articleId]: !prev.bookmarked[articleId],
-        },
-      };
-      if (!updated.bookmarked[articleId]) delete updated.bookmarked[articleId];
-      saveVisitorStateAsync(updated);
-      return updated;
-    });
-    try {
-      if (navigator.vibrate) navigator.vibrate([15, 30, 15]);
-    } catch { }
-    toast.success(wasBookmarked ? "Removed bookmark" : "Bookmarked!");
-  };
-
-  // Share handler
-  const handleShareArticle = async (article: ArticleMeta) => {
-    const shareUrl = `${window.location.origin}/curation/${article.id}`;
-    const shareData = { title: article.title, url: shareUrl };
-    try {
-      if (navigator.share) {
-        await navigator.share(shareData);
-      } else {
-        await navigator.clipboard.writeText(shareUrl);
-        toast.success("Link copied!");
-      }
-    } catch (err: any) {
-      if (err?.name !== "AbortError") {
-        await navigator.clipboard.writeText(shareUrl);
-        toast.success("Link copied!");
-      }
-    }
-  };
+  // Initial definition was moved to the top for dependency stability
 
   // Init
   useEffect(() => {
@@ -1539,32 +1529,6 @@ export default function CurationList() {
 
         {/* ═══ ARTICLE FEED ═══ */}
         <div className="min-h-[100vh] relative">
-          {/* SWR / Background Loading Bar */}
-          <AnimatePresence>
-            {isLoading && articles.length > 0 && (
-              <motion.div
-                initial={{ opacity: 0, scaleX: 0 }}
-                animate={{ opacity: 1, scaleX: 1 }}
-                exit={{ opacity: 0 }}
-                className="absolute top-0 left-5 right-5 h-[2px] bg-blue-500/30 dark:bg-blue-400/20 origin-left z-10 rounded-full"
-                transition={{ duration: 0.3 }}
-              >
-                <motion.div 
-                  className="h-full bg-blue-500 dark:bg-blue-400 rounded-full"
-                  animate={{ 
-                    x: ["-100%", "100%"],
-                  }}
-                  transition={{ 
-                    repeat: Infinity, 
-                    duration: 1.5, 
-                    ease: "easeInOut" 
-                  }}
-                  style={{ width: "30%" }}
-                />
-              </motion.div>
-            )}
-          </AnimatePresence>
-
           {isLoading && filteredArticles.length === 0 ? (
             <motion.div
               key="skeleton"
@@ -1766,7 +1730,6 @@ export default function CurationList() {
                 return (
                   <motion.div
                     key={article.id}
-                    layout
                     initial={{ opacity: 0, y: 16 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, scale: 0.97 }}
@@ -1777,27 +1740,27 @@ export default function CurationList() {
                   >
                     {/* ═══ SWIPEABLE ARTICLE CARD ═══ */}
                     <SwipeableArticleCard
-                      article={article}
+                      id={article.id}
+                      title={article.title}
+                      category={article.category}
+                      socialScore={article.socialScore}
+                      likes={article.likes}
+                      reposts={article.reposts}
+                      replies={article.replies}
                       validImageUrl={validImageUrl}
                       createdAt={article.createdAt}
                       readTime={readTime}
                       isVisitorRead={!!isVisitorRead}
                       isVisitorBookmarked={!!isVisitorBookmarked}
                       imgError={!!imgErrors[article.id]}
-                      onImgError={() =>
-                        setImgErrors((prev) => ({
-                          ...prev,
-                          [article.id]: true,
-                        }))
-                      }
-                      onClick={() => {
-                        setNavigatingId(article.id);
-                      }}
-                      onSwipeRight={() => toggleVisitorRead(article.id)}
-                      onSwipeLeft={() => toggleVisitorBookmark(article.id)}
+                      onImgError={setImgErrors}
+                      onClick={handleCardClick}
+                      onRead={handleCardRead}
+                      onBookmark={handleCardBookmark}
                       isNavigating={navigatingId === article.id}
                       progress={readingProgress[article.id] || 0}
-                      onShare={() => handleShareArticle(article)}
+                      onShare={handleCardShare}
+                      articleRaw={article}
                     />
                   </motion.div>
                 );
@@ -2003,8 +1966,38 @@ export default function CurationList() {
 
 // ═══ SWIPEABLE ARTICLE CARD ═══
 
+interface SwipeableArticleCardProps {
+  id: string;
+  title: string;
+  category: string | null;
+  socialScore?: number;
+  likes?: number;
+  reposts?: number;
+  replies?: number;
+  validImageUrl: string | null;
+  createdAt: string;
+  readTime: number;
+  isVisitorRead: boolean;
+  isVisitorBookmarked: boolean;
+  imgError: boolean;
+  onImgError: React.Dispatch<React.SetStateAction<Record<string, boolean>>>;
+  onClick: (id: string) => void;
+  onRead: (id: string) => void;
+  onBookmark: (id: string) => void;
+  isNavigating?: boolean;
+  progress?: number;
+  onShare?: (article: ArticleMeta) => void;
+  articleRaw: ArticleMeta;
+}
+
 const SwipeableArticleCard = memo(({
-  article,
+  id,
+  title,
+  category,
+  socialScore,
+  likes,
+  reposts,
+  replies,
   validImageUrl,
   createdAt,
   readTime,
@@ -2013,27 +2006,13 @@ const SwipeableArticleCard = memo(({
   imgError,
   onImgError,
   onClick,
-  onSwipeRight,
-  onSwipeLeft,
+  onRead,
+  onBookmark,
   isNavigating,
   progress = 0,
   onShare,
-}: {
-  article: ArticleMeta;
-  validImageUrl: string | null;
-  createdAt: string;
-  readTime: number;
-  isVisitorRead: boolean;
-  isVisitorBookmarked: boolean;
-  imgError: boolean;
-  onImgError: () => void;
-  onClick: () => void;
-  onSwipeRight: () => void;
-  onSwipeLeft: () => void;
-  isNavigating?: boolean;
-  progress?: number;
-  onShare?: () => void;
-}) => {
+  articleRaw,
+}: SwipeableArticleCardProps) => {
   const postDate = new Date(createdAt);
   const x = useMotionValue(0);
   const [isDragging, setIsDragging] = useState(false);
@@ -2047,9 +2026,9 @@ const SwipeableArticleCard = memo(({
     setIsDragging(false);
     const swipeThreshold = 80;
     if (info.offset.x > swipeThreshold) {
-      onSwipeRight();
+      onRead(id);
     } else if (info.offset.x < -swipeThreshold) {
-      onSwipeLeft();
+      onBookmark(id);
     }
   };
 
@@ -2103,13 +2082,13 @@ const SwipeableArticleCard = memo(({
         className="bg-white dark:bg-zinc-900 rounded-[1.5rem] border border-zinc-100 dark:border-zinc-800 overflow-hidden shadow-[0_1px_3px_rgba(0,0,0,0.02)] hover:shadow-[0_4px_16px_rgba(0,0,0,0.04)] transition-all duration-300 p-4 relative z-10 cursor-grab touch-pan-y"
       >
         <Link
-          href={`/curation/${article.id}`}
+          href={`/curation/${id}`}
           onClick={(e) => {
             if (isDragging) {
               e.preventDefault();
               e.stopPropagation();
             } else {
-              onClick();
+              onClick(id);
             }
           }}
           className="flex items-center gap-4 outline-none w-full relative"
@@ -2136,7 +2115,7 @@ const SwipeableArticleCard = memo(({
                 sizes="80px"
                 draggable={false}
                 className="object-cover"
-                onError={onImgError}
+                onError={() => onImgError(prev => ({ ...prev, [id]: true }))}
               />
             ) : (
               <div className="w-full h-full flex items-center justify-center text-zinc-200 dark:text-zinc-700 bg-gradient-to-br from-zinc-50 dark:from-zinc-800 to-zinc-100 dark:to-zinc-900">
@@ -2157,7 +2136,7 @@ const SwipeableArticleCard = memo(({
                   NEW
                 </span>
               ) : null}
-              {typeof article.socialScore === 'number' && article.socialScore >= 1000 && (
+              {typeof socialScore === 'number' && socialScore >= 1000 && (
                 <>
                   <div className="w-[3px] h-[3px] rounded-full bg-zinc-200 dark:bg-zinc-700 shrink-0" />
                   <span className="text-[9px] font-bold uppercase tracking-[0.1em] bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-500 px-1.5 py-[2px] rounded">
@@ -2165,11 +2144,11 @@ const SwipeableArticleCard = memo(({
                   </span>
                 </>
               )}
-              {article.category && (
+              {category && (
                 <>
                   <div className="w-[3px] h-[3px] rounded-full bg-zinc-200 dark:bg-zinc-700 shrink-0" />
                   <span className="text-[10px] font-semibold text-zinc-400 dark:text-zinc-500 truncate">
-                    {article.category}
+                    {category}
                   </span>
                 </>
               )}
@@ -2184,7 +2163,7 @@ const SwipeableArticleCard = memo(({
               )}
             </div>
             <h3 className="text-[15px] font-bold tracking-[-0.01em] text-zinc-900 dark:text-zinc-100 leading-[1.3] line-clamp-2 mb-1.5 group-hover/card:text-blue-600 dark:group-hover/card:text-blue-400 transition-colors">
-              {formatTitle(article.title)}
+              {formatTitle(title)}
             </h3>
             <div className="flex items-center justify-between mt-auto">
               <div className="flex items-center gap-1.5 text-[11px] font-medium text-zinc-400 dark:text-zinc-500">
@@ -2201,24 +2180,24 @@ const SwipeableArticleCard = memo(({
               </div>
 
               {/* Subtle Metrics (Strict Monochrome, Right-aligned) */}
-              {(article.likes || article.reposts || article.replies) ? (
+              {(likes || reposts || replies) ? (
                 <div className="flex items-center gap-3">
-                  {article.likes ? (
+                  {likes ? (
                     <div className="flex items-center gap-1 group/metric">
                       <Heart size={10} className="text-zinc-400 group-hover/metric:text-zinc-900 dark:group-hover/metric:text-zinc-200 transition-colors" />
-                      <span className="text-[10px] text-zinc-400 dark:text-zinc-500 tabular-nums">{formatMetric(article.likes)}</span>
+                      <span className="text-[10px] text-zinc-400 dark:text-zinc-500 tabular-nums">{formatMetric(likes)}</span>
                     </div>
                   ) : null}
-                  {article.reposts ? (
+                  {reposts ? (
                     <div className="flex items-center gap-1 group/metric">
                       <Repeat size={10} className="text-zinc-400 group-hover/metric:text-zinc-900 dark:group-hover/metric:text-zinc-200 transition-colors" />
-                      <span className="text-[10px] text-zinc-400 dark:text-zinc-500 tabular-nums">{formatMetric(article.reposts)}</span>
+                      <span className="text-[10px] text-zinc-400 dark:text-zinc-500 tabular-nums">{formatMetric(reposts)}</span>
                     </div>
                   ) : null}
-                  {article.replies ? (
+                  {replies ? (
                     <div className="flex items-center gap-1 group/metric">
                       <MessageCircle size={10} className="text-zinc-400 group-hover/metric:text-zinc-900 dark:group-hover/metric:text-zinc-200 transition-colors" />
-                      <span className="text-[10px] text-zinc-400 dark:text-zinc-500 tabular-nums">{formatMetric(article.replies)}</span>
+                      <span className="text-[10px] text-zinc-400 dark:text-zinc-500 tabular-nums">{formatMetric(replies)}</span>
                     </div>
                   ) : null}
                 </div>
@@ -2232,7 +2211,7 @@ const SwipeableArticleCard = memo(({
           <button
             onClick={(e) => {
               e.stopPropagation();
-              onShare();
+              onShare(articleRaw);
             }}
             className="absolute top-3 right-3 z-20 p-2 rounded-full bg-white/90 dark:bg-zinc-800/90 border border-zinc-100 dark:border-zinc-700 shadow-sm opacity-0 group-hover/card:opacity-100 transition-opacity active:scale-90 pointer-events-auto"
             aria-label="Share"
