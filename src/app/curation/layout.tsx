@@ -66,7 +66,7 @@ export default function CurationPlatformLayout({
                         const isExploreItem = item.name === "Explore";
 
                         const navContent = (
-                            <div className="flex flex-col items-center justify-center gap-[3px] h-full pt-[4px] pb-[8px]">
+                            <div className="flex flex-col items-center justify-center gap-[3px] h-full">
                                 <div className={`
                                     transition-all duration-300
                                     ${isActive

@@ -152,7 +152,6 @@ export default function CurationList() {
   >("all");
   const [searchQuery, setSearchQuery] = useState("");
   const debouncedSearchQuery = useDebounce(searchQuery, 300);
-  const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [imgErrors, setImgErrors] = useState<Record<string, boolean>>({});
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [nextCursor, setNextCursor] = useState<string | null>(null);
@@ -189,7 +188,6 @@ export default function CurationList() {
   const categoryFilterRef = useRef(categoryFilter);
   const searchQueryRef = useRef(debouncedSearchQuery);
 
-  const searchInputRef = useRef<HTMLInputElement>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const resultsRef = useRef<HTMLDivElement>(null);
   const heroCarouselRef = useRef<HTMLDivElement>(null);
@@ -929,17 +927,17 @@ export default function CurationList() {
         </Link>
         <div className="flex items-center gap-2">
           <h2
-            className="text-[16px] text-zinc-900 dark:text-zinc-100 italic font-medium leading-none"
+            className="text-[17px] text-zinc-900 dark:text-zinc-100 italic font-medium leading-none tracking-tight"
             style={{ fontFamily: "'Playfair Display', Georgia, serif" }}
           >
-            Curated by Faza
+            Curation
           </h2>
-          <span className="px-1.5 py-0.5 rounded-md bg-zinc-100 dark:bg-zinc-800/60 border border-zinc-200/50 dark:border-zinc-700/50 text-[9px] font-bold tracking-wider text-zinc-400 dark:text-zinc-500 uppercase leading-none transform translate-y-[2px]">
+          <span className="px-1.5 py-0.5 rounded-md bg-zinc-100 dark:bg-zinc-800/60 border border-zinc-200/50 dark:border-zinc-700/50 text-[8px] font-bold tracking-wider text-zinc-400 dark:text-zinc-500 uppercase leading-none transform translate-y-[2.5px]">
             Beta
           </span>
         </div>
 
-        <div className="flex items-center gap-1">
+        <div className="flex items-center">
           <button
             onClick={toggleTheme}
             className="w-10 h-10 flex items-center justify-center text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 active:scale-90 rounded-full transition-all relative overflow-hidden"
@@ -953,67 +951,14 @@ export default function CurationList() {
                 transition={{ type: "spring", stiffness: 350, damping: 25 }}
                 className="absolute flex items-center justify-center"
               >
-                {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
+                {theme === "dark" ? <Sun size={18} strokeWidth={2.5} /> : <Moon size={18} strokeWidth={2.5} />}
               </motion.div>
             </AnimatePresence>
-          </button>
-          <button
-            onClick={() => {
-              setIsSearchOpen(!isSearchOpen);
-              if (!isSearchOpen)
-                setTimeout(() => searchInputRef.current?.focus(), 100);
-            }}
-            className="w-10 h-10 flex items-center justify-center text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 active:scale-90 rounded-full transition-all"
-          >
-            {isSearchOpen ? <X size={18} /> : <Search size={18} />}
           </button>
         </div>
       </header>
 
-      {/* ═══ SEARCH BAR (expandable) ═══ */}
-      <AnimatePresence>
-        {isSearchOpen && (
-          <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: "auto", opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.2 }}
-            className="overflow-hidden bg-[#fafaf8]/15 dark:bg-[#050505]/20 backdrop-blur-xl border-b border-zinc-200/40 dark:border-zinc-800/40 px-5 z-40"
-          >
-            <div className="py-3">
-              <div className="relative">
-                <Search
-                  size={16}
-                  className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-300"
-                />
-                <input
-                  ref={searchInputRef}
-                  type="text"
-                  placeholder="Search articles..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full h-11 bg-white dark:bg-zinc-900/40 rounded-xl border border-zinc-200/60 dark:border-zinc-800/60 pl-10 pr-10 text-[14px] text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 dark:placeholder:text-zinc-500 outline-none focus:border-zinc-300 dark:focus:border-zinc-700 transition-all"
-                />
-                {searchQuery && (
-                  <button
-                    onClick={() => {
-                      setSearchQuery("");
-                      searchInputRef.current?.focus();
-                    }}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 p-2 text-zinc-400 hover:text-zinc-600 dark:text-zinc-500 dark:hover:text-zinc-300 transition-colors flex items-center justify-center group"
-                  >
-                    <X
-                      size={14}
-                      strokeWidth={2.5}
-                      className="opacity-70 group-hover:opacity-100"
-                    />
-                  </button>
-                )}
-              </div>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+
 
       {/* ═══ SCROLLABLE CONTENT ═══ */}
       <div
