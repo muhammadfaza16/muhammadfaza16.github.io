@@ -28,6 +28,7 @@ import {
   Heart,
   Repeat,
   MessageCircle,
+  Plus,
 } from "lucide-react";
 import { formatTitle } from "@/lib/utils";
 import { Toaster, toast } from "react-hot-toast";
@@ -1897,6 +1898,20 @@ export default function CurationList() {
           />
         </div>
       </BottomSheet>
+
+      {/* ═══ ADMIN FLOATING ACTION BUTTON ═══ */}
+      {mounted && isAdmin && !isSheetOpen && (
+        <motion.button
+          initial={{ scale: 0, opacity: 0, y: 20 }}
+          animate={{ scale: 1, opacity: 1, y: 0 }}
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.9 }}
+          onClick={() => setIsSheetOpen(true)}
+          className="fixed bottom-24 right-5 z-[60] w-14 h-14 bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 rounded-full flex items-center justify-center shadow-[0_8px_30px_rgba(0,0,0,0.3)] border border-zinc-800 dark:border-zinc-200 transition-all"
+        >
+          <Plus size={24} strokeWidth={2.5} />
+        </motion.button>
+      )}
 
       {/* ═══ GOOGLE FONTS ═══ */}
       {/* eslint-disable-next-line @next/next/no-page-custom-font */}
