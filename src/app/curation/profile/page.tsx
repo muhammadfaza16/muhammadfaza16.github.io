@@ -61,8 +61,6 @@ export default function ProfilePage() {
                 <h1 className="text-2xl font-medium tracking-tight mb-0.5 text-zinc-900 dark:text-white" style={{ fontFamily: "'Playfair Display', serif" }}>Muhammad Faza</h1>
                 <div className="flex items-center gap-2 mb-5">
                     <p className="text-zinc-400 text-[10px] font-medium uppercase tracking-[0.2em]">Software Engineer</p>
-                    <div className="w-1 h-1 rounded-full bg-zinc-300 dark:bg-zinc-700" />
-                    <span className="text-blue-500 dark:text-blue-400 text-[9px] font-bold uppercase tracking-wider">Free Forever</span>
                 </div>
 
                 <div className="flex gap-2">
@@ -83,7 +81,7 @@ export default function ProfilePage() {
                     </div>
                     <h2 className="text-[15px] font-bold text-zinc-900 dark:text-zinc-100 mb-2">Under Development</h2>
                     <p className="text-[13px] text-zinc-500 max-w-[280px] leading-relaxed">
-                        Personalized feeds, topic interests, and weekly digests are currently being built. This project will remain free for everyone, forever.
+                        Personalized feeds, topic interests, and weekly digests are currently being built to enhance your reading experience.
                     </p>
                 </div>
             </section>
