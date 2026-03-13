@@ -87,7 +87,7 @@ const CATEGORIES = [
 ];
 
 const LABEL_CLASS =
-  "text-[12px] font-bold uppercase tracking-wider text-zinc-500 ml-1";
+  "text-[11px] font-semibold uppercase tracking-wider text-zinc-400/80 ml-1";
 const CACHE_KEY = "curationFeedCache_v2";
 const VISITOR_STATE_KEY = "curation_visitor_state";
 
@@ -1784,7 +1784,7 @@ export default function CurationList() {
       >
         <div className="flex flex-col gap-1.5 pt-1">
           <div className="flex items-center justify-between">
-            <label className="text-[11px] font-semibold uppercase tracking-wider text-zinc-400/80 ml-1">URL / Link</label>
+            <label className={LABEL_CLASS}>URL / Link</label>
             {isFetchingMetadata && (
               <span className="text-[10px] text-zinc-400 flex items-center gap-1">
                 <Loader2 size={10} className="animate-spin" /> Fetching…
@@ -1815,10 +1815,13 @@ export default function CurationList() {
         )}
 
         <div className="flex flex-col gap-1.5">
-          <label className="text-[11px] font-semibold uppercase tracking-wider text-zinc-400/80 ml-1">Title</label>
+          <label className={LABEL_CLASS}>Title</label>
           <QuickPasteInput
             value={formTitle}
-        )}
+            onChange={setFormTitle}
+            placeholder="Article or page title"
+          />
+        </div>
 
         {isAdmin && (
           <div className="grid grid-cols-3 gap-3">
@@ -1828,7 +1831,7 @@ export default function CurationList() {
                 type="number"
                 value={formLikes || ""}
                 onChange={(e) => setFormLikes(parseInt(e.target.value) || 0)}
-                className="h-12 bg-zinc-50 rounded-xl border border-zinc-200/80 px-4 text-[14px] outline-none focus:border-zinc-300 transition-all font-mono"
+                className="h-11 bg-zinc-50/50 rounded-xl border border-zinc-100/50 px-4 text-[14px] font-medium text-zinc-900 outline-none focus:bg-white focus:border-blue-200/50 focus:shadow-sm transition-all font-mono"
                 placeholder="0"
               />
             </div>
@@ -1838,7 +1841,7 @@ export default function CurationList() {
                 type="number"
                 value={formReposts || ""}
                 onChange={(e) => setFormReposts(parseInt(e.target.value) || 0)}
-                className="h-12 bg-zinc-50 rounded-xl border border-zinc-200/80 px-4 text-[14px] outline-none focus:border-zinc-300 transition-all font-mono"
+                className="h-11 bg-zinc-50/50 rounded-xl border border-zinc-100/50 px-4 text-[14px] font-medium text-zinc-900 outline-none focus:bg-white focus:border-blue-200/50 focus:shadow-sm transition-all font-mono"
                 placeholder="0"
               />
             </div>
@@ -1848,7 +1851,7 @@ export default function CurationList() {
                 type="number"
                 value={formReplies || ""}
                 onChange={(e) => setFormReplies(parseInt(e.target.value) || 0)}
-                className="h-12 bg-zinc-50 rounded-xl border border-zinc-200/80 px-4 text-[14px] outline-none focus:border-zinc-300 transition-all font-mono"
+                className="h-11 bg-zinc-50/50 rounded-xl border border-zinc-100/50 px-4 text-[14px] font-medium text-zinc-900 outline-none focus:bg-white focus:border-blue-200/50 focus:shadow-sm transition-all font-mono"
                 placeholder="0"
               />
             </div>
@@ -1861,7 +1864,7 @@ export default function CurationList() {
             <select
               value={formCategory}
               onChange={(e) => setFormCategory(e.target.value)}
-              className="h-12 bg-zinc-50 rounded-xl border border-zinc-200/80 px-4 text-[14px] outline-none focus:border-zinc-300 appearance-none"
+              className="h-11 bg-zinc-50/50 rounded-xl border border-zinc-100/50 px-4 text-[14px] font-medium text-zinc-900 outline-none focus:bg-white focus:border-blue-200/50 focus:shadow-sm transition-all appearance-none"
             >
               <option value="">None</option>
               {CATEGORIES.map((c) => (
@@ -1874,7 +1877,7 @@ export default function CurationList() {
         )}
 
         <div className="flex flex-col gap-1.5">
-          <label className={LABEL_CLASS}>Content</label>
+          <label className={LABEL_CLASS}>Content / Notes</label>
           <RichTextEditor
             value={formNotes}
             onChange={setFormNotes}
@@ -1888,12 +1891,12 @@ export default function CurationList() {
         <motion.button
           initial={{ scale: 0, opacity: 0, y: 20 }}
           animate={{ scale: 1, opacity: 1, y: 0 }}
-          whileHover={{ scale: 1.1 }}
-          whileTap={{ scale: 0.9 }}
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
           onClick={() => setIsSheetOpen(true)}
-          className="fixed bottom-24 right-5 z-[60] w-14 h-14 bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 rounded-full flex items-center justify-center shadow-[0_8px_30px_rgba(0,0,0,0.3)] border border-zinc-800 dark:border-zinc-200 transition-all"
+          className="fixed bottom-24 right-5 z-[60] w-12 h-12 bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 rounded-full flex items-center justify-center shadow-[0_8px_25px_rgba(0,0,0,0.2)] border border-white/10 dark:border-black/10 transition-all"
         >
-          <Plus size={24} strokeWidth={2.5} />
+          <Plus size={20} strokeWidth={2.0} />
         </motion.button>
       )}
 
