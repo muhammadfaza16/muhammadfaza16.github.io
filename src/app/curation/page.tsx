@@ -989,7 +989,7 @@ export default function CurationList() {
               >
                 <div className="absolute -inset-1 bg-gradient-to-r from-blue-500/20 to-emerald-500/20 blur-2xl rounded-full opacity-50 dark:opacity-30" />
                 <h1
-                  className="text-[38px] md:text-[48px] leading-[1.1] tracking-[-0.03em] text-zinc-900 dark:text-zinc-100 relative"
+                  className="text-[32px] md:text-[40px] leading-[1.1] tracking-[-0.03em] text-zinc-900 dark:text-zinc-100 relative"
                   style={{ fontFamily: "'Playfair Display', serif" }}
                 >
                   Curated Knowledge
@@ -1003,8 +1003,8 @@ export default function CurationList() {
               </motion.div>
               
               <p className="text-[17px] text-zinc-500 dark:text-zinc-400 leading-relaxed max-w-[42ch]">
-                The definitive index of high-signal frameworks, essays, and deep-dives
-                <span className="text-zinc-900 dark:text-zinc-200 font-medium"> hand-picked for the modern mind.</span>
+                A definitive index of high-signal frameworks, essays, and deep-dives.
+                <span className="text-zinc-900 dark:text-zinc-200 font-medium"> Hand-picked for the modern mind.</span>
               </p>
 
               {/* Stats */}
