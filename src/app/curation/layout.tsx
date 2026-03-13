@@ -56,7 +56,7 @@ export default function CurationPlatformLayout({
                     initial="hidden"
                     animate="visible"
                     variants={navVariants as any}
-                    className="fixed bottom-0 left-0 right-0 z-50 flex items-center justify-around bg-white/10 dark:bg-black/20 backdrop-blur-xl border-t border-black/5 dark:border-white/10 shadow-none w-full h-[64px]"
+                    className="fixed bottom-0 left-0 right-0 z-50 flex items-center justify-around bg-white/10 dark:bg-black/20 backdrop-blur-xl border-t border-black/5 dark:border-white/10 shadow-none w-full h-[56px]"
                 >
                     {navItems.map((item) => {
                         let isActive = pathname === item.href;
@@ -73,10 +73,10 @@ export default function CurationPlatformLayout({
                                         ? 'text-zinc-950 dark:text-white'
                                         : 'text-zinc-400 dark:text-zinc-500 hover:text-zinc-600 dark:hover:text-zinc-300'}
                                 `}>
-                                    <Icon size={19} strokeWidth={isActive ? 2 : 1.5} />
+                                    <Icon size={17} strokeWidth={isActive ? 2 : 1.5} />
                                 </div>
                                 <span className={`
-                                    text-[12px] leading-none font-light tracking-tight transition-colors duration-300
+                                    text-[11px] leading-none font-light tracking-tight transition-colors duration-300
                                     ${isActive ? 'text-zinc-900 dark:text-white' : 'text-zinc-400 dark:text-zinc-500'}
                                 `}>
                                     {item.name}
