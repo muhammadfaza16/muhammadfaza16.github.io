@@ -1696,18 +1696,18 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
                         <button
                             onClick={handleDelete}
                             disabled={isSubmitting}
-                            className="w-12 h-12 bg-red-50 rounded-full flex items-center justify-center text-red-500 shadow-inner border border-red-100 active:scale-90 transition-transform"
+                            className="w-12 h-11 bg-red-50/50 rounded-full flex items-center justify-center text-red-500 shadow-inner border border-red-100/50 active:scale-90 transition-transform"
                             title="Delete Article"
                         >
-                            <Trash2 size={24} />
+                            <Trash2 size={20} />
                         </button>
                         <button
                             onClick={handleEditSave}
                             disabled={isSubmitting || !formTitle || !formUrl}
-                            className="flex-1 h-12 bg-black rounded-full flex items-center justify-center text-white font-semibold text-base shadow-lg active:scale-95 transition-all disabled:opacity-50"
+                            className="flex-1 h-11 bg-black rounded-full flex items-center justify-center text-white font-semibold text-[15px] shadow-lg active:scale-95 transition-all disabled:opacity-50"
                         >
                             {isSubmitting ? (
-                                <Loader2 size={18} className="animate-spin" />
+                                <Loader2 size={16} className="animate-spin" />
                             ) : (
                                 <span className="flex items-center justify-center">
                                     Save Changes
@@ -1718,9 +1718,9 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
                 }
             >
                 <div className="mt-2" />
-                <div className="flex flex-col gap-1.5 mt-2">
+                <div className="flex flex-col gap-1.5 mt-2 pt-1">
                     <div className="flex items-center justify-between">
-                        <label className={LABEL_CLASS}>URL / Link</label>
+                        <label className="text-[11px] font-semibold uppercase tracking-wider text-zinc-400/80 ml-1">URL / Link</label>
                         {isFetchingMetadata && (
                             <div className="flex items-center gap-1.5 text-zinc-400">
                                 <Loader2 size={12} className="animate-spin" />
@@ -1742,28 +1742,28 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
                     }}
                 />
                 <div className="flex flex-col gap-1.5">
-                    <label className={LABEL_CLASS}>Title</label>
+                    <label className="text-[11px] font-semibold uppercase tracking-wider text-zinc-400/80 ml-1">Title</label>
                     <QuickPasteInput value={formTitle} onChange={setFormTitle} placeholder="Article or page title" />
                 </div>
                 <div className="flex flex-col gap-1.5">
-                    <label className={LABEL_CLASS}>Notes</label>
+                    <label className="text-[11px] font-semibold uppercase tracking-wider text-zinc-400/80 ml-1">Notes</label>
                     <RichTextEditor value={formNotes} onChange={setFormNotes} placeholder="Quick notes or summary…" />
                 </div>
                 <div className="flex flex-col gap-1.5">
-                    <label className={LABEL_CLASS}>Category</label>
+                    <label className="text-[11px] font-semibold uppercase tracking-wider text-zinc-400/80 ml-1">Category</label>
                     <select
                         value={formCategory}
                         onChange={e => setFormCategory(e.target.value)}
-                        className="h-12 bg-zinc-50 rounded-xl border border-zinc-200/80 px-4 text-[14px] outline-none focus:border-zinc-300 appearance-none"
+                        className="h-12 bg-zinc-50/50 rounded-xl border border-zinc-100/50 px-4 text-[14px] font-medium text-zinc-900 outline-none focus:bg-white focus:border-blue-200/50 focus:shadow-sm transition-all appearance-none"
                     >
                         <option value="">None</option>
                         {CATEGORIES.map(c => <option key={c.name} value={c.name}>{c.emoji} {c.name}</option>)}
                     </select>
                 </div>
                 <div className="flex flex-col gap-1.5">
-                    <label className={LABEL_CLASS}>Published Date</label>
+                    <label className="text-[11px] font-semibold uppercase tracking-wider text-zinc-400/80 ml-1">Published Date</label>
                     <input type="date" value={formPublishedTime} onChange={e => setFormPublishedTime(e.target.value)}
-                        className="h-12 bg-zinc-50 rounded-xl border border-zinc-200/80 px-4 text-[14px] outline-none focus:border-zinc-300 appearance-none" />
+                        className="h-12 bg-zinc-50/50 rounded-xl border border-zinc-100/50 px-4 text-[14px] font-medium text-zinc-900 outline-none focus:bg-white focus:border-blue-200/50 focus:shadow-sm transition-all appearance-none" />
                 </div>
             </BottomSheet>
 

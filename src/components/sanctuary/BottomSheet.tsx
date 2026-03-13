@@ -36,16 +36,16 @@ export const BottomSheet = ({ isOpen, onClose, title, children, footer }: Bottom
                     className="fixed bottom-0 left-0 right-0 h-[88vh] bg-white rounded-t-[2rem] z-[70] flex flex-col shadow-[0_-8px_40px_rgba(0,0,0,0.1)] max-w-2xl mx-auto"
                 >
                     <div className="w-full flex justify-center py-4 shrink-0 cursor-grab active:cursor-grabbing">
-                        <div className="w-10 h-[5px] bg-gray-300 rounded-full" />
+                        <div className="w-8 h-[4px] bg-zinc-200 rounded-full" />
                     </div>
-                    <div className="px-7 pb-3 shrink-0">
-                        <h2 className="text-[22px] font-bold text-zinc-900 tracking-tight">{title}</h2>
+                    <div className="px-6 pb-2 shrink-0">
+                        <h2 className="text-[20px] font-semibold text-zinc-900 tracking-tight">{title}</h2>
                     </div>
-                    <div className="flex-1 overflow-y-auto px-7 pb-8 pt-2 flex flex-col gap-5 no-scrollbar">
+                    <div className="flex-1 overflow-y-auto px-6 pb-6 pt-1 flex flex-col gap-4 no-scrollbar">
                         {children}
                     </div>
                     {footer && (
-                        <div className="shrink-0 px-7 pb-8 pt-4 bg-white border-t border-gray-100">{footer}</div>
+                        <div className="shrink-0 px-6 pb-6 pt-4 bg-white border-t border-zinc-100">{footer}</div>
                     )}
                 </motion.div>
             </>

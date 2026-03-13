@@ -4,7 +4,7 @@ import React from "react";
 import { Clipboard } from "lucide-react";
 import { toast } from "react-hot-toast";
 
-const INPUT_CLASS = "w-full bg-gray-50 rounded-2xl h-13 px-5 py-3.5 text-[16px] font-semibold text-zinc-900 border border-transparent outline-none focus:bg-white focus:border-zinc-200 focus:shadow-sm transition-all placeholder:text-zinc-400 placeholder:font-medium";
+const INPUT_CLASS = "w-full bg-zinc-50/50 rounded-2xl h-12 px-4.5 py-3 text-[15px] font-medium text-zinc-900 border border-zinc-100/50 outline-none focus:bg-white focus:border-blue-200/50 focus:shadow-sm transition-all placeholder:text-zinc-400 placeholder:font-normal";
 
 interface QuickPasteInputProps {
     value: string;

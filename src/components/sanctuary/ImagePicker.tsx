@@ -4,7 +4,7 @@ import React, { useRef, useState } from "react";
 import { Camera, X, Clipboard } from "lucide-react";
 import { toast } from "react-hot-toast";
 
-const LABEL_CLASS = "text-[12px] font-bold uppercase tracking-wider text-zinc-500 ml-1";
+const LABEL_CLASS = "text-[11px] font-semibold uppercase tracking-wider text-zinc-400/80 ml-1";
 
 interface ImagePickerProps {
     preview: string | null;
@@ -58,13 +58,13 @@ export const ImagePicker = ({ preview, onSelect, onClear }: ImagePickerProps) =>
             ) : (
                 <div tabIndex={0} onPaste={handlePaste} onFocus={() => setIsFocused(true)} onBlur={() => setIsFocused(false)} className={`w-full aspect-video rounded-2xl border-2 border-dashed bg-gray-50/50 flex items-center justify-center gap-4 transition-all outline-none ${isFocused ? 'border-blue-400 bg-blue-50/30' : 'border-gray-200'}`}>
                     <button onClick={() => inputRef.current?.click()} className="flex flex-col items-center justify-center gap-2 group active:scale-95 transition-transform">
-                        <div className="w-14 h-14 rounded-full bg-white shadow-sm border border-gray-100 flex items-center justify-center group-hover:border-blue-200 group-hover:bg-blue-50 transition-colors"><Camera size={24} className="text-zinc-500 group-hover:text-blue-500" /></div>
-                        <span className="text-[13px] font-bold text-zinc-500">Browse</span>
+                        <div className="w-12 h-12 rounded-full bg-white shadow-sm border border-zinc-100 flex items-center justify-center group-hover:border-blue-200 group-hover:bg-blue-50 transition-colors"><Camera size={20} className="text-zinc-400 group-hover:text-blue-500" /></div>
+                        <span className="text-[12px] font-semibold text-zinc-400">Browse</span>
                     </button>
-                    <div className="w-[1px] h-12 bg-gray-200 rounded-full" />
+                    <div className="w-[1px] h-10 bg-zinc-200/60 rounded-full" />
                     <button onClick={handleQuickPasteImage} className="flex flex-col items-center justify-center gap-2 group active:scale-95 transition-transform">
-                        <div className="w-14 h-14 rounded-full bg-white shadow-sm border border-gray-100 flex items-center justify-center group-hover:border-purple-200 group-hover:bg-purple-50 transition-colors"><Clipboard size={24} className="text-zinc-500 group-hover:text-purple-500" /></div>
-                        <span className="text-[13px] font-bold text-zinc-500">Paste Image</span>
+                        <div className="w-12 h-12 rounded-full bg-white shadow-sm border border-zinc-100 flex items-center justify-center group-hover:border-purple-200 group-hover:bg-purple-50 transition-colors"><Clipboard size={20} className="text-zinc-400 group-hover:text-purple-500" /></div>
+                        <span className="text-[12px] font-semibold text-zinc-400">Paste Image</span>
                     </button>
                 </div>
             )}

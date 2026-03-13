@@ -1761,7 +1761,7 @@ export default function CurationList() {
           <button
             onClick={handleSave}
             disabled={isSubmitting || !formTitle || !formUrl}
-            className="w-full h-14 bg-zinc-900 text-white rounded-full flex items-center justify-center appearance-none shrink-0 font-bold text-[16px] shadow-[0_8px_30px_rgba(0,0,0,0.12)] active:scale-[0.98] transition-transform disabled:opacity-40 disabled:active:scale-100"
+            className="w-full h-12 bg-zinc-900 text-white rounded-full flex items-center justify-center appearance-none shrink-0 font-bold text-[15px] shadow-[0_8px_30px_rgba(0,0,0,0.12)] active:scale-[0.98] transition-transform disabled:opacity-40 disabled:active:scale-100"
           >
             {isSubmitting ? (
               <div className="flex items-center gap-2">
@@ -1782,9 +1782,9 @@ export default function CurationList() {
           </button>
         }
       >
-        <div className="flex flex-col gap-1.5">
+        <div className="flex flex-col gap-1.5 pt-1">
           <div className="flex items-center justify-between">
-            <label className={LABEL_CLASS}>URL / Link</label>
+            <label className="text-[11px] font-semibold uppercase tracking-wider text-zinc-400/80 ml-1">URL / Link</label>
             {isFetchingMetadata && (
               <span className="text-[10px] text-zinc-400 flex items-center gap-1">
                 <Loader2 size={10} className="animate-spin" /> Fetching…
@@ -1815,25 +1815,9 @@ export default function CurationList() {
         )}
 
         <div className="flex flex-col gap-1.5">
-          <label className={LABEL_CLASS}>Title</label>
-          <input
+          <label className="text-[11px] font-semibold uppercase tracking-wider text-zinc-400/80 ml-1">Title</label>
+          <QuickPasteInput
             value={formTitle}
-            onChange={(e) => setFormTitle(e.target.value)}
-            placeholder="Article title"
-            className="h-12 bg-zinc-50 rounded-xl border border-zinc-200/80 px-4 text-[14px] outline-none focus:border-zinc-300 focus:ring-2 focus:ring-zinc-100 transition-all"
-          />
-        </div>
-
-        {isAdmin && (
-          <div className="flex flex-col gap-1.5">
-            <label className={LABEL_CLASS}>Published Date</label>
-            <input
-              type="date"
-              value={formPublishedTime}
-              onChange={(e) => setFormPublishedTime(e.target.value)}
-              className="h-12 bg-zinc-50 rounded-xl border border-zinc-200/80 px-4 text-[14px] outline-none focus:border-zinc-300 appearance-none"
-            />
-          </div>
         )}
 
         {isAdmin && (
