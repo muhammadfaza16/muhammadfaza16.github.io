@@ -74,3 +74,15 @@ export function formatTitle(title: string | undefined | null): string {
 
     return formattedWords.join(' ');
 }
+
+/**
+ * Formats large numbers into a compact string with a 'k' suffix.
+ * Example: 1200 -> "1.2k", 850 -> "850"
+ */
+export function formatMetric(count?: number): string {
+    if (!count) return "0";
+    if (count >= 1000) {
+        return (count / 1000).toFixed(1).replace(/\.0$/, "") + "k";
+    }
+    return count.toString();
+}

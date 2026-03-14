@@ -19,9 +19,9 @@ export default function CurationPlatformLayout({
     const pathname = usePathname();
 
     const navItems = [
-        { name: "Home", href: "/curation", icon: Home },
-        { name: "Explore", href: "/curation/discover", icon: Search },
-        { name: "My Library", href: "/curation/library", icon: Bookmark },
+        { name: "Archive", href: "/curation", icon: Home },
+        { name: "Discover", href: "/curation/discover", icon: Search },
+        { name: "Library", href: "/curation/library", icon: Bookmark },
         { name: "Profile", href: "/curation/profile", icon: User },
     ];
 

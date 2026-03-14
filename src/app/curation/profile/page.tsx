@@ -102,7 +102,7 @@ export default function ProfilePage() {
                     <div className="w-12 h-12 rounded-full bg-white dark:bg-zinc-800 flex items-center justify-center text-zinc-400 mb-4 shadow-sm">
                         <Construction size={20} />
                     </div>
-                    <h2 className="text-[15px] font-semibold text-zinc-900 dark:text-zinc-100 mb-2">Under Development</h2>
+                    <h2 className="text-[15px] font-semibold text-zinc-900 dark:text-zinc-100 mb-2">Sedang Dikembangkan</h2>
                     <p className="text-[13px] text-zinc-500 max-w-[280px] leading-relaxed">
                         Personalized feeds, topic interests, and weekly digests are currently being built to enhance your reading experience.
                     </p>

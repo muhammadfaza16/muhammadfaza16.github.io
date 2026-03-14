@@ -29,8 +29,10 @@ import {
   Repeat,
   MessageCircle,
   Plus,
+  Star,
 } from "lucide-react";
-import { formatTitle } from "@/lib/utils";
+import { useRouter } from "next/navigation";
+import { formatTitle, formatMetric } from "@/lib/utils";
 import { Toaster, toast } from "react-hot-toast";
 import { updateToReadArticle, createToReadArticle } from "@/app/master/actions";
 import { getVisitorState, saveVisitorStateAsync, getReadHistoryAsync } from "@/lib/storage";
@@ -79,11 +81,11 @@ type SortOrder = "asc" | "desc";
 // ─── Constants ───
 
 const CATEGORIES = [
-  { name: "AI & Tech", emoji: "🤖", desc: "Frameworks & future of computing" },
-  { name: "Wealth & Business", emoji: "💰", desc: "Strategies for asymmetric scale" },
-  { name: "Philosophy & Psychology", emoji: "🧠", desc: "Mental frames for clarity" },
-  { name: "Productivity & Deep Work", emoji: "⚡", desc: "Systems for deep elite work" },
-  { name: "Growth & Systems", emoji: "📈", desc: "Acquisition & compounding systems" },
+  { name: "AI & Tech", emoji: "🤖", desc: "Blueprint AI Agents dan masa depan komputasi" },
+  { name: "Wealth & Business", emoji: "💰", desc: "Strategi asymmetric scale dan capital allocation" },
+  { name: "Philosophy & Psychology", emoji: "🧠", desc: "Framework kejernihan berpikir di tengah chaos" },
+  { name: "Productivity & Deep Work", emoji: "⚡", desc: "Sistem kerja elite dan optimasi energi" },
+  { name: "Growth & Systems", emoji: "📈", desc: "Panduan compounding systems dan autopilot growth" },
 ];
 
 const LABEL_CLASS =
@@ -129,17 +131,11 @@ const HighlightText = ({ text, query }: { text: string; query: string }) => {
   );
 };
 
-const formatMetric = (count?: number): string => {
-  if (!count) return "0";
-  if (count >= 1000) {
-    return (count / 1000).toFixed(1).replace(/\.0$/, "") + "k";
-  }
-  return count.toString();
-};
 
 // ─── Main Component ───
 
 export default function CurationList() {
+  const router = useRouter();
   const [articles, setArticles] = useState<ArticleMeta[]>([]);
   const [topArticles, setTopArticles] = useState<ArticleMeta[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -281,6 +277,11 @@ export default function CurationList() {
         if (cursor) url += `&cursor=${cursor}`;
 
         const res = await fetch(url, { cache: "no-store", signal: controller.signal });
+        if (!res.ok) {
+          const text = await res.text();
+          console.error(`Fetch error ${res.status}:`, text.slice(0, 200));
+          throw new Error(`Server returned ${res.status}`);
+        }
         const data = await res.json();
 
         // Guard: if filters changed while this loadMore was in-flight, discard the results
@@ -931,7 +932,7 @@ export default function CurationList() {
             className="text-[17px] text-zinc-900 dark:text-zinc-100 italic font-medium leading-none tracking-tight"
             style={{ fontFamily: "'Playfair Display', Georgia, serif" }}
           >
-            Curation
+            Archive
           </h2>
           <span className="px-1.5 py-0.5 rounded-md bg-zinc-100 dark:bg-zinc-800/60 border border-zinc-200/50 dark:border-zinc-700/50 text-[10px] font-semibold tracking-wide text-zinc-400 dark:text-zinc-500 uppercase leading-none transform translate-y-[2.5px]">
             Beta
@@ -1004,16 +1005,16 @@ export default function CurationList() {
               </motion.div>
               
               <p className="text-[17px] text-zinc-500 dark:text-zinc-400 leading-relaxed max-w-[42ch]">
-                A definitive index of high-signal frameworks, essays, and deep-dives. Hand-picked for the modern mind.
+                Koleksi kurasi berisi pemikiran tajam, framework, dan ulasan mendalam. Dipilih khusus untuk eksplorasi intelektual.
               </p>
 
               {/* Stats */}
               <div className="flex items-center gap-4 mt-12 md:mt-16 flex-wrap">
                 <span className="text-[12px] font-medium text-zinc-400 dark:text-zinc-500">
-                  {totalCount > 0 ? `${totalCount} entries` : ""}{" "}
+                  {totalCount > 0 ? `${totalCount}+ curations` : "150+ curations"}{" "}
                   {categoryCount > 0 && totalCount > 0
                     ? `• ${categoryCount} topics`
-                    : ""}
+                    : "• 5 topics"}
                 </span>
 
                 {weeklyReads > 0 && (
@@ -1025,20 +1026,22 @@ export default function CurationList() {
                       🔥
                     </span>
                     <span className="text-[11px] font-semibold tracking-widest uppercase">
-                      {weeklyReads} Read{weeklyReads !== 1 && "s"} This Week
+                      {weeklyReads} Bacaan Pekan Ini
                     </span>
                   </Link>
                 )}
               </div>
             </div>
-
             {/* ═══ HERO CAROUSEL HEADER ═══ */}
             <div className="mb-6 px-5">
-              <h2 className="text-[11px] font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-[0.2em] mb-1">
-                YEARLY PICKS
-              </h2>
-              <p className="text-[14px] text-zinc-400/80 dark:text-zinc-500/80 font-medium">
-                The most definitive insights and frameworks of the year.
+              <div className="flex items-center gap-2 mb-1.5">
+                <div className="w-1 h-3 bg-blue-500 rounded-full" />
+                <h2 className="text-[11px] font-bold text-zinc-900 dark:text-zinc-100 uppercase tracking-[0.2em]">
+                  Recent Banger
+                </h2>
+              </div>
+              <p className="text-[13px] text-zinc-500 dark:text-zinc-400 font-medium leading-relaxed max-w-[50ch]">
+                Kumpulan tulisan dengan interaksi tertinggi dan paling banyak memicu diskusi di komunitas saat ini.
               </p>
             </div>
 
@@ -1205,9 +1208,12 @@ export default function CurationList() {
               if (inProgress.length === 0) return null;
               return (
                 <div className="mb-10 px-5">
-                  <h3 className="text-[11px] font-bold tracking-widest text-zinc-400 dark:text-zinc-500 uppercase mb-4">
-                    📖 Continue Reading
-                  </h3>
+                  <div className="flex items-center gap-2 mb-4">
+                    <div className="w-1.5 h-1.5 rounded-full bg-blue-500" />
+                    <h3 className="text-[11px] font-bold tracking-[0.15em] text-zinc-900 dark:text-zinc-100 uppercase">
+                      Continue Reading
+                    </h3>
+                  </div>
                   <div className="flex gap-3 overflow-x-auto no-scrollbar pb-2">
                     {inProgress.map((article) => (
                       <Link
@@ -1242,64 +1248,23 @@ export default function CurationList() {
               );
             })()}
 
-            {/* ═══ READING ROOM (Quick Access) ═══ */}
-            <div className="px-5 mb-10">
-              <h3 className="text-[11px] font-bold tracking-widest text-zinc-400 dark:text-zinc-500 uppercase mb-4">
-                Reading Room
-              </h3>
-              <div className="grid grid-cols-2 gap-3 mb-3">
-                <Link
-                  href="/curation/highlights"
-                  onClick={() => setNavigatingId("highlights")}
-                  className="flex flex-col p-4 bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800 rounded-2xl hover:border-zinc-300 dark:hover:border-zinc-700 hover:shadow-sm active:scale-[0.98] transition-all relative overflow-hidden group"
-                >
-                  <div className="absolute top-0 right-0 w-16 h-16 bg-gradient-to-br from-yellow-400/20 to-transparent blur-xl rounded-bl-full pointer-events-none" />
-                  <Highlighter size={20} className="text-yellow-500 mb-3" />
-                  <span className="text-[14px] font-bold text-zinc-900 dark:text-zinc-100">Highlights</span>
-                  <span className="text-[11px] text-zinc-500">Saved snippets</span>
-                </Link>
-                <Link
-                  href="/curation/collections"
-                  onClick={() => setNavigatingId("collections")}
-                  className="flex flex-col p-4 bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800 rounded-2xl hover:border-zinc-300 dark:hover:border-zinc-700 hover:shadow-sm active:scale-[0.98] transition-all relative overflow-hidden group"
-                >
-                  <div className="absolute top-0 right-0 w-16 h-16 bg-gradient-to-br from-blue-400/20 to-transparent blur-xl rounded-bl-full pointer-events-none" />
-                  <Library size={20} className="text-blue-500 mb-3" />
-                  <span className="text-[14px] font-bold text-zinc-900 dark:text-zinc-100">Collections</span>
-                  <span className="text-[11px] text-zinc-500">Your folders</span>
-                </Link>
-              </div>
-              <Link
-                href="/curation/recap"
-                onClick={() => setNavigatingId("recap")}
-                className="w-full flex items-center justify-between p-4 bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800 rounded-2xl hover:border-zinc-300 dark:hover:border-zinc-700 hover:shadow-sm active:scale-[0.98] transition-all group"
-              >
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-full bg-orange-50 dark:bg-orange-500/10 flex items-center justify-center">
-                    <Flame size={16} className="text-orange-500 dark:text-orange-600" />
-                  </div>
-                  <div className="flex flex-col">
-                    <span className="text-[14px] font-bold text-zinc-900 dark:text-zinc-100 leading-tight">Weekly Recap</span>
-                    <span className="text-[11px] text-zinc-500">Your reading history</span>
-                  </div>
-                </div>
-                <ChevronLeft size={16} className="text-zinc-400 dark:text-zinc-500 rotate-180 group-hover:translate-x-0.5 transition-transform" />
-              </Link>
-            </div>
 
             {/* ═══ LIBRARY SHELVES (Topics) ═══ */}
             <div className="px-5 mb-10">
-              <h3 className="text-[11px] font-bold tracking-widest text-zinc-400 dark:text-zinc-500 uppercase mb-4 flex items-center gap-2">
-                Library Shelves
+              <div className="flex items-center gap-2 mb-4">
+                <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                <h3 className="text-[11px] font-bold tracking-[0.15em] text-zinc-900 dark:text-zinc-100 uppercase">
+                  Library Shelves
+                </h3>
                 <div className="h-px bg-zinc-200/60 dark:bg-zinc-800/60 flex-1 ml-2" />
-              </h3>
+              </div>
 
               <div>
                 <div className="flex flex-col gap-3">
                   {CATEGORIES.slice(0, 3).map((cat) => (
                     <button
                       key={cat.name}
-                      onClick={() => handleCategoryToggle(cat.name)}
+                      onClick={() => router.push(`/curation/discover?category=${encodeURIComponent(cat.name)}`)}
                       className="flex items-center w-full p-3.5 bg-white dark:bg-zinc-900/40 border border-zinc-200/80 dark:border-zinc-800/80 rounded-[1.25rem] hover:bg-zinc-50 dark:hover:bg-zinc-800/50 hover:border-zinc-300 dark:hover:border-zinc-700 hover:shadow-sm active:scale-[0.98] transition-colors text-left group"
                     >
                       <div className="w-12 h-12 rounded-xl bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center shrink-0 border border-zinc-200/50 dark:border-zinc-700/50 group-hover:scale-105 transition-transform">
@@ -1336,7 +1301,7 @@ export default function CurationList() {
                         {CATEGORIES.slice(3).map((cat) => (
                           <button
                             key={cat.name}
-                            onClick={() => handleCategoryToggle(cat.name)}
+                            onClick={() => router.push(`/curation/discover?category=${encodeURIComponent(cat.name)}`)}
                             className="flex items-center w-full p-3.5 bg-white dark:bg-zinc-900/40 border border-zinc-200/80 dark:border-zinc-800/80 rounded-[1.25rem] hover:bg-zinc-50 dark:hover:bg-zinc-800/50 hover:border-zinc-300 dark:hover:border-zinc-700 hover:shadow-sm active:scale-[0.98] transition-colors text-left group"
                           >
                             <div className="w-12 h-12 rounded-xl bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center shrink-0 border border-zinc-200/50 dark:border-zinc-700/50 group-hover:scale-105 transition-transform">
@@ -1374,20 +1339,19 @@ export default function CurationList() {
           </motion.div>
 
         {/* ═══ ARCHIVE LIST SECTION ═══ */}
-        <div ref={resultsRef} className="flex items-end justify-between px-5 mb-2 mt-2 scroll-mt-24">
+        <div ref={resultsRef} className="flex items-center gap-2 px-5 mb-4 mt-2 scroll-mt-24">
+          <div className="w-1.5 h-1.5 rounded-full bg-zinc-400" />
           <h3
-            className="text-[20px] font-bold tracking-tight text-zinc-900 dark:text-zinc-100"
-            style={{ fontFamily: "'Playfair Display', Georgia, serif" }}
+            className="text-[11px] font-bold tracking-[0.2em] text-zinc-900 dark:text-zinc-100 uppercase"
           >
             {debouncedSearchQuery
               ? "Search Results"
               : categoryFilter.length > 0
-                ? `${categoryFilter.join(", ")}`
+                ? "Category View"
                 : statusFilter !== "all"
-                  ? `${statusFilter.charAt(0).toUpperCase() + statusFilter.slice(1)} Articles`
+                  ? "Filtered Stream"
                   : "All Entries"}
           </h3>
-
         </div>
 
         {/* ═══ MAIN PILLS (Sort & Status) ═══ */}
@@ -1611,24 +1575,24 @@ export default function CurationList() {
                                 </>
                               )}
                               <span className="text-[10px] font-medium text-zinc-400 dark:text-zinc-500 shrink-0">
-                                {postDate.toLocaleDateString("en-US", {
+                                {postDate.toLocaleDateString("id-ID", {
                                   month: "short",
                                   day: "numeric",
                                 })}
                               </span>
                               <div className="w-[3px] h-[3px] rounded-full bg-zinc-200 dark:bg-zinc-800 shrink-0" />
                               <span className="text-[10px] font-medium text-zinc-400 dark:text-zinc-500 shrink-0">
-                                {readTime}m
+                                {readTime} menit
                               </span>
                             </div>
 
                             {/* Search Result Metrics (Monochrome, Right-aligned) */}
                             {(article.likes || article.reposts || article.replies) ? (
                               <div className="flex items-center gap-2.5">
-                                {article.likes ? (
+                                {article.replies ? (
                                   <div className="flex items-center gap-1 group/metric">
-                                    <Heart size={9} className="text-zinc-400 group-hover/metric:text-zinc-900 dark:group-hover/metric:text-zinc-100 transition-colors" />
-                                    <span className="text-[10px] text-zinc-400 tabular-nums">{formatMetric(article.likes)}</span>
+                                    <MessageCircle size={9} className="text-zinc-400 group-hover/metric:text-zinc-900 dark:group-hover/metric:text-zinc-100 transition-colors" />
+                                    <span className="text-[10px] text-zinc-400 tabular-nums">{formatMetric(article.replies)}</span>
                                   </div>
                                 ) : null}
                                 {article.reposts ? (
@@ -1637,10 +1601,10 @@ export default function CurationList() {
                                     <span className="text-[10px] text-zinc-400 tabular-nums">{formatMetric(article.reposts)}</span>
                                   </div>
                                 ) : null}
-                                {article.replies ? (
+                                {article.likes ? (
                                   <div className="flex items-center gap-1 group/metric">
-                                    <MessageCircle size={9} className="text-zinc-400 group-hover/metric:text-zinc-900 dark:group-hover/metric:text-zinc-100 transition-colors" />
-                                    <span className="text-[10px] text-zinc-400 tabular-nums">{formatMetric(article.replies)}</span>
+                                    <Heart size={9} className="text-zinc-400 group-hover/metric:text-zinc-900 dark:group-hover/metric:text-zinc-100 transition-colors" />
+                                    <span className="text-[10px] text-zinc-400 tabular-nums">{formatMetric(article.likes)}</span>
                                   </div>
                                 ) : null}
                               </div>

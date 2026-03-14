@@ -1034,7 +1034,7 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
                                     })}
                                 </span>
                                 <span className="w-1 h-1 rounded-full bg-zinc-300 dark:bg-zinc-700" />
-                                <span>{readingTime} min read</span>
+                                <span>{readingTime} menit baca</span>
                                 
                                 {article.url && (
                                     <>
@@ -1300,7 +1300,7 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
                             className="mb-8 overflow-hidden"
                         >
                             <div className="bg-amber-50/50 rounded-2xl border border-amber-200/50 p-5">
-                                <h4 className="text-[12px] font-bold uppercase tracking-widest text-amber-700/60 mb-4">Your Highlights</h4>
+                                <h4 className="text-[12px] font-semibold uppercase tracking-widest text-amber-700/60 mb-4">Catatan Bacaan</h4>
                                 <div className="flex flex-col gap-3">
                                     {highlights.map((h, i) => (
                                         <div key={i} className="flex gap-3 group">
@@ -1351,7 +1351,7 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
                                     onMouseDown={(e) => { e.preventDefault(); handleCreateQuoteCard(selectionTooltip.text); }}
                                     className="flex items-center gap-1.5 px-3.5 py-2 text-white text-[12px] font-bold hover:bg-zinc-800 active:bg-zinc-700 transition-all font-sans"
                                 >
-                                    <span>📸</span> Quote
+                                    <span>📸</span> Kutipan
                                 </button>
                             </div>
                             <div className="w-3 h-3 bg-zinc-900 rotate-45 mx-auto -mt-1.5" />
@@ -1364,7 +1364,7 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
                     <div className="mt-8 mb-4 border-t pt-10 snap-start scroll-my-24" style={{ borderColor: THEMES[readerSettings.theme].text + '20' }}>
                         <div className="flex items-center gap-2 mb-6">
                             <h3 className="text-[18px] font-bold tracking-tight font-sans" style={{ color: THEMES[readerSettings.theme].text }}>
-                                Read Next
+                                Baca Selanjutnya
                             </h3>
                             <span className="bg-zinc-100 text-zinc-500 text-[10px] uppercase tracking-wider font-bold px-2 py-0.5 rounded ml-2 dark:bg-zinc-800 dark:text-zinc-400">
                                 {article.category}
@@ -1406,8 +1406,8 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
                 <div className="mt-16 pt-16 border-t pb-10 snap-start scroll-my-24" style={{ borderColor: THEMES[readerSettings.theme].text + '20' }}>
                     <div className="flex items-center gap-3 mb-8">
                         <MessageSquareQuote size={24} className="text-zinc-400" />
-                        <h3 className="text-[20px] font-bold tracking-tight text-zinc-900 font-sans" style={{ color: THEMES[readerSettings.theme].text }}>
-                            Community Discussion
+                        <h3 className="text-[20px] font-semibold tracking-tight text-zinc-900 font-sans" style={{ color: THEMES[readerSettings.theme].text }}>
+                            Siap untuk diskusi?
                         </h3>
                     </div>
 
@@ -1417,7 +1417,7 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
                             <textarea
                                 value={newCommentText}
                                 onChange={(e) => setNewCommentText(e.target.value)}
-                                placeholder="Share your thoughts on this piece..."
+                                placeholder="Bagikan pemikiranmu tentang tulisan ini..."
                                 rows={3}
                                 className="w-full rounded-2xl px-5 py-4 text-[15px] placeholder:text-inherit placeholder:opacity-40 outline-none focus:ring-4 focus:ring-blue-500/10 transition-all resize-none shadow-[inset_0_2px_4px_rgba(0,0,0,0.02)]"
                                 style={{
@@ -1444,9 +1444,9 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
                                 <button
                                     type="submit"
                                     disabled={!newCommentText.trim() || isSubmittingComment}
-                                    className="h-10 px-6 bg-blue-600 text-white rounded-full font-bold text-[13px] tracking-wide shadow-md active:scale-95 transition-all disabled:opacity-50 disabled:active:scale-100 flex items-center justify-center min-w-[100px]"
+                                    className="h-10 px-6 bg-blue-600 text-white rounded-full font-semibold text-[13px] tracking-wide shadow-md active:scale-95 transition-all disabled:opacity-50 disabled:active:scale-100 flex items-center justify-center min-w-[100px]"
                                 >
-                                    {isSubmittingComment ? <Loader2 size={16} className="animate-spin" /> : "Post"}
+                                    {isSubmittingComment ? <Loader2 size={16} className="animate-spin" /> : "Kirim"}
                                 </button>
                             </div>
                         </div>

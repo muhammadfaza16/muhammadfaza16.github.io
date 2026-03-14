@@ -4,16 +4,26 @@ import React, { useState, useEffect, useRef, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
     Search, ArrowLeft, X, Loader2, FileText, Clock,
-    ChevronRight, Flame, BookOpen, Hash,
+    ChevronRight, Flame, BookOpen, Hash, Bookmark,
     Brain, Rocket, Coffee, Zap, TrendingUp, Sparkles,
-    Star, CheckCheck
+    Star, CheckCheck, Heart, Repeat, MessageCircle, Info
 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import { getVisitorState, getReadHistoryAsync } from "@/lib/storage";
-import { formatTitle } from "@/lib/utils";
+import { formatTitle, formatMetric } from "@/lib/utils";
+import { useSearchParams } from "next/navigation";
+import { Suspense } from "react";
 
 // ─── Constants ───
+
+const TOPIC_INSIGHTS: Record<string, string> = {
+    "AI & Tech": "Eksplorasi pergeseran fundamental dari era 'Software as a Service' menuju kebangkitan AI Agents. Di sini gue kurasi blueprint teknis dan strategis: cara membangun autonomous systems, optimasi model bahasa untuk business logic, hingga framework adaptasi skill untuk navigasi di tengah akselerasi teknologi yang tak terelakkan.",
+    "Wealth & Business": "Kumpulan strategi membangun asymmetric scale, memahami leverage, dan navigasi dunia startup/SaaS. Fokus pada capital allocation dan mindset membangun wealth jangka panjang.",
+    "Philosophy & Psychology": "Framework mental untuk kejernihan berpikir. Dari Stoicisme sampe psikologi perilaku, artikel di sini ngebantu lo 'rewire' perspektif dalam menghadapi chaos di kehidupan modern.",
+    "Productivity & Deep Work": "Sistem praktis untuk kerja elite. Bukan sekadar tips manajemen waktu, tapi metode deep work, optimasi energi, dan cara membangun habit yang sustain secara jangka panjang.",
+    "Growth & Systems": "Panduan skalasi audience dan compounding systems. Pelajari teknik marketing modern, SEO, conversion funnel, sampe sistem akuisisi yang bisa jalan secara autopilot."
+};
 
 const CATEGORIES = [
     { name: "AI & Tech", icon: Brain },
@@ -50,10 +60,25 @@ function readTime(content?: string): number {
 // ─── Component ───
 
 export default function ExplorePage() {
+    return (
+        <Suspense fallback={
+            <div className="min-h-screen bg-white dark:bg-black flex items-center justify-center">
+                <Loader2 size={32} className="animate-spin text-zinc-300 dark:text-zinc-700" />
+            </div>
+        }>
+            <ExploreContent />
+        </Suspense>
+    );
+}
+
+function ExploreContent() {
+    const searchParams = useSearchParams();
+    const initialCategory = searchParams.get("category");
+
     const [searchQuery, setSearchQuery] = useState("");
     const [isSearchFocused, setIsSearchFocused] = useState(false);
-    const [activeSort, setActiveSort] = useState<"popularity" | "latest">("popularity");
-    const [activeCategory, setActiveCategory] = useState<string | null>(null);
+    const [activeSort, setActiveSort] = useState<"popularity" | "date">("popularity");
+    const [activeCategory, setActiveCategory] = useState<string | null>(initialCategory);
 
     const [forYouArticles, setForYouArticles] = useState<any[]>([]);
     const [trendingArticles, setTrendingArticles] = useState<any[]>([]);
@@ -83,13 +108,21 @@ export default function ExplorePage() {
                 setReadStats({ readCount: readIds.size, bookmarkCount: savedIds.size, readIds, savedIds });
 
                 const [tR, lR, aR] = await Promise.all([
-                    fetch("/api/curation?limit=8&sort=popularity"),
-                    fetch("/api/curation?limit=5&sort=latest"),
-                    fetch("/api/curation?limit=100&sort=latest"),
+                    fetch("/api/curation?limit=8&sortBy=popularity"),
+                    fetch("/api/curation?limit=5&sortBy=date"),
+                    fetch("/api/curation?limit=100&sortBy=date"),
                 ]);
                 const tD = tR.ok ? await tR.json() : { articles: [] };
                 const lD = lR.ok ? await lR.json() : { articles: [] };
                 const aD = aR.ok ? await aR.json() : { articles: [] };
+                
+                if (!tR.ok || !lR.ok || !aR.ok) {
+                    console.error("Initial fetch failed:", { 
+                        trending: tR.status, 
+                        latest: lR.status, 
+                        all: aR.status 
+                    });
+                }
                 const trending = tD.articles || [], latest = lD.articles || [], all = aD.articles || [];
                 setTrendingArticles(trending);
                 setLatestArticles(latest);
@@ -126,10 +159,16 @@ export default function ExplorePage() {
         const t = setTimeout(async () => {
             setIsSearchingApi(true);
             try {
-                let url = `/api/curation?limit=20&sort=${activeSort}`;
+                let url = `/api/curation?limit=20&sortBy=${activeSort}`;
                 if (searchQuery.trim()) url += `&q=${encodeURIComponent(searchQuery)}`;
                 if (activeCategory) url += `&category=${encodeURIComponent(activeCategory)}`;
-                const data = await (await fetch(url)).json();
+                const res = await fetch(url);
+                if (!res.ok) {
+                    const errorText = await res.text();
+                    console.error(`Search fetch error ${res.status}:`, errorText.slice(0, 100));
+                    throw new Error(`API error ${res.status}`);
+                }
+                const data = await res.json();
                 if (data.articles) setSearchResults(data.articles);
             } catch { } finally { setIsSearchingApi(false); }
         }, 250);
@@ -157,19 +196,54 @@ export default function ExplorePage() {
                     <div className="flex-1 min-w-0">
                         <h3 className="text-[12.5px] font-medium text-zinc-900 dark:text-zinc-100 leading-snug line-clamp-2">{formatTitle(article.title)}</h3>
                         <div className="flex items-center gap-1.5 mt-0.5">
-                            <span className="text-[10px] text-zinc-500">{article.category || "General"}</span>
+                            <span className="text-[10px] text-zinc-400">
+                                {new Date(article.createdAt).toLocaleDateString('id-ID', { day: 'numeric', month: 'short' })}
+                            </span>
                             <span className="text-zinc-300 dark:text-zinc-700 text-[7px]">·</span>
-                            <span className="text-[10px] text-zinc-400">{readTime(article.content)}m</span>
-                            {article.qualityScore != null && article.qualityScore >= 70 && (
+                            <span className="text-[10px] text-zinc-400">{readTime(article.content)} menit</span>
+                            
+                            {(article.likes || article.reposts || article.replies) && (
                                 <>
                                     <span className="text-zinc-300 dark:text-zinc-700 text-[7px]">·</span>
-                                    <span className="text-[10px] text-zinc-400 flex items-center gap-0.5"><Star size={8} />{article.qualityScore}</span>
+                                    <div className="flex items-center gap-2">
+                                        {article.replies > 0 && (
+                                            <span className="text-[10px] text-zinc-400 flex items-center gap-0.5">
+                                                <MessageCircle size={8} className="text-zinc-400" />
+                                                {formatMetric(article.replies)}
+                                            </span>
+                                        )}
+                                        {article.reposts > 0 && (
+                                            <span className="text-[10px] text-zinc-400 flex items-center gap-0.5">
+                                                <Repeat size={8} className="text-zinc-400" />
+                                                {formatMetric(article.reposts)}
+                                            </span>
+                                        )}
+                                        {article.likes > 0 && (
+                                            <span className="text-[10px] text-zinc-400 flex items-center gap-0.5">
+                                                <Heart size={8} className="text-zinc-400" />
+                                                {formatMetric(article.likes)}
+                                            </span>
+                                        )}
+                                    </div>
+                                </>
+                            )}
+
+                            {isSaved && (
+                                <>
+                                    <span className="text-zinc-300 dark:text-zinc-700 text-[7px]">·</span>
+                                    <span className="text-[10px] text-blue-500 flex items-center gap-0.5 font-medium">
+                                        <Bookmark size={9} className="fill-blue-500/20" />
+                                        disimpan
+                                    </span>
                                 </>
                             )}
                             {isRead && (
                                 <>
                                     <span className="text-zinc-300 dark:text-zinc-700 text-[7px]">·</span>
-                                    <span className="text-[10px] text-zinc-400 flex items-center gap-0.5"><CheckCheck size={9} />read</span>
+                                    <span className="text-[10px] text-emerald-500 flex items-center gap-0.5 font-medium">
+                                        <CheckCheck size={9} />
+                                        selesai
+                                    </span>
                                 </>
                             )}
                         </div>
@@ -187,8 +261,11 @@ export default function ExplorePage() {
         </div>
     ))}</>);
 
-    const Label = ({ children }: { children: React.ReactNode }) => (
-        <h2 className="text-[11px] font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-widest mb-2.5">{children}</h2>
+    const Label = ({ children, color = "blue" }: { children: React.ReactNode, color?: "blue" | "emerald" | "zinc" }) => (
+        <div className="flex items-center gap-2 mb-3">
+            <div className={`w-[3px] h-3 rounded-full ${color === "blue" ? "bg-blue-500" : color === "emerald" ? "bg-emerald-500" : "bg-zinc-400"}`} />
+            <h2 className="text-[11px] font-bold text-zinc-900 dark:text-zinc-100 uppercase tracking-[0.2em]">{children}</h2>
+        </div>
     );
 
     if (!mounted) return <div className="min-h-screen bg-[#fafaf8] dark:bg-[#050505] flex items-center justify-center"><Loader2 className="animate-spin text-zinc-400" size={24} /></div>;
@@ -204,12 +281,12 @@ export default function ExplorePage() {
                         </Link>
                         <div className="relative flex-1">
                             <Search size={15} className={`absolute left-3 top-1/2 -translate-y-1/2 transition-colors ${isSearchFocused ? "text-zinc-600 dark:text-zinc-300" : "text-zinc-400"}`} />
-                            <input ref={searchRef} type="text" placeholder="Search articles, topics..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} onFocus={() => setIsSearchFocused(true)} onBlur={() => setIsSearchFocused(false)} className="w-full h-9 pl-9 pr-8 bg-zinc-100 dark:bg-zinc-900 border-none rounded-lg text-[13px] outline-none focus:ring-1 focus:ring-zinc-300 dark:focus:ring-zinc-700 transition-all placeholder:text-zinc-400" />
+                            <input ref={searchRef} type="text" placeholder="Cari tulisan, bidang..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} onFocus={() => setIsSearchFocused(true)} onBlur={() => setIsSearchFocused(false)} className="w-full h-9 pl-9 pr-8 bg-zinc-100 dark:bg-zinc-900 border-none rounded-lg text-[13px] outline-none focus:ring-1 focus:ring-zinc-300 dark:focus:ring-zinc-700 transition-all placeholder:text-zinc-400" />
                             {searchQuery && <button onClick={() => { setSearchQuery(""); setActiveCategory(null); }} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-600"><X size={13} /></button>}
                         </div>
                     </div>
                     <div className="flex items-center gap-1.5 mt-4 overflow-x-auto no-scrollbar">
-                        {[{ key: "popularity" as const, label: "Popular", Icon: Flame }, { key: "latest" as const, label: "Latest", Icon: Clock }].map(s => (
+                        {[{ key: "popularity" as const, label: "Populer", Icon: Flame }, { key: "date" as const, label: "Terbaru", Icon: Clock }].map(s => (
                             <button key={s.key} onClick={() => setActiveSort(s.key)} className={`flex items-center gap-1 px-2.5 py-1 shrink-0 rounded-full text-[10.5px] font-medium transition-all ${activeSort === s.key ? "bg-zinc-800 text-zinc-100 dark:bg-zinc-200 dark:text-zinc-900" : "bg-zinc-100 dark:bg-zinc-800/80 text-zinc-500"}`}>
                                 <s.Icon size={10} /> {s.label}
                             </button>
@@ -229,17 +306,39 @@ export default function ExplorePage() {
                 <AnimatePresence mode="wait">
                     {isShowingSearch ? (
                         <motion.div key="search" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.15 }} className="min-h-[400px]">
+                            {/* Topic Insight Guide */}
+                            {activeCategory && TOPIC_INSIGHTS[activeCategory] && (
+                                <motion.div 
+                                    initial={{ opacity: 0, y: -10 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    className="mb-8 p-5 bg-zinc-50 dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800/60 rounded-2xl relative overflow-hidden group"
+                                >
+                                    <div className="absolute top-0 right-0 p-3 opacity-10 group-hover:opacity-20 transition-opacity">
+                                        <Info size={40} className="text-zinc-400" />
+                                    </div>
+                                    <div className="flex flex-col gap-2 relative z-10">
+                                        <div className="flex items-center gap-2">
+                                            <div className="w-1 h-3.5 bg-blue-500 rounded-full" />
+                                            <h4 className="text-[11px] font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">{activeCategory}</h4>
+                                        </div>
+                                        <p className="text-[13px] leading-relaxed text-zinc-600 dark:text-zinc-300 font-medium italic">
+                                            &quot;{TOPIC_INSIGHTS[activeCategory]}&quot;
+                                        </p>
+                                    </div>
+                                </motion.div>
+                            )}
+                            
                             <div ref={resultsRef} className="flex items-center justify-between mb-2 scroll-mt-24">
                                 <div className="flex items-center gap-2">
                                     {activeCategory && <button onClick={() => setActiveCategory(null)} className="text-[10px] bg-zinc-800 dark:bg-zinc-200 text-zinc-100 dark:text-zinc-900 px-2 py-0.5 rounded-full font-medium flex items-center gap-1">{activeCategory} <X size={9} /></button>}
-                                    <span className="text-[11px] text-zinc-400">{isSearchingApi ? "Searching..." : `${searchResults.length} results`}</span>
+                                    <span className="text-[11px] text-zinc-400">{isSearchingApi ? "Mencari..." : `${searchResults.length} hasil`}</span>
                                 </div>
-                                <button onClick={() => { setSearchQuery(""); setActiveCategory(null); }} className="text-[10px] text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300">Clear</button>
+                                <button onClick={() => { setSearchQuery(""); setActiveCategory(null); }} className="text-[10px] text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300">Bersihkan</button>
                             </div>
                             {isSearchingApi ? <Skeleton n={5} /> : searchResults.length > 0 ? (
                                 <div>{searchResults.map((a, i) => <ArticleRow key={a.id} article={a} i={i} />)}</div>
                             ) : (
-                                <div className="py-16 text-center"><Search size={24} className="mx-auto text-zinc-300 dark:text-zinc-700 mb-2" /><p className="text-[12px] text-zinc-500">No articles found</p></div>
+                                <div className="py-16 text-center"><Search size={24} className="mx-auto text-zinc-300 dark:text-zinc-700 mb-2" /><p className="text-[12px] text-zinc-500">Tulisan tidak ditemukan</p></div>
                             )}
                         </motion.div>
                     ) : (
@@ -249,27 +348,27 @@ export default function ExplorePage() {
                             <div className="flex items-center bg-zinc-50 dark:bg-zinc-900/60 rounded-xl border border-zinc-200/50 dark:border-zinc-800/50 divide-x divide-zinc-200/60 dark:divide-zinc-800/60">
                                 <div className="flex-1 text-center py-0.5">
                                     <span className="text-[16px] font-bold text-zinc-900 dark:text-zinc-100 tabular-nums">{allCount}</span>
-                                    <span className="text-[9px] text-zinc-500 ml-1.5">articles</span>
+                                    <span className="text-[9px] text-zinc-500 ml-1.5">tulisan</span>
                                 </div>
                                 <div className="flex-1 text-center py-0.5">
                                     <span className="text-[16px] font-bold text-zinc-900 dark:text-zinc-100 tabular-nums">{readStats.readCount}</span>
-                                    <span className="text-[9px] text-zinc-500 ml-1.5">read</span>
+                                    <span className="text-[9px] text-zinc-500 ml-1.5">dibaca</span>
                                 </div>
                                 <div className="flex-1 text-center py-0.5">
                                     <span className="text-[16px] font-bold text-zinc-900 dark:text-zinc-100 tabular-nums">{readStats.bookmarkCount}</span>
-                                    <span className="text-[9px] text-zinc-500 ml-1.5">saved</span>
+                                    <span className="text-[9px] text-zinc-500 ml-1.5">disimpan</span>
                                 </div>
                                 <div className="flex-1 text-center py-0.5">
                                     <span className="text-[16px] font-bold text-zinc-900 dark:text-zinc-100 tabular-nums">{completionPct}%</span>
-                                    <span className="text-[9px] text-zinc-500 ml-1.5">done</span>
+                                    <span className="text-[9px] text-zinc-500 ml-1.5">selesai</span>
                                 </div>
                             </div>
 
                             {/* Picked For You */}
                             <section>
-                                <div className="flex items-center justify-between mb-3">
-                                    <Label><Sparkles size={11} className="inline mr-1 -mt-px text-blue-500" />Picked For You</Label>
-                                    <span className="text-[10px] text-zinc-400">personalized</span>
+                                <div className="flex items-center justify-between">
+                                    <Label color="blue">Picked For You</Label>
+                                    <span className="text-[10px] text-zinc-400 -mt-3">personal</span>
                                 </div>
                                 {isLoading ? <Skeleton n={3} /> : readStats.readCount === 0 ? (
                                     <div className="bg-gradient-to-br from-blue-50/50 to-indigo-50/50 dark:from-blue-500/5 dark:to-indigo-500/5 border border-blue-100/50 dark:border-blue-500/10 rounded-2xl p-6 text-center shadow-sm relative overflow-hidden group">
@@ -305,25 +404,25 @@ export default function ExplorePage() {
 
                             {/* Latest */}
                             <section>
-                                <div className="flex items-center justify-between mb-2">
-                                    <Label><Clock size={11} className="inline mr-1 -mt-px" />Newly Added</Label>
-                                    <span className="text-[10px] text-zinc-400">recent</span>
+                                <div className="flex items-center justify-between">
+                                    <Label color="emerald">New Additions</Label>
+                                    <span className="text-[10px] text-zinc-400 -mt-3">terbaru</span>
                                 </div>
                                 {isLoading ? <Skeleton n={4} /> : <div>{latestArticles.map((a, i) => <ArticleRow key={a.id} article={a} i={i} />)}</div>}
                             </section>
 
                             {/* Trending */}
                             <section id="trending-section">
-                                <div className="flex items-center justify-between mb-2">
-                                    <Label><Flame size={11} className="inline mr-1 -mt-px" />Trending</Label>
-                                    <span className="text-[10px] text-zinc-400">by popularity</span>
+                                <div className="flex items-center justify-between">
+                                    <Label color="blue">Trending Now</Label>
+                                    <span className="text-[10px] text-zinc-400 -mt-3">populer</span>
                                 </div>
                                 {isLoading ? <Skeleton n={5} /> : <div>{trendingArticles.map((a, i) => <ArticleRow key={a.id} article={a} i={i} rank />)}</div>}
                             </section>
 
                             {/* Topics — compact inline rows */}
                             <section>
-                                <Label><Hash size={11} className="inline mr-1 -mt-px" />Topics</Label>
+                                <Label color="zinc">Topics</Label>
                                 <div className="space-y-0">
                                     {CATEGORIES.map(cat => {
                                         const count = categoryStats[cat.name] || 0;
@@ -339,7 +438,7 @@ export default function ExplorePage() {
                                                 <div className="flex-1 min-w-0">
                                                     <p className="text-[12.5px] font-medium text-zinc-900 dark:text-zinc-100">{cat.name}</p>
                                                 </div>
-                                                <span className="text-[10.5px] text-zinc-400 tabular-nums shrink-0">{count} articles</span>
+                                                <span className="text-[10.5px] text-zinc-400 tabular-nums shrink-0">{count} tulisan</span>
                                                 <ChevronRight size={12} className="text-zinc-300 dark:text-zinc-700 shrink-0" />
                                             </button>
                                         );
@@ -349,7 +448,7 @@ export default function ExplorePage() {
 
                             {/* Reading Lists — compact horizontal scroll */}
                             <section>
-                                <Label><BookOpen size={11} className="inline mr-1 -mt-px" />Reading Lists</Label>
+                                <Label color="blue">Reading Lists</Label>
                                 <div className="flex gap-2 overflow-x-auto no-scrollbar pb-0.5 -mx-1 px-1">
                                     {READING_LISTS.map(list => (
                                         <button

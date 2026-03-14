@@ -153,7 +153,7 @@ export default function CurationRecapPage() {
                     <Link href="/curation" className="p-2 -ml-2 rounded-full hover:bg-zinc-100 active:scale-95 transition-all">
                         <ArrowLeft size={20} className="text-zinc-600" />
                     </Link>
-                    <h1 className="text-[17px] font-semibold tracking-tight">Your Reading Recap</h1>
+                    <h1 className="text-[17px] font-semibold tracking-tight">Riwayat Bacaan</h1>
                 </div>
             </header>
 
@@ -165,9 +165,9 @@ export default function CurationRecapPage() {
                     className="mb-10"
                 >
                     <h2 className="text-[32px] font-semibold tracking-[-0.03em] mb-2" style={{ fontFamily: "'Playfair Display', Georgia, serif" }}>
-                        Reading Recap
+                        Catatan Membaca
                     </h2>
-                    <p className="text-[15px] text-zinc-500 mb-8">Your personal reading journey at a glance.</p>
+                    <p className="text-[15px] text-zinc-500 mb-8">Kilasan perjalanan membacamu di sini.</p>
 
                     {/* Stat Cards */}
                     <div className="grid grid-cols-2 gap-3">
@@ -187,7 +187,7 @@ export default function CurationRecapPage() {
                             ) : (
                                 <p className="text-[28px] font-semibold tracking-tight text-zinc-900">{totalReads}</p>
                             )}
-                            <p className="text-[12px] font-medium text-zinc-400 uppercase tracking-wider">Articles Read</p>
+                            <p className="text-[12px] font-medium text-zinc-400 uppercase tracking-wider">Artikel Selesai</p>
                         </motion.div>
 
                         <motion.div
@@ -206,7 +206,7 @@ export default function CurationRecapPage() {
                             ) : (
                                 <p className="text-[28px] font-semibold tracking-tight text-zinc-900">{weeklyReads}</p>
                             )}
-                            <p className="text-[12px] font-medium text-zinc-400 uppercase tracking-wider">This Week</p>
+                            <p className="text-[12px] font-medium text-zinc-400 uppercase tracking-wider">Pekan Ini</p>
                         </motion.div>
 
                         <motion.div
@@ -225,7 +225,7 @@ export default function CurationRecapPage() {
                             ) : (
                                 <p className="text-[28px] font-semibold tracking-tight text-zinc-900">{streak}</p>
                             )}
-                            <p className="text-[12px] font-medium text-zinc-400 uppercase tracking-wider">Day Streak</p>
+                            <p className="text-[12px] font-medium text-zinc-400 uppercase tracking-wider">Hari Beruntun</p>
                         </motion.div>
 
                         <motion.div
@@ -244,7 +244,7 @@ export default function CurationRecapPage() {
                             ) : (
                                 <p className="text-[28px] font-semibold tracking-tight text-zinc-900">~{totalReadingTimeMins}</p>
                             )}
-                            <p className="text-[12px] font-medium text-zinc-400 uppercase tracking-wider">Min Read</p>
+                            <p className="text-[12px] font-medium text-zinc-400 uppercase tracking-wider">Menit Baca</p>
                         </motion.div>
                     </div>
                 </motion.div>
@@ -274,7 +274,7 @@ export default function CurationRecapPage() {
                                     <span className="text-2xl">{cat.emoji}</span>
                                     <div className="flex-1 min-w-0">
                                         <p className="text-[14px] font-semibold text-zinc-800 truncate">{cat.name}</p>
-                                        <p className="text-[12px] text-zinc-400">{cat.count} article{cat.count !== 1 ? 's' : ''} read</p>
+                                        <p className="text-[12px] text-zinc-400">{cat.count} tulisan dibaca</p>
                                     </div>
                                     <span className="text-[12px] font-semibold text-zinc-300">#{i + 1}</span>
                                 </div>
@@ -290,7 +290,7 @@ export default function CurationRecapPage() {
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.4 }}
                     >
-                        <h3 className="text-[11px] font-semibold tracking-widest text-zinc-400 uppercase mb-4">Recent Reading History</h3>
+                        <h3 className="text-[11px] font-semibold tracking-widest text-zinc-400 uppercase mb-4">Riwayat Membaca Terakhir</h3>
                         <div className="flex flex-col gap-1">
                             {recentReads.map((entry, i) => (
                                 <Link
