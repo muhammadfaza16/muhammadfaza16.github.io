@@ -933,7 +933,7 @@ export default function CurationList() {
           >
             Curation
           </h2>
-          <span className="px-1.5 py-0.5 rounded-md bg-zinc-100 dark:bg-zinc-800/60 border border-zinc-200/50 dark:border-zinc-700/50 text-[8px] font-bold tracking-wider text-zinc-400 dark:text-zinc-500 uppercase leading-none transform translate-y-[2.5px]">
+          <span className="px-1.5 py-0.5 rounded-md bg-zinc-100 dark:bg-zinc-800/60 border border-zinc-200/50 dark:border-zinc-700/50 text-[10px] font-semibold tracking-wide text-zinc-400 dark:text-zinc-500 uppercase leading-none transform translate-y-[2.5px]">
             Beta
           </span>
         </div>
@@ -1024,7 +1024,7 @@ export default function CurationList() {
                     <span className="text-[13px] inline-block animate-[bounce_2s_infinite]">
                       🔥
                     </span>
-                    <span className="text-[11px] font-bold tracking-wider uppercase">
+                    <span className="text-[11px] font-semibold tracking-widest uppercase">
                       {weeklyReads} Read{weeklyReads !== 1 && "s"} This Week
                     </span>
                   </Link>
@@ -1034,7 +1034,7 @@ export default function CurationList() {
 
             {/* ═══ HERO CAROUSEL HEADER ═══ */}
             <div className="mb-6 px-5">
-              <h2 className="text-[11px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-[0.25em] mb-1">
+              <h2 className="text-[11px] font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-[0.2em] mb-1">
                 YEARLY PICKS
               </h2>
               <p className="text-[14px] text-zinc-400/80 dark:text-zinc-500/80 font-medium">

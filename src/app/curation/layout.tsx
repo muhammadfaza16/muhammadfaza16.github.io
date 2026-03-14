@@ -45,7 +45,7 @@ export default function CurationPlatformLayout({
     };
 
     return (
-        <div className="min-h-screen bg-[#fafaf8] dark:bg-[#050505] text-[#1a1a1a] dark:text-[#f2f2f2]">
+        <div className="min-h-screen bg-[#fafaf8] dark:bg-[#050505] text-[#1a1a1a] dark:text-[#f2f2f2] curation-app">
             <div className="">
                 {children}
             </div>

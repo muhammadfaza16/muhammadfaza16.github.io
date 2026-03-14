@@ -153,7 +153,7 @@ export default function CurationRecapPage() {
                     <Link href="/curation" className="p-2 -ml-2 rounded-full hover:bg-zinc-100 active:scale-95 transition-all">
                         <ArrowLeft size={20} className="text-zinc-600" />
                     </Link>
-                    <h1 className="text-[16px] font-bold tracking-tight">Your Reading Recap</h1>
+                    <h1 className="text-[17px] font-semibold tracking-tight">Your Reading Recap</h1>
                 </div>
             </header>
 
@@ -164,7 +164,7 @@ export default function CurationRecapPage() {
                     animate={{ opacity: 1, y: 0 }}
                     className="mb-10"
                 >
-                    <h2 className="text-[32px] font-bold tracking-[-0.03em] mb-2" style={{ fontFamily: "'Playfair Display', Georgia, serif" }}>
+                    <h2 className="text-[32px] font-semibold tracking-[-0.03em] mb-2" style={{ fontFamily: "'Playfair Display', Georgia, serif" }}>
                         Reading Recap
                     </h2>
                     <p className="text-[15px] text-zinc-500 mb-8">Your personal reading journey at a glance.</p>
@@ -185,7 +185,7 @@ export default function CurationRecapPage() {
                             {isLoading ? (
                                 <div className="h-[34px] w-16 bg-zinc-100 rounded animate-pulse" />
                             ) : (
-                                <p className="text-[28px] font-bold tracking-tight text-zinc-900">{totalReads}</p>
+                                <p className="text-[28px] font-semibold tracking-tight text-zinc-900">{totalReads}</p>
                             )}
                             <p className="text-[12px] font-medium text-zinc-400 uppercase tracking-wider">Articles Read</p>
                         </motion.div>
@@ -204,7 +204,7 @@ export default function CurationRecapPage() {
                             {isLoading ? (
                                 <div className="h-[34px] w-16 bg-zinc-100 rounded animate-pulse" />
                             ) : (
-                                <p className="text-[28px] font-bold tracking-tight text-zinc-900">{weeklyReads}</p>
+                                <p className="text-[28px] font-semibold tracking-tight text-zinc-900">{weeklyReads}</p>
                             )}
                             <p className="text-[12px] font-medium text-zinc-400 uppercase tracking-wider">This Week</p>
                         </motion.div>
@@ -223,7 +223,7 @@ export default function CurationRecapPage() {
                             {isLoading ? (
                                 <div className="h-[34px] w-12 bg-zinc-100 rounded animate-pulse" />
                             ) : (
-                                <p className="text-[28px] font-bold tracking-tight text-zinc-900">{streak}</p>
+                                <p className="text-[28px] font-semibold tracking-tight text-zinc-900">{streak}</p>
                             )}
                             <p className="text-[12px] font-medium text-zinc-400 uppercase tracking-wider">Day Streak</p>
                         </motion.div>
@@ -242,7 +242,7 @@ export default function CurationRecapPage() {
                             {isLoading ? (
                                 <div className="h-[34px] w-20 bg-zinc-100 rounded animate-pulse" />
                             ) : (
-                                <p className="text-[28px] font-bold tracking-tight text-zinc-900">~{totalReadingTimeMins}</p>
+                                <p className="text-[28px] font-semibold tracking-tight text-zinc-900">~{totalReadingTimeMins}</p>
                             )}
                             <p className="text-[12px] font-medium text-zinc-400 uppercase tracking-wider">Min Read</p>
                         </motion.div>
@@ -264,7 +264,7 @@ export default function CurationRecapPage() {
                         transition={{ delay: 0.3 }}
                         className="mb-10"
                     >
-                        <h3 className="text-[11px] font-bold tracking-widest text-zinc-400 uppercase mb-4 flex items-center gap-2">
+                        <h3 className="text-[11px] font-semibold tracking-widest text-zinc-400 uppercase mb-4 flex items-center gap-2">
                             <TrendingUp size={14} />
                             Your Top Topics
                         </h3>
@@ -273,10 +273,10 @@ export default function CurationRecapPage() {
                                 <div key={cat.name} className="flex items-center gap-3 bg-white rounded-xl border border-zinc-200/80 p-4">
                                     <span className="text-2xl">{cat.emoji}</span>
                                     <div className="flex-1 min-w-0">
-                                        <p className="text-[14px] font-bold text-zinc-800 truncate">{cat.name}</p>
+                                        <p className="text-[14px] font-semibold text-zinc-800 truncate">{cat.name}</p>
                                         <p className="text-[12px] text-zinc-400">{cat.count} article{cat.count !== 1 ? 's' : ''} read</p>
                                     </div>
-                                    <span className="text-[12px] font-bold text-zinc-300">#{i + 1}</span>
+                                    <span className="text-[12px] font-semibold text-zinc-300">#{i + 1}</span>
                                 </div>
                             ))}
                         </div>
@@ -290,7 +290,7 @@ export default function CurationRecapPage() {
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.4 }}
                     >
-                        <h3 className="text-[11px] font-bold tracking-widest text-zinc-400 uppercase mb-4">Recent Reading History</h3>
+                        <h3 className="text-[11px] font-semibold tracking-widest text-zinc-400 uppercase mb-4">Recent Reading History</h3>
                         <div className="flex flex-col gap-1">
                             {recentReads.map((entry, i) => (
                                 <Link
@@ -298,7 +298,7 @@ export default function CurationRecapPage() {
                                     href={`/curation/${entry.id}`}
                                     className="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white hover:shadow-sm transition-all group"
                                 >
-                                    <span className="text-[13px] font-bold text-zinc-200 w-6 text-right shrink-0">{i + 1}</span>
+                                    <span className="text-[13px] font-semibold text-zinc-200 w-6 text-right shrink-0">{i + 1}</span>
                                     <div className="flex-1 min-w-0">
                                         <p className="text-[14px] font-semibold text-zinc-700 truncate group-hover:text-blue-600 transition-colors">
                                             {formatTitle(entry.title)}

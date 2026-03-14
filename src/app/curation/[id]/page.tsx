@@ -55,7 +55,7 @@ const THEMES = {
 
 type ThemeKey = keyof typeof THEMES;
 
-const LABEL_CLASS = "text-[12px] font-bold uppercase tracking-wider text-zinc-500 ml-1";
+const LABEL_CLASS = "text-[11px] font-semibold uppercase tracking-wider text-zinc-400/80 ml-1";
 
 const CATEGORIES = [
     { name: "AI & Tech", emoji: "🤖" },
@@ -952,7 +952,7 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
                         <div className="w-8 h-8 flex items-center justify-center -ml-2">
                             <ChevronLeft size={22} className="group-hover:-translate-x-1 transition-transform" />
                         </div>
-                        <span className="text-[10px] font-bold uppercase tracking-[0.2em] opacity-0 group-hover:opacity-100 transition-opacity">Back</span>
+                        <span className="text-[10px] font-semibold uppercase tracking-[0.1em] opacity-0 group-hover:opacity-100 transition-opacity">Back</span>
                     </Link>
                 </div>
 
@@ -1009,7 +1009,7 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
                     <div className="flex flex-col gap-3">
                         {/* Separated Title - Refined */}
                         <h1 
-                            className="text-[34px] md:text-[46px] font-bold tracking-tight leading-[1.1] mb-2"
+                            className="text-[32px] md:text-[42px] font-semibold tracking-tight leading-[1.1] mb-2"
                             style={{ 
                                 color: THEMES[readerSettings.theme].text,
                                 fontFamily: "'Playfair Display', Georgia, serif",
@@ -1022,7 +1022,7 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
                         <div className="flex flex-col gap-2.5">
                             {/* Category Highlight */}
                             {article.category && (
-                                <div className="text-[12px] font-bold tracking-[0.1em] text-blue-600/90 dark:text-blue-400/90 mb-1">
+                                <div className="text-[11px] font-semibold tracking-[0.05em] text-blue-600/90 dark:text-blue-400/90 mb-1">
                                     {article.category}
                                 </div>
                             )}
@@ -1055,7 +1055,7 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
 
                         {/* Engagement Metrics */}
                         {(article.likes !== undefined) && (
-                            <div className="flex items-center gap-4 text-[12px] font-bold font-sans tracking-wide text-zinc-400">
+                            <div className="flex items-center gap-4 text-[12px] font-semibold font-sans tracking-wide text-zinc-400">
                                 <div className="flex items-center gap-1.5 opacity-60" title="Likes">
                                     <Heart size={14} className="stroke-[2.5]" />
                                     <span>{formatMetrics(article.likes)}</span>
