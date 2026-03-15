@@ -35,8 +35,8 @@ export function MusicBottomNav({ isInline = false }: { isInline?: boolean }) {
         <div style={isInline ? {
             backgroundColor: "#fff",
             borderTop: "2px solid #000",
-            padding: "8px 16px",
-            paddingBottom: "max(12px, env(safe-area-inset-bottom))",
+            padding: "0 16px",
+            paddingBottom: "env(safe-area-inset-bottom)",
             display: "flex",
             alignItems: "center",
             justifyContent: "space-around",
@@ -50,8 +50,8 @@ export function MusicBottomNav({ isInline = false }: { isInline?: boolean }) {
             right: 0,
             backgroundColor: "#fff",
             borderTop: "2px solid #000",
-            padding: "8px 16px",
-            paddingBottom: "max(8px, env(safe-area-inset-bottom))",
+            padding: "0 16px",
+            paddingBottom: "env(safe-area-inset-bottom)",
             display: "flex",
             alignItems: "center",
             justifyContent: "space-around",
@@ -98,7 +98,7 @@ export function MusicBottomNav({ isInline = false }: { isInline?: boolean }) {
                             boxShadow: isActive ? "2px 2px 0 #000" : "none",
                             cursor: "pointer",
                             color: isActive ? "#fff" : "#666",
-                            padding: "6px 16px",
+                            padding: "4px 12px",
                             transition: "all 0.1s ease-in-out"
                         }}
                     >

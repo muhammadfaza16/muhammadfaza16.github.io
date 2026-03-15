@@ -124,7 +124,23 @@ export default function PlaylistClient({ playlistId, initialSongs = [] }: { play
             backgroundColor: "#F5F0EB",
             color: "#000"
         }}>
-            <div style={{ display: "flex", justifyContent: "flex-end", alignItems: "center", marginTop: "16px", marginBottom: "8px" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "16px", marginBottom: "8px" }}>
+                <Link href="/playlist" style={{ textDecoration: "none" }}>
+                    <motion.button 
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95, y: 2, x: 2, boxShadow: "0px 0px 0 #000" }}
+                        transition={{ type: "spring", stiffness: 400, damping: 17 }}
+                        style={{ 
+                            display: "flex", alignItems: "center", gap: "4px", 
+                            background: "#fff", border: borderStyle, boxShadow: "2px 2px 0 #000",
+                            padding: "4px 8px", cursor: "pointer", fontFamily: "monospace", fontWeight: 700, color: "#000",
+                            fontSize: "0.75rem",
+                            transition: "background 0.2s ease"
+                        }}
+                    >
+                        <ChevronLeft size={14} /> Back
+                    </motion.button>
+                </Link>
                 <span style={{ fontFamily: "monospace", fontWeight: 700, fontSize: "0.85rem", textTransform: "uppercase" }}>
                     {activePlaylist ? "Playlist" : "Library"}
                 </span>

@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { usePathname } from "next/navigation";
 import { useAudio } from "../AudioContext";
-import { Play, Pause, SkipBack, SkipForward, Shuffle, Repeat, ChevronUp, Repeat1, ListMusic, Disc, FileText, Search } from "lucide-react";
+import { Play, Pause, SkipBack, SkipForward, Shuffle, Repeat, ChevronDown, ChevronUp, Repeat1, ListMusic, Disc, FileText, Search } from "lucide-react";
 import { MusicBottomNav } from "./MusicBottomNav";
 
 export function GlobalBottomPlayer() {
@@ -127,7 +127,7 @@ export function GlobalBottomPlayer() {
                             transition: "background-color 0.2s ease"
                         }}
                     >
-                        <ChevronUp size={24} color="#000" />
+                        <ChevronDown size={24} color="#000" />
                     </motion.button>
                     <span style={{ fontFamily: "monospace", fontWeight: 700, fontSize: "0.9rem", textTransform: "uppercase", color: "#000" }}>
                         Now Playing
