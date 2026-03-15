@@ -6,7 +6,7 @@ import { motion } from "framer-motion";
 import { Home, Compass, Disc, Settings } from "lucide-react";
 import { useAudio } from "../AudioContext";
 
-export function MusicBottomNav() {
+export function MusicBottomNav({ isInline = false }: { isInline?: boolean }) {
     const pathname = usePathname();
     const router = useRouter();
 
@@ -16,8 +16,9 @@ export function MusicBottomNav() {
 
     const { activePlaylistId, queue, isPlayerExpanded, setIsPlayerExpanded } = useAudio();
 
-    // If player is expanded, hide the bottom nav entirely to prevent it bleeding through as a weird border.
-    if (isPlayerExpanded) return null;
+    // If player is expanded, hide the fixed bottom nav entirely to prevent bleeding.
+    // However, if we are rendering it INLINE inside the player itself, let it bypass this check.
+    if (isPlayerExpanded && !isInline) return null;
 
     // If there is an active playlist ID, "Explore" logic can still use this info if needed.
     // "Player" action is now handled via state, so playerHref is redundant.
@@ -31,35 +32,35 @@ export function MusicBottomNav() {
     ];
 
     return (
-        <div style={{
-            position: "fixed",
-            bottom: "16px",
-            // Center horizontally
-            left: "50%",
-            transform: "translateX(-50%)",
+        <div style={isInline ? {
             backgroundColor: "#fff",
-            border: "2px solid #000",
-            boxShadow: "4px 4px 0 #000",
+            borderTop: "2px solid #000",
             padding: "8px 16px",
+            paddingBottom: "max(12px, env(safe-area-inset-bottom))",
             display: "flex",
-            gap: "32px",
             alignItems: "center",
-            justifyContent: "center",
-            zIndex: 100000, // Stay above expanded GlobalBottomPlayer (99999)
-            // Ensure width is reasonable on mobile
-            width: "max-content",
-            maxWidth: "calc(100% - 32px)",
+            justifyContent: "space-around",
+            width: "100%",
+            position: "relative",
+            zIndex: 10
+        } : {
+            position: "fixed",
+            bottom: 0,
+            left: 0,
+            right: 0,
+            backgroundColor: "#fff",
+            borderTop: "2px solid #000",
+            padding: "8px 16px",
+            paddingBottom: "max(8px, env(safe-area-inset-bottom))",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-around",
+            zIndex: 100000,
+            width: "100%",
         }}>
             {navItems.map((item) => {
-                // Exact match for /music to avoid highlighting both if /music/something existed
-                // but since /playlist and /playlist/[id] both belong to explore, we can use startsWith for explore
-                // Highlighting logic:
-                // Explore -> matches /playlist and /playlist/* (except if playerHref matches it strictly)
-                // Settings -> matches /music/master
-                // Player -> matches /music or /playlist/[id] exactly if it is the active one
                 let isActive = false;
                 
-                // Strict priority: If player is expanded, ONLY the player icon is active
                 if (isPlayerExpanded) {
                     isActive = item.label === "Player";
                 } else {
@@ -77,7 +78,7 @@ export function MusicBottomNav() {
                 return (
                     <motion.button
                         key={item.label}
-                        whileTap={{ y: 2, x: 2 }}
+                        whileTap={{ y: 2, x: 2, boxShadow: "0px 0px 0 #000" }}
                         onClick={() => {
                             if (item.label === "Player") {
                                 setIsPlayerExpanded(true);
@@ -91,17 +92,20 @@ export function MusicBottomNav() {
                             flexDirection: "column",
                             alignItems: "center",
                             gap: "4px",
-                            background: "none",
-                            border: "none",
+                            background: isActive ? "#000" : "transparent",
+                            border: isActive ? "2px solid #000" : "2px solid transparent",
+                            borderRadius: "12px",
+                            boxShadow: isActive ? "2px 2px 0 #000" : "none",
                             cursor: "pointer",
-                            color: isActive ? "#000" : "#888",
-                            padding: "4px 8px"
+                            color: isActive ? "#fff" : "#666",
+                            padding: "6px 16px",
+                            transition: "all 0.1s ease-in-out"
                         }}
                     >
-                        <Icon size={24} strokeWidth={isActive ? 2.5 : 2} />
+                        <Icon size={20} strokeWidth={isActive ? 2.5 : 2} />
                         <span style={{
                             fontFamily: "monospace",
-                            fontSize: "0.65rem",
+                            fontSize: "0.6rem",
                             fontWeight: isActive ? 800 : 500,
                             textTransform: "uppercase",
                             letterSpacing: "-0.02em"

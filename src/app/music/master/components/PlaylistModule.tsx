@@ -472,7 +472,7 @@ export function PlaylistModule({ addLog, isBusy, setIsBusy, insetBox }: Playlist
                                 </div>
                             ))}
                             {currentSongs.length === 0 && (
-                                <div style={{ color: "#333", fontSize: "0.6rem", textAlign: "center", padding: "1rem" }}>EMPTY PLAYLIST</div>
+                                <div style={{ color: "#333", fontSize: "0.6rem", textAlign: "center", padding: "1rem" }}>PLAYLIST MASIH KOSONG</div>
                             )}
 
                             {/* Add Songs Section — Issue 4: only shows songs NOT already in playlist */}
@@ -501,8 +501,8 @@ export function PlaylistModule({ addLog, isBusy, setIsBusy, insetBox }: Playlist
                                     </div>
                                 </div>
                             )) : (
-                                <div style={{ color: "#333", fontSize: "0.6rem", textAlign: "center", padding: "1rem" }}>
-                                    {allSongs.length === 0 ? "No songs in library. Add songs via YouTube first." : "All songs already added!"}
+                                <div style={{ color: "#333", fontSize: "0.6rem", textAlign: "center", padding: "1rem", lineHeight: 1.4 }}>
+                                    {allSongs.length === 0 ? "Gak ada lagu di library. Tambahin lagu via web desktop panel dulu gih." : "Semua lagu udah ditambahin ke playlist ini!"}
                                 </div>
                             )}
                         </div>

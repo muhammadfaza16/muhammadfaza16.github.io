@@ -225,7 +225,7 @@ export default function MasterPanelPage() {
                             >
                                 <div style={{ textAlign: "center", marginBottom: "8px" }}>
                                     <h1 style={{
-                                        fontFamily: "system-ui, -apple-system, sans-serif", fontSize: "2.5rem", fontWeight: 900,
+                                        fontFamily: "system-ui, -apple-system, sans-serif", fontSize: "2rem", fontWeight: 900,
                                         color: "#000", margin: 0, textTransform: "uppercase", lineHeight: 1, letterSpacing: "-0.04em"
                                     }}>
                                         SETTINGS
@@ -242,11 +242,11 @@ export default function MasterPanelPage() {
                                         
                                         {/* Player Data Section */}
                                         <div style={{
-                                            ...insetBox, background: "#000", color: "#fff", padding: "24px", boxShadow: shadowStyle, display: "flex", flexDirection: "column", gap: "16px"
+                                            ...insetBox, background: "#000", color: "#fff", padding: "16px", boxShadow: shadowStyle, display: "flex", flexDirection: "column", gap: "12px"
                                         }}>
                                             <div style={{ display: "flex", alignItems: "center", gap: "12px", borderBottom: "2px solid #333", paddingBottom: "12px" }}>
-                                                <Database size={24} color="#fff" />
-                                                <h2 style={{ margin: 0, fontFamily: "system-ui, -apple-system, sans-serif", fontSize: "1.25rem", fontWeight: 900, textTransform: "uppercase", letterSpacing: "-0.04em" }}>
+                                                <Database size={20} color="#fff" />
+                                                <h2 style={{ margin: 0, fontFamily: "system-ui, -apple-system, sans-serif", fontSize: "1.1rem", fontWeight: 900, textTransform: "uppercase", letterSpacing: "-0.04em" }}>
                                                     Player Data
                                                 </h2>
                                             </div>
@@ -300,18 +300,18 @@ export default function MasterPanelPage() {
                                                     onClick={() => setActiveModule(tool.id as ModuleId)}
                                                     whileTap={{ y: 2, x: 2, boxShadow: "0px 0px 0 #000" }}
                                                     style={{
-                                                        ...insetBox, padding: "20px", boxShadow: shadowStyle,
+                                                        ...insetBox, padding: "16px", boxShadow: shadowStyle,
                                                         display: "flex", alignItems: "center", justifyContent: "space-between",
                                                         cursor: "pointer", transition: "background 0.2s"
                                                     }}
                                                 >
-                                                    <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
-                                                        <div style={{ width: "48px", height: "48px", border: borderStyle, background: "#000", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center"}}>
+                                                    <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+                                                        <div style={{ width: "40px", height: "40px", border: borderStyle, background: "#000", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center"}}>
                                                             {tool.icon}
                                                         </div>
                                                         <div style={{ textAlign: "left" }}>
-                                                            <div style={{ color: "#000", fontSize: "1.1rem", fontWeight: 900, fontFamily: "system-ui, -apple-system, sans-serif", letterSpacing: "-0.04em", textTransform: "uppercase" }}>{tool.label}</div>
-                                                            <div style={{ color: "#666", fontSize: "0.75rem", fontWeight: 700, textTransform: "uppercase", fontFamily: "monospace", marginTop: "4px" }}>{tool.sub}</div>
+                                                            <div style={{ color: "#000", fontSize: "1rem", fontWeight: 900, fontFamily: "system-ui, -apple-system, sans-serif", letterSpacing: "-0.04em", textTransform: "uppercase" }}>{tool.label}</div>
+                                                            <div style={{ color: "#666", fontSize: "0.7rem", fontWeight: 700, textTransform: "uppercase", fontFamily: "monospace", marginTop: "4px" }}>{tool.sub}</div>
                                                         </div>
                                                     </div>
                                                 </motion.button>

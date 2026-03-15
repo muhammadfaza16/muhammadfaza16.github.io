@@ -14,8 +14,8 @@ export const PLAYLIST_CATEGORIES: Playlist[] = [
     {
         id: "teman-sunyi",
         title: "Teman Sunyi",
-        description: "Melodies for the sleepless nights under the stars.",
-        philosophy: "In the silence of the night, we find the answers we were too loud to hear during the day.",
+        description: "Melodi pelan buat nemenin malam-malam tanpa tidur di bawah bintang.",
+        philosophy: "Dalam sunyinya malam, kadang kita ktemu jawaban yang nggak bisa didengar pas siangnya lagi berisik.",
         schedule: "11 PM - 3 AM",
         vibes: ["Melancholic", "Space", "Introspective"],
         coverColor: "#1e3a8a", // Deep Blue
@@ -37,8 +37,8 @@ export const PLAYLIST_CATEGORIES: Playlist[] = [
     {
         id: "line-up-inti",
         title: "Line Up Inti",
-        description: "A cosmic mix of everything that moves the soul.",
-        philosophy: "The soundtracks of our main character moments; the energy that drives the stars.",
+        description: "Campuran lagu-lagu epik yang bakal naikin adrenalin dan ngisi energi jiwa.",
+        philosophy: "Soundtrack buat momen-momen main character kamu. Energi yang bikin bintang tetep bersinar.",
         schedule: "Anytime",
         vibes: ["Epic", "Main Character", "Energy"],
         coverColor: "#7c3aed", // Violet
@@ -60,8 +60,8 @@ export const PLAYLIST_CATEGORIES: Playlist[] = [
     {
         id: "menunggu-pagi",
         title: "Menunggu Pagi",
-        description: "Start your day with a sunrise of sound.",
-        philosophy: "Every sunrise is an invitation to brighten someone's day.",
+        description: "Mulai harimu ditemenin sama lagu-lagu hangat layaknya matahari terbit.",
+        philosophy: "Setiap sunrise itu kayak undangan buatikin harinya seseorang jadi lebih cerah.",
         schedule: "5 AM - 9 AM",
         vibes: ["Hopeful", "Morning", "Pop"],
         coverColor: "#f59e0b", // Amber/Gold
@@ -82,8 +82,8 @@ export const PLAYLIST_CATEGORIES: Playlist[] = [
     {
         id: "tentang-dia",
         title: "Tentang Dia",
-        description: "Echoes of memory and the feeling of home.",
-        philosophy: "Memory is a way of holding on to the things you love, the things you are, the things you never want to lose.",
+        description: "Gema kenangan lama sama perasaan kangen pengen pulang.",
+        philosophy: "Kenangan itu cara kita megang erat hal-hal yang kita cinta, tentang siapa kita, dan hal yang nggak pengen kita lepasin.",
         schedule: "Late Night / Rainy",
         vibes: ["Nostalgic", "Love", "Acoustic"],
         coverColor: "#be185d", // Pink/Rose

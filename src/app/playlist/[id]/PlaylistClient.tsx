@@ -23,17 +23,20 @@ function TrackRow({ song, index, isActive, isPlaying, onPlay }: {
 }) {
     return (
         <motion.div
-            whileTap={{ backgroundColor: isActive ? "#000" : "rgba(0,0,0,0.05)" }}
+            whileHover={{ x: 4, backgroundColor: isActive ? "#000" : "rgba(0,0,0,0.02)" }}
+            whileTap={{ scale: 0.98, backgroundColor: isActive ? "#000" : "rgba(0,0,0,0.05)" }}
+            transition={{ type: "spring", stiffness: 400, damping: 25 }}
             onClick={onPlay}
             style={{
                 display: "flex",
                 alignItems: "center",
-                gap: "14px",
-                padding: "16px 12px",
+                gap: "10px",
+                padding: "12px 10px",
                 backgroundColor: isActive ? "#000" : "transparent",
                 color: isActive ? "#fff" : "#000",
                 cursor: "pointer",
-                borderBottom: "2px solid #000"
+                borderBottom: "2px solid #000",
+                transition: "color 0.2s ease"
             }}
         >
             <div style={{ width: "24px", textAlign: "center", fontWeight: 900, fontFamily: "monospace" }}>
@@ -42,10 +45,10 @@ function TrackRow({ song, index, isActive, isPlaying, onPlay }: {
                 ) : (index + 1)}
             </div>
             <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ fontWeight: 900, fontSize: "1.1rem", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", fontFamily: "system-ui, -apple-system, sans-serif", letterSpacing: "-0.04em" }}>
+                <div style={{ fontWeight: 900, fontSize: "1rem", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", fontFamily: "system-ui, -apple-system, sans-serif", letterSpacing: "-0.04em", lineHeight: 1.2 }}>
                     {song.title.split("—")[1]?.trim() || song.title}
                 </div>
-                <div style={{ color: isActive ? "#ccc" : "#666", fontSize: "0.85rem", fontFamily: "monospace", fontWeight: 700 }}>
+                <div style={{ color: isActive ? "#ccc" : "#666", fontSize: "0.8rem", fontFamily: "monospace", fontWeight: 700, marginTop: "2px" }}>
                     {song.title.split("—")[0]?.trim() || "Unknown Artist"}
                 </div>
             </div>
@@ -133,8 +136,9 @@ export default function PlaylistClient({ playlistId, initialSongs = [] }: { play
                 <div style={{
                     backgroundColor: activePlaylist.coverColor || "#fff",
                     border: borderStyle,
+                    borderRadius: "16px",
                     boxShadow: shadowStyle,
-                    padding: "24px",
+                    padding: "16px",
                     display: "flex",
                     flexDirection: "column",
                     alignItems: "center",
@@ -147,20 +151,20 @@ export default function PlaylistClient({ playlistId, initialSongs = [] }: { play
                         className="mix-blend-multiply" 
                         alt="" 
                     />
-                    <div style={{ position: "relative", zIndex: 1, textAlign: "center", backgroundColor: "rgba(255,255,255,0.9)", padding: "16px", border: borderStyle, width: "100%" }}>
+                    <div style={{ position: "relative", zIndex: 1, textAlign: "center", backgroundColor: "rgba(255,255,255,0.9)", padding: "12px", border: borderStyle, borderRadius: "12px", width: "100%" }}>
                         <h2 style={{
-                            fontSize: "2rem",
+                            fontSize: "1.75rem",
                             fontWeight: 900,
                             fontFamily: "system-ui, -apple-system, sans-serif",
                             textTransform: "uppercase",
-                            margin: "0 0 8px 0",
+                            margin: "0 0 4px 0",
                             lineHeight: 1,
                             letterSpacing: "-0.04em",
                             color: "#000"
                         }}>
                             {activePlaylist.title}
                         </h2>
-                        <div style={{ fontFamily: "monospace", fontSize: "0.9rem", fontWeight: 700, color: "#333" }}>
+                        <div style={{ fontFamily: "monospace", fontSize: "0.85rem", fontWeight: 700, color: "#333", lineHeight: 1.2 }}>
                             "{activePlaylist.philosophy}"
                         </div>
                     </div>
@@ -169,7 +173,9 @@ export default function PlaylistClient({ playlistId, initialSongs = [] }: { play
 
             <div style={{ display: "flex", gap: "12px", marginTop: "8px" }}>
                 <motion.button
-                    whileTap={{ y: 2, x: 2, boxShadow: "2px 2px 0 #000" }}
+                    whileHover={{ scale: 1.02, y: -2, boxShadow: "6px 6px 0 #000" }}
+                    whileTap={{ scale: 0.98, y: 2, x: 2, boxShadow: "0px 0px 0 #000" }}
+                    transition={{ type: "spring", stiffness: 400, damping: 20 }}
                     onClick={() => {
                         if (isThisPlaylistInQueue) togglePlay();
                         else playQueue(filteredPlaylist, 0, playlistId);
@@ -180,25 +186,29 @@ export default function PlaylistClient({ playlistId, initialSongs = [] }: { play
                         background: isThisPlaylistPlaying ? "#fff" : "#000",
                         color: isThisPlaylistPlaying ? "#000" : "#fff",
                         border: borderStyle,
+                        borderRadius: "12px",
                         boxShadow: shadowStyle,
-                        padding: "16px",
-                        fontSize: "1.1rem",
+                        padding: "10px",
+                        fontSize: "0.95rem",
                         fontWeight: 900,
                         fontFamily: "system-ui, -apple-system, sans-serif",
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "center",
-                        gap: "8px",
+                        gap: "6px",
                         cursor: "pointer",
                         textTransform: "uppercase",
-                        letterSpacing: "-0.04em"
+                        letterSpacing: "-0.04em",
+                        transition: "background 0.2s ease, color 0.2s ease"
                     }}
                 >
-                    {isThisPlaylistPlaying ? <><Pause size={24} fill="#000" color="#000" /> PAUSE</> : <><Play size={24} fill={isThisPlaylistPlaying ? "#000" : "#fff"} color={isThisPlaylistPlaying ? "#000" : "#fff"} /> PLAY QUEUE</>}
+                    {isThisPlaylistPlaying ? <><Pause size={20} fill="#000" color="#000" /> PAUSE</> : <><Play size={20} fill={isThisPlaylistPlaying ? "#000" : "#fff"} color={isThisPlaylistPlaying ? "#000" : "#fff"} /> PLAY QUEUE</>}
                 </motion.button>
 
                 <motion.button
-                    whileTap={{ y: 2, x: 2, boxShadow: "2px 2px 0 #000" }}
+                    whileHover={{ scale: 1.05, y: -2, boxShadow: "6px 6px 0 #000" }}
+                    whileTap={{ scale: 0.95, y: 2, x: 2, boxShadow: "0px 0px 0 #000" }}
+                    transition={{ type: "spring", stiffness: 400, damping: 20 }}
                     onClick={() => {
                         playQueue(filteredPlaylist, 0, playlistId, true);
                         setIsPlayerExpanded(true);
@@ -207,15 +217,17 @@ export default function PlaylistClient({ playlistId, initialSongs = [] }: { play
                         background: "#fff",
                         color: "#000",
                         border: borderStyle,
+                        borderRadius: "12px",
                         boxShadow: shadowStyle,
-                        padding: "0 24px",
+                        padding: "0 16px",
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "center",
-                        cursor: "pointer"
+                        cursor: "pointer",
+                        transition: "background 0.2s ease"
                     }}
                 >
-                    <Shuffle size={24} color="#000" />
+                    <Shuffle size={20} color="#000" />
                 </motion.button>
             </div>
 
@@ -224,12 +236,13 @@ export default function PlaylistClient({ playlistId, initialSongs = [] }: { play
                 top: "96px",
                 zIndex: 40,
                 width: "100%",
-                height: "56px",
+                height: "50px",
                 backgroundColor: "#fff",
                 display: "flex",
                 alignItems: "center",
                 padding: "0 16px",
                 border: borderStyle,
+                borderRadius: "12px",
                 boxShadow: shadowStyle
             }}>
                 <Search size={20} color="#000" />
@@ -257,13 +270,15 @@ export default function PlaylistClient({ playlistId, initialSongs = [] }: { play
                 flexDirection: "column",
                 background: "#fff",
                 border: borderStyle,
-                boxShadow: shadowStyle
+                borderRadius: "16px",
+                boxShadow: shadowStyle,
+                overflow: "hidden"
             }}>
-                <div style={{ padding: "16px", borderBottom: "2px solid #000", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                    <h3 style={{ fontSize: "1.1rem", fontWeight: 900, fontFamily: "system-ui, -apple-system, sans-serif", margin: 0, textTransform: "uppercase", letterSpacing: "-0.04em", color: "#000" }}>
+                <div style={{ padding: "12px 16px", borderBottom: "2px solid #000", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                    <h3 style={{ fontSize: "1rem", fontWeight: 900, fontFamily: "system-ui, -apple-system, sans-serif", margin: 0, textTransform: "uppercase", letterSpacing: "-0.04em", color: "#000" }}>
                         Tracks
                     </h3>
-                    <span style={{ fontFamily: "monospace", fontWeight: 700, fontSize: "0.9rem", color: "#000" }}>{filteredPlaylist.length}</span>
+                    <span style={{ fontFamily: "monospace", fontWeight: 700, fontSize: "0.85rem", color: "#000" }}>{filteredPlaylist.length}</span>
                 </div>
 
                 {filteredPlaylist.length <= 50 ? (

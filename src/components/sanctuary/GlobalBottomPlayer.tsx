@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { usePathname } from "next/navigation";
 import { useAudio } from "../AudioContext";
 import { Play, Pause, SkipBack, SkipForward, Shuffle, Repeat, ChevronUp, Repeat1, ListMusic, Disc, FileText, Search } from "lucide-react";
+import { MusicBottomNav } from "./MusicBottomNav";
 
 export function GlobalBottomPlayer() {
     const {
@@ -102,15 +103,17 @@ export function GlobalBottomPlayer() {
                     zIndex: 100001,
                     display: "flex",
                     flexDirection: "column",
-                    padding: "24px 16px 32px 16px",
+                    padding: "16px 0 0 0",
                     overflow: "hidden",
                     color: "#000"
                 }}
             >
                 {/* Header */}
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "32px", marginTop: "16px" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "24px", marginTop: "12px", padding: "0 16px" }}>
                     <motion.button 
-                        whileTap={{ y: 2, x: 2, boxShadow: "0px 0px 0 #000" }}
+                        whileHover={{ scale: 1.1, backgroundColor: "#f0f0f0" }}
+                        whileTap={{ scale: 0.9, y: 2, x: 2, boxShadow: "0px 0px 0 #000" }}
+                        transition={{ type: "spring", stiffness: 400, damping: 25 }}
                         onClick={() => setIsExpanded(false)}
                         style={{ 
                             background: "#fff", 
@@ -120,7 +123,8 @@ export function GlobalBottomPlayer() {
                             cursor: "pointer", 
                             display: "flex", 
                             alignItems: "center", 
-                            justifyContent: "center" 
+                            justifyContent: "center",
+                            transition: "background-color 0.2s ease"
                         }}
                     >
                         <ChevronUp size={24} color="#000" />
@@ -129,42 +133,54 @@ export function GlobalBottomPlayer() {
                         Now Playing
                     </span>
                     <div style={{ display: "flex", gap: "8px" }}>
-                        <button 
+                        <motion.button 
+                            whileHover={{ scale: 1.1, backgroundColor: "rgba(0,0,0,0.05)" }}
+                            whileTap={{ scale: 0.9 }}
+                            transition={{ type: "spring", stiffness: 400, damping: 20 }}
                             onClick={() => setShowQueueModal(true)}
                             style={{ 
-                                width: "44px", height: "44px", 
+                                width: "36px", height: "36px", 
                                 display: "flex", alignItems: "center", justifyContent: "center",
                                 background: "transparent",
                                 border: "none",
                                 color: "#000",
-                                cursor: "pointer"
+                                cursor: "pointer",
+                                borderRadius: "8px",
+                                transition: "background-color 0.2s ease"
                             }}
                         >
-                            <ListMusic size={20} />
-                        </button>
-                        <button 
+                            <ListMusic size={18} />
+                        </motion.button>
+                        <motion.button 
+                            whileHover={{ scale: 1.1, y: -2 }}
+                            whileTap={{ scale: 0.9 }}
+                            transition={{ type: "spring", stiffness: 400, damping: 20 }}
                             onClick={() => setActiveTab(activeTab === 'lyrics' ? 'cover' : 'lyrics')}
                             style={{ 
-                                width: "44px", height: "44px", 
+                                width: "36px", height: "36px", 
                                 display: "flex", alignItems: "center", justifyContent: "center",
                                 background: activeTab === 'lyrics' ? "#000" : "transparent",
-                                border: activeTab === 'lyrics' ? "2px solid #000" : "none",
+                                border: activeTab === 'lyrics' ? "1.5px solid #000" : "none",
                                 color: activeTab === 'lyrics' ? "#fff" : "#000",
-                                cursor: "pointer"
+                                cursor: "pointer",
+                                borderRadius: "8px",
+                                transition: "all 0.2s ease"
                             }}
                         >
-                            <span style={{ fontFamily: "monospace", fontWeight: 900, fontSize: "1.2rem" }}>TXT</span>
-                        </button>
+                            <span style={{ fontFamily: "monospace", fontWeight: 900, fontSize: "0.85rem" }}>TXT</span>
+                        </motion.button>
                     </div>
                 </div>
 
                 <div style={{
-                    width: "100%",
+                    width: "80%",
+                    maxWidth: "300px",
+                    margin: "0 auto 20px auto",
                     aspectRatio: "1/1",
                     backgroundColor: "#fff",
                     border: borderStyle,
+                    borderRadius: "16px",
                     boxShadow: shadowStyle,
-                    marginBottom: "24px",
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
@@ -480,12 +496,12 @@ export function GlobalBottomPlayer() {
                             padding: "16px",
                             overflowY: "auto",
                             fontFamily: "monospace",
-                            fontSize: "0.95rem",
-                            lineHeight: 1.6,
+                            fontSize: "0.8rem",
+                            lineHeight: 1.5,
                             textAlign: "center",
                             display: "flex",
                             flexDirection: "column",
-                            gap: "8px"
+                            gap: "6px"
                         }}>
                             {activeLyrics.length > 0 ? activeLyrics.map((lyric, idx) => {
                                 const isActive = lyric.time <= currentTime && (idx === activeLyrics.length - 1 || activeLyrics[idx + 1].time > currentTime);
@@ -511,15 +527,16 @@ export function GlobalBottomPlayer() {
                     flex: 1,
                     display: "flex",
                     flexDirection: "column",
-                    justifyContent: "space-around",
-                    paddingBottom: "16px"
+                    justifyContent: "flex-start",
+                    gap: "32px",
+                    padding: "0 16px 32px 16px"
                 }}>
                     {/* Info */}
-                    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center" }}>
-                        <h2 style={{ fontFamily: "system-ui, -apple-system, sans-serif", fontWeight: 900, fontSize: "1.75rem", margin: "0 0 8px 0", lineHeight: 1.1, letterSpacing: "-0.04em", textTransform: "uppercase", color: "#000" }}>
+                    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center", marginBottom: "8px" }}>
+                        <h2 style={{ fontFamily: "system-ui, -apple-system, sans-serif", fontWeight: 900, fontSize: "1.3rem", margin: "0 0 2px 0", lineHeight: 1.1, letterSpacing: "-0.04em", textTransform: "uppercase", color: "#000" }}>
                             {songTitle}
                         </h2>
-                        <p style={{ fontFamily: "monospace", fontSize: "1rem", margin: 0, color: "#333" }}>
+                        <p style={{ fontFamily: "monospace", fontSize: "0.8rem", margin: 0, color: "#333" }}>
                             {songArtist}
                         </p>
                     </div>
@@ -559,8 +576,12 @@ export function GlobalBottomPlayer() {
                                 backgroundColor: "#fff",
                                 border: "2px solid #000",
                                 left: `calc(${(currentTime / (duration || 1)) * 100}% - 4px)`,
-                                transition: "left 0.1s linear"
-                            }} />
+                                transition: "left 0.1s linear, transform 0.2s ease",
+                                transformOrigin: "center"
+                            }} 
+                            onMouseEnter={(e) => { e.currentTarget.style.transform = "scale(1.5)"; }}
+                            onMouseLeave={(e) => { e.currentTarget.style.transform = "scale(1)"; }}
+                            />
                         </div>
                         <div style={{ display: "flex", justifyContent: "space-between", marginTop: "8px", fontFamily: "monospace", fontSize: "0.85rem", fontWeight: 700 }}>
                             <span>{formatTime(currentTime)}</span>
@@ -568,23 +589,28 @@ export function GlobalBottomPlayer() {
                         </div>
                     </div>
 
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                    <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: "24px" }}>
                         <NeoButton onClick={toggleShuffle} active={shuffleMode}>
-                            <Shuffle size={20} color={shuffleMode ? "#fff" : "#000"} />
+                            <Shuffle size={18} color={shuffleMode ? "#fff" : "#000"} />
                         </NeoButton>
                         <NeoButton onClick={() => prevSong()} size="large">
-                            <SkipBack size={24} fill="#000" color="#000" />
+                            <SkipBack size={20} fill="#000" color="#000" />
                         </NeoButton>
                         <NeoButton onClick={togglePlay} size="extra-large">
-                            {isPlaying ? <Pause size={32} fill="#000" color="#000" /> : <Play size={32} fill="#000" color="#000" />}
+                            {isPlaying ? <Pause size={28} fill="#000" color="#000" /> : <Play size={28} fill="#000" color="#000" />}
                         </NeoButton>
                         <NeoButton onClick={() => nextSong()} size="large">
-                            <SkipForward size={24} fill="#000" color="#000" />
+                            <SkipForward size={20} fill="#000" color="#000" />
                         </NeoButton>
                         <NeoButton onClick={toggleRepeat} active={repeatMode !== 'off'}>
-                            {repeatMode === 'one' ? <Repeat1 size={20} color="#fff" /> : <Repeat size={20} color={repeatMode === 'all' ? "#fff" : "#000"} />}
+                            {repeatMode === 'one' ? <Repeat1 size={18} color="#fff" /> : <Repeat size={18} color={repeatMode === 'all' ? "#fff" : "#000"} />}
                         </NeoButton>
                     </div>
+                </div>
+                
+                {/* Embedded Bottom Navigation */}
+                <div style={{ marginTop: "auto", position: "relative", zIndex: 100 }}>
+                    <MusicBottomNav isInline={true} />
                 </div>
                 
                 {/* --- Dedicated Queue Modal Overlay --- */}
@@ -610,28 +636,30 @@ export function GlobalBottomPlayer() {
                             {/* Queue Header */}
                             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px", marginTop: "16px" }}>
                                 <motion.button 
-                                    whileTap={{ y: 2, x: 2, boxShadow: "0px 0px 0 #000" }}
+                                    whileHover={{ scale: 1.1, backgroundColor: "#f0f0f0" }}
+                                    whileTap={{ scale: 0.9, y: 2, x: 2, boxShadow: "0px 0px 0 #000" }}
+                                    transition={{ type: "spring", stiffness: 400, damping: 25 }}
                                     onClick={() => setShowQueueModal(false)}
                                     style={{ 
                                         background: "#fff", border: borderStyle, boxShadow: "2px 2px 0 #000",
-                                        padding: "8px", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" 
+                                        padding: "8px", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center",
+                                        transition: "background-color 0.2s ease"
                                     }}
                                 >
-                                    <ChevronUp size={24} color="#000" style={{ transform: "rotate(-90deg)" }} />
+                                    <ChevronUp size={20} color="#000" style={{ transform: "rotate(-90deg)" }} />
                                 </motion.button>
-                                <span style={{ fontFamily: "system-ui, -apple-system, sans-serif", fontWeight: 900, fontSize: "1.25rem", textTransform: "uppercase", letterSpacing: "-0.04em" }}>
+                                <span style={{ fontFamily: "system-ui, -apple-system, sans-serif", fontWeight: 900, fontSize: "1.1rem", textTransform: "uppercase", letterSpacing: "-0.04em" }}>
                                     QUEUE
                                 </span>
                                 <div style={{ width: "44px" }} />
                             </div>
 
-                            {/* Search Bar */}
                             <div style={{ 
-                                display: "flex", alignItems: "center", gap: "12px", 
+                                display: "flex", alignItems: "center", gap: "10px", 
                                 background: "#fff", border: borderStyle, boxShadow: "2px 2px 0 #000",
-                                padding: "12px 16px", marginBottom: "24px"
+                                padding: "10px 14px", marginBottom: "20px"
                             }}>
-                                <Search size={20} color="#000" />
+                                <Search size={18} color="#000" />
                                 <input
                                     type="text"
                                     placeholder="Search in Queue..."
@@ -639,7 +667,7 @@ export function GlobalBottomPlayer() {
                                     onChange={(e) => setSearchQuery(e.target.value)}
                                     style={{
                                         border: "none", outline: "none", width: "100%",
-                                        fontFamily: "monospace", fontSize: "1rem", fontWeight: 700, color: "#000"
+                                        fontFamily: "monospace", fontSize: "0.9rem", fontWeight: 700, color: "#000"
                                     }}
                                 />
                             </div>
@@ -662,7 +690,9 @@ export function GlobalBottomPlayer() {
                                         return (
                                             <motion.div
                                                 key={`${song.audioUrl}-${originalIndex}`}
-                                                whileTap={{ backgroundColor: isCurrent ? "#000" : "rgba(0,0,0,0.05)" }}
+                                                whileHover={{ x: 4, backgroundColor: isCurrent ? "#000" : "rgba(0,0,0,0.02)" }}
+                                                whileTap={{ scale: 0.98, backgroundColor: isCurrent ? "#000" : "rgba(0,0,0,0.05)" }}
+                                                transition={{ type: "spring", stiffness: 400, damping: 25 }}
                                                 onClick={() => {
                                                     useAudio().jumpToSong(originalIndex);
                                                 setShowQueueModal(false);
@@ -675,7 +705,8 @@ export function GlobalBottomPlayer() {
                                                 backgroundColor: isCurrent ? "#000" : "transparent",
                                                 color: isCurrent ? "#fff" : "#000",
                                                 borderBottom: "2px solid #000",
-                                                cursor: "pointer"
+                                                cursor: "pointer",
+                                                transition: "color 0.2s ease"
                                             }}
                                         >
                                             <div style={{ width: "24px", textAlign: "center", fontWeight: 900, fontFamily: "monospace", fontSize: "0.9rem" }}>
@@ -706,11 +737,13 @@ export function GlobalBottomPlayer() {
 
 // Helper Neo-Brutalist Button
 function NeoButton({ children, onClick, active = false, size = "normal" }: { children: React.ReactNode, onClick: (e: React.MouseEvent) => void, active?: boolean, size?: "normal" | "large" | "extra-large" }) {
-    const dim = size === "normal" ? "44px" : size === "large" ? "56px" : "72px";
+    const dim = size === "normal" ? "36px" : size === "large" ? "42px" : "54px";
     
     return (
         <motion.button
-            whileTap={{ y: 2, x: 2, boxShadow: "0px 0px 0 #000" }}
+            whileHover={{ scale: 1.05, y: -2, boxShadow: "6px 6px 0 #000" }}
+            whileTap={{ scale: 0.95, y: 2, x: 2, boxShadow: "0px 0px 0 #000" }}
+            transition={{ type: "spring", stiffness: 400, damping: 20 }}
             onClick={onClick}
             style={{
                 width: dim,
@@ -723,7 +756,8 @@ function NeoButton({ children, onClick, active = false, size = "normal" }: { chi
                 boxShadow: "2px 2px 0 #000",
                 cursor: "pointer",
                 borderRadius: "0",
-                color: active ? "#fff" : "#000"
+                color: active ? "#fff" : "#000",
+                transition: "background-color 0.2s ease, color 0.2s ease"
             }}
         >
             {children}
