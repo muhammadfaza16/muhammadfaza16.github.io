@@ -564,7 +564,7 @@ export function GlobalBottomPlayer() {
                                 top: 0,
                                 left: 0,
                                 height: "100%",
-                                width: `${(currentTime / (duration || 1)) * 100}%`,
+                                width: `${Math.min(100, (currentTime / (duration || 1)) * 100)}%`,
                                 backgroundColor: "#000",
                                 transition: "width 0.1s linear"
                             }} />
@@ -575,7 +575,7 @@ export function GlobalBottomPlayer() {
                                 width: "8px",
                                 backgroundColor: "#fff",
                                 border: "2px solid #000",
-                                left: `calc(${(currentTime / (duration || 1)) * 100}% - 4px)`,
+                                left: `calc(${Math.min(100, (currentTime / (duration || 1)) * 100)}% - 4px)`,
                                 transition: "left 0.1s linear, transform 0.2s ease",
                                 transformOrigin: "center"
                             }} 

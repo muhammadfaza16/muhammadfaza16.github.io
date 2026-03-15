@@ -408,8 +408,13 @@ export function AudioProvider({ children, initialSongs = [] }: { children: React
         // Throttled time update for progress bar (every 500ms for performance)
         const now = Date.now();
         if (now - lastTimeUpdateRef.current > 500) {
+            // Self-heal duration if missing
+            if ((!duration || duration === 0) && audioRef.current.duration) {
+                setDuration(audioRef.current.duration);
+            }
+
             // Prevent early overwrite if metadata hasn't triggered restore yet
-            if (initialTimeRef.current > 0 && t === 0) return;
+            if (initialTimeRef.current > 0 && t < 0.5) return;
             
             setCurrentTime(t);
             lastTimeUpdateRef.current = now;
@@ -445,6 +450,7 @@ export function AudioProvider({ children, initialSongs = [] }: { children: React
     // Seek to time
     const seekTo = useCallback((time: number) => {
         if (audioRef.current) {
+            initialTimeRef.current = 0; // Clear it, user manually interacted
             audioRef.current.currentTime = time;
             setCurrentTime(time);
         }
@@ -604,6 +610,13 @@ export function AudioProvider({ children, initialSongs = [] }: { children: React
                 }}
                 onPlay={() => {
                     intentionalPauseRef.current = false;
+                    if (initialTimeRef.current > 0 && audioRef.current) {
+                        const target = initialTimeRef.current;
+                        initialTimeRef.current = 0;
+                        if (audioRef.current.currentTime < 1) { // Only force jump if near start
+                            audioRef.current.currentTime = target;
+                        }
+                    }
                     setIsPlaying(true);
                 }}
                 onPause={() => {

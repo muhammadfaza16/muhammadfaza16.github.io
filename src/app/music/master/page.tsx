@@ -28,9 +28,6 @@ const MASTER_PIN = "0000";
 type ModuleId = "dashboard" | "playlist" | "settings";
 
 export default function MasterPanelPage() {
-    const [isUnlocked, setIsUnlocked] = useState(false);
-    const [pin, setPin] = useState("");
-    const [pinError, setPinError] = useState(false);
     const [activeModule, setActiveModule] = useState<ModuleId>("dashboard");
     const [isBusy, setIsBusy] = useState(false);
     const [logs, setLogs] = useState<{ text: string; type: "info" | "success" | "error" }[]>([]);
@@ -59,38 +56,18 @@ export default function MasterPanelPage() {
     }, [logs]);
 
     useEffect(() => {
-        if (typeof window !== "undefined" && sessionStorage.getItem("master_unlocked") === "true") {
-            setIsUnlocked(true);
-        }
+        fetch("/api/music/songs")
+            .then(res => res.json())
+            .then(data => {
+                if (data.success && data.songs) {
+                    setDbSongs(data.songs);
+                }
+            })
+            .catch(() => { });
     }, []);
-
-    useEffect(() => {
-        if (isUnlocked) {
-            // Fetch stats if unlocked
-            fetch("/api/music/songs")
-                .then(res => res.json())
-                .then(data => {
-                    if (data.success && data.songs) {
-                        setDbSongs(data.songs);
-                    }
-                })
-                .catch(() => { });
-        }
-    }, [isUnlocked]);
 
     const addLog = (text: string, type: "info" | "success" | "error" = "info") => {
         setLogs(prev => [...prev, { text, type }].slice(-10)); // Keep last 10
-    };
-
-    const handleUnlock = () => {
-        if (pin === MASTER_PIN) {
-            setIsUnlocked(true);
-            setPinError(false);
-            sessionStorage.setItem("master_unlocked", "true");
-        } else {
-            setPinError(true);
-            setPin("");
-        }
     };
 
     const logColor = (type: "info" | "success" | "error") => {
@@ -116,98 +93,8 @@ export default function MasterPanelPage() {
         <>
             <div style={{ position: 'fixed', inset: 0, backgroundColor: '#F5F0EB', zIndex: -1 }} />
 
-            {/* === PIN LOCK === */}
-            {!isUnlocked ? (
-                <main style={{
-                    minHeight: "100dvh", display: "flex", flexDirection: "column",
-                    alignItems: "center", justifyContent: "center", padding: "1rem",
-                }}>
-                    <Link href="/music" style={{ textDecoration: "none" }}>
-                        <motion.div style={backBtn} whileTap={{ scale: 0.95, boxShadow: "0px 0px 0 #000" }}>
-                            <ChevronLeft size={16} strokeWidth={2.5} /><span>BACK</span>
-                        </motion.div>
-                    </Link>
-
-                    <motion.div
-                        initial={{ opacity: 0, scale: 0.9 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        style={{
-                            width: "100%", maxWidth: "320px",
-                            background: "#fff", border: borderStyle,
-                            padding: "2rem 1.5rem", display: "flex", flexDirection: "column", alignItems: "center", gap: "1.5rem",
-                            boxShadow: shadowStyle,
-                        }}
-                    >
-                        <div style={{
-                            width: "48px", height: "48px", border: borderStyle,
-                            display: "flex", alignItems: "center", justifyContent: "center",
-                            background: "#000", color: "#fff"
-                        }}>
-                            <Lock size={24} strokeWidth={2.5} />
-                        </div>
-
-                        <div style={{ textAlign: "center" }}>
-                            <h2 style={{ color: "#000", fontSize: "1.25rem", fontWeight: 900, textTransform: "uppercase", margin: 0, fontFamily: "system-ui, -apple-system, sans-serif", letterSpacing: "-0.04em" }}>
-                                Settings
-                            </h2>
-                            <p style={{ color: "#666", fontSize: "0.85rem", fontWeight: 700, margin: "8px 0 0 0", fontFamily: "monospace", textTransform: "uppercase" }}>
-                                Enter Access Code
-                            </p>
-                        </div>
-
-                        <motion.div
-                            animate={pinError ? { x: [-8, 8, -6, 6, -3, 3, 0] } : {}}
-                            transition={{ duration: 0.4 }}
-                            style={{ width: "100%", display: "flex", flexDirection: "column", gap: "0.75rem" }}
-                        >
-                            <input
-                                type="password"
-                                inputMode="numeric"
-                                maxLength={4}
-                                value={pin}
-                                onChange={(e) => { setPin(e.target.value.replace(/\D/g, "")); setPinError(false); }}
-                                onKeyDown={(e) => e.key === "Enter" && handleUnlock()}
-                                placeholder="• • • •"
-                                autoFocus
-                                style={{
-                                    width: "100%", border: borderStyle, background: pinError ? "#fee2e2" : "#f8f9fa",
-                                    padding: "1rem", color: "#000",
-                                    fontFamily: "monospace", fontSize: "1.5rem", fontWeight: 700,
-                                    textAlign: "center", letterSpacing: "12px", outline: "none",
-                                    boxShadow: "inset 2px 2px 0 rgba(0,0,0,0.05)"
-                                }}
-                            />
-                            {pinError && (
-                                <p style={{ color: "#ef4444", fontSize: "0.75rem", fontWeight: 700, textAlign: "center", margin: 0, fontFamily: "monospace", textTransform: "uppercase" }}>
-                                    Access Denied.
-                                </p>
-                            )}
-                        </motion.div>
-
-                        <motion.button
-                            onClick={handleUnlock}
-                            disabled={pin.length < 4}
-                            whileTap={pin.length >= 4 ? { y: 2, x: 2, boxShadow: "0px 0px 0 #000" } : {}}
-                            style={{
-                                width: "100%", border: borderStyle, background: pin.length >= 4 ? "#000" : "#e5e5e5",
-                                padding: "1rem", color: pin.length >= 4 ? "#fff" : "#999",
-                                fontWeight: 900, textTransform: "uppercase", fontSize: "1rem",
-                                cursor: pin.length >= 4 ? "pointer" : "not-allowed",
-                                textAlign: "center", fontFamily: "system-ui, -apple-system, sans-serif",
-                                boxShadow: pin.length >= 4 ? "2px 2px 0 #000" : "none",
-                                transition: "background 0.2s, color 0.2s"
-                            }}
-                        >
-                            UNLOCK
-                        </motion.button>
-                    </motion.div>
-                </main>
-
-            ) : (
-
-                /* === UNLOCKED: MASTER PANEL === */
-                <>
-                    <ZenHideable>
+            {/* === MASTER PANEL === */}
+            <ZenHideable>
                         <main style={{
                             minHeight: "100dvh", display: "flex", flexDirection: "column",
                             alignItems: "center", justifyContent: "flex-start", padding: "1rem", paddingTop: "5rem",
@@ -368,8 +255,6 @@ export default function MasterPanelPage() {
                         </motion.div>
                     </main>
                 </ZenHideable>
-                </>
-            )}
         </>
     );
 }
