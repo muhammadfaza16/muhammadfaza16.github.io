@@ -115,6 +115,8 @@ export function AudioProvider({ children, initialSongs = [] }: { children: React
                     setShuffleMode(data.shuffleMode || false);
                     setRepeatMode(data.repeatMode || 'off');
                     initialTimeRef.current = data.currentTime || 0;
+                    setCurrentTime(data.currentTime || 0); // Immediately update UI
+                    if (data.duration) setDuration(data.duration);
                 }
             }
         } catch(e) { console.error("Failed to load player state", e); }
@@ -150,6 +152,7 @@ export function AudioProvider({ children, initialSongs = [] }: { children: React
                     originalQueue,
                     currentIndex,
                     currentTime,
+                    duration,
                     activePlaylistId,
                     shuffleMode,
                     repeatMode
@@ -159,7 +162,7 @@ export function AudioProvider({ children, initialSongs = [] }: { children: React
         }, 1000);
 
         return () => clearTimeout(timeout);
-    }, [queue, originalQueue, currentIndex, currentTime, activePlaylistId, shuffleMode, repeatMode, hasLoadedState]);
+    }, [queue, originalQueue, currentIndex, currentTime, duration, activePlaylistId, shuffleMode, repeatMode, hasLoadedState]);
 
     // Theme integration keeping for later custom logic, but removed the global auto-switching.
     const { theme, setTheme } = useTheme();
@@ -405,6 +408,9 @@ export function AudioProvider({ children, initialSongs = [] }: { children: React
         // Throttled time update for progress bar (every 500ms for performance)
         const now = Date.now();
         if (now - lastTimeUpdateRef.current > 500) {
+            // Prevent early overwrite if metadata hasn't triggered restore yet
+            if (initialTimeRef.current > 0 && t === 0) return;
+            
             setCurrentTime(t);
             lastTimeUpdateRef.current = now;
 
