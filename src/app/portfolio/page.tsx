@@ -2,13 +2,13 @@
 
 import React from "react";
 import Link from "next/link";
-import { AtmosphericBackground } from "@/components/AtmosphericBackground";
+
 import { Github, Twitter, Mail, ChevronLeft, Instagram } from "lucide-react";
 import { motion } from "framer-motion";
 
 export default function PortfolioPage() {
     return (
-        <AtmosphericBackground variant="sage">
+
             <main style={{
                 minHeight: "100svh",
                 display: "flex",
@@ -204,6 +204,6 @@ export default function PortfolioPage() {
 
                 </motion.div>
             </main>
-        </AtmosphericBackground>
+
     );
 }

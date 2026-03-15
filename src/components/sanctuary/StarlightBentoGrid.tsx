@@ -7,7 +7,7 @@ import {
     PenTool, Book, Compass, Briefcase, Gift, Library,
     ChevronLeft, ChevronRight,
     Terminal, Cpu, Megaphone, Lightbulb, Monitor, FileText,
-    Film, Music, Zap, Lock, Backpack, BookOpen
+    Film, Music, Lock, Backpack, BookOpen
 } from "lucide-react";
 
 interface AppIconProps {
@@ -144,7 +144,6 @@ export function StarlightBentoGrid({ activeDock, setActiveDock }: StarlightBento
     const dock3Apps = [
         { title: "Movies", href: "/movies", icon: <Film />, iconColor: "#FF453A" }, // Red
         { title: "Playlist", href: "/playlist", icon: <Music />, iconColor: "#FF2D55" }, // Pink-Red
-        { title: "Now", href: "/now", icon: <Zap />, iconColor: "#FF9F0A" }, // Orange
         { title: "Secrets", href: "/secrets", icon: <Lock />, iconColor: "#8E8E93" }, // Gray
         { title: "Master", href: "/master", icon: <BookOpen />, iconColor: "#BF5AF2" }, // Purple
     ];

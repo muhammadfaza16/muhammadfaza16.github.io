@@ -12,7 +12,7 @@ export async function GET(
         const playlistSongs = await (prisma as any).playlistSong.findMany({
             where: { playlistId: id },
             include: { song: true },
-            orderBy: { song: { title: 'asc' } }
+            orderBy: { order: 'asc' }
         });
         return NextResponse.json({
             success: true,

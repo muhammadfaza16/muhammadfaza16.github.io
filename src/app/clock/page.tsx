@@ -6,7 +6,7 @@ import { ArrowLeft, Clock, Calendar, Activity, Zap, Grid3X3, Disc } from "lucide
 import Link from "next/link";
 import dynamic from "next/dynamic";
 
-const GradientOrb = dynamic(() => import("@/components/GradientOrb").then(mod => mod.GradientOrb), { ssr: false });
+
 const CosmicStars = dynamic(() => import("@/components/CosmicStars").then(mod => mod.CosmicStars), { ssr: false });
 const MilkyWay = dynamic(() => import("@/components/MilkyWay").then(mod => mod.MilkyWay), { ssr: false });
 
@@ -582,7 +582,7 @@ export default function ClockPage() {
             {/* Background Layer */}
             <div style={{ position: "fixed", inset: 0, zIndex: 0, pointerEvents: "none" }}>
                 <MilkyWay />
-                <GradientOrb />
+
                 <CosmicStars />
                 {/* Vignette */}
                 <div style={{ position: "absolute", inset: 0, background: "radial-gradient(circle at center, transparent 0%, #000 120%)" }} />

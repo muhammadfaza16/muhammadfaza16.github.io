@@ -7,9 +7,7 @@ import { KonamiCode } from "@/components/KonamiCode";
 import { FloatingZenToggle } from "@/components/FloatingZenToggle";
 
 import { AudioProvider } from "@/components/AudioContext";
-import { RadioProvider } from "@/components/RadioContext";
-import { NarrativeProvider } from "@/components/NarrativeContext";
-import { GuestAudioPlayer } from "@/components/GuestAudioPlayer";
+
 import prisma from "@/lib/prisma";
 
 export const metadata: Metadata = {
@@ -116,9 +114,7 @@ export default async function RootLayout({
         />
         <NextTopLoader color="#E5E5E5" showSpinner={false} height={2} shadow="0 0 10px #E5E5E5,0 0 5px #E5E5E5" />
         <ThemeProvider>
-          <NarrativeProvider>
             <AudioProvider initialSongs={JSON.parse(JSON.stringify(initialSongs))}>
-              <RadioProvider>
                 <ZenProvider>
                   <SkipLink />
                   <KonamiCode />
@@ -126,13 +122,10 @@ export default async function RootLayout({
                   <FloatingZenToggle />
 
                   <LayoutShell>
-                    <GuestAudioPlayer />
                     {children}
                   </LayoutShell>
                 </ZenProvider>
-              </RadioProvider>
             </AudioProvider>
-          </NarrativeProvider>
         </ThemeProvider>
       </body>
     </html>

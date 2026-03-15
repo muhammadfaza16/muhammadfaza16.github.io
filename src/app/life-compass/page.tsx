@@ -2,7 +2,7 @@
 
 import React from "react";
 import { Container } from "@/components/Container";
-import { AtmosphericBackground } from "@/components/AtmosphericBackground";
+
 import { ZenHideable } from "@/components/ZenHideable";
 import { StandardBackButton } from "@/components/ui/StandardBackButton";
 import { CurationSimpleItem } from "@/components/curation/CurationSimpleItem";
@@ -36,7 +36,7 @@ const VISION_TRACKS = [
 
 export default function LifeCompassPage() {
     return (
-        <AtmosphericBackground variant="sage">
+        <>
             {/* Standard Back Button */}
             <StandardBackButton href="/starlight" />
 
@@ -113,6 +113,6 @@ export default function LifeCompassPage() {
                     </Container>
                 </ZenHideable>
             </main>
-        </AtmosphericBackground>
+        </>
     );
 }

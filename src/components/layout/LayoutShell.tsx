@@ -6,8 +6,9 @@ import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
 import { LobbyHeader } from "@/components/lobby/LobbyHeader";
 import { useZen } from "@/components/ZenContext";
-import { MiniPlayerWidget } from "@/components/MiniPlayerWidget";
-import { MusicRecall } from "@/components/MusicRecall";
+import { MusicBottomNav } from "@/components/sanctuary/MusicBottomNav";
+import { GlobalBottomPlayer } from "@/components/sanctuary/GlobalBottomPlayer";
+
 
 export function LayoutShell({ children }: { children: React.ReactNode }) {
     const pathname = usePathname();
@@ -42,7 +43,7 @@ export function LayoutShell({ children }: { children: React.ReactNode }) {
     // Let's keep LobbyHeader logic but remove generic Header/Footer.
 
     const isLobby = pathname === "/";
-    const isRadio = pathname === "/starlight/radio";
+
 
     if (isLobby) {
         return (
@@ -55,22 +56,11 @@ export function LayoutShell({ children }: { children: React.ReactNode }) {
 
     return (
         <>
-            {/* Global Music Recall for non-lobby and non-radio pages */}
-            {!isLobby && !isRadio && (
-                <div style={{
-                    position: "fixed",
-                    top: "24px",
-                    right: "24px",
-                    zIndex: 40
-                }}>
-                    <MusicRecall />
-                </div>
-            )}
-
             <main id="main-content" style={{ flex: 1 }}>
                 {children}
             </main>
-            {!isRadio && <MiniPlayerWidget />}
+            <MusicBottomNav />
+            <GlobalBottomPlayer />
         </>
     );
 }

@@ -2,7 +2,7 @@
 
 import React from "react";
 import Link from "next/link";
-import { AtmosphericBackground } from "@/components/AtmosphericBackground";
+
 import { Github, Globe, ChevronLeft } from "lucide-react";
 import { motion } from "framer-motion";
 
@@ -35,7 +35,7 @@ const PROJECTS = [
 
 export default function ProjectsPage() {
     return (
-        <AtmosphericBackground variant="sage">
+
             <main style={{
                 minHeight: "100svh",
                 padding: "1.5rem",
@@ -164,6 +164,6 @@ export default function ProjectsPage() {
 
                 </motion.div>
             </main>
-        </AtmosphericBackground>
+
     );
 }

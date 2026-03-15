@@ -2,7 +2,7 @@
 
 import React from "react";
 import Link from "next/link";
-import { AtmosphericBackground } from "@/components/AtmosphericBackground";
+
 import { ArrowUpRight } from "lucide-react";
 import { motion } from "framer-motion";
 
@@ -35,7 +35,7 @@ const BLOG_POSTS = [
 
 export default function BlogPage() {
     return (
-        <AtmosphericBackground variant="sage">
+
             <main className="min-h-screen p-6 md:p-12 relative">
 
                 {/* Back Button */}
@@ -88,6 +88,6 @@ export default function BlogPage() {
 
                 </motion.div>
             </main>
-        </AtmosphericBackground>
+
     );
 }

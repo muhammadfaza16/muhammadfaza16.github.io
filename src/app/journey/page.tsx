@@ -2,7 +2,7 @@
 
 import React from "react";
 import { Container } from "@/components/Container";
-import { AtmosphericBackground } from "@/components/AtmosphericBackground";
+
 import { ZenHideable } from "@/components/ZenHideable";
 import { Brain, Code, Sparkles, TrendingUp, Rocket } from "lucide-react";
 import { StandardBackButton } from "@/components/ui/StandardBackButton";
@@ -40,7 +40,7 @@ const SKILL_ACQUISITION = [
 
 export default function JourneyPage() {
     return (
-        <AtmosphericBackground variant="olive">
+
             <main style={{ paddingBottom: "8rem" }}>
                 {/* Standard Back Button */}
                 <StandardBackButton href="/starlight" />
@@ -192,6 +192,6 @@ export default function JourneyPage() {
                     </section>
                 </ZenHideable>
             </main>
-        </AtmosphericBackground>
+
     );
 }

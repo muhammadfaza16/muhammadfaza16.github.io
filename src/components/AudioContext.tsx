@@ -19,16 +19,14 @@ interface AudioContextType {
     audioRef: React.RefObject<HTMLAudioElement | null>;
     hasInteracted: boolean;
     isBuffering: boolean;
-    warmup: () => void;
-    showLyrics: boolean;
-    setShowLyrics: (v: boolean) => void;
-    showMarquee: boolean;
-    setShowMarquee: (v: boolean) => void;
-    showNarrative: boolean;
-    setShowNarrative: (v: boolean) => void;
+    warmup?: () => void; // Keep type optional in case components still reference it before cleanup
+    showLyrics?: boolean;
+    setShowLyrics?: (v: boolean) => void;
+    showMarquee?: boolean;
+    setShowMarquee?: (v: boolean) => void;
     currentLyricText: string | null;
     activeLyrics: LyricItem[];
-    playQueue: (songs: { title: string; audioUrl: string }[], startIndex?: number, playlistId?: string | null) => void;
+    playQueue: (songs: { title: string; audioUrl: string }[], startIndex?: number, playlistId?: string | null, forceShuffleActivate?: boolean) => void;
     queue: { title: string; audioUrl: string }[];
     currentIndex: number;
     activePlaylistId: string | null;
@@ -38,10 +36,27 @@ interface AudioContextType {
     currentTime: number;
     duration: number;
     seekTo: (time: number) => void;
-    // Global Hub Mode
-    activePlaybackMode: 'none' | 'music' | 'radio';
-    setActivePlaybackMode: (mode: 'none' | 'music' | 'radio') => void;
-    stopMusic: () => void; // Properly stops music and clears retries
+    activePlaybackMode?: 'none' | 'music';
+    setActivePlaybackMode?: (mode: 'none' | 'music') => void;
+    stopMusic?: () => void;
+    // Shuffle & Repeat
+    shuffleMode: boolean;
+    toggleShuffle: () => void;
+    repeatMode: 'off' | 'one' | 'all';
+    toggleRepeat: () => void;
+    // Player Expanded State
+    isPlayerExpanded: boolean;
+    setIsPlayerExpanded: (v: boolean) => void;
+}
+
+// Helper: Fisher-Yates Shuffle
+function shuffleArray<T>(array: T[]): T[] {
+    const newArr = [...array];
+    for (let i = newArr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [newArr[i], newArr[j]] = [newArr[j], newArr[i]];
+    }
+    return newArr;
 }
 
 const AudioContext = createContext<AudioContextType | undefined>(undefined);
@@ -57,22 +72,21 @@ export function useAudio() {
 export function AudioProvider({ children, initialSongs = [] }: { children: React.ReactNode, initialSongs?: { title: string; audioUrl: string }[] }) {
     const [isPlaying, setIsPlaying] = useState(false);
     const [isBuffering, setIsBuffering] = useState(false);
+    const [originalQueue, setOriginalQueue] = useState<{ title: string; audioUrl: string }[]>(initialSongs);
     const [queue, setQueue] = useState<{ title: string; audioUrl: string }[]>(initialSongs);
     const [currentIndex, setCurrentIndex] = useState(0);
     const [activePlaylistId, setActivePlaylistId] = useState<string | null>(null);
     const [isMiniPlayerDismissed, setMiniPlayerDismissed] = useState(false);
     const [hasInteracted, setHasInteracted] = useState(false);
+    const [hasLoadedState, setHasLoadedState] = useState(false);
+    const initialTimeRef = useRef(0);
 
-    // Global Hub Mode State
-    const [activePlaybackMode, setActivePlaybackMode] = useState<'none' | 'music' | 'radio'>('none');
+    // Playback Modes
+    const [shuffleMode, setShuffleMode] = useState(false);
+    const [repeatMode, setRepeatMode] = useState<'off' | 'one' | 'all'>('off');
 
     // Track intentional pauses to prevent browser-triggered pauses from stopping music
     const intentionalPauseRef = useRef(false);
-
-    // UI Persisted State
-    const [showLyrics, setShowLyrics] = useState(true);
-    const [showMarquee, setShowMarquee] = useState(true);
-    const [showNarrative, setShowNarrative] = useState(true);
 
     // Lyric State
     const [currentLyricText, setCurrentLyricText] = useState<string | null>(null);
@@ -83,42 +97,75 @@ export function AudioProvider({ children, initialSongs = [] }: { children: React
     const [duration, setDuration] = useState(0);
 
     const audioRef = useRef<HTMLAudioElement | null>(null);
+    
+    // Global Player Expansion
+    const [isPlayerExpanded, setIsPlayerExpanded] = useState(false);
 
-    // Initial fetch for the queue if empty
+    // Load state from localStorage on mount
     useEffect(() => {
-        fetch("/api/music/songs")
-            .then(res => res.json())
-            .then(data => {
-                if (data.success && data.songs && queue.length === 0) {
-                    setQueue(data.songs.map((s: any) => ({ title: s.title, audioUrl: s.audioUrl })));
+        try {
+            const stored = localStorage.getItem("music_player_state");
+            if (stored) {
+                const data = JSON.parse(stored);
+                if (data.queue && data.queue.length > 0) {
+                    setQueue(data.queue);
+                    setOriginalQueue(data.originalQueue || data.queue);
+                    setCurrentIndex(data.currentIndex || 0);
+                    setActivePlaylistId(data.activePlaylistId || null);
+                    setShuffleMode(data.shuffleMode || false);
+                    setRepeatMode(data.repeatMode || 'off');
+                    initialTimeRef.current = data.currentTime || 0;
                 }
-            })
-            .catch(() => { });
-    }, [queue.length]);
+            }
+        } catch(e) { console.error("Failed to load player state", e); }
+        setHasLoadedState(true);
+    }, []);
 
-    // Theme integration
+    // Initial fetch for the queue if empty (after state loading)
+    useEffect(() => {
+        if (!hasLoadedState) return;
+
+        if (queue.length === 0) {
+            fetch("/api/music/songs")
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success && data.songs && queue.length === 0) {
+                        const fetchedQueue = data.songs.map((s: any) => ({ title: s.title, audioUrl: s.audioUrl }));
+                        setOriginalQueue(fetchedQueue);
+                        setQueue(fetchedQueue);
+                    }
+                })
+                .catch(() => { });
+        }
+    }, [queue.length, hasLoadedState]);
+
+    // Save state to localStorage (debounced)
+    useEffect(() => {
+        if (!hasLoadedState) return;
+
+        const timeout = setTimeout(() => {
+            try {
+                const state = {
+                    queue,
+                    originalQueue,
+                    currentIndex,
+                    currentTime,
+                    activePlaylistId,
+                    shuffleMode,
+                    repeatMode
+                };
+                localStorage.setItem("music_player_state", JSON.stringify(state));
+            } catch(e) { console.error("Failed to save player state", e); }
+        }, 1000);
+
+        return () => clearTimeout(timeout);
+    }, [queue, originalQueue, currentIndex, currentTime, activePlaylistId, shuffleMode, repeatMode, hasLoadedState]);
+
+    // Theme integration keeping for later custom logic, but removed the global auto-switching.
     const { theme, setTheme } = useTheme();
-    const wasSwitchedRef = useRef(false);
 
     // Lyrics cache to avoid re-fetching on song revisit (Phase 5)
     const lyricsCacheRef = useRef<Map<string, LyricItem[]>>(new Map());
-
-    // Melancholy Mode Effect — B8 Fix: Respect activePlaybackMode
-    useEffect(() => {
-        const isAnyAudioActive = isPlaying || activePlaybackMode === 'radio';
-        if (isAnyAudioActive && setTheme) {
-            if (theme === "light") {
-                setTheme("dark");
-                wasSwitchedRef.current = true;
-            }
-        } else if (setTheme) {
-            // When ALL audio is idle, revert only if we switched it
-            if (wasSwitchedRef.current && activePlaybackMode === 'none') {
-                setTheme("light");
-                wasSwitchedRef.current = false;
-            }
-        }
-    }, [isPlaying, setTheme, theme, activePlaybackMode]);
 
     // Auto-resume audio when page visibility/focus changes
     // This handles browser pausing audio during navigation or tab switches
@@ -152,9 +199,8 @@ export function AudioProvider({ children, initialSongs = [] }: { children: React
     }, [isPlaying]);
 
     // Periodic sync: if isPlaying is true but audio is paused (desync from navigation), resume it
-    // B1 Fix: Only sync when in music mode, and limit attempts
     useEffect(() => {
-        if (!isPlaying || activePlaybackMode !== 'music') return;
+        if (!isPlaying) return;
 
         let attempts = 0;
         const maxAttempts = 4; // 4 attempts * 500ms = 2 seconds coverage
@@ -162,7 +208,7 @@ export function AudioProvider({ children, initialSongs = [] }: { children: React
         const syncInterval = setInterval(() => {
             attempts++;
 
-            if (audioRef.current && audioRef.current.paused && !intentionalPauseRef.current && activePlaybackMode === 'music') {
+            if (audioRef.current && audioRef.current.paused && !intentionalPauseRef.current) {
                 audioRef.current.play().catch(() => { });
             }
 
@@ -172,7 +218,7 @@ export function AudioProvider({ children, initialSongs = [] }: { children: React
         }, 500);
 
         return () => clearInterval(syncInterval);
-    }, [isPlaying, activePlaybackMode]);
+    }, [isPlaying]);
 
 
     const togglePlay = useCallback(() => {
@@ -185,9 +231,6 @@ export function AudioProvider({ children, initialSongs = [] }: { children: React
             audioRef.current.pause();
         } else {
             intentionalPauseRef.current = false;
-
-            // If starting from standby, assume 'music' mode by default for local library
-            setActivePlaybackMode(prev => prev === 'none' ? 'music' : prev);
 
             const playPromise = audioRef.current.play();
             if (playPromise !== undefined) {
@@ -203,7 +246,7 @@ export function AudioProvider({ children, initialSongs = [] }: { children: React
         }
     }, [isPlaying]);
 
-    // B2 Fix: Proper stopMusic that kills all retries
+    // B2 Fix: Proper stopMusic that kills all retries (kept as alias to togglePlay/pause for now)
     const stopMusic = useCallback(() => {
         intentionalPauseRef.current = true;
         if (audioRef.current) {
@@ -212,16 +255,31 @@ export function AudioProvider({ children, initialSongs = [] }: { children: React
         setIsPlaying(false);
     }, []);
 
-    const playQueue = useCallback((newQueue: { title: string; audioUrl: string }[], startIndex = 0, playlistId: string | null = null) => {
+    const playQueue = useCallback((newQueue: { title: string; audioUrl: string }[], startIndex = 0, playlistId: string | null = null, forceShuffleActivate = false) => {
         intentionalPauseRef.current = false;
-        setQueue(newQueue);
-        setCurrentIndex(startIndex);
+        setOriginalQueue(newQueue);
+
+        const shouldShuffle = forceShuffleActivate || shuffleMode;
+        if (forceShuffleActivate && !shuffleMode) {
+            setShuffleMode(true);
+        }
+
+        if (shouldShuffle) {
+            const firstSong = newQueue[startIndex] || newQueue[0];
+            const remaining = newQueue.filter(s => s.audioUrl !== firstSong?.audioUrl);
+            const shuffled = shuffleArray(remaining);
+            setQueue(firstSong ? [firstSong, ...shuffled] : []);
+            setCurrentIndex(0);
+        } else {
+            setQueue(newQueue);
+            setCurrentIndex(startIndex);
+        }
+
         setActivePlaylistId(playlistId);
         setIsBuffering(false);
         setHasInteracted(true);
-        setActivePlaybackMode('music'); // Steal focus for music mode
         setIsPlaying(true);
-    }, []);
+    }, [shuffleMode]);
 
     const nextSong = useCallback((forcePlay = false) => {
         // OPTIMISTIC: Reset buffering immediately so UI shows title
@@ -247,6 +305,29 @@ export function AudioProvider({ children, initialSongs = [] }: { children: React
         setHasInteracted(true);
         setIsPlaying(true);
         setCurrentIndex(index);
+    }, []);
+
+    const toggleShuffle = useCallback(() => {
+        const next = !shuffleMode;
+        setShuffleMode(next);
+        if (next) {
+            // activate shuffle
+            const currentSong = queue[currentIndex] || originalQueue[0];
+            const remaining = originalQueue.filter(s => s.audioUrl !== currentSong?.audioUrl);
+            const shuffled = shuffleArray(remaining);
+            setQueue(currentSong ? [currentSong, ...shuffled] : []);
+            setCurrentIndex(0);
+        } else {
+            // deactivate shuffle
+            const currentSong = queue[currentIndex] || originalQueue[0];
+            setQueue(originalQueue);
+            const newIndex = originalQueue.findIndex(s => s.audioUrl === currentSong?.audioUrl);
+            setCurrentIndex(newIndex >= 0 ? newIndex : 0);
+        }
+    }, [shuffleMode, queue, currentIndex, originalQueue]);
+
+    const toggleRepeat = useCallback(() => {
+        setRepeatMode(prev => prev === 'off' ? 'all' : prev === 'all' ? 'one' : 'off');
     }, []);
 
     // Auto-play when index changes if it was already playing or triggered by next
@@ -326,6 +407,16 @@ export function AudioProvider({ children, initialSongs = [] }: { children: React
         if (now - lastTimeUpdateRef.current > 500) {
             setCurrentTime(t);
             lastTimeUpdateRef.current = now;
+
+            if ('mediaSession' in navigator && duration > 0 && isFinite(duration) && t <= duration) {
+                try {
+                    navigator.mediaSession.setPositionState({
+                        duration: duration,
+                        playbackRate: 1,
+                        position: t
+                    });
+                } catch(e) {}
+            }
         }
 
         // Lyric sync (existing logic)
@@ -370,6 +461,17 @@ export function AudioProvider({ children, initialSongs = [] }: { children: React
         navigator.mediaSession.setActionHandler("pause", () => togglePlay());
         navigator.mediaSession.setActionHandler("previoustrack", () => prevSong());
         navigator.mediaSession.setActionHandler("nexttrack", () => nextSong());
+        navigator.mediaSession.setActionHandler("seekto", (details) => {
+            if (details.seekTime !== undefined) seekTo(details.seekTime);
+        });
+        navigator.mediaSession.setActionHandler("seekforward", (details) => {
+            const skipTime = details.seekOffset || 10;
+            seekTo(Math.min(currentTime + skipTime, duration));
+        });
+        navigator.mediaSession.setActionHandler("seekbackward", (details) => {
+            const skipTime = details.seekOffset || 10;
+            seekTo(Math.max(currentTime - skipTime, 0));
+        });
 
         return () => {
             if ("mediaSession" in navigator) {
@@ -377,16 +479,16 @@ export function AudioProvider({ children, initialSongs = [] }: { children: React
                 navigator.mediaSession.setActionHandler("pause", null);
                 navigator.mediaSession.setActionHandler("previoustrack", null);
                 navigator.mediaSession.setActionHandler("nexttrack", null);
+                navigator.mediaSession.setActionHandler("seekto", null);
+                navigator.mediaSession.setActionHandler("seekforward", null);
+                navigator.mediaSession.setActionHandler("seekbackward", null);
+                navigator.mediaSession.setActionHandler("nexttrack", null);
             }
         };
     }, [currentSong, togglePlay, nextSong, prevSong]);
 
-    // Mobile/Smart Preloading Logic
     const warmup = useCallback(() => {
-        // Just creating the audio object or setting src warms up the connection
-        if (audioRef.current && audioRef.current.preload === 'none') {
-            audioRef.current.preload = 'metadata'; // Upgrade to metadata on hover/touch
-        }
+        // no-op
     }, []);
 
     // Refs to track active preload/prefetch tags for cleanup (Phase 3)
@@ -457,7 +559,7 @@ export function AudioProvider({ children, initialSongs = [] }: { children: React
     return (
         <AudioContext.Provider value={{
             isPlaying, isBuffering, togglePlay, nextSong, prevSong, jumpToSong, currentSong, audioRef, hasInteracted, warmup,
-            showLyrics, setShowLyrics, showMarquee, setShowMarquee, showNarrative, setShowNarrative,
+            showLyrics: true, setShowLyrics: () => {}, showMarquee: true, setShowMarquee: () => {},
             currentLyricText,
             activeLyrics,
             playQueue,
@@ -469,9 +571,15 @@ export function AudioProvider({ children, initialSongs = [] }: { children: React
             currentTime,
             duration,
             seekTo,
-            activePlaybackMode,
-            setActivePlaybackMode,
-            stopMusic
+            activePlaybackMode: 'music',
+            setActivePlaybackMode: () => {},
+            stopMusic,
+            shuffleMode,
+            toggleShuffle,
+            repeatMode,
+            toggleRepeat,
+            isPlayerExpanded,
+            setIsPlayerExpanded
         }}>
             <audio
                 ref={audioRef}
@@ -481,6 +589,11 @@ export function AudioProvider({ children, initialSongs = [] }: { children: React
                 onLoadedMetadata={() => {
                     if (audioRef.current) {
                         setDuration(audioRef.current.duration || 0);
+                        if (initialTimeRef.current > 0) {
+                            audioRef.current.currentTime = initialTimeRef.current;
+                            setCurrentTime(initialTimeRef.current);
+                            initialTimeRef.current = 0;
+                        }
                     }
                 }}
                 onPlay={() => {
@@ -488,26 +601,37 @@ export function AudioProvider({ children, initialSongs = [] }: { children: React
                     setIsPlaying(true);
                 }}
                 onPause={() => {
-                    // B1 Fix: Only attempt resume if we are in music mode and not intentionally paused
                     if (intentionalPauseRef.current) {
                         setIsPlaying(false);
-                    } else if (activePlaybackMode === 'music') {
+                    } else {
                         // Unintentional pause (browser-triggered) — single gentle retry only
                         setTimeout(() => {
-                            if (audioRef.current && audioRef.current.paused && !intentionalPauseRef.current && activePlaybackMode === 'music') {
+                            if (audioRef.current && audioRef.current.paused && !intentionalPauseRef.current) {
                                 audioRef.current.play().catch(() => {
                                     // If still fails, accept it — don't storm
                                 });
                             }
                         }, 200);
                     }
-                    // If mode is 'radio' or 'none', do nothing — let it stay paused
                 }}
                 onWaiting={() => setIsBuffering(true)} // Buffer started
                 onPlaying={() => setIsBuffering(false)} // Buffer finished, playing
                 onCanPlay={() => setIsBuffering(false)} // Adequate data to start
                 onLoadedData={() => setIsBuffering(false)} // First frame loaded
-                onEnded={() => nextSong(true)}
+                onEnded={() => {
+                    if (repeatMode === 'one') {
+                        seekTo(0);
+                        if (audioRef.current) {
+                            audioRef.current.play().catch(() => setIsPlaying(false));
+                            setIsPlaying(true);
+                        }
+                    } else if (repeatMode === 'off' && currentIndex === queue.length - 1) {
+                        setIsPlaying(false);
+                        seekTo(0); // Reset UI to start of song
+                    } else {
+                        nextSong(true);
+                    }
+                }}
                 onError={(e) => {
                     const audio = audioRef.current;
                     const error = audio ? audio.error : null;

@@ -15,9 +15,8 @@ export async function generateStaticParams() {
 
 export default async function PlaylistDetailPage({ params }: { params: Promise<{ id: string }> }) {
     const { id } = await params;
-    const songs = await prisma.song.findMany({
-        orderBy: { title: 'asc' }
-    });
 
-    return <PlaylistClient playlistId={id} initialSongs={JSON.parse(JSON.stringify(songs))} />;
+    // Use empty array for initialSongs so it doesn't block SSR.
+    // The client component already fetches the actual song list asynchronously on mount.
+    return <PlaylistClient playlistId={id} initialSongs={[]} />;
 }

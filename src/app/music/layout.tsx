@@ -1,5 +1,4 @@
 import React from "react";
-import { GlobalBottomPlayer } from "@/components/sanctuary/GlobalBottomPlayer";
 
 export default function AudioHubLayout({
     children,
@@ -9,7 +8,6 @@ export default function AudioHubLayout({
     return (
         <>
             {children}
-            <GlobalBottomPlayer />
         </>
     );
 }

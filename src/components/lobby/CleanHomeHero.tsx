@@ -2,11 +2,12 @@
 
 import React, { useState, useEffect, useRef, useMemo, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Cloud, CloudSun, Sun, CloudRain, Calendar as CalIcon, GitBranch, Quote, Thermometer, Droplets, Wind, Disc, Play, Pause, SkipBack, SkipForward, Radio as RadioIcon, ChevronLeft, ChevronRight } from "lucide-react";
+import { Cloud, CloudSun, Sun, CloudRain, Calendar as CalIcon, GitBranch, Quote, Thermometer, Droplets, Wind, Disc, Play, Pause, SkipBack, SkipForward, ChevronLeft, ChevronRight } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { useAudio } from "@/components/AudioContext";
-import { useRadio } from "@/components/RadioContext";
+
 import { useLyrics } from "@/hooks/useLyrics";
 import { AnimatedNumber } from "./AnimatedNumber";
 
@@ -15,12 +16,10 @@ const MONTHS_FULL = ["January", "February", "March", "April", "May", "June", "Ju
 const MONTHS_SHORT = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
 export function CleanHomeHero() {
+    const router = useRouter();
     const [now, setNow] = useState(new Date());
     const [isMobile, setIsMobile] = useState(false);
-    const { isPlaying, togglePlay, currentSong, hasInteracted, currentTime, duration, nextSong, prevSong, seekTo, activePlaybackMode, activePlaylistId } = useAudio();
-    const { isRadioPaused, activeStationId, stations, stationsState } = useRadio();
-    const isRadioActive = activePlaybackMode === 'radio';
-    const isRadioPlaying = isRadioActive && !isRadioPaused;
+    const { isPlaying, togglePlay, currentSong, hasInteracted, currentTime, duration, nextSong, prevSong, seekTo, activePlaylistId, setIsPlayerExpanded } = useAudio();
     const songParts = currentSong.title.split("—");
     const artist = songParts[0]?.trim() || "Unknown";
     const song = songParts[1]?.trim() || currentSong.title;
@@ -656,66 +655,16 @@ export function CleanHomeHero() {
                             transition={{ duration: 0.25, ease: [0.25, 0.46, 0.45, 0.94] }}
                             style={{ position: "relative", zIndex: 1 }}
                         >
-                            {/* MW-1: Radio-aware header */}
-                            {isRadioActive ? (
-                                /* Radio Mode Display */
-                                <div style={{ display: "flex", flexDirection: "column", gap: "0.6rem" }}>
-                                    <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
-                                        <div style={{
-                                            width: "48px", height: "48px", borderRadius: "50%",
-                                            background: isRadioPlaying
-                                                ? "linear-gradient(135deg, #22c55e 0%, #16a34a 100%)"
-                                                : "linear-gradient(135deg, #6b7280 0%, #4b5563 100%)",
-                                            display: "flex", alignItems: "center", justifyContent: "center",
-                                            flexShrink: 0,
-                                            boxShadow: isRadioPlaying ? "0 0 20px rgba(34,197,94,0.35)" : "none",
-                                            transition: "all 0.5s ease",
-                                        }}>
-                                            <RadioIcon size={22} color="rgba(255,255,255,0.9)" />
-                                        </div>
-                                        <div style={{ flex: 1, minWidth: 0 }}>
-                                            <div style={{
-                                                fontSize: "0.9rem", fontWeight: 700,
-                                                color: "rgba(255,255,255,0.95)",
-                                                whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
-                                                marginBottom: "2px",
-                                            }}>
-                                                {activeStationId && stationsState[activeStationId]
-                                                    ? stationsState[activeStationId].song.title
-                                                    : "Radio"}
-                                            </div>
-                                            <div style={{
-                                                fontSize: "0.75rem", fontWeight: 500,
-                                                color: "rgba(255,255,255,0.55)",
-                                                display: "flex", alignItems: "center", gap: "6px",
-                                            }}>
-                                                {activeStationId
-                                                    ? (stations.find(s => s.id === activeStationId)?.name || "Station")
-                                                    : "No station"}
-                                                {isRadioPlaying && (
-                                                    <motion.div
-                                                        animate={{ scale: [1, 1.3, 1] }}
-                                                        transition={{ repeat: Infinity, duration: 1.5 }}
-                                                        style={{ width: "6px", height: "6px", borderRadius: "50%", background: "#22c55e", boxShadow: "0 0 6px rgba(34,197,94,0.6)" }}
-                                                    />
-                                                )}
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <Link href="/music/radio" style={{ textDecoration: "none" }}>
-                                        <div style={{
-                                            textAlign: "center", padding: "8px",
-                                            borderRadius: "10px", background: "rgba(255,255,255,0.06)",
-                                            fontSize: "0.72rem", fontWeight: 600, color: "rgba(255,255,255,0.6)",
-                                            border: "1px solid rgba(255,255,255,0.08)",
-                                        }}>Open Radio →</div>
-                                    </Link>
-                                </div>
-                            ) : (
-                                /* Music Mode Display */
-                                <>
+                            <>
                                     {/* Now Playing Header */}
-                                    <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", marginBottom: "0.75rem" }}>
+                                    <div 
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            sessionStorage.setItem("autoExpandPlayer", "true");
+                                            router.push('/music');
+                                        }}
+                                        style={{ display: "flex", alignItems: "center", gap: "0.75rem", marginBottom: "0.75rem", cursor: "pointer" }}
+                                    >
                                         {/* Rotating Disc */}
                                         <div style={{
                                             width: "48px", height: "48px", borderRadius: "50%",
@@ -733,8 +682,15 @@ export function CleanHomeHero() {
                                             </motion.div>
                                         </div>
 
-                                        {/* MW-4: Song Info — tappable, links to active playlist */}
-                                        <Link href={activePlaylistId ? `/playlist/${activePlaylistId}` : "/playlist/all"} style={{ flex: 1, minWidth: 0, textDecoration: "none" }}>
+                                        {/* MW-4: Song Info — navigates to /music and expands */}
+                                        <div 
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                sessionStorage.setItem("autoExpandPlayer", "true");
+                                                router.push('/music');
+                                            }}
+                                            style={{ flex: 1, minWidth: 0, cursor: "pointer" }}
+                                        >
                                             <div style={{
                                                 fontSize: "0.9rem", fontWeight: 700,
                                                 color: "rgba(255,255,255,0.95)",
@@ -761,7 +717,7 @@ export function CleanHomeHero() {
                                                     </span>
                                                 )}
                                             </div>
-                                        </Link>
+                                        </div>
 
                                         {/* MW-5: Controls — larger touch targets */}
                                         <div style={{ display: "flex", alignItems: "center", gap: "2px", flexShrink: 0 }}>
@@ -847,7 +803,6 @@ export function CleanHomeHero() {
                                         )}
                                     </div>
                                 </>
-                            )}
                         </motion.div>
                     ) : WIDGETS[widgetIndex] === 'news' ? (
                         <motion.div

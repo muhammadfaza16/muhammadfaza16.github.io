@@ -11,26 +11,22 @@ import {
     Save,
     PenLine,
     Lock,
-    Search
-} from "lucide-react";
-import { useState, useRef, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { YouTubeModule } from "./components/YouTubeModule";
-import { RadioModule } from "./components/RadioModule";
-import { PlaylistModule } from "./components/PlaylistModule";
-import {
-    LayoutDashboard,
-    Youtube,
-    Radio as RadioIcon,
+    Search,
     ListMusic,
     Settings,
-    Activity
+    Activity,
+    Database,
+    RefreshCw
 } from "lucide-react";
-import { shellBg, shellBorder, shellRadius, shellShadow, insetBox } from "./components/sharedStyles";
+import { useState, useRef, useEffect, useMemo } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { PlaylistModule } from "./components/PlaylistModule";
+import { PLAYLIST_CATEGORIES } from "@/data/playlists";
+import { GlobalBottomPlayer } from "@/components/sanctuary/GlobalBottomPlayer";
 
 const MASTER_PIN = "0000";
 
-type ModuleId = "dashboard" | "youtube" | "radio" | "playlist" | "settings";
+type ModuleId = "dashboard" | "playlist" | "settings";
 
 export default function MasterPanelPage() {
     const [isUnlocked, setIsUnlocked] = useState(false);
@@ -39,6 +35,23 @@ export default function MasterPanelPage() {
     const [activeModule, setActiveModule] = useState<ModuleId>("dashboard");
     const [isBusy, setIsBusy] = useState(false);
     const [logs, setLogs] = useState<{ text: string; type: "info" | "success" | "error" }[]>([]);
+    
+    // Music Stats
+    const [dbSongs, setDbSongs] = useState<any[]>([]);
+    
+    // Computed Stats
+    const playlistStats = useMemo(() => {
+        if (!dbSongs.length) return [];
+        return PLAYLIST_CATEGORIES.map(category => {
+            const count = dbSongs.filter(song =>
+                category.songTitles.some((title: string) =>
+                    song.title.toLowerCase().includes(title.toLowerCase()) ||
+                    title.toLowerCase().includes(song.title.toLowerCase())
+                )
+            ).length;
+            return { title: category.title, count, vibes: category.vibes };
+        });
+    }, [dbSongs]);
 
     const terminalEndRef = useRef<HTMLDivElement>(null);
 
@@ -51,6 +64,20 @@ export default function MasterPanelPage() {
             setIsUnlocked(true);
         }
     }, []);
+
+    useEffect(() => {
+        if (isUnlocked) {
+            // Fetch stats if unlocked
+            fetch("/api/music/songs")
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success && data.songs) {
+                        setDbSongs(data.songs);
+                    }
+                })
+                .catch(() => { });
+        }
+    }, [isUnlocked]);
 
     const addLog = (text: string, type: "info" | "success" | "error" = "info") => {
         setLogs(prev => [...prev, { text, type }].slice(-10)); // Keep last 10
@@ -67,32 +94,28 @@ export default function MasterPanelPage() {
         }
     };
 
-    const ledColor = () => {
-        if (isBusy) return "#ff9f0a";
-        if (activeModule === "youtube") return "#ff0000";
-        if (activeModule === "radio") return "#39ff14";
-        if (activeModule === "playlist") return "#7c3aed";
-        return "#3b82f6";
-    };
-
     const logColor = (type: "info" | "success" | "error") => {
-        if (type === "success") return "#39ff14";
-        if (type === "error") return "#ef4444";
+        if (type === "success") return "#10b981"; // emerald-500
+        if (type === "error") return "#ef4444"; // red-500
         return "#666";
     };
 
-    // ─── Shared DAP shell styles ───
+    // Neo-brutalist shared styles
+    const borderStyle = "2px solid #000";
+    const shadowStyle = "4px 4px 0 #000";
+    const insetBox = { border: borderStyle, background: "#fff" };
+
     const backBtn = {
         position: "fixed" as const, top: "1.25rem", left: "1.25rem", zIndex: 100,
         display: "flex", alignItems: "center", gap: "6px",
-        padding: "6px 12px", background: "#2a2a2a", border: "1.5px solid #333",
-        borderRadius: "8px", color: "#777", textDecoration: "none",
-        fontSize: "0.65rem", fontWeight: 700, textTransform: "uppercase" as const, letterSpacing: "1px",
+        padding: "6px 12px", background: "#fff", border: borderStyle,
+        boxShadow: "2px 2px 0 #000", color: "#000", textDecoration: "none",
+        fontSize: "0.75rem", fontWeight: 800, textTransform: "uppercase" as const, fontFamily: "monospace"
     };
 
     return (
         <>
-            <div style={{ position: 'fixed', inset: 0, backgroundColor: '#1a1a1a', zIndex: -1 }} />
+            <div style={{ position: 'fixed', inset: 0, backgroundColor: '#F5F0EB', zIndex: -1 }} />
 
             {/* === PIN LOCK === */}
             {!isUnlocked ? (
@@ -101,8 +124,8 @@ export default function MasterPanelPage() {
                     alignItems: "center", justifyContent: "center", padding: "1rem",
                 }}>
                     <Link href="/music" style={{ textDecoration: "none" }}>
-                        <motion.div style={backBtn} whileTap={{ scale: 0.95 }}>
-                            <ChevronLeft size={14} strokeWidth={2.5} /><span>Hub</span>
+                        <motion.div style={backBtn} whileTap={{ scale: 0.95, boxShadow: "0px 0px 0 #000" }}>
+                            <ChevronLeft size={16} strokeWidth={2.5} /><span>BACK</span>
                         </motion.div>
                     </Link>
 
@@ -110,34 +133,33 @@ export default function MasterPanelPage() {
                         initial={{ opacity: 0, scale: 0.9 }}
                         animate={{ opacity: 1, scale: 1 }}
                         style={{
-                            width: "100%", maxWidth: "300px",
-                            background: shellBg, border: shellBorder, borderRadius: shellRadius,
-                            padding: "2rem 1.5rem",
-                            display: "flex", flexDirection: "column", alignItems: "center", gap: "1.25rem",
-                            boxShadow: shellShadow,
+                            width: "100%", maxWidth: "320px",
+                            background: "#fff", border: borderStyle,
+                            padding: "2rem 1.5rem", display: "flex", flexDirection: "column", alignItems: "center", gap: "1.5rem",
+                            boxShadow: shadowStyle,
                         }}
                     >
                         <div style={{
-                            ...insetBox,
-                            width: "44px", height: "44px", borderRadius: "50%",
+                            width: "48px", height: "48px", border: borderStyle,
                             display: "flex", alignItems: "center", justifyContent: "center",
+                            background: "#000", color: "#fff"
                         }}>
-                            <Lock size={20} color="#666" strokeWidth={2.5} />
+                            <Lock size={24} strokeWidth={2.5} />
                         </div>
 
                         <div style={{ textAlign: "center" }}>
-                            <h2 style={{ color: "#aaa", fontSize: "0.85rem", fontWeight: 800, letterSpacing: "3px", margin: 0, textTransform: "uppercase" }}>
-                                Master Ctrl
+                            <h2 style={{ color: "#000", fontSize: "1.25rem", fontWeight: 900, textTransform: "uppercase", margin: 0, fontFamily: "system-ui, -apple-system, sans-serif", letterSpacing: "-0.04em" }}>
+                                Settings
                             </h2>
-                            <p style={{ color: "#444", fontSize: "0.6rem", fontWeight: 500, margin: "6px 0 0 0" }}>
-                                Enter access code
+                            <p style={{ color: "#666", fontSize: "0.85rem", fontWeight: 700, margin: "8px 0 0 0", fontFamily: "monospace", textTransform: "uppercase" }}>
+                                Enter Access Code
                             </p>
                         </div>
 
                         <motion.div
                             animate={pinError ? { x: [-8, 8, -6, 6, -3, 3, 0] } : {}}
                             transition={{ duration: 0.4 }}
-                            style={{ width: "100%", display: "flex", flexDirection: "column", gap: "0.6rem" }}
+                            style={{ width: "100%", display: "flex", flexDirection: "column", gap: "0.75rem" }}
                         >
                             <input
                                 type="password"
@@ -149,16 +171,16 @@ export default function MasterPanelPage() {
                                 placeholder="• • • •"
                                 autoFocus
                                 style={{
-                                    width: "100%", ...insetBox,
-                                    padding: "0.85rem", color: "#aaa",
-                                    fontFamily: "monospace", fontSize: "1.2rem", fontWeight: 700,
-                                    textAlign: "center", letterSpacing: "8px", outline: "none",
-                                    borderColor: pinError ? "#ef4444" : "#2a2a2a",
+                                    width: "100%", border: borderStyle, background: pinError ? "#fee2e2" : "#f8f9fa",
+                                    padding: "1rem", color: "#000",
+                                    fontFamily: "monospace", fontSize: "1.5rem", fontWeight: 700,
+                                    textAlign: "center", letterSpacing: "12px", outline: "none",
+                                    boxShadow: "inset 2px 2px 0 rgba(0,0,0,0.05)"
                                 }}
                             />
                             {pinError && (
-                                <p style={{ color: "#ef4444", fontSize: "0.6rem", fontWeight: 600, textAlign: "center", margin: 0 }}>
-                                    Wrong code.
+                                <p style={{ color: "#ef4444", fontSize: "0.75rem", fontWeight: 700, textAlign: "center", margin: 0, fontFamily: "monospace", textTransform: "uppercase" }}>
+                                    Access Denied.
                                 </p>
                             )}
                         </motion.div>
@@ -166,14 +188,15 @@ export default function MasterPanelPage() {
                         <motion.button
                             onClick={handleUnlock}
                             disabled={pin.length < 4}
-                            whileTap={{ scale: 0.95, y: 2 }}
+                            whileTap={pin.length >= 4 ? { y: 2, x: 2, boxShadow: "0px 0px 0 #000" } : {}}
                             style={{
-                                width: "100%", ...insetBox,
-                                padding: "0.75rem",
-                                color: pin.length >= 4 ? "#aaa" : "#444",
-                                fontWeight: 800, letterSpacing: "2px", fontSize: "0.7rem",
+                                width: "100%", border: borderStyle, background: pin.length >= 4 ? "#000" : "#e5e5e5",
+                                padding: "1rem", color: pin.length >= 4 ? "#fff" : "#999",
+                                fontWeight: 900, textTransform: "uppercase", fontSize: "1rem",
                                 cursor: pin.length >= 4 ? "pointer" : "not-allowed",
-                                textAlign: "center",
+                                textAlign: "center", fontFamily: "system-ui, -apple-system, sans-serif",
+                                boxShadow: pin.length >= 4 ? "2px 2px 0 #000" : "none",
+                                transition: "background 0.2s, color 0.2s"
                             }}
                         >
                             UNLOCK
@@ -184,171 +207,170 @@ export default function MasterPanelPage() {
             ) : (
 
                 /* === UNLOCKED: MASTER PANEL === */
-                <ZenHideable>
-                    <main style={{
-                        minHeight: "100dvh", display: "flex", flexDirection: "column",
-                        alignItems: "center", justifyContent: "center", padding: "1rem",
-                        position: "relative", zIndex: 1,
-                    }}>
-                        <Link href="/music" style={{ textDecoration: "none" }}>
-                            <motion.div style={backBtn} whileTap={{ scale: 0.95 }}>
-                                <ChevronLeft size={14} strokeWidth={2.5} /><span>Hub</span>
-                            </motion.div>
-                        </Link>
+                <>
+                    <GlobalBottomPlayer />
+                    <ZenHideable>
+                        <main style={{
+                            minHeight: "100dvh", display: "flex", flexDirection: "column",
+                            alignItems: "center", justifyContent: "flex-start", padding: "1rem", paddingTop: "5rem",
+                            paddingBottom: "120px"
+                        }}>
 
-                        {/* DAP Chassis */}
-                        <motion.div
-                            initial={{ opacity: 0, scale: 0.95 }}
-                            animate={{ opacity: 1, scale: 1 }}
-                            transition={{ type: "spring", stiffness: 250, damping: 25 }}
-                            style={{
-                                width: "100%", maxWidth: "380px",
-                                background: shellBg, border: shellBorder, borderRadius: shellRadius,
-                                display: "flex", flexDirection: "column",
-                                boxShadow: shellShadow, overflow: "visible",
-                            }}
-                        >
-                            {/* Header */}
-                            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "1.25rem 1.25rem 0.5rem" }}>
-                                <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                                    <Activity size={10} color={ledColor()} />
-                                    <span style={{ color: "#555", fontSize: "0.55rem", fontWeight: 700, letterSpacing: "3px", textTransform: "uppercase" }}>
-                                        {activeModule === "dashboard" ? "System Hub" : activeModule}
-                                    </span>
+                            {/* System Shell */}
+                            <motion.div
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ type: "spring", stiffness: 250, damping: 25 }}
+                                style={{
+                                    width: "100%", maxWidth: "420px", display: "flex", flexDirection: "column", gap: "24px"
+                                }}
+                            >
+                                <div style={{ textAlign: "center", marginBottom: "8px" }}>
+                                    <h1 style={{
+                                        fontFamily: "system-ui, -apple-system, sans-serif", fontSize: "2.5rem", fontWeight: 900,
+                                        color: "#000", margin: 0, textTransform: "uppercase", lineHeight: 1, letterSpacing: "-0.04em"
+                                    }}>
+                                        SETTINGS
+                                    </h1>
                                 </div>
-                                <motion.div
-                                    animate={isBusy ? { opacity: [0.3, 1, 0.3] } : {}}
-                                    transition={{ repeat: Infinity, duration: 0.8 }}
-                                    style={{
-                                        width: "6px", height: "6px", borderRadius: "50%",
-                                        background: ledColor(),
-                                        boxShadow: `0 0 ${isBusy ? "10px" : "2px"} ${ledColor()}`,
-                                    }}
-                                />
-                            </div>
 
-                            {/* Main Display */}
-                            <div style={{ padding: "0.5rem 1rem 1.5rem", maxHeight: "calc(100dvh - 200px)", overflowY: "auto" }}>
                                 <AnimatePresence mode="wait">
-                                    {activeModule === "dashboard" && (
-                                        <motion.div
-                                            key="dashboard"
-                                            initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 10 }}
-                                            style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: "0.75rem" }}
-                                        >
+                                {activeModule === "dashboard" && (
+                                    <motion.div
+                                        key="dashboard"
+                                        initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 10 }}
+                                        style={{ display: "flex", flexDirection: "column", gap: "24px" }}
+                                    >
+                                        
+                                        {/* Player Data Section */}
+                                        <div style={{
+                                            ...insetBox, background: "#000", color: "#fff", padding: "24px", boxShadow: shadowStyle, display: "flex", flexDirection: "column", gap: "16px"
+                                        }}>
+                                            <div style={{ display: "flex", alignItems: "center", gap: "12px", borderBottom: "2px solid #333", paddingBottom: "12px" }}>
+                                                <Database size={24} color="#fff" />
+                                                <h2 style={{ margin: 0, fontFamily: "system-ui, -apple-system, sans-serif", fontSize: "1.25rem", fontWeight: 900, textTransform: "uppercase", letterSpacing: "-0.04em" }}>
+                                                    Player Data
+                                                </h2>
+                                            </div>
+                                            
+                                            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                                                <span style={{ fontFamily: "monospace", fontSize: "0.85rem", fontWeight: 700, color: "#aaa", textTransform: "uppercase" }}>Total Tracks</span>
+                                                <span style={{ fontFamily: "monospace", fontSize: "1.25rem", fontWeight: 900, color: "#fff" }}>
+                                                    {dbSongs.length > 0 ? dbSongs.length : <Loader2 size={16} className="animate-spin" />}
+                                                </span>
+                                            </div>
+
+                                            {/* Detailed Breakdown */}
+                                            {playlistStats.length > 0 && (
+                                                <div style={{ display: "flex", flexDirection: "column", gap: "8px", marginTop: "8px", borderTop: "2px dashed #333", paddingTop: "16px" }}>
+                                                    <span style={{ fontFamily: "monospace", fontSize: "0.75rem", fontWeight: 800, color: "#fff", textTransform: "uppercase", letterSpacing: "1px", marginBottom: "4px" }}>
+                                                        Catalog Breakdown
+                                                    </span>
+                                                    {playlistStats.map(stat => (
+                                                        <div key={stat.title} style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                                                            <div style={{ display: "flex", flexDirection: "column" }}>
+                                                                <span style={{ fontFamily: "system-ui, -apple-system, sans-serif", fontSize: "0.9rem", fontWeight: 800, color: "#fff", letterSpacing: "-0.02em" }}>{stat.title}</span>
+                                                                <span style={{ fontFamily: "monospace", fontSize: "0.65rem", fontWeight: 700, color: "#aaa", textTransform: "uppercase" }}>{stat.vibes.slice(0, 2).join(", ")}</span>
+                                                            </div>
+                                                            <span style={{ fontFamily: "monospace", fontSize: "1rem", fontWeight: 900, color: "#fff" }}>{stat.count}</span>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            )}
+                                            
+                                            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                                                <span style={{ fontFamily: "monospace", fontSize: "0.85rem", fontWeight: 700, color: "#aaa", textTransform: "uppercase" }}>Status</span>
+                                                <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                                                    <div style={{ width: "8px", height: "8px", background: "#10b981", border: "1px solid #fff" }} />
+                                                    <span style={{ fontFamily: "monospace", fontSize: "0.85rem", fontWeight: 700, color: "#fff", textTransform: "uppercase" }}>Online</span>
+                                                </div>
+                                            </div>
+
+                                            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                                                <span style={{ fontFamily: "monospace", fontSize: "0.85rem", fontWeight: 700, color: "#aaa", textTransform: "uppercase" }}>Last Update</span>
+                                                <span style={{ fontFamily: "monospace", fontSize: "0.85rem", fontWeight: 700, color: "#fff" }}>Just Now</span>
+                                            </div>
+                                        </div>
+
+                                        {/* Modules */}
+                                        <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: "16px" }}>
                                             {[
-                                                { id: "youtube", icon: <Youtube size={20} />, label: "YouTube", sub: "Fetch Audio", color: "#ff0000" },
-                                                { id: "radio", icon: <RadioIcon size={20} />, label: "Radios", sub: "Manage Stations", color: "#39ff14" },
-                                                { id: "playlist", icon: <ListMusic size={20} />, label: "Playlists", sub: "Curate Mixes", color: "#7c3aed" },
-                                                { id: "settings", icon: <Settings size={20} />, label: "System", sub: "Access Logs", color: "#3b82f6" },
+                                                { id: "playlist", icon: <ListMusic size={24} />, label: "Manage Master Playlist", sub: "Add, remove, or edit songs in DB" },
                                             ].map((tool) => (
                                                 <motion.button
                                                     key={tool.id}
                                                     onClick={() => setActiveModule(tool.id as ModuleId)}
-                                                    whileHover={{ y: -2, background: "#252525" }}
-                                                    whileTap={{ scale: 0.95 }}
+                                                    whileTap={{ y: 2, x: 2, boxShadow: "0px 0px 0 #000" }}
                                                     style={{
-                                                        ...insetBox, padding: "1.25rem 1rem",
-                                                        display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "0.6rem",
-                                                        cursor: "pointer", transition: "all 0.2s ease"
+                                                        ...insetBox, padding: "20px", boxShadow: shadowStyle,
+                                                        display: "flex", alignItems: "center", justifyContent: "space-between",
+                                                        cursor: "pointer", transition: "background 0.2s"
                                                     }}
                                                 >
-                                                    <div style={{ color: tool.color, opacity: 0.8 }}>{tool.icon}</div>
-                                                    <div style={{ textAlign: "center" }}>
-                                                        <div style={{ color: "#aaa", fontSize: "0.65rem", fontWeight: 800, letterSpacing: "1px" }}>{tool.label}</div>
-                                                        <div style={{ color: "#444", fontSize: "0.45rem", fontWeight: 600, textTransform: "uppercase" }}>{tool.sub}</div>
+                                                    <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
+                                                        <div style={{ width: "48px", height: "48px", border: borderStyle, background: "#000", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center"}}>
+                                                            {tool.icon}
+                                                        </div>
+                                                        <div style={{ textAlign: "left" }}>
+                                                            <div style={{ color: "#000", fontSize: "1.1rem", fontWeight: 900, fontFamily: "system-ui, -apple-system, sans-serif", letterSpacing: "-0.04em", textTransform: "uppercase" }}>{tool.label}</div>
+                                                            <div style={{ color: "#666", fontSize: "0.75rem", fontWeight: 700, textTransform: "uppercase", fontFamily: "monospace", marginTop: "4px" }}>{tool.sub}</div>
+                                                        </div>
                                                     </div>
                                                 </motion.button>
                                             ))}
-                                        </motion.div>
-                                    )}
+                                        </div>
+                                    </motion.div>
+                                )}
 
-                                    {activeModule === "youtube" && (
-                                        <motion.div key="youtube" initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }}>
-                                            <YouTubeModule
-                                                addLog={addLog}
-                                                ledColor={ledColor}
-                                                logColor={logColor}
-                                                isBusy={isBusy}
-                                                setIsBusy={setIsBusy}
-                                                insetBox={insetBox}
-                                            />
-                                            <motion.button
-                                                onClick={() => setActiveModule("dashboard")}
-                                                style={{ marginTop: "1rem", color: "#444", fontSize: "0.55rem", fontWeight: 800, background: "none", border: "none", cursor: "pointer", display: "flex", alignItems: "center", gap: "4px" }}
-                                            >
-                                                <ChevronLeft size={10} /> BACK TO HUB
-                                            </motion.button>
-                                        </motion.div>
-                                    )}
 
-                                    {activeModule === "radio" && (
-                                        <motion.div key="radio" initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }}>
-                                            <RadioModule
-                                                addLog={addLog}
-                                                isBusy={isBusy}
-                                                setIsBusy={setIsBusy}
-                                                insetBox={insetBox}
-                                            />
-                                            <motion.button
-                                                onClick={() => setActiveModule("dashboard")}
-                                                style={{ marginTop: "1rem", color: "#444", fontSize: "0.55rem", fontWeight: 800, background: "none", border: "none", cursor: "pointer", display: "flex", alignItems: "center", gap: "4px" }}
-                                            >
-                                                <ChevronLeft size={10} /> BACK TO HUB
-                                            </motion.button>
-                                        </motion.div>
-                                    )}
 
-                                    {activeModule === "playlist" && (
-                                        <motion.div key="playlist" initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }}>
+                                {activeModule === "playlist" && (
+                                    <motion.div key="playlist" initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+                                        <motion.button
+                                            onClick={() => setActiveModule("dashboard")}
+                                            whileTap={{ y: 2, x: 2, boxShadow: "0px 0px 0 #000" }}
+                                            style={{ 
+                                                color: "#000", fontSize: "0.85rem", fontWeight: 800, background: "#fff", border: borderStyle, boxShadow: "4px 4px 0 #000", 
+                                                cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", padding: "12px", fontFamily: "monospace" 
+                                            }}
+                                        >
+                                            <ChevronLeft size={16} /> BACK TO SETTINGS
+                                        </motion.button>
+                                        
+                                        <div style={{ padding: "16px", background: "#fff", border: borderStyle, boxShadow: shadowStyle }}>
                                             <PlaylistModule
                                                 addLog={addLog}
                                                 isBusy={isBusy}
                                                 setIsBusy={setIsBusy}
                                                 insetBox={insetBox}
                                             />
-                                            <motion.button
-                                                onClick={() => setActiveModule("dashboard")}
-                                                style={{ marginTop: "1rem", color: "#444", fontSize: "0.55rem", fontWeight: 800, background: "none", border: "none", cursor: "pointer", display: "flex", alignItems: "center", gap: "4px" }}
-                                            >
-                                                <ChevronLeft size={10} /> BACK TO HUB
-                                            </motion.button>
-                                        </motion.div>
-                                    )}
-
-                                    {activeModule === "settings" && (
-                                        <motion.div key="settings" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} style={{ ...insetBox, padding: "2rem", textAlign: "center" }}>
-                                            <Settings size={24} color="#333" style={{ marginBottom: "1rem" }} />
-                                            <div style={{ color: "#aaa", fontSize: "0.7rem", fontWeight: 800, letterSpacing: "2px" }}>SYSTEM SETTINGS</div>
-                                            <div style={{ color: "#444", fontSize: "0.5rem", marginTop: "0.5rem" }}>Log audit trail pending...</div>
-                                            <motion.button
-                                                onClick={() => setActiveModule("dashboard")}
-                                                style={{ marginTop: "1.5rem", color: "#3b82f6", fontSize: "0.55rem", fontWeight: 800, background: "none", border: "none", cursor: "pointer" }}
-                                            >
-                                                RETURN TO HUB
-                                            </motion.button>
-                                        </motion.div>
-                                    )}
-                                </AnimatePresence>
-                            </div>
-
-                            {/* Footer / Terminal Mini */}
-                            <div style={{ borderTop: "1.5px solid #111", background: "rgba(0,0,0,0.2)", padding: "0.75rem 1rem" }}>
-                                <div style={{ display: "flex", alignItems: "center", gap: "6px", marginBottom: "4px" }}>
-                                    <div style={{ width: "4px", height: "4px", borderRadius: "50%", background: "#666" }} />
-                                    <span style={{ color: "#333", fontSize: "0.45rem", fontWeight: 800, letterSpacing: "1px", textTransform: "uppercase" }}>System Logs</span>
-                                </div>
-                                <div style={{ height: "40px", overflow: "hidden", pointerEvents: "none" }}>
-                                    {logs.slice(-3).map((log, i) => (
-                                        <div key={i} style={{ color: logColor(log.type), fontSize: "0.5rem", opacity: (i + 1) / 3, fontFamily: "monospace" }}>
-                                            {log.text.slice(0, 45)}...
                                         </div>
-                                    ))}
+                                    </motion.div>
+                                )}
+                            </AnimatePresence>
+
+                            {/* System Logs */}
+                            <div style={{ borderTop: "2px dashed #000", padding: "16px 0", marginTop: "16px" }}>
+                                <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "12px" }}>
+                                    <Activity size={16} color="#000" />
+                                    <span style={{ color: "#000", fontSize: "0.85rem", fontWeight: 800, letterSpacing: "1px", textTransform: "uppercase", fontFamily: "monospace" }}>System Logs</span>
+                                </div>
+                                <div style={{ minHeight: "60px", padding: "12px", background: "#e5e5e5", border: borderStyle }}>
+                                    {logs.length === 0 ? (
+                                        <div style={{ color: "#666", fontSize: "0.75rem", fontFamily: "monospace" }}>No recent activity.</div>
+                                    ) : (
+                                        logs.slice(-4).map((log, i) => (
+                                            <div key={i} style={{ color: logColor(log.type), fontSize: "0.75rem", opacity: (i + 1) / 4 + 0.25, fontFamily: "monospace", marginBottom: "4px" }}>
+                                                {log.text}
+                                            </div>
+                                        ))
+                                    )}
                                 </div>
                             </div>
                         </motion.div>
                     </main>
                 </ZenHideable>
+                </>
             )}
         </>
     );
