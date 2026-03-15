@@ -79,75 +79,7 @@ export function GlobalBottomPlayer() {
     // Wrap the entire component logic in AnimatePresence so exit animations can actually fire
     return (
         <AnimatePresence>
-            {!isExpanded ? (
-                pathname === "/music" ? (
-                    <motion.div
-                        key="collapsed-player"
-                        initial={{ y: -100 }}
-                        animate={{ y: 0 }}
-                        exit={{ opacity: 0, y: 100 }}
-                    style={{
-                    position: "sticky",
-                    top: "16px",
-                    width: "100%",
-                    height: "64px",
-                    backgroundColor: "#F5F0EB",
-                    border: borderStyle,
-                    boxShadow: shadowStyle,
-                    display: "flex",
-                    alignItems: "center",
-                    padding: "0 16px",
-                    zIndex: 90,
-                    cursor: "pointer",
-                    overflow: "hidden"
-                }}
-                onClick={() => setIsExpanded(true)}
-            >
-                {/* Thin progress bar at top */}
-                <div style={{
-                    position: "absolute",
-                    top: 0,
-                    left: 0,
-                    height: "4px",
-                    backgroundColor: "#000",
-                    width: `${(currentTime / (duration || 1)) * 100}%`,
-                    transition: "width 0.1s linear"
-                }} />
-
-                <div style={{ flex: 1, display: "flex", flexDirection: "column", minWidth: 0, marginRight: "16px" }}>
-                    <span style={{ 
-                        fontFamily: "system-ui, -apple-system, sans-serif", 
-                        fontWeight: 900, 
-                        fontSize: "1rem", 
-                        color: "#000",
-                        whiteSpace: "nowrap",
-                        overflow: "hidden",
-                        textOverflow: "ellipsis",
-                        letterSpacing: "-0.04em",
-                        textTransform: "uppercase"
-                    }}>
-                        {songTitle}
-                    </span>
-                    <span style={{
-                        fontFamily: "monospace",
-                        fontSize: "0.8rem",
-                        color: "#333",
-                        whiteSpace: "nowrap",
-                        overflow: "hidden",
-                        textOverflow: "ellipsis"
-                    }}>
-                        {songArtist}
-                    </span>
-                </div>
-
-                <div style={{ display: "flex", gap: "12px", alignItems: "center" }}>
-                    <NeoButton onClick={(e) => { e.stopPropagation(); togglePlay(); }}>
-                        {isPlaying ? <Pause size={20} fill="#000" color="#000" /> : <Play size={20} fill="#000" color="#000" />}
-                    </NeoButton>
-                </div>
-                </motion.div>
-                ) : null
-            ) : (
+            {!isExpanded ? null : (
                 <motion.div
                     key="expanded-player"
                     initial={{ opacity: 0, y: "100%" }}

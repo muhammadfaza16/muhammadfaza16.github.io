@@ -22,7 +22,6 @@ import { useState, useRef, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { PlaylistModule } from "./components/PlaylistModule";
 import { PLAYLIST_CATEGORIES } from "@/data/playlists";
-import { GlobalBottomPlayer } from "@/components/sanctuary/GlobalBottomPlayer";
 
 const MASTER_PIN = "0000";
 
@@ -208,7 +207,6 @@ export default function MasterPanelPage() {
 
                 /* === UNLOCKED: MASTER PANEL === */
                 <>
-                    <GlobalBottomPlayer />
                     <ZenHideable>
                         <main style={{
                             minHeight: "100dvh", display: "flex", flexDirection: "column",

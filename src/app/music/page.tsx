@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { Music2, ListMusic, Settings2, ChevronLeft, ArrowRight } from "lucide-react";
 import { motion } from "framer-motion";
-import { GlobalBottomPlayer } from "@/components/sanctuary/GlobalBottomPlayer";
 
 const MENU_ITEMS = [
     { id: "songs", label: "All Songs", subtitle: "Full Library", icon: Music2, href: "/playlist/all" },
@@ -46,7 +45,6 @@ export default function AudioHubPage() {
                     <div style={{ width: "44px" }} /> {/* Spacer to balance flex-between */}
                 </div>
 
-                <GlobalBottomPlayer />
 
                 {/* Main Links */}
                 <div style={{ display: "flex", flexDirection: "column", gap: "24px", marginTop: "16px" }}>

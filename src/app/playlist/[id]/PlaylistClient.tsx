@@ -7,7 +7,6 @@ import { useAudio } from "@/components/AudioContext";
 import { motion } from "framer-motion";
 import { PLAYLIST_CATEGORIES } from "@/data/playlists";
 import Link from "next/link";
-import { GlobalBottomPlayer } from "@/components/sanctuary/GlobalBottomPlayer";
 
 const fmtTime = (s: number) => {
     const m = Math.floor(s / 60);
@@ -129,7 +128,6 @@ export default function PlaylistClient({ playlistId, initialSongs = [] }: { play
                 <div style={{ width: "44px" }} />
             </div>
 
-            <GlobalBottomPlayer />
 
             {activePlaylist && (
                 <div style={{

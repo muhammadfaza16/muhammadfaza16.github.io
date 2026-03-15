@@ -6,7 +6,6 @@ import { useAudio } from "@/components/AudioContext";
 import { motion } from "framer-motion";
 import { PLAYLIST_CATEGORIES } from "@/data/playlists";
 import Link from "next/link";
-import { GlobalBottomPlayer } from "@/components/sanctuary/GlobalBottomPlayer";
 
 export default function LibraryClient({ songCount }: { songCount: number }) {
     const { isPlaying, activePlaylistId } = useAudio();
@@ -47,7 +46,6 @@ export default function LibraryClient({ songCount }: { songCount: number }) {
                 <div style={{ width: "44px" }} /> {/* spacer */}
             </div>
 
-            <GlobalBottomPlayer />
 
             <div>
                 <h1 style={{
