@@ -7,29 +7,7 @@ const prisma = new PrismaClient();
 async function main() {
     console.log('--- Starting Master Data Migration ---');
 
-    // 1. Migrate Radio Stations
-    const radioPath = path.join(process.cwd(), 'src', 'data', 'radioStations.json');
-    const radioData = JSON.parse(fs.readFileSync(radioPath, 'utf8'));
-
-    console.log(`Found ${radioData.length} radio stations. Migrating...`);
-    for (const radio of radioData) {
-        await prisma.radio.upsert({
-            where: { slug: radio.id },
-            update: {
-                name: radio.name,
-                description: radio.description,
-                themeColor: radio.themeColor,
-            },
-            create: {
-                slug: radio.id,
-                name: radio.name,
-                description: radio.description,
-                themeColor: radio.themeColor,
-            },
-        });
-    }
-
-    // 2. Migrate Playlists
+    // 1. Migrate Playlists
     // We'll parse the playlists.ts content since it's a TS file
     // Strategy: We already have the songs in the DB from the previous migration.
     // We just need to create the Playlist records and link them.
