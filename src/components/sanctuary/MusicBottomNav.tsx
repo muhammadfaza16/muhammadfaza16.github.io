@@ -35,8 +35,8 @@ export function MusicBottomNav({ isInline = false }: { isInline?: boolean }) {
         <div style={isInline ? {
             backgroundColor: "#fff",
             borderTop: "2px solid #000",
-            padding: "0 16px",
-            paddingBottom: "env(safe-area-inset-bottom)",
+            padding: "10px 16px 0 16px",
+            paddingBottom: "max(10px, env(safe-area-inset-bottom))",
             display: "flex",
             alignItems: "center",
             justifyContent: "space-around",
@@ -50,8 +50,8 @@ export function MusicBottomNav({ isInline = false }: { isInline?: boolean }) {
             right: 0,
             backgroundColor: "#fff",
             borderTop: "2px solid #000",
-            padding: "0 16px",
-            paddingBottom: "env(safe-area-inset-bottom)",
+            padding: "10px 16px 0 16px",
+            paddingBottom: "max(10px, env(safe-area-inset-bottom))",
             display: "flex",
             alignItems: "center",
             justifyContent: "space-around",
@@ -78,7 +78,7 @@ export function MusicBottomNav({ isInline = false }: { isInline?: boolean }) {
                 return (
                     <motion.button
                         key={item.label}
-                        whileTap={{ y: 2, x: 2, boxShadow: "0px 0px 0 #000" }}
+                        whileTap={{ scale: 0.95 }}
                         onClick={() => {
                             if (item.label === "Player") {
                                 setIsPlayerExpanded(true);
@@ -92,20 +92,18 @@ export function MusicBottomNav({ isInline = false }: { isInline?: boolean }) {
                             flexDirection: "column",
                             alignItems: "center",
                             gap: "4px",
-                            background: isActive ? "#000" : "transparent",
-                            border: isActive ? "2px solid #000" : "2px solid transparent",
-                            borderRadius: "12px",
-                            boxShadow: isActive ? "2px 2px 0 #000" : "none",
+                            background: "transparent",
+                            border: "none",
                             cursor: "pointer",
-                            color: isActive ? "#fff" : "#666",
+                            color: isActive ? "#000" : "#888",
                             padding: "4px 12px",
                             transition: "all 0.1s ease-in-out"
                         }}
                     >
-                        <Icon size={20} strokeWidth={isActive ? 2.5 : 2} />
+                        <Icon size={18} strokeWidth={isActive ? 2.5 : 2} />
                         <span style={{
                             fontFamily: "monospace",
-                            fontSize: "0.6rem",
+                            fontSize: "0.55rem",
                             fontWeight: isActive ? 800 : 500,
                             textTransform: "uppercase",
                             letterSpacing: "-0.02em"
