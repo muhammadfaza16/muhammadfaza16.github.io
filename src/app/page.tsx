@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, useCallback } from "react";
+import { useRouter } from "next/navigation";
 import { ZenHideable } from "@/components/ZenHideable";
 import { CleanHomeHero } from "@/components/lobby/CleanHomeHero";
 import { RoomBentoGrid } from "@/components/lobby/RoomBentoGrid";
@@ -13,6 +14,7 @@ const CORRECT_PIN = "231299";
 const PIN_LENGTH = 6;
 
 export default function HomePage() {
+  const router = useRouter();
   const mainRef = useRef<HTMLElement>(null);
   const [showPinModal, setShowPinModal] = useState(false);
   const [pendingHref, setPendingHref] = useState<string | null>(null);
@@ -27,7 +29,7 @@ export default function HomePage() {
   // Called by RoomBentoGrid when a guarded icon is clicked
   const handleGuardedClick = useCallback((href: string) => {
     if (isUnlocked()) {
-      window.location.href = href;
+      router.push(href);
       return;
     }
     setPendingHref(href);
@@ -51,7 +53,7 @@ export default function HomePage() {
       if (fullPin === CORRECT_PIN) {
         sessionStorage.setItem("home_unlocked", "true");
         setShowPinModal(false);
-        if (pendingHref) window.location.href = pendingHref;
+        if (pendingHref) router.push(pendingHref);
       } else {
         setShake(true);
         setTimeout(() => {
