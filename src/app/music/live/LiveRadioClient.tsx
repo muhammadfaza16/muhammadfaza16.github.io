@@ -7,26 +7,55 @@ import Link from "next/link";
 import { useAudio } from "@/components/AudioContext";
 
 export default function LiveRadioClient() {
-    const { isPlaying, togglePlay, currentSong, duration, currentTime, seekTo } = useAudio();
+    const { isPlaying, togglePlay, playQueue, currentSong: audioCurrentSong, currentTime, duration: audioDuration, seekTo } = useAudio();
+    const [liveData, setLiveData] = useState<any>(null);
     const [isSynced, setIsSynced] = useState(true);
-    const [elapsedTime, setElapsedTime] = useState(0); // Mock elapsed since start (e.g. 10m 30s)
-    
-    // Mock Radio Data
-    const radioInfo = {
-        title: "Starlight Radio",
-        startedAt: "21:00 PM",
-        listeners: 124,
-        nextSong: "Neffex — Grateful"
-    };
+    const [hasStarted, setHasStarted] = useState(false);
 
     const borderStyle = "2px solid #000";
     const shadowStyle = "4px 4px 0 #000";
 
-    const handleSync = () => {
-        // In real impl, fetch from /api/music/live and snap currentTime
-        setIsSynced(true);
-        // seekTo(expectedTotalOffset % currentSongDuration);
+    const fetchLiveStatus = async () => {
+        try {
+            const res = await fetch("/api/music/live");
+            const data = await res.json();
+            if (data.success && data.isActive) {
+                setLiveData(data);
+                
+                // Auto-sync if not playing or way off
+                if (!hasStarted && data.currentSong) {
+                    playQueue([data.currentSong]);
+                    setTimeout(() => seekTo(data.elapsedInSong), 500);
+                    setHasStarted(true);
+                }
+            }
+        } catch (e) {
+            console.error("Failed to fetch live status", e);
+        }
     };
+
+    useEffect(() => {
+        fetchLiveStatus();
+        const interval = setInterval(fetchLiveStatus, 10000); // Poll every 10s
+        return () => clearInterval(interval);
+    }, []);
+
+    const handleSync = () => {
+        if (liveData?.currentSong) {
+            playQueue([liveData.currentSong]);
+            setTimeout(() => seekTo(liveData.elapsedInSong), 200);
+            setIsSynced(true);
+        }
+    };
+
+    // Calculate if we are desynced
+    useEffect(() => {
+        if (liveData && audioCurrentSong?.audioUrl === liveData.currentSong?.audioUrl) {
+            const diff = Math.abs(currentTime - liveData.elapsedInSong);
+            if (diff > 5) setIsSynced(false);
+            else setIsSynced(true);
+        }
+    }, [currentTime, liveData, audioCurrentSong]);
 
     return (
         <main style={{
@@ -118,26 +147,28 @@ export default function LiveRadioClient() {
                 {/* Info & Metadata */}
                 <div style={{ textAlign: "center", marginTop: "8px" }}>
                     <div style={{ display: "flex", justifyContent: "center", gap: "8px", marginBottom: "8px" }}>
-                        <span style={{ fontFamily: "monospace", fontSize: "0.6rem", fontWeight: 700, color: "#666", textTransform: "uppercase" }}>Broadcast: {radioInfo.title}</span>
+                        <span style={{ fontFamily: "monospace", fontSize: "0.6rem", fontWeight: 700, color: "#666", textTransform: "uppercase" }}>Broadcast: Starlight Radio</span>
                         <span style={{ color: "#ccc" }}>|</span>
-                        <span style={{ fontFamily: "monospace", fontSize: "0.6rem", fontWeight: 700, color: "#666", textTransform: "uppercase" }}>Start: {radioInfo.startedAt}</span>
+                        <span style={{ fontFamily: "monospace", fontSize: "0.6rem", fontWeight: 700, color: "#666", textTransform: "uppercase" }}>Start: 21:00 PM</span>
                     </div>
                     <h2 style={{ 
                         fontFamily: "system-ui, -apple-system, sans-serif", fontWeight: 900, 
                         fontSize: "1.5rem", color: "#000", letterSpacing: "-0.04em", 
                         textTransform: "uppercase", margin: "0 0 4px 0", lineHeight: 1.1 
                     }}>
-                        {currentSong?.title || "Connecting..."}
+                        {audioCurrentSong?.title || "Connecting..."}
                     </h2>
                     <p style={{ fontFamily: "monospace", fontSize: "0.8rem", fontWeight: 700, color: "#666", margin: 0 }}>
-                        UPCOMING: {radioInfo.nextSong}
+                        {liveData?.isActive ? "ON AIR" : "STATION OFFLINE"}
                     </p>
                 </div>
 
                 {/* Timeline Section */}
                 <div style={{ marginTop: "12px", display: "flex", flexDirection: "column", gap: "12px" }}>
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                        <span style={{ fontFamily: "monospace", fontSize: "0.7rem", fontWeight: 800 }}>- 10:45</span>
+                        <span style={{ fontFamily: "monospace", fontSize: "0.7rem", fontWeight: 800 }}>
+                            {liveData ? `-${Math.floor(liveData.elapsedInPlaylist / 60)}:${(liveData.elapsedInPlaylist % 60).toString().padStart(2, '0')}` : "- 00:00"}
+                        </span>
                         <motion.button
                             onClick={handleSync}
                             whileHover={{ scale: 1.05 }}
@@ -165,16 +196,30 @@ export default function LiveRadioClient() {
                     </div>
 
                     {/* Seekable Progress Bar */}
-                    <div style={{ 
-                        width: "100%", height: "24px", position: "relative", 
-                        display: "flex", alignItems: "center", cursor: "pointer" 
-                    }}>
+                    <div 
+                        onClick={(e) => {
+                            const rect = (e.currentTarget as HTMLDivElement).getBoundingClientRect();
+                            const pos = (e.clientX - rect.left) / rect.width;
+                            if (audioDuration) {
+                                seekTo(pos * audioDuration);
+                            }
+                        }}
+                        style={{ 
+                            width: "100%", height: "24px", position: "relative", 
+                            display: "flex", alignItems: "center", cursor: "pointer" 
+                        }}
+                    >
                         <div style={{ width: "100%", height: "8px", background: "#e0e0e0", border: borderStyle, borderRadius: "4px", position: "relative" }}>
-                            <div style={{ width: "75%", height: "100%", background: "#000", position: "absolute", left: 0, top: 0 }} />
+                            <div style={{ 
+                                width: `${audioDuration ? (currentTime / audioDuration) * 100 : 0}%`, 
+                                height: "100%", background: "#000", position: "absolute", left: 0, top: 0 
+                            }} />
                         </div>
                         {/* Knob */}
                         <div style={{ 
-                            position: "absolute", left: "75%", width: "12px", height: "20px", 
+                            position: "absolute", 
+                            left: `${audioDuration ? (currentTime / audioDuration) * 100 : 0}%`, 
+                            width: "12px", height: "20px", 
                             background: "#fff", border: borderStyle, boxShadow: "2px 2px 0 #000",
                             transform: "translateX(-50%)"
                         }} />
@@ -208,13 +253,13 @@ export default function LiveRadioClient() {
 
                 {/* Listener Footer */}
                 <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: "12px", marginTop: "20px", opacity: 0.6 }}>
-                    <div style={{ display: "flex", -webkit-mask-image: "linear-gradient(to right, black 80%, transparent)" }}>
+                    <div style={{ display: "flex", WebkitMaskImage: "linear-gradient(to right, black 80%, transparent)" }}>
                          {/* Placeholder for listener avatars */}
                          <div style={{ width: "24px", height: "24px", borderRadius: "50%", background: "#ddd", border: "1px solid #fff" }} />
                          <div style={{ width: "24px", height: "24px", borderRadius: "50%", background: "#ccc", border: "1px solid #fff", marginLeft: "-8px" }} />
                          <div style={{ width: "24px", height: "24px", borderRadius: "50%", background: "#bbb", border: "1px solid #fff", marginLeft: "-8px" }} />
                     </div>
-                    <span style={{ fontFamily: "monospace", fontSize: "0.7rem", fontWeight: 700 }}>{radioInfo.listeners} tuning in</span>
+                    <span style={{ fontFamily: "monospace", fontSize: "0.7rem", fontWeight: 700 }}>{liveData?.listeners || 0} tuning in</span>
                 </div>
             </div>
         </main>
