@@ -9,7 +9,7 @@ import { MusicBottomNav } from "./MusicBottomNav";
 
 export function GlobalBottomPlayer() {
     const {
-        isPlaying, togglePlay, nextSong, prevSong,
+        isPlaying, togglePlay, nextSong, prevSong, jumpToSong,
         currentSong, currentTime, duration, seekTo,
         shuffleMode, toggleShuffle, repeatMode, toggleRepeat,
         activePlaybackMode, activeLyrics, queue,
@@ -688,7 +688,7 @@ export function GlobalBottomPlayer() {
                                                 whileTap={{ scale: 0.98, backgroundColor: isCurrent ? "#000" : "rgba(0,0,0,0.05)" }}
                                                 transition={{ type: "spring", stiffness: 400, damping: 25 }}
                                                 onClick={() => {
-                                                    useAudio().jumpToSong(originalIndex);
+                                                    jumpToSong(originalIndex);
                                                 setShowQueueModal(false);
                                             }}
                                             style={{

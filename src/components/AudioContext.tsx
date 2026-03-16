@@ -96,6 +96,9 @@ export function AudioProvider({ children, initialSongs = [] }: { children: React
     const [currentTime, setCurrentTime] = useState(0);
     const [duration, setDuration] = useState(0);
 
+    // Playback Nonce: ensure state changes always trigger a playback attempt
+    const [playbackNonce, setPlaybackNonce] = useState(0);
+
     const audioRef = useRef<HTMLAudioElement | null>(null);
     
     // Global Player Expansion
@@ -310,6 +313,7 @@ export function AudioProvider({ children, initialSongs = [] }: { children: React
         setIsBuffering(false);
         setHasInteracted(true);
         setIsPlaying(true);
+        setPlaybackNonce(prev => prev + 1);
     }, [shuffleMode]);
 
     const nextSong = useCallback((forcePlay = false) => {
@@ -336,6 +340,7 @@ export function AudioProvider({ children, initialSongs = [] }: { children: React
         setHasInteracted(true);
         setIsPlaying(true);
         setCurrentIndex(index);
+        setPlaybackNonce(prev => prev + 1);
     }, []);
 
     const toggleShuffle = useCallback(() => {
@@ -382,7 +387,7 @@ export function AudioProvider({ children, initialSongs = [] }: { children: React
         }
 
 
-    }, [currentIndex, isPlaying, queueId]); // Added queueId to detect playlist switches
+    }, [currentIndex, isPlaying, queueId, playbackNonce]); // Added queueId to detect playlist switches
 
     const currentSong = queue[currentIndex] || queue[0];
 
