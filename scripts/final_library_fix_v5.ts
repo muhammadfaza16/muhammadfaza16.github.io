@@ -10,33 +10,49 @@ async function main() {
     
     console.log("=== PHASE 5: Final Polish (Symbols, Parens, Inversions) ===");
     
+    const seenTitles = new Set();
+    const duplicates = [];
+
     for (const song of allSongs) {
         let title = song.title;
 
-        // 1. Specific Inversions
+        // 1. Specific Inversions & Duplicates
         if (title.includes("Tentang Rasa — Astrid")) {
             title = title.replace("Tentang Rasa — Astrid", "Astrid — Tentang Rasa");
         }
+        if (title.includes("Apocalypse — Cigarettes After Sex")) {
+            title = title.replace("Apocalypse — Cigarettes After Sex", "Cigarettes After Sex — Apocalypse");
+        }
+        if (title.includes("Cry — Cigarettes After Sex")) {
+            title = title.replace("Cry — Cigarettes After Sex", "Cigarettes After Sex — Cry");
+        }
         
-        // 2. Fix symbols: Replace + with & but keep it clean
-        // "Slowed + Reverb" -> "Slowed & Reverb"
-        title = title.replace(/\+ /g, '& ');
-        title = title.replace(/ \+/g, ' &');
-        title = title.replace(/\+/g, '&');
-        title = title.replace(/& &+/g, '&');
+        // 2. Fix symbols: Replace ALL + with & but keep it clean
+        title = title.replace(/\+/g, ' & ');
+        
+        // 3. Remove messy artifacts like & ; or stray dashes
+        title = title
+            .replace(/& ;/g, '&')
+            .replace(/&+/g, '&')
+            .replace(/- -+/g, '-')
+            .replace(/\s+/g, ' ');
 
-        // 3. Remove empty parentheses ()
+        // 4. Remove empty parentheses ()
         title = title.replace(/\(\s*\)/g, '').trim();
 
-        // 4. Clean double separators or spaces
+        // 5. Clean double separators or spaces
         title = title
             .replace(/\s*—\s*—\s*/g, ' — ')
             .replace(/\s+/g, ' ')
             .trim();
 
-        // 5. Final check for "Artist - Title" vs "Title - Artist" 
-        // We already did a lot, but let's double check common ones if needed.
-        // For now, only the one the user explicitly mentioned.
+        // Detect duplicates
+        if (seenTitles.has(title)) {
+            duplicates.push(song.id);
+            console.log(`Duplicate found: ${title} (ID: ${song.id})`);
+            continue; 
+        }
+        seenTitles.add(title);
 
         if (title !== song.title) {
             console.log(`Fixing: "${song.title}" -> "${title}"`);
@@ -64,6 +80,13 @@ async function main() {
             });
             console.log("  -> DB entry updated.");
         }
+    }
+
+    if (duplicates.length > 0) {
+        console.log(`Deleting ${duplicates.length} duplicate records...`);
+        await prisma.song.deleteMany({
+            where: { id: { in: duplicates } }
+        });
     }
     
     console.log("Final library polish complete!");
