@@ -123,23 +123,51 @@ export function AudioProvider({ children, initialSongs = [] }: { children: React
         setHasLoadedState(true);
     }, []);
 
-    // Initial fetch for the queue if empty (after state loading)
+    // Initial fetch to load queue or sync cached URLs (fix for broken cached + symbols)
     useEffect(() => {
         if (!hasLoadedState) return;
 
-        if (queue.length === 0) {
-            fetch("/api/music/songs")
-                .then(res => res.json())
-                .then(data => {
-                    if (data.success && data.songs && queue.length === 0) {
-                        const fetchedQueue = data.songs.map((s: any) => ({ title: s.title, audioUrl: s.audioUrl }));
-                        setOriginalQueue(fetchedQueue);
-                        setQueue(fetchedQueue);
-                    }
-                })
-                .catch(() => { });
-        }
-    }, [queue.length, hasLoadedState]);
+        fetch("/api/music/songs")
+            .then(res => res.json())
+            .then(data => {
+                if (data.success && data.songs) {
+                    const fetchedSongs = data.songs.map((s: any) => ({ title: s.title, audioUrl: s.audioUrl }));
+                    
+                    setQueue(prevQueue => {
+                        if (prevQueue.length === 0) {
+                            setOriginalQueue(fetchedSongs);
+                            return fetchedSongs;
+                        }
+                        
+                        // Sync URLs for existing queue items
+                        let changed = false;
+                        const syncList = (list: {title: string, audioUrl: string}[]) => {
+                            return list.map(sq => {
+                                // Try finding by exact title or base name (handling symbol removals)
+                                const baseTitle = sq.title.split(' — ').pop()?.replace(/[^a-zA-Z0-9]/g, '').toLowerCase();
+                                const match = fetchedSongs.find((f: any) => 
+                                    f.title === sq.title || 
+                                    (baseTitle && f.title.toLowerCase().replace(/[^a-zA-Z0-9]/g, '').includes(baseTitle))
+                                );
+                                if (match && (match.audioUrl !== sq.audioUrl || match.title !== sq.title)) {
+                                    changed = true;
+                                    return { ...sq, audioUrl: match.audioUrl, title: match.title };
+                                }
+                                return sq;
+                            });
+                        };
+                        
+                        const newQueue = syncList(prevQueue);
+                        if (changed) {
+                            setOriginalQueue(prev => syncList(prev));
+                            return newQueue;
+                        }
+                        return prevQueue;
+                    });
+                }
+            })
+            .catch(() => { });
+    }, [hasLoadedState]);
 
     // Save state to localStorage (debounced)
     useEffect(() => {
@@ -653,15 +681,27 @@ export function AudioProvider({ children, initialSongs = [] }: { children: React
                 }}
                 onError={(e) => {
                     const audio = audioRef.current;
-                    const error = audio ? audio.error : null;
-                    console.error("Audio error details:", {
+                    const error = audio?.error || (e.target as HTMLAudioElement)?.error;
+                    const currentSrc = audio?.src || queue[currentIndex]?.audioUrl;
+                    
+                    console.error("Audio playback error:", {
                         code: error?.code,
                         message: error?.message,
-                        src: audio?.src
+                        src: currentSrc
                     });
+                    
                     setIsPlaying(false);
                     setIsBuffering(false);
+
+                    // If it's a media error (e.g. 404 SRC_NOT_SUPPORTED) and we have a queue, try skipping
+                    if (error && queue.length > 1) {
+                        console.log(`Skipping broken track: ${queue[currentIndex]?.title}`);
+                        setTimeout(() => {
+                            nextSong(false); // don't force play to avoid infinite loops if all fail
+                        }, 1000);
+                    }
                 }}
+
             />
             {children}
         </AudioContext.Provider>
