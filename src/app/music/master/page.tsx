@@ -16,7 +16,10 @@ import {
     Settings,
     Activity,
     Database,
-    RefreshCw
+    RefreshCw,
+    Globe,
+    Clock,
+    Users
 } from "lucide-react";
 import { useState, useRef, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -25,7 +28,7 @@ import { PLAYLIST_CATEGORIES } from "@/data/playlists";
 
 const MASTER_PIN = "0000";
 
-type ModuleId = "dashboard" | "playlist" | "settings";
+type ModuleId = "dashboard" | "playlist" | "settings" | "logs";
 
 export default function MasterPanelPage() {
     const [activeModule, setActiveModule] = useState<ModuleId>("dashboard");
@@ -34,6 +37,8 @@ export default function MasterPanelPage() {
     
     // Music Stats
     const [dbSongs, setDbSongs] = useState<any[]>([]);
+    const [accessLogs, setAccessLogs] = useState<any[]>([]);
+    const [loadingLogs, setLoadingLogs] = useState(false);
     
     // Computed Stats
     const playlistStats = useMemo(() => {
@@ -75,6 +80,27 @@ export default function MasterPanelPage() {
         if (type === "error") return "#ef4444"; // red-500
         return "#666";
     };
+
+    const fetchAccessLogs = async () => {
+        setLoadingLogs(true);
+        try {
+            // Using the MASTER_PIN for simplicity as it's the music-specific master password
+            const res = await fetch(`/api/music/logs?password=faza123`);
+            const data = await res.json();
+            if (data.success) {
+                setAccessLogs(data.logs);
+            }
+        } catch (err) {
+            console.error("Failed to fetch logs:", err);
+        }
+        setLoadingLogs(false);
+    };
+
+    useEffect(() => {
+        if (activeModule === "logs") {
+            fetchAccessLogs();
+        }
+    }, [activeModule]);
 
     // Neo-brutalist shared styles
     const borderStyle = "2px solid #000";
@@ -181,6 +207,7 @@ export default function MasterPanelPage() {
                                         <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: "16px" }}>
                                             {[
                                                 { id: "playlist", icon: <ListMusic size={24} />, label: "Manage Master Playlist", sub: "Add, remove, or edit songs in DB" },
+                                                { id: "logs", icon: <Activity size={24} />, label: "Access Logs", sub: "Track visitor IP and geolocation" },
                                             ].map((tool) => (
                                                 <motion.button
                                                     key={tool.id}
@@ -229,6 +256,61 @@ export default function MasterPanelPage() {
                                                 setIsBusy={setIsBusy}
                                                 insetBox={insetBox}
                                             />
+                                        </div>
+                                    </motion.div>
+                                )}
+
+                                {activeModule === "logs" && (
+                                    <motion.div key="logs" initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+                                        <motion.button
+                                            onClick={() => setActiveModule("dashboard")}
+                                            whileTap={{ y: 2, x: 2, boxShadow: "0px 0px 0 #000" }}
+                                            style={{ 
+                                                color: "#000", fontSize: "0.85rem", fontWeight: 800, background: "#fff", border: borderStyle, boxShadow: "4px 4px 0 #000", 
+                                                cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", padding: "12px", fontFamily: "monospace" 
+                                            }}
+                                        >
+                                            <ChevronLeft size={16} /> BACK TO SETTINGS
+                                        </motion.button>
+                                        
+                                        <div style={{ padding: "16px", background: "#fff", border: borderStyle, boxShadow: shadowStyle, display: "flex", flexDirection: "column", gap: "16px" }}>
+                                            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                                                <h3 style={{ margin: 0, fontFamily: "system-ui, -apple-system, sans-serif", fontSize: "1rem", fontWeight: 900, textTransform: "uppercase" }}>Visitor History</h3>
+                                                <button onClick={fetchAccessLogs} style={{ background: "none", border: "none", cursor: "pointer", color: "#666" }}>
+                                                    <RefreshCw size={14} className={loadingLogs ? "animate-spin" : ""} />
+                                                </button>
+                                            </div>
+
+                                            {loadingLogs ? (
+                                                <div style={{ textAlign: "center", padding: "20px", fontFamily: "monospace", fontSize: "0.8rem", color: "#666" }}>Loading logs...</div>
+                                            ) : accessLogs.length === 0 ? (
+                                                <div style={{ textAlign: "center", padding: "20px", fontFamily: "monospace", fontSize: "0.8rem", color: "#666" }}>No logs yet.</div>
+                                            ) : (
+                                                <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+                                                    {accessLogs.map(log => (
+                                                        <div key={log.id} style={{ padding: "12px", background: "#f9f9f9", border: "1px solid #000", display: "flex", flexDirection: "column", gap: "4px" }}>
+                                                            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+                                                                <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                                                                    <Globe size={12} />
+                                                                    <span style={{ fontFamily: "monospace", fontSize: "0.85rem", fontWeight: 900 }}>{log.ip}</span>
+                                                                </div>
+                                                                <span style={{ fontSize: "0.65rem", fontWeight: 700, fontFamily: "monospace", color: "#666" }}>
+                                                                    {new Date(log.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                                                </span>
+                                                            </div>
+                                                            {(log.city || log.country) && (
+                                                                <div style={{ fontSize: "0.7rem", fontWeight: 800, color: "#000", textTransform: "uppercase", letterSpacing: "0.5px" }}>
+                                                                    📍 {log.city || "Unknown City"}, {log.country || "Unknown Country"}
+                                                                </div>
+                                                            )}
+                                                            <div style={{ display: "flex", alignItems: "center", gap: "4px", fontSize: "0.6rem", color: "#888", fontWeight: 700, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                                                                <Users size={10} />
+                                                                {log.userAgent}
+                                                            </div>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            )}
                                         </div>
                                     </motion.div>
                                 )}

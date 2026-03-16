@@ -33,6 +33,9 @@ export default function AudioHubPage() {
                 }
             })
             .catch(() => { });
+
+        // Log access
+        fetch("/api/music/log", { method: "POST" }).catch(() => { });
     }, []);
 
     useEffect(() => {

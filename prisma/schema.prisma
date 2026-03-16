@@ -127,3 +127,14 @@ model PlaylistSong {
 
   @@id([playlistId, songId])
 }
+
+model MusicAccessLog {
+  id        String   @id @default(uuid())
+  ip        String
+  city      String?
+  country   String?
+  region    String?
+  isp       String?
+  userAgent String?
+  timestamp DateTime @default(now())
+}
