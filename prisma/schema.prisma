@@ -11,15 +11,15 @@ datasource db {
 model Article {
   id           String        @id @default(uuid())
   title        String
-  content      String        @db.Text
-  url          String?
-  imageUrl     String?       @map("image_url")
-  category     String?
+  content      String
   createdAt    DateTime      @default(now())
   updatedAt    DateTime      @updatedAt
   isRead       Boolean       @default(false)
-  isBookmarked Boolean       @default(false)
   scheduledFor DateTime?
+  imageUrl     String?       @map("image_url")
+  url          String?
+  category     String?
+  isBookmarked Boolean       @default(false)
   score        ArticleScore?
 
   @@index([category])
@@ -30,7 +30,7 @@ model Comment {
   id         String   @id @default(uuid())
   articleId  String
   authorName String   @default("Anonymous")
-  content    String   @db.Text
+  content    String
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
 
@@ -40,7 +40,6 @@ model Comment {
 model ArticleScore {
   id            String   @id @default(uuid())
   articleId     String   @unique
-  article       Article  @relation(fields: [articleId], references: [id], onDelete: Cascade)
   substance     Int      @default(0)
   depth         Int      @default(0)
   structure     Int      @default(0)
@@ -50,8 +49,9 @@ model ArticleScore {
   actionability Int      @default(0)
   engagement    Int      @default(0)
   total         Int      @default(0)
-  socialScore   Int      @default(0)
   updatedAt     DateTime @default(now())
+  socialScore   Int      @default(0)
+  article       Article  @relation(fields: [articleId], references: [id], onDelete: Cascade)
 
   @@index([socialScore])
   @@index([total])
@@ -61,24 +61,24 @@ model Post {
   id        String   @id @default(uuid())
   slug      String   @unique
   title     String
-  content   String   @db.Text
-  url       String?
-  imageUrl  String?  @map("image_url")
+  content   String
   published Boolean  @default(false)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  imageUrl  String?  @map("image_url")
+  url       String?
 }
 
 model Book {
   id        String   @id @default(uuid())
   title     String
   author    String
-  url       String?
-  imageUrl  String?  @map("image_url")
-  review    String?  @db.Text
+  review    String?
   rating    Int      @default(0)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  imageUrl  String?  @map("image_url")
+  url       String?
 }
 
 model WishlistItem {
@@ -86,18 +86,18 @@ model WishlistItem {
   name      String
   price     String?
   url       String?
-  imageUrl  String?  @map("image_url")
   priority  String   @default("Low")
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  imageUrl  String?  @map("image_url")
 }
 
 model Song {
   id        String         @id @default(uuid())
   title     String
   audioUrl  String         @map("audio_url")
-  source    String         @default("youtube") // youtube, local, etc
-  duration  Int? // seconds
+  source    String         @default("youtube")
+  duration  Int?
   createdAt DateTime       @default(now())
   updatedAt DateTime       @updatedAt
   playlists PlaylistSong[]
