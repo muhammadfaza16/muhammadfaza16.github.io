@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Music2, ListMusic, ChevronLeft, ArrowRight, Compass, Sparkles, Filter, LibraryBig } from "lucide-react";
+import { ListMusic, ChevronLeft, ArrowRight, Sparkles, LibraryBig } from "lucide-react";
 import { motion } from "framer-motion";
 import { PLAYLIST_CATEGORIES } from "@/data/playlists";
 
@@ -10,7 +10,6 @@ const MENU_ITEMS = [
     { id: "playlists", label: "Playlists", subtitle: "Curated Sets", icon: ListMusic, href: "/playlist" },
 ];
 
-const VIBES = ["Melancholic", "Epic", "Morning", "Acoustic", "Space", "Pop", "Love"];
 
 export default function AudioHubPage() {
     const borderStyle = "2px solid #000";
@@ -55,34 +54,41 @@ export default function AudioHubPage() {
                 {/* Home Dashboard */}
                 <div style={{ display: "flex", flexDirection: "column", gap: "32px", marginTop: "8px" }}>
                     
-                    {/* Vibe Pills Filter (Visual only for Home) */}
+                    {/* Quick Access / Library */}
                     <div>
                         <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "12px" }}>
-                            <Filter size={16} />
-                            <span style={{ fontFamily: "monospace", fontWeight: 700, fontSize: "0.8rem", textTransform: "uppercase" }}>Quick Vibes</span>
+                            <LibraryBig size={16} />
+                            <span style={{ fontFamily: "monospace", fontWeight: 700, fontSize: "0.8rem", textTransform: "uppercase" }}>Library</span>
                         </div>
-                        <div style={{ display: "flex", gap: "8px", overflowX: "auto", paddingBottom: "8px", scrollbarWidth: "none" }}>
-                            {VIBES.map(vibe => (
-                                <Link key={vibe} href={`/playlist?vibe=${vibe}`} style={{ textDecoration: "none" }}>
+                        <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+                            {MENU_ITEMS.map((item) => (
+                                <Link key={item.id} href={item.href} style={{ textDecoration: "none" }}>
                                     <motion.div
-                                        whileHover={{ scale: 1.05, y: -2 }}
-                                        whileTap={{ scale: 0.95 }}
-                                        transition={{ type: "spring", stiffness: 400, damping: 17 }}
+                                        whileHover={{ scale: 1.02, x: 4, boxShadow: "6px 6px 0 #000" }}
+                                        whileTap={{ scale: 0.98, y: 2, x: 2, boxShadow: "0px 0px 0 #000" }}
+                                        transition={{ type: "spring", stiffness: 300, damping: 20 }}
                                         style={{
-                                            padding: "6px 16px",
-                                            background: "#fff",
+                                            backgroundColor: "#fff",
                                             border: borderStyle,
-                                            boxShadow: "2px 2px 0 #000",
-                                            fontFamily: "system-ui, -apple-system, sans-serif",
-                                            fontWeight: 800,
-                                            fontSize: "0.8rem",
-                                            color: "#000",
-                                            whiteSpace: "nowrap",
+                                            boxShadow: "4px 4px 0 #000",
+                                            padding: "12px 16px",
+                                            display: "flex",
+                                            alignItems: "center",
+                                            justifyContent: "space-between",
                                             cursor: "pointer",
-                                            transition: "background 0.2s ease, color 0.2s ease"
+                                            transition: "background-color 0.2s ease"
                                         }}
                                     >
-                                        {vibe}
+                                        <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+                                            <div style={{ width: "36px", height: "36px", border: borderStyle, display: "flex", alignItems: "center", justifyContent: "center", backgroundColor: "#000", color: "#fff" }}>
+                                                <item.icon size={18} />
+                                            </div>
+                                            <div style={{ display: "flex", flexDirection: "column" }}>
+                                                <span style={{ fontFamily: "system-ui, -apple-system, sans-serif", fontWeight: 900, fontSize: "1rem", color: "#000", letterSpacing: "-0.04em", textTransform: "uppercase" }}>{item.label}</span>
+                                                <span style={{ fontFamily: "monospace", fontSize: "0.7rem", color: "#666", fontWeight: 700, textTransform: "uppercase" }}>{item.subtitle}</span>
+                                            </div>
+                                        </div>
+                                        <ArrowRight size={18} color="#000" />
                                     </motion.div>
                                 </Link>
                             ))}
@@ -155,48 +161,8 @@ export default function AudioHubPage() {
                             ))}
                         </div>
                     </div>
-
-                    {/* Quick Access */}
-                    <div>
-                        <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "12px" }}>
-                            <LibraryBig size={16} />
-                            <span style={{ fontFamily: "monospace", fontWeight: 700, fontSize: "0.8rem", textTransform: "uppercase" }}>Library</span>
-                        </div>
-                        <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
-                            {MENU_ITEMS.map((item) => (
-                                <Link key={item.id} href={item.href} style={{ textDecoration: "none" }}>
-                                    <motion.div
-                                        whileHover={{ scale: 1.02, x: 4, boxShadow: "6px 6px 0 #000" }}
-                                        whileTap={{ scale: 0.98, y: 2, x: 2, boxShadow: "0px 0px 0 #000" }}
-                                        transition={{ type: "spring", stiffness: 300, damping: 20 }}
-                                        style={{
-                                            backgroundColor: "#fff",
-                                            border: borderStyle,
-                                            boxShadow: "4px 4px 0 #000",
-                                            padding: "12px 16px",
-                                            display: "flex",
-                                            alignItems: "center",
-                                            justifyContent: "space-between",
-                                            cursor: "pointer",
-                                            transition: "background-color 0.2s ease"
-                                        }}
-                                    >
-                                        <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-                                            <div style={{ width: "36px", height: "36px", border: borderStyle, display: "flex", alignItems: "center", justifyContent: "center", backgroundColor: "#000", color: "#fff" }}>
-                                                <item.icon size={18} />
-                                            </div>
-                                            <div style={{ display: "flex", flexDirection: "column" }}>
-                                                <span style={{ fontFamily: "system-ui, -apple-system, sans-serif", fontWeight: 900, fontSize: "1rem", color: "#000", letterSpacing: "-0.04em", textTransform: "uppercase" }}>{item.label}</span>
-                                                <span style={{ fontFamily: "monospace", fontSize: "0.7rem", color: "#666", fontWeight: 700, textTransform: "uppercase" }}>{item.subtitle}</span>
-                                            </div>
-                                        </div>
-                                        <ArrowRight size={18} color="#000" />
-                                    </motion.div>
-                                </Link>
-                            ))}
-                        </div>
-                    </div>
                 </div>
+
             </div>
         </main>
     );
