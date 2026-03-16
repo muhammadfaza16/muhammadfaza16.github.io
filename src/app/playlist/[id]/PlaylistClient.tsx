@@ -4,7 +4,7 @@ import React, { useState, useMemo, useEffect } from "react";
 import { Play, Pause, Search, Shuffle, ChevronLeft, Disc } from "lucide-react";
 import { Virtuoso } from 'react-virtuoso';
 import { useAudio } from "@/components/AudioContext";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { PLAYLIST_CATEGORIES } from "@/data/playlists";
 import Link from "next/link";
 
@@ -60,6 +60,7 @@ export default function PlaylistClient({ playlistId, initialSongs = [] }: { play
     const { playQueue, queue, currentSong, isPlaying, togglePlay, activePlaylistId, setIsPlayerExpanded } = useAudio();
     const [searchQuery, setSearchQuery] = useState("");
     const [mounted, setMounted] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
     
     // Explicitly fallback initialSongs if none provided.
     const [dbSongs, setDbSongs] = useState<{ title: string; audioUrl: string; duration?: number; id?: string }[]>(initialSongs || []);
@@ -71,6 +72,7 @@ export default function PlaylistClient({ playlistId, initialSongs = [] }: { play
     }, []);
 
     useEffect(() => {
+        setIsLoading(true);
         fetch("/api/music/songs")
             .then(res => res.json())
             .then(data => {
@@ -78,7 +80,11 @@ export default function PlaylistClient({ playlistId, initialSongs = [] }: { play
                     setDbSongs(data.songs);
                 }
             })
-            .catch(() => { });
+            .catch(() => { })
+            .finally(() => {
+                // Gentle delay for the premium feel
+                setTimeout(() => setIsLoading(false), 800);
+            });
     }, []);
 
     const activePlaylist = useMemo(() => {
@@ -146,6 +152,62 @@ export default function PlaylistClient({ playlistId, initialSongs = [] }: { play
                 </span>
                 <div style={{ width: "44px" }} />
             </div>
+
+            <AnimatePresence>
+                {isLoading && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        style={{
+                            position: "fixed",
+                            inset: 0,
+                            backgroundColor: "#F5F0EB",
+                            zIndex: 100,
+                            display: "flex",
+                            flexDirection: "column",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            gap: "24px"
+                        }}
+                    >
+                        <div style={{
+                            width: "120px",
+                            height: "120px",
+                            backgroundColor: "#fff",
+                            border: borderStyle,
+                            boxShadow: shadowStyle,
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            borderRadius: "16px"
+                        }}>
+                            <Disc size={64} color="#000" className="animate-spin" style={{ animationDuration: '3s' }} />
+                        </div>
+                        <div style={{ textAlign: "center" }}>
+                            <div style={{
+                                fontFamily: "system-ui, -apple-system, sans-serif",
+                                fontWeight: 900,
+                                fontSize: "1.2rem",
+                                textTransform: "uppercase",
+                                letterSpacing: "-0.04em",
+                                color: "#000"
+                            }}>
+                                Tuning the Cosmos
+                            </div>
+                            <div style={{
+                                fontFamily: "monospace",
+                                fontWeight: 700,
+                                fontSize: "0.8rem",
+                                color: "#666",
+                                marginTop: "4px"
+                            }}>
+                                Loading collection...
+                            </div>
+                        </div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
 
 
             {activePlaylist && (
