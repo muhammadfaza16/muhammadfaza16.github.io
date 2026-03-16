@@ -10,13 +10,67 @@ import { Lock } from "lucide-react";
 
 import "./home-journal.css";
 
+const CORRECT_PIN = "231299";
+const PIN_LENGTH = 6;
+
 export default function HomePage() {
   const router = useRouter();
   const mainRef = useRef<HTMLElement>(null);
+  const [showPinModal, setShowPinModal] = useState(false);
+  const [pendingHref, setPendingHref] = useState<string | null>(null);
+  const [pin, setPin] = useState<string[]>(Array(PIN_LENGTH).fill(""));
+  const [shake, setShake] = useState(false);
+  const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
+
+  const isUnlocked = useCallback(() => {
+    return typeof window !== "undefined" && sessionStorage.getItem("home_unlocked") === "true";
+  }, []);
+
   // Called by RoomBentoGrid when a guarded icon is clicked
   const handleGuardedClick = useCallback((href: string) => {
-    router.push(href);
-  }, [router]);
+    // MUSIC is PUBLIC - bypass PIN
+    if (href === "/music" || isUnlocked()) {
+      router.push(href);
+      return;
+    }
+    setPendingHref(href);
+    setPin(Array(PIN_LENGTH).fill(""));
+    setShowPinModal(true);
+    setTimeout(() => inputRefs.current[0]?.focus(), 100);
+  }, [isUnlocked, router]);
+
+  const handleDigitChange = useCallback((index: number, value: string) => {
+    const digit = value.replace(/\D/g, "").slice(-1);
+    const newPin = [...pin];
+    newPin[index] = digit;
+    setPin(newPin);
+
+    if (digit && index < PIN_LENGTH - 1) {
+      inputRefs.current[index + 1]?.focus();
+    }
+
+    const fullPin = newPin.join("");
+    if (fullPin.length === PIN_LENGTH) {
+      if (fullPin === CORRECT_PIN) {
+        sessionStorage.setItem("home_unlocked", "true");
+        setShowPinModal(false);
+        if (pendingHref) router.push(pendingHref);
+      } else {
+        setShake(true);
+        setTimeout(() => {
+          setShake(false);
+          setPin(Array(PIN_LENGTH).fill(""));
+          inputRefs.current[0]?.focus();
+        }, 500);
+      }
+    }
+  }, [pin, pendingHref, router]);
+
+  const handleKeyDown = useCallback((index: number, e: React.KeyboardEvent) => {
+    if (e.key === "Backspace" && !pin[index] && index > 0) {
+      inputRefs.current[index - 1]?.focus();
+    }
+  }, [pin]);
 
   // Scroll Lock
   useEffect(() => {
@@ -120,6 +174,115 @@ export default function HomePage() {
         </main>
       </ZenHideable>
 
+      {/* PIN Modal Overlay */}
+      <AnimatePresence>
+        {showPinModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            onClick={() => setShowPinModal(false)}
+            style={{
+              position: "fixed",
+              inset: 0,
+              zIndex: 9999,
+              background: "rgba(0,0,0,0.7)",
+              backdropFilter: "blur(12px)",
+              WebkitBackdropFilter: "blur(12px)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              transition={{ type: "spring", stiffness: 400, damping: 28 }}
+              onClick={(e) => e.stopPropagation()}
+              style={{
+                background: "rgba(30,30,30,0.95)",
+                borderRadius: "24px",
+                padding: "2rem 2rem 1.75rem",
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                gap: "1.25rem",
+                border: "1px solid rgba(255,255,255,0.08)",
+                boxShadow: "0 24px 48px rgba(0,0,0,0.5)",
+                minWidth: "300px",
+              }}
+            >
+              <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "0.5rem" }}>
+                <div style={{
+                  width: "48px", height: "48px", borderRadius: "50%",
+                  background: "rgba(255,255,255,0.06)", display: "flex",
+                  alignItems: "center", justifyContent: "center",
+                }}>
+                  <Lock size={22} style={{ color: "rgba(255,255,255,0.5)" }} />
+                </div>
+                <span style={{
+                  fontSize: "13px", fontWeight: 600, letterSpacing: "0.06em",
+                  color: "rgba(255,255,255,0.5)", textTransform: "uppercase",
+                }}>
+                  Enter Passcode
+                </span>
+              </div>
+
+              <motion.div
+                animate={shake ? { x: [0, -10, 10, -8, 8, -4, 4, 0] } : {}}
+                transition={{ duration: 0.4 }}
+                style={{ display: "flex", gap: "8px" }}
+              >
+                {Array.from({ length: PIN_LENGTH }).map((_, i) => (
+                  <input
+                    key={i}
+                    ref={(el) => { inputRefs.current[i] = el; }}
+                    type="tel"
+                    inputMode="numeric"
+                    pattern="[0-9]*"
+                    maxLength={1}
+                    value={pin[i]}
+                    onChange={(e) => handleDigitChange(i, e.target.value)}
+                    onKeyDown={(e) => handleKeyDown(i, e)}
+                    style={{
+                      width: "42px",
+                      height: "48px",
+                      borderRadius: "12px",
+                      border: pin[i] ? "2px solid rgba(191,90,242,0.7)" : "2px solid rgba(255,255,255,0.12)",
+                      background: pin[i] ? "rgba(191,90,242,0.1)" : "rgba(255,255,255,0.04)",
+                      color: "white",
+                      fontSize: "20px",
+                      fontWeight: 700,
+                      textAlign: "center" as const,
+                      outline: "none",
+                      caretColor: "transparent",
+                      transition: "all 0.15s ease",
+                      fontFamily: "ui-monospace, SFMono-Regular, monospace",
+                    }}
+                  />
+                ))}
+              </motion.div>
+
+              <button
+                onClick={() => setShowPinModal(false)}
+                style={{
+                  marginTop: "0.25rem",
+                  fontSize: "13px",
+                  color: "rgba(255,255,255,0.35)",
+                  background: "none",
+                  border: "none",
+                  cursor: "pointer",
+                  fontWeight: 500,
+                }}
+              >
+                Cancel
+              </button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </>
   );
 }
