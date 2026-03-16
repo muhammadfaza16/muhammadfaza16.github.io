@@ -7,7 +7,7 @@ async function main() {
     orderBy: { title: 'asc' }
   });
 
-  console.log(JSON.stringify(songs.map(s => ({ id: s.id, title: s.title, artist: s.artist })), null, 2));
+  console.log(JSON.stringify(songs.map(s => ({ id: s.id, title: s.title })), null, 2));
 }
 
 main()
