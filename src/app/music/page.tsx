@@ -149,10 +149,22 @@ export default function AudioHubPage() {
                                             display: "flex",
                                             flexDirection: "column"
                                         }}>
-                                            <div style={{ color: "#fff", fontWeight: 900, fontSize: "0.85rem", fontFamily: "system-ui, -apple-system, sans-serif", textTransform: "uppercase", letterSpacing: "-0.04em", lineHeight: 1.1 }}>
+                                            <div style={{ 
+                                                color: "#fff", 
+                                                fontWeight: 900, 
+                                                fontSize: "0.75rem", 
+                                                fontFamily: "system-ui, -apple-system, sans-serif", 
+                                                textTransform: "uppercase", 
+                                                letterSpacing: "-0.04em", 
+                                                lineHeight: 1.1,
+                                                display: "-webkit-box",
+                                                WebkitLineClamp: 2,
+                                                WebkitBoxOrient: "vertical",
+                                                overflow: "hidden"
+                                            }}>
                                                 {playlist.title}
                                             </div>
-                                            <div style={{ color: "rgba(255,255,255,0.7)", fontSize: "0.6rem", marginTop: "2px", fontFamily: "monospace", fontWeight: 700 }}>
+                                            <div style={{ color: "rgba(255,255,255,0.7)", fontSize: "0.55rem", marginTop: "2px", fontFamily: "monospace", fontWeight: 700 }}>
                                                 {playlist.vibes[0]}
                                             </div>
                                         </div>

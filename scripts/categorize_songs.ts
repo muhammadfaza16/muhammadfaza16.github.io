@@ -67,6 +67,24 @@ async function main() {
   console.log(`Categorization complete!`);
   console.log(`Added to Indo Hits: ${indoCount}`);
   console.log(`Added to International Favorites: ${intlCount}`);
+
+  // Output lists for static sync
+  const indoSongs = await prisma.playlistSong.findMany({
+    where: { playlistId: indoPlaylist.id },
+    include: { song: true }
+  });
+  const intlSongs = await prisma.playlistSong.findMany({
+    where: { playlistId: intlPlaylist.id },
+    include: { song: true }
+  });
+
+  const fs = require('fs');
+  fs.writeFileSync('./tmp/categorized_results.json', JSON.stringify({
+    indo: indoSongs.map(ps => ps.song.title),
+    intl: intlSongs.map(ps => ps.song.title)
+  }, null, 2));
+
+  console.log('--- RESULTS WRITTEN TO ./tmp/categorized_results.json ---');
 }
 
 main()

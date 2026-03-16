@@ -95,12 +95,22 @@ export default function PlaylistClient({ playlistId, initialSongs = [] }: { play
     const filteredPlaylist = useMemo(() => {
         let baseSongs = dbSongs;
         if (activePlaylist) {
-            baseSongs = dbSongs.filter(song =>
-                activePlaylist.songTitles.some((title: string) =>
-                    song.title.toLowerCase().includes(title.toLowerCase()) ||
-                    title.toLowerCase().includes(song.title.toLowerCase())
-                )
-            );
+            if (activePlaylist.id === 'indo-hits') {
+                baseSongs = dbSongs.filter(song => 
+                    INDO_ARTISTS.some(artist => song.title.toLowerCase().includes(artist.toLowerCase()))
+                );
+            } else if (activePlaylist.id === 'international-favorites') {
+                baseSongs = dbSongs.filter(song => 
+                    !INDO_ARTISTS.some(artist => song.title.toLowerCase().includes(artist.toLowerCase()))
+                );
+            } else {
+                baseSongs = dbSongs.filter(song =>
+                    activePlaylist.songTitles.some((title: string) =>
+                        song.title.toLowerCase().includes(title.toLowerCase()) ||
+                        title.toLowerCase().includes(song.title.toLowerCase())
+                    )
+                );
+            }
         }
         return baseSongs
             .map((song, index) => ({ ...song, originalIndex: index }))
