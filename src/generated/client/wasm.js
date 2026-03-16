@@ -234,7 +234,15 @@ exports.Prisma.MusicAccessLogScalarFieldEnum = {
   region: 'region',
   isp: 'isp',
   userAgent: 'userAgent',
-  timestamp: 'timestamp'
+  songTitle: 'songTitle',
+  sessionId: 'sessionId',
+  duration: 'duration',
+  latitude: 'latitude',
+  longitude: 'longitude',
+  timezone: 'timezone',
+  postal: 'postal',
+  timestamp: 'timestamp',
+  lastActive: 'lastActive'
 };
 
 exports.Prisma.SortOrder = {

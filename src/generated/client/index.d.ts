@@ -10457,8 +10457,22 @@ export namespace Prisma {
 
   export type AggregateMusicAccessLog = {
     _count: MusicAccessLogCountAggregateOutputType | null
+    _avg: MusicAccessLogAvgAggregateOutputType | null
+    _sum: MusicAccessLogSumAggregateOutputType | null
     _min: MusicAccessLogMinAggregateOutputType | null
     _max: MusicAccessLogMaxAggregateOutputType | null
+  }
+
+  export type MusicAccessLogAvgAggregateOutputType = {
+    duration: number | null
+    latitude: number | null
+    longitude: number | null
+  }
+
+  export type MusicAccessLogSumAggregateOutputType = {
+    duration: number | null
+    latitude: number | null
+    longitude: number | null
   }
 
   export type MusicAccessLogMinAggregateOutputType = {
@@ -10469,7 +10483,15 @@ export namespace Prisma {
     region: string | null
     isp: string | null
     userAgent: string | null
+    songTitle: string | null
+    sessionId: string | null
+    duration: number | null
+    latitude: number | null
+    longitude: number | null
+    timezone: string | null
+    postal: string | null
     timestamp: Date | null
+    lastActive: Date | null
   }
 
   export type MusicAccessLogMaxAggregateOutputType = {
@@ -10480,7 +10502,15 @@ export namespace Prisma {
     region: string | null
     isp: string | null
     userAgent: string | null
+    songTitle: string | null
+    sessionId: string | null
+    duration: number | null
+    latitude: number | null
+    longitude: number | null
+    timezone: string | null
+    postal: string | null
     timestamp: Date | null
+    lastActive: Date | null
   }
 
   export type MusicAccessLogCountAggregateOutputType = {
@@ -10491,10 +10521,30 @@ export namespace Prisma {
     region: number
     isp: number
     userAgent: number
+    songTitle: number
+    sessionId: number
+    duration: number
+    latitude: number
+    longitude: number
+    timezone: number
+    postal: number
     timestamp: number
+    lastActive: number
     _all: number
   }
 
+
+  export type MusicAccessLogAvgAggregateInputType = {
+    duration?: true
+    latitude?: true
+    longitude?: true
+  }
+
+  export type MusicAccessLogSumAggregateInputType = {
+    duration?: true
+    latitude?: true
+    longitude?: true
+  }
 
   export type MusicAccessLogMinAggregateInputType = {
     id?: true
@@ -10504,7 +10554,15 @@ export namespace Prisma {
     region?: true
     isp?: true
     userAgent?: true
+    songTitle?: true
+    sessionId?: true
+    duration?: true
+    latitude?: true
+    longitude?: true
+    timezone?: true
+    postal?: true
     timestamp?: true
+    lastActive?: true
   }
 
   export type MusicAccessLogMaxAggregateInputType = {
@@ -10515,7 +10573,15 @@ export namespace Prisma {
     region?: true
     isp?: true
     userAgent?: true
+    songTitle?: true
+    sessionId?: true
+    duration?: true
+    latitude?: true
+    longitude?: true
+    timezone?: true
+    postal?: true
     timestamp?: true
+    lastActive?: true
   }
 
   export type MusicAccessLogCountAggregateInputType = {
@@ -10526,7 +10592,15 @@ export namespace Prisma {
     region?: true
     isp?: true
     userAgent?: true
+    songTitle?: true
+    sessionId?: true
+    duration?: true
+    latitude?: true
+    longitude?: true
+    timezone?: true
+    postal?: true
     timestamp?: true
+    lastActive?: true
     _all?: true
   }
 
@@ -10568,6 +10642,18 @@ export namespace Prisma {
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
+     * Select which fields to average
+    **/
+    _avg?: MusicAccessLogAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: MusicAccessLogSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
      * Select which fields to find the minimum value
     **/
     _min?: MusicAccessLogMinAggregateInputType
@@ -10598,6 +10684,8 @@ export namespace Prisma {
     take?: number
     skip?: number
     _count?: MusicAccessLogCountAggregateInputType | true
+    _avg?: MusicAccessLogAvgAggregateInputType
+    _sum?: MusicAccessLogSumAggregateInputType
     _min?: MusicAccessLogMinAggregateInputType
     _max?: MusicAccessLogMaxAggregateInputType
   }
@@ -10610,8 +10698,18 @@ export namespace Prisma {
     region: string | null
     isp: string | null
     userAgent: string | null
+    songTitle: string | null
+    sessionId: string | null
+    duration: number
+    latitude: number | null
+    longitude: number | null
+    timezone: string | null
+    postal: string | null
     timestamp: Date
+    lastActive: Date
     _count: MusicAccessLogCountAggregateOutputType | null
+    _avg: MusicAccessLogAvgAggregateOutputType | null
+    _sum: MusicAccessLogSumAggregateOutputType | null
     _min: MusicAccessLogMinAggregateOutputType | null
     _max: MusicAccessLogMaxAggregateOutputType | null
   }
@@ -10638,7 +10736,15 @@ export namespace Prisma {
     region?: boolean
     isp?: boolean
     userAgent?: boolean
+    songTitle?: boolean
+    sessionId?: boolean
+    duration?: boolean
+    latitude?: boolean
+    longitude?: boolean
+    timezone?: boolean
+    postal?: boolean
     timestamp?: boolean
+    lastActive?: boolean
   }, ExtArgs["result"]["musicAccessLog"]>
 
   export type MusicAccessLogSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -10649,7 +10755,15 @@ export namespace Prisma {
     region?: boolean
     isp?: boolean
     userAgent?: boolean
+    songTitle?: boolean
+    sessionId?: boolean
+    duration?: boolean
+    latitude?: boolean
+    longitude?: boolean
+    timezone?: boolean
+    postal?: boolean
     timestamp?: boolean
+    lastActive?: boolean
   }, ExtArgs["result"]["musicAccessLog"]>
 
   export type MusicAccessLogSelectScalar = {
@@ -10660,7 +10774,15 @@ export namespace Prisma {
     region?: boolean
     isp?: boolean
     userAgent?: boolean
+    songTitle?: boolean
+    sessionId?: boolean
+    duration?: boolean
+    latitude?: boolean
+    longitude?: boolean
+    timezone?: boolean
+    postal?: boolean
     timestamp?: boolean
+    lastActive?: boolean
   }
 
 
@@ -10675,7 +10797,15 @@ export namespace Prisma {
       region: string | null
       isp: string | null
       userAgent: string | null
+      songTitle: string | null
+      sessionId: string | null
+      duration: number
+      latitude: number | null
+      longitude: number | null
+      timezone: string | null
+      postal: string | null
       timestamp: Date
+      lastActive: Date
     }, ExtArgs["result"]["musicAccessLog"]>
     composites: {}
   }
@@ -11076,7 +11206,15 @@ export namespace Prisma {
     readonly region: FieldRef<"MusicAccessLog", 'String'>
     readonly isp: FieldRef<"MusicAccessLog", 'String'>
     readonly userAgent: FieldRef<"MusicAccessLog", 'String'>
+    readonly songTitle: FieldRef<"MusicAccessLog", 'String'>
+    readonly sessionId: FieldRef<"MusicAccessLog", 'String'>
+    readonly duration: FieldRef<"MusicAccessLog", 'Int'>
+    readonly latitude: FieldRef<"MusicAccessLog", 'Float'>
+    readonly longitude: FieldRef<"MusicAccessLog", 'Float'>
+    readonly timezone: FieldRef<"MusicAccessLog", 'String'>
+    readonly postal: FieldRef<"MusicAccessLog", 'String'>
     readonly timestamp: FieldRef<"MusicAccessLog", 'DateTime'>
+    readonly lastActive: FieldRef<"MusicAccessLog", 'DateTime'>
   }
     
 
@@ -11518,7 +11656,15 @@ export namespace Prisma {
     region: 'region',
     isp: 'isp',
     userAgent: 'userAgent',
-    timestamp: 'timestamp'
+    songTitle: 'songTitle',
+    sessionId: 'sessionId',
+    duration: 'duration',
+    latitude: 'latitude',
+    longitude: 'longitude',
+    timezone: 'timezone',
+    postal: 'postal',
+    timestamp: 'timestamp',
+    lastActive: 'lastActive'
   };
 
   export type MusicAccessLogScalarFieldEnum = (typeof MusicAccessLogScalarFieldEnum)[keyof typeof MusicAccessLogScalarFieldEnum]
@@ -12285,7 +12431,15 @@ export namespace Prisma {
     region?: StringNullableFilter<"MusicAccessLog"> | string | null
     isp?: StringNullableFilter<"MusicAccessLog"> | string | null
     userAgent?: StringNullableFilter<"MusicAccessLog"> | string | null
+    songTitle?: StringNullableFilter<"MusicAccessLog"> | string | null
+    sessionId?: StringNullableFilter<"MusicAccessLog"> | string | null
+    duration?: IntFilter<"MusicAccessLog"> | number
+    latitude?: FloatNullableFilter<"MusicAccessLog"> | number | null
+    longitude?: FloatNullableFilter<"MusicAccessLog"> | number | null
+    timezone?: StringNullableFilter<"MusicAccessLog"> | string | null
+    postal?: StringNullableFilter<"MusicAccessLog"> | string | null
     timestamp?: DateTimeFilter<"MusicAccessLog"> | Date | string
+    lastActive?: DateTimeFilter<"MusicAccessLog"> | Date | string
   }
 
   export type MusicAccessLogOrderByWithRelationInput = {
@@ -12296,7 +12450,15 @@ export namespace Prisma {
     region?: SortOrderInput | SortOrder
     isp?: SortOrderInput | SortOrder
     userAgent?: SortOrderInput | SortOrder
+    songTitle?: SortOrderInput | SortOrder
+    sessionId?: SortOrderInput | SortOrder
+    duration?: SortOrder
+    latitude?: SortOrderInput | SortOrder
+    longitude?: SortOrderInput | SortOrder
+    timezone?: SortOrderInput | SortOrder
+    postal?: SortOrderInput | SortOrder
     timestamp?: SortOrder
+    lastActive?: SortOrder
   }
 
   export type MusicAccessLogWhereUniqueInput = Prisma.AtLeast<{
@@ -12310,7 +12472,15 @@ export namespace Prisma {
     region?: StringNullableFilter<"MusicAccessLog"> | string | null
     isp?: StringNullableFilter<"MusicAccessLog"> | string | null
     userAgent?: StringNullableFilter<"MusicAccessLog"> | string | null
+    songTitle?: StringNullableFilter<"MusicAccessLog"> | string | null
+    sessionId?: StringNullableFilter<"MusicAccessLog"> | string | null
+    duration?: IntFilter<"MusicAccessLog"> | number
+    latitude?: FloatNullableFilter<"MusicAccessLog"> | number | null
+    longitude?: FloatNullableFilter<"MusicAccessLog"> | number | null
+    timezone?: StringNullableFilter<"MusicAccessLog"> | string | null
+    postal?: StringNullableFilter<"MusicAccessLog"> | string | null
     timestamp?: DateTimeFilter<"MusicAccessLog"> | Date | string
+    lastActive?: DateTimeFilter<"MusicAccessLog"> | Date | string
   }, "id">
 
   export type MusicAccessLogOrderByWithAggregationInput = {
@@ -12321,10 +12491,20 @@ export namespace Prisma {
     region?: SortOrderInput | SortOrder
     isp?: SortOrderInput | SortOrder
     userAgent?: SortOrderInput | SortOrder
+    songTitle?: SortOrderInput | SortOrder
+    sessionId?: SortOrderInput | SortOrder
+    duration?: SortOrder
+    latitude?: SortOrderInput | SortOrder
+    longitude?: SortOrderInput | SortOrder
+    timezone?: SortOrderInput | SortOrder
+    postal?: SortOrderInput | SortOrder
     timestamp?: SortOrder
+    lastActive?: SortOrder
     _count?: MusicAccessLogCountOrderByAggregateInput
+    _avg?: MusicAccessLogAvgOrderByAggregateInput
     _max?: MusicAccessLogMaxOrderByAggregateInput
     _min?: MusicAccessLogMinOrderByAggregateInput
+    _sum?: MusicAccessLogSumOrderByAggregateInput
   }
 
   export type MusicAccessLogScalarWhereWithAggregatesInput = {
@@ -12338,7 +12518,15 @@ export namespace Prisma {
     region?: StringNullableWithAggregatesFilter<"MusicAccessLog"> | string | null
     isp?: StringNullableWithAggregatesFilter<"MusicAccessLog"> | string | null
     userAgent?: StringNullableWithAggregatesFilter<"MusicAccessLog"> | string | null
+    songTitle?: StringNullableWithAggregatesFilter<"MusicAccessLog"> | string | null
+    sessionId?: StringNullableWithAggregatesFilter<"MusicAccessLog"> | string | null
+    duration?: IntWithAggregatesFilter<"MusicAccessLog"> | number
+    latitude?: FloatNullableWithAggregatesFilter<"MusicAccessLog"> | number | null
+    longitude?: FloatNullableWithAggregatesFilter<"MusicAccessLog"> | number | null
+    timezone?: StringNullableWithAggregatesFilter<"MusicAccessLog"> | string | null
+    postal?: StringNullableWithAggregatesFilter<"MusicAccessLog"> | string | null
     timestamp?: DateTimeWithAggregatesFilter<"MusicAccessLog"> | Date | string
+    lastActive?: DateTimeWithAggregatesFilter<"MusicAccessLog"> | Date | string
   }
 
   export type ArticleCreateInput = {
@@ -13086,7 +13274,15 @@ export namespace Prisma {
     region?: string | null
     isp?: string | null
     userAgent?: string | null
+    songTitle?: string | null
+    sessionId?: string | null
+    duration?: number
+    latitude?: number | null
+    longitude?: number | null
+    timezone?: string | null
+    postal?: string | null
     timestamp?: Date | string
+    lastActive?: Date | string
   }
 
   export type MusicAccessLogUncheckedCreateInput = {
@@ -13097,7 +13293,15 @@ export namespace Prisma {
     region?: string | null
     isp?: string | null
     userAgent?: string | null
+    songTitle?: string | null
+    sessionId?: string | null
+    duration?: number
+    latitude?: number | null
+    longitude?: number | null
+    timezone?: string | null
+    postal?: string | null
     timestamp?: Date | string
+    lastActive?: Date | string
   }
 
   export type MusicAccessLogUpdateInput = {
@@ -13108,7 +13312,15 @@ export namespace Prisma {
     region?: NullableStringFieldUpdateOperationsInput | string | null
     isp?: NullableStringFieldUpdateOperationsInput | string | null
     userAgent?: NullableStringFieldUpdateOperationsInput | string | null
+    songTitle?: NullableStringFieldUpdateOperationsInput | string | null
+    sessionId?: NullableStringFieldUpdateOperationsInput | string | null
+    duration?: IntFieldUpdateOperationsInput | number
+    latitude?: NullableFloatFieldUpdateOperationsInput | number | null
+    longitude?: NullableFloatFieldUpdateOperationsInput | number | null
+    timezone?: NullableStringFieldUpdateOperationsInput | string | null
+    postal?: NullableStringFieldUpdateOperationsInput | string | null
     timestamp?: DateTimeFieldUpdateOperationsInput | Date | string
+    lastActive?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type MusicAccessLogUncheckedUpdateInput = {
@@ -13119,7 +13331,15 @@ export namespace Prisma {
     region?: NullableStringFieldUpdateOperationsInput | string | null
     isp?: NullableStringFieldUpdateOperationsInput | string | null
     userAgent?: NullableStringFieldUpdateOperationsInput | string | null
+    songTitle?: NullableStringFieldUpdateOperationsInput | string | null
+    sessionId?: NullableStringFieldUpdateOperationsInput | string | null
+    duration?: IntFieldUpdateOperationsInput | number
+    latitude?: NullableFloatFieldUpdateOperationsInput | number | null
+    longitude?: NullableFloatFieldUpdateOperationsInput | number | null
+    timezone?: NullableStringFieldUpdateOperationsInput | string | null
+    postal?: NullableStringFieldUpdateOperationsInput | string | null
     timestamp?: DateTimeFieldUpdateOperationsInput | Date | string
+    lastActive?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type MusicAccessLogCreateManyInput = {
@@ -13130,7 +13350,15 @@ export namespace Prisma {
     region?: string | null
     isp?: string | null
     userAgent?: string | null
+    songTitle?: string | null
+    sessionId?: string | null
+    duration?: number
+    latitude?: number | null
+    longitude?: number | null
+    timezone?: string | null
+    postal?: string | null
     timestamp?: Date | string
+    lastActive?: Date | string
   }
 
   export type MusicAccessLogUpdateManyMutationInput = {
@@ -13141,7 +13369,15 @@ export namespace Prisma {
     region?: NullableStringFieldUpdateOperationsInput | string | null
     isp?: NullableStringFieldUpdateOperationsInput | string | null
     userAgent?: NullableStringFieldUpdateOperationsInput | string | null
+    songTitle?: NullableStringFieldUpdateOperationsInput | string | null
+    sessionId?: NullableStringFieldUpdateOperationsInput | string | null
+    duration?: IntFieldUpdateOperationsInput | number
+    latitude?: NullableFloatFieldUpdateOperationsInput | number | null
+    longitude?: NullableFloatFieldUpdateOperationsInput | number | null
+    timezone?: NullableStringFieldUpdateOperationsInput | string | null
+    postal?: NullableStringFieldUpdateOperationsInput | string | null
     timestamp?: DateTimeFieldUpdateOperationsInput | Date | string
+    lastActive?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type MusicAccessLogUncheckedUpdateManyInput = {
@@ -13152,7 +13388,15 @@ export namespace Prisma {
     region?: NullableStringFieldUpdateOperationsInput | string | null
     isp?: NullableStringFieldUpdateOperationsInput | string | null
     userAgent?: NullableStringFieldUpdateOperationsInput | string | null
+    songTitle?: NullableStringFieldUpdateOperationsInput | string | null
+    sessionId?: NullableStringFieldUpdateOperationsInput | string | null
+    duration?: IntFieldUpdateOperationsInput | number
+    latitude?: NullableFloatFieldUpdateOperationsInput | number | null
+    longitude?: NullableFloatFieldUpdateOperationsInput | number | null
+    timezone?: NullableStringFieldUpdateOperationsInput | string | null
+    postal?: NullableStringFieldUpdateOperationsInput | string | null
     timestamp?: DateTimeFieldUpdateOperationsInput | Date | string
+    lastActive?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type StringFilter<$PrismaModel = never> = {
@@ -13746,6 +13990,17 @@ export namespace Prisma {
     order?: SortOrder
   }
 
+  export type FloatNullableFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatNullableFilter<$PrismaModel> | number | null
+  }
+
   export type MusicAccessLogCountOrderByAggregateInput = {
     id?: SortOrder
     ip?: SortOrder
@@ -13754,7 +14009,21 @@ export namespace Prisma {
     region?: SortOrder
     isp?: SortOrder
     userAgent?: SortOrder
+    songTitle?: SortOrder
+    sessionId?: SortOrder
+    duration?: SortOrder
+    latitude?: SortOrder
+    longitude?: SortOrder
+    timezone?: SortOrder
+    postal?: SortOrder
     timestamp?: SortOrder
+    lastActive?: SortOrder
+  }
+
+  export type MusicAccessLogAvgOrderByAggregateInput = {
+    duration?: SortOrder
+    latitude?: SortOrder
+    longitude?: SortOrder
   }
 
   export type MusicAccessLogMaxOrderByAggregateInput = {
@@ -13765,7 +14034,15 @@ export namespace Prisma {
     region?: SortOrder
     isp?: SortOrder
     userAgent?: SortOrder
+    songTitle?: SortOrder
+    sessionId?: SortOrder
+    duration?: SortOrder
+    latitude?: SortOrder
+    longitude?: SortOrder
+    timezone?: SortOrder
+    postal?: SortOrder
     timestamp?: SortOrder
+    lastActive?: SortOrder
   }
 
   export type MusicAccessLogMinOrderByAggregateInput = {
@@ -13776,7 +14053,37 @@ export namespace Prisma {
     region?: SortOrder
     isp?: SortOrder
     userAgent?: SortOrder
+    songTitle?: SortOrder
+    sessionId?: SortOrder
+    duration?: SortOrder
+    latitude?: SortOrder
+    longitude?: SortOrder
+    timezone?: SortOrder
+    postal?: SortOrder
     timestamp?: SortOrder
+    lastActive?: SortOrder
+  }
+
+  export type MusicAccessLogSumOrderByAggregateInput = {
+    duration?: SortOrder
+    latitude?: SortOrder
+    longitude?: SortOrder
+  }
+
+  export type FloatNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatNullableWithAggregatesFilter<$PrismaModel> | number | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _avg?: NestedFloatNullableFilter<$PrismaModel>
+    _sum?: NestedFloatNullableFilter<$PrismaModel>
+    _min?: NestedFloatNullableFilter<$PrismaModel>
+    _max?: NestedFloatNullableFilter<$PrismaModel>
   }
 
   export type ArticleScoreCreateNestedOneWithoutArticleInput = {
@@ -13982,6 +14289,14 @@ export namespace Prisma {
     update?: XOR<XOR<SongUpdateToOneWithWhereWithoutPlaylistsInput, SongUpdateWithoutPlaylistsInput>, SongUncheckedUpdateWithoutPlaylistsInput>
   }
 
+  export type NullableFloatFieldUpdateOperationsInput = {
+    set?: number | null
+    increment?: number
+    decrement?: number
+    multiply?: number
+    divide?: number
+  }
+
   export type NestedStringFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
     in?: string[] | ListStringFieldRefInput<$PrismaModel>
@@ -14181,6 +14496,22 @@ export namespace Prisma {
     gt?: number | FloatFieldRefInput<$PrismaModel>
     gte?: number | FloatFieldRefInput<$PrismaModel>
     not?: NestedFloatNullableFilter<$PrismaModel> | number | null
+  }
+
+  export type NestedFloatNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatNullableWithAggregatesFilter<$PrismaModel> | number | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _avg?: NestedFloatNullableFilter<$PrismaModel>
+    _sum?: NestedFloatNullableFilter<$PrismaModel>
+    _min?: NestedFloatNullableFilter<$PrismaModel>
+    _max?: NestedFloatNullableFilter<$PrismaModel>
   }
 
   export type ArticleScoreCreateWithoutArticleInput = {

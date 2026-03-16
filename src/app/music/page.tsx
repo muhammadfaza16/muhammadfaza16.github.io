@@ -22,24 +22,8 @@ const MENU_ITEMS = [
 
 export default function AudioHubPage() {
     const [dbSongs, setDbSongs] = useState<any[]>([]);
-    const [counts, setCounts] = useState<Record<string, number>>({});
-
-    useEffect(() => {
-        fetch("/api/music/songs")
-            .then(res => res.json())
-            .then(data => {
-                if (data.success && data.songs) {
-                    setDbSongs(data.songs);
-                }
-            })
-            .catch(() => { });
-
-        // Log access
-        fetch("/api/music/log", { method: "POST" }).catch(() => { });
-    }, []);
-
-    useEffect(() => {
-        if (!dbSongs.length) return;
+    const counts = useMemo(() => {
+        if (!dbSongs.length) return {};
         
         const newCounts: Record<string, number> = {};
         PLAYLIST_CATEGORIES.forEach(p => {
@@ -57,7 +41,7 @@ export default function AudioHubPage() {
                 ).length;
             }
         });
-        setCounts(newCounts);
+        return newCounts;
     }, [dbSongs]);
 
     const borderStyle = "2px solid #000";

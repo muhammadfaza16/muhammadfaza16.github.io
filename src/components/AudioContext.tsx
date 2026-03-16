@@ -9,6 +9,23 @@ export interface LyricItem {
     text: string;
 }
 
+// 1. Structural Context (Queue, Play/Pause, Meta)
+// 2. High-Frequency Context (Time, Buffering)
+
+interface TimeContextType {
+    currentTime: number;
+    duration: number;
+    isBuffering: boolean;
+}
+
+const TimeContext = createContext<TimeContextType>({
+    currentTime: 0,
+    duration: 0,
+    isBuffering: false,
+});
+
+export const useTime = () => useContext(TimeContext);
+
 interface AudioContextType {
     isPlaying: boolean;
     togglePlay: () => void;
@@ -18,8 +35,7 @@ interface AudioContextType {
     currentSong: { title: string; audioUrl: string };
     audioRef: React.RefObject<HTMLAudioElement | null>;
     hasInteracted: boolean;
-    isBuffering: boolean;
-    warmup?: () => void; // Keep type optional in case components still reference it before cleanup
+    warmup?: () => void;
     showLyrics?: boolean;
     setShowLyrics?: (v: boolean) => void;
     showMarquee?: boolean;
@@ -32,21 +48,16 @@ interface AudioContextType {
     activePlaylistId: string | null;
     isMiniPlayerDismissed: boolean;
     setMiniPlayerDismissed: (v: boolean) => void;
-    // Time tracking
-    currentTime: number;
-    duration: number;
     seekTo: (time: number) => void;
-    activePlaybackMode?: 'none' | 'music';
-    setActivePlaybackMode?: (mode: 'none' | 'music') => void;
-    stopMusic?: () => void;
-    // Shuffle & Repeat
+    stopMusic: () => void;
     shuffleMode: boolean;
     toggleShuffle: () => void;
     repeatMode: 'off' | 'one' | 'all';
     toggleRepeat: () => void;
-    // Player Expanded State
     isPlayerExpanded: boolean;
     setIsPlayerExpanded: (v: boolean) => void;
+    activePlaybackMode?: 'none' | 'music';
+    setActivePlaybackMode?: (mode: 'none' | 'music') => void;
 }
 
 // Helper: Fisher-Yates Shuffle
@@ -171,6 +182,46 @@ export function AudioProvider({ children, initialSongs = [] }: { children: React
             })
             .catch(() => { });
     }, [hasLoadedState]);
+
+    const [sessionId, setSessionId] = useState<string | null>(null);
+
+    // Initialize session ID
+    useEffect(() => {
+        let sid = sessionStorage.getItem("music_session_id");
+        if (!sid) {
+            sid = `sess_${Math.random().toString(36).substring(2, 9)}_${Date.now()}`;
+            sessionStorage.setItem("music_session_id", sid);
+        }
+        setSessionId(sid);
+    }, []);
+
+    // Heartbeat: Update session duration every 60s
+    useEffect(() => {
+        if (!sessionId) return;
+        const interval = setInterval(() => {
+            fetch("/api/music/log", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ sessionId })
+            }).catch(() => { });
+        }, 60000); // 1 minute heartbeat
+        return () => clearInterval(interval);
+    }, [sessionId]);
+
+    const lastLoggedSongRef = useRef<string | null>(null);
+
+    // Telemetry: Log song plays with sessionId
+    useEffect(() => {
+        const currentSong = queue[currentIndex];
+        if (isPlaying && currentSong && lastLoggedSongRef.current !== currentSong.audioUrl && sessionId) {
+            lastLoggedSongRef.current = currentSong.audioUrl;
+            fetch("/api/music/log", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ songTitle: currentSong.title, sessionId })
+            }).catch(() => { });
+        }
+    }, [currentIndex, isPlaying, queue, sessionId]);
 
     // Save state to localStorage (debounced)
     useEffect(() => {
@@ -603,7 +654,7 @@ export function AudioProvider({ children, initialSongs = [] }: { children: React
 
     return (
         <AudioContext.Provider value={{
-            isPlaying, isBuffering, togglePlay, nextSong, prevSong, jumpToSong, currentSong, audioRef, hasInteracted, warmup,
+            isPlaying, togglePlay, nextSong, prevSong, jumpToSong, currentSong, audioRef, hasInteracted, warmup,
             showLyrics: true, setShowLyrics: () => {}, showMarquee: true, setShowMarquee: () => {},
             currentLyricText,
             activeLyrics,
@@ -613,19 +664,18 @@ export function AudioProvider({ children, initialSongs = [] }: { children: React
             activePlaylistId,
             isMiniPlayerDismissed,
             setMiniPlayerDismissed,
-            currentTime,
-            duration,
             seekTo,
-            activePlaybackMode: 'music',
-            setActivePlaybackMode: () => {},
             stopMusic,
             shuffleMode,
             toggleShuffle,
             repeatMode,
             toggleRepeat,
             isPlayerExpanded,
-            setIsPlayerExpanded
+            setIsPlayerExpanded,
+            activePlaybackMode: 'music',
+            setActivePlaybackMode: () => {}
         }}>
+            <TimeContext.Provider value={{ currentTime, duration, isBuffering }}>
             <audio
                 ref={audioRef}
                 src={queue[currentIndex]?.audioUrl}
@@ -709,6 +759,7 @@ export function AudioProvider({ children, initialSongs = [] }: { children: React
 
             />
             {children}
+            </TimeContext.Provider>
         </AudioContext.Provider>
     );
 }

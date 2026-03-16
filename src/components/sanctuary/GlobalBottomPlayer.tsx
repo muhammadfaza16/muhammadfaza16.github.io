@@ -3,18 +3,20 @@
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { usePathname } from "next/navigation";
-import { useAudio } from "../AudioContext";
+import { useAudio, useTime } from "../AudioContext";
 import { Play, Pause, SkipBack, SkipForward, Shuffle, Repeat, ChevronDown, ChevronUp, Repeat1, ListMusic, Disc, FileText, Search } from "lucide-react";
 import { MusicBottomNav } from "./MusicBottomNav";
 
 export function GlobalBottomPlayer() {
     const {
         isPlaying, togglePlay, nextSong, prevSong, jumpToSong,
-        currentSong, currentTime, duration, seekTo,
+        currentSong, seekTo,
         shuffleMode, toggleShuffle, repeatMode, toggleRepeat,
         activePlaybackMode, activeLyrics, queue,
         isPlayerExpanded: isExpanded, setIsPlayerExpanded: setIsExpanded
     } = useAudio();
+
+    const { currentTime, duration, isBuffering } = useTime();
 
     const [isMounted, setIsMounted] = useState(false);
     const [activeTab, setActiveTab] = useState<'cover' | 'lyrics'>('cover');

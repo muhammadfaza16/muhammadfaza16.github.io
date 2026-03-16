@@ -295,25 +295,94 @@ export default function MasterPanelPage() {
                                             ) : accessLogs.length === 0 ? (
                                                 <div style={{ textAlign: "center", padding: "20px", fontFamily: "monospace", fontSize: "0.8rem", color: "#222" }}>No logs yet.</div>
                                             ) : (
-                                                <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+                                                <div style={{ 
+                                                    display: "flex", flexDirection: "column", gap: "10px",
+                                                    maxHeight: "500px", overflowY: "auto", paddingRight: "4px"
+                                                }}>
                                                     {accessLogs.map(log => (
-                                                        <div key={log.id} style={{ padding: "12px", background: "#f9f9f9", border: "1px solid #000", display: "flex", flexDirection: "column", gap: "4px" }}>
-                                                            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+                                                        <div key={log.id} style={{ 
+                                                            padding: "16px", background: "#fff", border: "2px solid #000", 
+                                                            display: "flex", flexDirection: "column", gap: "8px",
+                                                            boxShadow: "2px 2px 0 #000"
+                                                        }}>
+                                                            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "8px" }}>
                                                                 <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                                                                    <Globe size={12} />
-                                                                    <span style={{ fontFamily: "monospace", fontSize: "0.85rem", fontWeight: 900 }}>{log.ip}</span>
+                                                                    <Globe size={14} />
+                                                                    <span style={{ fontFamily: "monospace", fontSize: "0.9rem", fontWeight: 900, color: "#000" }}>
+                                                                        {(log.ip === "::1" || log.ip === "127.0.0.1") ? "Localhost" : log.ip}
+                                                                    </span>
                                                                 </div>
-                                                                <span style={{ fontSize: "0.65rem", fontWeight: 700, fontFamily: "monospace", color: "#222" }}>
-                                                                    {new Date(log.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                                                <span style={{ fontSize: "0.7rem", fontWeight: 800, fontFamily: "monospace", color: "#666", background: "#f0f0f0", padding: "2px 6px", border: "1px solid #000" }}>
+                                                                    {new Date(log.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} • {new Date(log.timestamp).toLocaleDateString([], { day: '2-digit', month: '2-digit' })}
                                                                 </span>
                                                             </div>
-                                                            {(log.city || log.country) && (
-                                                                <div style={{ fontSize: "0.7rem", fontWeight: 800, color: "#000", textTransform: "uppercase", letterSpacing: "0.5px" }}>
-                                                                    📍 {log.city || "Unknown City"}, {log.country || "Unknown Country"}
+
+                                                            {log.songTitle && (
+                                                                <div style={{ 
+                                                                    display: "flex", alignItems: "flex-start", gap: "8px", margin: "4px 0",
+                                                                    background: "#000", color: "#fff", padding: "8px 12px", border: "1px solid #000"
+                                                                }}>
+                                                                    <div style={{ marginTop: "2px" }}><ListMusic size={14} /></div>
+                                                                    <div style={{ display: "flex", flexDirection: "column" }}>
+                                                                        <span style={{ fontSize: "0.6rem", fontWeight: 700, textTransform: "uppercase", opacity: 0.7 }}>NOW LISTENING</span>
+                                                                        <span style={{ fontFamily: "monospace", fontSize: "0.8rem", fontWeight: 900, textTransform: "uppercase", wordBreak: "break-all" }}>
+                                                                            {log.songTitle}
+                                                                        </span>
+                                                                    </div>
                                                                 </div>
                                                             )}
-                                                            <div style={{ display: "flex", alignItems: "center", gap: "4px", fontSize: "0.6rem", color: "#333", fontWeight: 700, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                                                                <Users size={10} />
+
+                                                            {(log.city || log.country) && (
+                                                                <div style={{ 
+                                                                    fontSize: "0.8rem", fontWeight: 800, color: "#000", 
+                                                                    textTransform: "uppercase", letterSpacing: "0.5px", 
+                                                                    display: "flex", flexDirection: "column", gap: "6px",
+                                                                    padding: "10px", background: "#f9f9f9", border: "1px dashed #000"
+                                                                }}>
+                                                                    <div style={{ display: "flex", alignItems: "flex-start", gap: "6px" }}>
+                                                                        <span>📍</span>
+                                                                        <span style={{ wordBreak: "break-word" }}>{log.city || "Unknown City"}, {log.country || "Unknown Country"} {log.postal ? `(${log.postal})` : ""}</span>
+                                                                    </div>
+                                                                    
+                                                                    {/* ISP & Duration Row */}
+                                                                    <div style={{ display: "flex", flexWrap: "wrap", gap: "8px", marginTop: "4px" }}>
+                                                                        {log.isp && (
+                                                                            <div style={{ background: "#eef2ff", color: "#4338ca", border: "1px solid #4338ca", padding: "2px 8px", fontSize: "0.65rem", fontWeight: 900, borderRadius: "2px" }}>
+                                                                                ISP: {log.isp}
+                                                                            </div>
+                                                                        )}
+                                                                        <div style={{ background: "#fef3c7", color: "#92400e", border: "1px solid #92400e", padding: "2px 8px", fontSize: "0.65rem", fontWeight: 900, borderRadius: "2px" }}>
+                                                                            ⏱️ {log.duration < 60 ? `${log.duration}s` : `${Math.floor(log.duration / 60)}m ${log.duration % 60}s`}
+                                                                        </div>
+                                                                    </div>
+                                                                    
+                                                                    <div style={{ display: "flex", flexWrap: "wrap", gap: "8px", color: "#666", fontSize: "0.6rem" }}>
+                                                                        {log.timezone && <span>TZ: {log.timezone}</span>}
+                                                                    </div>
+                                                                    
+                                                                    {log.latitude && log.longitude && (
+                                                                        <a 
+                                                                            href={`https://www.google.com/maps?q=${log.latitude},${log.longitude}`} 
+                                                                            target="_blank" 
+                                                                            rel="noopener noreferrer"
+                                                                            style={{ 
+                                                                                display: "inline-block", alignSelf: "flex-start",
+                                                                                color: "#000", textDecoration: "underline", fontSize: "0.7rem", 
+                                                                                fontWeight: 900, marginTop: "4px", background: "#fff", 
+                                                                                padding: "4px 8px", border: "1px solid #000"
+                                                                            }}
+                                                                        >
+                                                                            VIEW ON MAP ({log.latitude.toFixed(3)}, {log.longitude.toFixed(3)})
+                                                                        </a>
+                                                                    )}
+                                                                </div>
+                                                            )}
+                                                            <div style={{ 
+                                                                display: "flex", alignItems: "flex-start", gap: "6px", fontSize: "0.65rem", 
+                                                                color: "#666", fontWeight: 700, borderTop: "1px solid #eee", 
+                                                                paddingTop: "8px", marginTop: "4px", wordBreak: "break-all"
+                                                            }}>
+                                                                <div style={{ marginTop: "2px" }}><Users size={12} /></div>
                                                                 {log.userAgent}
                                                             </div>
                                                         </div>

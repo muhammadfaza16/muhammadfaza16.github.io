@@ -20,8 +20,12 @@ export async function GET(request: Request) {
         });
 
         return NextResponse.json({ success: true, logs });
-    } catch (error) {
+    } catch (error: any) {
         console.error("Failed to fetch access logs:", error);
-        return NextResponse.json({ success: false, error: "Internal Server Error" }, { status: 500 });
+        return NextResponse.json({ 
+            success: false, 
+            error: error.message || "Internal Server Error",
+            stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
+        }, { status: 500 });
     }
 }

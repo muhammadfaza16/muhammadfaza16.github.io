@@ -1,12 +1,13 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { useAudio } from "./AudioContext";
+import { useAudio, useTime } from "./AudioContext";
 import { useLyrics } from "../hooks/useLyrics";
 import { cn } from "../lib/utils";
 
 export function LyricsDisplay() {
-    const { currentSong, audioRef, isPlaying, isBuffering } = useAudio();
+    const { currentSong, audioRef, isPlaying } = useAudio();
+    const { isBuffering } = useTime();
     const { lyrics, loading, error } = useLyrics(currentSong.title);
 
     const [activeIndex, setActiveIndex] = useState<number>(-1);
