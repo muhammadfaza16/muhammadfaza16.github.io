@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
-import { ListMusic, ChevronLeft, ArrowRight, Sparkles, LibraryBig, Music } from "lucide-react";
+import { ListMusic, ChevronLeft, ArrowRight, Sparkles, LibraryBig, Music, Radio } from "lucide-react";
 import { motion } from "framer-motion";
 import { PLAYLIST_CATEGORIES } from "@/data/playlists";
 
@@ -98,6 +98,78 @@ export default function AudioHubPage() {
 
                 {/* Home Dashboard */}
                 <div style={{ display: "flex", flexDirection: "column", gap: "32px", marginTop: "8px" }}>
+                    
+                    {/* Sophisticated Radio Entry */}
+                    <Link href="/music/live" style={{ textDecoration: "none" }}>
+                        <motion.div
+                            whileHover={{ y: -4, scale: 1.02 }}
+                            whileTap={{ scale: 0.98 }}
+                            style={{
+                                position: "relative",
+                                width: "100%",
+                                height: "80px",
+                                background: "linear-gradient(135deg, #000 0%, #333 100%)",
+                                border: borderStyle,
+                                boxShadow: shadowStyle,
+                                borderRadius: "16px",
+                                overflow: "hidden",
+                                display: "flex",
+                                alignItems: "center",
+                                padding: "0 20px",
+                                cursor: "pointer"
+                            }}
+                        >
+                            {/* Animated Background Mesh */}
+                            <div style={{
+                                position: "absolute",
+                                inset: 0,
+                                opacity: 0.3,
+                                background: "radial-gradient(circle at 20% 50%, rgba(255,255,255,0.1) 0%, transparent 50%), radial-gradient(circle at 80% 50%, rgba(255,255,255,0.05) 0%, transparent 50%)"
+                            }} />
+
+                            <div style={{ position: "relative", zIndex: 1, display: "flex", alignItems: "center", width: "100%", justifyContent: "space-between" }}>
+                                <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
+                                    <div style={{ position: "relative" }}>
+                                        <div style={{ 
+                                            width: "44px", height: "44px", borderRadius: "50%", background: "#fff", 
+                                            display: "flex", alignItems: "center", justifyContent: "center",
+                                            boxShadow: "0 0 20px rgba(255,255,255,0.2)"
+                                        }}>
+                                            <Radio size={24} color="#000" />
+                                        </div>
+                                        {/* Pulse Effect */}
+                                        <motion.div
+                                            animate={{ scale: [1, 1.4, 1], opacity: [0.5, 0, 0.5] }}
+                                            transition={{ duration: 2, repeat: Infinity }}
+                                            style={{
+                                                position: "absolute", inset: -2, borderRadius: "50%",
+                                                border: "2px solid #fff", zIndex: -1
+                                            }}
+                                        />
+                                    </div>
+                                    <div style={{ display: "flex", flexDirection: "column" }}>
+                                        <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                                            <span style={{ 
+                                                fontFamily: "monospace", fontWeight: 800, fontSize: "0.6rem", 
+                                                color: "#FF4D4D", background: "rgba(255,77,77,0.1)", 
+                                                padding: "2px 6px", borderRadius: "4px", textTransform: "uppercase" 
+                                            }}>Live Now</span>
+                                            <span style={{ 
+                                                fontFamily: "monospace", fontSize: "0.6rem", color: "rgba(255,255,255,0.5)",
+                                                textTransform: "uppercase"
+                                            }}>9:00 PM - End</span>
+                                        </div>
+                                        <span style={{ 
+                                            fontFamily: "system-ui, -apple-system, sans-serif", fontWeight: 900, 
+                                            fontSize: "1.2rem", color: "#fff", letterSpacing: "-0.04em", 
+                                            textTransform: "uppercase", lineHeight: 1
+                                        }}>Starlight Radio</span>
+                                    </div>
+                                </div>
+                                <ArrowRight size={20} color="#fff" style={{ opacity: 0.5 }} />
+                            </div>
+                        </motion.div>
+                    </Link>
                     
                     {/* Quick Access / Library */}
                     <div>
