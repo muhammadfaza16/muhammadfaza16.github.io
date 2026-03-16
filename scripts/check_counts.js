@@ -1,22 +1,22 @@
-const { Client } = require('pg');
+const { PrismaClient } = require('@prisma/client');
+const prisma = new PrismaClient();
 
 async function main() {
-    const directUrl = "postgresql://postgres.tcvbbgttdvhuyhsbowjn:OqPJAEZ0r0fx6EXd@aws-1-ap-northeast-2.pooler.supabase.com:6543/postgres?pgbouncer=true";
-    const client = new Client({
-        connectionString: directUrl,
-        ssl: { rejectUnauthorized: false }
-    });
-
-    try {
-        await client.connect();
-        const res = await client.query(`SELECT category, COUNT(*) FROM "Article" GROUP BY category`);
-        console.log("Current Categories:");
-        res.rows.forEach(r => console.log(`- ${r.category}: ${r.count}`));
-    } catch (err) {
-        console.error("Database error:", err.message);
-    } finally {
-        await client.end();
+  const playlists = await prisma.playlist.findMany({
+    include: {
+      _count: {
+        select: { songs: true }
+      }
     }
+  });
+  
+  const totalSongs = await prisma.song.count();
+  
+  console.log('--- PLAYLIST COUNTS ---');
+  playlists.forEach(p => {
+    console.log(`${p.slug}: ${p._count.songs} songs`);
+  });
+  console.log(`total: ${totalSongs} songs`);
 }
 
-main();
+main().finally(() => prisma.$disconnect());

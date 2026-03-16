@@ -1,9 +1,18 @@
 "use client";
 
+import { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
-import { ListMusic, ChevronLeft, ArrowRight, Sparkles, LibraryBig } from "lucide-react";
+import { ListMusic, ChevronLeft, ArrowRight, Sparkles, LibraryBig, Music } from "lucide-react";
 import { motion } from "framer-motion";
 import { PLAYLIST_CATEGORIES } from "@/data/playlists";
+
+const INDO_ARTISTS = [
+    'Sheila on 7', 'Noah', 'Ungu', 'Samsons', 'D\'masiv', 'St12', 'Hijau Daun', 'Vagetoz', 
+    'Vierra', 'Virgoun', 'Virzha', 'Wali', 'Slam', 'Exists', 'Exist', 'Spoon', 'Screen', 'Ukays', 
+    'Ella', 'Stings', 'Taxi', 'Taxi Band', 'Utopia', 'For Revenge', 'Fredy', 'Geisha', 
+    'Element', 'Eren', 'Janji', 'Desy Ratnasari', 'David Bayu', 'Daun Jatuh', 'Last Child',
+    'Lyodra', 'Andra', 'Dewa', 'Tulus', 'Risalah'
+];
 
 const MENU_ITEMS = [
     { id: "songs", label: "All Songs", subtitle: "Full Library", icon: LibraryBig, href: "/playlist/all" },
@@ -12,6 +21,42 @@ const MENU_ITEMS = [
 
 
 export default function AudioHubPage() {
+    const [dbSongs, setDbSongs] = useState<any[]>([]);
+    const [counts, setCounts] = useState<Record<string, number>>({});
+
+    useEffect(() => {
+        fetch("/api/music/songs")
+            .then(res => res.json())
+            .then(data => {
+                if (data.success && data.songs) {
+                    setDbSongs(data.songs);
+                }
+            })
+            .catch(() => { });
+    }, []);
+
+    useEffect(() => {
+        if (!dbSongs.length) return;
+        
+        const newCounts: Record<string, number> = {};
+        PLAYLIST_CATEGORIES.forEach(p => {
+            if (p.id === 'indo-hits') {
+                newCounts[p.id] = dbSongs.filter(s => 
+                    INDO_ARTISTS.some(artist => s.title.toLowerCase().includes(artist.toLowerCase()))
+                ).length;
+            } else if (p.id === 'international-favorites') {
+                newCounts[p.id] = dbSongs.filter(s => 
+                    !INDO_ARTISTS.some(artist => s.title.toLowerCase().includes(artist.toLowerCase()))
+                ).length;
+            } else {
+                newCounts[p.id] = dbSongs.filter(s => 
+                    p.songTitles.some(t => s.title.toLowerCase().includes(t.toLowerCase()))
+                ).length;
+            }
+        });
+        setCounts(newCounts);
+    }, [dbSongs]);
+
     const borderStyle = "2px solid #000";
     const shadowStyle = "4px 4px 0 #000";
 
@@ -126,12 +171,21 @@ export default function AudioHubPage() {
                                             transition: "background-color 0.2s ease"
                                         }}
                                     >
-                                        <img
-                                            src={playlist.coverImage}
-                                            alt={playlist.title}
-                                            style={{ width: "100%", height: "100%", objectFit: "cover", position: "absolute", inset: 0, zIndex: 0, opacity: 0.8 }}
-                                            className="mix-blend-multiply" 
-                                        />
+                                        {playlist.coverImage && (
+                                            <img
+                                                src={playlist.coverImage}
+                                                style={{ width: "100%", height: "100%", objectFit: "cover", position: "absolute", inset: 0, zIndex: 0, opacity: 0.6 }}
+                                                className="mix-blend-multiply" 
+                                                onError={(e) => (e.currentTarget.style.display = 'none')}
+                                            />
+                                        )}
+                                        <div style={{ 
+                                            position: "absolute", inset: 0, zIndex: -1, 
+                                            display: "flex", alignItems: "center", justifyContent: "center",
+                                            opacity: 0.2
+                                        }}>
+                                            <Music size={40} color="#000" />
+                                        </div>
                                         <div style={{
                                             position: "absolute",
                                             inset: 0,
@@ -144,10 +198,13 @@ export default function AudioHubPage() {
                                             bottom: 0,
                                             left: 0,
                                             right: 0,
-                                            padding: "10px",
+                                            padding: "12px",
                                             zIndex: 2,
                                             display: "flex",
-                                            flexDirection: "column"
+                                            flexDirection: "column",
+                                            background: "rgba(0,0,0,0.4)",
+                                            backdropFilter: "blur(4px)",
+                                            borderTop: "1px solid rgba(255,255,255,0.1)"
                                         }}>
                                             <div style={{ 
                                                 color: "#fff", 
@@ -157,15 +214,18 @@ export default function AudioHubPage() {
                                                 textTransform: "uppercase", 
                                                 letterSpacing: "-0.04em", 
                                                 lineHeight: 1.1,
-                                                display: "-webkit-box",
-                                                WebkitLineClamp: 2,
-                                                WebkitBoxOrient: "vertical",
-                                                overflow: "hidden"
+                                                marginBottom: "2px"
                                             }}>
                                                 {playlist.title}
                                             </div>
-                                            <div style={{ color: "rgba(255,255,255,0.7)", fontSize: "0.55rem", marginTop: "2px", fontFamily: "monospace", fontWeight: 700 }}>
-                                                {playlist.vibes[0]}
+                                            <div style={{ 
+                                                color: "rgba(255,255,255,0.8)", 
+                                                fontSize: "0.6rem", 
+                                                fontFamily: "monospace", 
+                                                fontWeight: 700,
+                                                textTransform: "uppercase"
+                                            }}>
+                                                {counts[playlist.id] !== undefined ? `${counts[playlist.id]} TRACKS` : `${playlist.vibes[0]}`}
                                             </div>
                                         </div>
                                     </motion.div>
