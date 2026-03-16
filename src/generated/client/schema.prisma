@@ -130,12 +130,23 @@ model PlaylistSong {
 }
 
 model MusicAccessLog {
-  id        String   @id @default(uuid())
-  ip        String
-  city      String?
-  country   String?
-  region    String?
-  isp       String?
-  userAgent String?
-  timestamp DateTime @default(now())
+  id         String   @id @default(uuid())
+  ip         String
+  city       String?
+  country    String?
+  region     String?
+  isp        String?
+  userAgent  String?
+  songTitle  String?
+  sessionId  String?
+  duration   Int      @default(0)
+  latitude   Float?
+  longitude  Float?
+  timezone   String?
+  postal     String?
+  timestamp  DateTime @default(now())
+  lastActive DateTime @default(now())
+
+  @@index([timestamp])
+  @@index([sessionId])
 }

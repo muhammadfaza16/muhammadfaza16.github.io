@@ -6,7 +6,7 @@ import { Cloud, CloudSun, Sun, CloudRain, Calendar as CalIcon, GitBranch, Quote,
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { useAudio } from "@/components/AudioContext";
+import { useAudio, useTime } from "@/components/AudioContext";
 
 import { useLyrics } from "@/hooks/useLyrics";
 import { AnimatedNumber } from "./AnimatedNumber";
@@ -19,7 +19,8 @@ export function CleanHomeHero() {
     const router = useRouter();
     const [now, setNow] = useState(new Date());
     const [isMobile, setIsMobile] = useState(false);
-    const { isPlaying, togglePlay, currentSong, hasInteracted, currentTime, duration, nextSong, prevSong, seekTo, activePlaylistId, setIsPlayerExpanded } = useAudio();
+    const { isPlaying, togglePlay, currentSong, hasInteracted, nextSong, prevSong, seekTo, activePlaylistId, setIsPlayerExpanded } = useAudio();
+    const { currentTime, duration } = useTime();
     const songParts = currentSong.title.split("—");
     const artist = songParts[0]?.trim() || "Unknown";
     const song = songParts[1]?.trim() || currentSong.title;
