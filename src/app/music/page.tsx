@@ -100,31 +100,55 @@ export default function AudioHubPage() {
                         </div>
                         
                         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
-                            {PLAYLIST_CATEGORIES.slice(0, 2).map((playlist) => (
+                            {PLAYLIST_CATEGORIES.slice(0, 4).map((playlist) => (
                                 <Link key={playlist.id} href={`/playlist/${playlist.id}`} style={{ textDecoration: "none" }}>
                                     <motion.div
                                         whileHover={{ scale: 1.02, y: -4, boxShadow: "6px 6px 0 #000" }}
                                         whileTap={{ scale: 0.98, y: 2, x: 2, boxShadow: "0px 0px 0 #000" }}
                                         transition={{ type: "spring", stiffness: 300, damping: 20 }}
                                         style={{
-                                            backgroundColor: playlist.coverColor + '10',
+                                            position: "relative",
+                                            aspectRatio: "1/1",
+                                            backgroundColor: playlist.coverColor || "#fff",
                                             border: borderStyle,
                                             boxShadow: "4px 4px 0 #000",
-                                            padding: "16px",
+                                            borderRadius: "16px",
+                                            overflow: "hidden",
                                             display: "flex",
                                             flexDirection: "column",
-                                            gap: "12px",
                                             cursor: "pointer",
-                                            height: "100%",
                                             transition: "background-color 0.2s ease"
                                         }}
                                     >
-                                        <div style={{ width: "32px", height: "32px", border: borderStyle, display: "flex", alignItems: "center", justifyContent: "center", backgroundColor: playlist.coverColor, color: "#fff" }}>
-                                            <Compass size={16} />
-                                        </div>
-                                        <div style={{ display: "flex", flexDirection: "column" }}>
-                                            <span style={{ fontFamily: "system-ui, -apple-system, sans-serif", fontWeight: 900, fontSize: "1rem", color: "#000", lineHeight: 1.1 }}>{playlist.title}</span>
-                                            <span style={{ fontFamily: "monospace", fontSize: "0.65rem", color: "#555", fontWeight: 700, marginTop: "6px", textTransform: "uppercase" }}>{playlist.vibes[0]}</span>
+                                        <img
+                                            src={playlist.coverImage}
+                                            alt={playlist.title}
+                                            style={{ width: "100%", height: "100%", objectFit: "cover", position: "absolute", inset: 0, zIndex: 0, opacity: 0.8 }}
+                                            className="mix-blend-multiply" 
+                                        />
+                                        <div style={{
+                                            position: "absolute",
+                                            inset: 0,
+                                            background: "linear-gradient(to top, rgba(0,0,0,0.8) 0%, transparent 80%)",
+                                            zIndex: 1
+                                        }} />
+                                        
+                                        <div style={{
+                                            position: "absolute",
+                                            bottom: 0,
+                                            left: 0,
+                                            right: 0,
+                                            padding: "10px",
+                                            zIndex: 2,
+                                            display: "flex",
+                                            flexDirection: "column"
+                                        }}>
+                                            <div style={{ color: "#fff", fontWeight: 900, fontSize: "0.85rem", fontFamily: "system-ui, -apple-system, sans-serif", textTransform: "uppercase", letterSpacing: "-0.04em", lineHeight: 1.1 }}>
+                                                {playlist.title}
+                                            </div>
+                                            <div style={{ color: "rgba(255,255,255,0.7)", fontSize: "0.6rem", marginTop: "2px", fontFamily: "monospace", fontWeight: 700 }}>
+                                                {playlist.vibes[0]}
+                                            </div>
                                         </div>
                                     </motion.div>
                                 </Link>
