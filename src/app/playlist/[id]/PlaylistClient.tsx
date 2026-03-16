@@ -14,6 +14,14 @@ const fmtTime = (s: number) => {
     return `${m}:${sec.toString().padStart(2, '0')}`;
 };
 
+const INDO_ARTISTS = [
+    'Sheila on 7', 'Noah', 'Ungu', 'Samsons', 'D\'masiv', 'St12', 'Hijau Daun', 'Vagetoz', 
+    'Vierra', 'Virgoun', 'Virzha', 'Wali', 'Slam', 'Exists', 'Exist', 'Spoon', 'Screen', 'Ukays', 
+    'Ella', 'Stings', 'Taxi', 'Taxi Band', 'Utopia', 'For Revenge', 'Fredy', 'Geisha', 
+    'Element', 'Eren', 'Janji', 'Desy Ratnasari', 'David Bayu', 'Daun Jatuh', 'Last Child',
+    'Lyodra', 'Andra', 'Dewa', 'Tulus', 'Risalah'
+];
+
 function TrackRow({ song, index, isActive, isPlaying, onPlay }: {
     song: { title: string; audioUrl: string; originalIndex: number };
     index: number;
@@ -97,11 +105,11 @@ export default function PlaylistClient({ playlistId, initialSongs = [] }: { play
         if (activePlaylist) {
             if (activePlaylist.id === 'indo-hits') {
                 baseSongs = dbSongs.filter(song => 
-                    INDO_ARTISTS.some(artist => song.title.toLowerCase().includes(artist.toLowerCase()))
+                    INDO_ARTISTS.some((artist: string) => song.title.toLowerCase().includes(artist.toLowerCase()))
                 );
             } else if (activePlaylist.id === 'international-favorites') {
                 baseSongs = dbSongs.filter(song => 
-                    !INDO_ARTISTS.some(artist => song.title.toLowerCase().includes(artist.toLowerCase()))
+                    !INDO_ARTISTS.some((artist: string) => song.title.toLowerCase().includes(artist.toLowerCase()))
                 );
             } else {
                 baseSongs = dbSongs.filter(song =>
