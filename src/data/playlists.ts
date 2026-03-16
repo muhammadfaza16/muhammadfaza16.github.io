@@ -54,6 +54,28 @@ export const PLAYLIST_CATEGORIES: Playlist[] = [
         coverColor: "#be185d", // Pink/Rose
         coverImage: "/images/playlists/playlist_tentang_dia_final.webp",
         songTitles: []
+    },
+    {
+        id: "indo-hits",
+        title: "Indo Hits",
+        description: "Koleksi lagu-lagu terbaik dari tanah air dan sekitarnya.",
+        philosophy: "Nada-nada yang kental sama rasa bangga dan memori lokal.",
+        schedule: "Relaxing",
+        vibes: ["Indo", "Pop", "Local"],
+        coverColor: "#991b1b", // Red
+        coverImage: "/images/playlists/playlist_indo_hits.webp",
+        songTitles: []
+    },
+    {
+        id: "international-favorites",
+        title: "International Favorites",
+        description: "Top global tracks that define the current era.",
+        philosophy: "Music is a universal language, connecting us across borders.",
+        schedule: "Anytime",
+        vibes: ["International", "Global", "Hits"],
+        coverColor: "#1d4ed8", // Blue
+        coverImage: "/images/playlists/playlist_international.webp",
+        songTitles: []
     }
 ];
 
