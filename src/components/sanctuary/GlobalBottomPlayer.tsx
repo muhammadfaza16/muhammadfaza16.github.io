@@ -87,18 +87,12 @@ export function GlobalBottomPlayer() {
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: "100%" }}
                 transition={{ type: "spring", damping: 25, stiffness: 200 }}
-                drag="y"
-                dragConstraints={{ top: 0, bottom: 0 }}
-                dragElastic={{ top: 0.5, bottom: 0 }}
-                onDragEnd={(e, info) => {
-                    if (info.offset.y < -100) setIsExpanded(false);
-                }}
                 style={{
                     position: "fixed",
                     top: 0,
                     left: 0,
                     width: "100%",
-                    height: "100svh",
+                    height: "100dvh",
                     backgroundColor: "#F5F0EB",
                     zIndex: 100001,
                     display: "flex",
@@ -625,7 +619,7 @@ export function GlobalBottomPlayer() {
                             style={{
                                 position: "fixed",
                                 top: 0, left: 0, right: 0, bottom: 0,
-                                height: "100svh",
+                                height: "100dvh",
                                 backgroundColor: "#F5F0EB",
                                 zIndex: 100002, // Ensure it floats above the expanded player
                                 display: "flex",
