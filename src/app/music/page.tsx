@@ -202,9 +202,6 @@ export default function AudioHubPage() {
                                             zIndex: 2,
                                             display: "flex",
                                             flexDirection: "column",
-                                            background: "rgba(0,0,0,0.4)",
-                                            backdropFilter: "blur(4px)",
-                                            borderTop: "1px solid rgba(255,255,255,0.1)"
                                         }}>
                                             <div style={{ 
                                                 color: "#fff", 

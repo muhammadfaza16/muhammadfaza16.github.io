@@ -303,9 +303,6 @@ export default function LibraryClient({ songCount }: { songCount: number }) {
                                     zIndex: 2,
                                     display: "flex",
                                     flexDirection: "column",
-                                    background: "rgba(0,0,0,0.5)",
-                                    backdropFilter: "blur(4px)",
-                                    borderTop: "1px solid rgba(255,255,255,0.1)"
                                 }}>
                                     <div style={{ color: "#fff", fontWeight: 900, fontSize: "0.85rem", fontFamily: "system-ui, -apple-system, sans-serif", textTransform: "uppercase", letterSpacing: "-0.04em", lineHeight: 1.1 }}>
                                         {playlist.title}
