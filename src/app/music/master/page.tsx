@@ -39,6 +39,7 @@ export default function MasterPanelPage() {
     const [dbSongs, setDbSongs] = useState<any[]>([]);
     const [accessLogs, setAccessLogs] = useState<any[]>([]);
     const [loadingLogs, setLoadingLogs] = useState(false);
+    const [logError, setLogError] = useState<string | null>(null);
     
     // Computed Stats
     const playlistStats = useMemo(() => {
@@ -76,22 +77,26 @@ export default function MasterPanelPage() {
     };
 
     const logColor = (type: "info" | "success" | "error") => {
-        if (type === "success") return "#10b981"; // emerald-500
-        if (type === "error") return "#ef4444"; // red-500
-        return "#666";
+        if (type === "success") return "#059669"; // emerald-600 (darker)
+        if (type === "error") return "#dc2626"; // red-600 (darker)
+        return "#333"; // darker than #666
     };
 
     const fetchAccessLogs = async () => {
         setLoadingLogs(true);
+        setLogError(null);
         try {
             // Using the MASTER_PIN for simplicity as it's the music-specific master password
             const res = await fetch(`/api/music/logs?password=faza123`);
             const data = await res.json();
             if (data.success) {
                 setAccessLogs(data.logs);
+            } else {
+                setLogError(data.error || "Failed to load logs");
             }
-        } catch (err) {
+        } catch (err: any) {
             console.error("Failed to fetch logs:", err);
+            setLogError(err.message || "Network error");
         }
         setLoadingLogs(false);
     };
@@ -275,16 +280,20 @@ export default function MasterPanelPage() {
                                         
                                         <div style={{ padding: "16px", background: "#fff", border: borderStyle, boxShadow: shadowStyle, display: "flex", flexDirection: "column", gap: "16px" }}>
                                             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                                                <h3 style={{ margin: 0, fontFamily: "system-ui, -apple-system, sans-serif", fontSize: "1rem", fontWeight: 900, textTransform: "uppercase" }}>Visitor History</h3>
-                                                <button onClick={fetchAccessLogs} style={{ background: "none", border: "none", cursor: "pointer", color: "#666" }}>
+                                                <h3 style={{ margin: 0, fontFamily: "system-ui, -apple-system, sans-serif", fontSize: "1rem", fontWeight: 900, textTransform: "uppercase", color: "#000" }}>Visitor History</h3>
+                                                <button onClick={fetchAccessLogs} style={{ background: "none", border: "none", cursor: "pointer", color: "#222" }}>
                                                     <RefreshCw size={14} className={loadingLogs ? "animate-spin" : ""} />
                                                 </button>
                                             </div>
 
                                             {loadingLogs ? (
-                                                <div style={{ textAlign: "center", padding: "20px", fontFamily: "monospace", fontSize: "0.8rem", color: "#666" }}>Loading logs...</div>
+                                                <div style={{ textAlign: "center", padding: "20px", fontFamily: "monospace", fontSize: "0.8rem", color: "#222" }}>Loading logs...</div>
+                                            ) : logError ? (
+                                                <div style={{ textAlign: "center", padding: "20px", fontFamily: "monospace", fontSize: "0.8rem", color: "#dc2626", border: "1px dashed #dc2626" }}>
+                                                    ERROR: {logError}
+                                                </div>
                                             ) : accessLogs.length === 0 ? (
-                                                <div style={{ textAlign: "center", padding: "20px", fontFamily: "monospace", fontSize: "0.8rem", color: "#666" }}>No logs yet.</div>
+                                                <div style={{ textAlign: "center", padding: "20px", fontFamily: "monospace", fontSize: "0.8rem", color: "#222" }}>No logs yet.</div>
                                             ) : (
                                                 <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
                                                     {accessLogs.map(log => (
@@ -294,7 +303,7 @@ export default function MasterPanelPage() {
                                                                     <Globe size={12} />
                                                                     <span style={{ fontFamily: "monospace", fontSize: "0.85rem", fontWeight: 900 }}>{log.ip}</span>
                                                                 </div>
-                                                                <span style={{ fontSize: "0.65rem", fontWeight: 700, fontFamily: "monospace", color: "#666" }}>
+                                                                <span style={{ fontSize: "0.65rem", fontWeight: 700, fontFamily: "monospace", color: "#222" }}>
                                                                     {new Date(log.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                                                 </span>
                                                             </div>
@@ -303,7 +312,7 @@ export default function MasterPanelPage() {
                                                                     📍 {log.city || "Unknown City"}, {log.country || "Unknown Country"}
                                                                 </div>
                                                             )}
-                                                            <div style={{ display: "flex", alignItems: "center", gap: "4px", fontSize: "0.6rem", color: "#888", fontWeight: 700, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                                                            <div style={{ display: "flex", alignItems: "center", gap: "4px", fontSize: "0.6rem", color: "#333", fontWeight: 700, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                                                                 <Users size={10} />
                                                                 {log.userAgent}
                                                             </div>
@@ -322,12 +331,12 @@ export default function MasterPanelPage() {
                                     <Activity size={16} color="#000" />
                                     <span style={{ color: "#000", fontSize: "0.85rem", fontWeight: 800, letterSpacing: "1px", textTransform: "uppercase", fontFamily: "monospace" }}>System Logs</span>
                                 </div>
-                                <div style={{ minHeight: "60px", padding: "12px", background: "#e5e5e5", border: borderStyle }}>
+                                <div style={{ minHeight: "60px", padding: "12px", background: "#f0f0f0", border: borderStyle }}>
                                     {logs.length === 0 ? (
-                                        <div style={{ color: "#666", fontSize: "0.75rem", fontFamily: "monospace" }}>No recent activity.</div>
+                                        <div style={{ color: "#222", fontSize: "0.75rem", fontFamily: "monospace" }}>No recent activity.</div>
                                     ) : (
                                         logs.slice(-4).map((log, i) => (
-                                            <div key={i} style={{ color: logColor(log.type), fontSize: "0.75rem", opacity: (i + 1) / 4 + 0.25, fontFamily: "monospace", marginBottom: "4px" }}>
+                                            <div key={i} style={{ color: logColor(log.type), fontSize: "0.75rem", fontFamily: "monospace", marginBottom: "4px" }}>
                                                 {log.text}
                                             </div>
                                         ))
