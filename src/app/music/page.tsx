@@ -169,17 +169,17 @@ export default function AudioHubPage() {
                                                 scale: [1, 1.3, 1],
                                                 opacity: [1, 0.6, 1]
                                             } : {
-                                                opacity: [0.3, 0.7, 0.3],
-                                                scale: [0.9, 1.1, 0.9]
+                                                opacity: [0.4, 1, 0.4],
+                                                scale: [1, 1.5, 1]
                                             }}
-                                            transition={{ repeat: Infinity, duration: 2.2, ease: "easeInOut" }}
+                                            transition={{ repeat: Infinity, duration: 1.8, ease: "easeInOut" }}
                                             style={{ 
                                                 width: "6px", 
                                                 height: "6px", 
                                                 borderRadius: "50%", 
                                                 backgroundColor: isPlaying 
                                                     ? "#6366F1" 
-                                                    : (theme === "dark" ? "rgba(255,255,255,0.2)" : "rgba(0,0,0,0.12)"),
+                                                    : (theme === "dark" ? "rgba(255,255,255,0.4)" : "rgba(0,0,0,0.2)"),
                                             }} 
                                         />
                                         <span style={{ 
