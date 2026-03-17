@@ -29,12 +29,10 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
     useEffect(() => {
         setMounted(true);
-        // Check localStorage first
         const stored = localStorage.getItem("theme") as Theme | null;
         if (stored) {
             setTheme(stored);
         } else {
-            // Default to dark for new users
             setTheme("dark");
         }
     }, []);
