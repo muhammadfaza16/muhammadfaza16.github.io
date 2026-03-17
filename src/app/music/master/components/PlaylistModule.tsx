@@ -3,6 +3,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { parseSongTitle } from "@/utils/songUtils";
+import { useTheme } from "@/components/ThemeProvider";
 import {
     Plus,
     Trash2,
@@ -48,6 +49,7 @@ interface PlaylistModuleProps {
 }
 
 export function PlaylistModule({ addLog, isBusy, setIsBusy, insetBox }: PlaylistModuleProps) {
+    const { theme } = useTheme();
     const [playlists, setPlaylists] = useState<Playlist[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [editingId, setEditingId] = useState<string | null>(null);
@@ -303,7 +305,7 @@ export function PlaylistModule({ addLog, isBusy, setIsBusy, insetBox }: Playlist
     };
 
     if (isLoading) return (
-        <div style={{ padding: "2rem", textAlign: "center", color: "#444" }}>
+        <div style={{ padding: "2rem", textAlign: "center", color: theme === "dark" ? "rgba(255,255,255,0.4)" : "#444" }}>
             <Loader2 size={24} className="animate-spin" />
         </div>
     );
@@ -311,14 +313,14 @@ export function PlaylistModule({ addLog, isBusy, setIsBusy, insetBox }: Playlist
     return (
         <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                <h3 style={{ color: "#aaa", fontSize: "0.65rem", fontWeight: 800, letterSpacing: "1.5px", textTransform: "uppercase" }}>
+                <h3 style={{ color: theme === "dark" ? "rgba(255,255,255,0.4)" : "#aaa", fontSize: "0.65rem", fontWeight: 800, letterSpacing: "1.5px", textTransform: "uppercase" }}>
                     {viewingPlaylist ? viewingPlaylist.title : "Playlists"}
                 </h3>
                 {!isAdding && !viewingPlaylist && (
                     <motion.button
                         onClick={() => setIsAdding(true)}
                         whileTap={{ scale: 0.95 }}
-                        style={{ ...insetBox, padding: "4px 8px", color: "#39ff14", display: "flex", alignItems: "center", gap: "4px", fontSize: "0.6rem", fontWeight: 800 }}
+                        style={{ ...insetBox, padding: "4px 12px", color: theme === "dark" ? "#10B981" : "#059669", display: "flex", alignItems: "center", gap: "4px", fontSize: "0.6rem", fontWeight: 800 }}
                     >
                         <Plus size={12} /> NEW LIST
                     </motion.button>
@@ -327,7 +329,7 @@ export function PlaylistModule({ addLog, isBusy, setIsBusy, insetBox }: Playlist
                     <motion.button
                         onClick={closeSongs}
                         whileTap={{ scale: 0.95 }}
-                        style={{ ...insetBox, padding: "4px 8px", color: "#666", display: "flex", alignItems: "center", gap: "4px", fontSize: "0.6rem", fontWeight: 800 }}
+                        style={{ ...insetBox, padding: "4px 12px", color: theme === "dark" ? "rgba(255,255,255,0.4)" : "#666", display: "flex", alignItems: "center", gap: "4px", fontSize: "0.6rem", fontWeight: 800 }}
                     >
                         <ChevronRight size={12} className="rotate-180" /> BACK
                     </motion.button>
@@ -343,64 +345,64 @@ export function PlaylistModule({ addLog, isBusy, setIsBusy, insetBox }: Playlist
                     >
                         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.75rem" }}>
                             <div style={{ display: "flex", flexDirection: "column", gap: "0.4rem" }}>
-                                <label style={{ color: "#555", fontSize: "0.55rem", fontWeight: 800 }}>TITLE</label>
+                                <label style={{ color: theme === "dark" ? "rgba(255,255,255,0.4)" : "#555", fontSize: "0.55rem", fontWeight: 800 }}>TITLE</label>
                                 <input
                                     value={formData.title}
                                     onChange={e => {
                                         const title = e.target.value;
                                         setFormData(prev => ({ ...prev, title, slug: editingId ? prev.slug : autoSlug(title) }));
                                     }}
-                                    style={{ ...inputStyle, padding: "0.5rem" }}
+                                    style={{ ...inputStyle, background: theme === "dark" ? "rgba(0,0,0,0.2)" : "#fff", color: theme === "dark" ? "#FFF" : "#000", border: theme === "dark" ? "1px solid rgba(255,255,255,0.05)" : "1px solid rgba(0,0,0,0.1)", padding: "0.5rem" }}
                                     placeholder="Late Night Drives"
                                 />
                             </div>
                             <div style={{ display: "flex", flexDirection: "column", gap: "0.4rem" }}>
-                                <label style={{ color: "#555", fontSize: "0.55rem", fontWeight: 800 }}>SLUG</label>
+                                <label style={{ color: theme === "dark" ? "rgba(255,255,255,0.4)" : "#555", fontSize: "0.55rem", fontWeight: 800 }}>SLUG</label>
                                 <input
                                     value={formData.slug}
                                     onChange={e => setFormData({ ...formData, slug: e.target.value.toLowerCase().replace(/\s+/g, '-') })}
-                                    style={{ ...inputStyle, padding: "0.5rem" }}
+                                    style={{ ...inputStyle, background: theme === "dark" ? "rgba(0,0,0,0.2)" : "#fff", color: theme === "dark" ? "#FFF" : "#000", border: theme === "dark" ? "1px solid rgba(255,255,255,0.05)" : "1px solid rgba(0,0,0,0.1)", padding: "0.5rem" }}
                                     placeholder="late-night"
                                 />
                             </div>
                         </div>
 
                         <div style={{ display: "flex", flexDirection: "column", gap: "0.4rem" }}>
-                            <label style={{ color: "#555", fontSize: "0.55rem", fontWeight: 800 }}>DESCRIPTION</label>
+                            <label style={{ color: theme === "dark" ? "rgba(255,255,255,0.4)" : "#555", fontSize: "0.55rem", fontWeight: 800 }}>DESCRIPTION</label>
                             <textarea
                                 value={formData.description}
                                 onChange={e => setFormData({ ...formData, description: e.target.value })}
-                                style={{ ...inputStyle, padding: "0.5rem", resize: "none", height: "50px", fontFamily: "inherit", fontWeight: 500 }}
+                                style={{ ...inputStyle, background: theme === "dark" ? "rgba(0,0,0,0.2)" : "#fff", color: theme === "dark" ? "#FFF" : "#000", border: theme === "dark" ? "1px solid rgba(255,255,255,0.05)" : "1px solid rgba(0,0,0,0.1)", padding: "0.5rem", resize: "none", height: "50px", fontFamily: "inherit", fontWeight: 500 }}
                                 placeholder="The artistic intent..."
                             />
                         </div>
 
                         <div style={{ display: "flex", flexDirection: "column", gap: "0.4rem" }}>
-                            <label style={{ color: "#555", fontSize: "0.55rem", fontWeight: 800 }}>PHILOSOPHY</label>
+                            <label style={{ color: theme === "dark" ? "rgba(255,255,255,0.4)" : "#555", fontSize: "0.55rem", fontWeight: 800 }}>PHILOSOPHY</label>
                             <textarea
                                 value={formData.philosophy}
                                 onChange={e => setFormData({ ...formData, philosophy: e.target.value })}
-                                style={{ ...inputStyle, padding: "0.5rem", resize: "none", height: "50px", fontFamily: "inherit", fontWeight: 500 }}
+                                style={{ ...inputStyle, background: theme === "dark" ? "rgba(0,0,0,0.2)" : "#fff", color: theme === "dark" ? "#FFF" : "#000", border: theme === "dark" ? "1px solid rgba(255,255,255,0.05)" : "1px solid rgba(0,0,0,0.1)", padding: "0.5rem", resize: "none", height: "50px", fontFamily: "inherit", fontWeight: 500 }}
                                 placeholder="The deeper meaning..."
                             />
                         </div>
 
                         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.75rem" }}>
                             <div style={{ display: "flex", flexDirection: "column", gap: "0.4rem" }}>
-                                <label style={{ color: "#555", fontSize: "0.55rem", fontWeight: 800 }}>VIBES (comma separated)</label>
+                                <label style={{ color: theme === "dark" ? "rgba(255,255,255,0.4)" : "#555", fontSize: "0.55rem", fontWeight: 800 }}>VIBES (comma separated)</label>
                                 <input
                                     value={formData.vibes}
                                     onChange={e => setFormData({ ...formData, vibes: e.target.value })}
-                                    style={{ ...inputStyle, padding: "0.5rem" }}
+                                    style={{ ...inputStyle, background: theme === "dark" ? "rgba(0,0,0,0.2)" : "#fff", color: theme === "dark" ? "#FFF" : "#000", border: theme === "dark" ? "1px solid rgba(255,255,255,0.05)" : "1px solid rgba(0,0,0,0.1)", padding: "0.5rem" }}
                                     placeholder="Lofi, Jazz, Rain"
                                 />
                             </div>
                             <div style={{ display: "flex", flexDirection: "column", gap: "0.4rem" }}>
-                                <label style={{ color: "#555", fontSize: "0.55rem", fontWeight: 800 }}>SCHEDULE</label>
+                                <label style={{ color: theme === "dark" ? "rgba(255,255,255,0.4)" : "#555", fontSize: "0.55rem", fontWeight: 800 }}>SCHEDULE</label>
                                 <input
                                     value={formData.schedule}
                                     onChange={e => setFormData({ ...formData, schedule: e.target.value })}
-                                    style={{ ...inputStyle, padding: "0.5rem" }}
+                                    style={{ ...inputStyle, background: theme === "dark" ? "rgba(0,0,0,0.2)" : "#fff", color: theme === "dark" ? "#FFF" : "#000", border: theme === "dark" ? "1px solid rgba(255,255,255,0.05)" : "1px solid rgba(0,0,0,0.1)", padding: "0.5rem" }}
                                     placeholder="11 PM - 3 AM"
                                 />
                             </div>
@@ -408,35 +410,35 @@ export function PlaylistModule({ addLog, isBusy, setIsBusy, insetBox }: Playlist
 
                         <div style={{ display: "grid", gridTemplateColumns: "1fr auto", gap: "0.75rem", alignItems: "end" }}>
                             <div style={{ display: "flex", flexDirection: "column", gap: "0.4rem" }}>
-                                <label style={{ color: "#555", fontSize: "0.55rem", fontWeight: 800 }}>COVER IMAGE PATH</label>
+                                <label style={{ color: theme === "dark" ? "rgba(255,255,255,0.4)" : "#555", fontSize: "0.55rem", fontWeight: 800 }}>COVER IMAGE PATH</label>
                                 <input
                                     value={formData.coverImage}
                                     onChange={e => setFormData({ ...formData, coverImage: e.target.value })}
-                                    style={{ ...inputStyle, padding: "0.5rem" }}
+                                    style={{ ...inputStyle, background: theme === "dark" ? "rgba(0,0,0,0.2)" : "#fff", color: theme === "dark" ? "#FFF" : "#000", border: theme === "dark" ? "1px solid rgba(255,255,255,0.05)" : "1px solid rgba(0,0,0,0.1)", padding: "0.5rem" }}
                                     placeholder="/images/playlists/..."
                                 />
                             </div>
                             <div style={{ display: "flex", flexDirection: "column", gap: "0.4rem" }}>
-                                <label style={{ color: "#555", fontSize: "0.55rem", fontWeight: 800 }}>COLOR</label>
-                                <div style={{ display: "flex", gap: "0.5rem", alignItems: "center", background: "#151515", border: "1.5px solid #222", borderRadius: "6px", padding: "0.3rem 0.6rem" }}>
+                                <label style={{ color: theme === "dark" ? "rgba(255,255,255,0.4)" : "#555", fontSize: "0.55rem", fontWeight: 800 }}>COLOR</label>
+                                <div style={{ display: "flex", gap: "0.5rem", alignItems: "center", background: theme === "dark" ? "rgba(0,0,0,0.3)" : "#f0f0f0", border: theme === "dark" ? "1px solid rgba(255,255,255,0.05)" : "1.5px solid #ddd", borderRadius: "6px", padding: "0.3rem 0.6rem" }}>
                                     <input
                                         type="color"
                                         value={formData.coverColor}
                                         onChange={e => setFormData({ ...formData, coverColor: e.target.value })}
                                         style={{ width: "20px", height: "20px", border: "none", background: "none", cursor: "pointer", padding: 0 }}
                                     />
-                                    <span style={{ fontFamily: "monospace", fontSize: "0.6rem", color: "#666" }}>{formData.coverColor}</span>
+                                    <span style={{ fontFamily: "monospace", fontSize: "0.6rem", color: theme === "dark" ? "rgba(255,255,255,0.4)" : "#666" }}>{formData.coverColor}</span>
                                 </div>
                             </div>
                         </div>
 
                         <div style={{ display: "flex", justifyContent: "flex-end", gap: "0.5rem", marginTop: "0.5rem" }}>
-                            <motion.button onClick={resetForm} whileTap={{ scale: 0.95 }} style={{ ...insetBox, padding: "8px 16px", color: "#555", fontSize: "0.6rem", fontWeight: 800 }}>CANCEL</motion.button>
+                            <motion.button onClick={resetForm} whileTap={{ scale: 0.95 }} style={{ ...insetBox, padding: "8px 16px", color: theme === "dark" ? "rgba(255,255,255,0.4)" : "#555", fontSize: "0.6rem", fontWeight: 800 }}>CANCEL</motion.button>
                             <motion.button
                                 onClick={handleSave}
                                 disabled={isBusy}
                                 whileTap={{ scale: 0.95 }}
-                                style={{ ...insetBox, padding: "8px 16px", color: "#39ff14", fontSize: "0.65rem", fontWeight: 800, display: "flex", alignItems: "center", gap: "6px", opacity: isBusy ? 0.4 : 1, cursor: isBusy ? "not-allowed" : "pointer" }}
+                                style={{ ...insetBox, padding: "8px 16px", color: theme === "dark" ? "#10B981" : "#059669", fontSize: "0.65rem", fontWeight: 800, display: "flex", alignItems: "center", gap: "6px", opacity: isBusy ? 0.4 : 1, cursor: isBusy ? "not-allowed" : "pointer" }}
                             >
                                 <Save size={14} /> {editingId ? "UPDATE" : "CREATE"}
                             </motion.button>
@@ -449,18 +451,18 @@ export function PlaylistModule({ addLog, isBusy, setIsBusy, insetBox }: Playlist
                         style={{ display: "flex", flexDirection: "column", gap: "1rem" }}
                     >
                         <div style={{ ...insetBox, padding: "0.5rem", display: "flex", alignItems: "center", gap: "8px" }}>
-                            <Search size={14} color="#333" />
+                            <Search size={14} color={theme === "dark" ? "rgba(255,255,255,0.4)" : "#333"} />
                             <input
                                 value={songSearch}
                                 onChange={e => setSongSearch(e.target.value)}
-                                style={{ background: "none", border: "none", flex: 1, color: "#aaa", fontSize: "0.65rem", outline: "none" }}
+                                style={{ background: "none", border: "none", flex: 1, color: theme === "dark" ? "#FFF" : "#000", fontSize: "0.65rem", outline: "none" }}
                                 placeholder="Search all songs to add..."
                             />
                         </div>
 
                         <div style={{ maxHeight: "50vh", overflowY: "auto", display: "flex", flexDirection: "column", gap: "0.4rem", paddingRight: "4px" }}>
                             {/* Current Tracks Section */}
-                            <div style={{ fontSize: "0.55rem", fontWeight: 800, color: "#444", margin: "0.5rem 0 0.2rem 0" }}>CURRENT TRACKS ({currentSongs.length})</div>
+                            <div style={{ fontSize: "0.55rem", fontWeight: 800, color: theme === "dark" ? "rgba(255,255,255,0.4)" : "#444", margin: "0.5rem 0 0.2rem 0" }}>CURRENT TRACKS ({currentSongs.length})</div>
                             {currentSongs.map(song => (
                                 <div key={song.id} style={{ ...insetBox, padding: "0.5rem 0.75rem", display: "flex", justifyContent: "space-between", alignItems: "center", borderLeft: `2px solid ${viewingPlaylist.coverColor}` }}>
                                     <div>
@@ -495,11 +497,11 @@ export function PlaylistModule({ addLog, isBusy, setIsBusy, insetBox }: Playlist
                                 </div>
                             ))}
                             {currentSongs.length === 0 && (
-                                <div style={{ color: "#333", fontSize: "0.6rem", textAlign: "center", padding: "1rem" }}>PLAYLIST MASIH KOSONG</div>
+                                <div style={{ color: theme === "dark" ? "rgba(255,255,255,0.2)" : "rgba(0,0,0,0.3)", fontSize: "0.6rem", textAlign: "center", padding: "1rem" }}>PLAYLIST MASIH KOSONG</div>
                             )}
 
                             {/* Add Songs Section — Issue 4: only shows songs NOT already in playlist */}
-                            <div style={{ fontSize: "0.55rem", fontWeight: 800, color: "#444", margin: "1rem 0 0.2rem 0" }}>ADD SONGS ({filteredSongs.length} available)</div>
+                            <div style={{ fontSize: "0.55rem", fontWeight: 800, color: theme === "dark" ? "rgba(255,255,255,0.4)" : "#444", margin: "1rem 0 0.2rem 0" }}>ADD SONGS ({filteredSongs.length} available)</div>
                             {filteredSongs.length > 0 ? filteredSongs.map(song => (
                                 <div key={song.id} style={{ ...insetBox, padding: "0.5rem 0.75rem", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                                     <div>
@@ -546,7 +548,7 @@ export function PlaylistModule({ addLog, isBusy, setIsBusy, insetBox }: Playlist
                                     </div>
                                 </div>
                             )) : (
-                                <div style={{ color: "#333", fontSize: "0.6rem", textAlign: "center", padding: "1rem", lineHeight: 1.4 }}>
+                                <div style={{ color: theme === "dark" ? "rgba(255,255,255,0.2)" : "#333", fontSize: "0.6rem", textAlign: "center", padding: "1rem", lineHeight: 1.4 }}>
                                     {allSongs.length === 0 ? "Gak ada lagu di library. Tambahin lagu via web desktop panel dulu gih." : "Semua lagu udah ditambahin ke playlist ini!"}
                                 </div>
                             )}
@@ -568,14 +570,14 @@ export function PlaylistModule({ addLog, isBusy, setIsBusy, insetBox }: Playlist
                                     <ListMusic size={18} color={p.coverColor} />
                                 </div>
                                 <div style={{ flex: 1 }}>
-                                    <div style={{ color: "#aaa", fontSize: "0.75rem", fontWeight: 800 }}>{p.title}</div>
-                                    <div style={{ color: "#555", fontSize: "0.55rem", display: "flex", gap: "8px" }}>
+                                    <div style={{ color: theme === "dark" ? "#FFF" : "#000", fontSize: "0.75rem", fontWeight: 800 }}>{p.title}</div>
+                                    <div style={{ color: theme === "dark" ? "rgba(255,255,255,0.4)" : "#555", fontSize: "0.55rem", display: "flex", gap: "8px" }}>
                                         <span>{p._count?.songs || 0} tracks</span>
                                         {p.vibes && p.vibes.length > 0 && <span>• {p.vibes.join(', ')}</span>}
                                     </div>
                                 </div>
                                 <div style={{ display: "flex", gap: "0.25rem" }} onClick={e => e.stopPropagation()}>
-                                    <motion.button onClick={() => startEdit(p)} whileTap={{ scale: 0.9 }} style={{ padding: "8px", color: "#666" }}><Edit2 size={14} /></motion.button>
+                                    <motion.button onClick={() => startEdit(p)} whileTap={{ scale: 0.9 }} style={{ padding: "8px", color: theme === "dark" ? "rgba(255,255,255,0.4)" : "#666" }}><Edit2 size={14} /></motion.button>
                                     <motion.button onClick={() => handleDelete(p.id, p.title)} whileTap={{ scale: 0.9 }} style={{ padding: "8px", color: "#ef4444" }}><Trash2 size={14} /></motion.button>
                                 </div>
                             </div>

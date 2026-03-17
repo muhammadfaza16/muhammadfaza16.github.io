@@ -5,6 +5,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { Home, Compass, Disc, Settings } from "lucide-react";
 import { useAudio } from "../AudioContext";
+import { useTheme } from "../ThemeProvider";
 
 export function MusicBottomNav({ isInline = false }: { isInline?: boolean }) {
     const pathname = usePathname();
@@ -15,6 +16,7 @@ export function MusicBottomNav({ isInline = false }: { isInline?: boolean }) {
     if (!isMusicApp) return null;
 
     const { activePlaylistId, queue, isPlayerExpanded, setIsPlayerExpanded } = useAudio();
+    const { theme } = useTheme();
 
     // If player is expanded, hide the fixed bottom nav entirely to prevent bleeding.
     // However, if we are rendering it INLINE inside the player itself, let it bypass this check.
@@ -51,16 +53,16 @@ export function MusicBottomNav({ isInline = false }: { isInline?: boolean }) {
             transform: "translateX(-50%)",
             width: "calc(100% - 40px)",
             maxWidth: "360px",
-            backgroundColor: "rgba(255, 255, 255, 0.8)",
+            backgroundColor: theme === "dark" ? "rgba(26, 26, 26, 0.75)" : "rgba(255, 255, 255, 0.8)",
             backdropFilter: "blur(20px)",
-            border: "1px solid rgba(255, 255, 255, 0.4)",
+            border: theme === "dark" ? "1px solid rgba(255, 255, 255, 0.1)" : "1px solid rgba(255, 255, 255, 0.4)",
             borderRadius: "24px",
             padding: "6px",
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
             zIndex: 100000,
-            boxShadow: "0 10px 30px rgba(0, 0, 0, 0.05)",
+            boxShadow: theme === "dark" ? "0 15px 40px rgba(0, 0, 0, 0.4)" : "0 10px 30px rgba(0, 0, 0, 0.05)",
         }}>
             {navItems.map((item) => {
                 let isActive = false;
@@ -100,7 +102,9 @@ export function MusicBottomNav({ isInline = false }: { isInline?: boolean }) {
                             background: "transparent",
                             border: "none",
                             cursor: "pointer",
-                            color: isActive ? "#000" : "#999",
+                            color: isActive 
+                                ? (theme === "dark" ? "#FFF" : "#000") 
+                                : (theme === "dark" ? "rgba(255,255,255,0.4)" : "#999"),
                             padding: "8px 0",
                             transition: "color 0.3s ease",
                             position: "relative"
@@ -114,7 +118,9 @@ export function MusicBottomNav({ isInline = false }: { isInline?: boolean }) {
                                     top: "4px",
                                     width: "32px",
                                     height: "32px",
-                                    background: "linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(139, 92, 246, 0.15))",
+                                    background: theme === "dark" 
+                                        ? "linear-gradient(135deg, rgba(99, 102, 241, 0.2), rgba(139, 92, 246, 0.25))" 
+                                        : "linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(139, 92, 246, 0.15))",
                                     borderRadius: "12px",
                                     zIndex: -1,
                                     boxShadow: "0 4px 8px rgba(99, 102, 241, 0.1)"

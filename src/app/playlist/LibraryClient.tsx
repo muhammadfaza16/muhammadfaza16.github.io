@@ -8,6 +8,7 @@ import { motion } from "framer-motion";
 import { PLAYLIST_CATEGORIES } from "@/data/playlists";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
+import { useTheme } from "@/components/ThemeProvider";
 
 const INDO_ARTISTS = [
     'Sheila on 7', 'Noah', 'Ungu', 'Samsons', 'D\'masiv', 'St12', 'Hijau Daun', 'Vagetoz', 
@@ -19,6 +20,7 @@ const INDO_ARTISTS = [
 
 export default function LibraryClient({ songCount }: { songCount: number }) {
     const { isPlaying, activePlaylistId } = useAudio();
+    const { theme } = useTheme();
     const searchParams = useSearchParams();
     const initialVibe = searchParams.get('vibe') || "";
     const [searchQuery, setSearchQuery] = useState(initialVibe);
@@ -96,8 +98,9 @@ export default function LibraryClient({ songCount }: { songCount: number }) {
             display: "flex",
             flexDirection: "column",
             gap: "1.5rem",
-            backgroundColor: "#f9f9f9",
-            color: "#000"
+            backgroundColor: theme === "dark" ? "#0A0A0A" : "#f9f9f9",
+            color: theme === "dark" ? "#FFF" : "#000",
+            transition: "all 0.5s ease"
         }}>
             {/* Header */}
             <div style={{ display: "flex", justifyContent: "flex-end", alignItems: "center", marginTop: "16px" }}>
@@ -110,7 +113,7 @@ export default function LibraryClient({ songCount }: { songCount: number }) {
                     fontFamily: headerFont,
                     fontSize: "1.5rem",
                     fontWeight: 900,
-                    color: "#000",
+                    color: theme === "dark" ? "#FFF" : "#000",
                     margin: 0,
                     textTransform: "uppercase",
                     lineHeight: 1,
@@ -123,13 +126,14 @@ export default function LibraryClient({ songCount }: { songCount: number }) {
             <div style={{
                 width: "100%",
                 height: "44px",
-                backgroundColor: "rgba(255, 255, 255, 0.6)",
+                backgroundColor: theme === "dark" ? "rgba(255, 255, 255, 0.03)" : "rgba(255, 255, 255, 0.6)",
+                backdropFilter: "blur(12px)",
                 display: "flex",
                 alignItems: "center",
                 padding: "0 14px",
-                border: "1px solid rgba(0,0,0,0.05)",
+                border: theme === "dark" ? "1px solid rgba(255,255,255,0.08)" : "1px solid rgba(0,0,0,0.05)",
                 borderRadius: "14px",
-                boxShadow: "0 4px 12px rgba(0,0,0,0.02)"
+                boxShadow: theme === "dark" ? "0 10px 40px rgba(0,0,0,0.3)" : "0 4px 12px rgba(0,0,0,0.02)"
             }}>
                 <Search size={18} color="#888" />
                 <input
@@ -145,7 +149,7 @@ export default function LibraryClient({ songCount }: { songCount: number }) {
                         background: "transparent",
                         border: "none",
                         outline: "none",
-                        color: "#000",
+                        color: theme === "dark" ? "#FFF" : "#000",
                         fontSize: "0.9rem",
                         marginLeft: "10px",
                         fontFamily: monoFont,
@@ -163,10 +167,10 @@ export default function LibraryClient({ songCount }: { songCount: number }) {
                     transition={{ type: "spring", stiffness: 400, damping: 25 }}
                     style={{
                         padding: "14px 18px",
-                        background: "rgba(255, 255, 255, 0.45)",
-                        border: "1px solid rgba(0,0,0,0.05)",
+                        background: theme === "dark" ? "rgba(255, 255, 255, 0.02)" : "rgba(255, 255, 255, 0.45)",
+                        border: theme === "dark" ? "1px solid rgba(255,255,255,0.05)" : "1px solid rgba(0,0,0,0.05)",
                         borderRadius: "16px",
-                        boxShadow: "0 4px 20px rgba(0,0,0,0.02)",
+                        boxShadow: theme === "dark" ? "0 15px 50px rgba(0,0,0,0.4)" : "0 4px 20px rgba(0,0,0,0.02)",
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "space-between",
@@ -193,7 +197,7 @@ export default function LibraryClient({ songCount }: { songCount: number }) {
                             }} />
                             <Disc size={16} color="#fff" style={{ position: "relative", zIndex: 1 }} />
                         </div>
-                        <span style={{ fontWeight: 900, fontSize: "0.85rem", fontFamily: headerFont, letterSpacing: "-0.02em", color: "#000" }}>BROWSE ALL CATALOG</span>
+                        <span style={{ fontWeight: 900, fontSize: "0.85rem", fontFamily: headerFont, letterSpacing: "-0.02em", color: theme === "dark" ? "#FFF" : "#000" }}>BROWSE ALL CATALOG</span>
                     </div>
                     <span style={{ fontSize: "0.65rem", fontFamily: monoFont, fontWeight: 700, color: "#888" }}>{songCount || "--"} TRACKS</span>
                 </motion.div>
@@ -202,14 +206,14 @@ export default function LibraryClient({ songCount }: { songCount: number }) {
             <div style={{
                 display: "flex",
                 flexDirection: "column",
-                background: "rgba(255, 255, 255, 0.45)",
-                border: "1px solid rgba(0,0,0,0.05)",
+                background: theme === "dark" ? "rgba(255, 255, 255, 0.02)" : "rgba(255, 255, 255, 0.45)",
+                border: theme === "dark" ? "1px solid rgba(255,255,255,0.05)" : "1px solid rgba(0,0,0,0.05)",
                 borderRadius: "20px",
-                boxShadow: "0 8px 30px rgba(0,0,0,0.02)",
+                boxShadow: theme === "dark" ? "0 15px 50px rgba(0,0,0,0.4)" : "0 8px 30px rgba(0,0,0,0.02)",
                 overflow: "hidden"
             }}>
-                <div style={{ padding: "12px 16px", borderBottom: "1px solid rgba(0,0,0,0.03)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                    <h3 style={{ fontSize: "0.85rem", fontWeight: 900, fontFamily: headerFont, margin: 0, textTransform: "uppercase", letterSpacing: "0.05em", color: "#000" }}>
+                <div style={{ padding: "12px 16px", borderBottom: theme === "dark" ? "1px solid rgba(255,255,255,0.03)" : "1px solid rgba(0,0,0,0.03)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                    <h3 style={{ fontSize: "0.85rem", fontWeight: 900, fontFamily: headerFont, margin: 0, textTransform: "uppercase", letterSpacing: "0.05em", color: theme === "dark" ? "#FFF" : "#000" }}>
                         PLAYLISTS
                     </h3>
                     <span style={{ fontFamily: monoFont, fontWeight: 700, fontSize: "0.7rem", color: "#888" }}>{filteredCategories.length} CATEGORIES</span>
@@ -234,7 +238,7 @@ export default function LibraryClient({ songCount }: { songCount: number }) {
                                     alignItems: "center",
                                     gap: "12px",
                                     padding: "12px 16px",
-                                    borderBottom: "1px solid rgba(0,0,0,0.03)",
+                                    borderBottom: theme === "dark" ? "1px solid rgba(255,255,255,0.03)" : "1px solid rgba(0,0,0,0.03)",
                                     transition: "all 0.2s ease",
                                     position: "relative"
                                 }}
@@ -276,7 +280,7 @@ export default function LibraryClient({ songCount }: { songCount: number }) {
                                 </div>
 
                                 <div style={{ flex: 1, minWidth: 0 }}>
-                                    <div style={{ fontWeight: 900, fontSize: "0.9rem", color: "#000", fontFamily: headerFont, letterSpacing: "-0.01em", lineHeight: 1.2, textTransform: "uppercase" }}>
+                                    <div style={{ fontWeight: 900, fontSize: "0.9rem", color: theme === "dark" ? "#FFF" : "#000", fontFamily: headerFont, letterSpacing: "-0.01em", lineHeight: 1.2, textTransform: "uppercase" }}>
                                         {playlist.title}
                                     </div>
                                     <div style={{ color: "#888", fontSize: "0.65rem", fontFamily: monoFont, fontWeight: 700, marginTop: "1px", textTransform: "uppercase" }}>

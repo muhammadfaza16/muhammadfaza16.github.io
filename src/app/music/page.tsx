@@ -7,6 +7,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { PLAYLIST_CATEGORIES } from "@/data/playlists";
 import { useAudio, useTime } from "@/components/AudioContext";
 import { parseSongTitle } from "@/utils/songUtils";
+import { useTheme } from "@/components/ThemeProvider";
 
 const INDO_ARTISTS = [
     'Sheila on 7', 'Noah', 'Ungu', 'Samsons', 'D\'masiv', 'St12', 'Hijau Daun', 'Vagetoz', 
@@ -21,10 +22,10 @@ const MENU_ITEMS = [
     { id: "playlists", label: "Playlists", subtitle: "Curated Sets", icon: ListMusic, href: "/playlist" },
 ];
 
-
 export default function AudioHubPage() {
     const { currentSong, isPlaying, togglePlay, setIsPlayerExpanded } = useAudio();
     const { currentTime, duration } = useTime();
+    const { theme } = useTheme();
 
     const [dbSongs, setDbSongs] = useState<any[]>([]);
     const counts = useMemo(() => {
@@ -50,13 +51,13 @@ export default function AudioHubPage() {
     }, [dbSongs]);
 
     const cardStyle = {
-        backgroundColor: "rgba(255, 255, 255, 0.7)",
-        backdropFilter: "blur(12px)",
-        border: "1px solid rgba(255, 255, 255, 0.3)",
+        backgroundColor: theme === "dark" ? "rgba(255, 255, 255, 0.03)" : "rgba(255, 255, 255, 0.7)",
+        backdropFilter: "blur(20px)",
+        border: theme === "dark" ? "1px solid rgba(255, 255, 255, 0.08)" : "1px solid rgba(255, 255, 255, 0.3)",
         borderRadius: "24px",
-        boxShadow: "0 8px 32px rgba(0, 0, 0, 0.05)",
+        boxShadow: theme === "dark" ? "0 15px 45px rgba(0, 0, 0, 0.3)" : "0 8px 32px rgba(0, 0, 0, 0.05)",
         padding: "16px",
-        transition: "all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)"
+        transition: "all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.1)"
     };
 
     const headerFont = "var(--font-display), system-ui, sans-serif";
@@ -65,13 +66,16 @@ export default function AudioHubPage() {
     return (
         <main style={{
             minHeight: "100svh",
-            backgroundColor: "#F8F5F2", // Slightly more luminous cream
-            backgroundImage: "radial-gradient(at 0% 0%, rgba(255, 255, 255, 0.5) 0, transparent 50%), radial-gradient(at 100% 100%, rgba(255, 255, 255, 0.3) 0, transparent 50%)",
+            backgroundColor: theme === "dark" ? "#0A0A0A" : "#F8F5F2",
+            backgroundImage: theme === "dark" 
+                ? "radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.1) 0, transparent 50%), radial-gradient(at 100% 100%, rgba(139, 92, 246, 0.08) 0, transparent 50%)"
+                : "radial-gradient(at 0% 0%, rgba(255, 255, 255, 0.5) 0, transparent 50%), radial-gradient(at 100% 100%, rgba(255, 255, 255, 0.3) 0, transparent 50%)",
             display: "flex",
             flexDirection: "column",
             alignItems: "center",
             padding: "16px 16px 140px 16px",
-            color: "#1A1A1A"
+            color: theme === "dark" ? "#FFFFFF" : "#1A1A1A",
+            transition: "all 0.5s ease"
         }}>
             <div style={{ width: "100%", maxWidth: "440px", display: "flex", flexDirection: "column", gap: "24px" }}>
                 {/* Header */}
@@ -83,12 +87,13 @@ export default function AudioHubPage() {
                                 whileTap={{ scale: 0.95 }}
                                 style={{ 
                                     display: "flex", alignItems: "center", gap: "6px", 
-                                    background: "rgba(255,255,255,0.8)", border: "1px solid rgba(0,0,0,0.05)",
+                                    background: theme === "dark" ? "rgba(255,255,255,0.05)" : "rgba(255,255,255,0.8)", 
+                                    border: theme === "dark" ? "1px solid rgba(255,255,255,0.1)" : "1px solid rgba(0,0,0,0.05)",
                                     padding: "8px 14px", cursor: "pointer", 
-                                    fontFamily: headerFont, fontWeight: 700, color: "#000",
+                                    fontFamily: headerFont, fontWeight: 700, color: theme === "dark" ? "#FFF" : "#000",
                                     fontSize: "0.85rem", borderRadius: "100px",
                                     backdropFilter: "blur(8px)",
-                                    boxShadow: "0 2px 10px rgba(0,0,0,0.03)"
+                                    boxShadow: theme === "dark" ? "0 4px 12px rgba(0,0,0,0.2)" : "0 2px 10px rgba(0,0,0,0.03)"
                                 }}
                             >
                                 <ChevronLeft size={16} /> Back
@@ -102,7 +107,7 @@ export default function AudioHubPage() {
                         textTransform: "uppercase", 
                         letterSpacing: "-0.04em",
                         margin: 0,
-                        color: "#000",
+                        color: theme === "dark" ? "#FFF" : "#000",
                         lineHeight: 1
                     }}>
                         Music
@@ -126,12 +131,14 @@ export default function AudioHubPage() {
                                     flexDirection: "column",
                                     gap: "0px",
                                     padding: "0px",
-                                    backgroundColor: "rgba(255, 255, 255, 0.45)",
+                                    backgroundColor: theme === "dark" ? "rgba(255, 255, 255, 0.05)" : "rgba(255, 255, 255, 0.45)",
                                     backdropFilter: "blur(24px) saturate(180%)",
-                                    border: "1px solid rgba(255, 255, 255, 0.5)",
-                                    boxShadow: isPlaying 
-                                        ? "0 25px 50px rgba(0,0,0,0.06), 0 0 1px rgba(255,255,255,0.8) inset" 
-                                        : "0 8px 24px rgba(0,0,0,0.03)",
+                                    border: theme === "dark" ? "1px solid rgba(255, 255, 255, 0.1)" : "1px solid rgba(255, 255, 255, 0.5)",
+                                    boxShadow: theme === "dark"
+                                        ? "0 25px 50px rgba(0,0,0,0.5), 0 0 1px rgba(255,255,255,0.1) inset"
+                                        : isPlaying 
+                                            ? "0 25px 50px rgba(0,0,0,0.06), 0 0 1px rgba(255,255,255,0.8) inset" 
+                                            : "0 8px 24px rgba(0,0,0,0.03)",
                                     overflow: "hidden",
                                     position: "relative"
                                 }}
@@ -175,7 +182,7 @@ export default function AudioHubPage() {
                                             fontWeight: 800, 
                                             fontSize: "0.55rem", 
                                             letterSpacing: "0.12em", 
-                                            color: isPlaying ? "#000" : "#AAA",
+                                            color: isPlaying ? (theme === "dark" ? "#FFF" : "#000") : "#AAA",
                                             textTransform: "uppercase"
                                         }}>
                                             {isPlaying ? "Now Playing" : "Paused"}
@@ -291,7 +298,7 @@ export default function AudioHubPage() {
                                                                     fontFamily: headerFont, 
                                                                     fontWeight: 900, 
                                                                     fontSize: "0.95rem", 
-                                                                    color: "#000",
+                                                                    color: theme === "dark" ? "#FFF" : "#000",
                                                                     whiteSpace: "nowrap",
                                                                     overflow: "hidden",
                                                                     textOverflow: "ellipsis",
@@ -305,13 +312,13 @@ export default function AudioHubPage() {
                                                                         fontSize: "0.38rem",
                                                                         fontFamily: headerFont,
                                                                         fontWeight: 800,
-                                                                        backgroundColor: "rgba(0,0,0,0.04)",
-                                                                        color: "rgba(0,0,0,0.5)",
+                                                                        backgroundColor: theme === "dark" ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.04)",
+                                                                        color: theme === "dark" ? "rgba(255,255,255,0.6)" : "rgba(0,0,0,0.5)",
                                                                         padding: "1.5px 6px",
                                                                         borderRadius: "100px",
                                                                         letterSpacing: "0.08em",
                                                                         textTransform: "uppercase",
-                                                                        border: "1px solid rgba(0,0,0,0.06)",
+                                                                        border: theme === "dark" ? "1px solid rgba(255,255,255,0.1)" : "1px solid rgba(0,0,0,0.06)",
                                                                         flexShrink: 0
                                                                     }}>
                                                                         {label}
@@ -322,7 +329,7 @@ export default function AudioHubPage() {
                                                                 fontFamily: headerFont, 
                                                                 fontWeight: 700, 
                                                                 fontSize: "0.7rem", 
-                                                                color: "rgba(0,0,0,0.45)",
+                                                                color: theme === "dark" ? "rgba(255,255,255,0.5)" : "rgba(0,0,0,0.45)",
                                                                 textTransform: "uppercase",
                                                                 letterSpacing: "0.02em"
                                                             }}>
@@ -346,14 +353,14 @@ export default function AudioHubPage() {
                                             width: "40px",
                                             height: "40px",
                                             borderRadius: "50%",
-                                            backgroundColor: isPlaying ? "#000" : "rgba(0,0,0,0.05)",
+                                            backgroundColor: isPlaying ? (theme === "dark" ? "#6366F1" : "#000") : (theme === "dark" ? "rgba(255,255,255,0.15)" : "rgba(0,0,0,0.05)"),
                                             border: "none",
                                             display: "flex",
                                             alignItems: "center",
                                             justifyContent: "center",
                                             cursor: "pointer",
                                             zIndex: 2,
-                                            color: isPlaying ? "#fff" : "#000"
+                                            color: isPlaying ? "#fff" : (theme === "dark" ? "#fff" : "#000")
                                         }}
                                     >
                                         {isPlaying ? (
@@ -420,17 +427,22 @@ export default function AudioHubPage() {
                                 fontSize: "0.7rem", 
                                 textTransform: "uppercase",
                                 letterSpacing: "0.1em",
-                                color: "#000" 
+                                color: theme === "dark" ? "rgba(255,255,255,0.6)" : "#000" 
                             }}>Explore Library</span>
                         </div>
                         <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
                             {MENU_ITEMS.map((item) => (
                                 <Link key={item.id} href={item.href} style={{ textDecoration: "none" }}>
                                     <motion.div
-                                        whileHover={{ y: -4, scale: 1.01, backgroundColor: "rgba(255, 255, 255, 0.9)" }}
+                                        whileHover={{ 
+                                            y: -4, 
+                                            scale: 1.01, 
+                                            backgroundColor: theme === "dark" ? "rgba(255, 255, 255, 0.05)" : "rgba(255, 255, 255, 0.9)" 
+                                        }}
                                         whileTap={{ scale: 0.98 }}
                                         style={{
                                             ...cardStyle,
+                                            backgroundColor: theme === "dark" ? "rgba(255, 255, 255, 0.03)" : "rgba(255, 255, 255, 0.7)",
                                             display: "flex",
                                             alignItems: "center",
                                             justifyContent: "space-between",
@@ -464,13 +476,13 @@ export default function AudioHubPage() {
                                                     fontFamily: headerFont, 
                                                     fontWeight: 900, 
                                                     fontSize: "0.95rem", 
-                                                    color: "#000", 
+                                                    color: theme === "dark" ? "#FFF" : "#000", 
                                                     letterSpacing: "-0.01em" 
                                                 }}>{item.label}</span>
                                                 <span style={{ 
                                                     fontFamily: monoFont, 
                                                     fontSize: "0.6rem", 
-                                                    color: "#888", 
+                                                    color: theme === "dark" ? "rgba(255,255,255,0.4)" : "#888", 
                                                     fontWeight: 600, 
                                                     textTransform: "uppercase" 
                                                 }}>{item.subtitle}</span>
@@ -505,14 +517,14 @@ export default function AudioHubPage() {
                                     fontSize: "0.7rem", 
                                     textTransform: "uppercase",
                                     letterSpacing: "0.1em",
-                                    color: "#000"
+                                    color: theme === "dark" ? "rgba(255,255,255,0.6)" : "#000"
                                 }}>Handpicked Playlists</span>
                             </div>
                             <Link href="/playlist" style={{ 
                                 fontFamily: headerFont, 
                                 fontSize: "0.65rem", 
                                 fontWeight: 800, 
-                                color: "#AAA", 
+                                color: theme === "dark" ? "rgba(255,255,255,0.3)" : "#AAA", 
                                 textDecoration: "none",
                                 letterSpacing: "0.05em"
                             }}>SEE ALL</Link>

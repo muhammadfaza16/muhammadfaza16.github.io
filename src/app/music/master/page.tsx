@@ -26,12 +26,14 @@ import { motion, AnimatePresence } from "framer-motion";
 import { PlaylistModule } from "./components/PlaylistModule";
 import { PLAYLIST_CATEGORIES } from "@/data/playlists";
 import { parseSongTitle } from "@/utils/songUtils";
+import { useTheme } from "@/components/ThemeProvider";
 
 const MASTER_PIN = "0000";
 
 type ModuleId = "dashboard" | "playlist" | "settings" | "logs";
 
 export default function MasterPanelPage() {
+    const { theme } = useTheme();
     const [activeModule, setActiveModule] = useState<ModuleId>("dashboard");
     const [isBusy, setIsBusy] = useState(false);
     const [logs, setLogs] = useState<{ text: string; type: "info" | "success" | "error" }[]>([]);
@@ -80,9 +82,9 @@ export default function MasterPanelPage() {
     };
 
     const logColor = (type: "info" | "success" | "error") => {
-        if (type === "success") return "#059669"; // emerald-600 (darker)
-        if (type === "error") return "#dc2626"; // red-600 (darker)
-        return "#333"; // darker than #666
+        if (type === "success") return "#10B981"; // brighter green for dark mode compatibility
+        if (type === "error") return "#EF4444"; // brighter red for dark mode compatibility
+        return theme === "dark" ? "rgba(255,255,255,0.6)" : "#333";
     };
 
     const fetchAccessLogs = async () => {
@@ -119,9 +121,10 @@ export default function MasterPanelPage() {
             padding: "16px 16px 120px 16px",
             maxWidth: "600px",
             margin: "0 auto",
-            backgroundColor: "#f9f9f9",
-            color: "#000",
-            fontFamily: monoFont
+            backgroundColor: theme === "dark" ? "#0A0A0A" : "#f9f9f9",
+            color: theme === "dark" ? "#FFF" : "#000",
+            fontFamily: monoFont,
+            transition: "all 0.5s ease"
         }}>
             <ZenHideable>
                 <div style={{ padding: "1rem", paddingTop: "5rem" }}>
@@ -137,12 +140,12 @@ export default function MasterPanelPage() {
                         <div style={{ textAlign: "center", marginBottom: "8px" }}>
                             <h1 style={{
                                 fontFamily: headerFont, fontSize: "1.5rem", fontWeight: 900,
-                                color: "#000", margin: 0, textTransform: "uppercase", lineHeight: 1, letterSpacing: "-0.03em"
+                                color: theme === "dark" ? "#FFF" : "#000", margin: 0, textTransform: "uppercase", lineHeight: 1, letterSpacing: "-0.03em"
                             }}>
                                 Vault Master
                             </h1>
                             <p style={{
-                                fontSize: "0.6rem", fontWeight: 700, color: "#888", marginTop: "6px", 
+                                fontSize: "0.6rem", fontWeight: 700, color: theme === "dark" ? "rgba(255,255,255,0.4)" : "#888", marginTop: "6px", 
                                 textTransform: "uppercase", letterSpacing: "0.05em"
                             }}>
                                 SYSTEM CONTROLS & MONITORING
@@ -158,17 +161,17 @@ export default function MasterPanelPage() {
                                 >
                                     {/* Player Intelligence Card */}
                                     <div style={{
-                                        backgroundColor: "rgba(255, 255, 255, 0.45)",
-                                        border: "1px solid rgba(0,0,0,0.05)",
+                                        backgroundColor: theme === "dark" ? "rgba(255, 255, 255, 0.03)" : "rgba(255, 255, 255, 0.45)",
+                                        border: theme === "dark" ? "1px solid rgba(255,255,255,0.08)" : "1px solid rgba(0,0,0,0.05)",
                                         borderRadius: "24px",
                                         padding: "20px",
-                                        boxShadow: "0 10px 30px rgba(0,0,0,0.03)",
+                                        boxShadow: theme === "dark" ? "0 20px 60px rgba(0,0,0,0.4)" : "0 10px 30px rgba(0,0,0,0.03)",
                                         display: "flex",
                                         flexDirection: "column",
                                         gap: "14px"
                                     }}>
-                                        <div style={{ display: "flex", alignItems: "center", gap: "10px", borderBottom: "1px solid rgba(0,0,0,0.03)", paddingBottom: "12px" }}>
-                                            <Database size={16} color="#000" />
+                                        <div style={{ display: "flex", alignItems: "center", gap: "10px", borderBottom: theme === "dark" ? "1px solid rgba(255,255,255,0.05)" : "1px solid rgba(0,0,0,0.03)", paddingBottom: "12px" }}>
+                                            <Database size={16} color={theme === "dark" ? "#FFF" : "#000"} />
                                             <h2 style={{ margin: 0, fontFamily: headerFont, fontSize: "0.85rem", fontWeight: 900, textTransform: "uppercase", letterSpacing: "0.05em" }}>
                                                 Player Intelligence
                                             </h2>
@@ -176,7 +179,7 @@ export default function MasterPanelPage() {
                                         
                                         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                                             <span style={{ fontFamily: monoFont, fontSize: "0.65rem", fontWeight: 700, color: "#888", textTransform: "uppercase", letterSpacing: "0.02em" }}>Catalog Weight</span>
-                                            <span style={{ fontFamily: headerFont, fontSize: "1.1rem", fontWeight: 900, color: "#000" }}>
+                                            <span style={{ fontFamily: headerFont, fontSize: "1.1rem", fontWeight: 900, color: theme === "dark" ? "#FFF" : "#000" }}>
                                                 {dbSongs.length > 0 ? `${dbSongs.length} TRACKS` : "..."}
                                             </span>
                                         </div>
@@ -186,10 +189,10 @@ export default function MasterPanelPage() {
                                                 {playlistStats.map(stat => (
                                                     <div key={stat.title} style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                                                         <div style={{ display: "flex", flexDirection: "column" }}>
-                                                            <span style={{ fontFamily: headerFont, fontSize: "0.8rem", fontWeight: 800, color: "#000", letterSpacing: "-0.01em" }}>{stat.title}</span>
-                                                            <span style={{ fontFamily: monoFont, fontSize: "0.55rem", fontWeight: 700, color: "#888", textTransform: "uppercase" }}>{stat.vibes.slice(0, 1).join(", ")}</span>
+                                                            <span style={{ fontFamily: headerFont, fontSize: "0.8rem", fontWeight: 800, color: theme === "dark" ? "#FFF" : "#000", letterSpacing: "-0.01em" }}>{stat.title}</span>
+                                                            <span style={{ fontFamily: monoFont, fontSize: "0.55rem", fontWeight: 700, color: theme === "dark" ? "rgba(255,255,255,0.4)" : "#888", textTransform: "uppercase" }}>{stat.vibes.slice(0, 1).join(", ")}</span>
                                                         </div>
-                                                        <span style={{ fontFamily: monoFont, fontSize: "0.8rem", fontWeight: 900, color: "#000" }}>{stat.count}</span>
+                                                        <span style={{ fontFamily: monoFont, fontSize: "0.8rem", fontWeight: 900, color: theme === "dark" ? "#FFF" : "#000" }}>{stat.count}</span>
                                                     </div>
                                                 ))}
                                             </div>
@@ -199,7 +202,7 @@ export default function MasterPanelPage() {
                                             <span style={{ fontFamily: monoFont, fontSize: "0.65rem", fontWeight: 700, color: "#888", textTransform: "uppercase" }}>Status</span>
                                             <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
                                                 <div style={{ width: "6px", height: "6px", borderRadius: "50%", background: "#10b981", boxShadow: "0 0 8px rgba(16, 185, 129, 0.4)" }} />
-                                                <span style={{ fontFamily: monoFont, fontSize: "0.65rem", fontWeight: 700, color: "#000", textTransform: "uppercase" }}>Verified Online</span>
+                                                <span style={{ fontFamily: monoFont, fontSize: "0.65rem", fontWeight: 700, color: theme === "dark" ? "#FFF" : "#000", textTransform: "uppercase" }}>Verified Online</span>
                                             </div>
                                         </div>
                                     </div>
@@ -213,14 +216,14 @@ export default function MasterPanelPage() {
                                             <motion.button
                                                 key={tool.id}
                                                 onClick={() => setActiveModule(tool.id as ModuleId)}
-                                                whileHover={{ scale: 1.01, backgroundColor: "rgba(255,255,255,0.8)" }}
+                                                whileHover={{ scale: 1.01, backgroundColor: theme === "dark" ? "rgba(255,255,255,0.05)" : "rgba(255,255,255,0.8)" }}
                                                 whileTap={{ scale: 0.99 }}
                                                 style={{
-                                                    backgroundColor: "rgba(255, 255, 255, 0.45)",
-                                                    border: "1px solid rgba(0,0,0,0.05)",
+                                                    backgroundColor: theme === "dark" ? "rgba(255, 255, 255, 0.03)" : "rgba(255, 255, 255, 0.45)",
+                                                    border: theme === "dark" ? "1px solid rgba(255,255,255,0.08)" : "1px solid rgba(0,0,0,0.05)",
                                                     borderRadius: "20px",
                                                     padding: "16px",
-                                                    boxShadow: "0 4px 20px rgba(0,0,0,0.02)",
+                                                    boxShadow: theme === "dark" ? "0 10px 40px rgba(0,0,0,0.3)" : "0 4px 20px rgba(0,0,0,0.02)",
                                                     display: "flex", alignItems: "center", justifyContent: "space-between",
                                                     cursor: "pointer",
                                                     transition: "background 0.2s ease"
@@ -231,8 +234,8 @@ export default function MasterPanelPage() {
                                                         {tool.icon}
                                                     </div>
                                                     <div style={{ textAlign: "left" }}>
-                                                        <div style={{ color: "#000", fontSize: "0.9rem", fontWeight: 900, fontFamily: headerFont, letterSpacing: "-0.01em", textTransform: "uppercase" }}>{tool.label}</div>
-                                                        <div style={{ color: "#888", fontSize: "0.6rem", fontWeight: 700, textTransform: "uppercase", fontFamily: monoFont }}>{tool.sub}</div>
+                                                        <div style={{ color: theme === "dark" ? "#FFF" : "#000", fontSize: "0.9rem", fontWeight: 900, fontFamily: headerFont, letterSpacing: "-0.01em", textTransform: "uppercase" }}>{tool.label}</div>
+                                                        <div style={{ color: theme === "dark" ? "rgba(255,255,255,0.4)" : "#888", fontSize: "0.6rem", fontWeight: 700, textTransform: "uppercase", fontFamily: monoFont }}>{tool.sub}</div>
                                                     </div>
                                                 </div>
                                             </motion.button>
@@ -261,7 +264,11 @@ export default function MasterPanelPage() {
                                             addLog={addLog}
                                             isBusy={isBusy}
                                             setIsBusy={setIsBusy}
-                                            insetBox={{ border: "1px solid rgba(0,0,0,0.1)", borderRadius: "12px", background: "rgba(255,255,255,0.6)" }}
+                                            insetBox={{ 
+                                                border: theme === "dark" ? "1px solid rgba(255,255,255,0.1)" : "1px solid rgba(0,0,0,0.1)", 
+                                                borderRadius: "12px", 
+                                                background: theme === "dark" ? "rgba(255,255,255,0.02)" : "rgba(255,255,255,0.6)" 
+                                            }}
                                         />
                                     </div>
                                 </motion.div>
@@ -296,8 +303,8 @@ export default function MasterPanelPage() {
                                                     <Lock size={20} color="#888" />
                                                 </div>
                                                 <div style={{ textAlign: "center" }}>
-                                                    <div style={{ fontSize: "0.7rem", fontWeight: 800, color: "#000", fontFamily: headerFont, textTransform: "uppercase" }}>Vault Protected</div>
-                                                    <div style={{ fontSize: "0.55rem", fontWeight: 700, color: "#888", fontFamily: monoFont, textTransform: "uppercase", marginTop: "2px" }}>Enter Authorization PIN</div>
+                                                    <div style={{ fontSize: "0.7rem", fontWeight: 800, color: theme === "dark" ? "#FFF" : "#000", fontFamily: headerFont, textTransform: "uppercase" }}>Vault Protected</div>
+                                                    <div style={{ fontSize: "0.55rem", fontWeight: 700, color: theme === "dark" ? "rgba(255,255,255,0.4)" : "#888", fontFamily: monoFont, textTransform: "uppercase", marginTop: "2px" }}>Enter Authorization PIN</div>
                                                 </div>
                                                 <input 
                                                     type="password" 
@@ -319,9 +326,10 @@ export default function MasterPanelPage() {
                                                         fontSize: "1rem",
                                                         letterSpacing: "0.2em",
                                                         fontWeight: 900,
-                                                        border: "1px solid rgba(0,0,0,0.1)",
+                                                        border: theme === "dark" ? "1px solid rgba(255,255,255,0.1)" : "1px solid rgba(0,0,0,0.1)",
                                                         borderRadius: "12px",
-                                                        background: "#fff",
+                                                        background: theme === "dark" ? "rgba(255,255,255,0.03)" : "#fff",
+                                                        color: theme === "dark" ? "#FFF" : "#000",
                                                         outline: "none",
                                                         fontFamily: monoFont
                                                     }}
@@ -336,13 +344,15 @@ export default function MasterPanelPage() {
                                             }}>
                                                 {accessLogs.map(log => (
                                                     <div key={log.id} style={{ 
-                                                        padding: "16px", backgroundColor: "rgba(255, 255, 255, 0.6)", border: "1px solid rgba(0,0,0,0.05)", 
+                                                        padding: "16px", 
+                                                        backgroundColor: theme === "dark" ? "rgba(255, 255, 255, 0.02)" : "rgba(255, 255, 255, 0.6)", 
+                                                        border: theme === "dark" ? "1px solid rgba(255,255,255,0.05)" : "1px solid rgba(0,0,0,0.05)", 
                                                         borderRadius: "16px", display: "flex", flexDirection: "column", gap: "8px"
                                                     }}>
                                                         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                                                             <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
                                                                 <Globe size={12} color="#888" />
-                                                                <span style={{ fontFamily: monoFont, fontSize: "0.75rem", fontWeight: 800, color: "#000" }}>
+                                                                <span style={{ fontFamily: monoFont, fontSize: "0.75rem", fontWeight: 800, color: theme === "dark" ? "#FFF" : "#000" }}>
                                                                     {(log.ip === "::1" || log.ip === "127.0.0.1") ? "Localhost" : log.ip}
                                                                 </span>
                                                             </div>
@@ -357,7 +367,7 @@ export default function MasterPanelPage() {
                                                                 <div style={{ padding: "8px 12px", background: "rgba(0,0,0,0.02)", borderRadius: "8px", border: "1px solid rgba(0,0,0,0.03)" }}>
                                                                     <div style={{ fontSize: "0.5rem", fontWeight: 800, color: "#888", textTransform: "uppercase", marginBottom: "2px" }}>HEARING</div>
                                                                     <div style={{ display: "flex", alignItems: "center", gap: "6px", flexWrap: "wrap" }}>
-                                                                        <div style={{ fontSize: "0.7rem", fontWeight: 900, color: "#000", textTransform: "uppercase", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", fontFamily: headerFont }}>
+                                                                        <div style={{ fontSize: "0.7rem", fontWeight: 900, color: theme === "dark" ? "#FFF" : "#000", textTransform: "uppercase", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", fontFamily: headerFont }}>
                                                                             {cleanTitle}
                                                                         </div>
                                                                         {labels.map(label => (
@@ -365,13 +375,13 @@ export default function MasterPanelPage() {
                                                                                 fontSize: "0.38rem",
                                                                                 fontFamily: headerFont,
                                                                                 fontWeight: 800,
-                                                                                backgroundColor: "rgba(0,0,0,0.04)",
-                                                                                color: "rgba(0,0,0,0.5)",
+                                                                                backgroundColor: theme === "dark" ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.04)",
+                                                                                color: theme === "dark" ? "rgba(255,255,255,0.6)" : "rgba(0,0,0,0.5)",
                                                                                 padding: "1px 5px",
                                                                                 borderRadius: "100px",
                                                                                 letterSpacing: "0.06em",
                                                                                 textTransform: "uppercase",
-                                                                                border: "1px solid rgba(0,0,0,0.05)",
+                                                                                border: theme === "dark" ? "1px solid rgba(255,255,255,0.1)" : "1px solid rgba(0,0,0,0.05)",
                                                                                 flexShrink: 0
                                                                             }}>{label}</span>
                                                                         ))}
@@ -401,14 +411,14 @@ export default function MasterPanelPage() {
                                 <Activity size={14} color="#888" />
                                 <span style={{ color: "#888", fontSize: "0.6rem", fontWeight: 800, letterSpacing: "0.1em", textTransform: "uppercase", fontFamily: monoFont }}>Recent Activity Log</span>
                             </div>
-                            <div style={{ 
-                                minHeight: "60px", 
-                                padding: "16px", 
-                                backgroundColor: "rgba(255, 255, 255, 0.45)",
-                                border: "1px solid rgba(0,0,0,0.05)",
-                                borderRadius: "16px",
-                                boxShadow: "0 4px 12px rgba(0,0,0,0.02)"
-                            }}>
+                                <div style={{ 
+                                    minHeight: "60px", 
+                                    padding: "16px", 
+                                    backgroundColor: theme === "dark" ? "rgba(255, 255, 255, 0.02)" : "rgba(255, 255, 255, 0.45)",
+                                    border: theme === "dark" ? "1px solid rgba(255,255,255,0.05)" : "1px solid rgba(0,0,0,0.05)",
+                                    borderRadius: "16px",
+                                    boxShadow: theme === "dark" ? "0 10px 40px rgba(0,0,0,0.3)" : "0 4px 12px rgba(0,0,0,0.02)"
+                                }}>
                                 {logs.length === 0 ? (
                                     <div style={{ color: "#aaa", fontSize: "0.65rem", fontFamily: monoFont, fontWeight: 700 }}>SYSTEM STANDBY...</div>
                                 ) : (

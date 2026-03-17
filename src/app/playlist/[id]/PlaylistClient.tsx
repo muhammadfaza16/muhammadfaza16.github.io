@@ -8,6 +8,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { PLAYLIST_CATEGORIES } from "@/data/playlists";
 import Link from "next/link";
 import { parseSongTitle } from "@/utils/songUtils";
+import { useTheme } from "@/components/ThemeProvider";
 
 const fmtTime = (s: number) => {
     const m = Math.floor(s / 60);
@@ -30,13 +31,24 @@ function TrackRow({ song, index, isActive, isPlaying, onPlay }: {
     isPlaying: boolean;
     onPlay: () => void;
 }) {
+    const { theme } = useTheme();
     const monoFont = "var(--font-mono), monospace";
     const headerFont = "var(--font-display), system-ui, sans-serif";
 
     return (
         <motion.div
-            whileHover={{ x: 2, backgroundColor: isActive ? "#000" : "rgba(0,0,0,0.02)" }}
-            whileTap={{ scale: 0.99, backgroundColor: isActive ? "#000" : "rgba(0,0,0,0.04)" }}
+            whileHover={{ 
+                x: 2, 
+                backgroundColor: isActive 
+                    ? (theme === "dark" ? "#1A1A1A" : "#000") 
+                    : (theme === "dark" ? "rgba(255,255,255,0.03)" : "rgba(0,0,0,0.02)") 
+            }}
+            whileTap={{ 
+                scale: 0.99, 
+                backgroundColor: isActive 
+                    ? (theme === "dark" ? "#1A1A1A" : "#000") 
+                    : (theme === "dark" ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.04)") 
+            }}
             transition={{ type: "spring", stiffness: 400, damping: 30 }}
             onClick={onPlay}
             style={{
@@ -44,10 +56,12 @@ function TrackRow({ song, index, isActive, isPlaying, onPlay }: {
                 alignItems: "center",
                 gap: "12px",
                 padding: "10px 14px",
-                backgroundColor: isActive ? "#000" : "transparent",
-                color: isActive ? "#fff" : "#000",
+                backgroundColor: isActive 
+                    ? (theme === "dark" ? "#1A1A1A" : "#000") 
+                    : "transparent",
+                color: isActive ? "#fff" : (theme === "dark" ? "#FFF" : "#000"),
                 cursor: "pointer",
-                borderBottom: "1px solid rgba(0,0,0,0.03)",
+                borderBottom: theme === "dark" ? "1px solid rgba(255,255,255,0.05)" : "1px solid rgba(0,0,0,0.03)",
                 transition: "all 0.2s ease"
             }}
         >
@@ -55,7 +69,7 @@ function TrackRow({ song, index, isActive, isPlaying, onPlay }: {
                 const { cleanTitle, artist, labels } = parseSongTitle(song.title);
                 return (
                     <>
-                        <div style={{ width: "20px", textAlign: "center", fontWeight: 700, fontFamily: monoFont, fontSize: "0.65rem", color: isActive ? "#fff" : "#888" }}>
+                        <div style={{ width: "20px", textAlign: "center", fontWeight: 700, fontFamily: monoFont, fontSize: "0.65rem", color: isActive ? "#fff" : (theme === "dark" ? "rgba(255,255,255,0.4)" : "#888") }}>
                             {isActive && isPlaying ? (
                                 <div style={{
                                     width: "20px",
@@ -65,7 +79,7 @@ function TrackRow({ song, index, isActive, isPlaying, onPlay }: {
                                     display: "flex",
                                     alignItems: "center",
                                     justifyContent: "center",
-                                    boxShadow: "0 0 10px rgba(99, 102, 241, 0.5)"
+                                    boxShadow: theme === "dark" ? "0 0 15px rgba(99, 102, 241, 0.4)" : "0 0 10px rgba(99, 102, 241, 0.5)"
                                 }}>
                                     <Disc className="animate-spin-slow" size={12} color="#fff" />
                                 </div>
@@ -81,20 +95,20 @@ function TrackRow({ song, index, isActive, isPlaying, onPlay }: {
                                         fontSize: "0.38rem",
                                         fontFamily: headerFont,
                                         fontWeight: 800,
-                                        backgroundColor: isActive ? "rgba(255,255,255,0.15)" : "rgba(0,0,0,0.04)",
-                                        color: isActive ? "#fff" : "rgba(0,0,0,0.5)",
+                                        backgroundColor: isActive ? "rgba(255,255,255,0.15)" : (theme === "dark" ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.04)"),
+                                        color: isActive ? "#fff" : (theme === "dark" ? "rgba(255,255,255,0.6)" : "rgba(0,0,0,0.5)"),
                                         padding: "1.5px 6px",
                                         borderRadius: "100px",
                                         letterSpacing: "0.06em",
                                         textTransform: "uppercase",
-                                        border: isActive ? "1px solid rgba(255,255,255,0.2)" : "1px solid rgba(0,0,0,0.06)",
+                                        border: isActive ? "1px solid rgba(255,255,255,0.2)" : (theme === "dark" ? "1px solid rgba(255,255,255,0.1)" : "1px solid rgba(0,0,0,0.06)"),
                                         flexShrink: 0
                                     }}>
                                         {label}
                                     </span>
                                 ))}
                             </div>
-                            <div style={{ color: isActive ? "rgba(255,255,255,0.6)" : "#888", fontSize: "0.65rem", fontFamily: monoFont, fontWeight: 700, marginTop: "1px", textTransform: "uppercase" }}>
+                            <div style={{ color: isActive ? "rgba(255,255,255,0.6)" : (theme === "dark" ? "rgba(255,255,255,0.4)" : "#888"), fontSize: "0.65rem", fontFamily: monoFont, fontWeight: 700, marginTop: "1px", textTransform: "uppercase" }}>
                                 {artist}
                             </div>
                         </div>
@@ -107,6 +121,7 @@ function TrackRow({ song, index, isActive, isPlaying, onPlay }: {
 
 export default function PlaylistClient({ playlistId, initialSongs = [] }: { playlistId: string, initialSongs?: any[] }) {
     const { playQueue, queue, currentSong, isPlaying, togglePlay, activePlaylistId, setIsPlayerExpanded } = useAudio();
+    const { theme } = useTheme();
     const [searchQuery, setSearchQuery] = useState("");
     const [mounted, setMounted] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
@@ -186,8 +201,9 @@ export default function PlaylistClient({ playlistId, initialSongs = [] }: { play
             display: "flex",
             flexDirection: "column",
             gap: "1.5rem",
-            backgroundColor: "#f9f9f9",
-            color: "#000"
+            backgroundColor: theme === "dark" ? "#0A0A0A" : "#f9f9f9",
+            color: theme === "dark" ? "#FFF" : "#000",
+            transition: "all 0.5s ease"
         }}>
             <div style={{ position: "relative", display: "flex", justifyContent: "center", alignItems: "center", marginTop: "16px", marginBottom: "8px" }}>
                 <div style={{ position: "absolute", left: 0 }}>
@@ -198,13 +214,13 @@ export default function PlaylistClient({ playlistId, initialSongs = [] }: { play
                             transition={{ type: "spring", stiffness: 400, damping: 17 }}
                             style={{ 
                                 display: "flex", alignItems: "center", gap: "6px", 
-                                background: "rgba(255, 255, 255, 0.8)", 
-                                border: "1px solid rgba(0,0,0,0.05)",
+                                background: theme === "dark" ? "rgba(255, 255, 255, 0.05)" : "rgba(255, 255, 255, 0.8)", 
+                                border: theme === "dark" ? "1px solid rgba(255, 255, 255, 0.1)" : "1px solid rgba(0,0,0,0.05)",
                                 padding: "6px 12px", cursor: "pointer", 
-                                fontFamily: headerFont, fontWeight: 800, color: "#000",
+                                fontFamily: headerFont, fontWeight: 800, color: theme === "dark" ? "#FFF" : "#000",
                                 fontSize: "0.7rem",
                                 borderRadius: "100px",
-                                boxShadow: "0 2px 8px rgba(0,0,0,0.02)"
+                                boxShadow: theme === "dark" ? "0 4px 12px rgba(0,0,0,0.2)" : "0 2px 8px rgba(0,0,0,0.02)"
                             }}
                         >
                             <ChevronLeft size={14} /> Back
@@ -225,7 +241,7 @@ export default function PlaylistClient({ playlistId, initialSongs = [] }: { play
                         style={{
                             position: "fixed",
                             inset: 0,
-                            backgroundColor: "#f9f9f9",
+                            backgroundColor: theme === "dark" ? "#0A0A0A" : "#f9f9f9",
                             zIndex: 100,
                             display: "flex",
                             flexDirection: "column",
@@ -262,7 +278,7 @@ export default function PlaylistClient({ playlistId, initialSongs = [] }: { play
                                 fontSize: "1rem",
                                 textTransform: "uppercase",
                                 letterSpacing: "0.05em",
-                                color: "#000"
+                                color: theme === "dark" ? "#FFF" : "#000"
                             }}>
                                 PREPARING LIBRARY
                             </div>
@@ -343,9 +359,11 @@ export default function PlaylistClient({ playlistId, initialSongs = [] }: { play
                     }}
                     style={{
                         flex: 1,
-                        background: isThisPlaylistPlaying ? "rgba(0,0,0,0.05)" : "#000",
-                        color: isThisPlaylistPlaying ? "#000" : "#fff",
-                        border: "1px solid rgba(0,0,0,0.05)",
+                        background: isThisPlaylistPlaying 
+                            ? (theme === "dark" ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.05)") 
+                            : (theme === "dark" ? "#6366F1" : "#000"),
+                        color: isThisPlaylistPlaying ? (theme === "dark" ? "#FFF" : "#000") : "#fff",
+                        border: theme === "dark" ? "1px solid rgba(255,255,255,0.1)" : "1px solid rgba(0,0,0,0.05)",
                         borderRadius: "12px",
                         padding: "12px",
                         fontSize: "0.85rem",
@@ -360,7 +378,10 @@ export default function PlaylistClient({ playlistId, initialSongs = [] }: { play
                         letterSpacing: "0.05em"
                     }}
                 >
-                    {isThisPlaylistPlaying ? <><Pause size={18} fill="#000" color="#000" /> PAUSE</> : <><Play size={18} fill="#fff" color="#fff" style={{ marginLeft: "2px" }} /> PLAY MIX</>}
+                    {isThisPlaylistPlaying 
+                        ? <><Pause size={18} fill="currentColor" color="currentColor" /> PAUSE</> 
+                        : <><Play size={18} fill="currentColor" color="currentColor" style={{ marginLeft: "2px" }} /> PLAY MIX</>
+                    }
                 </motion.button>
 
                 <motion.button
@@ -369,19 +390,19 @@ export default function PlaylistClient({ playlistId, initialSongs = [] }: { play
                         playQueue(filteredPlaylist, 0, playlistId, true);
                     }}
                     style={{
-                        background: "rgba(255, 255, 255, 0.8)",
-                        color: "#000",
-                        border: "1px solid rgba(0,0,0,0.05)",
+                        background: theme === "dark" ? "rgba(255, 255, 255, 0.05)" : "rgba(255, 255, 255, 0.8)",
+                        color: theme === "dark" ? "#FFF" : "#000",
+                        border: theme === "dark" ? "1px solid rgba(255,255,255,0.1)" : "1px solid rgba(0,0,0,0.05)",
                         borderRadius: "12px",
                         padding: "0 16px",
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "center",
                         cursor: "pointer",
-                        boxShadow: "0 2px 8px rgba(0,0,0,0.02)"
+                        boxShadow: theme === "dark" ? "0 4px 12px rgba(0,0,0,0.2)" : "0 2px 8px rgba(0,0,0,0.02)"
                     }}
                 >
-                    <Shuffle size={18} color="#000" />
+                    <Shuffle size={18} color="currentColor" />
                 </motion.button>
             </div>
 
@@ -391,14 +412,14 @@ export default function PlaylistClient({ playlistId, initialSongs = [] }: { play
                 zIndex: 40,
                 width: "100%",
                 height: "44px",
-                backgroundColor: "rgba(255, 255, 255, 0.6)",
+                backgroundColor: theme === "dark" ? "rgba(255, 255, 255, 0.03)" : "rgba(255, 255, 255, 0.6)",
                 backdropFilter: "blur(12px)",
                 display: "flex",
                 alignItems: "center",
                 padding: "0 14px",
-                border: "1px solid rgba(0,0,0,0.05)",
+                border: theme === "dark" ? "1px solid rgba(255,255,255,0.08)" : "1px solid rgba(0,0,0,0.05)",
                 borderRadius: "14px",
-                boxShadow: "0 4px 12px rgba(0,0,0,0.02)"
+                boxShadow: theme === "dark" ? "0 10px 40px rgba(0,0,0,0.3)" : "0 4px 12px rgba(0,0,0,0.02)"
             }}>
                 <Search size={18} color="#888" />
                 <input
@@ -411,7 +432,7 @@ export default function PlaylistClient({ playlistId, initialSongs = [] }: { play
                         background: "transparent",
                         border: "none",
                         outline: "none",
-                        color: "#000",
+                        color: theme === "dark" ? "#FFF" : "#000",
                         fontSize: "0.9rem",
                         marginLeft: "10px",
                         fontFamily: monoFont,
@@ -423,14 +444,14 @@ export default function PlaylistClient({ playlistId, initialSongs = [] }: { play
             <div style={{
                 display: "flex",
                 flexDirection: "column",
-                background: "rgba(255, 255, 255, 0.45)",
-                border: "1px solid rgba(0,0,0,0.05)",
+                background: theme === "dark" ? "rgba(255, 255, 255, 0.02)" : "rgba(255, 255, 255, 0.45)",
+                border: theme === "dark" ? "1px solid rgba(255,255,255,0.05)" : "1px solid rgba(0,0,0,0.05)",
                 borderRadius: "20px",
-                boxShadow: "0 8px 30px rgba(0,0,0,0.02)",
+                boxShadow: theme === "dark" ? "0 15px 50px rgba(0,0,0,0.4)" : "0 8px 30px rgba(0,0,0,0.02)",
                 overflow: "hidden"
             }}>
                 <div style={{ padding: "12px 16px", borderBottom: "1px solid rgba(0,0,0,0.03)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                    <h3 style={{ fontSize: "0.85rem", fontWeight: 900, fontFamily: headerFont, margin: 0, textTransform: "uppercase", letterSpacing: "0.05em", color: "#000" }}>
+                    <h3 style={{ fontSize: "0.85rem", fontWeight: 900, fontFamily: headerFont, margin: 0, textTransform: "uppercase", letterSpacing: "0.05em", color: theme === "dark" ? "#FFF" : "#000" }}>
                         TRACKLIST
                     </h3>
                     <span style={{ fontFamily: monoFont, fontWeight: 700, fontSize: "0.7rem", color: "#888" }}>{filteredPlaylist.length} ITEMS</span>

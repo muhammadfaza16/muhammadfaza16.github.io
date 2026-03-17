@@ -41,14 +41,14 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
     useEffect(() => {
         if (mounted) {
-            const isCuration = pathname?.startsWith('/curation');
+            const isThemable = pathname?.startsWith('/curation') || pathname?.startsWith('/music') || pathname?.startsWith('/playlist');
             const root = document.documentElement;
 
-            if (!isCuration) {
-                // Outside curation, always force dark mode
+            if (!isThemable) {
+                // Non-themable pages (Home, etc.) always force dark mode
                 root.classList.add("dark");
             } else {
-                // Inside curation, follow the theme state
+                // Themable sections follow the set theme
                 if (theme === "dark") {
                     root.classList.add("dark");
                 } else {
@@ -85,9 +85,9 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
                 });
 
                 // Immediate DOM update for the transition snapshot
-                const isCuration = pathname?.startsWith('/curation');
+                const isThemable = pathname?.startsWith('/curation') || pathname?.startsWith('/music') || pathname?.startsWith('/playlist');
                 const root = document.documentElement;
-                if (!isCuration || newTheme === "dark") {
+                if (!isThemable || newTheme === "dark") {
                     root.classList.add("dark");
                 } else {
                     root.classList.remove("dark");
