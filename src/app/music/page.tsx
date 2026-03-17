@@ -284,48 +284,49 @@ export default function AudioHubPage() {
                                                         exit={{ y: -5, opacity: 0 }}
                                                         transition={{ duration: 0.2 }}
                                                     >
-                                                        <div style={{ display: "flex", alignItems: "center", gap: "6px", flexWrap: "wrap" }}>
+                                                        <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+                                                            <div style={{ display: "flex", alignItems: "center", gap: "8px", flexWrap: "wrap" }}>
+                                                                <div style={{ 
+                                                                    fontFamily: headerFont, 
+                                                                    fontWeight: 900, 
+                                                                    fontSize: "0.95rem", 
+                                                                    color: "#000",
+                                                                    whiteSpace: "nowrap",
+                                                                    overflow: "hidden",
+                                                                    textOverflow: "ellipsis",
+                                                                    letterSpacing: "-0.02em",
+                                                                    lineHeight: 1.1
+                                                                }}>
+                                                                    {cleanTitle}
+                                                                </div>
+                                                                {labels.map(label => (
+                                                                    <span key={label} style={{
+                                                                        fontSize: "0.38rem",
+                                                                        fontFamily: headerFont,
+                                                                        fontWeight: 800,
+                                                                        backgroundColor: "rgba(0,0,0,0.04)",
+                                                                        color: "rgba(0,0,0,0.5)",
+                                                                        padding: "1.5px 6px",
+                                                                        borderRadius: "100px",
+                                                                        letterSpacing: "0.08em",
+                                                                        textTransform: "uppercase",
+                                                                        border: "1px solid rgba(0,0,0,0.06)",
+                                                                        flexShrink: 0
+                                                                    }}>
+                                                                        {label}
+                                                                    </span>
+                                                                ))}
+                                                            </div>
                                                             <div style={{ 
                                                                 fontFamily: headerFont, 
-                                                                fontWeight: 900, 
-                                                                fontSize: "0.95rem", 
-                                                                color: "#000",
-                                                                whiteSpace: "nowrap",
-                                                                overflow: "hidden",
-                                                                textOverflow: "ellipsis",
-                                                                letterSpacing: "-0.02em",
-                                                                lineHeight: 1.1
+                                                                fontWeight: 700, 
+                                                                fontSize: "0.7rem", 
+                                                                color: "rgba(0,0,0,0.45)",
+                                                                textTransform: "uppercase",
+                                                                letterSpacing: "0.02em"
                                                             }}>
-                                                                {cleanTitle}
+                                                                {artist}
                                                             </div>
-                                                            {labels.map(label => (
-                                                                <span key={label} style={{
-                                                                    fontSize: "0.45rem",
-                                                                    fontFamily: headerFont, // Using Inter/Sans
-                                                                    fontWeight: 800,
-                                                                    backgroundColor: "rgba(0,0,0,0.04)",
-                                                                    color: "rgba(0,0,0,0.5)",
-                                                                    padding: "2px 7px",
-                                                                    borderRadius: "100px",
-                                                                    letterSpacing: "0.08em",
-                                                                    textTransform: "uppercase",
-                                                                    border: "1px solid rgba(0,0,0,0.06)",
-                                                                    flexShrink: 0
-                                                                }}>
-                                                                    {label}
-                                                                </span>
-                                                            ))}
-                                                        </div>
-                                                        <div style={{ 
-                                                            fontFamily: headerFont, 
-                                                            fontWeight: 700, 
-                                                            fontSize: "0.7rem", 
-                                                            color: "rgba(0,0,0,0.45)",
-                                                            marginTop: "2px",
-                                                            textTransform: "uppercase",
-                                                            letterSpacing: "0.02em"
-                                                        }}>
-                                                            {artist}
                                                         </div>
                                                     </motion.div>
                                                 );

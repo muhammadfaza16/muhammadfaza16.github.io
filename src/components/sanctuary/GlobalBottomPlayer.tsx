@@ -171,46 +171,55 @@ export function GlobalBottomPlayer() {
                                         </div>
                                     </div>
                                 ) : (
-                                    <div style={{ width: "100%", height: "100%", padding: "24px", overflowY: "auto", textAlign: "center" }}>
-                                        {activeLyrics.map((lyric, idx) => {
-                                             const isActive = lyric.time <= currentTime && (idx === activeLyrics.length - 1 || activeLyrics[idx + 1].time > currentTime);
-                                             return (
-                                                 <motion.p 
-                                                    key={idx}
-                                                    animate={{ opacity: isActive ? 1 : 0.3, scale: isActive ? 1.05 : 1 }}
-                                                    style={{ 
-                                                        fontFamily: headerFont, fontWeight: 800, fontSize: "1rem", margin: "12px 0", color: "#000"
-                                                    }}>
-                                                     {lyric.text || "♪"}
-                                                 </motion.p>
-                                             );
-                                        })}
+                                    <div style={{ width: "100%", height: "100%", padding: "24px", overflowY: "auto", textAlign: "center", display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center" }}>
+                                        {activeLyrics.length > 0 ? (
+                                            activeLyrics.map((lyric, idx) => {
+                                                const isActive = lyric.time <= currentTime && (idx === activeLyrics.length - 1 || activeLyrics[idx + 1].time > currentTime);
+                                                return (
+                                                    <motion.p 
+                                                        key={idx}
+                                                        animate={{ opacity: isActive ? 1 : 0.3, scale: isActive ? 1.05 : 1 }}
+                                                        style={{ 
+                                                            fontFamily: headerFont, fontWeight: 800, fontSize: "1rem", margin: "12px 0", color: "#000"
+                                                        }}>
+                                                        {lyric.text || "♪"}
+                                                    </motion.p>
+                                                );
+                                            })
+                                        ) : (
+                                            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "16px", opacity: 0.3 }}>
+                                                <FileText size={48} strokeWidth={1} />
+                                                <p style={{ fontFamily: headerFont, fontWeight: 900, fontSize: "0.7rem", letterSpacing: "0.1em", textTransform: "uppercase" }}>Lyrics not available</p>
+                                            </div>
+                                        )}
                                     </div>
                                 )}
                             </motion.div>
 
-                            <div style={{ textAlign: "center", width: "100%" }}>
-                                <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", flexWrap: "wrap", marginBottom: "4px" }}>
-                                    <h2 style={{ fontFamily: headerFont, fontWeight: 900, fontSize: "1.3rem", margin: 0, letterSpacing: "-0.03em", color: "#000" }}>{songTitle}</h2>
-                                    {labels.map(label => (
-                                        <span key={label} style={{
-                                            fontSize: "0.45rem",
-                                            fontFamily: headerFont,
-                                            fontWeight: 800,
-                                            backgroundColor: "rgba(0,0,0,0.04)",
-                                            color: "rgba(0,0,0,0.5)",
-                                            padding: "2px 7px",
-                                            borderRadius: "100px",
-                                            letterSpacing: "0.08em",
-                                            textTransform: "uppercase",
-                                            border: "1px solid rgba(0,0,0,0.06)",
-                                            flexShrink: 0
-                                        }}>
-                                            {label}
-                                        </span>
-                                    ))}
-                                </div>
-                                <p style={{ fontFamily: headerFont, fontWeight: 600, fontSize: "0.9rem", margin: 0, color: "#888" }}>{songArtist}</p>
+                            <div style={{ textAlign: "center", width: "100%", display: "flex", flexDirection: "column", alignItems: "center", gap: "10px" }}>
+                                <h2 style={{ fontFamily: headerFont, fontWeight: 900, fontSize: "1.3rem", margin: 0, letterSpacing: "-0.03em", color: "#000" }}>{songTitle}</h2>
+                                {labels.length > 0 && (
+                                    <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "6px", flexWrap: "wrap" }}>
+                                        {labels.map(label => (
+                                            <span key={label} style={{
+                                                fontSize: "0.38rem",
+                                                fontFamily: headerFont,
+                                                fontWeight: 800,
+                                                backgroundColor: "rgba(0,0,0,0.04)",
+                                                color: "rgba(0,0,0,0.5)",
+                                                padding: "1.5px 6px",
+                                                borderRadius: "100px",
+                                                letterSpacing: "0.08em",
+                                                textTransform: "uppercase",
+                                                border: "1px solid rgba(0,0,0,0.06)",
+                                                flexShrink: 0
+                                            }}>
+                                                {label}
+                                            </span>
+                                        ))}
+                                    </div>
+                                )}
+                                <p style={{ fontFamily: headerFont, fontWeight: 600, fontSize: "0.9rem", margin: 0, color: "#888", opacity: 0.8 }}>{songArtist}</p>
                             </div>
 
                             <div style={{ width: "100%" }}>
@@ -299,12 +308,12 @@ export function GlobalBottomPlayer() {
                                                             <div style={{ fontFamily: headerFont, fontWeight: 800, fontSize: "0.95rem", color: isCurrent ? "#000" : "#333" }}>{cleanTitle}</div>
                                                             {qLabels.map(label => (
                                                                 <span key={label} style={{
-                                                                    fontSize: "0.4rem",
+                                                                    fontSize: "0.35rem",
                                                                     fontFamily: headerFont,
                                                                     fontWeight: 800,
                                                                     backgroundColor: isCurrent ? "rgba(0,0,0,0.08)" : "rgba(0,0,0,0.03)",
                                                                     color: isCurrent ? "#000" : "#888",
-                                                                    padding: "1px 6px",
+                                                                    padding: "1px 5px",
                                                                     borderRadius: "100px",
                                                                     letterSpacing: "0.06em",
                                                                     textTransform: "uppercase",

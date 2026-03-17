@@ -78,12 +78,12 @@ function TrackRow({ song, index, isActive, isPlaying, onPlay }: {
                                 </div>
                                 {labels.map(label => (
                                     <span key={label} style={{
-                                        fontSize: "0.4rem",
+                                        fontSize: "0.38rem",
                                         fontFamily: headerFont,
                                         fontWeight: 800,
                                         backgroundColor: isActive ? "rgba(255,255,255,0.15)" : "rgba(0,0,0,0.04)",
                                         color: isActive ? "#fff" : "rgba(0,0,0,0.5)",
-                                        padding: "1px 6px",
+                                        padding: "1.5px 6px",
                                         borderRadius: "100px",
                                         letterSpacing: "0.06em",
                                         textTransform: "uppercase",
