@@ -103,9 +103,12 @@ export function AudioProvider({ children, initialSongs = [] }: { children: React
     const [currentLyricText, setCurrentLyricText] = useState<string | null>(null);
     const [activeLyrics, setActiveLyrics] = useState<LyricItem[]>([]);
 
-    // Time tracking (lightweight, updates throttled)
+    // Lightweight time tracking
     const [currentTime, setCurrentTime] = useState(0);
     const [duration, setDuration] = useState(0);
+
+    // Seek Guard: Prevent onTimeUpdate from reverting UI right after a seek
+    const lastSeekTimeRef = useRef<number | null>(null);
 
     // Playback Nonce: ensure state changes always trigger a playback attempt
     const [playbackNonce, setPlaybackNonce] = useState(0);
@@ -508,6 +511,12 @@ export function AudioProvider({ children, initialSongs = [] }: { children: React
 
         // Throttled time update for progress bar (every 500ms for performance)
         const now = Date.now();
+        
+        // Skip if we just seeked (wait 1s for browser to catch up)
+        if (lastSeekTimeRef.current !== null && now - lastSeekTimeRef.current < 1000) {
+            return;
+        }
+
         if (now - lastTimeUpdateRef.current > 500) {
             // Self-heal duration if missing
             if ((!duration || duration === 0) && audioRef.current.duration) {
@@ -548,7 +557,10 @@ export function AudioProvider({ children, initialSongs = [] }: { children: React
     // Seek to time
     const seekTo = useCallback((time: number) => {
         if (audioRef.current) {
-            initialTimeRef.current = 0; // Clear it, user manually interacted
+            // Ignore if seeking to the same spot (noise reduction)
+            if (Math.abs(audioRef.current.currentTime - time) < 0.1) return;
+            
+            lastSeekTimeRef.current = Date.now();
             audioRef.current.currentTime = time;
             setCurrentTime(time);
         }
