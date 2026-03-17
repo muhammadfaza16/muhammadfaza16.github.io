@@ -15,12 +15,12 @@ export function MusicSmoothScroll() {
 
         // Finely tuned Lenis for a "Premium Slow Scroll" experience
         const lenis = new Lenis({
-            duration: 1.5,      // Moderately increased for smoother feel
+            duration: 2.2,      // Significantly increased for a very smooth, heavy feel
             easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)), 
             orientation: "vertical",
             gestureOrientation: "vertical",
             smoothWheel: true,
-            wheelMultiplier: 0.85, // Slightly reduced for more control
+            wheelMultiplier: 0.6, // Reduced for much more controlled, "heavy" increments
             touchMultiplier: 2.0, // Snappier touch response
             infinite: false,
         });
