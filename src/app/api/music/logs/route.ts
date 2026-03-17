@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 
-const ADMIN_PASSWORD = "faza123";
+const ADMIN_PASSWORD = "0000";
 
 export async function GET(request: Request) {
     try {
