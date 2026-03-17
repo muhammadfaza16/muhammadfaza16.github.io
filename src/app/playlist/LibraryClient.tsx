@@ -263,7 +263,7 @@ export default function LibraryClient({ songCount }: { songCount: number }) {
                                 style={{
                                     position: "relative",
                                     aspectRatio: "1/1.1",
-                                    backgroundColor: "rgba(255, 255, 255, 0.45)",
+                                    backgroundColor: playlist.coverColor || "#fff",
                                     border: "1px solid rgba(0,0,0,0.05)",
                                     borderRadius: "18px",
                                     overflow: "hidden",
@@ -276,6 +276,7 @@ export default function LibraryClient({ songCount }: { songCount: number }) {
                                     <img
                                         src={playlist.coverImage}
                                         style={{ width: "100%", height: "100%", objectFit: "cover", position: "absolute", inset: 0, zIndex: 0, opacity: 0.85 }}
+                                        className="mix-blend-multiply"
                                     />
                                 )}
                                 {/* Premium Masking Overlays */}

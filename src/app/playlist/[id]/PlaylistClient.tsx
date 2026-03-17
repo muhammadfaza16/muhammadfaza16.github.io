@@ -236,7 +236,7 @@ export default function PlaylistClient({ playlistId, initialSongs = [] }: { play
 
             {activePlaylist && (
                 <div style={{
-                    backgroundColor: "rgba(255, 255, 255, 0.4)",
+                    backgroundColor: activePlaylist.coverColor || "#fff",
                     border: "1px solid rgba(0,0,0,0.05)",
                     borderRadius: "24px",
                     boxShadow: "0 10px 30px rgba(0,0,0,0.03)",
@@ -250,10 +250,23 @@ export default function PlaylistClient({ playlistId, initialSongs = [] }: { play
                 }}>
                     <img 
                         src={activePlaylist.coverImage} 
-                        style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", zIndex: 0, opacity: 0.9 }} 
+                        style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", zIndex: 0, opacity: 0.85 }} 
+                        className="mix-blend-multiply"
                         alt="" 
                     />
-                    <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(0,0,0,0.85) 0%, transparent 70%)", zIndex: 1 }} />
+                    {/* Premium Masking Overlays */}
+                    <div style={{
+                        position: "absolute",
+                        inset: 0,
+                        background: "radial-gradient(circle at center, transparent 30%, rgba(0,0,0,0.2) 100%)",
+                        zIndex: 1
+                    }} />
+                    <div style={{ 
+                        position: "absolute", 
+                        inset: 0, 
+                        background: "linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.3) 40%, transparent 100%)", 
+                        zIndex: 1 
+                    }} />
                     <div style={{ position: "absolute", bottom: "16px", left: "16px", right: "16px", zIndex: 2 }}>
                         <h2 style={{
                             fontSize: "1.4rem",
