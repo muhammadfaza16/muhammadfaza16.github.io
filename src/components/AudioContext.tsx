@@ -260,6 +260,29 @@ export function AudioProvider({ children, initialSongs = [] }: { children: React
         return () => clearTimeout(timeout);
     }, [queue, originalQueue, currentIndex, currentTime, duration, activePlaylistId, shuffleMode, repeatMode, hasLoadedState]);
 
+    // Failsafe Restore: If metadata doesn't fire or we miss it, try jumping when ready
+    useEffect(() => {
+        if (!hasLoadedState || initialTimeRef.current === 0) return;
+
+        const checkAndRestore = () => {
+            if (audioRef.current && audioRef.current.readyState >= 1) {
+                const target = initialTimeRef.current;
+                if (target > 0) {
+                    audioRef.current.currentTime = target;
+                    setCurrentTime(target);
+                    initialTimeRef.current = 0; // Mission accomplished
+                }
+            }
+        };
+
+        // Try immediately
+        checkAndRestore();
+
+        // Also try on a small delay if state just loaded
+        const timer = setTimeout(checkAndRestore, 500);
+        return () => clearTimeout(timer);
+    }, [hasLoadedState, currentIndex]);
+
     // Theme integration keeping for later custom logic, but removed the global auto-switching.
     const { theme, setTheme } = useTheme();
 
@@ -348,6 +371,7 @@ export function AudioProvider({ children, initialSongs = [] }: { children: React
     // B2 Fix: Proper stopMusic that kills all retries (kept as alias to togglePlay/pause for now)
     const stopMusic = useCallback(() => {
         intentionalPauseRef.current = true;
+        initialTimeRef.current = 0; // Clear restoration if stopped
         if (audioRef.current) {
             audioRef.current.pause();
         }
@@ -356,6 +380,7 @@ export function AudioProvider({ children, initialSongs = [] }: { children: React
 
     const playQueue = useCallback((newQueue: { title: string; audioUrl: string }[], startIndex = 0, playlistId: string | null = null, forceShuffleActivate = false) => {
         intentionalPauseRef.current = false;
+        initialTimeRef.current = 0; // NEW: Clear stale restore time on new queue
         setOriginalQueue(newQueue);
 
         const shouldShuffle = forceShuffleActivate || shuffleMode;
@@ -401,6 +426,7 @@ export function AudioProvider({ children, initialSongs = [] }: { children: React
 
     const jumpToSong = useCallback((index: number) => {
         intentionalPauseRef.current = false;
+        initialTimeRef.current = 0; // NEW: Clear restore time on manual jump
         setIsBuffering(false);
         setHasInteracted(true);
         setIsPlaying(true);
@@ -511,8 +537,12 @@ export function AudioProvider({ children, initialSongs = [] }: { children: React
                 setDuration(audioRef.current.duration);
             }
 
-            // Prevent early overwrite if metadata hasn't triggered restore yet
-            if (initialTimeRef.current > 0 && t < 0.5) return;
+            // Failsafe: if audio has progressed significantly or metadata jump failed
+            // we should stop blocking UI updates.
+            if (initialTimeRef.current > 0) {
+                if (t > 1) initialTimeRef.current = 0; // Audio already moved, stop guarding
+                else return; // Still waiting for jump
+            }
             
             setCurrentTime(t);
             lastTimeUpdateRef.current = now;
