@@ -86,15 +86,13 @@ export default async function RootLayout({
     description: "Writer and developer exploring digital craftsmanship."
   };
 
-  let initialSongs: { id: string; title: string; audioUrl: string; duration: number }[] = [];
+  let initialSongs: { title: string; audioUrl: string }[] = [];
   try {
     const songs = await prisma.song.findMany({
-      orderBy: { title: 'asc' }
+      orderBy: { title: 'asc' },
+      select: { title: true, audioUrl: true }
     });
-    initialSongs = songs.map(s => ({
-      ...s,
-      duration: s.duration || 0
-    }));
+    initialSongs = songs;
   } catch (error) {
     console.error("Prisma connection error in layout.tsx:", error);
   }
@@ -133,10 +131,9 @@ export default async function RootLayout({
         />
         <NextTopLoader color="#E5E5E5" showSpinner={false} height={2} shadow="0 0 10px #E5E5E5,0 0 5px #E5E5E5" />
         <ThemeProvider>
-            <AudioProvider initialSongs={JSON.parse(JSON.stringify(initialSongs))}>
+            <AudioProvider initialSongs={initialSongs}>
                 <ZenProvider>
                   <SkipLink />
-                  <KonamiCode />
                   <KonamiCode />
                   <FloatingZenToggle />
 
