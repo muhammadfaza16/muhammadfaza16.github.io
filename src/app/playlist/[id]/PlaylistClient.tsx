@@ -29,34 +29,37 @@ function TrackRow({ song, index, isActive, isPlaying, onPlay }: {
     isPlaying: boolean;
     onPlay: () => void;
 }) {
+    const monoFont = "var(--font-mono), monospace";
+    const headerFont = "var(--font-display), system-ui, sans-serif";
+
     return (
         <motion.div
-            whileHover={{ x: 4, backgroundColor: isActive ? "#000" : "rgba(0,0,0,0.02)" }}
-            whileTap={{ scale: 0.98, backgroundColor: isActive ? "#000" : "rgba(0,0,0,0.05)" }}
-            transition={{ type: "spring", stiffness: 400, damping: 25 }}
+            whileHover={{ x: 2, backgroundColor: isActive ? "#000" : "rgba(0,0,0,0.02)" }}
+            whileTap={{ scale: 0.99, backgroundColor: isActive ? "#000" : "rgba(0,0,0,0.04)" }}
+            transition={{ type: "spring", stiffness: 400, damping: 30 }}
             onClick={onPlay}
             style={{
                 display: "flex",
                 alignItems: "center",
-                gap: "10px",
-                padding: "12px 10px",
+                gap: "12px",
+                padding: "10px 14px",
                 backgroundColor: isActive ? "#000" : "transparent",
                 color: isActive ? "#fff" : "#000",
                 cursor: "pointer",
-                borderBottom: "2px solid #000",
-                transition: "color 0.2s ease"
+                borderBottom: "1px solid rgba(0,0,0,0.03)",
+                transition: "all 0.2s ease"
             }}
         >
-            <div style={{ width: "24px", textAlign: "center", fontWeight: 900, fontFamily: "monospace" }}>
+            <div style={{ width: "20px", textAlign: "center", fontWeight: 700, fontFamily: monoFont, fontSize: "0.65rem", color: isActive ? "#fff" : "#888" }}>
                 {isActive && isPlaying ? (
-                    <Disc className="animate-spin" size={16} color="#fff" />
-                ) : (index + 1)}
+                    <Disc className="animate-spin-slow" size={14} color="#fff" />
+                ) : (index + 1).toString().padStart(2, '0')}
             </div>
             <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ fontWeight: 900, fontSize: "1rem", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", fontFamily: "system-ui, -apple-system, sans-serif", letterSpacing: "-0.04em", lineHeight: 1.2 }}>
+                <div style={{ fontWeight: 800, fontSize: "0.85rem", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", fontFamily: headerFont, letterSpacing: "-0.01em", lineHeight: 1.2 }}>
                     {song.title.split("—")[1]?.trim() || song.title}
                 </div>
-                <div style={{ color: isActive ? "#ccc" : "#666", fontSize: "0.8rem", fontFamily: "monospace", fontWeight: 700, marginTop: "2px" }}>
+                <div style={{ color: isActive ? "rgba(255,255,255,0.6)" : "#888", fontSize: "0.65rem", fontFamily: monoFont, fontWeight: 700, marginTop: "1px", textTransform: "uppercase" }}>
                     {song.title.split("—")[0]?.trim() || "Unknown Artist"}
                 </div>
             </div>
@@ -130,8 +133,8 @@ export default function PlaylistClient({ playlistId, initialSongs = [] }: { play
     const isThisPlaylistInQueue = activePlaylistId === playlistId || (playlistId === "all" && activePlaylistId === null);
     const isThisPlaylistPlaying = isPlaying && isThisPlaylistInQueue;
 
-    const borderStyle = "2px solid #000";
-    const shadowStyle = "4px 4px 0 #000";
+    const headerFont = "var(--font-display), system-ui, sans-serif";
+    const monoFont = "var(--font-mono), monospace";
 
     if (!mounted) return null;
 
@@ -145,27 +148,30 @@ export default function PlaylistClient({ playlistId, initialSongs = [] }: { play
             display: "flex",
             flexDirection: "column",
             gap: "1.5rem",
-            backgroundColor: "#F5F0EB",
+            backgroundColor: "#f9f9f9",
             color: "#000"
         }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "16px", marginBottom: "8px" }}>
                 <Link href="/playlist" style={{ textDecoration: "none" }}>
                     <motion.button 
                         whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95, y: 2, x: 2, boxShadow: "0px 0px 0 #000" }}
+                        whileTap={{ scale: 0.95 }}
                         transition={{ type: "spring", stiffness: 400, damping: 17 }}
                         style={{ 
-                            display: "flex", alignItems: "center", gap: "4px", 
-                            background: "#fff", border: borderStyle, boxShadow: "2px 2px 0 #000",
-                            padding: "4px 8px", cursor: "pointer", fontFamily: "monospace", fontWeight: 700, color: "#000",
-                            fontSize: "0.75rem",
-                            transition: "background 0.2s ease"
+                            display: "flex", alignItems: "center", gap: "6px", 
+                            background: "rgba(255, 255, 255, 0.8)", 
+                            border: "1px solid rgba(0,0,0,0.05)",
+                            padding: "6px 12px", cursor: "pointer", 
+                            fontFamily: headerFont, fontWeight: 800, color: "#000",
+                            fontSize: "0.7rem",
+                            borderRadius: "100px",
+                            boxShadow: "0 2px 8px rgba(0,0,0,0.02)"
                         }}
                     >
                         <ChevronLeft size={14} /> Back
                     </motion.button>
                 </Link>
-                <span style={{ fontFamily: "monospace", fontWeight: 700, fontSize: "0.85rem", textTransform: "uppercase" }}>
+                <span style={{ fontFamily: headerFont, fontWeight: 900, fontSize: "0.75rem", textTransform: "uppercase", letterSpacing: "0.05em", color: "#888" }}>
                     {activePlaylist ? "Playlist" : "Library"}
                 </span>
                 <div style={{ width: "44px" }} />
@@ -180,7 +186,7 @@ export default function PlaylistClient({ playlistId, initialSongs = [] }: { play
                         style={{
                             position: "fixed",
                             inset: 0,
-                            backgroundColor: "#F5F0EB",
+                            backgroundColor: "#f9f9f9",
                             zIndex: 100,
                             display: "flex",
                             flexDirection: "column",
@@ -190,37 +196,37 @@ export default function PlaylistClient({ playlistId, initialSongs = [] }: { play
                         }}
                     >
                         <div style={{
-                            width: "120px",
-                            height: "120px",
-                            backgroundColor: "#fff",
-                            border: borderStyle,
-                            boxShadow: shadowStyle,
+                            width: "80px",
+                            height: "80px",
+                            backgroundColor: "rgba(255, 255, 255, 0.6)",
+                            border: "1px solid rgba(0,0,0,0.05)",
+                            boxShadow: "0 10px 40px rgba(0,0,0,0.03)",
                             display: "flex",
                             alignItems: "center",
                             justifyContent: "center",
-                            borderRadius: "16px"
+                            borderRadius: "24px"
                         }}>
-                            <Disc size={64} color="#000" className="animate-spin" style={{ animationDuration: '3s' }} />
+                            <Disc size={32} color="#000" className="animate-spin-slow" />
                         </div>
                         <div style={{ textAlign: "center" }}>
                             <div style={{
-                                fontFamily: "system-ui, -apple-system, sans-serif",
+                                fontFamily: headerFont,
                                 fontWeight: 900,
-                                fontSize: "1.2rem",
+                                fontSize: "1rem",
                                 textTransform: "uppercase",
-                                letterSpacing: "-0.04em",
+                                letterSpacing: "0.05em",
                                 color: "#000"
                             }}>
-                                Preparing Library
+                                PREPARING LIBRARY
                             </div>
                             <div style={{
-                                fontFamily: "monospace",
+                                fontFamily: monoFont,
                                 fontWeight: 700,
-                                fontSize: "0.8rem",
-                                color: "#666",
-                                marginTop: "4px"
+                                fontSize: "0.65rem",
+                                color: "#888",
+                                marginTop: "6px"
                             }}>
-                                Synchronizing songs...
+                                SYNCHRONIZING WITH SERVER
                             </div>
                         </div>
                     </motion.div>
@@ -230,118 +236,111 @@ export default function PlaylistClient({ playlistId, initialSongs = [] }: { play
 
             {activePlaylist && (
                 <div style={{
-                    backgroundColor: activePlaylist.coverColor || "#fff",
-                    border: borderStyle,
-                    borderRadius: "16px",
-                    boxShadow: shadowStyle,
+                    backgroundColor: "rgba(255, 255, 255, 0.4)",
+                    border: "1px solid rgba(0,0,0,0.05)",
+                    borderRadius: "24px",
+                    boxShadow: "0 10px 30px rgba(0,0,0,0.03)",
                     padding: "16px",
                     display: "flex",
                     flexDirection: "column",
                     alignItems: "center",
                     position: "relative",
-                    overflow: "hidden"
+                    overflow: "hidden",
+                    aspectRatio: "16/9"
                 }}>
                     <img 
                         src={activePlaylist.coverImage} 
-                        style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", zIndex: 0, opacity: 0.5 }} 
-                        className="mix-blend-multiply" 
+                        style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", zIndex: 0, opacity: 0.9 }} 
                         alt="" 
                     />
-                    <div style={{ position: "relative", zIndex: 1, textAlign: "center", backgroundColor: "rgba(255,255,255,0.9)", padding: "12px", border: borderStyle, borderRadius: "12px", width: "100%" }}>
+                    <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(0,0,0,0.85) 0%, transparent 70%)", zIndex: 1 }} />
+                    <div style={{ position: "absolute", bottom: "16px", left: "16px", right: "16px", zIndex: 2 }}>
                         <h2 style={{
-                            fontSize: "1.75rem",
+                            fontSize: "1.4rem",
                             fontWeight: 900,
-                            fontFamily: "system-ui, -apple-system, sans-serif",
+                            fontFamily: headerFont,
                             textTransform: "uppercase",
                             margin: "0 0 4px 0",
                             lineHeight: 1,
-                            letterSpacing: "-0.04em",
-                            color: "#000"
+                            letterSpacing: "-0.01em",
+                            color: "#fff"
                         }}>
                             {activePlaylist.title}
                         </h2>
-                        <div style={{ fontFamily: "monospace", fontSize: "0.85rem", fontWeight: 700, color: "#333", lineHeight: 1.2 }}>
-                            "{activePlaylist.philosophy}"
+                        <div style={{ fontFamily: headerFont, fontSize: "0.75rem", fontWeight: 600, color: "rgba(255,255,255,0.7)", lineHeight: 1.2 }}>
+                            {activePlaylist.philosophy}
                         </div>
                     </div>
                 </div>
             )}
 
-            <div style={{ display: "flex", gap: "12px", marginTop: "8px" }}>
+            <div style={{ display: "flex", gap: "10px", marginTop: "4px" }}>
                 <motion.button
-                    whileHover={{ scale: 1.02, y: -2, boxShadow: "6px 6px 0 #000" }}
-                    whileTap={{ scale: 0.98, y: 2, x: 2, boxShadow: "0px 0px 0 #000" }}
-                    transition={{ type: "spring", stiffness: 400, damping: 20 }}
+                    whileTap={{ scale: 0.98 }}
                     onClick={() => {
                         if (isThisPlaylistInQueue) togglePlay();
                         else playQueue(filteredPlaylist, 0, playlistId);
-                        setIsPlayerExpanded(true);
                     }}
                     style={{
                         flex: 1,
-                        background: isThisPlaylistPlaying ? "#fff" : "#000",
+                        background: isThisPlaylistPlaying ? "rgba(0,0,0,0.05)" : "#000",
                         color: isThisPlaylistPlaying ? "#000" : "#fff",
-                        border: borderStyle,
+                        border: "1px solid rgba(0,0,0,0.05)",
                         borderRadius: "12px",
-                        boxShadow: shadowStyle,
-                        padding: "10px",
-                        fontSize: "0.95rem",
+                        padding: "12px",
+                        fontSize: "0.85rem",
                         fontWeight: 900,
-                        fontFamily: "system-ui, -apple-system, sans-serif",
+                        fontFamily: headerFont,
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "center",
-                        gap: "6px",
+                        gap: "8px",
                         cursor: "pointer",
                         textTransform: "uppercase",
-                        letterSpacing: "-0.04em",
-                        transition: "background 0.2s ease, color 0.2s ease"
+                        letterSpacing: "0.05em"
                     }}
                 >
-                    {isThisPlaylistPlaying ? <><Pause size={20} fill="#000" color="#000" /> PAUSE</> : <><Play size={20} fill={isThisPlaylistPlaying ? "#000" : "#fff"} color={isThisPlaylistPlaying ? "#000" : "#fff"} /> PLAY QUEUE</>}
+                    {isThisPlaylistPlaying ? <><Pause size={18} fill="#000" color="#000" /> PAUSE</> : <><Play size={18} fill="#fff" color="#fff" style={{ marginLeft: "2px" }} /> PLAY MIX</>}
                 </motion.button>
 
                 <motion.button
-                    whileHover={{ scale: 1.05, y: -2, boxShadow: "6px 6px 0 #000" }}
-                    whileTap={{ scale: 0.95, y: 2, x: 2, boxShadow: "0px 0px 0 #000" }}
-                    transition={{ type: "spring", stiffness: 400, damping: 20 }}
+                    whileTap={{ scale: 0.95 }}
                     onClick={() => {
                         playQueue(filteredPlaylist, 0, playlistId, true);
-                        setIsPlayerExpanded(true);
                     }}
                     style={{
-                        background: "#fff",
+                        background: "rgba(255, 255, 255, 0.8)",
                         color: "#000",
-                        border: borderStyle,
+                        border: "1px solid rgba(0,0,0,0.05)",
                         borderRadius: "12px",
-                        boxShadow: shadowStyle,
                         padding: "0 16px",
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "center",
                         cursor: "pointer",
-                        transition: "background 0.2s ease"
+                        boxShadow: "0 2px 8px rgba(0,0,0,0.02)"
                     }}
                 >
-                    <Shuffle size={20} color="#000" />
+                    <Shuffle size={18} color="#000" />
                 </motion.button>
             </div>
 
             <div style={{
                 position: "sticky",
-                top: "96px",
+                top: "16px",
                 zIndex: 40,
                 width: "100%",
-                height: "50px",
-                backgroundColor: "#fff",
+                height: "44px",
+                backgroundColor: "rgba(255, 255, 255, 0.6)",
+                backdropFilter: "blur(12px)",
                 display: "flex",
                 alignItems: "center",
-                padding: "0 16px",
-                border: borderStyle,
-                borderRadius: "12px",
-                boxShadow: shadowStyle
+                padding: "0 14px",
+                border: "1px solid rgba(0,0,0,0.05)",
+                borderRadius: "14px",
+                boxShadow: "0 4px 12px rgba(0,0,0,0.02)"
             }}>
-                <Search size={20} color="#000" />
+                <Search size={18} color="#888" />
                 <input
                     type="text"
                     placeholder="Search tracks..."
@@ -353,10 +352,10 @@ export default function PlaylistClient({ playlistId, initialSongs = [] }: { play
                         border: "none",
                         outline: "none",
                         color: "#000",
-                        fontSize: "1rem",
-                        marginLeft: "12px",
-                        fontFamily: "monospace",
-                        fontWeight: 700
+                        fontSize: "0.9rem",
+                        marginLeft: "10px",
+                        fontFamily: monoFont,
+                        fontWeight: 600
                     }}
                 />
             </div>
@@ -364,17 +363,17 @@ export default function PlaylistClient({ playlistId, initialSongs = [] }: { play
             <div style={{
                 display: "flex",
                 flexDirection: "column",
-                background: "#fff",
-                border: borderStyle,
-                borderRadius: "16px",
-                boxShadow: shadowStyle,
+                background: "rgba(255, 255, 255, 0.45)",
+                border: "1px solid rgba(0,0,0,0.05)",
+                borderRadius: "20px",
+                boxShadow: "0 8px 30px rgba(0,0,0,0.02)",
                 overflow: "hidden"
             }}>
-                <div style={{ padding: "12px 16px", borderBottom: "2px solid #000", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                    <h3 style={{ fontSize: "1rem", fontWeight: 900, fontFamily: "system-ui, -apple-system, sans-serif", margin: 0, textTransform: "uppercase", letterSpacing: "-0.04em", color: "#000" }}>
-                        Tracks
+                <div style={{ padding: "12px 16px", borderBottom: "1px solid rgba(0,0,0,0.03)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                    <h3 style={{ fontSize: "0.85rem", fontWeight: 900, fontFamily: headerFont, margin: 0, textTransform: "uppercase", letterSpacing: "0.05em", color: "#000" }}>
+                        TRACKLIST
                     </h3>
-                    <span style={{ fontFamily: "monospace", fontWeight: 700, fontSize: "0.85rem", color: "#000" }}>{filteredPlaylist.length}</span>
+                    <span style={{ fontFamily: monoFont, fontWeight: 700, fontSize: "0.7rem", color: "#888" }}>{filteredPlaylist.length} ITEMS</span>
                 </div>
 
                 {filteredPlaylist.length <= 50 ? (

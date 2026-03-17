@@ -8,6 +8,7 @@ import { LobbyHeader } from "@/components/lobby/LobbyHeader";
 import { useZen } from "@/components/ZenContext";
 import { MusicBottomNav } from "@/components/sanctuary/MusicBottomNav";
 import { GlobalBottomPlayer } from "@/components/sanctuary/GlobalBottomPlayer";
+import { MusicSmoothScroll } from "@/components/MusicSmoothScroll";
 
 
 export function LayoutShell({ children }: { children: React.ReactNode }) {
@@ -59,6 +60,7 @@ export function LayoutShell({ children }: { children: React.ReactNode }) {
             <main id="main-content" style={{ flex: 1 }}>
                 {children}
             </main>
+            <MusicSmoothScroll />
             <MusicBottomNav />
             <GlobalBottomPlayer />
         </>

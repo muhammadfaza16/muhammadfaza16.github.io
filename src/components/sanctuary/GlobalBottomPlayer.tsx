@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { usePathname } from "next/navigation";
 import { useAudio, useTime } from "../AudioContext";
-import { Play, Pause, SkipBack, SkipForward, Shuffle, Repeat, ChevronDown, ChevronUp, Repeat1, ListMusic, Disc, FileText, Search } from "lucide-react";
+import { Play, Pause, SkipBack, SkipForward, Shuffle, Repeat, ChevronDown, ChevronUp, Repeat1, ListMusic, Disc, FileText, Search, Music } from "lucide-react";
 import { MusicBottomNav } from "./MusicBottomNav";
 
 export function GlobalBottomPlayer() {
@@ -75,688 +75,340 @@ export function GlobalBottomPlayer() {
     const songTitle = currentSong.title.split("—")[1]?.trim() || currentSong.title;
     const songArtist = currentSong.title.split("—")[0]?.trim() || "Unknown Artist";
 
-    // Neo-Brutalist Base Styles
-    const borderStyle = "2px solid #000";
-    const shadowStyle = "4px 4px 0 #000";
-    
+    const headerFont = "var(--font-display), system-ui, sans-serif";
+    const monoFont = "var(--font-mono), monospace";
+
     // Wrap the entire component logic in AnimatePresence so exit animations can actually fire
     return (
-        <AnimatePresence>
-            {!isExpanded ? null : (
-                <motion.div
-                    key="expanded-player"
-                    initial={{ opacity: 0, y: "100%" }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: "100%" }}
-                transition={{ type: "spring", damping: 25, stiffness: 200 }}
-                style={{
-                    position: "fixed",
-                    top: 0,
-                    left: 0,
-                    width: "100%",
-                    height: "100dvh",
-                    backgroundColor: "#F5F0EB",
-                    zIndex: 100001,
-                    display: "flex",
-                    flexDirection: "column",
-                    padding: "16px 0 0 0",
-                    overflow: "hidden",
-                    color: "#000"
-                }}
-            >
-                {/* Header */}
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "24px", marginTop: "12px", padding: "0 16px" }}>
-                    <motion.button 
-                        whileHover={{ scale: 1.1, backgroundColor: "#f0f0f0" }}
-                        whileTap={{ scale: 0.9, y: 2, x: 2, boxShadow: "0px 0px 0 #000" }}
-                        transition={{ type: "spring", stiffness: 400, damping: 25 }}
-                        onClick={() => setIsExpanded(false)}
-                        style={{ 
-                            background: "#fff", 
-                            border: borderStyle, 
-                            boxShadow: "2px 2px 0 #000", 
-                            padding: "8px", 
-                            cursor: "pointer", 
-                            display: "flex", 
-                            alignItems: "center", 
-                            justifyContent: "center",
-                            transition: "background-color 0.2s ease"
+        <>
+            {/* MINI PLAYER / FLOATING POD (Visible when NOT expanded) */}
+            <AnimatePresence>
+                {!isExpanded && currentSong && !pathname?.startsWith('/music') && !pathname?.startsWith('/playlist') && (
+                    <motion.div
+                        initial={{ y: 100, opacity: 0 }}
+                        animate={{ y: 0, opacity: 1 }}
+                        exit={{ y: 100, opacity: 0 }}
+                        transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                        onClick={() => setIsExpanded(true)}
+                        style={{
+                            position: "fixed",
+                            bottom: "84px", // Closer to the nav
+                            left: "12px",
+                            right: "12px",
+                            height: "56px", // Slimmer
+                            backgroundColor: "rgba(255, 255, 255, 0.8)",
+                            backdropFilter: "blur(20px)",
+                            border: "1px solid rgba(255, 255, 255, 0.3)",
+                            borderRadius: "18px",
+                            display: "flex",
+                            alignItems: "center",
+                            padding: "0 10px",
+                            zIndex: 99999,
+                            boxShadow: "0 8px 32px rgba(0, 0, 0, 0.08)",
+                            cursor: "pointer",
                         }}
                     >
-                        <ChevronDown size={24} color="#000" />
-                    </motion.button>
-                    <span style={{ fontFamily: "monospace", fontWeight: 700, fontSize: "0.9rem", textTransform: "uppercase", color: "#000" }}>
-                        Now Playing
-                    </span>
-                    <div style={{ display: "flex", gap: "8px" }}>
-                        <motion.button 
-                            whileHover={{ scale: 1.1, backgroundColor: "rgba(0,0,0,0.05)" }}
-                            whileTap={{ scale: 0.9 }}
-                            transition={{ type: "spring", stiffness: 400, damping: 20 }}
-                            onClick={() => setShowQueueModal(true)}
-                            style={{ 
-                                width: "36px", height: "36px", 
-                                display: "flex", alignItems: "center", justifyContent: "center",
-                                background: "transparent",
-                                border: "none",
-                                color: "#000",
-                                cursor: "pointer",
-                                borderRadius: "8px",
-                                transition: "background-color 0.2s ease"
-                            }}
-                        >
-                            <ListMusic size={18} />
-                        </motion.button>
-                        <motion.button 
-                            whileHover={{ scale: 1.1, y: -2 }}
-                            whileTap={{ scale: 0.9 }}
-                            transition={{ type: "spring", stiffness: 400, damping: 20 }}
-                            onClick={() => setActiveTab(activeTab === 'lyrics' ? 'cover' : 'lyrics')}
-                            style={{ 
-                                width: "36px", height: "36px", 
-                                display: "flex", alignItems: "center", justifyContent: "center",
-                                background: activeTab === 'lyrics' ? "#000" : "transparent",
-                                border: activeTab === 'lyrics' ? "1.5px solid #000" : "none",
-                                color: activeTab === 'lyrics' ? "#fff" : "#000",
-                                cursor: "pointer",
-                                borderRadius: "8px",
-                                transition: "all 0.2s ease"
-                            }}
-                        >
-                            <span style={{ fontFamily: "monospace", fontWeight: 900, fontSize: "0.85rem" }}>TXT</span>
-                        </motion.button>
-                    </div>
-                </div>
-
-                <div style={{
-                    width: "80%",
-                    maxWidth: "300px",
-                    margin: "0 auto 20px auto",
-                    aspectRatio: "1/1",
-                    backgroundColor: "#fff",
-                    border: borderStyle,
-                    borderRadius: "16px",
-                    boxShadow: shadowStyle,
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    overflow: "hidden",
-                    position: "relative"
-                }}>
-                    {activeTab === 'cover' && (
+                        {/* Artwork/Icon placeholder */}
                         <div style={{
-                            width: "100%", height: "100%",
-                            background: "linear-gradient(180deg, #87CEEB 0%, #FDB99B 50%, #7EC850 50%, #5DAE3B 100%)",
-                            position: "relative",
-                            overflow: "hidden",
-                            imageRendering: "pixelated"
+                            width: "36px",
+                            height: "36px",
+                            borderRadius: "10px",
+                            background: "linear-gradient(45deg, #FFD93D, #FF80AB)",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            boxShadow: "0 4px 10px rgba(0,0,0,0.1)"
                         }}>
-                            <style>
-                                {`
-                                    @keyframes groundScroll {
-                                        from { transform: translateX(0); }
-                                        to { transform: translateX(-50%); }
-                                    }
-                                    @keyframes personBob1 {
-                                        0%, 100% { transform: translateY(0); }
-                                        50% { transform: translateY(-6px); }
-                                    }
-                                    @keyframes personBob2 {
-                                        0%, 100% { transform: translateY(-6px); }
-                                        50% { transform: translateY(0); }
-                                    }
-                                    @keyframes cloudDrift {
-                                        from { transform: translateX(110%); }
-                                        to { transform: translateX(-160%); }
-                                    }
-                                    @keyframes heartFloat {
-                                        0%, 100% { transform: scale(1) translateY(0); }
-                                        50% { transform: scale(1.3) translateY(-8px); }
-                                    }
-                                    @keyframes noteDrift {
-                                        0% { transform: translateY(0) rotate(0deg); opacity: 1; }
-                                        100% { transform: translateY(-30px) rotate(15deg); opacity: 0; }
-                                    }
-                                    @keyframes sunPulse {
-                                        0%, 100% { transform: scale(1); }
-                                        50% { transform: scale(1.08); }
-                                    }
-                                    @keyframes birdFly {
-                                        from { transform: translateX(-20%); }
-                                        to { transform: translateX(500%); }
-                                    }
-                                `}
-                            </style>
+                            <Disc className={isPlaying ? "animate-spin-slow" : ""} size={18} color="#fff" />
+                        </div>
 
-                            {/* ☀ Pixel Sun */}
+                        <div style={{ flex: 1, marginLeft: "10px", minWidth: 0 }}>
                             <div style={{
-                                position: "absolute", top: "4%", right: "10%",
-                                animation: isPlaying ? "sunPulse 3s ease-in-out infinite" : "none"
+                                fontFamily: headerFont,
+                                fontWeight: 900,
+                                fontSize: "0.85rem",
+                                color: "#000",
+                                whiteSpace: "nowrap",
+                                overflow: "hidden",
+                                textOverflow: "ellipsis",
+                                letterSpacing: "-0.01em"
                             }}>
-                                <svg width="56" height="56" viewBox="0 0 28 28" fill="#FFD93D" style={{ shapeRendering: "crispEdges" }}>
-                                    {/* Core */}
-                                    <rect x="10" y="10" width="8" height="8" />
-                                    <rect x="8" y="12" width="12" height="4" />
-                                    <rect x="12" y="8" width="4" height="12" />
-                                    {/* Rays */}
-                                    <rect x="13" y="2" width="2" height="4" />
-                                    <rect x="13" y="22" width="2" height="4" />
-                                    <rect x="2" y="13" width="4" height="2" />
-                                    <rect x="22" y="13" width="4" height="2" />
-                                    <rect x="4" y="4" width="2" height="2" />
-                                    <rect x="22" y="4" width="2" height="2" />
-                                    <rect x="4" y="22" width="2" height="2" />
-                                    <rect x="22" y="22" width="2" height="2" />
-                                </svg>
+                                {songTitle}
                             </div>
-
-                            {/* ☁ Pixel Cloud 1 */}
                             <div style={{
-                                position: "absolute", top: "10%", left: 0, width: "100%",
-                                animation: isPlaying ? "cloudDrift 18s linear infinite" : "none"
+                                fontFamily: headerFont,
+                                fontWeight: 600,
+                                fontSize: "0.65rem",
+                                color: "#666",
+                                letterSpacing: "0.01em"
                             }}>
-                                <svg width="72" height="32" viewBox="0 0 18 8" fill="#fff" style={{ shapeRendering: "crispEdges" }}>
-                                    <rect x="4" y="0" width="4" height="2" />
-                                    <rect x="2" y="2" width="10" height="2" />
-                                    <rect x="0" y="4" width="14" height="2" />
-                                    <rect x="10" y="0" width="4" height="2" />
-                                    <rect x="8" y="2" width="8" height="2" />
-                                    <rect x="2" y="6" width="14" height="2" />
-                                </svg>
-                            </div>
-
-                            {/* ☁ Pixel Cloud 2 */}
-                            <div style={{
-                                position: "absolute", top: "24%", left: "55%", width: "100%",
-                                animation: isPlaying ? "cloudDrift 26s linear -10s infinite" : "none"
-                            }}>
-                                <svg width="56" height="24" viewBox="0 0 14 6" fill="#fff" opacity="0.8" style={{ shapeRendering: "crispEdges" }}>
-                                    <rect x="2" y="0" width="4" height="2" />
-                                    <rect x="0" y="2" width="10" height="2" />
-                                    <rect x="6" y="0" width="4" height="2" />
-                                    <rect x="1" y="4" width="12" height="2" />
-                                </svg>
-                            </div>
-
-                            {/* 🐦 Pixel Birds */}
-                            <div style={{
-                                position: "absolute", top: "16%", left: 0,
-                                animation: isPlaying ? "birdFly 7s linear infinite" : "none"
-                            }}>
-                                <svg width="24" height="12" viewBox="0 0 12 6" fill="#333" style={{ shapeRendering: "crispEdges" }}>
-                                    <rect x="0" y="2" width="2" height="2" />
-                                    <rect x="2" y="0" width="2" height="2" />
-                                    <rect x="4" y="2" width="2" height="2" />
-                                    <rect x="6" y="0" width="2" height="2" />
-                                    <rect x="8" y="2" width="2" height="2" />
-                                    <rect x="10" y="4" width="2" height="2" />
-                                </svg>
-                            </div>
-                            <div style={{
-                                position: "absolute", top: "22%", left: 0,
-                                animation: isPlaying ? "birdFly 9s linear -3s infinite" : "none"
-                            }}>
-                                <svg width="18" height="10" viewBox="0 0 12 6" fill="#555" style={{ shapeRendering: "crispEdges" }}>
-                                    <rect x="0" y="2" width="2" height="2" />
-                                    <rect x="2" y="0" width="2" height="2" />
-                                    <rect x="4" y="2" width="2" height="2" />
-                                    <rect x="6" y="0" width="2" height="2" />
-                                    <rect x="8" y="2" width="2" height="2" />
-                                </svg>
-                            </div>
-
-                            {/* 🌲 Pixel Tree Left */}
-                            <div style={{ position: "absolute", bottom: "18%", left: "4%" }}>
-                                <svg width="40" height="56" viewBox="0 0 10 14" fill="none" style={{ shapeRendering: "crispEdges" }}>
-                                    <rect x="4" y="10" width="2" height="4" fill="#8B5E3C" />
-                                    <rect x="3" y="0" width="4" height="2" fill="#2E7D32" />
-                                    <rect x="2" y="2" width="6" height="2" fill="#388E3C" />
-                                    <rect x="1" y="4" width="8" height="2" fill="#43A047" />
-                                    <rect x="0" y="6" width="10" height="2" fill="#4CAF50" />
-                                    <rect x="1" y="8" width="8" height="2" fill="#388E3C" />
-                                </svg>
-                            </div>
-
-                            {/* 🌲 Pixel Tree Right */}
-                            <div style={{ position: "absolute", bottom: "18%", right: "3%" }}>
-                                <svg width="36" height="52" viewBox="0 0 10 14" fill="none" style={{ shapeRendering: "crispEdges" }}>
-                                    <rect x="4" y="10" width="2" height="4" fill="#8B5E3C" />
-                                    <rect x="3" y="0" width="4" height="2" fill="#2E7D32" />
-                                    <rect x="2" y="2" width="6" height="2" fill="#388E3C" />
-                                    <rect x="1" y="4" width="8" height="2" fill="#43A047" />
-                                    <rect x="0" y="6" width="10" height="2" fill="#4CAF50" />
-                                    <rect x="1" y="8" width="8" height="2" fill="#388E3C" />
-                                </svg>
-                            </div>
-
-                            {/* 🌸 Pixel Flowers on ground */}
-                            <div style={{
-                                position: "absolute", bottom: "11%", left: 0, width: "200%",
-                                display: "flex", gap: "28px",
-                                animation: isPlaying ? "groundScroll 5s linear infinite" : "none"
-                            }}>
-                                {[
-                                    "#E53935", "#FFD93D", "#EC407A", "#FF7043", "#AB47BC",
-                                    "#E53935", "#FFD93D", "#EC407A", "#FF7043", "#AB47BC",
-                                    "#E53935", "#FFD93D", "#EC407A", "#FF7043", "#AB47BC"
-                                ].map((c, i) => (
-                                    <svg key={i} width="12" height="16" viewBox="0 0 6 8" fill="none" style={{ shapeRendering: "crispEdges", flexShrink: 0 }}>
-                                        <rect x="2" y="4" width="2" height="4" fill="#388E3C" />
-                                        <rect x="2" y="0" width="2" height="2" fill={c} />
-                                        <rect x="0" y="2" width="2" height="2" fill={c} />
-                                        <rect x="4" y="2" width="2" height="2" fill={c} />
-                                        <rect x="2" y="2" width="2" height="2" fill="#FFD93D" />
-                                    </svg>
-                                ))}
-                            </div>
-
-                            {/* Ground dashes */}
-                            <div style={{
-                                position: "absolute", bottom: "20%", left: 0, width: "200%", height: "4px",
-                                background: "repeating-linear-gradient(90deg, #3E8E2E 0, #3E8E2E 12px, transparent 12px, transparent 20px)",
-                                animation: isPlaying ? "groundScroll 0.8s linear infinite" : "none"
-                            }} />
-
-                            {/* ❤ Pixel Heart */}
-                            <div style={{
-                                position: "absolute", top: "30%", left: "42%",
-                                animation: isPlaying ? "heartFloat 1.8s ease-in-out infinite" : "none"
-                            }}>
-                                <svg width="28" height="24" viewBox="0 0 14 12" fill="#E53935" style={{ shapeRendering: "crispEdges" }}>
-                                    <rect x="2" y="0" width="4" height="2" />
-                                    <rect x="8" y="0" width="4" height="2" />
-                                    <rect x="0" y="2" width="14" height="2" />
-                                    <rect x="0" y="4" width="14" height="2" />
-                                    <rect x="2" y="6" width="10" height="2" />
-                                    <rect x="4" y="8" width="6" height="2" />
-                                    <rect x="6" y="10" width="2" height="2" />
-                                </svg>
-                            </div>
-
-                            {/* 🎵 Pixel Music Note 1 */}
-                            <div style={{
-                                position: "absolute", top: "34%", left: "24%",
-                                animation: isPlaying ? "noteDrift 2.5s ease-out infinite" : "none"
-                            }}>
-                                <svg width="16" height="20" viewBox="0 0 8 10" fill="#333" style={{ shapeRendering: "crispEdges" }}>
-                                    <rect x="2" y="0" width="6" height="2" />
-                                    <rect x="6" y="0" width="2" height="6" />
-                                    <rect x="0" y="6" width="4" height="4" />
-                                </svg>
-                            </div>
-
-                            {/* 🎵 Pixel Music Note 2 */}
-                            <div style={{
-                                position: "absolute", top: "36%", left: "66%",
-                                animation: isPlaying ? "noteDrift 3s ease-out -1s infinite" : "none"
-                            }}>
-                                <svg width="14" height="18" viewBox="0 0 8 10" fill="#555" style={{ shapeRendering: "crispEdges" }}>
-                                    <rect x="2" y="0" width="6" height="2" />
-                                    <rect x="6" y="0" width="2" height="6" />
-                                    <rect x="0" y="6" width="4" height="4" />
-                                </svg>
-                            </div>
-
-                            {/* ===== PIXEL BOY (left, chasing) ===== */}
-                            <div style={{
-                                position: "absolute", bottom: "20%", left: "20%", width: "60px", height: "80px",
-                                animation: isPlaying ? "personBob1 0.4s ease-in-out infinite" : "none"
-                            }}>
-                                <svg width="60" height="80" viewBox="0 0 15 20" fill="none" style={{ shapeRendering: "crispEdges" }}>
-                                    {/* Hair */}
-                                    <rect x="5" y="0" width="5" height="1" fill="#4A3728" />
-                                    <rect x="4" y="1" width="7" height="2" fill="#4A3728" />
-                                    {/* Head */}
-                                    <rect x="5" y="3" width="5" height="4" fill="#FFDBB4" />
-                                    <rect x="4" y="4" width="1" height="2" fill="#FFDBB4" />
-                                    {/* Eyes */}
-                                    <rect x="6" y="4" width="1" height="1" fill="#333" />
-                                    <rect x="8" y="4" width="1" height="1" fill="#333" />
-                                    {/* Mouth */}
-                                    <rect x="6" y="6" width="3" height="1" fill="#C97" />
-                                    {/* Shirt (blue) */}
-                                    <rect x="4" y="7" width="7" height="4" fill="#42A5F5" />
-                                    <rect x="3" y="7" width="1" height="1" fill="#42A5F5" />
-                                    {/* Front arm */}
-                                    <rect x="11" y="7" width="1" height="1" fill="#FFDBB4" />
-                                    <rect x="12" y="8" width="1" height="1" fill="#FFDBB4" />
-                                    {/* Back arm */}
-                                    <rect x="3" y="8" width="1" height="1" fill="#FFDBB4" />
-                                    <rect x="2" y="9" width="1" height="1" fill="#FFDBB4" />
-                                    {/* Pants (indigo) */}
-                                    <rect x="4" y="11" width="7" height="3" fill="#5C6BC0" />
-                                    {/* Front leg */}
-                                    <rect x="8" y="14" width="2" height="3" fill="#5C6BC0" />
-                                    <rect x="10" y="16" width="2" height="2" fill="#5C6BC0" />
-                                    {/* Back leg */}
-                                    <rect x="5" y="14" width="2" height="3" fill="#5C6BC0" />
-                                    <rect x="3" y="16" width="2" height="2" fill="#5C6BC0" />
-                                    {/* Shoes */}
-                                    <rect x="2" y="18" width="3" height="2" fill="#E53935" />
-                                    <rect x="10" y="18" width="3" height="2" fill="#E53935" />
-                                </svg>
-                            </div>
-
-                            {/* ===== PIXEL GIRL (right, running ahead) ===== */}
-                            <div style={{
-                                position: "absolute", bottom: "20%", left: "52%", width: "60px", height: "80px",
-                                animation: isPlaying ? "personBob2 0.4s ease-in-out infinite" : "none"
-                            }}>
-                                <svg width="60" height="80" viewBox="0 0 15 20" fill="none" style={{ shapeRendering: "crispEdges" }}>
-                                    {/* Hair (long flowing) */}
-                                    <rect x="5" y="0" width="5" height="1" fill="#5D3418" />
-                                    <rect x="4" y="1" width="7" height="2" fill="#5D3418" />
-                                    <rect x="3" y="3" width="1" height="6" fill="#5D3418" />
-                                    <rect x="11" y="3" width="1" height="4" fill="#5D3418" />
-                                    {/* Head */}
-                                    <rect x="5" y="3" width="5" height="4" fill="#FFDBB4" />
-                                    <rect x="4" y="4" width="1" height="2" fill="#FFDBB4" />
-                                    {/* Eyes */}
-                                    <rect x="6" y="4" width="1" height="1" fill="#333" />
-                                    <rect x="8" y="4" width="1" height="1" fill="#333" />
-                                    {/* Blush */}
-                                    <rect x="5" y="5" width="1" height="1" fill="#FFB4B4" />
-                                    <rect x="9" y="5" width="1" height="1" fill="#FFB4B4" />
-                                    {/* Mouth */}
-                                    <rect x="6" y="6" width="3" height="1" fill="#C97" />
-                                    {/* Dress top (pink) */}
-                                    <rect x="4" y="7" width="7" height="3" fill="#EC407A" />
-                                    {/* Skirt (flared) */}
-                                    <rect x="3" y="10" width="9" height="1" fill="#EC407A" />
-                                    <rect x="2" y="11" width="11" height="1" fill="#EC407A" />
-                                    <rect x="1" y="12" width="13" height="2" fill="#EC407A" />
-                                    {/* Front arm */}
-                                    <rect x="11" y="8" width="1" height="1" fill="#FFDBB4" />
-                                    <rect x="12" y="9" width="1" height="1" fill="#FFDBB4" />
-                                    {/* Back arm */}
-                                    <rect x="3" y="7" width="1" height="1" fill="#FFDBB4" />
-                                    <rect x="2" y="8" width="1" height="1" fill="#FFDBB4" />
-                                    {/* Front leg */}
-                                    <rect x="8" y="14" width="2" height="3" fill="#FFDBB4" />
-                                    <rect x="10" y="16" width="2" height="2" fill="#FFDBB4" />
-                                    {/* Back leg */}
-                                    <rect x="5" y="14" width="2" height="3" fill="#FFDBB4" />
-                                    <rect x="3" y="16" width="2" height="2" fill="#FFDBB4" />
-                                    {/* Shoes */}
-                                    <rect x="2" y="18" width="3" height="2" fill="#FF80AB" />
-                                    <rect x="10" y="18" width="3" height="2" fill="#FF80AB" />
-                                </svg>
+                                {songArtist}
                             </div>
                         </div>
-                    )}
 
-                    {activeTab === 'lyrics' && (
-                        <div style={{
+                        <div style={{ display: "flex", alignItems: "center", gap: "8px" }} onClick={(e) => e.stopPropagation()}>
+                            <button 
+                                onClick={togglePlay}
+                                style={{
+                                    border: "none",
+                                    background: "#000",
+                                    width: "36px",
+                                    height: "36px",
+                                    borderRadius: "100px",
+                                    display: "flex",
+                                    alignItems: "center",
+                                    justifyContent: "center",
+                                    cursor: "pointer"
+                                }}
+                            >
+                                {isPlaying ? <Pause size={18} color="#fff" fill="#fff" /> : <Play size={18} color="#fff" fill="#fff" style={{ marginLeft: "2px" }} />}
+                            </button>
+                        </div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
+            <AnimatePresence>
+                {isExpanded && (
+                    <motion.div
+                        key="expanded-player"
+                        initial={{ y: "100%" }}
+                        animate={{ y: 0 }}
+                        exit={{ y: "100%" }}
+                        transition={{ type: "spring", damping: 30, stiffness: 250 }}
+                        style={{
+                            position: "fixed",
+                            top: 0,
+                            left: 0,
                             width: "100%",
-                            height: "100%",
-                            padding: "16px",
-                            overflowY: "auto",
-                            fontFamily: "monospace",
-                            fontSize: "0.8rem",
-                            lineHeight: 1.5,
-                            textAlign: "center",
+                            height: "100dvh",
+                            backgroundColor: "#F8F5F2",
+                            backgroundImage: "radial-gradient(circle at 50% 20%, rgba(255, 217, 61, 0.15), transparent 50%), radial-gradient(circle at 20% 80%, rgba(255, 128, 171, 0.1), transparent 50%)",
+                            zIndex: 100001,
                             display: "flex",
                             flexDirection: "column",
-                            gap: "6px"
-                        }}>
-                            {activeLyrics.length > 0 ? activeLyrics.map((lyric, idx) => {
-                                const isActive = lyric.time <= currentTime && (idx === activeLyrics.length - 1 || activeLyrics[idx + 1].time > currentTime);
-                                return (
-                                    <p key={idx} style={{
-                                        margin: "4px 0",
-                                        color: isActive ? "#000" : "#999",
-                                        fontWeight: isActive ? 700 : 400,
-                                        transition: "color 0.2s"
-                                    }}>
-                                        {lyric.text || "♪"}
-                                    </p>
-                                );
-                            }) : (
-                                <p style={{ margin: "auto", color: "#999", fontStyle: "italic" }}>No lyrics available...</p>
-                            )}
+                            padding: "env(safe-area-inset-top) 0 0 0",
+                            overflow: "hidden",
+                            color: "#1A1A1A"
+                        }}
+                    >
+                        {/* Pull Bar for Gestures */}
+                        <div style={{ width: "100%", display: "flex", justifyContent: "center", padding: "12px 0 20px 0" }} onClick={() => setIsExpanded(false)}>
+                            <div style={{ width: "40px", height: "5px", backgroundColor: "rgba(0,0,0,0.1)", borderRadius: "10px" }} />
                         </div>
-                    )}
 
-                </div>
-
-                <div style={{
-                    flex: 1,
-                    display: "flex",
-                    flexDirection: "column",
-                    justifyContent: "flex-start",
-                    gap: "32px",
-                    padding: "0 16px 32px 16px"
-                }}>
-                    {/* Info */}
-                    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center", marginBottom: "8px" }}>
-                        <h2 style={{ fontFamily: "system-ui, -apple-system, sans-serif", fontWeight: 900, fontSize: "1.3rem", margin: "0 0 2px 0", lineHeight: 1.1, letterSpacing: "-0.04em", textTransform: "uppercase", color: "#000" }}>
-                            {songTitle}
-                        </h2>
-                        <p style={{ fontFamily: "monospace", fontSize: "0.8rem", margin: 0, color: "#333" }}>
-                            {songArtist}
-                        </p>
-                    </div>
-
-                    {/* Seek Bar */}
-                    <div style={{ width: "100%" }}>
-                        <div 
-                            onClick={(e) => {
-                                const rect = e.currentTarget.getBoundingClientRect();
-                                const pct = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
-                                seekTo(pct * duration);
-                            }}
-                            style={{
-                                width: "100%",
-                                height: "16px",
-                                backgroundColor: "#fff",
-                                border: borderStyle,
-                                boxShadow: "2px 2px 0 #000",
-                                cursor: "pointer",
-                                position: "relative"
-                            }}
-                        >
-                            <div style={{
-                                position: "absolute",
-                                top: 0,
-                                left: 0,
-                                height: "100%",
-                                width: `${Math.min(100, (currentTime / (duration || 1)) * 100)}%`,
-                                backgroundColor: "#000",
-                                transition: "width 0.1s linear"
-                            }} />
-                            <div style={{
-                                position: "absolute",
-                                top: -4,
-                                bottom: -4,
-                                width: "8px",
-                                backgroundColor: "#fff",
-                                border: "2px solid #000",
-                                left: `calc(${Math.min(100, (currentTime / (duration || 1)) * 100)}% - 4px)`,
-                                transition: "left 0.1s linear, transform 0.2s ease",
-                                transformOrigin: "center"
-                            }} 
-                            onMouseEnter={(e) => { e.currentTarget.style.transform = "scale(1.5)"; }}
-                            onMouseLeave={(e) => { e.currentTarget.style.transform = "scale(1)"; }}
-                            />
-                        </div>
-                        <div style={{ display: "flex", justifyContent: "space-between", marginTop: "8px", fontFamily: "monospace", fontSize: "0.85rem", fontWeight: 700 }}>
-                            <span>{formatTime(currentTime)}</span>
-                            <span>{formatTime(duration)}</span>
-                        </div>
-                    </div>
-
-                    <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: "24px" }}>
-                        <NeoButton onClick={toggleShuffle} active={shuffleMode}>
-                            <Shuffle size={18} color={shuffleMode ? "#fff" : "#000"} />
-                        </NeoButton>
-                        <NeoButton onClick={() => prevSong()} size="large">
-                            <SkipBack size={20} fill="#000" color="#000" />
-                        </NeoButton>
-                        <NeoButton onClick={togglePlay} size="extra-large">
-                            {isPlaying ? <Pause size={28} fill="#000" color="#000" /> : <Play size={28} fill="#000" color="#000" />}
-                        </NeoButton>
-                        <NeoButton onClick={() => nextSong()} size="large">
-                            <SkipForward size={20} fill="#000" color="#000" />
-                        </NeoButton>
-                        <NeoButton onClick={toggleRepeat} active={repeatMode !== 'off'}>
-                            {repeatMode === 'one' ? <Repeat1 size={18} color="#fff" /> : <Repeat size={18} color={repeatMode === 'all' ? "#fff" : "#000"} />}
-                        </NeoButton>
-                    </div>
-                </div>
-                
-                {/* Embedded Bottom Navigation */}
-                <div style={{ marginTop: "auto", position: "relative", zIndex: 100 }}>
-                    <MusicBottomNav isInline={true} />
-                </div>
-                
-                {/* --- Dedicated Queue Modal Overlay --- */}
-                <AnimatePresence>
-                    {showQueueModal && (
-                        <motion.div
-                            key="queue-modal"
-                            initial={{ opacity: 0, y: "100%" }}
-                            animate={{ opacity: 1, y: 0 }}
-                            exit={{ opacity: 0, y: "100%" }}
-                            transition={{ type: "spring", damping: 25, stiffness: 200 }}
-                            style={{
-                                position: "fixed",
-                                top: 0, left: 0, right: 0, bottom: 0,
-                                height: "100dvh",
-                                backgroundColor: "#F5F0EB",
-                                zIndex: 100002, // Ensure it floats above the expanded player
-                                display: "flex",
-                                flexDirection: "column",
-                                padding: "24px 16px 32px 16px"
-                            }}
-                        >
-                            {/* Queue Header */}
-                            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px", marginTop: "16px" }}>
+                        {/* Header */}
+                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "24px", padding: "0 24px" }}>
+                            <motion.button 
+                                whileTap={{ scale: 0.9 }}
+                                onClick={() => setIsExpanded(false)}
+                                style={{ 
+                                    background: "rgba(0,0,0,0.05)", 
+                                    border: "none",
+                                    padding: "8px", 
+                                    cursor: "pointer", 
+                                    borderRadius: "100px",
+                                    display: "flex", 
+                                    alignItems: "center", 
+                                    justifyContent: "center",
+                                }}
+                            >
+                                <ChevronDown size={22} color="#000" />
+                            </motion.button>
+                            <span style={{ fontFamily: headerFont, fontWeight: 800, fontSize: "0.8rem", textTransform: "uppercase", letterSpacing: "0.1em", color: "#666" }}>
+                                Now Playing
+                            </span>
+                            <div style={{ display: "flex", gap: "12px" }}>
                                 <motion.button 
-                                    whileHover={{ scale: 1.1, backgroundColor: "#f0f0f0" }}
-                                    whileTap={{ scale: 0.9, y: 2, x: 2, boxShadow: "0px 0px 0 #000" }}
-                                    transition={{ type: "spring", stiffness: 400, damping: 25 }}
-                                    onClick={() => setShowQueueModal(false)}
-                                    style={{ 
-                                        background: "#fff", border: borderStyle, boxShadow: "2px 2px 0 #000",
-                                        padding: "8px", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center",
-                                        transition: "background-color 0.2s ease"
+                                    whileTap={{ scale: 0.9 }}
+                                    onClick={() => setShowQueueModal(true)}
+                                    style={{ background: "transparent", border: "none", color: "#000", cursor: "pointer" }}
+                                >
+                                    <ListMusic size={22} />
+                                </motion.button>
+                            </div>
+                        </div>
+
+                        {/* Main Content Area */}
+                        <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "32px", padding: "0 32px" }}>
+                            
+                            {/* Artwork Container */}
+                            <motion.div 
+                                animate={{ scale: isPlaying ? 1 : 0.9, opacity: isPlaying ? 1 : 0.8 }}
+                                transition={{ type: "spring", stiffness: 200, damping: 20 }}
+                                style={{
+                                    width: "100%",
+                                    aspectRatio: "1/1",
+                                    maxWidth: "240px", // Leaner artwork
+                                    borderRadius: "28px",
+                                    background: "linear-gradient(135deg, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0.1) 100%)",
+                                    backdropFilter: "blur(40px)",
+                                    border: "1px solid rgba(255,255,255,0.5)",
+                                    boxShadow: "0 20px 50px rgba(0,0,0,0.1)",
+                                    display: "flex",
+                                    alignItems: "center",
+                                    justifyContent: "center",
+                                    overflow: "hidden",
+                                    position: "relative"
+                                }}
+                            >
+                                {activeTab === 'cover' ? (
+                                    <div style={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center", position: "relative" }}>
+                                        <Disc size={120} color="rgba(0,0,0,0.05)" className={isPlaying ? "animate-spin-slow" : ""} />
+                                        <div style={{ 
+                                            position: "absolute", inset: 0, 
+                                            background: "radial-gradient(circle at 30% 30%, rgba(255,255,255,0.8), transparent)", 
+                                            zIndex: 1 
+                                        }} />
+                                        {/* Pixel Boy & Girl could stay but in a more 'refined' glass portal way if desired, 
+                                            but let's go full sensory Jobs-ian minimalism here 
+                                        */}
+                                        <div style={{ textAlign: "center", zIndex: 2 }}>
+                                             <motion.div animate={{ rotate: isPlaying ? 360 : 0 }} transition={{ repeat: Infinity, duration: 10, ease: "linear" }}>
+                                                <Music size={80} color="#000" opacity={0.1} />
+                                             </motion.div>
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <div style={{ width: "100%", height: "100%", padding: "24px", overflowY: "auto", textAlign: "center" }}>
+                                        {activeLyrics.map((lyric, idx) => {
+                                             const isActive = lyric.time <= currentTime && (idx === activeLyrics.length - 1 || activeLyrics[idx + 1].time > currentTime);
+                                             return (
+                                                 <motion.p 
+                                                    key={idx}
+                                                    animate={{ opacity: isActive ? 1 : 0.3, scale: isActive ? 1.05 : 1 }}
+                                                    style={{ 
+                                                        fontFamily: headerFont, fontWeight: 800, fontSize: "1rem", margin: "12px 0", color: "#000"
+                                                    }}>
+                                                     {lyric.text || "♪"}
+                                                 </motion.p>
+                                             );
+                                        })}
+                                    </div>
+                                )}
+                            </motion.div>
+
+                            {/* Title & Artist */}
+                            <div style={{ textAlign: "center", width: "100%" }}>
+                                <h2 style={{ fontFamily: headerFont, fontWeight: 900, fontSize: "1.3rem", margin: 0, letterSpacing: "-0.03em", color: "#000" }}>{songTitle}</h2>
+                                <p style={{ fontFamily: headerFont, fontWeight: 600, fontSize: "0.9rem", margin: "4px 0 0 0", color: "#888" }}>{songArtist}</p>
+                            </div>
+
+                            {/* Progression */}
+                            <div style={{ width: "100%" }}>
+                                <div 
+                                    onClick={(e) => {
+                                        const rect = e.currentTarget.getBoundingClientRect();
+                                        seekTo(Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width)) * duration);
+                                    }}
+                                    style={{ width: "100%", height: "6px", backgroundColor: "rgba(0,0,0,0.05)", borderRadius: "100px", cursor: "pointer", position: "relative" }}
+                                >
+                                    <motion.div 
+                                        style={{ height: "100%", backgroundColor: "#000", borderRadius: "100px", width: `${(currentTime / duration) * 100}%` }}
+                                    />
+                                    <motion.div 
+                                        style={{ position: "absolute", top: "50%", left: `${(currentTime / duration) * 100}%`, width: "14px", height: "14px", backgroundColor: "#000", borderRadius: "100px", border: "3px solid #fff", boxShadow: "0 2px 8px rgba(0,0,0,0.2)", transform: "translate(-50%, -50%)" }}
+                                    />
+                                </div>
+                                <div style={{ display: "flex", justifyContent: "space-between", marginTop: "12px", fontFamily: monoFont, fontSize: "0.75rem", fontWeight: 700, color: "#AAA" }}>
+                                    <span>{formatTime(currentTime)}</span>
+                                    <span>{formatTime(duration)}</span>
+                                </div>
+                            </div>
+
+                            {/* Controls */}
+                            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%", padding: "0 10px" }}>
+                                <motion.button whileTap={{ scale: 0.8 }} onClick={toggleShuffle} style={{ background: "transparent", border: "none", color: shuffleMode ? "#000" : "#CCC" }}>
+                                    <Shuffle size={24} />
+                                </motion.button>
+                                <div style={{ display: "flex", alignItems: "center", gap: "24px" }}>
+                                    <motion.button whileTap={{ scale: 0.8 }} onClick={() => prevSong()} style={{ background: "transparent", border: "none", color: "#000" }}>
+                                        <SkipBack size={32} fill="#000" />
+                                    </motion.button>
+                                    <motion.button 
+                                        whileTap={{ scale: 0.9 }} 
+                                        onClick={togglePlay}
+                                        style={{ width: "80px", height: "80px", borderRadius: "100px", background: "#000", display: "flex", alignItems: "center", justifyContent: "center", border: "none", boxShadow: "0 10px 30px rgba(0,0,0,0.15)" }}
+                                    >
+                                        {isPlaying ? <Pause size={36} color="#fff" fill="#fff" /> : <Play size={36} color="#fff" fill="#fff" style={{ marginLeft: "5px" }} />}
+                                    </motion.button>
+                                    <motion.button whileTap={{ scale: 0.8 }} onClick={() => nextSong()} style={{ background: "transparent", border: "none", color: "#000" }}>
+                                        <SkipForward size={32} fill="#000" />
+                                    </motion.button>
+                                </div>
+                                <motion.button whileTap={{ scale: 0.8 }} onClick={toggleRepeat} style={{ background: "transparent", border: "none", color: repeatMode !== 'off' ? "#000" : "#CCC" }}>
+                                    {repeatMode === 'one' ? <Repeat1 size={24} /> : <Repeat size={24} />}
+                                </motion.button>
+                            </div>
+                        </div>
+
+                        {/* Footer Extras */}
+                        <div style={{ display: "flex", justifyContent: "center", gap: "40px", padding: "20px 0 40px 0" }}>
+                            <button onClick={() => setActiveTab('lyrics')} style={{ background: "transparent", border: "none", color: activeTab === 'lyrics' ? "#000" : "#AAA", fontFamily: headerFont, fontWeight: 900, fontSize: "0.7rem", letterSpacing: "0.1em" }}>LYRICS</button>
+                            <button onClick={() => setActiveTab('cover')} style={{ background: "transparent", border: "none", color: activeTab === 'cover' ? "#000" : "#AAA", fontFamily: headerFont, fontWeight: 900, fontSize: "0.7rem", letterSpacing: "0.1em" }}>VISUAL</button>
+                        </div>
+
+                        {/* Queue Modal (Re-styled) */}
+                        <AnimatePresence>
+                            {showQueueModal && (
+                                <motion.div
+                                    initial={{ y: "100%" }}
+                                    animate={{ y: 0 }}
+                                    exit={{ y: "100%" }}
+                                    transition={{ type: "spring", damping: 30, stiffness: 200 }}
+                                    style={{
+                                        position: "absolute", top: 0, left: 0, right: 0, bottom: 0,
+                                        backgroundColor: "rgba(248, 245, 242, 0.98)", backdropFilter: "blur(20px)",
+                                        zIndex: 100005, padding: "24px", display: "flex", flexDirection: "column"
                                     }}
                                 >
-                                    <ChevronUp size={20} color="#000" style={{ transform: "rotate(-90deg)" }} />
-                                </motion.button>
-                                <span style={{ fontFamily: "system-ui, -apple-system, sans-serif", fontWeight: 900, fontSize: "1.1rem", textTransform: "uppercase", letterSpacing: "-0.04em" }}>
-                                    QUEUE
-                                </span>
-                                <div style={{ width: "44px" }} />
-                            </div>
-
-                            <div style={{ 
-                                display: "flex", alignItems: "center", gap: "10px", 
-                                background: "#fff", border: borderStyle, boxShadow: "2px 2px 0 #000",
-                                padding: "10px 14px", marginBottom: "20px"
-                            }}>
-                                <Search size={18} color="#000" />
-                                <input
-                                    type="text"
-                                    placeholder="Search in Queue..."
-                                    value={searchQuery}
-                                    onChange={(e) => setSearchQuery(e.target.value)}
-                                    style={{
-                                        border: "none", outline: "none", width: "100%",
-                                        fontFamily: "monospace", fontSize: "0.9rem", fontWeight: 700, color: "#000"
-                                    }}
-                                />
-                            </div>
-
-                            {/* Songs List */}
-                            <div style={{
-                                flex: 1,
-                                overflowY: "auto",
-                                display: "flex",
-                                flexDirection: "column",
-                                backgroundColor: "#fff",
-                                border: borderStyle,
-                                boxShadow: shadowStyle,
-                            }}>
-                                {queue
-                                    .map((song, idx) => ({ song, originalIndex: idx }))
-                                    .filter(({ song }) => song.title.toLowerCase().includes(searchQuery.toLowerCase()))
-                                    .map(({ song, originalIndex }) => {
-                                        const isCurrent = currentSong && song.audioUrl === currentSong.audioUrl;
-                                        return (
-                                            <motion.div
-                                                key={`${song.audioUrl}-${originalIndex}`}
-                                                whileHover={{ x: 4, backgroundColor: isCurrent ? "#000" : "rgba(0,0,0,0.02)" }}
-                                                whileTap={{ scale: 0.98, backgroundColor: isCurrent ? "#000" : "rgba(0,0,0,0.05)" }}
-                                                transition={{ type: "spring", stiffness: 400, damping: 25 }}
-                                                onClick={() => {
-                                                    jumpToSong(originalIndex);
-                                                setShowQueueModal(false);
-                                            }}
-                                            style={{
-                                                display: "flex",
-                                                alignItems: "center",
-                                                gap: "12px",
-                                                padding: "16px",
-                                                backgroundColor: isCurrent ? "#000" : "transparent",
-                                                color: isCurrent ? "#fff" : "#000",
-                                                borderBottom: "2px solid #000",
-                                                cursor: "pointer",
-                                                transition: "color 0.2s ease"
-                                            }}
-                                        >
-                                            <div style={{ width: "24px", textAlign: "center", fontWeight: 900, fontFamily: "monospace", fontSize: "0.9rem" }}>
-                                                {isCurrent && isPlaying ? (
-                                                    <Disc className="animate-spin" size={16} color="#fff" />
-                                                ) : (originalIndex + 1)}
-                                            </div>
-                                            <div style={{ flex: 1, minWidth: 0 }}>
-                                                <div style={{ fontWeight: 900, fontSize: "1rem", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", fontFamily: "system-ui, -apple-system, sans-serif", letterSpacing: "-0.04em" }}>
-                                                    {song.title.split("—")[1]?.trim() || song.title}
+                                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "32px", marginTop: "env(safe-area-inset-top)" }}>
+                                        <span style={{ fontFamily: headerFont, fontWeight: 900, fontSize: "1.4rem", letterSpacing: "-0.03em" }}>Playing Next</span>
+                                        <button onClick={() => setShowQueueModal(false)} style={{ background: "rgba(0,0,0,0.05)", border: "none", padding: "8px", borderRadius: "100px" }}><ChevronDown size={24} /></button>
+                                    </div>
+                                    <div style={{ flex: 1, overflowY: "auto", display: "flex", flexDirection: "column", gap: "12px" }}>
+                                        {queue.map((song, idx) => {
+                                            const isCurrent = currentSong && song.audioUrl === currentSong.audioUrl;
+                                            return (
+                                                <div 
+                                                    key={idx} 
+                                                    onClick={() => { jumpToSong(idx); setShowQueueModal(false); }}
+                                                    style={{ display: "flex", alignItems: "center", gap: "16px", padding: "12px", borderRadius: "16px", backgroundColor: isCurrent ? "rgba(0,0,0,0.05)" : "transparent" }}
+                                                >
+                                                    <div style={{ width: "40px", height: "40px", borderRadius: "8px", background: "rgba(0,0,0,0.1)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                                                        <Music size={18} color={isCurrent ? "#000" : "#AAA"} />
+                                                    </div>
+                                                    <div style={{ flex: 1 }}>
+                                                        <div style={{ fontFamily: headerFont, fontWeight: 800, fontSize: "0.95rem", color: isCurrent ? "#000" : "#333" }}>{song.title.split("—")[1]?.trim() || song.title}</div>
+                                                        <div style={{ fontFamily: headerFont, fontWeight: 600, fontSize: "0.75rem", color: "#888" }}>{song.title.split("—")[0]?.trim() || "Unknown"}</div>
+                                                    </div>
                                                 </div>
-                                                <div style={{ color: isCurrent ? "#ccc" : "#666", fontSize: "0.8rem", fontFamily: "monospace", fontWeight: 700 }}>
-                                                    {song.title.split("—")[0]?.trim() || "Unknown Artist"}
-                                                </div>
-                                            </div>
-                                        </motion.div>
-                                    );
-                                })}
-                            </div>
-                        </motion.div>
-                    )}
-                </AnimatePresence>
-                </motion.div>
-            )}
-        </AnimatePresence>
+                                            );
+                                        })}
+                                    </div>
+                                </motion.div>
+                            )}
+                        </AnimatePresence>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+        </>
     );
 }
 
-// Helper Neo-Brutalist Button
-function NeoButton({ children, onClick, active = false, size = "normal" }: { children: React.ReactNode, onClick: (e: React.MouseEvent) => void, active?: boolean, size?: "normal" | "large" | "extra-large" }) {
-    const dim = size === "normal" ? "36px" : size === "large" ? "42px" : "54px";
-    
-    return (
-        <motion.button
-            whileHover={{ scale: 1.05, y: -2, boxShadow: "6px 6px 0 #000" }}
-            whileTap={{ scale: 0.95, y: 2, x: 2, boxShadow: "0px 0px 0 #000" }}
-            transition={{ type: "spring", stiffness: 400, damping: 20 }}
-            onClick={onClick}
-            style={{
-                width: dim,
-                height: dim,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                backgroundColor: active ? "#000" : "#fff",
-                border: "2px solid #000",
-                boxShadow: "2px 2px 0 #000",
-                cursor: "pointer",
-                borderRadius: "0",
-                color: active ? "#fff" : "#000",
-                transition: "background-color 0.2s ease, color 0.2s ease"
-            }}
-        >
-            {children}
-        </motion.button>
-    );
+// Global Custom Animations
+const globalStyles = `
+    @keyframes spin-slow {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+    }
+    .animate-spin-slow {
+        animation: spin-slow 8s linear infinite;
+    }
+`;
+
+if (typeof document !== 'undefined') {
+    const styleTag = document.createElement('style');
+    styleTag.textContent = globalStyles;
+    document.head.appendChild(styleTag);
 }

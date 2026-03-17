@@ -31,12 +31,13 @@ export function MusicBottomNav({ isInline = false }: { isInline?: boolean }) {
         { label: "Settings", href: "/music/master", icon: Settings },
     ];
 
+    const headerFont = "var(--font-display), system-ui, sans-serif";
+
     return (
         <div style={isInline ? {
-            backgroundColor: "#fff",
-            borderTop: "2px solid #000",
-            padding: "8px 16px",
-            paddingBottom: "max(8px, env(safe-area-inset-bottom))",
+            backgroundColor: "transparent",
+            padding: "12px 16px",
+            paddingBottom: "max(12px, env(safe-area-inset-bottom))",
             display: "flex",
             alignItems: "center",
             justifyContent: "space-around",
@@ -45,18 +46,21 @@ export function MusicBottomNav({ isInline = false }: { isInline?: boolean }) {
             zIndex: 10
         } : {
             position: "fixed",
-            bottom: 0,
-            left: 0,
-            right: 0,
-            backgroundColor: "#fff",
-            borderTop: "2px solid #000",
-            padding: "8px 16px",
-            paddingBottom: "max(8px, env(safe-area-inset-bottom))",
+            bottom: "20px",
+            left: "50%",
+            transform: "translateX(-50%)",
+            width: "calc(100% - 40px)",
+            maxWidth: "360px",
+            backgroundColor: "rgba(255, 255, 255, 0.8)",
+            backdropFilter: "blur(20px)",
+            border: "1px solid rgba(255, 255, 255, 0.4)",
+            borderRadius: "24px",
+            padding: "6px",
             display: "flex",
             alignItems: "center",
-            justifyContent: "space-around",
+            justifyContent: "space-between",
             zIndex: 100000,
-            width: "100%",
+            boxShadow: "0 10px 30px rgba(0, 0, 0, 0.05)",
         }}>
             {navItems.map((item) => {
                 let isActive = false;
@@ -69,7 +73,7 @@ export function MusicBottomNav({ isInline = false }: { isInline?: boolean }) {
                     } else if (item.label === "Settings") {
                         isActive = pathname === "/music/master";
                     } else if (item.label === "Explore") {
-                        isActive = pathname?.startsWith("/playlist") && pathname !== playerHref;
+                        isActive = pathname?.startsWith("/playlist");
                     }
                 }
                     
@@ -91,23 +95,37 @@ export function MusicBottomNav({ isInline = false }: { isInline?: boolean }) {
                             display: "flex",
                             flexDirection: "column",
                             alignItems: "center",
-                            gap: "4px",
-                            background: isActive ? "#000" : "transparent",
+                            gap: "2px",
+                            flex: 1,
+                            background: "transparent",
                             border: "none",
-                            borderRadius: "10px",
                             cursor: "pointer",
-                            color: isActive ? "#fff" : "#888",
-                            padding: "4px 12px",
-                            transition: "all 0.1s ease-in-out"
+                            color: isActive ? "#000" : "#999",
+                            padding: "8px 0",
+                            transition: "color 0.3s ease",
+                            position: "relative"
                         }}
                     >
+                        {isActive && (
+                            <motion.div 
+                                layoutId="nav-active"
+                                style={{
+                                    position: "absolute",
+                                    top: "4px",
+                                    width: "32px",
+                                    height: "32px",
+                                    backgroundColor: "rgba(0,0,0,0.04)",
+                                    borderRadius: "12px",
+                                    zIndex: -1
+                                }}
+                            />
+                        )}
                         <Icon size={18} strokeWidth={isActive ? 2.5 : 2} />
                         <span style={{
-                            fontFamily: "monospace",
-                            fontSize: "0.55rem",
-                            fontWeight: isActive ? 800 : 500,
-                            textTransform: "uppercase",
-                            letterSpacing: "-0.02em"
+                            fontFamily: headerFont,
+                            fontSize: "0.6rem",
+                            fontWeight: isActive ? 800 : 600,
+                            letterSpacing: "0.01em"
                         }}>
                             {item.label}
                         </span>

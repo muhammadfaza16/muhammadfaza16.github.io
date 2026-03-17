@@ -38,11 +38,17 @@ export const viewport: Viewport = {
 
 import { ZenProvider } from "@/components/ZenContext";
 
-import { Playfair_Display, Inter, Space_Mono } from "next/font/google";
+import { Playfair_Display, Inter, Space_Mono, Outfit } from "next/font/google";
 
 const playfair = Playfair_Display({
   subsets: ["latin"],
   variable: "--font-serif",
+  display: "swap",
+});
+
+const outfit = Outfit({
+  subsets: ["latin"],
+  variable: "--font-display",
   display: "swap",
 });
 
@@ -109,7 +115,7 @@ export default async function RootLayout({
       </head>
       <body
         suppressHydrationWarning
-        className={`${playfair.variable} ${interSans.variable} ${spaceMono.variable}`}
+        className={`${playfair.variable} ${outfit.variable} ${interSans.variable} ${spaceMono.variable}`}
         style={{ minHeight: "100svh", display: "flex", flexDirection: "column" }}
       >
         <script
