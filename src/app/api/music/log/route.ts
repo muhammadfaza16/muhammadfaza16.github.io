@@ -30,7 +30,7 @@ export async function POST(request: Request) {
                 where: {
                     sessionId,
                     timestamp: { gte: thirtyMinsAgo }
-                },
+                } as any,
                 orderBy: { timestamp: 'desc' }
             });
 
@@ -83,7 +83,7 @@ export async function POST(request: Request) {
                 timezone: geoData.timezone || null,
                 postal: geoData.postal || null,
                 duration: 0
-            },
+            } as any,
         });
 
         return NextResponse.json({ success: true, created: true });
