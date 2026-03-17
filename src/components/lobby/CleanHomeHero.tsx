@@ -97,6 +97,10 @@ export function CleanHomeHero() {
     const [cryptoData, setCryptoData] = useState<{ crypto: any[]; global: any; forex: any } | null>(null);
     const [hoveredCoin, setHoveredCoin] = useState<string | null>(null);
 
+    // Typography Definitions for Premium Aesthetic
+    const headerFont = "var(--font-display), system-ui, sans-serif";
+    const monoFont = "var(--font-mono), monospace";
+
     // Typewriter greeting
     const [displayedGreeting, setDisplayedGreeting] = useState('');
     const [greetingDone, setGreetingDone] = useState(false);
@@ -574,12 +578,12 @@ export function CleanHomeHero() {
                     }}
                 />
 
-                {/* Glass Noise Texture - Crucial for physical realism */}
+                {/* Glass Noise Texture - Enhanced for physical realism */}
                 <div style={{
                     position: "absolute",
                     inset: 0,
-                    backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
-                    opacity: 0.05,
+                    backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.6' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
+                    opacity: 0.12,
                     pointerEvents: "none",
                     mixBlendMode: "overlay",
                     zIndex: 1,
@@ -624,153 +628,191 @@ export function CleanHomeHero() {
                             style={{ position: "relative", zIndex: 1 }}
                         >
                             <>
-                                    {/* Now Playing Header */}
+                                {/* Now Playing Header */}
+                                <div 
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        sessionStorage.setItem("autoExpandPlayer", "true");
+                                        router.push('/music');
+                                    }}
+                                    style={{ display: "flex", alignItems: "center", gap: "0.75rem", marginBottom: "0.75rem", cursor: "pointer" }}
+                                >
+                                    {/* Rotating Disc */}
+                                    <div style={{
+                                        width: "52px", height: "52px", borderRadius: "50%",
+                                        background: "linear-gradient(135deg, #1A1A1A 0%, #000 100%)",
+                                        display: "flex", alignItems: "center", justifyContent: "center",
+                                        flexShrink: 0,
+                                        boxShadow: isPlaying ? "0 8px 24px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.05)" : "0 4px 12px rgba(0,0,0,0.3)",
+                                        position: "relative",
+                                        overflow: "hidden"
+                                    }}>
+                                        <div style={{
+                                            position: "absolute",
+                                            inset: 0,
+                                            background: "conic-gradient(from 0deg, transparent, rgba(255,255,255,0.05) 50%, transparent)",
+                                            animation: isPlaying ? "spin 3s linear infinite" : "none"
+                                        }} />
+                                        <div style={{
+                                            width: "44px", height: "44px", borderRadius: "50%",
+                                            background: "linear-gradient(135deg, #FFD60A 0%, #FF9F0A 100%)",
+                                            display: "flex", alignItems: "center", justifyContent: "center",
+                                            position: "relative",
+                                            zIndex: 1,
+                                            boxShadow: "inset 0 1px 1px rgba(255,255,255,0.4), 0 2px 4px rgba(0,0,0,0.3)"
+                                        }}>
+                                            <Disc size={20} color="rgba(0,0,0,0.7)" />
+                                        </div>
+                                    </div>
+
+                                    {/* MW-4: Song Info — navigates to /music and expands */}
                                     <div 
                                         onClick={(e) => {
                                             e.stopPropagation();
                                             sessionStorage.setItem("autoExpandPlayer", "true");
                                             router.push('/music');
                                         }}
-                                        style={{ display: "flex", alignItems: "center", gap: "0.75rem", marginBottom: "0.75rem", cursor: "pointer" }}
+                                        style={{ flex: 1, minWidth: 0, cursor: "pointer" }}
                                     >
-                                        {/* Rotating Disc */}
                                         <div style={{
-                                            width: "48px", height: "48px", borderRadius: "50%",
-                                            background: "linear-gradient(135deg, #FFD60A 0%, #FF9F0A 100%)",
-                                            display: "flex", alignItems: "center", justifyContent: "center",
-                                            flexShrink: 0,
-                                            boxShadow: isPlaying ? "0 0 20px rgba(255,214,10,0.35)" : "none",
+                                            fontSize: "0.95rem", fontWeight: 800,
+                                            color: "#FFF",
+                                            whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
+                                            marginBottom: "1px",
+                                            textShadow: "0 1px 2px rgba(0,0,0,0.2)"
+                                        }}>{song}</div>
+                                        <div style={{
+                                            fontSize: "0.78rem", fontWeight: 600,
+                                            color: "rgba(255,255,255,0.45)",
+                                            whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
+                                            display: "flex", alignItems: "center", gap: "8px",
+                                            fontFamily: headerFont,
+                                            letterSpacing: "0.02em"
                                         }}>
-                                            <motion.div
-                                                animate={{ rotate: isPlaying ? 360 : 0 }}
-                                                transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
-                                                style={{ display: "flex", alignItems: "center", justifyContent: "center" }}
-                                            >
-                                                <Disc size={22} color="rgba(0,0,0,0.6)" />
-                                            </motion.div>
+                                            {artist}
+                                            {isPlaying && (
+                                                <span style={{ display: "flex", alignItems: "center", gap: "2px", height: "10px", marginLeft: "2px" }}>
+                                                    {[0, 1, 2].map(b => (
+                                                        <motion.span
+                                                            key={b}
+                                                            style={{ width: "2px", borderRadius: "1px", background: "#FFD60A" }}
+                                                            animate={{ height: ["4px", `${10 + b * 2}px`, "5px", `${12 - b}px`, "4px"] }}
+                                                            transition={{ duration: 0.6 + b * 0.1, repeat: Infinity, ease: "easeInOut", delay: b * 0.1 }}
+                                                        />
+                                                    ))}
+                                                </span>
+                                            )}
                                         </div>
+                                    </div>
 
-                                        {/* MW-4: Song Info — navigates to /music and expands */}
-                                        <div 
-                                            onClick={(e) => {
-                                                e.stopPropagation();
-                                                sessionStorage.setItem("autoExpandPlayer", "true");
-                                                router.push('/music');
-                                            }}
-                                            style={{ flex: 1, minWidth: 0, cursor: "pointer" }}
-                                        >
-                                            <div style={{
-                                                fontSize: "0.9rem", fontWeight: 700,
-                                                color: "rgba(255,255,255,0.95)",
-                                                whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
-                                                marginBottom: "2px",
-                                            }}>{song}</div>
-                                            <div style={{
-                                                fontSize: "0.75rem", fontWeight: 500,
-                                                color: "rgba(255,255,255,0.55)",
-                                                whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
-                                                display: "flex", alignItems: "center", gap: "6px",
-                                            }}>
-                                                {artist}
-                                                {isPlaying && (
-                                                    <span style={{ display: "flex", alignItems: "flex-end", gap: "1.5px", height: "12px" }}>
-                                                        {[0, 1, 2].map(b => (
-                                                            <motion.span
-                                                                key={b}
-                                                                style={{ width: "2px", borderRadius: "1px", background: "#FFD60A" }}
-                                                                animate={{ height: ["3px", `${8 + b * 3}px`, "4px", `${10 - b * 2}px`, "3px"] }}
-                                                                transition={{ duration: 0.8 + b * 0.15, repeat: Infinity, ease: "easeInOut", delay: b * 0.12 }}
-                                                            />
-                                                        ))}
-                                                    </span>
-                                                )}
-                                            </div>
+                                    {/* MW-5: Controls — larger touch targets */}
+                                    <div style={{ display: "flex", alignItems: "center", gap: "2px", flexShrink: 0 }}>
+                                        <div onClick={(e) => { e.stopPropagation(); prevSong(); }} style={{ padding: "10px", cursor: "pointer", display: "flex", borderRadius: "50%" }}>
+                                            <SkipBack size={15} fill="rgba(255,255,255,0.95)" color="rgba(255,255,255,0.95)" />
                                         </div>
-
-                                        {/* MW-5: Controls — larger touch targets */}
-                                        <div style={{ display: "flex", alignItems: "center", gap: "2px", flexShrink: 0 }}>
-                                            <div onClick={() => prevSong()} style={{ padding: "10px", cursor: "pointer", display: "flex", borderRadius: "50%" }}>
-                                                <SkipBack size={15} fill="rgba(255,255,255,0.95)" color="rgba(255,255,255,0.95)" />
-                                            </div>
-                                            <div onClick={togglePlay} style={{
-                                                width: "38px", height: "38px", borderRadius: "50%",
-                                                background: "rgba(0,0,0,0.08)",
+                                        <motion.div 
+                                            whileHover={{ scale: 1.1 }}
+                                            whileTap={{ scale: 0.9 }}
+                                            onClick={(e) => { e.stopPropagation(); togglePlay(); }}
+                                            style={{
+                                                width: "42px", height: "42px", borderRadius: "50%",
+                                                background: "rgba(255,255,255,0.06)",
                                                 display: "flex", alignItems: "center", justifyContent: "center",
                                                 cursor: "pointer",
+                                                border: "1px solid rgba(255,255,255,0.05)",
+                                                boxShadow: "0 4px 12px rgba(0,0,0,0.2)"
                                             }}>
-                                                {isPlaying
-                                                    ? <Pause size={15} fill="rgba(255,255,255,0.95)" color="rgba(255,255,255,0.95)" />
-                                                    : <Play size={15} fill="rgba(255,255,255,0.95)" color="rgba(255,255,255,0.95)" style={{ marginLeft: "2px" }} />
-                                                }
-                                            </div>
-                                            <div onClick={() => nextSong()} style={{ padding: "10px", cursor: "pointer", display: "flex", borderRadius: "50%" }}>
-                                                <SkipForward size={15} fill="rgba(255,255,255,0.95)" color="rgba(255,255,255,0.95)" />
-                                            </div>
+                                            {isPlaying
+                                                ? <Pause size={16} fill="#FFF" color="#FFF" />
+                                                : <Play size={16} fill="#FFF" color="#FFF" style={{ marginLeft: "2px" }} />
+                                            }
+                                        </motion.div>
+                                        <div onClick={(e) => { e.stopPropagation(); nextSong(); }} style={{ padding: "10px", cursor: "pointer", display: "flex", borderRadius: "50%" }}>
+                                            <SkipForward size={15} fill="rgba(255,255,255,0.95)" color="rgba(255,255,255,0.95)" />
                                         </div>
                                     </div>
+                                </div>
 
-                                    {/* MW-2: Seekable Progress Bar */}
-                                    <div
-                                        onClick={(e) => {
-                                            if (duration > 0) {
-                                                const rect = e.currentTarget.getBoundingClientRect();
-                                                const pct = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
-                                                seekTo(pct * duration);
-                                            }
-                                        }}
+                                <div
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        if (duration > 0) {
+                                            const rect = e.currentTarget.getBoundingClientRect();
+                                            const pct = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+                                            seekTo(pct * duration);
+                                        }
+                                    }}
+                                    style={{
+                                        width: "100%", height: "4px", borderRadius: "100px",
+                                        background: "rgba(255,255,255,0.05)", marginBottom: "1rem",
+                                        position: "relative", cursor: "pointer",
+                                        overflow: "visible"
+                                    }}
+                                >
+                                    <motion.div 
+                                        initial={false}
+                                        animate={{ width: duration > 0 ? `${(currentTime / duration) * 100}%` : "0%" }}
+                                        transition={{ type: "spring", stiffness: 300, damping: 30 }}
                                         style={{
-                                            width: "100%", height: "6px", borderRadius: "3px",
-                                            background: "rgba(0,0,0,0.08)", marginBottom: "0.65rem",
-                                            overflow: "hidden", cursor: "pointer",
-                                        }}
-                                    >
-                                        <div style={{
-                                            width: duration > 0 ? `${(currentTime / duration) * 100}%` : "0%",
-                                            height: "100%", borderRadius: "3px",
+                                            position: "absolute", left: 0, top: 0, bottom: 0,
+                                            borderRadius: "100px",
                                             background: "linear-gradient(90deg, #FFD60A, #FF9F0A)",
-                                            transition: "width 0.3s linear",
-                                            boxShadow: "0 0 6px rgba(255,214,10,0.4)",
-                                        }} />
-                                    </div>
-
-                                    {/* MW-3: Lyrics Area — data-scrollable for mobile scroll lock bypass */}
-                                    <div
-                                        ref={lyricsContainerRef}
-                                        data-scrollable="true"
+                                            boxShadow: "0 0 12px rgba(255,214,10,0.4)",
+                                        }} 
+                                    />
+                                    <motion.div 
+                                        initial={false}
+                                        animate={{ left: duration > 0 ? `${(currentTime / duration) * 100}%` : "0%" }}
+                                        transition={{ type: "spring", stiffness: 300, damping: 30 }}
                                         style={{
-                                            maxHeight: "120px",
-                                            overflowY: "auto",
-                                            scrollbarWidth: "none",
-                                            WebkitMaskImage: "linear-gradient(transparent 0%, black 15%, black 85%, transparent 100%)",
-                                            maskImage: "linear-gradient(transparent 0%, black 15%, black 85%, transparent 100%)",
+                                            position: "absolute", top: "50%", 
+                                            width: "10px", height: "10px", 
+                                            backgroundColor: "#FFF", borderRadius: "50%",
+                                            transform: "translate(-50%, -50%)",
+                                            boxShadow: "0 2px 8px rgba(0,0,0,0.5), 0 0 0 4px rgba(255,255,255,0.1)",
+                                            zIndex: 2
                                         }}
-                                    >
-                                        {lyrics && lyrics.length > 0 ? (
-                                            lyrics.map((line, i) => (
-                                                <div key={i} style={{
-                                                    padding: "3px 0",
-                                                    fontSize: i === activeLyricIndex ? "0.82rem" : "0.72rem",
-                                                    fontWeight: i === activeLyricIndex ? 700 : 400,
-                                                    color: i === activeLyricIndex
-                                                        ? "rgba(255,255,255,0.95)"
-                                                        : "rgba(255,255,255,0.55)",
-                                                    opacity: i === activeLyricIndex ? 1 : 0.5,
-                                                    transition: "all 0.3s ease",
-                                                    textAlign: "center",
-                                                    lineHeight: 1.5,
-                                                }}>
-                                                    {line.text || "♪"}
-                                                </div>
-                                            ))
-                                        ) : (
-                                            <div style={{
-                                                textAlign: "center", padding: "1.5rem 0",
-                                                fontSize: "0.78rem", color: "rgba(255,255,255,0.55)",
-                                                fontStyle: "italic",
-                                            }}>♪ No lyrics available ♪</div>
-                                        )}
-                                    </div>
-                                </>
+                                    />
+                                </div>
+
+                                {/* MW-3: Lyrics Area — data-scrollable for mobile scroll lock bypass */}
+                                <div
+                                    ref={lyricsContainerRef}
+                                    data-scrollable="true"
+                                    style={{
+                                        maxHeight: "120px",
+                                        overflowY: "auto",
+                                        scrollbarWidth: "none",
+                                        WebkitMaskImage: "linear-gradient(transparent 0%, black 15%, black 85%, transparent 100%)",
+                                        maskImage: "linear-gradient(transparent 0%, black 15%, black 85%, transparent 100%)",
+                                    }}
+                                >
+                                    {lyrics && lyrics.length > 0 ? (
+                                        lyrics.map((line, i) => (
+                                            <div key={i} style={{
+                                                padding: "3px 0",
+                                                fontSize: i === activeLyricIndex ? "0.82rem" : "0.72rem",
+                                                fontWeight: i === activeLyricIndex ? 700 : 400,
+                                                color: i === activeLyricIndex
+                                                    ? "rgba(255,255,255,0.95)"
+                                                    : "rgba(255,255,255,0.55)",
+                                                opacity: i === activeLyricIndex ? 1 : 0.5,
+                                                transition: "all 0.3s ease",
+                                                textAlign: "center",
+                                                lineHeight: 1.5,
+                                            }}>
+                                                {line.text || "♪"}
+                                            </div>
+                                        ))
+                                    ) : (
+                                        <div style={{
+                                            textAlign: "center", padding: "1.5rem 0",
+                                            fontSize: "0.78rem", color: "rgba(255,255,255,0.55)",
+                                            fontStyle: "italic",
+                                        }}>♪ No lyrics available ♪</div>
+                                    )}
+                                </div>
+                            </>
                         </motion.div>
                     ) : WIDGETS[widgetIndex] === 'news' ? (
                         <motion.div
