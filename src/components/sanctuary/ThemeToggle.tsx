@@ -17,21 +17,21 @@ export function ThemeToggle() {
             whileTap={{ scale: 0.95 }}
             style={{
                 position: "fixed",
-                top: "24px",
-                right: "24px",
-                width: "44px",
-                height: "44px",
-                borderRadius: "15px",
+                top: "30px",
+                right: "16px",
+                width: "40px",
+                height: "40px",
+                borderRadius: "100px",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
                 cursor: "pointer",
                 zIndex: 100001, // Above bottom nav
-                backgroundColor: theme === "dark" ? "rgba(255, 255, 255, 0.08)" : "rgba(0, 0, 0, 0.03)",
+                backgroundColor: theme === "dark" ? "rgba(255, 255, 255, 0.03)" : "rgba(255, 255, 255, 0.3)",
                 backdropFilter: "blur(12px)",
-                border: theme === "dark" ? "1px solid rgba(255, 255, 255, 0.1)" : "1px solid rgba(0, 0, 0, 0.05)",
-                boxShadow: "0 4px 12px rgba(0, 0, 0, 0.05)",
-                transition: "background-color 0.3s ease, border-color 0.3s ease",
+                border: theme === "dark" ? "1px solid rgba(255, 255, 255, 0.04)" : "1px solid rgba(0, 0, 0, 0.02)",
+                boxShadow: theme === "dark" ? "0 4px 12px rgba(0, 0, 0, 0.15)" : "0 2px 8px rgba(0, 0, 0, 0.01)",
+                transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
                 padding: 0
             }}
             aria-label={`Switch to ${theme === "light" ? "dark" : "light"} mode`}
@@ -49,9 +49,9 @@ export function ThemeToggle() {
                     }}
                 >
                     {theme === "dark" ? (
-                        <Moon size={20} color="#6366F1" />
+                        <Moon size={18} color="#6366F1" />
                     ) : (
-                        <Sun size={20} color="#F59E0B" />
+                        <Sun size={18} color="#F59E0B" />
                     )}
                 </motion.div>
             </AnimatePresence>
