@@ -156,19 +156,19 @@ export default function PlaylistClient({ playlistId, initialSongs = [] }: { play
         return PLAYLIST_CATEGORIES.find(p => p.id === playlistId);
     }, [playlistId]);
 
-    const filteredPlaylist = useMemo(() => {
-        let baseSongs = dbSongs;
+    const basePlaylist = useMemo(() => {
+        let songs = dbSongs;
         if (activePlaylist) {
             if (activePlaylist.id === 'indo-hits') {
-                baseSongs = dbSongs.filter(song => 
+                songs = dbSongs.filter(song => 
                     INDO_ARTISTS.some((artist: string) => song.title.toLowerCase().includes(artist.toLowerCase()))
                 );
             } else if (activePlaylist.id === 'international-favorites') {
-                baseSongs = dbSongs.filter(song => 
+                songs = dbSongs.filter(song => 
                     !INDO_ARTISTS.some((artist: string) => song.title.toLowerCase().includes(artist.toLowerCase()))
                 );
             } else {
-                baseSongs = dbSongs.filter(song =>
+                songs = dbSongs.filter(song =>
                     activePlaylist.songTitles.some((title: string) =>
                         song.title.toLowerCase().includes(title.toLowerCase()) ||
                         title.toLowerCase().includes(song.title.toLowerCase())
@@ -176,12 +176,16 @@ export default function PlaylistClient({ playlistId, initialSongs = [] }: { play
                 );
             }
         }
-        return baseSongs
-            .map((song, index) => ({ ...song, originalIndex: index }))
-            .filter(song =>
-                song.title.toLowerCase().includes(searchQuery.toLowerCase())
-            );
-    }, [activePlaylist, searchQuery, dbSongs]);
+        return songs.map((song, index) => ({ ...song, originalIndex: index }));
+    }, [activePlaylist, dbSongs]);
+
+    const filteredPlaylist = useMemo(() => {
+        if (!searchQuery) return basePlaylist;
+        const query = searchQuery.toLowerCase();
+        return basePlaylist.filter(song =>
+            song.title.toLowerCase().includes(query)
+        );
+    }, [basePlaylist, searchQuery]);
 
     const isThisPlaylistInQueue = activePlaylistId === playlistId || (playlistId === "all" && activePlaylistId === null);
     const isThisPlaylistPlaying = isPlaying && isThisPlaylistInQueue;
@@ -355,7 +359,7 @@ export default function PlaylistClient({ playlistId, initialSongs = [] }: { play
                     whileTap={{ scale: 0.98 }}
                     onClick={() => {
                         if (isThisPlaylistInQueue) togglePlay();
-                        else playQueue(filteredPlaylist, 0, playlistId);
+                        else playQueue(basePlaylist, 0, playlistId);
                     }}
                     style={{
                         flex: 1,
@@ -387,7 +391,7 @@ export default function PlaylistClient({ playlistId, initialSongs = [] }: { play
                 <motion.button
                     whileTap={{ scale: 0.95 }}
                     onClick={() => {
-                        playQueue(filteredPlaylist, 0, playlistId, true);
+                        playQueue(basePlaylist, 0, playlistId, true);
                     }}
                     style={{
                         background: theme === "dark" ? "rgba(255, 255, 255, 0.05)" : "rgba(255, 255, 255, 0.8)",
@@ -467,7 +471,7 @@ export default function PlaylistClient({ playlistId, initialSongs = [] }: { play
                                 isActive={currentSong?.audioUrl === song.audioUrl}
                                 isPlaying={isPlaying}
                                 onPlay={() => {
-                                    playQueue(filteredPlaylist, i, playlistId);
+                                    playQueue(basePlaylist, song.originalIndex, playlistId);
                                     setIsPlayerExpanded(true);
                                 }}
                             />
@@ -478,15 +482,15 @@ export default function PlaylistClient({ playlistId, initialSongs = [] }: { play
                         key={activePlaylist?.id || "playlist-list"}
                         useWindowScroll
                         data={filteredPlaylist}
-                        itemContent={(i: number, song: any) => (
+                        itemContent={(index, song: any) => (
                             <TrackRow
                                 key={song.originalIndex}
-                                song={song}
-                                index={i}
+                                index={index}
                                 isActive={currentSong?.audioUrl === song.audioUrl}
                                 isPlaying={isPlaying}
+                                song={song}
                                 onPlay={() => {
-                                    playQueue(filteredPlaylist, i, playlistId);
+                                    playQueue(basePlaylist, song.originalIndex, playlistId);
                                     setIsPlayerExpanded(true);
                                 }}
                             />
