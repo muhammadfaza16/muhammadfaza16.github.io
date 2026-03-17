@@ -108,26 +108,21 @@ export default function LibraryClient({ songCount }: { songCount: number }) {
             transition: "all 0.5s ease"
         }}>
             {/* Header Section */}
-            <header style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-                <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                    <div style={{ 
-                        width: "32px", height: "32px", borderRadius: "10px", 
-                        background: "linear-gradient(135deg, #6366F1, #8B5CF6)",
-                        display: "flex", alignItems: "center", justifyContent: "center",
-                        boxShadow: "0 8px 16px rgba(99, 102, 241, 0.2)"
-                    }}>
-                        <Compass size={16} color="#fff" />
-                    </div>
-                    <span style={{ 
-                        fontFamily: headerFont, fontWeight: 800, fontSize: "0.75rem", 
-                        textTransform: "uppercase", letterSpacing: "0.15em", color: "#6366F1" 
-                    }}>Explorer Hub</span>
+            <header style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+                <div style={{ 
+                    width: "32px", height: "32px", borderRadius: "8px", 
+                    background: "linear-gradient(135deg, #6366F1, #8B5CF6)",
+                    display: "flex", alignItems: "center", justifyContent: "center",
+                    boxShadow: "0 6px 12px rgba(99, 102, 241, 0.2)"
+                }}>
+                    <Compass size={16} color="#fff" />
                 </div>
                 <h1 style={{
-                    fontFamily: headerFont, fontSize: "2.2rem", fontWeight: 900,
-                    margin: 0, letterSpacing: "-0.04em", lineHeight: 0.9, textTransform: "uppercase"
+                    fontFamily: headerFont, fontSize: "1.1rem", fontWeight: 800,
+                    margin: 0, letterSpacing: "0.02em", textTransform: "uppercase",
+                    color: theme === "dark" ? "#FFF" : "#000"
                 }}>
-                    Curated<br/><span style={{ opacity: 0.4 }}>Playlists</span>
+                    Curated Archives
                 </h1>
             </header>
 
