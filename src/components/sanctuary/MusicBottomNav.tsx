@@ -53,16 +53,20 @@ export function MusicBottomNav({ isInline = false }: { isInline?: boolean }) {
             transform: "translateX(-50%)",
             width: "calc(100% - 40px)",
             maxWidth: "360px",
-            backgroundColor: theme === "dark" ? "rgba(26, 26, 26, 0.75)" : "rgba(255, 255, 255, 0.8)",
-            backdropFilter: "blur(20px)",
-            border: theme === "dark" ? "1px solid rgba(255, 255, 255, 0.1)" : "1px solid rgba(255, 255, 255, 0.4)",
+            backgroundColor: theme === "dark" ? "rgba(20, 20, 20, 0.55)" : "rgba(255, 255, 255, 0.4)",
+            backdropFilter: "blur(40px) saturate(180%)",
+            border: theme === "dark" 
+                ? "1px solid rgba(255, 255, 255, 0.08)" 
+                : "1px solid rgba(255, 255, 255, 0.3)",
             borderRadius: "24px",
             padding: "6px",
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
             zIndex: 100000,
-            boxShadow: theme === "dark" ? "0 15px 40px rgba(0, 0, 0, 0.4)" : "0 10px 30px rgba(0, 0, 0, 0.05)",
+            boxShadow: theme === "dark" 
+                ? "0 20px 50px rgba(0, 0, 0, 0.5), inset 0 0 0 0.5px rgba(255, 255, 255, 0.05)" 
+                : "0 10px 40px rgba(0, 0, 0, 0.04), inset 0 0 0 0.5px rgba(255, 255, 255, 0.5)",
         }}>
             {navItems.map((item) => {
                 let isActive = false;
