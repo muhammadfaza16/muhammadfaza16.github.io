@@ -1,12 +1,12 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { usePathname } from "next/navigation";
 import { useAudio, useTime } from "@/components/AudioContext";
 import { parseSongTitle } from "@/utils/songUtils";
 import { useTheme } from "@/components/ThemeProvider";
-import { Play, Pause, SkipBack, SkipForward, Shuffle, Repeat, ChevronDown, ChevronUp, Repeat1, ListMusic, Disc, FileText, Search, Music } from "lucide-react";
+import { Play, Pause, SkipBack, SkipForward, Shuffle, Repeat, ChevronDown, ChevronUp, Repeat1, ListMusic, Disc, FileText, Search, Music, X } from "lucide-react";
 import { MusicBottomNav } from "./MusicBottomNav";
 
 export function GlobalBottomPlayer() {
@@ -26,6 +26,23 @@ export function GlobalBottomPlayer() {
     const [activeTab, setActiveTab] = useState<'cover' | 'lyrics'>('cover');
     const [showQueueModal, setShowQueueModal] = useState(false);
     const [searchQuery, setSearchQuery] = useState("");
+    const [queueSearchQuery, setQueueSearchQuery] = useState("");
+
+    // Reset queue search when modal closes
+    useEffect(() => {
+        if (!showQueueModal) setQueueSearchQuery("");
+    }, [showQueueModal]);
+
+    const filteredQueue = useMemo(() => {
+        if (!queueSearchQuery) return queue.map((s, i) => ({ ...s, originalIdx: i }));
+        const q = queueSearchQuery.toLowerCase();
+        return (queue as any[])
+            .map((s, i) => ({ ...s, originalIdx: i }))
+            .filter(song => 
+                song.title.toLowerCase().includes(q) || 
+                (song.artist && song.artist.toLowerCase().includes(q))
+            );
+    }, [queue, queueSearchQuery]);
 
     useEffect(() => setIsMounted(true), []);
 
@@ -330,18 +347,52 @@ export function GlobalBottomPlayer() {
                                         zIndex: 100005, padding: "24px", display: "flex", flexDirection: "column"
                                     }}
                                 >
-                                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "32px", marginTop: "env(safe-area-inset-top)" }}>
+                                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px", marginTop: "env(safe-area-inset-top)" }}>
                                         <span style={{ fontFamily: headerFont, fontWeight: 900, fontSize: "1.4rem", letterSpacing: "-0.03em", color: theme === "dark" ? "#FFF" : "#1A1A1A" }}>Playing Next</span>
                                         <button onClick={() => setShowQueueModal(false)} style={{ background: theme === "dark" ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.05)", border: "none", padding: "8px", borderRadius: "100px", color: "currentColor" }}><ChevronDown size={24} /></button>
                                     </div>
+
+                                    {/* Queue Search Bar */}
+                                    <div style={{ 
+                                        marginBottom: "20px",
+                                        padding: "10px 14px",
+                                        background: theme === "dark" ? "rgba(255,255,255,0.03)" : "rgba(0,0,0,0.03)",
+                                        borderRadius: "14px",
+                                        display: "flex",
+                                        alignItems: "center",
+                                        gap: "10px",
+                                        border: theme === "dark" ? "1px solid rgba(255,255,255,0.05)" : "1px solid rgba(0,0,0,0.05)"
+                                    }}>
+                                        <Search size={16} color="#888" />
+                                        <input 
+                                            type="text"
+                                            placeholder="Search in queue..."
+                                            value={queueSearchQuery}
+                                            onChange={(e) => setQueueSearchQuery(e.target.value)}
+                                            style={{
+                                                flex: 1,
+                                                background: "none",
+                                                border: "none",
+                                                outline: "none",
+                                                color: "currentColor",
+                                                fontFamily: headerFont,
+                                                fontSize: "0.9rem",
+                                                fontWeight: 600
+                                            }}
+                                        />
+                                        {queueSearchQuery && (
+                                            <button onClick={() => setQueueSearchQuery("")} style={{ background: "none", border: "none", color: "#888" }}><X size={16} /></button>
+                                        )}
+                                    </div>
+
                                     <div style={{ flex: 1, overflowY: "auto", display: "flex", flexDirection: "column", gap: "12px" }}>
-                                        {queue.map((song, idx) => {
+                                        {filteredQueue.map((song, idx) => {
                                             const isCurrent = currentSong && song.audioUrl === currentSong.audioUrl;
                                             const { cleanTitle, artist, labels: qLabels } = parseSongTitle(song.title);
                                             return (
                                                 <div 
                                                     key={idx} 
-                                                    onClick={() => { jumpToSong(idx); setShowQueueModal(false); }}
+                                                    onClick={() => { jumpToSong(song.originalIdx); setShowQueueModal(false); }}
                                                     style={{ 
                                                         display: "flex", 
                                                         alignItems: "center", 
