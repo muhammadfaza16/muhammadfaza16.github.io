@@ -281,8 +281,8 @@ export default function AudioHubPage() {
                                             <Disc 
                                                 className={isPlaying ? "animate-spin-slow" : ""} 
                                                 size={24} 
-                                                color={isPlaying ? "#fff" : "#BBB"} 
-                                                style={{ zIndex: 2, opacity: isPlaying ? 0.9 : 0.5 }}
+                                                color={isPlaying ? "#fff" : (theme === "dark" ? "rgba(255,255,255,0.65)" : "rgba(0,0,0,0.35)")} 
+                                                style={{ zIndex: 2, opacity: isPlaying ? 0.9 : 1 }}
                                             />
                                         </div>
                                     </div>
