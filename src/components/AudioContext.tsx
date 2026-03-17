@@ -622,7 +622,6 @@ export function AudioProvider({ children, initialSongs = [] }: { children: React
                 navigator.mediaSession.setActionHandler("seekto", null);
                 navigator.mediaSession.setActionHandler("seekforward", null);
                 navigator.mediaSession.setActionHandler("seekbackward", null);
-                navigator.mediaSession.setActionHandler("nexttrack", null);
             }
         };
     }, [currentSong, togglePlay, nextSong, prevSong]);
@@ -696,6 +695,13 @@ export function AudioProvider({ children, initialSongs = [] }: { children: React
         };
     }, [currentIndex, queue]);
 
+    const getSafeUrl = (url: string) => {
+        if (!url) return "";
+        // All local song URLs are now pre-slugified (e.g. /audio/artist-title.mp3)
+        // We keep encodeURI just for external sources or as a final failsafe.
+        return encodeURI(url);
+    };
+
     return (
         <AudioContext.Provider value={{
             isPlaying, togglePlay, nextSong, prevSong, jumpToSong, currentSong, audioRef, hasInteracted, warmup,
@@ -722,7 +728,7 @@ export function AudioProvider({ children, initialSongs = [] }: { children: React
             <TimeContext.Provider value={{ currentTime, duration, isBuffering }}>
             <audio
                 ref={audioRef}
-                src={queue[currentIndex]?.audioUrl}
+                src={getSafeUrl(queue[currentIndex]?.audioUrl)}
                 preload="auto"
                 onTimeUpdate={handleTimeUpdate}
                 onLoadedMetadata={() => {
@@ -782,11 +788,14 @@ export function AudioProvider({ children, initialSongs = [] }: { children: React
                     const audio = audioRef.current;
                     const error = audio?.error || (e.target as HTMLAudioElement)?.error;
                     const currentSrc = audio?.src || queue[currentIndex]?.audioUrl;
+                    const rawSrc = queue[currentIndex]?.audioUrl;
                     
                     console.error("Audio playback error:", {
                         code: error?.code,
                         message: error?.message,
-                        src: currentSrc
+                        src: currentSrc,
+                        rawSrc: rawSrc,
+                        title: queue[currentIndex]?.title
                     });
                     
                     setIsPlaying(false);

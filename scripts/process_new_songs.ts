@@ -89,8 +89,12 @@ function cleanFileName(filename: string) {
         finalTitleStr = "Taxi Band — Hujan Kemarin";
     }
 
-    // Sanitize file name for URL
-    const safeFileName = finalTitleStr.replace(/[^a-zA-Z0-9 \-\u2014\(\)\&]/g, '').trim() + '.mp3';
+    // Sanitize file name for URL (Slugify)
+    const safeFileName = finalTitleStr
+        .toLowerCase()
+        .replace(/[^a-z0-9]/g, '-')
+        .replace(/-+/g, '-')
+        .replace(/^-+|-+$/g, '') + '.mp3';
 
     return { finalTitleStr, safeFileName };
 }
@@ -121,9 +125,10 @@ async function main() {
             fs.renameSync(oldPath, newPath); // overwrite
         }
 
-        const audioUrl = `/audio/${encodeURIComponent(safeFileName)}`;
+        const audioUrl = `/audio/${safeFileName}`; // New standard: no encodeURIComponent needed on the URL because it's already a slug
 
         // Upsert into DB
+        // Try finding by slugified URL
         const songRecord = await prisma.song.findFirst({
             where: { audioUrl }
         });
