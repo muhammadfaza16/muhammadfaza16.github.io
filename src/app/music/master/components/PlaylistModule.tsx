@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { parseSongTitle } from "@/utils/songUtils";
 import {
     Plus,
     Trash2,
@@ -463,7 +464,29 @@ export function PlaylistModule({ addLog, isBusy, setIsBusy, insetBox }: Playlist
                             {currentSongs.map(song => (
                                 <div key={song.id} style={{ ...insetBox, padding: "0.5rem 0.75rem", display: "flex", justifyContent: "space-between", alignItems: "center", borderLeft: `2px solid ${viewingPlaylist.coverColor}` }}>
                                     <div>
-                                        <div style={{ color: "#aaa", fontSize: "0.65rem", fontWeight: 800 }}>{song.title}</div>
+                                        {(() => {
+                                            const { cleanTitle, labels } = parseSongTitle(song.title);
+                                            return (
+                                                <div style={{ display: "flex", alignItems: "center", gap: "6px", flexWrap: "wrap" }}>
+                                                    <div style={{ color: "#aaa", fontSize: "0.65rem", fontWeight: 800 }}>{cleanTitle}</div>
+                                                    {labels.map(label => (
+                                                        <span key={label} style={{
+                                                            fontSize: "0.38rem",
+                                                            fontFamily: "var(--font-sans)",
+                                                            fontWeight: 800,
+                                                            backgroundColor: "rgba(255,255,255,0.06)",
+                                                            color: "rgba(255,255,255,0.7)",
+                                                            padding: "1px 5px",
+                                                            borderRadius: "100px",
+                                                            letterSpacing: "0.06em",
+                                                            textTransform: "uppercase",
+                                                            border: "1px solid rgba(255,255,255,0.1)",
+                                                            flexShrink: 0
+                                                        }}>{label}</span>
+                                                    ))}
+                                                </div>
+                                            );
+                                        })()}
                                         <div style={{ color: "#555", fontSize: "0.5rem" }}>{song.artist}</div>
                                     </div>
                                     <motion.button onClick={() => removeSongFromPlaylist(song.id, song.title)} whileTap={{ scale: 0.9 }} style={{ color: "#ef4444" }}>
@@ -480,7 +503,29 @@ export function PlaylistModule({ addLog, isBusy, setIsBusy, insetBox }: Playlist
                             {filteredSongs.length > 0 ? filteredSongs.map(song => (
                                 <div key={song.id} style={{ ...insetBox, padding: "0.5rem 0.75rem", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                                     <div>
-                                        <div style={{ color: "#aaa", fontSize: "0.65rem", fontWeight: 800 }}>{song.title}</div>
+                                        {(() => {
+                                            const { cleanTitle, labels } = parseSongTitle(song.title);
+                                            return (
+                                                <div style={{ display: "flex", alignItems: "center", gap: "6px", flexWrap: "wrap" }}>
+                                                    <div style={{ color: "#aaa", fontSize: "0.65rem", fontWeight: 800 }}>{cleanTitle}</div>
+                                                    {labels.map(label => (
+                                                        <span key={label} style={{
+                                                            fontSize: "0.38rem",
+                                                            fontFamily: "var(--font-sans)",
+                                                            fontWeight: 800,
+                                                            backgroundColor: "rgba(0,0,0,0.04)",
+                                                            color: "rgba(0,0,0,0.5)",
+                                                            padding: "1px 5px",
+                                                            borderRadius: "100px",
+                                                            letterSpacing: "0.06em",
+                                                            textTransform: "uppercase",
+                                                            border: "1px solid rgba(0,0,0,0.05)",
+                                                            flexShrink: 0
+                                                        }}>{label}</span>
+                                                    ))}
+                                                </div>
+                                            );
+                                        })()}
                                         <div style={{ color: "#555", fontSize: "0.5rem" }}>{song.artist}</div>
                                     </div>
                                     <div style={{ display: "flex", gap: "0.4rem", alignItems: "center" }}>

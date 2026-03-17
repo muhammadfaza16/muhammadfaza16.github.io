@@ -25,6 +25,7 @@ import { useState, useRef, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { PlaylistModule } from "./components/PlaylistModule";
 import { PLAYLIST_CATEGORIES } from "@/data/playlists";
+import { parseSongTitle } from "@/utils/songUtils";
 
 const MASTER_PIN = "0000";
 
@@ -350,14 +351,34 @@ export default function MasterPanelPage() {
                                                             </span>
                                                         </div>
 
-                                                        {log.songTitle && (
-                                                            <div style={{ padding: "8px 12px", background: "rgba(0,0,0,0.02)", borderRadius: "8px", border: "1px solid rgba(0,0,0,0.03)" }}>
-                                                                <div style={{ fontSize: "0.5rem", fontWeight: 800, color: "#888", textTransform: "uppercase", marginBottom: "2px" }}>HEARING</div>
-                                                                <div style={{ fontSize: "0.7rem", fontWeight: 900, color: "#000", textTransform: "uppercase", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", fontFamily: headerFont }}>
-                                                                    {log.songTitle}
+                                                        {log.songTitle && (() => {
+                                                            const { cleanTitle, labels } = parseSongTitle(log.songTitle);
+                                                            return (
+                                                                <div style={{ padding: "8px 12px", background: "rgba(0,0,0,0.02)", borderRadius: "8px", border: "1px solid rgba(0,0,0,0.03)" }}>
+                                                                    <div style={{ fontSize: "0.5rem", fontWeight: 800, color: "#888", textTransform: "uppercase", marginBottom: "2px" }}>HEARING</div>
+                                                                    <div style={{ display: "flex", alignItems: "center", gap: "6px", flexWrap: "wrap" }}>
+                                                                        <div style={{ fontSize: "0.7rem", fontWeight: 900, color: "#000", textTransform: "uppercase", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", fontFamily: headerFont }}>
+                                                                            {cleanTitle}
+                                                                        </div>
+                                                                        {labels.map(label => (
+                                                                            <span key={label} style={{
+                                                                                fontSize: "0.38rem",
+                                                                                fontFamily: headerFont,
+                                                                                fontWeight: 800,
+                                                                                backgroundColor: "rgba(0,0,0,0.04)",
+                                                                                color: "rgba(0,0,0,0.5)",
+                                                                                padding: "1px 5px",
+                                                                                borderRadius: "100px",
+                                                                                letterSpacing: "0.06em",
+                                                                                textTransform: "uppercase",
+                                                                                border: "1px solid rgba(0,0,0,0.05)",
+                                                                                flexShrink: 0
+                                                                            }}>{label}</span>
+                                                                        ))}
+                                                                    </div>
                                                                 </div>
-                                                            </div>
-                                                        )}
+                                                            );
+                                                        })()}
 
                                                         {(log.city || log.country) && (
                                                             <div style={{ fontSize: "0.65rem", fontWeight: 700, color: "#888", display: "flex", alignItems: "center", gap: "4px" }}>

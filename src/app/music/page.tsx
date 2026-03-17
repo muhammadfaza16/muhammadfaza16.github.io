@@ -6,6 +6,7 @@ import { ListMusic, ChevronLeft, ArrowRight, Sparkles, LibraryBig, Music, Play, 
 import { motion, AnimatePresence } from "framer-motion";
 import { PLAYLIST_CATEGORIES } from "@/data/playlists";
 import { useAudio, useTime } from "@/components/AudioContext";
+import { parseSongTitle } from "@/utils/songUtils";
 
 const INDO_ARTISTS = [
     'Sheila on 7', 'Noah', 'Ungu', 'Samsons', 'D\'masiv', 'St12', 'Hijau Daun', 'Vagetoz', 
@@ -273,37 +274,62 @@ export default function AudioHubPage() {
 
                                     <div style={{ flex: 1, minWidth: 0, zIndex: 1 }}>
                                         <AnimatePresence mode="wait" initial={false}>
-                                            <motion.div 
-                                                key={currentSong.title}
-                                                initial={{ y: 5, opacity: 0 }}
-                                                animate={{ y: 0, opacity: 1 }}
-                                                exit={{ y: -5, opacity: 0 }}
-                                                transition={{ duration: 0.2 }}
-                                            >
-                                                <div style={{ 
-                                                    fontFamily: headerFont, 
-                                                    fontWeight: 900, 
-                                                    fontSize: "0.95rem", 
-                                                    color: "#000",
-                                                    whiteSpace: "nowrap",
-                                                    overflow: "hidden",
-                                                    textOverflow: "ellipsis",
-                                                    letterSpacing: "-0.02em",
-                                                    lineHeight: 1.1
-                                                }}>
-                                                    {currentSong.title.split("—")[1]?.trim() || currentSong.title}
-                                                </div>
-                                                <div style={{ 
-                                                    fontFamily: headerFont, 
-                                                    fontWeight: 700, 
-                                                    fontSize: "0.7rem", 
-                                                    color: "rgba(0,0,0,0.45)",
-                                                    letterSpacing: "0.01em",
-                                                    marginTop: "2px"
-                                                }}>
-                                                    {currentSong.title.split("—")[0]?.trim() || "Unknown"}
-                                                </div>
-                                            </motion.div>
+                                            {currentSong && (() => {
+                                                const { cleanTitle, artist, labels } = parseSongTitle(currentSong.title);
+                                                return (
+                                                    <motion.div 
+                                                        key={currentSong.title}
+                                                        initial={{ y: 5, opacity: 0 }}
+                                                        animate={{ y: 0, opacity: 1 }}
+                                                        exit={{ y: -5, opacity: 0 }}
+                                                        transition={{ duration: 0.2 }}
+                                                    >
+                                                        <div style={{ display: "flex", alignItems: "center", gap: "6px", flexWrap: "wrap" }}>
+                                                            <div style={{ 
+                                                                fontFamily: headerFont, 
+                                                                fontWeight: 900, 
+                                                                fontSize: "0.95rem", 
+                                                                color: "#000",
+                                                                whiteSpace: "nowrap",
+                                                                overflow: "hidden",
+                                                                textOverflow: "ellipsis",
+                                                                letterSpacing: "-0.02em",
+                                                                lineHeight: 1.1
+                                                            }}>
+                                                                {cleanTitle}
+                                                            </div>
+                                                            {labels.map(label => (
+                                                                <span key={label} style={{
+                                                                    fontSize: "0.45rem",
+                                                                    fontFamily: headerFont, // Using Inter/Sans
+                                                                    fontWeight: 800,
+                                                                    backgroundColor: "rgba(0,0,0,0.04)",
+                                                                    color: "rgba(0,0,0,0.5)",
+                                                                    padding: "2px 7px",
+                                                                    borderRadius: "100px",
+                                                                    letterSpacing: "0.08em",
+                                                                    textTransform: "uppercase",
+                                                                    border: "1px solid rgba(0,0,0,0.06)",
+                                                                    flexShrink: 0
+                                                                }}>
+                                                                    {label}
+                                                                </span>
+                                                            ))}
+                                                        </div>
+                                                        <div style={{ 
+                                                            fontFamily: headerFont, 
+                                                            fontWeight: 700, 
+                                                            fontSize: "0.7rem", 
+                                                            color: "rgba(0,0,0,0.45)",
+                                                            marginTop: "2px",
+                                                            textTransform: "uppercase",
+                                                            letterSpacing: "0.02em"
+                                                        }}>
+                                                            {artist}
+                                                        </div>
+                                                    </motion.div>
+                                                );
+                                            })()}
                                         </AnimatePresence>
                                     </div>
 

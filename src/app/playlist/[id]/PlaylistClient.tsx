@@ -7,6 +7,7 @@ import { useAudio } from "@/components/AudioContext";
 import { motion, AnimatePresence } from "framer-motion";
 import { PLAYLIST_CATEGORIES } from "@/data/playlists";
 import Link from "next/link";
+import { parseSongTitle } from "@/utils/songUtils";
 
 const fmtTime = (s: number) => {
     const m = Math.floor(s / 60);
@@ -50,30 +51,56 @@ function TrackRow({ song, index, isActive, isPlaying, onPlay }: {
                 transition: "all 0.2s ease"
             }}
         >
-            <div style={{ width: "20px", textAlign: "center", fontWeight: 700, fontFamily: monoFont, fontSize: "0.65rem", color: isActive ? "#fff" : "#888" }}>
-                {isActive && isPlaying ? (
-                    <div style={{
-                        width: "20px",
-                        height: "20px",
-                        borderRadius: "50%",
-                        background: "linear-gradient(135deg, #6366F1, #8B5CF6)",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        boxShadow: "0 0 10px rgba(99, 102, 241, 0.5)"
-                    }}>
-                        <Disc className="animate-spin-slow" size={12} color="#fff" />
-                    </div>
-                ) : (index + 1).toString().padStart(2, '0')}
-            </div>
-            <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ fontWeight: 800, fontSize: "0.85rem", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", fontFamily: headerFont, letterSpacing: "-0.01em", lineHeight: 1.2 }}>
-                    {song.title.split("—")[1]?.trim() || song.title}
-                </div>
-                <div style={{ color: isActive ? "rgba(255,255,255,0.6)" : "#888", fontSize: "0.65rem", fontFamily: monoFont, fontWeight: 700, marginTop: "1px", textTransform: "uppercase" }}>
-                    {song.title.split("—")[0]?.trim() || "Unknown Artist"}
-                </div>
-            </div>
+            {(() => {
+                const { cleanTitle, artist, labels } = parseSongTitle(song.title);
+                return (
+                    <>
+                        <div style={{ width: "20px", textAlign: "center", fontWeight: 700, fontFamily: monoFont, fontSize: "0.65rem", color: isActive ? "#fff" : "#888" }}>
+                            {isActive && isPlaying ? (
+                                <div style={{
+                                    width: "20px",
+                                    height: "20px",
+                                    borderRadius: "50%",
+                                    background: "linear-gradient(135deg, #6366F1, #8B5CF6)",
+                                    display: "flex",
+                                    alignItems: "center",
+                                    justifyContent: "center",
+                                    boxShadow: "0 0 10px rgba(99, 102, 241, 0.5)"
+                                }}>
+                                    <Disc className="animate-spin-slow" size={12} color="#fff" />
+                                </div>
+                            ) : (index + 1).toString().padStart(2, '0')}
+                        </div>
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                            <div style={{ display: "flex", alignItems: "center", gap: "6px", overflow: "hidden" }}>
+                                <div style={{ fontWeight: 800, fontSize: "0.85rem", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", fontFamily: headerFont, letterSpacing: "-0.01em", lineHeight: 1.2 }}>
+                                    {cleanTitle}
+                                </div>
+                                {labels.map(label => (
+                                    <span key={label} style={{
+                                        fontSize: "0.4rem",
+                                        fontFamily: headerFont,
+                                        fontWeight: 800,
+                                        backgroundColor: isActive ? "rgba(255,255,255,0.15)" : "rgba(0,0,0,0.04)",
+                                        color: isActive ? "#fff" : "rgba(0,0,0,0.5)",
+                                        padding: "1px 6px",
+                                        borderRadius: "100px",
+                                        letterSpacing: "0.06em",
+                                        textTransform: "uppercase",
+                                        border: isActive ? "1px solid rgba(255,255,255,0.2)" : "1px solid rgba(0,0,0,0.06)",
+                                        flexShrink: 0
+                                    }}>
+                                        {label}
+                                    </span>
+                                ))}
+                            </div>
+                            <div style={{ color: isActive ? "rgba(255,255,255,0.6)" : "#888", fontSize: "0.65rem", fontFamily: monoFont, fontWeight: 700, marginTop: "1px", textTransform: "uppercase" }}>
+                                {artist}
+                            </div>
+                        </div>
+                    </>
+                );
+            })()}
         </motion.div>
     );
 }

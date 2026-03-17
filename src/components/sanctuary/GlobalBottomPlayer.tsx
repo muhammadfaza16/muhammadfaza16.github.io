@@ -3,7 +3,9 @@
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { usePathname } from "next/navigation";
-import { useAudio, useTime } from "../AudioContext";
+import { useAudio, useTime } from "@/components/AudioContext";
+import { parseSongTitle } from "@/utils/songUtils";
+import { useTheme } from "@/components/ThemeProvider";
 import { Play, Pause, SkipBack, SkipForward, Shuffle, Repeat, ChevronDown, ChevronUp, Repeat1, ListMusic, Disc, FileText, Search, Music } from "lucide-react";
 import { MusicBottomNav } from "./MusicBottomNav";
 
@@ -13,7 +15,8 @@ export function GlobalBottomPlayer() {
         currentSong, seekTo,
         shuffleMode, toggleShuffle, repeatMode, toggleRepeat,
         activePlaybackMode, activeLyrics, queue,
-        isPlayerExpanded: isExpanded, setIsPlayerExpanded: setIsExpanded
+        isPlayerExpanded: isExpanded, setIsPlayerExpanded: setIsExpanded,
+        isMiniPlayerDismissed, setMiniPlayerDismissed
     } = useAudio();
 
     const { currentTime, duration, isBuffering } = useTime();
@@ -25,20 +28,15 @@ export function GlobalBottomPlayer() {
 
     useEffect(() => setIsMounted(true), []);
 
-    // Crucial bugfix: If the user navigates to a new page (e.g., from Playlist back to Home), 
-    // the expanded player should intrinsically collapse so it doesn't jump scare them or block the UI.
     const pathname = usePathname();
     useEffect(() => {
-        // Only collapse if we are explicitly navigating AWAY from the expanded state and NOT auto-expanding
         if (typeof window !== "undefined" && sessionStorage.getItem("autoExpandPlayer") !== "true") {
              setIsExpanded(false);
         }
     }, [pathname, setIsExpanded]);
 
-    // Handle auto-expand flag from Home widget
     useEffect(() => {
         if (pathname === '/music' && typeof window !== "undefined") {
-            // Add a tiny delay to ensure LayoutShell has fully mounted the player before expanding
             const timer = setTimeout(() => {
                 if (sessionStorage.getItem("autoExpandPlayer") === "true") {
                     setIsExpanded(true);
@@ -49,7 +47,6 @@ export function GlobalBottomPlayer() {
         }
     }, [pathname, setIsExpanded]);
 
-    // Prevent background scrolling when player is expanded
     useEffect(() => {
         if (isExpanded) {
             document.body.style.overflow = 'hidden';
@@ -72,16 +69,13 @@ export function GlobalBottomPlayer() {
         return `${m}:${s}`;
     };
 
-    const songTitle = currentSong.title.split("—")[1]?.trim() || currentSong.title;
-    const songArtist = currentSong.title.split("—")[0]?.trim() || "Unknown Artist";
-
+    const { cleanTitle: songTitle, artist: songArtist, labels } = parseSongTitle(currentSong.title);
+    
     const headerFont = "var(--font-display), system-ui, sans-serif";
     const monoFont = "var(--font-mono), monospace";
 
-    // Wrap the entire component logic in AnimatePresence so exit animations can actually fire
     return (
         <>
-
             <AnimatePresence>
                 {isExpanded && (
                     <motion.div
@@ -106,12 +100,10 @@ export function GlobalBottomPlayer() {
                             color: "#1A1A1A"
                         }}
                     >
-                        {/* Pull Bar for Gestures */}
                         <div style={{ width: "100%", display: "flex", justifyContent: "center", padding: "12px 0 20px 0" }} onClick={() => setIsExpanded(false)}>
                             <div style={{ width: "40px", height: "5px", backgroundColor: "rgba(0,0,0,0.1)", borderRadius: "10px" }} />
                         </div>
 
-                        {/* Header */}
                         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "24px", padding: "0 24px" }}>
                             <motion.button 
                                 whileTap={{ scale: 0.9 }}
@@ -143,17 +135,15 @@ export function GlobalBottomPlayer() {
                             </div>
                         </div>
 
-                        {/* Main Content Area */}
                         <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "32px", padding: "0 32px" }}>
                             
-                            {/* Artwork Container */}
                             <motion.div 
                                 animate={{ scale: isPlaying ? 1 : 0.9, opacity: isPlaying ? 1 : 0.8 }}
                                 transition={{ type: "spring", stiffness: 200, damping: 20 }}
                                 style={{
                                     width: "100%",
                                     aspectRatio: "1/1",
-                                    maxWidth: "240px", // Leaner artwork
+                                    maxWidth: "240px",
                                     borderRadius: "28px",
                                     background: "linear-gradient(135deg, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0.1) 100%)",
                                     backdropFilter: "blur(40px)",
@@ -174,9 +164,6 @@ export function GlobalBottomPlayer() {
                                             background: "radial-gradient(circle at 30% 30%, rgba(255,255,255,0.8), transparent)", 
                                             zIndex: 1 
                                         }} />
-                                        {/* Pixel Boy & Girl could stay but in a more 'refined' glass portal way if desired, 
-                                            but let's go full sensory Jobs-ian minimalism here 
-                                        */}
                                         <div style={{ textAlign: "center", zIndex: 2 }}>
                                              <motion.div animate={{ rotate: isPlaying ? 360 : 0 }} transition={{ repeat: Infinity, duration: 10, ease: "linear" }}>
                                                 <Music size={80} color="#000" opacity={0.1} />
@@ -202,13 +189,30 @@ export function GlobalBottomPlayer() {
                                 )}
                             </motion.div>
 
-                            {/* Title & Artist */}
                             <div style={{ textAlign: "center", width: "100%" }}>
-                                <h2 style={{ fontFamily: headerFont, fontWeight: 900, fontSize: "1.3rem", margin: 0, letterSpacing: "-0.03em", color: "#000" }}>{songTitle}</h2>
-                                <p style={{ fontFamily: headerFont, fontWeight: 600, fontSize: "0.9rem", margin: "4px 0 0 0", color: "#888" }}>{songArtist}</p>
+                                <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", flexWrap: "wrap", marginBottom: "4px" }}>
+                                    <h2 style={{ fontFamily: headerFont, fontWeight: 900, fontSize: "1.3rem", margin: 0, letterSpacing: "-0.03em", color: "#000" }}>{songTitle}</h2>
+                                    {labels.map(label => (
+                                        <span key={label} style={{
+                                            fontSize: "0.45rem",
+                                            fontFamily: headerFont,
+                                            fontWeight: 800,
+                                            backgroundColor: "rgba(0,0,0,0.04)",
+                                            color: "rgba(0,0,0,0.5)",
+                                            padding: "2px 7px",
+                                            borderRadius: "100px",
+                                            letterSpacing: "0.08em",
+                                            textTransform: "uppercase",
+                                            border: "1px solid rgba(0,0,0,0.06)",
+                                            flexShrink: 0
+                                        }}>
+                                            {label}
+                                        </span>
+                                    ))}
+                                </div>
+                                <p style={{ fontFamily: headerFont, fontWeight: 600, fontSize: "0.9rem", margin: 0, color: "#888" }}>{songArtist}</p>
                             </div>
 
-                            {/* Progression */}
                             <div style={{ width: "100%" }}>
                                 <div 
                                     onClick={(e) => {
@@ -230,7 +234,6 @@ export function GlobalBottomPlayer() {
                                 </div>
                             </div>
 
-                            {/* Controls */}
                             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%", padding: "0 10px" }}>
                                 <motion.button whileTap={{ scale: 0.8 }} onClick={toggleShuffle} style={{ background: "transparent", border: "none", color: shuffleMode ? "#000" : "#CCC" }}>
                                     <Shuffle size={24} />
@@ -256,13 +259,11 @@ export function GlobalBottomPlayer() {
                             </div>
                         </div>
 
-                        {/* Footer Extras */}
                         <div style={{ display: "flex", justifyContent: "center", gap: "40px", padding: "20px 0 40px 0" }}>
                             <button onClick={() => setActiveTab('lyrics')} style={{ background: "transparent", border: "none", color: activeTab === 'lyrics' ? "#000" : "#AAA", fontFamily: headerFont, fontWeight: 900, fontSize: "0.7rem", letterSpacing: "0.1em" }}>LYRICS</button>
                             <button onClick={() => setActiveTab('cover')} style={{ background: "transparent", border: "none", color: activeTab === 'cover' ? "#000" : "#AAA", fontFamily: headerFont, fontWeight: 900, fontSize: "0.7rem", letterSpacing: "0.1em" }}>VISUAL</button>
                         </div>
 
-                        {/* Queue Modal (Re-styled) */}
                         <AnimatePresence>
                             {showQueueModal && (
                                 <motion.div
@@ -283,6 +284,7 @@ export function GlobalBottomPlayer() {
                                     <div style={{ flex: 1, overflowY: "auto", display: "flex", flexDirection: "column", gap: "12px" }}>
                                         {queue.map((song, idx) => {
                                             const isCurrent = currentSong && song.audioUrl === currentSong.audioUrl;
+                                            const { cleanTitle, artist, labels: qLabels } = parseSongTitle(song.title);
                                             return (
                                                 <div 
                                                     key={idx} 
@@ -293,8 +295,25 @@ export function GlobalBottomPlayer() {
                                                         <Music size={18} color={isCurrent ? "#000" : "#AAA"} />
                                                     </div>
                                                     <div style={{ flex: 1 }}>
-                                                        <div style={{ fontFamily: headerFont, fontWeight: 800, fontSize: "0.95rem", color: isCurrent ? "#000" : "#333" }}>{song.title.split("—")[1]?.trim() || song.title}</div>
-                                                        <div style={{ fontFamily: headerFont, fontWeight: 600, fontSize: "0.75rem", color: "#888" }}>{song.title.split("—")[0]?.trim() || "Unknown"}</div>
+                                                        <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                                                            <div style={{ fontFamily: headerFont, fontWeight: 800, fontSize: "0.95rem", color: isCurrent ? "#000" : "#333" }}>{cleanTitle}</div>
+                                                            {qLabels.map(label => (
+                                                                <span key={label} style={{
+                                                                    fontSize: "0.4rem",
+                                                                    fontFamily: headerFont,
+                                                                    fontWeight: 800,
+                                                                    backgroundColor: isCurrent ? "rgba(0,0,0,0.08)" : "rgba(0,0,0,0.03)",
+                                                                    color: isCurrent ? "#000" : "#888",
+                                                                    padding: "1px 6px",
+                                                                    borderRadius: "100px",
+                                                                    letterSpacing: "0.06em",
+                                                                    textTransform: "uppercase",
+                                                                    border: "1px solid rgba(0,0,0,0.05)",
+                                                                    flexShrink: 0
+                                                                }}>{label}</span>
+                                                            ))}
+                                                        </div>
+                                                        <div style={{ fontFamily: headerFont, fontWeight: 600, fontSize: "0.75rem", color: "#888" }}>{artist}</div>
                                                     </div>
                                                 </div>
                                             );
@@ -306,6 +325,8 @@ export function GlobalBottomPlayer() {
                     </motion.div>
                 )}
             </AnimatePresence>
+
+            <MusicBottomNav />
         </>
     );
 }

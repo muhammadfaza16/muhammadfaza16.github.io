@@ -1,6 +1,8 @@
 "use client";
 
-import { X, Play, BarChart2, Search } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { parseSongTitle } from "@/utils/songUtils";
+import { X, Search, Music, Play, Pause, Disc, ListMusic } from "lucide-react";
 import { useEffect, useState, useRef } from "react";
 import { createPortal } from "react-dom";
 import { useAudio } from "./AudioContext";
@@ -52,6 +54,10 @@ export function PlaylistDrawer({
         );
 
     if (!isRendered) return null;
+
+    // Define font variables for inline styles
+    const headerFont = "var(--font-sans)"; // Assuming --font-sans is suitable for headers
+    const monoFont = "var(--font-mono)"; // Assuming --font-mono is suitable for badges
 
     return createPortal(
         <>
@@ -233,36 +239,42 @@ export function PlaylistDrawer({
                                         fontWeight: 500
                                     }}>
                                         {isActive && isPlaying ? (
-                                            <BarChart2 size={12} style={{ animation: "pulse 2s infinite" }} />
+                                            <Music size={12} style={{ animation: "pulse 2s infinite" }} />
                                         ) : (
                                             String(originalIndex + 1).padStart(2, '0')
                                         )}
                                     </div>
 
                                     <div style={{ flex: 1, minWidth: 0 }}>
-                                        <div style={{
-                                            color: isActive ? "#fff" : "rgba(255,255,255,0.8)",
-                                            fontSize: "0.9rem",
-                                            fontWeight: isActive ? 600 : 400,
-                                            fontFamily: "var(--font-sans)",
-                                            display: "-webkit-box",
-                                            WebkitLineClamp: 1, // Single line typically cleaner for compact, but 2 if needed
-                                            WebkitBoxOrient: "vertical",
-                                            overflow: "hidden",
-                                            letterSpacing: "-0.01em"
-                                        }}>
-                                            {song.title.split("—")[1]?.trim() || song.title}
-                                        </div>
-                                        <div style={{
-                                            fontSize: "0.7rem",
-                                            color: "rgba(255,255,255,0.4)",
-                                            whiteSpace: "nowrap",
-                                            overflow: "hidden",
-                                            textOverflow: "ellipsis",
-                                            marginTop: "0px"
-                                        }}>
-                                            {song.title.split("—")[0]?.trim() || "Unknown Artist"}
-                                        </div>
+                                        {(() => {
+                                            const { cleanTitle, artist, labels } = parseSongTitle(song.title);
+                                            return (
+                                                <>
+                                                    <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                                                        <div style={{
+                                                            fontFamily: headerFont, fontWeight: 800, fontSize: "0.9rem", color: isActive ? "#fff" : "rgba(255,255,255,0.8)",
+                                                            whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis"
+                                                        }}>{cleanTitle}</div>
+                                                        {labels.map(label => (
+                                                            <span key={label} style={{
+                                                                fontSize: "0.4rem",
+                                                                fontFamily: headerFont,
+                                                                fontWeight: 800,
+                                                                backgroundColor: isActive ? "rgba(255,255,255,0.15)" : "rgba(255,255,255,0.06)",
+                                                                color: isActive ? "#fff" : "rgba(255,255,255,0.7)",
+                                                                padding: "1px 6px",
+                                                                borderRadius: "100px",
+                                                                letterSpacing: "0.06em",
+                                                                textTransform: "uppercase",
+                                                                border: isActive ? "1px solid rgba(255,255,255,0.2)" : "1px solid rgba(255,255,255,0.1)",
+                                                                flexShrink: 0
+                                                            }}>{label}</span>
+                                                        ))}
+                                                    </div>
+                                                    <div style={{ fontFamily: headerFont, fontWeight: 600, fontSize: "0.75rem", color: "rgba(255,255,255,0.4)" }}>{artist}</div>
+                                                </>
+                                            );
+                                        })()}
                                     </div>
                                 </div>
                             );

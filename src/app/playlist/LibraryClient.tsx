@@ -2,7 +2,8 @@
 
 import React, { useState, useMemo, useEffect } from "react";
 import { Search, Disc, Shuffle, ChevronLeft, Filter, Music, ArrowRight } from "lucide-react";
-import { useAudio } from "@/components/AudioContext";
+import { useAudio, useTime } from "@/components/AudioContext";
+import { parseSongTitle } from "@/utils/songUtils";
 import { motion } from "framer-motion";
 import { PLAYLIST_CATEGORIES } from "@/data/playlists";
 import Link from "next/link";
