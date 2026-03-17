@@ -85,20 +85,24 @@ export default async function RootLayout({
   });
 
   return (
-    <html lang="en" suppressHydrationWarning className="dark">
+    <html lang="en" suppressHydrationWarning>
       <head>
         <script
           dangerouslySetInnerHTML={{
             __html: `
-              try {
-                const theme = localStorage.getItem('theme');
-                const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
-                if (!theme || theme === 'dark') {
-                  document.documentElement.classList.add('dark');
-                } else if (theme === 'light') {
-                  document.documentElement.classList.remove('dark');
-                }
-              } catch (e) {}
+              (function() {
+                try {
+                  const path = window.location.pathname;
+                  const theme = localStorage.getItem('theme');
+                  const isCuration = path.startsWith('/curation');
+                  
+                  if (!isCuration || !theme || theme === 'dark') {
+                    document.documentElement.classList.add('dark');
+                  } else {
+                    document.documentElement.classList.remove('dark');
+                  }
+                } catch (e) {}
+              })();
             `,
           }}
         />

@@ -157,12 +157,26 @@ export function AudioProvider({ children, initialSongs = [] }: { children: React
                         let changed = false;
                         const syncList = (list: {title: string, audioUrl: string}[]) => {
                             return list.map(sq => {
-                                // Try finding by exact title or base name (handling symbol removals)
-                                const baseTitle = sq.title.split(' — ').pop()?.replace(/[^a-zA-Z0-9]/g, '').toLowerCase();
-                                const match = fetchedSongs.find((f: any) => 
-                                    f.title === sq.title || 
-                                    (baseTitle && f.title.toLowerCase().replace(/[^a-zA-Z0-9]/g, '').includes(baseTitle))
-                                );
+                                // Try finding by exact title first (Highest Priority)
+                                let match = fetchedSongs.find((f: any) => f.title === sq.title);
+                                
+                                // Fallback 1: Normalized title comparison
+                                if (!match) {
+                                    const normalize = (t: string) => t.toLowerCase().replace(/[^a-zA-Z0-9]/g, '').trim();
+                                    const sqNorm = normalize(sq.title);
+                                    match = fetchedSongs.find((f: any) => normalize(f.title) === sqNorm);
+                                }
+
+                                // Fallback 2: Base title match (last resort)
+                                if (!match) {
+                                    const baseTitle = sq.title.split(' — ').pop()?.toLowerCase().replace(/[^a-zA-Z0-9]/g, '').trim();
+                                    if (baseTitle) {
+                                        match = fetchedSongs.find((f: any) => 
+                                            f.title.toLowerCase().replace(/[^a-zA-Z0-9]/g, '').includes(baseTitle)
+                                        );
+                                    }
+                                }
+
                                 if (match && (match.audioUrl !== sq.audioUrl || match.title !== sq.title)) {
                                     changed = true;
                                     return { ...sq, audioUrl: match.audioUrl, title: match.title };
@@ -748,12 +762,18 @@ export function AudioProvider({ children, initialSongs = [] }: { children: React
                     setIsPlaying(false);
                     setIsBuffering(false);
 
-                    // If it's a media error (e.g. 404 SRC_NOT_SUPPORTED) and we have a queue, try skipping
+                    // If it's a media error and we have a queue, wait a bit then try skipping
+                    // SRC_NOT_SUPPORTED (4) or MEDIA_ERR_NETWORK (2)
                     if (error && queue.length > 1) {
-                        console.log(`Skipping broken track: ${queue[currentIndex]?.title}`);
+                        const songTitle = queue[currentIndex]?.title;
+                        const nextTitle = queue[(currentIndex + 1) % queue.length]?.title;
+                        console.warn(`Playback failed for "${songTitle}". Skipping to "${nextTitle}"...`);
+                        
                         setTimeout(() => {
-                            nextSong(false); // don't force play to avoid infinite loops if all fail
-                        }, 1000);
+                            if (!intentionalPauseRef.current) {
+                                nextSong(false); 
+                            }
+                        }, 2000);
                     }
                 }}
 

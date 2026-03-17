@@ -211,7 +211,7 @@ export default function PlaylistClient({ playlistId, initialSongs = [] }: { play
                                 letterSpacing: "-0.04em",
                                 color: "#000"
                             }}>
-                                Tuning the Cosmos
+                                Preparing Library
                             </div>
                             <div style={{
                                 fontFamily: "monospace",
@@ -220,7 +220,7 @@ export default function PlaylistClient({ playlistId, initialSongs = [] }: { play
                                 color: "#666",
                                 marginTop: "4px"
                             }}>
-                                Loading collection...
+                                Synchronizing songs...
                             </div>
                         </div>
                     </motion.div>

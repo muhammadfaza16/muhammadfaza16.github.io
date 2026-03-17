@@ -1,6 +1,7 @@
 "use client";
 
 import { createContext, useContext, useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
 import { flushSync } from "react-dom";
 
 type Theme = "light" | "dark";
@@ -22,6 +23,7 @@ export function useTheme() {
 }
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
+    const pathname = usePathname();
     const [theme, setTheme] = useState<Theme>("dark");
     const [mounted, setMounted] = useState(false);
 
@@ -39,15 +41,23 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
     useEffect(() => {
         if (mounted) {
+            const isCuration = pathname?.startsWith('/curation');
             const root = document.documentElement;
-            if (theme === "dark") {
+
+            if (!isCuration) {
+                // Outside curation, always force dark mode
                 root.classList.add("dark");
             } else {
-                root.classList.remove("dark");
+                // Inside curation, follow the theme state
+                if (theme === "dark") {
+                    root.classList.add("dark");
+                } else {
+                    root.classList.remove("dark");
+                }
             }
             localStorage.setItem("theme", theme);
         }
-    }, [theme, mounted]);
+    }, [theme, mounted, pathname]);
 
     const toggleTheme = () => {
         const newTheme = theme === "light" ? "dark" : "light";
@@ -74,9 +84,10 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
                     setTheme(newTheme);
                 });
 
-                // Eager fallback just in case flushSync doesn't catch root early enough
+                // Immediate DOM update for the transition snapshot
+                const isCuration = pathname?.startsWith('/curation');
                 const root = document.documentElement;
-                if (newTheme === "dark") {
+                if (!isCuration || newTheme === "dark") {
                     root.classList.add("dark");
                 } else {
                     root.classList.remove("dark");

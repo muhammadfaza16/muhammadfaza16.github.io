@@ -4,6 +4,7 @@ import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useTheme } from "@/components/ThemeProvider";
 import {
     Home,
     Search,
@@ -44,8 +45,11 @@ export default function CurationPlatformLayout({
         }
     };
 
+    const { theme } = useTheme();
+    const isDark = theme === "dark";
+
     return (
-        <div className="min-h-screen bg-[#fafaf8] dark:bg-[#050505] text-[#1a1a1a] dark:text-[#f2f2f2] curation-app">
+        <div className={`min-h-screen bg-[#fafaf8] dark:bg-[#050505] text-[#1a1a1a] dark:text-[#f2f2f2] curation-app ${isDark ? 'dark' : ''}`}>
             <div className="">
                 {children}
             </div>
