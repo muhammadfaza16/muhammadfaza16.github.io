@@ -111,7 +111,7 @@ export default function AudioHubPage() {
                 <div style={{ display: "flex", flexDirection: "column", gap: "40px" }}>
                     
                     {/* Music Activity Widget (Multifunctional) */}
-                    <AnimatePresence mode="wait">
+                    <AnimatePresence mode="wait" initial={false}>
                         {currentSong && (
                             <motion.div
                                 key="active-vibe-refined"
@@ -272,7 +272,7 @@ export default function AudioHubPage() {
                                     </div>
 
                                     <div style={{ flex: 1, minWidth: 0, zIndex: 1 }}>
-                                        <AnimatePresence mode="wait">
+                                        <AnimatePresence mode="wait" initial={false}>
                                             <motion.div 
                                                 key={currentSong.title}
                                                 initial={{ y: 5, opacity: 0 }}
