@@ -88,7 +88,6 @@ export function CleanHomeHero() {
     const [matchTab, setMatchTab] = useState<"upcoming" | "completed">("upcoming");
     const [expandedMatchIndex, setExpandedMatchIndex] = useState<number | null>(null);
     const [matchPage, setMatchPage] = useState(0);
-    const [curationReminder, setCurationReminder] = useState<any>(null);
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const [news, setNews] = useState<{ articles: any[] } | null>(null);
     const [newsPage, setNewsPage] = useState(0);
@@ -202,13 +201,6 @@ export function CleanHomeHero() {
             .catch(() => { });
     }, [weather]);
 
-    // Fetch Curation Reminder (5 min cache)
-    useEffect(() => {
-        const h = new Date().getHours();
-        fetchCached(`/api/curation/reminder?hour=${h}`, (data) => {
-            if (data.active) setCurationReminder(data);
-        });
-    }, []);
 
     // Build event lookup maps for current month
     const currentMonth = now.getMonth(); // 0-indexed
@@ -529,31 +521,6 @@ export function CleanHomeHero() {
                     }
                 `}</style>
 
-                {curationReminder && (
-                    <motion.div
-                        initial={{ opacity: 0, y: -5 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        style={{ marginBottom: "0.8rem", marginTop: "0.2rem" }}
-                    >
-                        <Link href={`/curation/${curationReminder.article.id}`} style={{
-                            display: "inline-flex",
-                            alignItems: "center",
-                            gap: "0.5rem",
-                            padding: "0.35rem 0.75rem",
-                            borderRadius: "100px",
-                            background: "rgba(255,255,255,0.08)",
-                            backdropFilter: "blur(8px)",
-                            border: "1px solid rgba(255,255,255,0.12)",
-                            textDecoration: "none",
-                            transition: "all 0.2s ease"
-                        }}>
-                            <div style={{ width: "6px", height: "6px", borderRadius: "50%", background: "#f87171", animation: "pulse 1.5s infinite" }} />
-                            <span style={{ color: "rgba(255,255,255,0.9)", fontSize: "0.72rem", fontWeight: 700, letterSpacing: "-0.01em" }}>
-                                {curationReminder.count} backlogs · {curationReminder.article.title}
-                            </span>
-                        </Link>
-                    </motion.div>
-                )}
             </motion.div>
 
             {/* ── Main Widget Area — Premium Frosted Glass ── */}
