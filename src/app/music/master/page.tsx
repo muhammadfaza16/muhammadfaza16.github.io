@@ -40,6 +40,8 @@ export default function MasterPanelPage() {
     const [accessLogs, setAccessLogs] = useState<any[]>([]);
     const [loadingLogs, setLoadingLogs] = useState(false);
     const [logError, setLogError] = useState<string | null>(null);
+    const [isLogsUnlocked, setIsLogsUnlocked] = useState(false);
+    const [pinInput, setPinInput] = useState("");
     
     // Computed Stats
     const playlistStats = useMemo(() => {
@@ -86,8 +88,8 @@ export default function MasterPanelPage() {
         setLoadingLogs(true);
         setLogError(null);
         try {
-            // Using the MASTER_PIN for simplicity as it's the music-specific master password
-            const res = await fetch(`/api/music/logs?password=faza123`);
+            // Using the MASTER_PIN requested by user
+            const res = await fetch(`/api/music/logs?password=${MASTER_PIN}`);
             const data = await res.json();
             if (data.success) {
                 setAccessLogs(data.logs);
@@ -277,15 +279,54 @@ export default function MasterPanelPage() {
                                         <ChevronLeft size={14} /> Back to dashboard
                                     </motion.button>
                                     
-                                    <div style={{ padding: "20px", backgroundColor: "rgba(255, 255, 255, 0.45)", border: "1px solid rgba(0,0,0,0.05)", borderRadius: "24px", boxShadow: "0 10px 30px rgba(0,0,0,0.03)", display: "flex", flexDirection: "column", gap: "16px" }}>
+                                    <div style={{ padding: "20px", backgroundColor: "rgba(255, 255, 255, 0.45)", border: "1px solid rgba(0,0,0,0.05)", borderRadius: "24px", boxShadow: "0 10px 30px rgba(0,0,0,0.03)", display: "flex", flexDirection: "column", gap: "16px", minHeight: "300px" }}>
                                         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                                             <h3 style={{ margin: 0, fontFamily: headerFont, fontSize: "0.85rem", fontWeight: 900, textTransform: "uppercase", color: "#000", letterSpacing: "0.05em" }}>Visitor Intelligence</h3>
-                                            <button onClick={fetchAccessLogs} style={{ background: "none", border: "none", cursor: "pointer", color: "#888" }}>
-                                                <RefreshCw size={14} className={loadingLogs ? "animate-spin" : ""} />
-                                            </button>
+                                            {isLogsUnlocked && (
+                                                <button onClick={fetchAccessLogs} style={{ background: "none", border: "none", cursor: "pointer", color: "#888" }}>
+                                                    <RefreshCw size={14} className={loadingLogs ? "animate-spin" : ""} />
+                                                </button>
+                                            )}
                                         </div>
 
-                                        {loadingLogs ? (
+                                        {!isLogsUnlocked ? (
+                                            <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "16px", padding: "40px 0" }}>
+                                                <div style={{ width: "48px", height: "48px", borderRadius: "16px", background: "rgba(0,0,0,0.03)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                                                    <Lock size={20} color="#888" />
+                                                </div>
+                                                <div style={{ textAlign: "center" }}>
+                                                    <div style={{ fontSize: "0.7rem", fontWeight: 800, color: "#000", fontFamily: headerFont, textTransform: "uppercase" }}>Vault Protected</div>
+                                                    <div style={{ fontSize: "0.55rem", fontWeight: 700, color: "#888", fontFamily: monoFont, textTransform: "uppercase", marginTop: "2px" }}>Enter Authorization PIN</div>
+                                                </div>
+                                                <input 
+                                                    type="password" 
+                                                    value={pinInput}
+                                                    onChange={(e) => {
+                                                        const val = e.target.value;
+                                                        setPinInput(val);
+                                                        if (val === MASTER_PIN) {
+                                                            setIsLogsUnlocked(true);
+                                                            setPinInput("");
+                                                        }
+                                                    }}
+                                                    placeholder="••••"
+                                                    autoFocus
+                                                    style={{
+                                                        width: "80px",
+                                                        padding: "10px",
+                                                        textAlign: "center",
+                                                        fontSize: "1rem",
+                                                        letterSpacing: "0.2em",
+                                                        fontWeight: 900,
+                                                        border: "1px solid rgba(0,0,0,0.1)",
+                                                        borderRadius: "12px",
+                                                        background: "#fff",
+                                                        outline: "none",
+                                                        fontFamily: monoFont
+                                                    }}
+                                                />
+                                            </div>
+                                        ) : loadingLogs ? (
                                             <div style={{ textAlign: "center", padding: "20px", fontFamily: monoFont, fontSize: "0.65rem", color: "#888" }}>SCANNING LOGS...</div>
                                         ) : (
                                             <div style={{ 

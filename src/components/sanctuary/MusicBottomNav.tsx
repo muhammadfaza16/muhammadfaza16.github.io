@@ -114,9 +114,10 @@ export function MusicBottomNav({ isInline = false }: { isInline?: boolean }) {
                                     top: "4px",
                                     width: "32px",
                                     height: "32px",
-                                    backgroundColor: "rgba(0,0,0,0.04)",
+                                    background: "linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(139, 92, 246, 0.15))",
                                     borderRadius: "12px",
-                                    zIndex: -1
+                                    zIndex: -1,
+                                    boxShadow: "0 4px 8px rgba(99, 102, 241, 0.1)"
                                 }}
                             />
                         )}

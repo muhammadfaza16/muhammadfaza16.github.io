@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useMemo, useEffect } from "react";
-import { Search, Disc, Shuffle, ChevronLeft, Filter, Music } from "lucide-react";
+import { Search, Disc, Shuffle, ChevronLeft, Filter, Music, ArrowRight } from "lucide-react";
 import { useAudio } from "@/components/AudioContext";
 import { motion } from "framer-motion";
 import { PLAYLIST_CATEGORIES } from "@/data/playlists";
@@ -67,7 +67,6 @@ export default function LibraryClient({ songCount }: { songCount: number }) {
         }
     }, [searchParams]);
 
-    const VIBES = ["Melancholic", "Epic", "Morning", "Acoustic", "Space", "Pop", "Love"];
 
     const triggerHaptic = () => {
         if (typeof navigator !== 'undefined' && navigator.vibrate) {
@@ -154,65 +153,7 @@ export default function LibraryClient({ songCount }: { songCount: number }) {
                 />
             </div>
 
-            {/* Quick Vibe Filters */}
-            <div>
-                <div style={{ display: "flex", alignItems: "center", gap: "6px", marginBottom: "8px" }}>
-                    <Filter size={12} color="#888" />
-                    <span style={{ fontFamily: monoFont, fontWeight: 700, fontSize: "0.6rem", color: "#888", textTransform: "uppercase", letterSpacing: "0.05em" }}>VIBE FILTER</span>
-                </div>
-                <div style={{ display: "flex", gap: "8px", overflowX: "auto", paddingBottom: "8px", scrollbarWidth: "none" }}>
-                    <motion.button
-                        whileHover={{ scale: 1.05, y: -2 }}
-                        whileTap={{ scale: 0.95 }}
-                        transition={{ type: "spring", stiffness: 400, damping: 17 }}
-                        onClick={() => { setSearchQuery(""); setActiveVibe(""); }}
-                                style={{
-                                    padding: "4px 14px",
-                                    background: activeVibe === "" ? "#000" : "rgba(255, 255, 255, 0.8)",
-                                    color: activeVibe === "" ? "#fff" : "#666",
-                                    border: "1px solid rgba(0,0,0,0.05)",
-                                    borderRadius: "100px",
-                                    fontFamily: headerFont,
-                                    fontWeight: 800,
-                                    fontSize: "0.7rem",
-                                    whiteSpace: "nowrap",
-                                    cursor: "pointer",
-                                    boxShadow: activeVibe === "" ? "0 4px 12px rgba(0,0,0,0.15)" : "none",
-                                    transition: "all 0.2s ease"
-                                }}
-                    >
-                        All
-                    </motion.button>
-                    {VIBES.map(vibe => {
-                        const isSelected = activeVibe.toLowerCase() === vibe.toLowerCase();
-                        return (
-                            <motion.button
-                                key={vibe}
-                                whileHover={{ scale: 1.05, y: -2 }}
-                                whileTap={{ scale: 0.95 }}
-                                transition={{ type: "spring", stiffness: 400, damping: 17 }}
-                                onClick={() => { setSearchQuery(vibe); setActiveVibe(vibe); }}
-                                style={{
-                                    padding: "4px 14px",
-                                    background: isSelected ? "#000" : "rgba(255, 255, 255, 0.8)",
-                                    color: isSelected ? "#fff" : "#666",
-                                    border: "1px solid rgba(0,0,0,0.05)",
-                                    borderRadius: "100px",
-                                    fontFamily: headerFont,
-                                    fontWeight: 800,
-                                    fontSize: "0.7rem",
-                                    whiteSpace: "nowrap",
-                                    cursor: "pointer",
-                                    boxShadow: isSelected ? "0 4px 12px rgba(0,0,0,0.15)" : "none",
-                                    transition: "all 0.2s ease"
-                                }}
-                            >
-                                {vibe}
-                            </motion.button>
-                        );
-                    })}
-                </div>
-            </div>
+
 
             <Link href="/playlist/all" onClick={triggerHaptic} style={{ textDecoration: "none", marginTop: "4px" }}>
                 <motion.div
@@ -232,20 +173,47 @@ export default function LibraryClient({ songCount }: { songCount: number }) {
                     }}
                 >
                     <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                        <div style={{ width: "32px", height: "32px", borderRadius: "8px", background: "#000", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                            <Disc size={16} color="#fff" />
+                        <div style={{ 
+                            width: "32px", 
+                            height: "32px", 
+                            borderRadius: "8px", 
+                            background: "linear-gradient(135deg, #1E1B4B 0%, #312E81 100%)", 
+                            display: "flex", 
+                            alignItems: "center", 
+                            justifyContent: "center",
+                            position: "relative",
+                            overflow: "hidden",
+                            boxShadow: "0 4px 12px rgba(0,0,0,0.1)"
+                        }}>
+                            <div style={{
+                                position: "absolute",
+                                inset: 0,
+                                background: "radial-gradient(circle at 100% 0%, rgba(99, 102, 241, 0.4), transparent 70%)",
+                            }} />
+                            <Disc size={16} color="#fff" style={{ position: "relative", zIndex: 1 }} />
                         </div>
-                        <span style={{ fontWeight: 900, fontSize: "0.85rem", fontFamily: headerFont, letterSpacing: "-0.02em", color: "#000" }}>BROWSE ALL CATOLOG</span>
+                        <span style={{ fontWeight: 900, fontSize: "0.85rem", fontFamily: headerFont, letterSpacing: "-0.02em", color: "#000" }}>BROWSE ALL CATALOG</span>
                     </div>
                     <span style={{ fontSize: "0.65rem", fontFamily: monoFont, fontWeight: 700, color: "#888" }}>{songCount || "--"} TRACKS</span>
                 </motion.div>
             </Link>
 
             <div style={{
-                display: "grid",
-                gridTemplateColumns: "repeat(auto-fill, minmax(130px, 1fr))",
-                gap: "12px"
+                display: "flex",
+                flexDirection: "column",
+                background: "rgba(255, 255, 255, 0.45)",
+                border: "1px solid rgba(0,0,0,0.05)",
+                borderRadius: "20px",
+                boxShadow: "0 8px 30px rgba(0,0,0,0.02)",
+                overflow: "hidden"
             }}>
+                <div style={{ padding: "12px 16px", borderBottom: "1px solid rgba(0,0,0,0.03)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                    <h3 style={{ fontSize: "0.85rem", fontWeight: 900, fontFamily: headerFont, margin: 0, textTransform: "uppercase", letterSpacing: "0.05em", color: "#000" }}>
+                        PLAYLISTS
+                    </h3>
+                    <span style={{ fontFamily: monoFont, fontWeight: 700, fontSize: "0.7rem", color: "#888" }}>{filteredCategories.length} CATEGORIES</span>
+                </div>
+
                 {filteredCategories.map((playlist) => {
                     const isNowPlaying = activePlaylistId === playlist.id;
 
@@ -257,82 +225,68 @@ export default function LibraryClient({ songCount }: { songCount: number }) {
                             style={{ textDecoration: "none" }}
                         >
                             <motion.div
-                                whileHover={{ scale: 1.02 }}
-                                whileTap={{ scale: 0.98 }}
-                                transition={{ type: "spring", stiffness: 400, damping: 25 }}
+                                whileHover={{ x: 2, backgroundColor: "rgba(0,0,0,0.02)" }}
+                                whileTap={{ scale: 0.99, backgroundColor: "rgba(0,0,0,0.04)" }}
+                                transition={{ type: "spring", stiffness: 400, damping: 30 }}
                                 style={{
-                                    position: "relative",
-                                    aspectRatio: "1/1.1",
-                                    backgroundColor: playlist.coverColor || "#fff",
-                                    border: "1px solid rgba(0,0,0,0.05)",
-                                    borderRadius: "18px",
-                                    overflow: "hidden",
                                     display: "flex",
-                                    flexDirection: "column",
-                                    boxShadow: "0 8px 24px rgba(0,0,0,0.03)"
+                                    alignItems: "center",
+                                    gap: "12px",
+                                    padding: "12px 16px",
+                                    borderBottom: "1px solid rgba(0,0,0,0.03)",
+                                    transition: "all 0.2s ease",
+                                    position: "relative"
                                 }}
                             >
-                                {playlist.coverImage && (
-                                    <img
-                                        src={playlist.coverImage}
-                                        style={{ width: "100%", height: "100%", objectFit: "cover", position: "absolute", inset: 0, zIndex: 0, opacity: 0.85 }}
-                                        className="mix-blend-multiply"
-                                    />
-                                )}
-                                {/* Premium Masking Overlays */}
-                                <div style={{
-                                    position: "absolute",
-                                    inset: 0,
-                                    background: "radial-gradient(circle at center, transparent 30%, rgba(0,0,0,0.2) 100%)",
-                                    zIndex: 1
-                                }} />
-                                <div style={{
-                                    position: "absolute",
-                                    inset: 0,
-                                    background: "linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.3) 40%, transparent 100%)",
-                                    zIndex: 1
-                                }} />
-                                
-                                <div style={{
-                                    position: "absolute",
-                                    bottom: 0,
-                                    left: 0,
-                                    right: 0,
-                                    padding: "12px",
-                                    zIndex: 2,
+                                <div style={{ 
+                                    width: "44px", 
+                                    height: "44px", 
+                                    borderRadius: "10px", 
+                                    backgroundColor: playlist.coverColor || "#fff",
+                                    position: "relative",
+                                    overflow: "hidden",
                                     display: "flex",
-                                    flexDirection: "column",
+                                    alignItems: "center",
+                                    justifyContent: "center",
+                                    boxShadow: "0 4px 10px rgba(0,0,0,0.05)"
                                 }}>
-                                    <div style={{ color: "#fff", fontWeight: 900, fontSize: "0.8rem", fontFamily: headerFont, textTransform: "uppercase", letterSpacing: "-0.01em", lineHeight: 1.1 }}>
+                                    {playlist.coverImage ? (
+                                        <img
+                                            src={playlist.coverImage}
+                                            style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                                            className="mix-blend-multiply"
+                                        />
+                                    ) : (
+                                        <Disc size={20} color="rgba(0,0,0,0.1)" />
+                                    )}
+                                    {isNowPlaying && isPlaying && (
+                                        <div style={{
+                                            position: "absolute",
+                                            inset: 0,
+                                            background: "rgba(0,0,0,0.2)",
+                                            display: "flex",
+                                            alignItems: "center",
+                                            justifyContent: "center",
+                                            zIndex: 2
+                                        }}>
+                                            <Disc size={18} color="#fff" className="animate-spin-slow" />
+                                        </div>
+                                    )}
+                                </div>
+
+                                <div style={{ flex: 1, minWidth: 0 }}>
+                                    <div style={{ fontWeight: 900, fontSize: "0.9rem", color: "#000", fontFamily: headerFont, letterSpacing: "-0.01em", lineHeight: 1.2, textTransform: "uppercase" }}>
                                         {playlist.title}
                                     </div>
-                                    <div style={{ color: "rgba(255,255,255,0.7)", fontSize: "0.55rem", marginTop: "2px", fontFamily: monoFont, fontWeight: 700 }}>
+                                    <div style={{ color: "#888", fontSize: "0.65rem", fontFamily: monoFont, fontWeight: 700, marginTop: "1px", textTransform: "uppercase" }}>
                                         {counts[playlist.id] !== undefined ? `${counts[playlist.id]} TRACKS` : `${playlist.vibes[0]}`}
                                     </div>
                                 </div>
-
-                                {isNowPlaying && isPlaying && (
-                                    <div style={{
-                                        position: "absolute",
-                                        top: "10px",
-                                        right: "10px",
-                                        background: "rgba(0,0,0,0.15)",
-                                        backdropFilter: "blur(8px)",
-                                        padding: "6px",
-                                        borderRadius: "100px",
-                                        display: "flex",
-                                        alignItems: "center",
-                                        justifyContent: "center",
-                                        zIndex: 3
-                                    }}>
-                                        <Disc size={12} color="#fff" className="animate-spin-slow" />
-                                    </div>
-                                )}
+                                <ArrowRight size={16} color="#CCC" />
                             </motion.div>
                         </Link>
                     );
                 })}
-
             </div>
         </main>
     );

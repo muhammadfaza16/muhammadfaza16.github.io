@@ -52,7 +52,18 @@ function TrackRow({ song, index, isActive, isPlaying, onPlay }: {
         >
             <div style={{ width: "20px", textAlign: "center", fontWeight: 700, fontFamily: monoFont, fontSize: "0.65rem", color: isActive ? "#fff" : "#888" }}>
                 {isActive && isPlaying ? (
-                    <Disc className="animate-spin-slow" size={14} color="#fff" />
+                    <div style={{
+                        width: "20px",
+                        height: "20px",
+                        borderRadius: "50%",
+                        background: "linear-gradient(135deg, #6366F1, #8B5CF6)",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        boxShadow: "0 0 10px rgba(99, 102, 241, 0.5)"
+                    }}>
+                        <Disc className="animate-spin-slow" size={12} color="#fff" />
+                    </div>
                 ) : (index + 1).toString().padStart(2, '0')}
             </div>
             <div style={{ flex: 1, minWidth: 0 }}>
@@ -198,15 +209,23 @@ export default function PlaylistClient({ playlistId, initialSongs = [] }: { play
                         <div style={{
                             width: "80px",
                             height: "80px",
-                            backgroundColor: "rgba(255, 255, 255, 0.6)",
-                            border: "1px solid rgba(0,0,0,0.05)",
-                            boxShadow: "0 10px 40px rgba(0,0,0,0.03)",
+                            background: "linear-gradient(135deg, #1E1B4B 0%, #312E81 100%)",
+                            border: "1px solid rgba(255,255,255,0.1)",
+                            boxShadow: "0 20px 50px rgba(0,0,0,0.15)",
                             display: "flex",
                             alignItems: "center",
                             justifyContent: "center",
-                            borderRadius: "24px"
+                            borderRadius: "24px",
+                            position: "relative",
+                            overflow: "hidden"
                         }}>
-                            <Disc size={32} color="#000" className="animate-spin-slow" />
+                            <div style={{
+                                position: "absolute",
+                                inset: 0,
+                                background: "radial-gradient(circle at 0% 100%, #6366F1, transparent 70%)",
+                                opacity: 0.4
+                            }} />
+                            <Disc size={32} color="#fff" className="animate-spin-slow" style={{ position: "relative", zIndex: 1 }} />
                         </div>
                         <div style={{ textAlign: "center" }}>
                             <div style={{
