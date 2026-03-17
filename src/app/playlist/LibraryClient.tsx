@@ -199,7 +199,7 @@ export default function LibraryClient({ songCount }: { songCount: number }) {
                         </div>
                         <span style={{ fontWeight: 900, fontSize: "0.85rem", fontFamily: headerFont, letterSpacing: "-0.02em", color: theme === "dark" ? "#FFF" : "#000" }}>BROWSE ALL CATALOG</span>
                     </div>
-                    <span style={{ fontSize: "0.65rem", fontFamily: monoFont, fontWeight: 700, color: "#888" }}>{songCount || "--"} TRACKS</span>
+                    <span style={{ fontSize: "0.65rem", fontFamily: monoFont, fontWeight: 700, color: theme === "dark" ? "rgba(255,255,255,0.4)" : "rgba(0,0,0,0.4)" }}>{songCount || "--"} TRACKS</span>
                 </motion.div>
             </Link>
 
@@ -216,7 +216,7 @@ export default function LibraryClient({ songCount }: { songCount: number }) {
                     <h3 style={{ fontSize: "0.85rem", fontWeight: 900, fontFamily: headerFont, margin: 0, textTransform: "uppercase", letterSpacing: "0.05em", color: theme === "dark" ? "#FFF" : "#000" }}>
                         PLAYLISTS
                     </h3>
-                    <span style={{ fontFamily: monoFont, fontWeight: 700, fontSize: "0.7rem", color: "#888" }}>{filteredCategories.length} CATEGORIES</span>
+                    <span style={{ fontFamily: monoFont, fontWeight: 700, fontSize: "0.7rem", color: theme === "dark" ? "rgba(255,255,255,0.4)" : "rgba(0,0,0,0.4)" }}>{filteredCategories.length} CATEGORIES</span>
                 </div>
 
                 {filteredCategories.map((playlist) => {
@@ -283,7 +283,7 @@ export default function LibraryClient({ songCount }: { songCount: number }) {
                                     <div style={{ fontWeight: 900, fontSize: "0.9rem", color: theme === "dark" ? "#FFF" : "#000", fontFamily: headerFont, letterSpacing: "-0.01em", lineHeight: 1.2, textTransform: "uppercase" }}>
                                         {playlist.title}
                                     </div>
-                                    <div style={{ color: "#888", fontSize: "0.65rem", fontFamily: monoFont, fontWeight: 700, marginTop: "1px", textTransform: "uppercase" }}>
+                                    <div style={{ color: theme === "dark" ? "rgba(255,255,255,0.4)" : "rgba(0,0,0,0.45)", fontSize: "0.65rem", fontFamily: monoFont, fontWeight: 700, marginTop: "1px", textTransform: "uppercase" }}>
                                         {counts[playlist.id] !== undefined ? `${counts[playlist.id]} TRACKS` : `${playlist.vibes[0]}`}
                                     </div>
                                 </div>

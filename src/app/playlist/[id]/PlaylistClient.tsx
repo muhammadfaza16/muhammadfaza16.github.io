@@ -69,7 +69,7 @@ function TrackRow({ song, index, isActive, isPlaying, onPlay }: {
                 const { cleanTitle, artist, labels } = parseSongTitle(song.title);
                 return (
                     <>
-                        <div style={{ width: "20px", textAlign: "center", fontWeight: 700, fontFamily: monoFont, fontSize: "0.65rem", color: isActive ? "#fff" : (theme === "dark" ? "rgba(255,255,255,0.4)" : "#888") }}>
+                        <div style={{ width: "20px", textAlign: "center", fontWeight: 700, fontFamily: monoFont, fontSize: "0.65rem", color: isActive ? "#fff" : (theme === "dark" ? "rgba(255,255,255,0.4)" : "rgba(0,0,0,0.4)") }}>
                             {isActive && isPlaying ? (
                                 <div style={{
                                     width: "20px",
@@ -108,7 +108,7 @@ function TrackRow({ song, index, isActive, isPlaying, onPlay }: {
                                     </span>
                                 ))}
                             </div>
-                            <div style={{ color: isActive ? "rgba(255,255,255,0.6)" : (theme === "dark" ? "rgba(255,255,255,0.4)" : "#888"), fontSize: "0.65rem", fontFamily: monoFont, fontWeight: 700, marginTop: "1px", textTransform: "uppercase" }}>
+                            <div style={{ color: isActive ? "rgba(255,255,255,0.6)" : (theme === "dark" ? "rgba(255,255,255,0.4)" : "rgba(0,0,0,0.5)"), fontSize: "0.65rem", fontFamily: monoFont, fontWeight: 700, marginTop: "1px", textTransform: "uppercase" }}>
                                 {artist}
                             </div>
                         </div>
@@ -227,7 +227,7 @@ export default function PlaylistClient({ playlistId, initialSongs = [] }: { play
                         </motion.button>
                     </Link>
                 </div>
-                <span style={{ fontFamily: headerFont, fontWeight: 900, fontSize: "0.75rem", textTransform: "uppercase", letterSpacing: "0.05em", color: "#888" }}>
+                <span style={{ fontFamily: headerFont, fontWeight: 900, fontSize: "0.75rem", textTransform: "uppercase", letterSpacing: "0.05em", color: theme === "dark" ? "rgba(255,255,255,0.4)" : "rgba(0,0,0,0.3)" }}>
                     {activePlaylist ? "Playlist" : "Library"}
                 </span>
             </div>
@@ -286,7 +286,7 @@ export default function PlaylistClient({ playlistId, initialSongs = [] }: { play
                                 fontFamily: monoFont,
                                 fontWeight: 700,
                                 fontSize: "0.65rem",
-                                color: "#888",
+                                color: theme === "dark" ? "rgba(255,255,255,0.4)" : "rgba(0,0,0,0.4)",
                                 marginTop: "6px"
                             }}>
                                 SYNCHRONIZING WITH SERVER

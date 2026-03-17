@@ -182,7 +182,9 @@ export default function AudioHubPage() {
                                             fontWeight: 800, 
                                             fontSize: "0.55rem", 
                                             letterSpacing: "0.12em", 
-                                            color: isPlaying ? (theme === "dark" ? "#FFF" : "#000") : "#AAA",
+                                            color: isPlaying 
+                                                ? (theme === "dark" ? "#FFF" : "#000") 
+                                                : (theme === "dark" ? "rgba(255,255,255,0.4)" : "rgba(0,0,0,0.4)"),
                                             textTransform: "uppercase"
                                         }}>
                                             {isPlaying ? "Now Playing" : "Paused"}
@@ -313,12 +315,12 @@ export default function AudioHubPage() {
                                                                         fontFamily: headerFont,
                                                                         fontWeight: 800,
                                                                         backgroundColor: theme === "dark" ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.04)",
-                                                                        color: theme === "dark" ? "rgba(255,255,255,0.6)" : "rgba(0,0,0,0.5)",
+                                                                        color: theme === "dark" ? "rgba(255,255,255,0.75)" : "rgba(0,0,0,0.5)",
                                                                         padding: "1.5px 6px",
                                                                         borderRadius: "100px",
                                                                         letterSpacing: "0.08em",
                                                                         textTransform: "uppercase",
-                                                                        border: theme === "dark" ? "1px solid rgba(255,255,255,0.1)" : "1px solid rgba(0,0,0,0.06)",
+                                                                        border: theme === "dark" ? "1px solid rgba(255,255,255,0.12)" : "1px solid rgba(0,0,0,0.06)",
                                                                         flexShrink: 0
                                                                     }}>
                                                                         {label}
@@ -427,7 +429,7 @@ export default function AudioHubPage() {
                                 fontSize: "0.7rem", 
                                 textTransform: "uppercase",
                                 letterSpacing: "0.1em",
-                                color: theme === "dark" ? "rgba(255,255,255,0.6)" : "#000" 
+                                color: theme === "dark" ? "rgba(255,255,255,0.5)" : "rgba(0,0,0,0.4)" 
                             }}>Explore Library</span>
                         </div>
                         <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
@@ -482,7 +484,7 @@ export default function AudioHubPage() {
                                                 <span style={{ 
                                                     fontFamily: monoFont, 
                                                     fontSize: "0.6rem", 
-                                                    color: theme === "dark" ? "rgba(255,255,255,0.4)" : "#888", 
+                                                    color: theme === "dark" ? "rgba(255,255,255,0.4)" : "rgba(0,0,0,0.45)", 
                                                     fontWeight: 600, 
                                                     textTransform: "uppercase" 
                                                 }}>{item.subtitle}</span>
@@ -517,7 +519,7 @@ export default function AudioHubPage() {
                                     fontSize: "0.7rem", 
                                     textTransform: "uppercase",
                                     letterSpacing: "0.1em",
-                                    color: theme === "dark" ? "rgba(255,255,255,0.6)" : "#000"
+                                    color: theme === "dark" ? "rgba(255,255,255,0.5)" : "rgba(0,0,0,0.4)"
                                 }}>Handpicked Playlists</span>
                             </div>
                             <Link href="/playlist" style={{ 

@@ -1,44 +1,45 @@
-export const shellBg = "linear-gradient(180deg, #2d2d2d 0%, #252525 100%)";
-export const shellBorder = "2px solid #111";
+export const shellBg = (theme: string) => theme === "dark" ? "#0A0A0A" : "#f9f9f9";
+export const shellBorder = (theme: string) => theme === "dark" ? "1px solid rgba(255,255,255,0.08)" : "1px solid rgba(0,0,0,0.05)";
 export const shellRadius = "24px";
-export const shellShadow = "0 40px 70px -15px rgba(0,0,0,0.7), inset 0 1px 0 rgba(255,255,255,0.05)";
+export const shellShadow = (theme: string) => theme === "dark" ? "0 40px 70px -15px rgba(0,0,0,0.7)" : "0 10px 30px rgba(0,0,0,0.03)";
 
-export const insetBox = {
-    background: "#1e1e1e",
-    border: "1.5px solid #2a2a2a",
-    borderRadius: "10px",
-    boxShadow: "inset 0 2px 4px rgba(0,0,0,0.4)"
-};
+export const getInsetBox = (theme: string) => ({
+    background: theme === "dark" ? "rgba(255,255,255,0.03)" : "rgba(255,255,255,0.45)",
+    border: theme === "dark" ? "1px solid rgba(255,255,255,0.08)" : "1px solid rgba(0,0,0,0.05)",
+    borderRadius: "12px",
+    boxShadow: theme === "dark" ? "0 10px 40px rgba(0,0,0,0.3)" : "0 4px 12px rgba(0,0,0,0.02)"
+});
 
-export const inputStyle = {
-    background: "#151515",
-    border: "1.5px solid #222",
-    borderRadius: "6px",
+export const getInputStyle = (theme: string) => ({
+    background: theme === "dark" ? "rgba(0,0,0,0.2)" : "#fff",
+    border: theme === "dark" ? "1px solid rgba(255,255,255,0.1)" : "1px solid rgba(0,0,0,0.1)",
+    borderRadius: "8px",
     padding: "0.6rem 0.7rem",
-    color: "#ccc",
-    fontFamily: "monospace",
+    color: theme === "dark" ? "#FFF" : "#000",
+    fontFamily: "var(--font-mono), monospace",
     fontSize: "0.65rem",
     fontWeight: 600,
     outline: "none",
-    boxShadow: "inset 0 2px 4px rgba(0,0,0,0.4)"
-};
+});
 
-export const primaryBtnStyle = {
-    ...insetBox,
+export const getPrimaryBtnStyle = (theme: string) => ({
+    ...getInsetBox(theme),
     padding: "8px 16px",
-    color: "#39ff14",
+    color: theme === "dark" ? "#10B981" : "#059669",
     fontSize: "0.65rem",
     fontWeight: 800,
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    gap: "6px"
-};
+    gap: "6px",
+    cursor: "pointer"
+});
 
-export const secondaryBtnStyle = {
-    ...insetBox,
+export const getSecondaryBtnStyle = (theme: string) => ({
+    ...getInsetBox(theme),
     padding: "8px 16px",
-    color: "#555",
+    color: theme === "dark" ? "rgba(255,255,255,0.4)" : "rgba(0,0,0,0.4)",
     fontSize: "0.6rem",
-    fontWeight: 800
-};
+    fontWeight: 800,
+    cursor: "pointer"
+});

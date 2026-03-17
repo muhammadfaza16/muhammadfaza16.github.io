@@ -178,7 +178,7 @@ export default function MasterPanelPage() {
                                         </div>
                                         
                                         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                                            <span style={{ fontFamily: monoFont, fontSize: "0.65rem", fontWeight: 700, color: "#888", textTransform: "uppercase", letterSpacing: "0.02em" }}>Catalog Weight</span>
+                                            <span style={{ fontFamily: monoFont, fontSize: "0.65rem", fontWeight: 700, color: theme === "dark" ? "rgba(255,255,255,0.4)" : "rgba(0,0,0,0.4)", textTransform: "uppercase", letterSpacing: "0.02em" }}>Catalog Weight</span>
                                             <span style={{ fontFamily: headerFont, fontSize: "1.1rem", fontWeight: 900, color: theme === "dark" ? "#FFF" : "#000" }}>
                                                 {dbSongs.length > 0 ? `${dbSongs.length} TRACKS` : "..."}
                                             </span>
@@ -198,8 +198,8 @@ export default function MasterPanelPage() {
                                             </div>
                                         )}
                                         
-                                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "8px", borderTop: "1px solid rgba(0,0,0,0.03)", paddingTop: "12px" }}>
-                                            <span style={{ fontFamily: monoFont, fontSize: "0.65rem", fontWeight: 700, color: "#888", textTransform: "uppercase" }}>Status</span>
+                                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "8px", borderTop: theme === "dark" ? "1px solid rgba(255,255,255,0.05)" : "1px solid rgba(0,0,0,0.03)", paddingTop: "12px" }}>
+                                            <span style={{ fontFamily: monoFont, fontSize: "0.65rem", fontWeight: 700, color: theme === "dark" ? "rgba(255,255,255,0.4)" : "rgba(0,0,0,0.4)", textTransform: "uppercase" }}>Status</span>
                                             <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
                                                 <div style={{ width: "6px", height: "6px", borderRadius: "50%", background: "#10b981", boxShadow: "0 0 8px rgba(16, 185, 129, 0.4)" }} />
                                                 <span style={{ fontFamily: monoFont, fontSize: "0.65rem", fontWeight: 700, color: theme === "dark" ? "#FFF" : "#000", textTransform: "uppercase" }}>Verified Online</span>
@@ -250,7 +250,7 @@ export default function MasterPanelPage() {
                                         onClick={() => setActiveModule("dashboard")}
                                         whileTap={{ scale: 0.98 }}
                                         style={{ 
-                                            color: "#888", fontSize: "0.65rem", fontWeight: 800, background: "transparent", border: "1px solid rgba(0,0,0,0.05)", borderRadius: "12px",
+                                            color: theme === "dark" ? "rgba(255,255,255,0.4)" : "rgba(0,0,0,0.4)", fontSize: "0.65rem", fontWeight: 800, background: "transparent", border: theme === "dark" ? "1px solid rgba(255,255,255,0.1)" : "1px solid rgba(0,0,0,0.05)", borderRadius: "12px",
                                             cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", padding: "10px", fontFamily: monoFont, textTransform: "uppercase"
                                         }}
                                     >
@@ -258,7 +258,11 @@ export default function MasterPanelPage() {
                                     </motion.button>
                                     
                                     <div style={{ 
-                                        padding: "20px", backgroundColor: "rgba(255, 255, 255, 0.45)", border: "1px solid rgba(0,0,0,0.05)", borderRadius: "24px", boxShadow: "0 10px 30px rgba(0,0,0,0.03)"
+                                        padding: "20px", 
+                                        backgroundColor: theme === "dark" ? "rgba(255, 255, 255, 0.03)" : "rgba(255, 255, 255, 0.45)", 
+                                        border: theme === "dark" ? "1px solid rgba(255,255,255,0.08)" : "1px solid rgba(0,0,0,0.05)", 
+                                        borderRadius: "24px", 
+                                        boxShadow: theme === "dark" ? "0 20px 60px rgba(0,0,0,0.4)" : "0 10px 30px rgba(0,0,0,0.03)"
                                     }}>
                                         <PlaylistModule
                                             addLog={addLog}
@@ -280,18 +284,25 @@ export default function MasterPanelPage() {
                                         onClick={() => setActiveModule("dashboard")}
                                         whileTap={{ scale: 0.98 }}
                                         style={{ 
-                                            color: "#888", fontSize: "0.65rem", fontWeight: 800, background: "transparent", border: "1px solid rgba(0,0,0,0.05)", borderRadius: "12px",
+                                            color: theme === "dark" ? "rgba(255,255,255,0.4)" : "rgba(0,0,0,0.4)", fontSize: "0.65rem", fontWeight: 800, background: "transparent", border: theme === "dark" ? "1px solid rgba(255,255,255,0.1)" : "1px solid rgba(0,0,0,0.05)", borderRadius: "12px",
                                             cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", padding: "10px", fontFamily: monoFont, textTransform: "uppercase"
                                         }}
                                     >
                                         <ChevronLeft size={14} /> Back to dashboard
                                     </motion.button>
                                     
-                                    <div style={{ padding: "20px", backgroundColor: "rgba(255, 255, 255, 0.45)", border: "1px solid rgba(0,0,0,0.05)", borderRadius: "24px", boxShadow: "0 10px 30px rgba(0,0,0,0.03)", display: "flex", flexDirection: "column", gap: "16px", minHeight: "300px" }}>
+                                    <div style={{ 
+                                        padding: "20px", 
+                                        backgroundColor: theme === "dark" ? "rgba(255, 255, 255, 0.03)" : "rgba(255, 255, 255, 0.45)", 
+                                        border: theme === "dark" ? "1px solid rgba(255,255,255,0.08)" : "1px solid rgba(0,0,0,0.05)", 
+                                        borderRadius: "24px", 
+                                        boxShadow: theme === "dark" ? "0 20px 60px rgba(0,0,0,0.4)" : "0 10px 30px rgba(0,0,0,0.03)", 
+                                        display: "flex", flexDirection: "column", gap: "16px", minHeight: "300px" 
+                                    }}>
                                         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                                            <h3 style={{ margin: 0, fontFamily: headerFont, fontSize: "0.85rem", fontWeight: 900, textTransform: "uppercase", color: "#000", letterSpacing: "0.05em" }}>Visitor Intelligence</h3>
+                                            <h3 style={{ margin: 0, fontFamily: headerFont, fontSize: "0.85rem", fontWeight: 900, textTransform: "uppercase", color: theme === "dark" ? "#FFF" : "#000", letterSpacing: "0.05em" }}>Visitor Intelligence</h3>
                                             {isLogsUnlocked && (
-                                                <button onClick={fetchAccessLogs} style={{ background: "none", border: "none", cursor: "pointer", color: "#888" }}>
+                                                <button onClick={fetchAccessLogs} style={{ background: "none", border: "none", cursor: "pointer", color: theme === "dark" ? "rgba(255,255,255,0.4)" : "rgba(0,0,0,0.4)" }}>
                                                     <RefreshCw size={14} className={loadingLogs ? "animate-spin" : ""} />
                                                 </button>
                                             )}
@@ -299,8 +310,8 @@ export default function MasterPanelPage() {
 
                                         {!isLogsUnlocked ? (
                                             <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "16px", padding: "40px 0" }}>
-                                                <div style={{ width: "48px", height: "48px", borderRadius: "16px", background: "rgba(0,0,0,0.03)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                                                    <Lock size={20} color="#888" />
+                                                <div style={{ width: "48px", height: "48px", borderRadius: "16px", background: theme === "dark" ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.03)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                                                    <Lock size={20} color={theme === "dark" ? "rgba(255,255,255,0.4)" : "rgba(0,0,0,0.4)"} />
                                                 </div>
                                                 <div style={{ textAlign: "center" }}>
                                                     <div style={{ fontSize: "0.7rem", fontWeight: 800, color: theme === "dark" ? "#FFF" : "#000", fontFamily: headerFont, textTransform: "uppercase" }}>Vault Protected</div>
@@ -336,7 +347,7 @@ export default function MasterPanelPage() {
                                                 />
                                             </div>
                                         ) : loadingLogs ? (
-                                            <div style={{ textAlign: "center", padding: "20px", fontFamily: monoFont, fontSize: "0.65rem", color: "#888" }}>SCANNING LOGS...</div>
+                                            <div style={{ textAlign: "center", padding: "20px", fontFamily: monoFont, fontSize: "0.65rem", color: theme === "dark" ? "rgba(255,255,255,0.4)" : "rgba(0,0,0,0.4)" }}>SCANNING LOGS...</div>
                                         ) : (
                                             <div style={{ 
                                                 display: "flex", flexDirection: "column", gap: "10px",
@@ -406,10 +417,10 @@ export default function MasterPanelPage() {
                         </AnimatePresence>
 
                         {/* Recent Activity Log */}
-                        <div style={{ borderTop: "1px solid rgba(0,0,0,0.05)", padding: "20px 0", marginTop: "16px" }}>
+                        <div style={{ borderTop: theme === "dark" ? "1px solid rgba(255,255,255,0.05)" : "1px solid rgba(0,0,0,0.05)", padding: "20px 0", marginTop: "16px" }}>
                             <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "12px" }}>
-                                <Activity size={14} color="#888" />
-                                <span style={{ color: "#888", fontSize: "0.6rem", fontWeight: 800, letterSpacing: "0.1em", textTransform: "uppercase", fontFamily: monoFont }}>Recent Activity Log</span>
+                                <Activity size={14} color={theme === "dark" ? "rgba(255,255,255,0.4)" : "rgba(0,0,0,0.4)"} />
+                                <span style={{ color: theme === "dark" ? "rgba(255,255,255,0.4)" : "rgba(0,0,0,0.4)", fontSize: "0.6rem", fontWeight: 800, letterSpacing: "0.1em", textTransform: "uppercase", fontFamily: monoFont }}>Recent Activity Log</span>
                             </div>
                                 <div style={{ 
                                     minHeight: "60px", 

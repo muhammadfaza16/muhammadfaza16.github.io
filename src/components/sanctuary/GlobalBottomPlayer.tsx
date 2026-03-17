@@ -211,13 +211,13 @@ export function GlobalBottomPlayer() {
                                                 fontSize: "0.38rem",
                                                 fontFamily: headerFont,
                                                 fontWeight: 800,
-                                                backgroundColor: "rgba(0,0,0,0.04)",
-                                                color: "rgba(0,0,0,0.5)",
+                                                backgroundColor: theme === "dark" ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.04)",
+                                                color: theme === "dark" ? "rgba(255,255,255,0.75)" : "rgba(0,0,0,0.5)",
                                                 padding: "1.5px 6px",
                                                 borderRadius: "100px",
                                                 letterSpacing: "0.08em",
                                                 textTransform: "uppercase",
-                                                border: "1px solid rgba(0,0,0,0.06)",
+                                                border: "1px solid " + (theme === "dark" ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.06)"),
                                                 flexShrink: 0
                                             }}>
                                                 {label}
@@ -243,15 +243,27 @@ export function GlobalBottomPlayer() {
                                         style={{ position: "absolute", top: "50%", left: `${(currentTime / duration) * 100}%`, width: "14px", height: "14px", backgroundColor: theme === "dark" ? "#FFF" : "#000", borderRadius: "100px", border: theme === "dark" ? "3px solid #1A1A1A" : "3px solid #fff", boxShadow: "0 2px 8px rgba(0,0,0,0.2)", transform: "translate(-50%, -50%)" }}
                                     />
                                 </div>
-                                <div style={{ display: "flex", justifyContent: "space-between", marginTop: "12px", fontFamily: monoFont, fontSize: "0.75rem", fontWeight: 700, color: "#AAA" }}>
+                                <div style={{ display: "flex", justifyContent: "space-between", marginTop: "12px", fontFamily: monoFont, fontSize: "0.75rem", fontWeight: 700, color: theme === "dark" ? "rgba(255,255,255,0.4)" : "rgba(0,0,0,0.3)" }}>
                                     <span>{formatTime(currentTime)}</span>
                                     <span>{formatTime(duration)}</span>
                                 </div>
                             </div>
 
                             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%", padding: "0 10px" }}>
-                                <motion.button whileTap={{ scale: 0.8 }} onClick={toggleShuffle} style={{ background: "transparent", border: "none", color: shuffleMode ? (theme === "dark" ? "#FFF" : "#000") : "#CCC" }}>
-                                    <Shuffle size={24} />
+                                <motion.button 
+                                    whileTap={{ scale: 0.8 }} 
+                                    onClick={toggleShuffle} 
+                                    style={{ 
+                                        background: "transparent", 
+                                        border: "none", 
+                                        color: shuffleMode 
+                                            ? (theme === "dark" ? "#818CF8" : "#6366F1") 
+                                            : (theme === "dark" ? "rgba(255,255,255,0.3)" : "rgba(0,0,0,0.2)"),
+                                        filter: shuffleMode ? (theme === "dark" ? "drop-shadow(0 0 8px rgba(129,140,248,0.5))" : "none") : "none",
+                                        transition: "all 0.3s ease"
+                                    }}
+                                >
+                                    <Shuffle size={24} strokeWidth={shuffleMode ? 3 : 2} />
                                 </motion.button>
                                 <div style={{ display: "flex", alignItems: "center", gap: "24px" }}>
                                     <motion.button whileTap={{ scale: 0.8 }} onClick={() => prevSong()} style={{ background: "transparent", border: "none", color: "currentColor" }}>
@@ -281,8 +293,20 @@ export function GlobalBottomPlayer() {
                                         <SkipForward size={32} fill="currentColor" />
                                     </motion.button>
                                 </div>
-                                <motion.button whileTap={{ scale: 0.8 }} onClick={toggleRepeat} style={{ background: "transparent", border: "none", color: repeatMode !== 'off' ? (theme === "dark" ? "#FFF" : "#000") : "#CCC" }}>
-                                    {repeatMode === 'one' ? <Repeat1 size={24} /> : <Repeat size={24} />}
+                                <motion.button 
+                                    whileTap={{ scale: 0.8 }} 
+                                    onClick={toggleRepeat} 
+                                    style={{ 
+                                        background: "transparent", 
+                                        border: "none", 
+                                        color: repeatMode !== 'off' 
+                                            ? (theme === "dark" ? "#A78BFA" : "#8B5CF6") 
+                                            : (theme === "dark" ? "rgba(255,255,255,0.3)" : "rgba(0,0,0,0.2)"),
+                                        filter: repeatMode !== 'off' ? (theme === "dark" ? "drop-shadow(0 0 8px rgba(167,139,250,0.5))" : "none") : "none",
+                                        transition: "all 0.3s ease"
+                                    }}
+                                >
+                                    {repeatMode === 'one' ? <Repeat1 size={24} strokeWidth={3} /> : <Repeat size={24} strokeWidth={repeatMode === 'all' ? 3 : 2} />}
                                 </motion.button>
                             </div>
                         </div>
