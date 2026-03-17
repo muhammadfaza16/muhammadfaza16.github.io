@@ -29,6 +29,9 @@ function cleanFileName(filename: string) {
                .replace(/Lirik Lagu/gi, '')
                .replace(/Lirik/gi, '')
                .replace(/LAGU NOSTALGIA TERBAIK #lyrics/gi, '')
+                .replace(/SlowedReverb/gi, '')
+                .replace(/Tiktok.*$/gi, '')
+                .replace(/@[\w\d_]+/g, '')
                .replace(/slowed\s*(&|\+|and)?\s*reverb/gi, '')
                .replace(/slowed version/gi, '')
                .replace(/slowed/gi, '')
@@ -38,30 +41,53 @@ function cleanFileName(filename: string) {
                .replace(/  +/g, ' ')
                .trim();
 
+    // Specific Fixes for filenames before splitting
+    if (name.includes('Ada Apa Dengan Cinta (feat. Eric Erlangga)')) {
+        name = 'Melly Goeslaw - Ada Apa Dengan Cinta (feat. Eric Erlangga)';
+    }
+    if (name.includes('Hari ini,Esok dan SeterusnyaHES')) {
+        name = 'Acha Septriasa - Hari Ini Esok Dan Seterusnya';
+    }
+    if (name.includes('Sampai Menutup Mata') && !name.toLowerCase().includes('acha')) {
+        name = 'Acha Septriasa - Sampai Menutup Mata';
+    }
+    if (name.includes('Meskipun engkau telah pergi Mungkin takkan kembaliMengejar Mimpi')) {
+        name = 'Yovie & Nuno - Mengejar Mimpi';
+    }
+    if (name.includes('CINTA YANG LAIN UNGU')) {
+        name = 'Ungu - Cinta Yang Lain';
+    }
+
+    // Medley detection (x separator)
+    const isMedley = name.includes(' x ') || name.includes(' X ') || name.includes(' x ');
+
     // Check if artist and title are separated by "-"
     let artist = '';
     let title = name;
     
-    if (name.includes('-')) {
-        const parts = name.split('-');
-        // A common pattern in this folder: "Title - Artist" or "Artist - Title"
-        // Let's assume standard "Artist - Title" if we can't be sure, but let's check manually:
-        // "Aku Lelakimu - Virzha" -> Title - Artist
-        // "Anima - Bintang" -> Artist - Title
-        // To be safe, wait, often it's "Artist - Title". Let's stick to standard `Artist - Title`.
-        // If the first part is known artist, it's Artist - Title.
-        // Actually, just keep it exactly as it was split: First part is Artist, rest is Title.
-        // Wait, "Aku Lelakimu - Virzha" -> "Aku Lelakimu" is Title.
-        // Let's just use the `split(' - ')` and if not matched, string `-`.
+    if (isMedley) {
+        artist = 'Medley';
+        title = name.replace(/medley/gi, '').trim();
+    } else if (name.includes('-')) {
         const splitStr = name.includes(' - ') ? ' - ' : '-';
-        const parts2 = name.split(splitStr);
-        if (parts2.length >= 2) {
-            // Let's just map it to: Part 1 — Part 2
-            artist = parts2[0].trim();
-            title = parts2.slice(1).join(splitStr).trim();
+        const parts = name.split(splitStr);
+        if (parts.length >= 2) {
+            // Heuristic Check: Is it Title - Artist?
+            // "Anima - Bintang" -> Artist - Title (Standard)
+            // "Aku Lelakimu - Virzha" -> Title - Artist (Wrong)
+            const p1 = parts[0].trim();
+            const p2 = parts[1].trim();
             
-            // Heuristic for Title - Artist: if Part 2 is just one word and Part 1 is multiple words.
-            // Let's just keep Artist - Title format and we'll fix manually if wrong, or just store it as is.
+            const commonWrongOrder = ['Virzha', 'Cassandra', 'Nidji', 'Fiersa Besari', 'Seventeen'];
+            const isWrongOrder = commonWrongOrder.some(a => p2.toLowerCase() === a.toLowerCase() || p2.toLowerCase().includes(a.toLowerCase()));
+            
+            if (isWrongOrder) {
+                artist = p2;
+                title = p1;
+            } else {
+                artist = p1;
+                title = p2;
+            }
         }
     }
 
@@ -80,6 +106,11 @@ function cleanFileName(filename: string) {
     } else if (isSpedUp) {
         finalTitleStr += ' (Sped Up)';
     }
+
+    // Fix specific labels/naming inconsistencies
+    finalTitleStr = finalTitleStr
+        .replace(/Acha Septriasa — Acha Septriasa/gi, 'Acha Septriasa')
+        .replace(/Acha —/gi, 'Acha Septriasa —');
 
     // Fix some known weird ones
     if (finalTitleStr.includes("Aku Lelakimu — Virzha")) {
