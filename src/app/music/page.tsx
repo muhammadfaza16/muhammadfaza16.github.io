@@ -92,40 +92,18 @@ export default function AudioHubPage() {
                             <ChevronLeft size={16} /> Back
                         </motion.button>
                     </Link>
-                    <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                        <h1 style={{ 
-                            fontFamily: headerFont, 
-                            fontWeight: 900, 
-                            fontSize: "1.3rem", 
-                            textTransform: "uppercase", 
-                            letterSpacing: "-0.04em",
-                            margin: 0,
-                            color: "#000",
-                            lineHeight: 1
-                        }}>
-                            Music
-                        </h1>
-                        <div style={{ 
-                            fontFamily: monoFont, 
-                            fontWeight: 800, 
-                            fontSize: "0.55rem", 
-                            color: "#000",
-                            letterSpacing: "0.08em",
-                            padding: "3px 8px",
-                            backgroundColor: "rgba(255, 255, 255, 0.5)",
-                            backdropFilter: "blur(4px)",
-                            border: "1px solid rgba(0,0,0,0.08)",
-                            borderRadius: "6px",
-                            textTransform: "uppercase",
-                            boxShadow: "0 2px 8px rgba(0,0,0,0.02)",
-                            display: "flex",
-                            alignItems: "center",
-                            gap: "4px"
-                        }}>
-                            <div style={{ width: "4px", height: "4px", borderRadius: "50%", backgroundColor: "#000" }} />
-                            <span>23.12 MF</span>
-                        </div>
-                    </div>
+                    <h1 style={{ 
+                        fontFamily: headerFont, 
+                        fontWeight: 900, 
+                        fontSize: "1.4rem", 
+                        textTransform: "uppercase", 
+                        letterSpacing: "-0.04em",
+                        margin: 0,
+                        color: "#000",
+                        lineHeight: 1
+                    }}>
+                        Music
+                    </h1>
                     <div style={{ width: "44px" }} />
                 </div>
 

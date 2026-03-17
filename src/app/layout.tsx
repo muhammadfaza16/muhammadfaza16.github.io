@@ -86,9 +86,18 @@ export default async function RootLayout({
     description: "Writer and developer exploring digital craftsmanship."
   };
 
-  const initialSongs = await prisma.song.findMany({
-    orderBy: { title: 'asc' }
-  });
+  let initialSongs: { id: string; title: string; audioUrl: string; duration: number }[] = [];
+  try {
+    const songs = await prisma.song.findMany({
+      orderBy: { title: 'asc' }
+    });
+    initialSongs = songs.map(s => ({
+      ...s,
+      duration: s.duration || 0
+    }));
+  } catch (error) {
+    console.error("Prisma connection error in layout.tsx:", error);
+  }
 
   return (
     <html lang="en" suppressHydrationWarning>
