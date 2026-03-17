@@ -168,13 +168,18 @@ export default function AudioHubPage() {
                                             animate={isPlaying ? { 
                                                 scale: [1, 1.3, 1],
                                                 opacity: [1, 0.6, 1]
-                                            } : {}}
+                                            } : {
+                                                opacity: [0.3, 0.7, 0.3],
+                                                scale: [0.9, 1.1, 0.9]
+                                            }}
                                             transition={{ repeat: Infinity, duration: 2.2, ease: "easeInOut" }}
                                             style={{ 
                                                 width: "6px", 
                                                 height: "6px", 
                                                 borderRadius: "50%", 
-                                                backgroundColor: isPlaying ? "#6366F1" : "rgba(0,0,0,0.12)",
+                                                backgroundColor: isPlaying 
+                                                    ? "#6366F1" 
+                                                    : (theme === "dark" ? "rgba(255,255,255,0.2)" : "rgba(0,0,0,0.12)"),
                                             }} 
                                         />
                                         <span style={{ 
@@ -187,7 +192,7 @@ export default function AudioHubPage() {
                                                 : (theme === "dark" ? "rgba(255,255,255,0.4)" : "rgba(0,0,0,0.4)"),
                                             textTransform: "uppercase"
                                         }}>
-                                            {isPlaying ? "Now Playing" : "Paused"}
+                                            Latest Play
                                         </span>
                                     </div>
                                     
