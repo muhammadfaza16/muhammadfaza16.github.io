@@ -128,8 +128,8 @@ export function AudioProvider({ children, initialSongs = [] }: { children: React
                     setActivePlaylistId(data.activePlaylistId || null);
                     setShuffleMode(data.shuffleMode || false);
                     setRepeatMode(data.repeatMode || 'off');
-                    initialTimeRef.current = data.currentTime || 0;
-                    setCurrentTime(data.currentTime || 0); // Immediately update UI
+                    initialTimeRef.current = 0; // Reset progress on reload as requested
+                    setCurrentTime(0); 
                     if (data.duration) setDuration(data.duration);
                 }
             }
@@ -259,29 +259,6 @@ export function AudioProvider({ children, initialSongs = [] }: { children: React
 
         return () => clearTimeout(timeout);
     }, [queue, originalQueue, currentIndex, currentTime, duration, activePlaylistId, shuffleMode, repeatMode, hasLoadedState]);
-
-    // Failsafe Restore: If metadata doesn't fire or we miss it, try jumping when ready
-    useEffect(() => {
-        if (!hasLoadedState || initialTimeRef.current === 0) return;
-
-        const checkAndRestore = () => {
-            if (audioRef.current && audioRef.current.readyState >= 1) {
-                const target = initialTimeRef.current;
-                if (target > 0) {
-                    audioRef.current.currentTime = target;
-                    setCurrentTime(target);
-                    initialTimeRef.current = 0; // Mission accomplished
-                }
-            }
-        };
-
-        // Try immediately
-        checkAndRestore();
-
-        // Also try on a small delay if state just loaded
-        const timer = setTimeout(checkAndRestore, 500);
-        return () => clearTimeout(timer);
-    }, [hasLoadedState, currentIndex]);
 
     // Theme integration keeping for later custom logic, but removed the global auto-switching.
     const { theme, setTheme } = useTheme();
@@ -537,13 +514,6 @@ export function AudioProvider({ children, initialSongs = [] }: { children: React
                 setDuration(audioRef.current.duration);
             }
 
-            // Failsafe: if audio has progressed significantly or metadata jump failed
-            // we should stop blocking UI updates.
-            if (initialTimeRef.current > 0) {
-                if (t > 1) initialTimeRef.current = 0; // Audio already moved, stop guarding
-                else return; // Still waiting for jump
-            }
-            
             setCurrentTime(t);
             lastTimeUpdateRef.current = now;
 
@@ -734,22 +704,10 @@ export function AudioProvider({ children, initialSongs = [] }: { children: React
                 onLoadedMetadata={() => {
                     if (audioRef.current) {
                         setDuration(audioRef.current.duration || 0);
-                        if (initialTimeRef.current > 0) {
-                            audioRef.current.currentTime = initialTimeRef.current;
-                            setCurrentTime(initialTimeRef.current);
-                            initialTimeRef.current = 0;
-                        }
                     }
                 }}
                 onPlay={() => {
                     intentionalPauseRef.current = false;
-                    if (initialTimeRef.current > 0 && audioRef.current) {
-                        const target = initialTimeRef.current;
-                        initialTimeRef.current = 0;
-                        if (audioRef.current.currentTime < 1) { // Only force jump if near start
-                            audioRef.current.currentTime = target;
-                        }
-                    }
                     setIsPlaying(true);
                 }}
                 onPause={() => {
