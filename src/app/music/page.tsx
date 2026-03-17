@@ -75,24 +75,26 @@ export default function AudioHubPage() {
         }}>
             <div style={{ width: "100%", maxWidth: "440px", display: "flex", flexDirection: "column", gap: "24px" }}>
                 {/* Header */}
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "32px", marginTop: "24px" }}>
-                    <Link href="/" style={{ textDecoration: "none" }}>
-                        <motion.button 
-                            whileHover={{ scale: 1.05, x: -2 }}
-                            whileTap={{ scale: 0.95 }}
-                            style={{ 
-                                display: "flex", alignItems: "center", gap: "6px", 
-                                background: "rgba(255,255,255,0.8)", border: "1px solid rgba(0,0,0,0.05)",
-                                padding: "8px 14px", cursor: "pointer", 
-                                fontFamily: headerFont, fontWeight: 700, color: "#000",
-                                fontSize: "0.85rem", borderRadius: "100px",
-                                backdropFilter: "blur(8px)",
-                                boxShadow: "0 2px 10px rgba(0,0,0,0.03)"
-                            }}
-                        >
-                            <ChevronLeft size={16} /> Back
-                        </motion.button>
-                    </Link>
+                <div style={{ position: "relative", display: "flex", justifyContent: "center", alignItems: "center", marginBottom: "32px", marginTop: "24px" }}>
+                    <div style={{ position: "absolute", left: 0 }}>
+                        <Link href="/" style={{ textDecoration: "none" }}>
+                            <motion.button 
+                                whileHover={{ scale: 1.05, x: -2 }}
+                                whileTap={{ scale: 0.95 }}
+                                style={{ 
+                                    display: "flex", alignItems: "center", gap: "6px", 
+                                    background: "rgba(255,255,255,0.8)", border: "1px solid rgba(0,0,0,0.05)",
+                                    padding: "8px 14px", cursor: "pointer", 
+                                    fontFamily: headerFont, fontWeight: 700, color: "#000",
+                                    fontSize: "0.85rem", borderRadius: "100px",
+                                    backdropFilter: "blur(8px)",
+                                    boxShadow: "0 2px 10px rgba(0,0,0,0.03)"
+                                }}
+                            >
+                                <ChevronLeft size={16} /> Back
+                            </motion.button>
+                        </Link>
+                    </div>
                     <h1 style={{ 
                         fontFamily: headerFont, 
                         fontWeight: 900, 
@@ -105,7 +107,6 @@ export default function AudioHubPage() {
                     }}>
                         Music
                     </h1>
-                    <div style={{ width: "44px" }} />
                 </div>
 
                 {/* Home Dashboard */}

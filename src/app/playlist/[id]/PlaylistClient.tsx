@@ -189,30 +189,31 @@ export default function PlaylistClient({ playlistId, initialSongs = [] }: { play
             backgroundColor: "#f9f9f9",
             color: "#000"
         }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "16px", marginBottom: "8px" }}>
-                <Link href="/playlist" style={{ textDecoration: "none" }}>
-                    <motion.button 
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                        transition={{ type: "spring", stiffness: 400, damping: 17 }}
-                        style={{ 
-                            display: "flex", alignItems: "center", gap: "6px", 
-                            background: "rgba(255, 255, 255, 0.8)", 
-                            border: "1px solid rgba(0,0,0,0.05)",
-                            padding: "6px 12px", cursor: "pointer", 
-                            fontFamily: headerFont, fontWeight: 800, color: "#000",
-                            fontSize: "0.7rem",
-                            borderRadius: "100px",
-                            boxShadow: "0 2px 8px rgba(0,0,0,0.02)"
-                        }}
-                    >
-                        <ChevronLeft size={14} /> Back
-                    </motion.button>
-                </Link>
+            <div style={{ position: "relative", display: "flex", justifyContent: "center", alignItems: "center", marginTop: "16px", marginBottom: "8px" }}>
+                <div style={{ position: "absolute", left: 0 }}>
+                    <Link href="/playlist" style={{ textDecoration: "none" }}>
+                        <motion.button 
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                            transition={{ type: "spring", stiffness: 400, damping: 17 }}
+                            style={{ 
+                                display: "flex", alignItems: "center", gap: "6px", 
+                                background: "rgba(255, 255, 255, 0.8)", 
+                                border: "1px solid rgba(0,0,0,0.05)",
+                                padding: "6px 12px", cursor: "pointer", 
+                                fontFamily: headerFont, fontWeight: 800, color: "#000",
+                                fontSize: "0.7rem",
+                                borderRadius: "100px",
+                                boxShadow: "0 2px 8px rgba(0,0,0,0.02)"
+                            }}
+                        >
+                            <ChevronLeft size={14} /> Back
+                        </motion.button>
+                    </Link>
+                </div>
                 <span style={{ fontFamily: headerFont, fontWeight: 900, fontSize: "0.75rem", textTransform: "uppercase", letterSpacing: "0.05em", color: "#888" }}>
                     {activePlaylist ? "Playlist" : "Library"}
                 </span>
-                <div style={{ width: "44px" }} />
             </div>
 
             <AnimatePresence>
