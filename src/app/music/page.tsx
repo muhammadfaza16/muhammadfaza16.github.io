@@ -351,23 +351,23 @@ export default function AudioHubPage() {
                                                 style={{ 
                                                     width: "100%", height: "100%", objectFit: "cover", 
                                                     position: "absolute", inset: 0, zIndex: 0, 
-                                                    opacity: 0.7 
+                                                    opacity: 0.85 
                                                 }}
                                                 className="mix-blend-multiply" 
                                                 onError={(e) => (e.currentTarget.style.display = 'none')}
                                             />
                                         )}
-                                        <div style={{ 
-                                            position: "absolute", inset: 0, zIndex: -1, 
-                                            display: "flex", alignItems: "center", justifyContent: "center",
-                                            opacity: 0.15
-                                        }}>
-                                            <Music size={48} color="#000" />
-                                        </div>
+                                        {/* Premium Masking Overlays */}
                                         <div style={{
                                             position: "absolute",
                                             inset: 0,
-                                            background: "linear-gradient(to top, rgba(0,0,0,0.7) 0%, transparent 60%)",
+                                            background: "radial-gradient(circle at center, transparent 30%, rgba(0,0,0,0.2) 100%)",
+                                            zIndex: 1
+                                        }} />
+                                        <div style={{
+                                            position: "absolute",
+                                            inset: 0,
+                                            background: "linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.3) 40%, transparent 100%)",
                                             zIndex: 1
                                         }} />
                                         
