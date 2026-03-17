@@ -43,41 +43,52 @@ const SPECIFIC_INDO = [
     "Al Ghazali — Kesayanganku",
     "Desy Ratnasari — Tenda Biru",
     "Kugiran Masdo — Dinda",
-    "Tapi tahukah kamu_ — DYGTA FT. KAMASEAN"
+    "Dygta — Tapi Tahukah Kamu",
+    "Anima — Bintang",
+    "Anggis Devaki — Dirimu Yang Dulu"
 ];
 
 async function main() {
+    console.log("Fetching songs...");
     const songs = await prisma.song.findMany();
+    console.log(`Analyzing ${songs.length} songs...`);
     let countIndo = 0;
     let countLuar = 0;
 
-    for (const song of songs) {
-        let category = 'Luar';
-        const titleLower = song.title.toLowerCase();
-        
-        // Manual Indo Override
-        if (SPECIFIC_INDO.some(t => song.title.includes(t))) {
-            category = 'Indo';
-        } else {
-            let score = 0;
-            if (INDO_ARTISTS.some(artist => titleLower.includes(artist))) score += 10;
-            INDO_KEYWORDS.forEach(kw => { if (new RegExp(`\\b${kw}\\b`, 'i').test(titleLower)) score += 2; });
-            LUAR_KEYWORDS.forEach(kw => { if (new RegExp(`\\b${kw}\\b`, 'i').test(titleLower)) score -= 2; });
+    const BATCH_SIZE = 10;
+    for (let i = 0; i < songs.length; i += BATCH_SIZE) {
+        const batch = songs.slice(i, i + BATCH_SIZE);
+        await Promise.all(batch.map(async (song) => {
+            let category = 'Luar';
+            const titleLower = song.title.toLowerCase();
             
-            if (score > 1) category = 'Indo';
-        }
+            // Manual Indo Override
+            if (SPECIFIC_INDO.some(t => song.title.includes(t))) {
+                category = 'Indo';
+            } else {
+                let score = 0;
+                if (INDO_ARTISTS.some(artist => titleLower.includes(artist))) score += 10;
+                INDO_KEYWORDS.forEach(kw => { if (new RegExp(`\\b${kw}\\b`, 'i').test(titleLower)) score += 2; });
+                LUAR_KEYWORDS.forEach(kw => { if (new RegExp(`\\b${kw}\\b`, 'i').test(titleLower)) score -= 2; });
+                
+                if (score > 1) category = 'Indo';
+            }
 
-        // Final check for "Ride — Twenty One Pilots" (ensuring it's Luar)
-        if (song.title.includes("Ride — Twenty One Pilots")) {
-            category = 'Luar';
-        }
+            // Final check for "Twenty One Pilots — Ride" (ensuring it's Luar)
+            if (song.title.includes("Twenty One Pilots — Ride")) {
+                category = 'Luar';
+            }
 
-        await prisma.song.update({
-            where: { id: song.id },
-            data: { category }
-        });
+            // Use raw SQL to bypass outdated Prisma client types
+            await prisma.$executeRawUnsafe(
+                `UPDATE "Song" SET category = $1 WHERE id = $2`,
+                category,
+                song.id
+            );
 
-        if (category === 'Indo') countIndo++; else countLuar++;
+            if (category === 'Indo') countIndo++; else countLuar++;
+        }));
+        console.log(`Processed ${Math.min(i + BATCH_SIZE, songs.length)} / ${songs.length} songs...`);
     }
 
     console.log(`Successfully categorized ${songs.length} songs.`);
