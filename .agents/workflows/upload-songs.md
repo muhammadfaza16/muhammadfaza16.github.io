@@ -26,17 +26,23 @@ The script automatically enforces these rules:
 3.  **URL**: Automatically generates `/audio/slug-name.mp3` without needing complex encoding.
 
 ## 4. Metadata Distillation Rules
-The script `process_new_songs.ts` uses smart regex to "distill" labels from filenames into the database `title`:
-- **Versions**: If it finds `slowed`, `reverb`, or `sped up` (case-insensitive) in the filename, it appends `(Slowed & Reverb)` or `(Sped Up)` to the title properly.
-- **Cleaning**: It automatically strips YouTube-style "noise" like `(Official Music Video)`, `(Lyrics)`, `[Lirik]`, or random YouTube IDs in brackets.
-- **Dashes**: It converts simple hyphens `-` into the premium em-dash `—` used in the UI.
+The script `process_new_songs.ts` uses smart logic to "distill" labels from filenames into the database `title`:
+- **Version Detection**:
+    - `slowed` or `reverb` anywhere in the filename $\rightarrow$ Appends `(Slowed & Reverb)` to the title.
+    - `speed up` or `sped up` anywhere in the filename $\rightarrow$ Appends `(Sped Up)` to the title.
+- **Cleaning Noise**: It recursively strips YouTube-style "noise" (e.g., `(Lyrics)`, `[Lirik]`, `(Official Music Video)`, etc.) to keep the title clean.
+- **Hyphen to Em-dash**: It automatically replaces standard hyphens `-` with the premium em-dash `—` used throughout the UI.
+- **Case Sensitivity**: If the input filename is completely lowercase, the script tries to capitalize words smartly (e.g., `ungu - lirik` $\rightarrow$ `Ungu — Lirik`).
+- **Inversion Overrides**: The script contains hardcoded fixes for known inverted titles (e.g., `Aku Lelakimu — Virzha` $\rightarrow$ `Virzha — Aku Lelakimu`).
 
-> [!NOTE]
-> If a filename is `Virzha - Aku Lelakimu slowed.mp3`, the script distills it into:
+> [!TIP]
+> **Preferred Naming**: For best results, name your files as `Artist - Title.mp3`.
+> **Example**: `Virzha - Aku Lelakimu slowed.mp3` distills into:
 > - **Title**: `Virzha — Aku Lelakimu (Slowed & Reverb)`
-> - **Slug**: `virzha-aku-lelakimu-slowed-reverb.mp3`
+> - **Filename/Slug**: `virzha-aku-lelakimu-slowed-reverb.mp3`
+> - **URL**: `/audio/virzha-aku-lelakimu-slowed-reverb.mp3`
 
-## 4. Troubleshooting
+## 5. Troubleshooting & Maintenance
 If songs are not appearing or playing:
-- Run `npx tsx scripts/normalize_library.ts` to perform a full audit and resync of the existing library.
-- Verify the physical file exists in `public/audio/` with the exact slug name found in the database `audioUrl` field.
+- **Resync Library**: Run `npx tsx scripts/normalize_library.ts`. This script audits the entire `public/audio` folder, slugifies any non-conforming files, and updates the database entries for every matching song.
+- **Check Database**: Ensure the `audioUrl` in the database exactly matches the slugified filename in `public/audio/`.
