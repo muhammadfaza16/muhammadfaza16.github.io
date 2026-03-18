@@ -21,6 +21,7 @@ interface LiveMusicState {
     isLoading: boolean;
     isBuffering: boolean;
     isWaitingForSync: boolean;
+    isTransitioning: boolean;
     currentSong: LiveSong | null;
     seekPosition: number;
     currentTime: number;
@@ -43,6 +44,7 @@ const LiveMusicContext = createContext<LiveMusicState>({
     isLoading: true,
     isBuffering: false,
     isWaitingForSync: false,
+    isTransitioning: false,
     currentSong: null,
     seekPosition: 0,
     currentTime: 0,
@@ -62,18 +64,19 @@ const LiveMusicContext = createContext<LiveMusicState>({
 export const useLiveMusic = () => useContext(LiveMusicContext);
 
 // ─── Tuning ─────────────────────────────────────────────────────────────────
-// Drift (in seconds) above which the LIVE indicator turns gray.
 const SYNC_DRIFT_THRESHOLD = 5.0;
+const PRELOAD_AHEAD_SECS = 8; // Start preloading next song when ≤8s remain
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Architecture: Free-Flow + Manual Sync
+// Architecture: Predictive Preload + Instant Swap
 //
 // 1. On mount       → fetchAndSync() → load audio, defer seek to canplay
 // 2. First play     → re-fetchAndSync() for a fresh position → seek + play
-// 3. During play    → NO polling, NO playbackRate changes, audio at 1.0x
-// 4. Song ends      → 1s delay → fetchAndSync() → load next song
-// 5. SYNC button    → fetchAndSync() → hard seek to server position
-// 6. Play / Pause   → simple play() / pause(), no sync
+// 3. During play    → onTimeUpdate monitors remaining time
+// 4. ≤8s left       → preloadNextSong() loads next audio in hidden element
+// 5. Song ends      → instant swap to preloaded audio → zero-gap transition
+// 6. Post-swap      → background fetchAndSync() refreshes metadata
+// 7. SYNC button    → fetchAndSync() → hard seek to server position
 // ─────────────────────────────────────────────────────────────────────────────
 
 export function LiveMusicProvider({ children }: { children: React.ReactNode }) {
@@ -83,6 +86,7 @@ export function LiveMusicProvider({ children }: { children: React.ReactNode }) {
     const [isLoading, setIsLoading] = useState(true);
     const [isBuffering, setIsBuffering] = useState(false);
     const [isWaitingForSync, setIsWaitingForSync] = useState(false);
+    const [isTransitioning, setIsTransitioning] = useState(false);
     const [currentSong, setCurrentSong] = useState<LiveSong | null>(null);
     const [seekPosition, setSeekPosition] = useState(0);
     const [currentTime, setCurrentTime] = useState(0);
@@ -96,36 +100,38 @@ export function LiveMusicProvider({ children }: { children: React.ReactNode }) {
     const [isSynced, setIsSynced] = useState(false);
     const [listenersCount, setListenersCount] = useState(0);
 
-    // ─── Refs (stable across renders, no stale closures) ────────────────────
+    // ─── Refs ────────────────────────────────────────────────────────────────
     const audioRef = useRef<HTMLAudioElement | null>(null);
+    const preloadAudioRef = useRef<HTMLAudioElement | null>(null);
     const currentSongUrlRef = useRef<string>("");
     const hasUserInteractedRef = useRef(false);
     const hasEverPlayedRef = useRef(false);
     const isFetchingRef = useRef(false);
-
-    // Pending seek — the position to jump to once the browser fires canplay.
-    // This avoids seeking before the audio source is ready.
     const pendingSeekRef = useRef<number | null>(null);
+    const retryTimerRef = useRef<NodeJS.Timeout | null>(null);
+    const isTransitioningRef = useRef(false);
 
-    // Server sync reference — snapshot from the last fetch.
-    // Used in onTimeUpdate to compute expected server position in real-time
-    // without any network calls: expected = serverSeek + (now - fetchedAt).
+    // Preload tracking
+    const preloadedSongUrlRef = useRef<string>("");
+    const preloadReadyRef = useRef(false);
+    const nextSongDataRef = useRef<LiveSong | null>(null);
+    const nextSongIndexRef = useRef<number>(-1);
+
+    // Server sync reference
     const serverSyncRef = useRef<{
         serverSeek: number;
         fetchedAt: number;
         songUrl: string;
     }>({ serverSeek: 0, fetchedAt: Date.now(), songUrl: "" });
 
-    // Tracks whether isSynced actually changed, to avoid unnecessary re-renders.
     const lastSyncedRef = useRef(false);
 
-    // Safety timer for the onEnded → same-song edge case.
-    const retryTimerRef = useRef<NodeJS.Timeout | null>(null);
+    // ─── Preload: resolve next song from tracklist cache ────────────────────
+    const tracklistRef = useRef<TracklistItem[]>([]);
+    const allSongsRef = useRef<{ audioUrl: string; title: string; duration: number; category?: string }[]>([]);
 
     // ─── Core: Fetch & Sync ─────────────────────────────────────────────────
-    // Fetches the current server state and synchronizes the <audio> element.
-    // Called on: mount, first play, song ended, and manual SYNC press.
-    const fetchAndSync = useCallback(async () => {
+    const fetchAndSync = useCallback(async (opts?: { metadataOnly?: boolean }) => {
         if (isFetchingRef.current) return;
         isFetchingRef.current = true;
 
@@ -135,11 +141,9 @@ export function LiveMusicProvider({ children }: { children: React.ReactNode }) {
             const res = await fetch("/api/live-music/now", { cache: "no-store" });
             const data = await res.json();
 
-            // Estimate one-way network latency (capped at 500ms)
             const rtt = Date.now() - fetchStart;
             const oneWayLatency = Math.min(rtt / 2, 500) / 1000;
 
-            // ── Not live ────────────────────────────────────────────────────
             if (!data.isLive) {
                 setIsLive(false);
                 setCurrentSong(null);
@@ -153,7 +157,6 @@ export function LiveMusicProvider({ children }: { children: React.ReactNode }) {
                 return;
             }
 
-            // ── Server error ────────────────────────────────────────────────
             if (data.error) {
                 setIsLive(true);
                 setError(data.error);
@@ -173,18 +176,34 @@ export function LiveMusicProvider({ children }: { children: React.ReactNode }) {
             setTracklist(data.tracklist || []);
             setListenersCount(data.listenersCount || 0);
 
+            // Cache tracklist for preload resolution
+            tracklistRef.current = data.tracklist || [];
+
+            // Cache full song list if available from the response
+            if (data.allSongs) {
+                allSongsRef.current = data.allSongs;
+            }
+
             const song: LiveSong = data.song;
             const serverSeek = data.seekPosition + oneWayLatency;
 
             setCurrentSong(song);
             setSeekPosition(serverSeek);
 
-            // Update the sync reference point
             serverSyncRef.current = {
                 serverSeek,
                 fetchedAt: Date.now(),
                 songUrl: song.audioUrl,
             };
+
+            // If metadata-only refresh (post-swap), don't touch audio
+            if (opts?.metadataOnly) {
+                setIsLoading(false);
+                setIsSynced(true);
+                lastSyncedRef.current = true;
+                isFetchingRef.current = false;
+                return;
+            }
 
             if (!audioRef.current) {
                 isFetchingRef.current = false;
@@ -196,20 +215,10 @@ export function LiveMusicProvider({ children }: { children: React.ReactNode }) {
             // ── Different song → load new source ────────────────────────────
             if (currentSongUrlRef.current !== song.audioUrl) {
                 currentSongUrlRef.current = song.audioUrl;
-
-                // Store the target seek position.
-                // It will be applied in the onCanPlay handler once the
-                // browser has buffered enough data to actually seek.
                 pendingSeekRef.current = serverSeek > 1.0 ? serverSeek : 0;
-
                 audio.playbackRate = 1.0;
                 audio.src = song.audioUrl;
-                // audio.load() is implicit when src changes.
-
                 setIsWaitingForSync(false);
-
-                // Don't call play() here — the onCanPlay handler will do it
-                // after applying the seek, if the user has interacted.
 
             // ── Same song → hard seek only ──────────────────────────────────
             } else {
@@ -235,6 +244,55 @@ export function LiveMusicProvider({ children }: { children: React.ReactNode }) {
         }
     }, []);
 
+    // ─── Preload next song ──────────────────────────────────────────────────
+    const preloadNextSong = useCallback(async () => {
+        if (!preloadAudioRef.current) return;
+        
+        // Fetch the current server state to get the next song's audio URL
+        try {
+            const res = await fetch("/api/live-music/now", { cache: "no-store" });
+            const data = await res.json();
+            
+            if (!data.isLive || data.error || !data.song) return;
+
+            const songs = data.tracklist as TracklistItem[];
+            const currentIdx = data.songIndex as number;
+            const nextIdx = (currentIdx + 1) % songs.length;
+
+            // We need the next song's audioUrl — fetch it by getting the state
+            // that would exist 'duration - seekPosition' seconds from now.
+            // Instead, we fetch the /api/live-music/next endpoint or compute locally.
+            // For now, store the index — we'll use fetchAndSync on transition
+            // but with a preloaded audio element.
+            
+            // Actually, the simplest approach: fetch what will be playing
+            // a few seconds from now by requesting /api/live-music/now with
+            // a time offset. But since the API doesn't support that,
+            // let's preload by fetching the next song data.
+            const nextRes = await fetch(`/api/live-music/next?currentIndex=${currentIdx}`, { cache: "no-store" });
+            
+            if (nextRes.ok) {
+                const nextData = await nextRes.json();
+                if (nextData.song && nextData.song.audioUrl) {
+                    const nextSong = nextData.song as LiveSong;
+                    
+                    // Don't re-preload the same song
+                    if (preloadedSongUrlRef.current === nextSong.audioUrl) return;
+                    
+                    preloadedSongUrlRef.current = nextSong.audioUrl;
+                    nextSongDataRef.current = nextSong;
+                    nextSongIndexRef.current = nextData.songIndex ?? nextIdx;
+                    preloadReadyRef.current = false;
+                    
+                    preloadAudioRef.current.src = nextSong.audioUrl;
+                    preloadAudioRef.current.load();
+                }
+            }
+        } catch {
+            // Preload failure is non-critical — we'll fall back to fetchAndSync
+        }
+    }, []);
+
     // ─── Lifecycle: fetch on mount only ─────────────────────────────────────
     useEffect(() => {
         fetchAndSync();
@@ -249,17 +307,14 @@ export function LiveMusicProvider({ children }: { children: React.ReactNode }) {
         hasUserInteractedRef.current = true;
 
         if (isPlaying) {
-            // Pausing: simple, no sync needed.
             audioRef.current.pause();
         } else {
             if (!hasEverPlayedRef.current) {
-                // Very first play since page load.
-                // Re-sync to get a fresh server position because the user
-                // might have waited before pressing play.
                 hasEverPlayedRef.current = true;
+                // Show sync spinner immediately so user sees loading feedback
+                setIsWaitingForSync(true);
                 fetchAndSync();
             } else {
-                // Subsequent play from paused: just resume, no sync.
                 audioRef.current.play().catch(() => {});
             }
         }
@@ -273,6 +328,80 @@ export function LiveMusicProvider({ children }: { children: React.ReactNode }) {
         fetchAndSync();
     }, [fetchAndSync]);
 
+    // ─── Instant Swap Handler ───────────────────────────────────────────────
+    const handleSongEnded = useCallback(() => {
+        if (!audioRef.current) return;
+
+        // Enter transitioning state — keeps the sync spinner visible
+        // and prevents the micro-pause button flash
+        isTransitioningRef.current = true;
+        setIsTransitioning(true);
+
+        // If we have a preloaded song ready, do instant swap
+        if (preloadReadyRef.current && preloadAudioRef.current && nextSongDataRef.current) {
+            const preloaded = preloadAudioRef.current;
+            const nextSong = nextSongDataRef.current;
+
+            // Swap: pause primary, start preloaded at position 0
+            audioRef.current.pause();
+            audioRef.current.src = "";
+
+            // Move preloaded to primary
+            currentSongUrlRef.current = nextSong.audioUrl;
+            preloaded.currentTime = 0;
+            preloaded.playbackRate = 1.0;
+
+            // Swap the refs
+            const oldPrimary = audioRef.current;
+            audioRef.current = preloaded;
+            preloadAudioRef.current = oldPrimary;
+
+            // Update state
+            setCurrentSong(nextSong);
+            setSongIndex(nextSongIndexRef.current);
+            setCurrentTime(0);
+            setSeekPosition(0);
+
+            // Clear preload tracking
+            preloadedSongUrlRef.current = "";
+            preloadReadyRef.current = false;
+            nextSongDataRef.current = null;
+            nextSongIndexRef.current = -1;
+
+            // Play immediately
+            preloaded.play().then(() => {
+                isTransitioningRef.current = false;
+                setIsTransitioning(false);
+                setIsWaitingForSync(false);
+                setIsPlaying(true);
+            }).catch(() => {
+                isTransitioningRef.current = false;
+                setIsTransitioning(false);
+            });
+
+            // Update sync reference
+            serverSyncRef.current = {
+                serverSeek: 0,
+                fetchedAt: Date.now(),
+                songUrl: nextSong.audioUrl,
+            };
+
+            // Background metadata refresh
+            setTimeout(() => fetchAndSync({ metadataOnly: true }), 500);
+
+        } else {
+            // Fallback: no preloaded song, use the old fetchAndSync approach
+            // but keep transitioning state active
+            if (retryTimerRef.current) clearTimeout(retryTimerRef.current);
+            retryTimerRef.current = setTimeout(() => {
+                fetchAndSync().then(() => {
+                    // Clear transition after fetch completes and audio starts
+                    // The onPlaying handler will clear it
+                });
+            }, 500);
+        }
+    }, [fetchAndSync]);
+
     // ─── Render ─────────────────────────────────────────────────────────────
     return (
         <LiveMusicContext.Provider value={{
@@ -281,6 +410,7 @@ export function LiveMusicProvider({ children }: { children: React.ReactNode }) {
             isLoading,
             isBuffering,
             isWaitingForSync,
+            isTransitioning,
             currentSong,
             seekPosition,
             currentTime,
@@ -296,6 +426,7 @@ export function LiveMusicProvider({ children }: { children: React.ReactNode }) {
             togglePlay,
             refresh,
         }}>
+            {/* Primary audio element */}
             <audio
                 ref={audioRef}
                 preload="auto"
@@ -303,12 +434,10 @@ export function LiveMusicProvider({ children }: { children: React.ReactNode }) {
                 onCanPlay={() => {
                     setIsBuffering(false);
 
-                    // Apply deferred seek once browser is ready.
                     if (pendingSeekRef.current !== null && audioRef.current) {
                         audioRef.current.currentTime = pendingSeekRef.current;
                         pendingSeekRef.current = null;
 
-                        // Auto-play if the user has already interacted.
                         if (hasUserInteractedRef.current) {
                             audioRef.current.play().catch(() => {});
                         }
@@ -318,27 +447,35 @@ export function LiveMusicProvider({ children }: { children: React.ReactNode }) {
                     setIsBuffering(false);
                     setIsPlaying(true);
                     setIsWaitingForSync(false);
+                    // Clear transitioning — the new song is now audibly playing
+                    if (isTransitioningRef.current) {
+                        isTransitioningRef.current = false;
+                        setIsTransitioning(false);
+                    }
                 }}
-                onPause={() => setIsPlaying(false)}
-                onEnded={() => {
-                    // Song finished naturally.
-                    // Wait 1s for the server clock to advance past the
-                    // transition point, then fetch the next song.
-                    setIsPlaying(false);
-                    setIsWaitingForSync(true);
-
-                    if (retryTimerRef.current) clearTimeout(retryTimerRef.current);
-                    retryTimerRef.current = setTimeout(() => {
-                        fetchAndSync();
-                    }, 1000);
+                onPause={() => {
+                    // Only update isPlaying to false if we're NOT mid-transition
+                    // This prevents the micro-pause icon flash
+                    if (!isTransitioningRef.current) {
+                        setIsPlaying(false);
+                    }
                 }}
+                onEnded={handleSongEnded}
                 onTimeUpdate={() => {
                     if (!audioRef.current) return;
                     const t = audioRef.current.currentTime;
                     setCurrentTime(t);
 
-                    // Compute drift from expected server position.
-                    // Expected = serverSeek + wallclock elapsed since fetch.
+                    // ── Preload trigger: when ≤ PRELOAD_AHEAD_SECS remain ───
+                    const song = audioRef.current;
+                    if (song.duration && song.duration > 0) {
+                        const remaining = song.duration - t;
+                        if (remaining <= PRELOAD_AHEAD_SECS && remaining > 0 && !preloadedSongUrlRef.current) {
+                            preloadNextSong();
+                        }
+                    }
+
+                    // ── Drift calculation ────────────────────────────────────
                     const sync = serverSyncRef.current;
                     if (sync.songUrl && sync.songUrl === currentSongUrlRef.current) {
                         const elapsed = (Date.now() - sync.fetchedAt) / 1000;
@@ -346,7 +483,6 @@ export function LiveMusicProvider({ children }: { children: React.ReactNode }) {
                         const drift = Math.abs(expectedPos - t);
                         const synced = drift < SYNC_DRIFT_THRESHOLD;
 
-                        // Only update state when the value actually changes.
                         if (synced !== lastSyncedRef.current) {
                             lastSyncedRef.current = synced;
                             setIsSynced(synced);
@@ -355,7 +491,17 @@ export function LiveMusicProvider({ children }: { children: React.ReactNode }) {
                 }}
                 style={{ display: "none" }}
             />
+            {/* Preload audio element — hidden, used for buffering next song */}
+            <audio
+                ref={preloadAudioRef}
+                preload="auto"
+                onCanPlayThrough={() => {
+                    preloadReadyRef.current = true;
+                }}
+                style={{ display: "none" }}
+            />
             {children}
         </LiveMusicContext.Provider>
     );
 }
+

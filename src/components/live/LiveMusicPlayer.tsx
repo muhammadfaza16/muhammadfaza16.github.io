@@ -15,7 +15,7 @@ function fmtTime(s: number) {
 
 export function LiveMusicPlayer() {
     const {
-        isLive, isPlaying, isLoading, isBuffering, isWaitingForSync,
+        isLive, isPlaying, isLoading, isBuffering, isWaitingForSync, isTransitioning,
         currentSong, currentTime, songIndex, totalSongs,
         playlistTitle, playlistCover, playlistColor, tracklist,
         error, togglePlay, refresh, isSynced, listenersCount
@@ -404,7 +404,7 @@ export function LiveMusicPlayer() {
                     </div>
 
                 {/* Center: Play/Pause */}
-                {isWaitingForSync ? (
+                {(isWaitingForSync || isTransitioning) ? (
                     <motion.div
                         animate={{ rotate: 360 }}
                         transition={{ repeat: Infinity, duration: 2, ease: "linear" }}
