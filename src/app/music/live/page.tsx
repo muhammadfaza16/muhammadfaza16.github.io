@@ -15,15 +15,16 @@ export default function LiveMusicPage() {
     return (
         <main style={{
             position: "relative",
-            minHeight: "100svh",
-            padding: "12px 16px 40px 16px",
+            height: "100svh",
+            overflow: "hidden",
+            padding: "12px 16px 0 16px",
             maxWidth: "500px",
             margin: "0 auto",
             display: "flex",
             flexDirection: "column",
             gap: "1rem",
-            backgroundColor: isDark ? "#0A0A0A" : "#f9f9f9",
-            color: isDark ? "#FFF" : "#000",
+            backgroundColor: "var(--background)",
+            color: "var(--foreground)",
             transition: "all 0.5s ease"
         }}>
             {/* Header */}

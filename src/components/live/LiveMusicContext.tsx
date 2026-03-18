@@ -31,6 +31,7 @@ interface LiveMusicState {
     playlistColor: string | null;
     tracklist: TracklistItem[];
     error: string | null;
+    isSynced: boolean;
     togglePlay: () => void;
     refresh: () => void;
 }
@@ -51,6 +52,7 @@ const LiveMusicContext = createContext<LiveMusicState>({
     playlistColor: null,
     tracklist: [],
     error: null,
+    isSynced: false,
     togglePlay: () => {},
     refresh: () => {},
 });
@@ -87,6 +89,7 @@ export function LiveMusicProvider({ children }: { children: React.ReactNode }) {
     const [playlistColor, setPlaylistColor] = useState<string | null>(null);
     const [tracklist, setTracklist] = useState<TracklistItem[]>([]);
     const [error, setError] = useState<string | null>(null);
+    const [isSynced, setIsSynced] = useState(false);
 
     const audioRef = useRef<HTMLAudioElement | null>(null);
     const pollTimerRef = useRef<NodeJS.Timeout | null>(null);
@@ -296,6 +299,7 @@ export function LiveMusicProvider({ children }: { children: React.ReactNode }) {
             playlistColor,
             tracklist,
             error,
+            isSynced,
             togglePlay,
             refresh,
         }}>
@@ -316,7 +320,16 @@ export function LiveMusicProvider({ children }: { children: React.ReactNode }) {
                 }}
                 onTimeUpdate={() => {
                     if (audioRef.current) {
-                        setCurrentTime(audioRef.current.currentTime);
+                        const t = audioRef.current.currentTime;
+                        setCurrentTime(t);
+                        
+                        // Recalculate sync status
+                        if (seekPosition > 0 && isPlaying && !isBuffering && !isWaitingForSync) {
+                            const drift = Math.abs(t - seekPosition);
+                            setIsSynced(drift < DRIFT_TOLERANCE);
+                        } else {
+                            setIsSynced(false);
+                        }
                     }
                 }}
                 style={{ display: "none" }}

@@ -59,7 +59,14 @@ export function LayoutShell({ children }: { children: React.ReactNode }) {
 
     return (
         <>
-            <main id="main-content" style={{ flex: 1 }}>
+            <main 
+                id="main-content" 
+                style={{ 
+                    flex: 1,
+                    height: isLivePage ? "100svh" : "auto",
+                    overflow: isLivePage ? "hidden" : "auto"
+                }}
+            >
                 {children}
             </main>
             <MusicSmoothScroll />

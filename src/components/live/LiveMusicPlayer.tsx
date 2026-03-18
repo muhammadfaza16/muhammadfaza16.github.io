@@ -2,7 +2,7 @@
 
 import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Play, Pause, Radio, Disc, Music, ListMusic, ChevronDown, RefreshCw } from "lucide-react";
+import { Play, Pause, Radio, Disc, Music, ListMusic, ChevronDown, RefreshCcw } from "lucide-react";
 import { useLiveMusic } from "./LiveMusicContext";
 import { parseSongTitle } from "@/utils/songUtils";
 import { useTheme } from "@/components/ThemeProvider";
@@ -18,7 +18,7 @@ export function LiveMusicPlayer() {
         isLive, isPlaying, isLoading, isBuffering, isWaitingForSync,
         currentSong, currentTime, songIndex, totalSongs,
         playlistTitle, playlistCover, playlistColor, tracklist,
-        error, togglePlay, refresh
+        error, togglePlay, refresh, isSynced
     } = useLiveMusic();
     const { theme } = useTheme();
     const [showQueue, setShowQueue] = React.useState(false);
@@ -325,19 +325,36 @@ export function LiveMusicPlayer() {
                     </motion.button>
                 )}
 
-                {/* Right: Refresh (Matches Queue Icon for Balance) */}
+                {/* Right: LIVE Indicator / Sync Button */}
                 <motion.button
-                    whileTap={{ scale: 0.9 }}
+                    whileTap={{ scale: 0.95 }}
                     onClick={refresh}
                     style={{
-                        width: "48px", height: "48px", borderRadius: "100px",
+                        padding: "0 12px", height: "48px", borderRadius: "100px",
                         background: isDark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.04)",
-                        display: "flex", alignItems: "center", justifyContent: "center",
+                        display: "flex", alignItems: "center", gap: "8px",
                         border: "none", cursor: "pointer",
-                        color: isDark ? "rgba(255,255,255,0.7)" : "rgba(0,0,0,0.6)",
+                        color: isDark ? "rgba(255,255,255,0.8)" : "rgba(0,0,0,0.7)",
                     }}
                 >
-                    <RefreshCw size={20} />
+                    <span style={{ 
+                        fontFamily: headerFont, fontWeight: 900, fontSize: "0.65rem", 
+                        letterSpacing: "0.1em", textTransform: "uppercase" 
+                    }}>
+                        {isSynced ? "LIVE" : "SYNC"}
+                    </span>
+                    <motion.div
+                        animate={isSynced ? {
+                            scale: [1, 1.2, 1],
+                            opacity: [1, 0.6, 1],
+                        } : {}}
+                        transition={{ repeat: Infinity, duration: 2 }}
+                        style={{
+                            width: "6px", height: "6px", borderRadius: "50%",
+                            background: isSynced ? "#EF4444" : "#666",
+                            boxShadow: isSynced ? "0 0 8px rgba(239, 68, 68, 0.5)" : "none"
+                        }}
+                    />
                 </motion.button>
             </div>
 
