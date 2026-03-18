@@ -60,6 +60,9 @@ function cleanFileName(filename: string) {
     if (name.includes('Bahagia Lagi')) {
         name = 'Piche Kota - Bahagia Lagi';
     }
+    if (name.includes('Yang Terdalam')) {
+        name = 'Noah - Yang Terdalam';
+    }
     if (name.includes('Jangan Paksa Rindu (Beda)')) {
         name = 'Ifan 17 - Jangan Paksa Rindu (Beda)';
     }

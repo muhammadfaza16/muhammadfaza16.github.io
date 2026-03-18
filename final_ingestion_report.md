@@ -4,43 +4,43 @@ Successfully processed 37 songs from the `populate` folder into the main library
 
 | Final Title | Category | Slugified URL |
 | :--- | :--- | :--- |
-| **Andra And The Backbone — Sempurna (Slowed & Reverb)** | Indo | `/audio/sempurna-andra-and-the-backbone-slowed-reverb.mp3` |
-| **Piche Kota — Bahagia Lagi** | Indo | `/audio/piche-kota-bahagia-lagi.mp3` |
-| **Daun Jatuh — Resah Jadi Luka** | Indo | `/audio/daun-jatuh-resah-jadi-luka.mp3` |
-| **Ifan 17 — Jangan Paksa Rindu (Beda)** | Indo | `/audio/ifan-17-jangan-paksa-rindu-beda.mp3` |
-| **Hindia — Mangu** | Indo | `/audio/hindia-mangu.mp3` |
-| **Nadhif Basalamah — Penjaga Hati** | Indo | `/audio/nadhif-basalamah-penjaga-hati.mp3` |
-| **PADI — Kasih Tak Sampai** | Indo | `/audio/padi-kasih-tak-sampai.mp3` |
-| **Panji Sakti — Sang Guru** | Indo | `/audio/panji-sakti-sang-guru.mp3` |
-| **Peterpan — Aku Dan Bintang** | Indo | `/audio/peterpan-aku-dan-bintang.mp3` |
-| **Peterpan — Di Belakangku** | Indo | `/audio/peterpan-di-belakangku.mp3` |
-| **Peterpan — Langit Tak Mendengar** | Indo | `/audio/peterpan-langit-tak-mendengar.mp3` |
-| **Peterpan — Membebaniku** | Indo | `/audio/peterpan-membebaniku.mp3` |
-| **Peterpan — Mungkin Nanti** | Indo | `/audio/peterpan-mungkin-nanti.mp3` |
-| **Peterpan — Sahabat** | Indo | `/audio/peterpan-sahabat.mp3` |
-| **Peterpan — Tak Bisakah** | Indo | `/audio/peterpan-tak-bisakah.mp3` |
-| **Padi — Semua Tak Sama** | Indo | `/audio/padi-semua-tak-sama.mp3` |
-| **Virgoun — Surat Cinta Untuk Starla** | Indo | `/audio/virgoun-surat-cinta-untuk-starla.mp3` |
-| **The Lantis — Lampu Merah** | Indo | `/audio/the-lantis-lampu-merah.mp3` |
-| **The Lantis — Bunga Maaf** | Indo | `/audio/the-lantis-bunga-maaf.mp3` |
-| **Feby Putri — Runtuh (feat. Fiersa Besari)** | Indo | `/audio/feby-putri-runtuh-feat-fiersa-besari.mp3` |
-| **Pamungkas — Monolog** | Indo | `/audio/pamungkas-monolog.mp3` |
-| **Nadhif Basalamah — Kota Ini Tak Sama Tanpamu** | Indo | `/audio/nadhif-basalamah-kota-ini-tak-sama-tanpamu.mp3` |
-| **Peterpan — Menunggu Pagi** | Indo | `/audio/peterpan-menunggu-pagi.mp3` |
-| **Mahen — Pura Pura Lupa** | Indo | `/audio/mahen-pura-pura-lupa.mp3` |
-| **Lobow — Salah** | Indo | `/audio/lobow-salah.mp3` |
+| **Noah — Yang Terdalam** | Indo | `/audio/noah-yang-terdalam.mp3` |
+| **Noah — Topeng** | Indo | `/audio/noah-topeng.mp3` |
+| **Noah — Tetap Berdiri (2DSD)** | Indo | `/audio/noah-tetap-berdiri-2dsd.mp3` |
+| **Noah — Tertinggalkan Waktu** | Indo | `/audio/noah-tertinggalkan-waktu.mp3` |
+| **Noah — Taman Langit** | Indo | `/audio/noah-taman-langit.mp3` |
+| **Noah — Semua Tentang Kita** | Indo | `/audio/noah-semua-tentang-kita.mp3` |
+| **Noah — Satu Hati** | Indo | `/audio/noah-satu-hati.mp3` |
+| **Noah — Sally Sendiri** | Indo | `/audio/noah-sally-sendiri.mp3` |
+| **Noah — Sahabat** | Indo | `/audio/noah-sahabat.mp3` |
+| **Noah — Tak Bisakah** | Indo | `/audio/noah-tak-bisakah.mp3` |
+| **Noah — Tak Ada Yang Abadi** | Indo | `/audio/noah-tak-ada-yang-abadi.mp3` |
+| **Noah — Menunggumu** | Indo | `/audio/noah-menunggumu.mp3` |
+| **Noah — Menunggu Pagi** | Indo | `/audio/noah-menunggu-pagi.mp3` |
+| **Noah — Menghapus Jejakmu (feat. Rejoz TheGROOVE) Official Music Video** | Indo | `/audio/noah-menghapus-jejakmu-feat-rejoz-thegroove-official-music-video.mp3` |
+| **Noah — Membebaniku** | Indo | `/audio/noah-membebaniku.mp3` |
+| **Noah — Langit Tak Mendengar** | Indo | `/audio/noah-langit-tak-mendengar.mp3` |
+| **Noah — Dilema Besar** | Indo | `/audio/noah-dilema-besar.mp3` |
+| **Noah — Dara Official Audio (NOAH Version)** | Indo | `/audio/noah-dara-official-audio-noah-version.mp3` |
+| **Noah — Bintang di Surga** | Indo | `/audio/noah-bintang-di-surga.mp3` |
+| **Noah — Walau Habis Terang** | Indo | `/audio/noah-walau-habis-terang.mp3` |
+| **Noah — Mungkin Nanti** | Indo | `/audio/noah-mungkin-nanti.mp3` |
+| **Noah — Mimpi Yang Sempurna** | Indo | `/audio/noah-mimpi-yang-sempurna.mp3` |
+| **Noah — Melawan Dunia** | Indo | `/audio/noah-melawan-dunia.mp3` |
+| **Noah — Lihat Langkahku** | Indo | `/audio/noah-lihat-langkahku.mp3` |
+| **Noah — Ku Katakan Dengan Indah** | Indo | `/audio/noah-ku-katakan-dengan-indah.mp3` |
 | **Noah — Kota Mati** | Indo | `/audio/noah-kota-mati.mp3` |
-| **Ungu — Kekasih Gelapku** | Indo | `/audio/ungu-kekasih-gelapku.mp3` |
-| **Keisya Levronka — Tak Ingin Usai** | Indo | `/audio/keisya-levronka-tak-ingin-usai.mp3` |
-| **Ghea Indrawari — Jiwa Yang Bersedih** | Indo | `/audio/ghea-indrawari-jiwa-yang-bersedih.mp3` |
-| **Feast — Nina** | Indo | `/audio/feast-nina.mp3` |
-| **Drive — Bersama Bintang** | Indo | `/audio/drive-bersama-bintang.mp3` |
-| **Bernadya — Untungnya, Hidup Harus Tetap Berjalan** | Indo | `/audio/bernadya-untungnya-hidup-harus-tetap-berjalan.mp3` |
-| **Barasuara — Terbuang Dalam Waktu** | Indo | `/audio/barasuara-terbuang-dalam-waktu.mp3` |
-| **Andmesh — Hanya Rindu** | Indo | `/audio/andmesh-hanya-rindu.mp3` |
-| **Firman — Kehilangan** | Indo | `/audio/firman-kehilangan.mp3` |
-| **Budi Doremi — Mesin Waktu** | Indo | `/audio/budi-doremi-mesin-waktu.mp3` |
-| **Aku Jeje — Lihat Kebunku (Taman Bunga)** | Indo | `/audio/aku-jeje-lihat-kebunku-taman-bunga.mp3` |
+| **Noah — Kita Tertawa** | Indo | `/audio/noah-kita-tertawa.mp3` |
+| **Noah — Khayalan Tingkat Tinggi** | Indo | `/audio/noah-khayalan-tingkat-tinggi.mp3` |
+| **Noah — Hari Yang Cerah Untuk Jiwa Yang Sepi** | Indo | `/audio/noah-hari-yang-cerah-untuk-jiwa-yang-sepi.mp3` |
+| **Noah — Dunia Yang Terlupa** | Indo | `/audio/noah-dunia-yang-terlupa.mp3` |
+| **Noah — Dibalik Awan** | Indo | `/audio/noah-dibalik-awan.mp3` |
+| **Noah — Diatas Normal** | Indo | `/audio/noah-diatas-normal.mp3` |
+| **Noah — Di Belakangku** | Indo | `/audio/noah-di-belakangku.mp3` |
+| **Noah — Dan Hilang** | Indo | `/audio/noah-dan-hilang.mp3` |
+| **Noah — Cobalah Mengerti** | Indo | `/audio/noah-cobalah-mengerti.mp3` |
+| **Noah — Bebas** | Indo | `/audio/noah-bebas.mp3` |
+| **Noah — Aku & Bintang** | Indo | `/audio/noah-aku-bintang.mp3` |
 
 ## Sync Status
 - **"Indo Hits" Playlist**: Updated to include all new tracks.
