@@ -1,8 +1,8 @@
 "use client";
 
 import React from "react";
-import { motion } from "framer-motion";
-import { Play, Pause, Radio, Disc, Music } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Play, Pause, Radio, Disc, Music, ListMusic } from "lucide-react";
 import { useLiveMusic } from "./LiveMusicContext";
 import { parseSongTitle } from "@/utils/songUtils";
 import { useTheme } from "@/components/ThemeProvider";
@@ -21,6 +21,7 @@ export function LiveMusicPlayer() {
         error, togglePlay, refresh
     } = useLiveMusic();
     const { theme } = useTheme();
+    const [showQueue, setShowQueue] = React.useState(false);
 
     const headerFont = "var(--font-display), system-ui, sans-serif";
     const monoFont = "var(--font-mono), monospace";
@@ -162,7 +163,7 @@ export function LiveMusicPlayer() {
 
                 {/* Audio Visualizer Bars */}
                 {isPlaying && (
-                    <div style={{ position: "absolute", bottom: "20px", left: "50%", transform: "translateX(-50%)", display: "flex", gap: "3px", zIndex: 3 }}>
+                    <div style={{ position: "absolute", bottom: "20px", left: "50%", transform: "translateX(-50%)", display: "flex", alignItems: "flex-end", gap: "3px", zIndex: 3, height: "40px" }}>
                         {[...Array(5)].map((_, i) => (
                             <motion.div
                                 key={i}
@@ -269,24 +270,51 @@ export function LiveMusicPlayer() {
                 )}
             </div>
 
-            {/* Track counter */}
-            <div style={{ textAlign: "center", fontFamily: monoFont, fontWeight: 700, fontSize: "0.65rem", color: isWaitingForSync ? "#EF4444" : (isDark ? "rgba(255,255,255,0.3)" : "rgba(0,0,0,0.3)") }}>
-                {isWaitingForSync ? (
-                    <motion.span animate={{ opacity: [0.5, 1, 0.5] }} transition={{ repeat: Infinity, duration: 1.5 }}>
-                        SYNCING BROADCAST...
-                    </motion.span>
-                ) : (
-                    `TRACK ${songIndex + 1} OF ${totalSongs}`
-                )}
+            {/* Track counter & Queue Toggle */}
+            <div style={{
+                display: "flex", alignItems: "center", justifyContent: "space-between",
+                padding: "0 16px", marginTop: "8px"
+            }}>
+                <div style={{ fontFamily: monoFont, fontWeight: 700, fontSize: "0.65rem", color: isWaitingForSync ? "#EF4444" : (isDark ? "rgba(255,255,255,0.3)" : "rgba(0,0,0,0.3)") }}>
+                    {isWaitingForSync ? (
+                        <motion.span animate={{ opacity: [0.5, 1, 0.5] }} transition={{ repeat: Infinity, duration: 1.5 }}>
+                            SYNCING BROADCAST...
+                        </motion.span>
+                    ) : (
+                        `TRACK ${songIndex + 1} OF ${totalSongs}`
+                    )}
+                </div>
+                
+                <motion.button
+                    whileTap={{ scale: 0.9 }}
+                    onClick={() => setShowQueue(!showQueue)}
+                    style={{
+                        background: showQueue ? (isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.06)") : "transparent",
+                        color: showQueue ? (isDark ? "#FFF" : "#000") : (isDark ? "rgba(255,255,255,0.4)" : "rgba(0,0,0,0.4)"),
+                        border: "none", borderRadius: "100px",
+                        width: "36px", height: "36px",
+                        display: "flex", alignItems: "center", justifyContent: "center",
+                        cursor: "pointer"
+                    }}
+                >
+                    <ListMusic size={18} />
+                </motion.button>
             </div>
 
             {/* Queue Preview */}
-            {tracklist.length > 0 && (
-                <div style={{
-                    background: isDark ? "rgba(255,255,255,0.02)" : "rgba(0,0,0,0.02)",
-                    border: isDark ? "1px solid rgba(255,255,255,0.05)" : "1px solid rgba(0,0,0,0.04)",
-                    borderRadius: "20px", overflow: "hidden"
-                }}>
+            <AnimatePresence initial={false}>
+                {showQueue && tracklist.length > 0 && (
+                    <motion.div
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: "auto" }}
+                        exit={{ opacity: 0, height: 0 }}
+                        style={{ overflow: "hidden" }}
+                    >
+                        <div style={{
+                            background: isDark ? "rgba(255,255,255,0.02)" : "rgba(0,0,0,0.02)",
+                            border: isDark ? "1px solid rgba(255,255,255,0.05)" : "1px solid rgba(0,0,0,0.04)",
+                            borderRadius: "20px", overflow: "hidden"
+                        }}>
                     <div style={{
                         padding: "12px 16px",
                         borderBottom: isDark ? "1px solid rgba(255,255,255,0.05)" : "1px solid rgba(0,0,0,0.04)",
@@ -347,9 +375,11 @@ export function LiveMusicPlayer() {
                                 </div>
                             );
                         })}
-                    </div>
-                </div>
-            )}
+                        </div>
+                        </div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
         </div>
     );
 }
