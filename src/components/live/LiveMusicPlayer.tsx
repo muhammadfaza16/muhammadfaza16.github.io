@@ -161,9 +161,40 @@ export function LiveMusicPlayer() {
     const progress = currentSong.duration ? (currentTime / currentSong.duration) * 100 : 0;
 
     return (
-        <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
-            {/* LIVE Badge + Playlist Info */}
-            <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+        <>
+            {/* Ambient Dynamic Background */}
+            <AnimatePresence>
+                {playlistCover && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: isDark ? 0.4 : 0.5 }}
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: 2 }}
+                        style={{
+                            position: "absolute",
+                            inset: "-150px",
+                            zIndex: 0,
+                            pointerEvents: "none",
+                            backgroundImage: `url(${playlistCover})`,
+                            backgroundSize: "cover",
+                            backgroundPosition: "center",
+                            filter: "blur(100px) saturate(150%)",
+                            transform: "scale(1.2)"
+                        }}
+                    >
+                        <motion.div
+                            animate={{ scale: isPlaying ? [1, 1.1, 1] : 1 }}
+                            transition={{ repeat: Infinity, duration: 20, ease: "easeInOut" }}
+                            style={{ width: "100%", height: "100%", background: "inherit" }}
+                        />
+                    </motion.div>
+                )}
+            </AnimatePresence>
+            <div style={{ position: "absolute", inset: "-150px", zIndex: 0, pointerEvents: "none", backgroundColor: isDark ? "rgba(0,0,0,0.6)" : "rgba(255,255,255,0.6)" }} />
+
+            <div style={{ position: "relative", zIndex: 1, flex: 1, display: "flex", flexDirection: "column", width: "100%", maxWidth: "500px", margin: "0 auto" }}>
+            {/* LIVE Badge + Playlist Info - Placed at top */}
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "12px", padding: "12px 16px" }}>
                 <motion.div
                     animate={{ scale: [1, 1.15, 1] }}
                     transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" }}
@@ -181,13 +212,20 @@ export function LiveMusicPlayer() {
                 </span>
             </div>
 
+            {/* Inner Flex Container mirroring GlobalBottomPlayer */}
+            <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "32px", padding: "0 32px", paddingBottom: "32px" }}>
+
             {/* Cover Art / Visualizer */}
-            <div style={{
-                width: "100%", aspectRatio: "1/1", maxWidth: "240px", margin: "0 auto",
+            <motion.div 
+                animate={{ scale: isPlaying ? [1, 1.03, 1] : 1 }}
+                transition={{ repeat: Infinity, duration: 6, ease: "easeInOut" }}
+                style={{
+                width: "100%", aspectRatio: "1/1", maxWidth: "240px",
                 borderRadius: "28px", overflow: "hidden", position: "relative",
                 background: playlistColor || (isDark ? "linear-gradient(135deg, #1E1B4B, #312E81)" : "linear-gradient(135deg, #E0E7FF, #C7D2FE)"),
-                boxShadow: isDark ? "0 40px 100px rgba(0,0,0,0.6)" : "0 20px 50px rgba(0,0,0,0.1)",
-                border: isDark ? "1px solid rgba(255,255,255,0.1)" : "1px solid rgba(0,0,0,0.06)"
+                boxShadow: isDark ? "0 30px 80px rgba(0,0,0,0.7)" : "0 20px 60px rgba(0,0,0,0.3)",
+                border: isDark ? "1px solid rgba(255,255,255,0.1)" : "1px solid rgba(0,0,0,0.06)",
+                display: "flex", alignItems: "center", justifyContent: "center"
             }}>
                 {playlistCover && (
                     <img src={playlistCover} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", opacity: 0.6 }} alt="" />
@@ -232,11 +270,11 @@ export function LiveMusicPlayer() {
                         </motion.div>
                     </div>
                 )}
-            </div>
+            </motion.div>
 
             {/* Song Info */}
             <div style={{ textAlign: "center", display: "flex", flexDirection: "column", alignItems: "center", gap: "8px" }}>
-                <h2 style={{ fontFamily: headerFont, fontWeight: 900, fontSize: "1.3rem", margin: 0, letterSpacing: "-0.03em", color: isDark ? "#FFF" : "#000" }}>
+                <h2 style={{ fontFamily: headerFont, fontWeight: 900, fontSize: "1.4rem", margin: 0, letterSpacing: "-0.04em", color: isDark ? "#FFF" : "#000" }}>
                     {cleanTitle}
                 </h2>
                 {labels.length > 0 && (
@@ -259,14 +297,17 @@ export function LiveMusicPlayer() {
             </div>
 
             {/* Progress Bar (non-interactive, radio-style) */}
-            <div style={{ width: "100%", padding: "0 4px" }}>
+            <div style={{ width: "100%" }}>
                 <div style={{
-                    width: "100%", height: "4px", borderRadius: "100px",
-                    backgroundColor: isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.05)",
+                    width: "100%", height: "6px", borderRadius: "100px",
+                    backgroundColor: isDark ? "rgba(255,255,255,0.15)" : "rgba(0,0,0,0.1)",
                     overflow: "hidden"
                 }}>
                     <motion.div
-                        style={{ height: "100%", backgroundColor: "#EF4444", borderRadius: "100px", width: `${Math.min(progress, 100)}%` }}
+                        style={{ 
+                            height: "100%", backgroundColor: "#EF4444", borderRadius: "100px", width: `${Math.min(progress, 100)}%`,
+                            boxShadow: isPlaying ? "0 0 12px rgba(239, 68, 68, 0.8)" : "none"
+                        }}
                         transition={{ duration: 0.25, ease: "linear" }}
                     />
                 </div>
@@ -276,17 +317,19 @@ export function LiveMusicPlayer() {
                 </div>
             </div>
 
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", width: "100%", maxWidth: "340px", margin: "12px auto" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", width: "100%", padding: "0 10px" }}>
                 {/* Left: Queue Toggle */}
                 <motion.button
                     whileTap={{ scale: 0.9 }}
                     onClick={() => setShowQueue(true)}
                     style={{
                         width: "48px", height: "48px", borderRadius: "100px",
-                        background: isDark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.04)",
+                        background: isDark ? "rgba(255,255,255,0.1)" : "rgba(255,255,255,0.5)",
+                        backdropFilter: "blur(20px)",
                         display: "flex", alignItems: "center", justifyContent: "center",
-                        border: "none", cursor: "pointer",
-                        color: isDark ? "rgba(255,255,255,0.7)" : "rgba(0,0,0,0.6)",
+                        border: isDark ? "1px solid rgba(255,255,255,0.1)" : "1px solid rgba(0,0,0,0.05)",
+                        cursor: "pointer",
+                        color: isDark ? "#FFF" : "#000",
                     }}
                 >
                     <ListMusic size={20} />
@@ -312,15 +355,17 @@ export function LiveMusicPlayer() {
                         onClick={togglePlay}
                         style={{
                             width: "80px", height: "80px", borderRadius: "100px",
-                            background: isDark ? "#FFF" : "#000",
+                            background: isDark ? "rgba(255,255,255,0.15)" : "rgba(255,255,255,0.6)",
+                            backdropFilter: "blur(30px)",
                             display: "flex", alignItems: "center", justifyContent: "center",
-                            border: "none", cursor: "pointer",
-                            boxShadow: isDark ? "0 20px 60px rgba(0,0,0,0.5)" : "0 10px 30px rgba(0,0,0,0.15)"
+                            border: isDark ? "1px solid rgba(255,255,255,0.2)" : "1px solid rgba(0,0,0,0.05)",
+                            cursor: "pointer",
+                            boxShadow: isDark ? "0 20px 40px rgba(0,0,0,0.5)" : "0 10px 30px rgba(0,0,0,0.1)"
                         }}
                     >
                         {isPlaying
-                            ? <Pause size={36} color={isDark ? "#000" : "#fff"} fill="currentColor" />
-                            : <Play size={36} color={isDark ? "#000" : "#fff"} fill="currentColor" style={{ marginLeft: "6px" }} />
+                            ? <Pause size={36} color={isDark ? "#FFF" : "#000"} fill="currentColor" />
+                            : <Play size={36} color={isDark ? "#FFF" : "#000"} fill="currentColor" style={{ marginLeft: "6px" }} />
                         }
                     </motion.button>
                 )}
@@ -331,10 +376,12 @@ export function LiveMusicPlayer() {
                     onClick={refresh}
                     style={{
                         padding: "0 12px", height: "48px", borderRadius: "100px",
-                        background: isDark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.04)",
+                        background: isDark ? "rgba(255,255,255,0.1)" : "rgba(255,255,255,0.5)",
+                        backdropFilter: "blur(20px)",
+                        border: isDark ? "1px solid rgba(255,255,255,0.1)" : "1px solid rgba(0,0,0,0.05)",
                         display: "flex", alignItems: "center", gap: "8px",
-                        border: "none", cursor: "pointer",
-                        color: isDark ? "rgba(255,255,255,0.8)" : "rgba(0,0,0,0.7)",
+                        cursor: "pointer",
+                        color: isDark ? "#FFF" : "#000",
                     }}
                 >
                     <span style={{ 
@@ -357,8 +404,8 @@ export function LiveMusicPlayer() {
                     />
                 </motion.button>
             </div>
-
-
+            
+            </div> {/* End of Inner Flex layout container */}
 
             {/* Modal Queue (Bottom Sheet) */}
             <AnimatePresence>
@@ -478,5 +525,6 @@ export function LiveMusicPlayer() {
                 )}
             </AnimatePresence>
         </div>
+        </>
     );
 }

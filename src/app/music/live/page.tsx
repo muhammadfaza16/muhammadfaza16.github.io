@@ -17,35 +17,32 @@ export default function LiveMusicPage() {
             position: "relative",
             height: "100svh",
             overflow: "hidden",
-            padding: "12px 16px 0 16px",
-            maxWidth: "500px",
-            margin: "0 auto",
             display: "flex",
             flexDirection: "column",
-            gap: "1rem",
-            backgroundColor: "var(--background)",
-            color: "var(--foreground)",
-            transition: "all 0.5s ease"
+            backgroundColor: isDark ? "#0A0A0A" : "#F8F5F2",
+            color: isDark ? "#FFF" : "#1A1A1A",
+            transition: "background-color 0.5s ease, color 0.5s ease"
         }}>
             {/* Header */}
-            <div style={{ position: "relative", display: "flex", justifyContent: "center", alignItems: "center", marginTop: "16px", marginBottom: "8px" }}>
-                <div style={{ position: "absolute", left: 0 }}>
+            <div style={{ 
+                padding: "0 16px", paddingTop: "env(safe-area-inset-top)", 
+                display: "grid", gridTemplateColumns: "1fr auto 1fr", alignItems: "center", 
+                marginTop: "16px", marginBottom: "8px" 
+            }}>
+                <div style={{ justifySelf: "start" }}>
                     <Link href="/music" style={{ textDecoration: "none" }}>
                         <motion.button
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
-                            transition={{ type: "spring", stiffness: 400, damping: 17 }}
+                            whileTap={{ scale: 0.9 }}
                             style={{
-                                display: "flex", alignItems: "center", gap: "6px",
-                                background: isDark ? "rgba(255, 255, 255, 0.05)" : "rgba(255, 255, 255, 0.8)",
-                                border: isDark ? "1px solid rgba(255, 255, 255, 0.1)" : "1px solid rgba(0,0,0,0.05)",
-                                padding: "6px 12px", cursor: "pointer",
-                                fontFamily: headerFont, fontWeight: 800, color: isDark ? "#FFF" : "#000",
-                                fontSize: "0.7rem", borderRadius: "100px",
-                                boxShadow: isDark ? "0 4px 12px rgba(0,0,0,0.2)" : "0 2px 8px rgba(0,0,0,0.02)"
+                                display: "flex", alignItems: "center", justifyContent: "center",
+                                background: isDark ? "rgba(255, 255, 255, 0.05)" : "rgba(0,0,0,0.05)",
+                                border: "none",
+                                padding: "8px", cursor: "pointer",
+                                color: isDark ? "#FFF" : "#000",
+                                borderRadius: "100px",
                             }}
                         >
-                            <ChevronLeft size={14} /> Back
+                            <ChevronLeft size={24} color="currentColor" />
                         </motion.button>
                     </Link>
                 </div>
