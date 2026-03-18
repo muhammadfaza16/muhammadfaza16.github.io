@@ -6,7 +6,10 @@ export const dynamic = "force-dynamic";
 export async function GET() {
     try {
         const songs = await prisma.song.findMany({
-            orderBy: { createdAt: "desc" }
+            orderBy: [
+                { category: "asc" },
+                { title: "asc" }
+            ]
         });
 
         // Transform to match the PLAYLIST format: { title, audioUrl }

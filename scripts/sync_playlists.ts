@@ -25,7 +25,12 @@ async function syncPlaylists() {
     console.log("Cleared existing playlist-song relations.");
 
     // 2. Fetch all categorized songs (using any to bypass outdated prisma types)
-    const songs: any[] = await prisma.song.findMany();
+    const songs: any[] = await prisma.song.findMany({
+        orderBy: [
+            { category: 'asc' },
+            { title: 'asc' }
+        ]
+    });
     const indoSongs = songs.filter(s => s.category === 'Indo');
     const luarSongs = songs.filter(s => s.category === 'Luar');
 
