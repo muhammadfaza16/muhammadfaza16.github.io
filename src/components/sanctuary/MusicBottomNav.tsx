@@ -3,7 +3,7 @@
 import React from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import { Home, Compass, Disc, Settings } from "lucide-react";
+import { Home, Compass, Disc, Settings, Radio } from "lucide-react";
 import { useAudio } from "../AudioContext";
 import { useTheme } from "../ThemeProvider";
 
@@ -29,6 +29,7 @@ export function MusicBottomNav({ isInline = false }: { isInline?: boolean }) {
     const navItems = [
         { label: "Home", href: "/music", icon: Home },
         { label: "Explore", href: "/playlist", icon: Compass, matchPrefix: true },
+        { label: "Live", href: "/music/live", icon: Radio },
         { label: "Player", href: playerHref, icon: Disc },
         { label: "Settings", href: "/music/master", icon: Settings },
     ];
@@ -80,6 +81,8 @@ export function MusicBottomNav({ isInline = false }: { isInline?: boolean }) {
                         isActive = pathname === "/music/master";
                     } else if (item.label === "Explore") {
                         isActive = pathname?.startsWith("/playlist");
+                    } else if (item.label === "Live") {
+                        isActive = pathname === "/music/live";
                     }
                 }
                     

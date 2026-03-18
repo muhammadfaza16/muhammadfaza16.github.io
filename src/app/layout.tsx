@@ -7,6 +7,7 @@ import { KonamiCode } from "@/components/KonamiCode";
 import { FloatingZenToggle } from "@/components/FloatingZenToggle";
 
 import { AudioProvider } from "@/components/AudioContext";
+import { LiveMusicProvider } from "@/components/live/LiveMusicContext";
 
 import prisma from "@/lib/prisma";
 
@@ -132,15 +133,17 @@ export default async function RootLayout({
         <NextTopLoader color="#E5E5E5" showSpinner={false} height={2} shadow="0 0 10px #E5E5E5,0 0 5px #E5E5E5" />
         <ThemeProvider>
             <AudioProvider initialSongs={initialSongs}>
-                <ZenProvider>
-                  <SkipLink />
-                  <KonamiCode />
-                  <FloatingZenToggle />
+                <LiveMusicProvider>
+                  <ZenProvider>
+                    <SkipLink />
+                    <KonamiCode />
+                    <FloatingZenToggle />
 
-                  <LayoutShell>
-                    {children}
-                  </LayoutShell>
-                </ZenProvider>
+                    <LayoutShell>
+                      {children}
+                    </LayoutShell>
+                  </ZenProvider>
+                </LiveMusicProvider>
             </AudioProvider>
         </ThemeProvider>
       </body>

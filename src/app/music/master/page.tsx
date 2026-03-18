@@ -19,18 +19,20 @@ import {
     RefreshCw,
     Globe,
     Clock,
-    Users
+    Users,
+    Radio
 } from "lucide-react";
 import { useState, useRef, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { PlaylistModule } from "./components/PlaylistModule";
+import { LiveControlModule } from "./components/LiveControlModule";
 import { PLAYLIST_CATEGORIES } from "@/data/playlists";
 import { parseSongTitle } from "@/utils/songUtils";
 import { useTheme } from "@/components/ThemeProvider";
 
 const MASTER_PIN = "0000";
 
-type ModuleId = "dashboard" | "playlist" | "settings" | "logs";
+type ModuleId = "dashboard" | "playlist" | "settings" | "logs" | "live";
 
 export default function MasterPanelPage() {
     const { theme } = useTheme();
@@ -211,6 +213,7 @@ export default function MasterPanelPage() {
                                     <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: "12px" }}>
                                         {[
                                             { id: "playlist", icon: <ListMusic size={20} />, label: "Playlist Vault", sub: "Structural Database Control" },
+                                            { id: "live", icon: <Radio size={20} />, label: "Live Control", sub: "Real-Time Broadcast Manager" },
                                             { id: "logs", icon: <Activity size={20} />, label: "Access Insight", sub: "Visitor Geolocation & Traffic" },
                                         ].map((tool) => (
                                             <motion.button
@@ -275,6 +278,22 @@ export default function MasterPanelPage() {
                                             }}
                                         />
                                     </div>
+                                </motion.div>
+                            )}
+
+                            {activeModule === "live" && (
+                                <motion.div key="live" initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+                                    <motion.button
+                                        onClick={() => setActiveModule("dashboard")}
+                                        whileTap={{ scale: 0.98 }}
+                                        style={{ 
+                                            color: theme === "dark" ? "rgba(255,255,255,0.4)" : "rgba(0,0,0,0.4)", fontSize: "0.65rem", fontWeight: 800, background: "transparent", border: theme === "dark" ? "1px solid rgba(255,255,255,0.1)" : "1px solid rgba(0,0,0,0.05)", borderRadius: "12px",
+                                            cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", padding: "10px", fontFamily: monoFont, textTransform: "uppercase"
+                                        }}
+                                    >
+                                        <ChevronLeft size={14} /> Back to dashboard
+                                    </motion.button>
+                                    <LiveControlModule />
                                 </motion.div>
                             )}
 

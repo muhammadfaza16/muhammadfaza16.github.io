@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
-import { ListMusic, ChevronLeft, ArrowRight, Sparkles, LibraryBig, Music, Play, Pause, Disc } from "lucide-react";
+import { ListMusic, ChevronLeft, ArrowRight, Sparkles, LibraryBig, Music, Play, Pause, Disc, Radio } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { PLAYLIST_CATEGORIES } from "@/data/playlists";
 import { useAudio, useTime } from "@/components/AudioContext";
@@ -493,6 +493,50 @@ export default function AudioHubPage() {
                             ))}
                         </div>
                     </div>
+
+                    {/* Live Radio Card */}
+                    <Link href="/music/live" style={{ textDecoration: "none" }}>
+                        <motion.div
+                            whileHover={{ y: -4, scale: 1.01 }}
+                            whileTap={{ scale: 0.98 }}
+                            style={{
+                                ...cardStyle,
+                                background: theme === "dark" 
+                                    ? "linear-gradient(135deg, rgba(239,68,68,0.08) 0%, rgba(255,255,255,0.03) 100%)" 
+                                    : "linear-gradient(135deg, rgba(239,68,68,0.06) 0%, rgba(255,255,255,0.7) 100%)",
+                                border: theme === "dark" ? "1px solid rgba(239,68,68,0.15)" : "1px solid rgba(239,68,68,0.1)",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "space-between",
+                                cursor: "pointer",
+                                padding: "14px 16px"
+                            }}
+                        >
+                            <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+                                <div style={{ 
+                                    width: "40px", height: "40px", borderRadius: "12px",
+                                    display: "flex", alignItems: "center", justifyContent: "center",
+                                    background: "linear-gradient(135deg, #EF4444, #DC2626)",
+                                    color: "#fff", boxShadow: "0 8px 16px rgba(239,68,68,0.2)",
+                                    position: "relative"
+                                }}>
+                                    <Radio size={18} style={{ position: "relative", zIndex: 1 }} />
+                                </div>
+                                <div style={{ display: "flex", flexDirection: "column", gap: "1px" }}>
+                                    <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                                        <span style={{ fontFamily: headerFont, fontWeight: 900, fontSize: "0.95rem", color: theme === "dark" ? "#FFF" : "#000", letterSpacing: "-0.01em" }}>Live Radio</span>
+                                        <motion.div
+                                            animate={{ scale: [1, 1.3, 1] }}
+                                            transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" }}
+                                            style={{ width: "6px", height: "6px", borderRadius: "50%", backgroundColor: "#EF4444", boxShadow: "0 0 8px rgba(239,68,68,0.5)" }}
+                                        />
+                                    </div>
+                                    <span style={{ fontFamily: monoFont, fontSize: "0.6rem", color: theme === "dark" ? "rgba(255,255,255,0.4)" : "rgba(0,0,0,0.45)", fontWeight: 600, textTransform: "uppercase" }}>Real-Time Stream</span>
+                                </div>
+                            </div>
+                            <ArrowRight size={16} color="#EF4444" />
+                        </motion.div>
+                    </Link>
 
                     {/* Featured Section */}
                     <div>
