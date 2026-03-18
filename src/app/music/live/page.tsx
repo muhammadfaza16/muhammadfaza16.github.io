@@ -16,12 +16,12 @@ export default function LiveMusicPage() {
         <main style={{
             position: "relative",
             minHeight: "100svh",
-            padding: "16px 16px 120px 16px",
-            maxWidth: "600px",
+            padding: "12px 16px 40px 16px",
+            maxWidth: "500px",
             margin: "0 auto",
             display: "flex",
             flexDirection: "column",
-            gap: "1.5rem",
+            gap: "1rem",
             backgroundColor: isDark ? "#0A0A0A" : "#f9f9f9",
             color: isDark ? "#FFF" : "#000",
             transition: "all 0.5s ease"

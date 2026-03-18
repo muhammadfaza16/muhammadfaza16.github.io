@@ -102,16 +102,14 @@ export function LiveMusicProvider({ children }: { children: React.ReactNode }) {
         if (isSyncingRef.current && !isInitial) return;
         isSyncingRef.current = true;
 
-        // Measure real one-way network latency
         const fetchStart = Date.now();
 
         try {
             const res = await fetch("/api/live-music/now", { cache: "no-store" });
             const data = await res.json();
 
-            // Estimate one-way latency (RTT / 2), capped to prevent absurd values
             const rtt = Date.now() - fetchStart;
-            const oneWayLatency = Math.min(rtt / 2, 500) / 1000; // seconds, max 0.5s
+            const oneWayLatency = Math.min(rtt / 2, 500) / 1000;
 
             if (!data.isLive) {
                 setIsLive(false);
@@ -148,89 +146,50 @@ export function LiveMusicProvider({ children }: { children: React.ReactNode }) {
             setCurrentSong(song);
             songDurationRef.current = song.duration || 0;
 
-            // ─── Audio Element Setup (once) ────────────────────────────────
-            if (!audioRef.current) {
-                audioRef.current = new Audio();
-                audioRef.current.preload = "auto";
-                // Preserve pitch when we nudge playbackRate
-                (audioRef.current as any).preservesPitch = true;
-                (audioRef.current as any).mozPreservesPitch = true;
-                (audioRef.current as any).webkitPreservesPitch = true;
-
-                audioRef.current.addEventListener("waiting", () => setIsBuffering(true));
-                audioRef.current.addEventListener("canplay", () => setIsBuffering(false));
-                audioRef.current.addEventListener("playing", () => {
-                    setIsBuffering(false);
-                    setIsPlaying(true);
-                });
-                audioRef.current.addEventListener("pause", () => setIsPlaying(false));
-                audioRef.current.addEventListener("ended", () => {
-                    setIsPlaying(false);
-                    setIsWaitingForSync(true);
-                    // Immediately fetch to get the next song
-                    fetchNow(true);
-                });
-                audioRef.current.addEventListener("timeupdate", () => {
-                    if (audioRef.current) {
-                        setCurrentTime(audioRef.current.currentTime);
-                    }
-                });
-            }
-
-            const audio = audioRef.current;
             const serverSeek = data.seekPosition + oneWayLatency;
 
             // ─── Song Change: Hard Load ────────────────────────────────────
             if (currentSongUrlRef.current !== song.audioUrl) {
                 currentSongUrlRef.current = song.audioUrl;
 
-                // Clear any running correction timer from the previous song
                 if (correctionTimerRef.current) {
                     clearTimeout(correctionTimerRef.current);
                     correctionTimerRef.current = null;
                 }
-                // Clear transition timer
                 if (transitionTimerRef.current) {
                     clearTimeout(transitionTimerRef.current);
                     transitionTimerRef.current = null;
                 }
 
-                // Reset rate to normal before loading new song
-                audio.playbackRate = 1.0;
-                audio.src = song.audioUrl;
+                if (audioRef.current) {
+                    const audio = audioRef.current;
+                    audio.playbackRate = 1.0;
+                    audio.src = song.audioUrl;
 
-                // If seek > 1s into the song, set it; otherwise start from 0
-                // This prevents the "not starting from 0" bug for fresh transitions
-                if (serverSeek > 1.0) {
-                    audio.currentTime = serverSeek;
-                } else {
-                    audio.currentTime = 0;
-                }
+                    if (serverSeek > 1.0) {
+                        audio.currentTime = serverSeek;
+                    } else {
+                        audio.currentTime = 0;
+                    }
 
-                setIsWaitingForSync(false);
+                    setIsWaitingForSync(false);
 
-                if (hasUserInteractedRef.current) {
-                    try {
-                        await audio.play();
-                    } catch {
-                        // Autoplay blocked — user needs to click play
+                    if (hasUserInteractedRef.current) {
+                        audio.play().catch(() => {});
                     }
                 }
 
-                // Schedule a predictive transition fetch near the end of this song
                 scheduleTransitionFetch(song.duration, serverSeek);
 
-            } else {
+            } else if (audioRef.current) {
                 // ─── Same Song: Graceful Sync ──────────────────────────────
+                const audio = audioRef.current;
                 const drift = serverSeek - audio.currentTime;
                 const absDrift = Math.abs(drift);
 
                 if (absDrift > HARD_SYNC_THRESHOLD) {
-                    // Major desync (tab was sleeping) — force seek, unavoidable
                     audio.currentTime = serverSeek;
                 } else if (absDrift > DRIFT_TOLERANCE) {
-                    // Gentle correction: nudge playbackRate by max 2%
-                    // Clear any previous correction timer to prevent stacking
                     if (correctionTimerRef.current) {
                         clearTimeout(correctionTimerRef.current);
                         correctionTimerRef.current = null;
@@ -239,10 +198,7 @@ export function LiveMusicProvider({ children }: { children: React.ReactNode }) {
                     const rate = drift > 0 ? (1 + SOFT_RATE) : (1 - SOFT_RATE);
                     audio.playbackRate = rate;
 
-                    // Calculate how many seconds at this rate to close the gap
-                    // At 1.02x we gain 0.02s/sec → time = drift / 0.02
                     const correctionDuration = (absDrift / SOFT_RATE) * 1000;
-                    // Cap to prevent running at adjusted rate forever
                     const maxCorrectionMs = Math.min(correctionDuration, POLL_INTERVAL - 2000);
 
                     correctionTimerRef.current = setTimeout(() => {
@@ -252,7 +208,6 @@ export function LiveMusicProvider({ children }: { children: React.ReactNode }) {
                         correctionTimerRef.current = null;
                     }, maxCorrectionMs);
                 } else {
-                    // Drift is within tolerance — ensure rate is normal
                     if (audio.playbackRate !== 1.0) {
                         audio.playbackRate = 1.0;
                     }
@@ -262,7 +217,6 @@ export function LiveMusicProvider({ children }: { children: React.ReactNode }) {
                     }
                 }
 
-                // Re-schedule transition fetch for this song
                 scheduleTransitionFetch(song.duration, audio.currentTime);
             }
 
@@ -305,11 +259,6 @@ export function LiveMusicProvider({ children }: { children: React.ReactNode }) {
             if (pollTimerRef.current) clearInterval(pollTimerRef.current);
             if (correctionTimerRef.current) clearTimeout(correctionTimerRef.current);
             if (transitionTimerRef.current) clearTimeout(transitionTimerRef.current);
-            if (audioRef.current) {
-                audioRef.current.pause();
-                audioRef.current.src = "";
-                audioRef.current = null;
-            }
         };
     }, [fetchNow]);
 
@@ -350,6 +299,28 @@ export function LiveMusicProvider({ children }: { children: React.ReactNode }) {
             togglePlay,
             refresh,
         }}>
+            <audio
+                ref={audioRef}
+                preload="auto"
+                onWaiting={() => setIsBuffering(true)}
+                onCanPlay={() => setIsBuffering(false)}
+                onPlaying={() => {
+                    setIsBuffering(false);
+                    setIsPlaying(true);
+                }}
+                onPause={() => setIsPlaying(false)}
+                onEnded={() => {
+                    setIsPlaying(false);
+                    setIsWaitingForSync(true);
+                    fetchNow(true);
+                }}
+                onTimeUpdate={() => {
+                    if (audioRef.current) {
+                        setCurrentTime(audioRef.current.currentTime);
+                    }
+                }}
+                style={{ display: "none" }}
+            />
             {children}
         </LiveMusicContext.Provider>
     );

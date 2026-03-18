@@ -25,6 +25,46 @@ export function LiveMusicPlayer() {
 
     const headerFont = "var(--font-display), system-ui, sans-serif";
     const monoFont = "var(--font-mono), monospace";
+    const activeTrackRef = React.useRef<HTMLDivElement>(null);
+    const scrollContainerRef = React.useRef<HTMLDivElement>(null);
+
+    // Custom Smooth Scroll with Bezier (Ease Out Cubic)
+    const smoothScrollToActive = React.useCallback(() => {
+        const container = scrollContainerRef.current;
+        const target = activeTrackRef.current;
+        if (!container || !target) return;
+
+        const start = container.scrollTop;
+        const targetTop = target.offsetTop - container.offsetTop - (container.clientHeight / 2) + (target.clientHeight / 2);
+        const distance = targetTop - start;
+        const duration = 800; // ms
+        let startTime: number | null = null;
+
+        const easeOutCubic = (t: number) => 1 - Math.pow(1 - t, 3);
+
+        const animation = (currentTime: number) => {
+            if (startTime === null) startTime = currentTime;
+            const timeElapsed = currentTime - startTime;
+            const progress = Math.min(timeElapsed / duration, 1);
+            
+            container.scrollTop = start + distance * easeOutCubic(progress);
+
+            if (timeElapsed < duration) {
+                requestAnimationFrame(animation);
+            }
+        };
+
+        requestAnimationFrame(animation);
+    }, []);
+
+    // Auto-scroll to active track when showing queue
+    React.useEffect(() => {
+        if (showQueue) {
+            // Use a small delay to ensure the modal is in the DOM and layout is calculated
+            const timer = setTimeout(smoothScrollToActive, 50);
+            return () => clearTimeout(timer);
+        }
+    }, [showQueue, smoothScrollToActive]);
 
     const isDark = theme === "dark";
 
@@ -143,10 +183,11 @@ export function LiveMusicPlayer() {
 
             {/* Cover Art / Visualizer */}
             <div style={{
-                width: "100%", aspectRatio: "1/1", maxWidth: "320px", margin: "0 auto",
+                width: "100%", aspectRatio: "1/1", maxWidth: "240px", margin: "0 auto",
                 borderRadius: "28px", overflow: "hidden", position: "relative",
                 background: playlistColor || (isDark ? "linear-gradient(135deg, #1E1B4B, #312E81)" : "linear-gradient(135deg, #E0E7FF, #C7D2FE)"),
-                boxShadow: isDark ? "0 40px 100px rgba(0,0,0,0.6)" : "0 20px 60px rgba(0,0,0,0.08)"
+                boxShadow: isDark ? "0 40px 100px rgba(0,0,0,0.6)" : "0 20px 50px rgba(0,0,0,0.1)",
+                border: isDark ? "1px solid rgba(255,255,255,0.1)" : "1px solid rgba(0,0,0,0.06)"
             }}>
                 {playlistCover && (
                     <img src={playlistCover} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", opacity: 0.6 }} alt="" />
@@ -218,7 +259,7 @@ export function LiveMusicPlayer() {
             </div>
 
             {/* Progress Bar (non-interactive, radio-style) */}
-            <div style={{ width: "100%", padding: "0 8px" }}>
+            <div style={{ width: "100%", padding: "0 4px" }}>
                 <div style={{
                     width: "100%", height: "4px", borderRadius: "100px",
                     backgroundColor: isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.05)",
@@ -226,23 +267,22 @@ export function LiveMusicPlayer() {
                 }}>
                     <motion.div
                         style={{ height: "100%", backgroundColor: "#EF4444", borderRadius: "100px", width: `${Math.min(progress, 100)}%` }}
-                        transition={{ duration: 0.5 }}
+                        transition={{ duration: 0.25, ease: "linear" }}
                     />
                 </div>
-                <div style={{ display: "flex", justifyContent: "space-between", marginTop: "8px", fontFamily: monoFont, fontSize: "0.7rem", fontWeight: 700, color: isDark ? "rgba(255,255,255,0.3)" : "rgba(0,0,0,0.3)" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", marginTop: "6px", fontFamily: monoFont, fontSize: "0.65rem", fontWeight: 700, color: isDark ? "rgba(255,255,255,0.3)" : "rgba(0,0,0,0.3)" }}>
                     <span>{fmtTime(currentTime)}</span>
                     <span>{fmtTime(currentSong.duration)}</span>
                 </div>
             </div>
 
-            {/* Play/Pause Control */}
-            <div style={{ display: "flex", justifyContent: "center" }}>
+            <div style={{ display: "flex", justifyContent: "center", margin: "12px 0" }}>
                 {isWaitingForSync ? (
                     <motion.div
                         animate={{ rotate: 360 }}
                         transition={{ repeat: Infinity, duration: 2, ease: "linear" }}
                         style={{
-                            width: "72px", height: "72px", borderRadius: "100px",
+                            width: "80px", height: "80px", borderRadius: "100px",
                             background: isDark ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.05)",
                             display: "flex", alignItems: "center", justifyContent: "center",
                             border: isDark ? "1px solid rgba(255,255,255,0.1)" : "1px solid rgba(0,0,0,0.1)",
@@ -255,7 +295,7 @@ export function LiveMusicPlayer() {
                         whileTap={{ scale: 0.9 }}
                         onClick={togglePlay}
                         style={{
-                            width: "72px", height: "72px", borderRadius: "100px",
+                            width: "80px", height: "80px", borderRadius: "100px",
                             background: isDark ? "#FFF" : "#000",
                             display: "flex", alignItems: "center", justifyContent: "center",
                             border: "none", cursor: "pointer",
@@ -263,121 +303,142 @@ export function LiveMusicPlayer() {
                         }}
                     >
                         {isPlaying
-                            ? <Pause size={32} color={isDark ? "#000" : "#fff"} fill="currentColor" />
-                            : <Play size={32} color={isDark ? "#000" : "#fff"} fill="currentColor" style={{ marginLeft: "4px" }} />
+                            ? <Pause size={36} color={isDark ? "#000" : "#fff"} fill="currentColor" />
+                            : <Play size={36} color={isDark ? "#000" : "#fff"} fill="currentColor" style={{ marginLeft: "6px" }} />
                         }
                     </motion.button>
                 )}
             </div>
 
-            {/* Track counter & Queue Toggle */}
-            <div style={{
-                display: "flex", alignItems: "center", justifyContent: "space-between",
-                padding: "0 16px", marginTop: "8px"
-            }}>
-                <div style={{ fontFamily: monoFont, fontWeight: 700, fontSize: "0.65rem", color: isWaitingForSync ? "#EF4444" : (isDark ? "rgba(255,255,255,0.3)" : "rgba(0,0,0,0.3)") }}>
-                    {isWaitingForSync ? (
-                        <motion.span animate={{ opacity: [0.5, 1, 0.5] }} transition={{ repeat: Infinity, duration: 1.5 }}>
-                            SYNCING BROADCAST...
-                        </motion.span>
-                    ) : (
-                        `TRACK ${songIndex + 1} OF ${totalSongs}`
-                    )}
-                </div>
-                
+            {/* Queue Toggle Button (Floating or Integrated) */}
+            <div style={{ display: "flex", justifyContent: "center", marginTop: "8px" }}>
                 <motion.button
                     whileTap={{ scale: 0.9 }}
-                    onClick={() => setShowQueue(!showQueue)}
+                    onClick={() => setShowQueue(true)}
                     style={{
-                        background: showQueue ? (isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.06)") : "transparent",
-                        color: showQueue ? (isDark ? "#FFF" : "#000") : (isDark ? "rgba(255,255,255,0.4)" : "rgba(0,0,0,0.4)"),
-                        border: "none", borderRadius: "100px",
-                        width: "36px", height: "36px",
-                        display: "flex", alignItems: "center", justifyContent: "center",
-                        cursor: "pointer"
+                        display: "flex", alignItems: "center", gap: "8px",
+                        padding: "8px 16px", borderRadius: "100px", cursor: "pointer",
+                        background: isDark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.04)",
+                        border: isDark ? "1px solid rgba(255,255,255,0.1)" : "1px solid rgba(0,0,0,0.06)",
+                        color: isDark ? "rgba(255,255,255,0.7)" : "rgba(0,0,0,0.6)",
+                        fontFamily: headerFont, fontWeight: 800, fontSize: "0.65rem",
+                        letterSpacing: "0.05em", textTransform: "uppercase"
                     }}
                 >
-                    <ListMusic size={18} />
+                    <ListMusic size={16} />
+                    View Tracklist
                 </motion.button>
             </div>
 
-            {/* Queue Preview */}
-            <AnimatePresence initial={false}>
+            {/* Modal Queue (Bottom Sheet) */}
+            <AnimatePresence>
                 {showQueue && tracklist.length > 0 && (
-                    <motion.div
-                        initial={{ opacity: 0, height: 0 }}
-                        animate={{ opacity: 1, height: "auto" }}
-                        exit={{ opacity: 0, height: 0 }}
-                        style={{ overflow: "hidden" }}
-                    >
-                        <div style={{
-                            background: isDark ? "rgba(255,255,255,0.02)" : "rgba(0,0,0,0.02)",
-                            border: isDark ? "1px solid rgba(255,255,255,0.05)" : "1px solid rgba(0,0,0,0.04)",
-                            borderRadius: "20px", overflow: "hidden"
-                        }}>
-                    <div style={{
-                        padding: "12px 16px",
-                        borderBottom: isDark ? "1px solid rgba(255,255,255,0.05)" : "1px solid rgba(0,0,0,0.04)",
-                        display: "flex", justifyContent: "space-between", alignItems: "center"
-                    }}>
-                        <span style={{ fontFamily: headerFont, fontWeight: 900, fontSize: "0.75rem", textTransform: "uppercase", letterSpacing: "0.05em", color: isDark ? "#FFF" : "#000" }}>
-                            UP NEXT
-                        </span>
-                        <span style={{ fontFamily: monoFont, fontWeight: 700, fontSize: "0.6rem", color: isDark ? "rgba(255,255,255,0.4)" : "rgba(0,0,0,0.4)" }}>
-                            {totalSongs} TRACKS
-                        </span>
-                    </div>
-                    <div style={{ maxHeight: "280px", overflowY: "auto" }}>
-                        {tracklist.map((track, i) => {
-                            const { cleanTitle: tTitle, artist: tArtist } = parseSongTitle(track.title);
-                            return (
-                                <div key={i} style={{
-                                    display: "flex", alignItems: "center", gap: "12px",
-                                    padding: "10px 16px",
-                                    backgroundColor: track.isCurrent ? (isDark ? "rgba(239,68,68,0.08)" : "rgba(239,68,68,0.05)") : "transparent",
-                                    borderBottom: isDark ? "1px solid rgba(255,255,255,0.03)" : "1px solid rgba(0,0,0,0.02)"
-                                }}>
-                                    <div style={{
-                                        width: "20px", textAlign: "center", fontFamily: monoFont,
-                                        fontWeight: 700, fontSize: "0.6rem",
-                                        color: track.isCurrent ? "#EF4444" : (isDark ? "rgba(255,255,255,0.3)" : "rgba(0,0,0,0.3)")
-                                    }}>
-                                        {track.isCurrent ? (
-                                            <motion.div
-                                                animate={{ scale: [1, 1.2, 1] }}
-                                                transition={{ repeat: Infinity, duration: 1.5 }}
-                                            >
-                                                <Music size={14} color="#EF4444" />
-                                            </motion.div>
-                                        ) : (
-                                            (i + 1).toString().padStart(2, "0")
-                                        )}
-                                    </div>
-                                    <div style={{ flex: 1, minWidth: 0 }}>
-                                        <div style={{
-                                            fontFamily: headerFont, fontWeight: 800, fontSize: "0.8rem",
-                                            whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
-                                            color: track.isCurrent ? (isDark ? "#FFF" : "#000") : (isDark ? "rgba(255,255,255,0.6)" : "rgba(0,0,0,0.5)")
+                    <>
+                        {/* Backdrop */}
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            onClick={() => setShowQueue(false)}
+                            style={{
+                                position: "fixed", inset: 0, zIndex: 9998,
+                                backgroundColor: "rgba(0,0,0,0.6)",
+                                backdropFilter: "blur(8px)"
+                            }}
+                        />
+
+                        {/* Modal Content */}
+                        <motion.div
+                            initial={{ y: "100%" }}
+                            animate={{ y: 0 }}
+                            exit={{ y: "100%" }}
+                            transition={{ type: "spring", damping: 30, stiffness: 280 }}
+                            style={{
+                                position: "fixed", bottom: 0, left: 0, right: 0, zIndex: 9999,
+                                background: isDark ? "#121212" : "#FFF",
+                                borderTopLeftRadius: "32px", borderTopRightRadius: "32px",
+                                maxHeight: "85vh", overflow: "hidden",
+                                boxShadow: "0 -20px 60px rgba(0,0,0,0.3)"
+                            }}
+                        >
+                            {/* Handle / Drag Indicator */}
+                            <div 
+                                onClick={() => setShowQueue(false)}
+                                style={{
+                                    width: "40px", height: "4px", borderRadius: "100px",
+                                    backgroundColor: isDark ? "rgba(255,255,255,0.2)" : "rgba(0,0,0,0.1)",
+                                    margin: "12px auto", cursor: "pointer"
+                                }} 
+                            />
+
+                            <div style={{
+                                padding: "8px 20px 24px",
+                                display: "flex", justifyContent: "space-between", alignItems: "center",
+                                borderBottom: isDark ? "1px solid rgba(255,255,255,0.05)" : "1px solid rgba(0,0,0,0.05)"
+                            }}>
+                                <span style={{ fontFamily: headerFont, fontWeight: 900, fontSize: "0.8rem", textTransform: "uppercase", letterSpacing: "0.05em", color: isDark ? "#FFF" : "#000" }}>
+                                    UP NEXT
+                                </span>
+                                <span style={{ fontFamily: monoFont, fontWeight: 700, fontSize: "0.65rem", color: isDark ? "rgba(255,255,255,0.4)" : "rgba(0,0,0,0.4)" }}>
+                                    {totalSongs} TRACKS
+                                </span>
+                            </div>
+
+                            <div 
+                                ref={scrollContainerRef}
+                                style={{ 
+                                padding: "8px 0 40px", 
+                                overflowY: "auto", 
+                                maxHeight: "calc(85vh - 80px)" 
+                            }}>
+                                {tracklist.map((track, i) => {
+                                    const { cleanTitle: tTitle, artist: tArtist } = parseSongTitle(track.title);
+                                    return (
+                                        <div 
+                                            key={i} 
+                                            ref={track.isCurrent ? activeTrackRef : null}
+                                            style={{
+                                            display: "flex", alignItems: "center", gap: "12px",
+                                            padding: "12px 20px",
+                                            backgroundColor: track.isCurrent ? (isDark ? "rgba(239,68,68,0.08)" : "rgba(239,68,68,0.05)") : "transparent",
+                                            borderBottom: isDark ? "1px solid rgba(255,255,255,0.03)" : "1px solid rgba(0,0,0,0.02)"
                                         }}>
-                                            {tTitle}
+                                            <div style={{
+                                                width: "24px", textAlign: "center", fontFamily: monoFont,
+                                                fontWeight: 700, fontSize: "0.65rem",
+                                                color: track.isCurrent ? "#EF4444" : (isDark ? "rgba(255,255,255,0.3)" : "rgba(0,0,0,0.3)")
+                                            }}>
+                                                {track.isCurrent ? (
+                                                    <Music size={14} color="#EF4444" />
+                                                ) : (
+                                                    (i + 1).toString().padStart(2, "0")
+                                                )}
+                                            </div>
+                                            <div style={{ flex: 1, minWidth: 0 }}>
+                                                <div style={{
+                                                    fontFamily: headerFont, fontWeight: 800, fontSize: "0.85rem",
+                                                    whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
+                                                    color: track.isCurrent ? (isDark ? "#FFF" : "#000") : (isDark ? "rgba(255,255,255,0.8)" : "rgba(0,0,0,0.7)")
+                                                }}>
+                                                    {tTitle}
+                                                </div>
+                                                <div style={{
+                                                    fontFamily: monoFont, fontWeight: 700, fontSize: "0.6rem",
+                                                    color: isDark ? "rgba(255,255,255,0.3)" : "rgba(0,0,0,0.3)",
+                                                    textTransform: "uppercase"
+                                                }}>
+                                                    {tArtist}
+                                                </div>
+                                            </div>
+                                            <div style={{ fontFamily: monoFont, fontWeight: 700, fontSize: "0.65rem", color: isDark ? "rgba(255,255,255,0.3)" : "rgba(0,0,0,0.3)" }}>
+                                                {fmtTime(track.duration)}
+                                            </div>
                                         </div>
-                                        <div style={{
-                                            fontFamily: monoFont, fontWeight: 700, fontSize: "0.6rem",
-                                            color: isDark ? "rgba(255,255,255,0.3)" : "rgba(0,0,0,0.3)",
-                                            textTransform: "uppercase"
-                                        }}>
-                                            {tArtist}
-                                        </div>
-                                    </div>
-                                    <div style={{ fontFamily: monoFont, fontWeight: 700, fontSize: "0.6rem", color: isDark ? "rgba(255,255,255,0.3)" : "rgba(0,0,0,0.3)" }}>
-                                        {fmtTime(track.duration)}
-                                    </div>
-                                </div>
-                            );
-                        })}
-                        </div>
-                        </div>
-                    </motion.div>
+                                    );
+                                })}
+                            </div>
+                        </motion.div>
+                    </>
                 )}
             </AnimatePresence>
         </div>
