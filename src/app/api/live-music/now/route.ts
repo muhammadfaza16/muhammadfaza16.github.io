@@ -56,9 +56,9 @@ export async function GET() {
         // Calculate total playlist duration in seconds
         const totalDuration = playableSongs.reduce((sum: number, s: any) => sum + (s.duration || 0), 0);
 
-        // How many seconds have passed since the session started
+        // How many seconds have passed since the session started (sub-second precision)
         const now = Date.now();
-        const elapsed = Math.floor((now - new Date(session.startedAt).getTime()) / 1000);
+        const elapsed = (now - new Date(session.startedAt).getTime()) / 1000;
 
         // Loop the playlist: find position within the cycle
         const positionInCycle = elapsed % totalDuration;
