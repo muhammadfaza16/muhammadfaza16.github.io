@@ -205,35 +205,17 @@ export function LiveMusicPlayer() {
             <div style={{ position: "absolute", inset: "-150px", zIndex: 0, pointerEvents: "none", backgroundColor: isDark ? "rgba(0,0,0,0.6)" : "rgba(255,255,255,0.6)" }} />
 
             <div style={{ position: "relative", zIndex: 1, flex: 1, display: "flex", flexDirection: "column", width: "100%", maxWidth: "500px", margin: "0 auto" }}>
-            {/* LIVE Badge + Listeners Info - Placed at top */}
-            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "6px", padding: "12px 16px" }}>
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "10px" }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                        <motion.div
-                            animate={{ scale: [1, 1.15, 1] }}
-                            transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" }}
-                            style={{
-                                width: "8px", height: "8px", borderRadius: "50%",
-                                backgroundColor: "#EF4444",
-                                boxShadow: "0 0 12px rgba(239, 68, 68, 0.6)"
-                            }}
-                        />
-                        <span style={{ fontFamily: headerFont, fontWeight: 900, fontSize: "0.7rem", textTransform: "uppercase", letterSpacing: "0.1em", color: "#EF4444" }}>
-                            LIVE
-                        </span>
-                    </div>
-
-                    <div style={{ width: "4px", height: "4px", borderRadius: "50%", background: isDark ? "rgba(255,255,255,0.2)" : "rgba(0,0,0,0.2)" }} />
-
-                    <span style={{ fontFamily: monoFont, fontWeight: 700, fontSize: "0.65rem", color: isDark ? "rgba(255,255,255,0.6)" : "rgba(0,0,0,0.6)", display: "flex", alignItems: "center" }}>
-                        {playlistTitle} 
-                    </span>
-                </div>
+            {/* Playlist Info & Listeners */}
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "6px", padding: "8px 16px 0", marginBottom: "4px" }}>
+                <span style={{ fontFamily: headerFont, fontWeight: 800, fontSize: "0.95rem", letterSpacing: "0.05em", color: isDark ? "rgba(255,255,255,0.9)" : "rgba(0,0,0,0.9)", display: "flex", alignItems: "center", gap: "8px" }}>
+                    <Radio size={16} color={isDark ? "rgba(255,255,255,0.5)" : "rgba(0,0,0,0.4)"} />
+                    {playlistTitle} 
+                </span>
 
                 <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
                     <div style={{ display: "inline-flex", alignItems: "center", gap: "6px", padding: "4px 10px", borderRadius: "100px", background: isDark ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.03)", border: isDark ? "1px solid rgba(255,255,255,0.05)" : "1px solid rgba(0,0,0,0.03)" }}>
                         <Heart size={10} fill={isDark ? "rgba(255,255,255,0.4)" : "rgba(0,0,0,0.4)"} color={isDark ? "rgba(255,255,255,0.4)" : "rgba(0,0,0,0.4)"} /> 
-                        <span style={{ fontFamily: monoFont, fontWeight: 700, fontSize: "0.55rem", color: isDark ? "rgba(255,255,255,0.5)" : "rgba(0,0,0,0.5)" }}>
+                        <span style={{ fontFamily: monoFont, fontWeight: 700, fontSize: "0.6rem", color: isDark ? "rgba(255,255,255,0.5)" : "rgba(0,0,0,0.5)" }}>
                             {listenersCount} LISTENING
                         </span>
                     </div>

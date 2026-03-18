@@ -46,9 +46,26 @@ export default function LiveMusicPage() {
                         </motion.button>
                     </Link>
                 </div>
-                <span style={{ fontFamily: headerFont, fontWeight: 800, fontSize: "0.75rem", textTransform: "uppercase", letterSpacing: "0.1em", color: isDark ? "rgba(255,255,255,0.9)" : "rgba(0,0,0,0.8)" }}>
-                    Live Radio
-                </span>
+                <div style={{
+                    display: "flex", alignItems: "center", gap: "6px",
+                    background: isDark ? "rgba(239, 68, 68, 0.15)" : "rgba(239, 68, 68, 0.08)",
+                    border: isDark ? "1px solid rgba(239, 68, 68, 0.3)" : "1px solid rgba(239, 68, 68, 0.2)",
+                    padding: "6px 14px", borderRadius: "100px",
+                    boxShadow: isDark ? "0 0 20px rgba(239, 68, 68, 0.2)" : "0 4px 12px rgba(239, 68, 68, 0.1)"
+                }}>
+                    <motion.div
+                        animate={{ opacity: [1, 0.4, 1] }}
+                        transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
+                        style={{
+                            width: "6px", height: "6px", borderRadius: "50%",
+                            backgroundColor: "#EF4444",
+                            boxShadow: "0 0 8px rgba(239, 68, 68, 0.8)"
+                        }}
+                    />
+                    <span style={{ fontFamily: headerFont, fontWeight: 900, fontSize: "0.65rem", textTransform: "uppercase", letterSpacing: "0.15em", color: isDark ? "#FFF" : "#DC2626" }}>
+                        Live Radio
+                    </span>
+                </div>
             </div>
 
             {/* Live Player */}
