@@ -21,8 +21,10 @@ export async function GET() {
                 artist,
                 audioUrl: song.audioUrl,
                 source: song.source,
-                duration: song.duration
+                duration: song.duration,
+                category: song.category // Add category here
             };
+
         });
 
         return NextResponse.json({ success: true, songs: formatted });

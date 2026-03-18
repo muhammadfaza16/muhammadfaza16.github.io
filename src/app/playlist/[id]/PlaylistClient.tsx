@@ -16,13 +16,8 @@ const fmtTime = (s: number) => {
     return `${m}:${sec.toString().padStart(2, '0')}`;
 };
 
-const INDO_ARTISTS = [
-    'Sheila on 7', 'Noah', 'Ungu', 'Samsons', 'D\'masiv', 'St12', 'Hijau Daun', 'Vagetoz', 
-    'Vierra', 'Virgoun', 'Virzha', 'Wali', 'Slam', 'Exists', 'Exist', 'Spoon', 'Screen', 'Ukays', 
-    'Ella', 'Stings', 'Taxi', 'Taxi Band', 'Utopia', 'For Revenge', 'Fredy', 'Geisha', 
-    'Element', 'Eren', 'Janji', 'Desy Ratnasari', 'David Bayu', 'Daun Jatuh', 'Last Child',
-    'Lyodra', 'Andra', 'Dewa', 'Tulus', 'Risalah'
-];
+// INDO_ARTISTS moved to database categories
+
 
 function TrackRow({ song, index, isActive, isPlaying, onPlay }: {
     song: { title: string; audioUrl: string; originalIndex: number };
@@ -127,7 +122,8 @@ export default function PlaylistClient({ playlistId, initialSongs = [] }: { play
     const [isLoading, setIsLoading] = useState(true);
     
     // Explicitly fallback initialSongs if none provided.
-    const [dbSongs, setDbSongs] = useState<{ title: string; audioUrl: string; duration?: number; id?: string }[]>(initialSongs || []);
+    const [dbSongs, setDbSongs] = useState<{ title: string; audioUrl: string; duration?: number; id?: string; category?: string }[]>(initialSongs || []);
+
 
     // useMemo for activePlaylist is below
 
@@ -160,13 +156,9 @@ export default function PlaylistClient({ playlistId, initialSongs = [] }: { play
         let songs = dbSongs;
         if (activePlaylist) {
             if (activePlaylist.id === 'indo-hits') {
-                songs = dbSongs.filter(song => 
-                    INDO_ARTISTS.some((artist: string) => song.title.toLowerCase().includes(artist.toLowerCase()))
-                );
+                songs = dbSongs.filter((song: any) => song.category === 'Indo');
             } else if (activePlaylist.id === 'international-favorites') {
-                songs = dbSongs.filter(song => 
-                    !INDO_ARTISTS.some((artist: string) => song.title.toLowerCase().includes(artist.toLowerCase()))
-                );
+                songs = dbSongs.filter((song: any) => song.category === 'Luar');
             } else {
                 songs = dbSongs.filter(song =>
                     activePlaylist.songTitles.some((title: string) =>
@@ -176,6 +168,7 @@ export default function PlaylistClient({ playlistId, initialSongs = [] }: { play
                 );
             }
         }
+
         return songs.map((song, index) => ({ ...song, originalIndex: index }));
     }, [activePlaylist, dbSongs]);
 

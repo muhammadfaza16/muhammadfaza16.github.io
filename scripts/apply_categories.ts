@@ -9,10 +9,11 @@ const INDO_KEYWORDS = [
     "bertaut", "lantas", "abadi", "sampai", "menutup", "mata", "luka", "suara", "berharap",
     "buih", "permadani", "mencari", "alasan", "gerimis", "mengundang", "sembilu", "serana",
     "kenang", "pergilah", "kasih", "melepasmu", "bersama", "bintang", "merindukanmu", "merindukan",
-    "pelan", "sejauh", "mungkin", "luka", "demi", "waktu", "dalam", "asmara", "kehadiranmu",
-    "betapa", "mencintaimu", "kesepian", "baik", "selamat", "tentang", "pernah", "ada",
-    "jangan", "pergi", "hanya", "ingin", "tahu", "hingga", "akhir"
+    "pelan", "sejauh", "mungkin", "luka", "waktu", "dalam", "asmara", "kehadiranmu",
+    "betapa", "kesepian", "selamat", "pernah", "ada",
+    "jangan", "pergi", "hanya", "ingin", "hingga", "akhir"
 ];
+
 
 const LUAR_KEYWORDS = [
     "love", "you", "me", "night", "stars", "hymn", "weekend", "dreams", "sky", "high", "stereo", 
@@ -30,14 +31,18 @@ const INDO_ARTISTS = [
     "sheila on 7", "peterpan", "noah", "ungu", "tulus", "raisa", "isayana", "mahalini", "lyodra", 
     "andmesh", "virzha", "fiersa besari", "nadin amizah", "sal priadi", "naif", "nidji", "kangen band", 
     "st12", "setia band", "armada", "seventeen", "d'masiv", "dmasiv", "kerispatih", "naff", "vagetoz", 
-    "drive", "ipang", "sal priadi", "nadhif basalamah", "acha septriasa", "melly goeslaw", "ungu", 
-    "cassandra", "eclat", "hivi", "juicy luicy", "sal priadi", "rio clappy", "batas senja", "dendi nata",
-    "ipang", "raim laode", "andra and the backbone", "andra & the backbone", "vierra", "setia band",
-    "last child", "virgoun", "stings", "ukays", "iklim", "exist", "exists", "slam", "spoon", "ukays",
-    "lestari", "poppy mercury", "angga binandra", "astrid", "bagindas", "bondan prakoso", "daun jatuh",
-    "david bayu", "drive", "element", "eren", "fredy", "geisha", "hal", "hijau daun", "jikustik", "judika",
-    "kotak", "la luna", "lobow", "lyla", "maudy ayunda", "nineball", "padi", "repvblik", "samsons", "utopia"
+    "drive", "ipang", "nadhif basalamah", "acha septriasa", "melly goeslaw", 
+    "cassandra", "eclat", "hivi", "juicy luicy", "rio clappy", "batas senja", "dendi nata",
+    "raim laode", "andra and the backbone", "andra & the backbone", "vierra", "setia band",
+    "last child", "virgoun", "stings", "ukays", "iklim", "exist", "exists", "slam", "spoon",
+    "lestari", "poppy mercury", "angga binandra", "bagindas", "bondan prakoso", "daun jatuh",
+    "david bayu", "element", "eren", "fredy", "geisha", "hal", "hijau daun", "jikustik", "judika",
+    "kotak", "la luna", "lobow", "lyla", "maudy ayunda", "nineball", "padi", "repvblik", "samsons", "utopia",
+    "dewa 19", "ari lasso", "chrisye", "glenn fredly", "rossa", "afgan", "cokelat", "slank", "ada band", "letto",
+    "maliq", "fourtwnty", "the changcuters", "type-x", "shaggydog", "superman is dead", "payung teduh",
+    "rizky febian", "marion jola", "fatin", "gigi", "padi band", "andra backbone"
 ];
+
 
 const SPECIFIC_INDO = [
     "Al Ghazali — Kesayanganku",
@@ -45,8 +50,23 @@ const SPECIFIC_INDO = [
     "Kugiran Masdo — Dinda",
     "Dygta — Tapi Tahukah Kamu",
     "Anima — Bintang",
-    "Anggis Devaki — Dirimu Yang Dulu"
+    "Anggis Devaki — Dirimu Yang Dulu",
+    "Taxxi — Hujan Kemarin",
+    "Taxi — Hujan Kemarin",
+    "Wali — Baik Baik Sayang",
+    "The Virgins — Cinta Terlarang"
 ];
+
+const SPECIFIC_LUAR = [
+    "Astrid S — Hurts So Good",
+    "Demi Lovato — Heart Attack",
+    "Halsey — Without Me",
+    "The Script — Hall Of Fame",
+    "Gigi Perez — Sailor Song",
+    "Janji — Heroes Tonight",
+    "hoobastank", "avicii", "maroon 5"
+];
+
 
 async function main() {
     console.log("Fetching songs...");
@@ -62,12 +82,17 @@ async function main() {
             let category = 'Luar';
             const titleLower = song.title.toLowerCase();
             
-            // Manual Indo Override
-            if (SPECIFIC_INDO.some(t => song.title.includes(t))) {
+            // Manual Override Check
+            if (SPECIFIC_INDO.some(t => song.title.toLowerCase().includes(t.toLowerCase()))) {
                 category = 'Indo';
+            } else if (SPECIFIC_LUAR.some(t => song.title.toLowerCase().includes(t.toLowerCase()))) {
+                category = 'Luar';
             } else {
                 let score = 0;
-                if (INDO_ARTISTS.some(artist => titleLower.includes(artist))) score += 10;
+                // Artist check (case insensitive)
+                if (INDO_ARTISTS.some(artist => titleLower.includes(artist.toLowerCase()))) score += 10;
+                
+                // Keyword check
                 INDO_KEYWORDS.forEach(kw => { if (new RegExp(`\\b${kw}\\b`, 'i').test(titleLower)) score += 2; });
                 LUAR_KEYWORDS.forEach(kw => { if (new RegExp(`\\b${kw}\\b`, 'i').test(titleLower)) score -= 2; });
                 
@@ -75,9 +100,11 @@ async function main() {
             }
 
             // Final check for "Twenty One Pilots — Ride" (ensuring it's Luar)
-            if (song.title.includes("Twenty One Pilots — Ride")) {
+            if (song.title.toLowerCase().includes("twenty one pilots — ride") || 
+                song.title.toLowerCase().includes("twenty one pilots")) {
                 category = 'Luar';
             }
+
 
             // Use raw SQL to bypass outdated Prisma client types
             await prisma.$executeRawUnsafe(

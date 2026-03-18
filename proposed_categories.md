@@ -1,0 +1,267 @@
+# Proposed Song Categorization
+
+Total Analyzed: 255
+- Indo: 168
+- Luar: 65
+- Uncertain: 22
+
+## 🇮🇩 Indo (Proposed)
+- Kangen Band — Tentang Aku, Kau Dan Dia (Slowed & Reverb)
+- Repvblik — Hanya Ingin Kau Tahu
+- Peterpan — Mimpi Yang Sempurna (Slowed & Reverb)
+- Nineball — Hingga Akhir Waktu (Slowed & Reverb)
+- Ipang — Tentang Cinta
+- Ungu — Cinta Dalam Hati (Slowed & Reverb)
+- Acha Septriasa — Sampai Menutup Mata (Slowed & Reverb)
+- Hivi! — Siapkah Kau 'tuk Jatuh Cinta Lagi
+- Acha Septriasa — Sampai Menutup Mata
+- Peterpan — Semua Tentang Kita (Slowed & Reverb)
+- Virzha — Tentang Rindu
+- Acha Septriasa — Hari Ini Esok Dan Seterusnya
+- La Luna — Selepas Kau Pergi
+- Exist — Mencari Alasan
+- Iklim — Mimpi Yang Hilang
+- Exists — Buih Jadi Permadani
+- Iklim — Bukan Aku Tak Cinta
+- Slam — Gerimis Mengundang
+- d'Masiv — Pergilah Kasih
+- Ungu — Sejauh Mungkin
+- Daun Jatuh — Resah Jadi Luka (Slowed & Reverb)
+- Drive — Bersama Bintang (Slowed & Reverb)
+- Judika — Jikalau Kau Cinta (Slowed & Reverb)
+- Lyodra — Pesan Terakhir (Sped Up)
+- Naif — Karena Kamu Cuma Satu
+- Lyodra — Pesan Terakhir (Slowed & Reverb)
+- d'Masiv — Merindukan Mu X Masih Cinta
+- Ungu — Luka Di Sini (Slowed & Reverb)
+- Batas Senja — Nanti Kita Seperti Ini
+- Mahalini — Mencintaimu
+- Astrid — Tentang Rasa (Slowed & Reverb)
+- Seventeen — Untuk Mencintaimu (Sped Up)
+- Fiersa Besari — Waktu Yang Salah
+- Sal Priadi — Mencintaimu
+- Naff — Tak Seindah Cinta Yang Semestinya
+- Seventeen — Tanpa Pesan Terakhir (Sped Up)
+- Virgoun Ft. Audy — Selamat Tinggal (Sped Up)
+- Lobow — Kau Cantik Hari Ini
+- Ungu — Cinta Yang Lain
+- Ungu — Demi Waktu (Slowed & Reverb)
+- Melly Goeslaw — Ada Apa Dengan Cinta
+- Kerispatih — Tapi Bukan Aku
+- Naff — Kau Masih Kekasihku
+- Naff — Kenanglah Aku
+- Element — Rahasia Hati
+- Virzha — Aku Lelakimu
+- Hijau Daun — Suara
+- Stings — Adakah Kau Setia
+- Naif — Buta Hati
+- Geisha — Jika Cinta Dia (Slowed & Reverb)
+- Vagetoz — Kehadiranmu
+- Noah — Bintang Di Surga
+- Armada — Harusnya Aku (Slowed & Reverb)
+- ST12 — Aku Masih Sayang
+- Spoon — Rindu Serindu Rindunya
+- Slam — Tak Mungkin Berpaling
+- Noah — Separuh Aku
+- Virgoun Ft Audy — Selamat (Slowed & Reverb)
+- Noah — Andaikan Kau Datang
+- Acha Septriasa — Berdua Lebih Baik (Slowed & Reverb)
+- Vagetoz — Kehadiranmu (Slowed & Reverb)
+- Ukays — Di Sana Menanti Di Sini Menunggu
+- Setia Band — Asmara
+- Element — Rahasia Hati (Slowed & Reverb)
+- Kangen Band — Pujaan Hati (Slowed & Reverb)
+- Drive — Melepasmu (Slowed & Reverb)
+- Maudy Ayunda — Kamu Dan Kenangan (Slowed & Reverb)
+- d'Masiv — Merindukanmu (Slowed & Reverb)
+- Kangen Band — Bintang 14 Hari (Slowed & Reverb)
+- Kotak — Pelan Pelan Saja (Slowed & Reverb)
+- Peterpan — Mungkin Nanti (Slowed & Reverb)
+- Kangen Band — Kembali Pulang (Slowed & Reverb)
+- Lyla — Aku Gamau Jadi Mataharimu (Slowed & Reverb)
+- Lyla — Karna Kamu Cantik (Slowed & Reverb)
+- Padi — Ternyata Cinta
+- Naff — Kenanglah Aku (Slowed & Reverb)
+- Noah — Separuh Aku (Slowed & Reverb)
+- Andmesh Kamaleng — Cinta Luar Biasa
+- Armada — Pemilik Hati (Slowed & Reverb)
+- Nadhif Basalamah — Bergema Sampai Selamanya
+- Nadin Amizah — Bertaut
+- Element — Cinta Tak Bersyarat (Slowed & Reverb)
+- Judika — Jadi Aku Sebentar Saja & (Sped Up)
+- Cassandra — Cinta Terbaik (Slowed & Reverb)
+- Bunga Citra Lestari — Cinta Sejati (Slowed & Reverb)
+- Juicy Luicy — Lantas
+- Nidji — Rahasia Hati
+- Nidji — Rahasia Hati (Slowed & Reverb)
+- Sempurna — Andra And The Backbone (Slowed & Reverb)
+- Virgoun — Surat Cinta Untuk Starla (Slowed & Reverb)
+- Rio Clappy — Bunga Abadi
+- Eclat — Bentuk Cinta
+- Tulus — Hati-hati Di Jalan
+- Ungu — Aku Bukan Pilihan Hatimu
+- Nidji — Sumpah Dan Cinta Matiku
+- Utopia — Hujan (Slowed & Reverb)
+- Dendi Nata — Abadi (Slowed & Reverb)
+- Peterpan — Yang Terdalam (Slowed & Reverb)
+- Armada — Asal Kau Bahagia (Slowed & Reverb)
+- Vierra — Kesepian (Slowed)
+- Cassandra — Cinta Terbaik (Sped Up)
+- Armada — Apa Kabar Sayang
+- Peterpan — Ku Katakan Dengan Indah
+- Kerispatih — Mengenangmu
+- Seventeen — Hal Terindah
+- Naff — Terendap Laraku
+- Bondan Prakoso & Fade2black — Bunga
+- Jikustik — Puisi
+- David Bayu — Deritaku
+- Armada — Bebaskan Diriku (Slowed & Reverb)
+- Fredy — Nanti
+- Poppy Mercury — Surat Undangan
+- Bondan Prakoso & Fade2black — R.i.p
+- Bagindas — 100% Cintaku (Slowed & Reverb)
+- Iklim — Aduhai! Seribu Kali Sayang
+- Noah — Tak Lagi Sama (Slowed & Reverb)
+- Armada — Apa Kabar Sayang (Slowed & Reverb)
+- Noah — Menunggumu (Slowed & Reverb)
+- Seventeen — Hal Terindah (Slowed & Reverb)
+- Seventeen — Menemukanmu (Slowed & Reverb)
+- Samsons & Lovarian — Kenangan Terindah X Perpisahan Termanis
+- Noah — Sally Sendiri (Slowed & Reverb)
+- Peterpan — Jauh Mimpiku
+- Padi — Begitu Indah
+- Sheila On 7 — Bila Kau Tak Disampingku
+- Samsons — Di Ujung Jalan (Slowed & Reverb)
+- Armada — Penantian (Slowed & Reverb)
+- Ipang — Sekali Lagi
+- Seventeen — Jaga Selalu Hatimu Versi (Slowed & Reverb)
+- Peterpan — Ku Katakan Dengan Indah (Slowed & Reverb)
+- Peterpan — Walau Habis Terang (Slowed & Reverb)
+- Sheila On 7 — Yang Terlewatkan (Slowed & Reverb)
+- Eren — Takkan Pisah (Slowed & Reverb)
+- Sal Priadi & Nadin Amizah — Amin Paling Serius
+- Raim Laode — Lesung Pipi
+- Tulus — Monokrom
+- Bondan Prakoso, Fade2black — Ya Sudahlah
+- Iklim — Bukan Ku Tak Sudi
+- Lestari — Airmata Di Hari Persandinganmu
+- Astrid S — Hurts So Good
+- Sheila On 7 — Dan
+- Sheila On 7 — Sephia
+- Halsey — Without Me
+- Vagetos — Betapa Aku Mencintaimu (Slowed & Reverb)
+- Sheila On 7 — Hari Bersamanya (Slowed & Reverb)
+- Medley — Selamat Tinggal X Duka X Seluruh Nafas Ini X Duka X Sarana - (Sped Up)
+- Sheila On 7 — Dan (Slowed & Reverb)
+- The Script — Hall Of Fame
+- Acha — Sampai Menutup Mata Slow (Reverb)
+- Mashup — Tanpa Pesan Terakhir X Jaga Selalu Hatimu X Yang Telah Merelakanmu (Sped Up)
+- Medley — Tanpa Pesan Terakhir X Jaga Selalu Hatimu X Yang Telah Merelakanmu X Menemukanmu (Slowed & Reverb)
+- Taxi Band — Hujan Kemarin
+- Key — Satu Nama Tetap Di Hati
+- Saleem — Sampai Hati
+- Taxi — Hujan Kemarin (Sped Up)
+- Anda — Tentang Seseorang
+- Demi Lovato — Heart Attack
+- Anggis Devaki — Dirimu Yang Dulu (Sped Up)
+- Anima — Bintang
+- Screen — Bila Cinta Didusta
+- Wali — Baik Baik Sayang (Slowed)
+- The Virgins — Cinta Terlarang (Slowed & Reverb)
+- Ella — Sembilu
+- Mashup — Pilihan Hatiku X Cinta Terbaik X Memilih Setia (Sped Up)
+- For Revenge — Serana (Slowed & Reverb)
+- Yovie & Nuno — Mengejar Mimpi (Slowed & Reverb)
+- Yovie & Nuno — Mengejar Mimpi
+- Dygta — Tapi Tahukah Kamu
+
+## 🌐 Luar (Proposed)
+- Shawn Mendes — There's Nothing Holding Me Back
+- Dj Snake & Justin Bieber — Let Me Love You
+- Keane — Somewhere Only We Know
+- Bruno Mars — It Will Rain
+- Ellie Goulding — Love Me Like You Do
+- The Chainsmokers — Don't Let Me Down
+- Sombr — Back to Friends
+- Elektronomia — Sky High
+- Camila Cabello — Never Be The Same
+- Ava Max — Sweet But Psycho
+- Axwell Λ Ingrosso — More Than You Know
+- Ava Max — Kings & Queens
+- Bruno Mars — Talking to The Moon
+- Kodaline — All I Want
+- Bruno Mars — Locked Out Of Heaven
+- Edward Maya & Vika Jigulina — Stereo Love
+- Coldplay — Hymn For The Weekend
+- Mac Demarco — Chamber Of Reflection
+- Imagine Dragons — Bad Liar
+- Joji — Glimpse Of Us
+- John Newman — Love Me Again
+- James Arthur Ft. Anne-marie — Rewrite The Stars
+- Lost Sky — Fearless Pt.ii
+- Lord Huron — The Night We Met
+- Kygo & Selena Gomez — It Ain't Me
+- Selena Gomez — Love You Like A Love Song
+- The Weeknd & Ariana Grande — Save Your Tears
+- Lukas Graham — 7 Years
+- Mike Posner — I Took A Pill In Ibiza
+- The Script — The Man Who
+- Troye Sivan — Angel Baby
+- Conan Gray — Memories
+- Alan Walker — Lily
+- Alan Walker — Faded
+- Alan Walker — Sing Me to Sleep
+- Cigarettes After Sex — Cry
+- D4vd — Romantic Homicide
+- David Guetta & Bebe Rexha — I'm Good
+- Benson Boone — In The Stars
+- Alan Walker — The Spectre
+- Cigarettes After Sex — Apocalypse
+- Camila Cabello — Shameless
+- Alan Walker — Alone Pt Ii
+- Alan Walker — Alone
+- Arash Feat. Helena — Broken Angel
+- Alan Walker & Emma Steinbakken — Not You
+- James Arthur — Impossible
+- Harry Styles — As It Was
+- Justin Bieber — Ghost
+- Loreen — Tattoo
+- Lewis Capaldi — Someone You Loved
+- Lewis Capaldi — Before You Go
+- Olivia Rodrigo — Happier
+- Taio Cruz — Dynamite
+- The Chainsmokers — Closer
+- Tove Lo — Habits
+- The Script — Superheroes
+- The 1975 — About You
+- Timbaland — Apologize
+- Slander — Love Is Gone
+- One Direction — Night Changes
+- Alan Walker — Play
+- Gym Class Heroes — Stereo Hearts
+- Martin Garrix & Bebe Rexha — In The Name Of Love
+- Fun. Ft. Janelle Monae — We Are Young
+
+## ❓ Uncertain (Needs Manual Check)
+- Avicii — The Nights
+- Djo — End Of Beginning
+- Arash Feat. Helena — One Day
+- Dean Lewis — Be Alright
+- Alan Walker — Darkside
+- Hoobastank — The Reason
+- Harry Styles — Sign Of The Times
+- Justin Bieber — Despacito
+- Imagine Dragons — Believer
+- Janji — Heroes Tonight
+- Phoebe Bridgers — Scott Street
+- One Direction — Story Of My Life
+- The Chainsmokers & Coldplay — Something Just Like This
+- Witt Lowry — Into Your Arms
+- Al Ghazali — Kesayanganku
+- Desy Ratnasari — Tenda Biru
+- Kugiran Masdo — Dinda
+- Akon — Right Now Na Na Na
+- Henry Moodie — Drunk Text
+- Gigi Perez — Sailor Song
+- Twenty One Pilots — Ride
+- Beach House — Space Song
