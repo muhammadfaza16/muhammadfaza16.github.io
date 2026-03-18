@@ -202,7 +202,7 @@ export function LiveMusicPlayer() {
                     </motion.div>
                 )}
             </AnimatePresence>
-            <div style={{ position: "absolute", inset: "-150px", zIndex: 0, pointerEvents: "none", backgroundColor: isDark ? "rgba(0,0,0,0.6)" : "rgba(255,255,255,0.6)" }} />
+            <div style={{ position: "absolute", inset: "-150px", zIndex: 0, pointerEvents: "none", backgroundColor: isDark ? "rgba(0,0,0,0.35)" : "rgba(255,255,255,0.4)" }} />
 
             <div style={{ position: "relative", zIndex: 1, flex: 1, display: "flex", flexDirection: "column", width: "100%", maxWidth: "500px", margin: "0 auto" }}>
             {/* Playlist Info & Listeners */}
@@ -223,7 +223,7 @@ export function LiveMusicPlayer() {
             </div>
 
             {/* Inner Flex Container mirroring GlobalBottomPlayer */}
-            <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "32px", padding: "0 32px", paddingBottom: "32px" }}>
+            <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "space-evenly", padding: "0 32px", paddingBottom: "32px" }}>
 
             {/* Cover Art Container Wrapper (For Particles & Button) */}
             <div style={{ position: "relative", width: "100%", maxWidth: "240px", aspectRatio: "1/1" }}>

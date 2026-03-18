@@ -14,14 +14,15 @@ export default function LiveMusicPage() {
 
     return (
         <main style={{
-            position: "relative",
-            height: "100svh",
+            position: "fixed",
+            inset: 0,
             overflow: "hidden",
             display: "flex",
             flexDirection: "column",
-            backgroundColor: isDark ? "#0A0A0A" : "#F8F5F2",
+            backgroundColor: "transparent",
             color: isDark ? "#FFF" : "#1A1A1A",
-            transition: "background-color 0.5s ease, color 0.5s ease"
+            transition: "background-color 0.5s ease, color 0.5s ease",
+            zIndex: 9999
         }}>
             {/* Header */}
             <div style={{ 
@@ -47,22 +48,27 @@ export default function LiveMusicPage() {
                     </Link>
                 </div>
                 <div style={{
-                    display: "flex", alignItems: "center", gap: "6px",
-                    background: isDark ? "rgba(239, 68, 68, 0.15)" : "rgba(239, 68, 68, 0.08)",
-                    border: isDark ? "1px solid rgba(239, 68, 68, 0.3)" : "1px solid rgba(239, 68, 68, 0.2)",
-                    padding: "6px 14px", borderRadius: "100px",
-                    boxShadow: isDark ? "0 0 20px rgba(239, 68, 68, 0.2)" : "0 4px 12px rgba(239, 68, 68, 0.1)"
+                    display: "flex", alignItems: "center", gap: "8px",
+                    background: isDark ? "rgba(239, 68, 68, 0.25)" : "rgba(239, 68, 68, 0.08)",
+                    border: isDark ? "1px solid rgba(239, 68, 68, 0.6)" : "1px solid rgba(239, 68, 68, 0.2)",
+                    padding: "6px 16px", borderRadius: "100px",
+                    boxShadow: isDark ? "0 0 24px rgba(239, 68, 68, 0.4), inset 0 0 12px rgba(239, 68, 68, 0.2)" : "0 4px 12px rgba(239, 68, 68, 0.1)"
                 }}>
                     <motion.div
-                        animate={{ opacity: [1, 0.4, 1] }}
-                        transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
+                        animate={{ opacity: [1, 0.3, 1], scale: [1, 1.2, 1] }}
+                        transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" }}
                         style={{
-                            width: "6px", height: "6px", borderRadius: "50%",
-                            backgroundColor: "#EF4444",
-                            boxShadow: "0 0 8px rgba(239, 68, 68, 0.8)"
+                            width: "8px", height: "8px", borderRadius: "50%",
+                            backgroundColor: "#FF3333",
+                            boxShadow: "0 0 10px #FF3333"
                         }}
                     />
-                    <span style={{ fontFamily: headerFont, fontWeight: 900, fontSize: "0.65rem", textTransform: "uppercase", letterSpacing: "0.15em", color: isDark ? "#FFF" : "#DC2626" }}>
+                    <span style={{ 
+                        fontFamily: headerFont, fontWeight: 900, fontSize: "0.7rem", 
+                        textTransform: "uppercase", letterSpacing: "0.15em", 
+                        color: isDark ? "#FFECEC" : "#DC2626",
+                        textShadow: isDark ? "0 0 12px rgba(255, 68, 68, 0.8)" : "none"
+                    }}>
                         Live Radio
                     </span>
                 </div>
