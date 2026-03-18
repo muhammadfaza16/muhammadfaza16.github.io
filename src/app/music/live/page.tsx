@@ -12,6 +12,20 @@ export default function LiveMusicPage() {
     const headerFont = "var(--font-display), system-ui, sans-serif";
     const isDark = theme === "dark";
 
+    // Strictly lock body scroll to prevent iOS Safari rubber-banding / fake scrollbars
+    React.useEffect(() => {
+        const originalOverflow = document.body.style.overflow;
+        const originalOverscroll = document.body.style.overscrollBehavior;
+
+        document.body.style.overflow = "hidden";
+        document.body.style.overscrollBehavior = "none";
+
+        return () => {
+            document.body.style.overflow = originalOverflow;
+            document.body.style.overscrollBehavior = originalOverscroll;
+        };
+    }, []);
+
     return (
         <main style={{
             position: "fixed",

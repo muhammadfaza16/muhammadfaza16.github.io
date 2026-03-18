@@ -495,7 +495,7 @@ export default function AudioHubPage() {
                     </div>
 
                     {/* Live Radio Card */}
-                    <Link href="/music/live" style={{ textDecoration: "none" }}>
+                    <Link href="/music/live-hub" style={{ textDecoration: "none" }}>
                         <motion.div
                             whileHover={{ y: -4, scale: 1.01 }}
                             whileTap={{ scale: 0.98 }}
