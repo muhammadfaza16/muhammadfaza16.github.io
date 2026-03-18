@@ -80,6 +80,12 @@ export async function GET() {
 
         const currentSong = playableSongs[currentSongIndex];
 
+        // Calculate real listener count (active in last 5 minutes)
+        const fiveMinsAgo = new Date(Date.now() - 5 * 60 * 1000);
+        const listenersCount = await prisma.musicAccessLog.count({
+            where: { lastActive: { gte: fiveMinsAgo } }
+        });
+
         return NextResponse.json({
             isLive: true,
             serverTime: now,
@@ -95,6 +101,7 @@ export async function GET() {
             playlistTitle: session.playlist.title,
             playlistCover: session.playlist.coverImage,
             playlistColor: session.playlist.coverColor,
+            listenersCount,
             // Send full tracklist for queue preview
             tracklist: playableSongs.map((s: any, i: number) => ({
                 title: s.title,

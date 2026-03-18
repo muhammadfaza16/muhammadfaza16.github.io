@@ -32,6 +32,7 @@ interface LiveMusicState {
     tracklist: TracklistItem[];
     error: string | null;
     isSynced: boolean;
+    listenersCount: number;
     togglePlay: () => void;
     refresh: () => void;
 }
@@ -53,6 +54,7 @@ const LiveMusicContext = createContext<LiveMusicState>({
     tracklist: [],
     error: null,
     isSynced: false,
+    listenersCount: 0,
     togglePlay: () => {},
     refresh: () => {},
 });
@@ -92,6 +94,7 @@ export function LiveMusicProvider({ children }: { children: React.ReactNode }) {
     const [tracklist, setTracklist] = useState<TracklistItem[]>([]);
     const [error, setError] = useState<string | null>(null);
     const [isSynced, setIsSynced] = useState(false);
+    const [listenersCount, setListenersCount] = useState(0);
 
     // ─── Refs (stable across renders, no stale closures) ────────────────────
     const audioRef = useRef<HTMLAudioElement | null>(null);
@@ -168,6 +171,7 @@ export function LiveMusicProvider({ children }: { children: React.ReactNode }) {
             setPlaylistCover(data.playlistCover || null);
             setPlaylistColor(data.playlistColor || null);
             setTracklist(data.tracklist || []);
+            setListenersCount(data.listenersCount || 0);
 
             const song: LiveSong = data.song;
             const serverSeek = data.seekPosition + oneWayLatency;
@@ -288,6 +292,7 @@ export function LiveMusicProvider({ children }: { children: React.ReactNode }) {
             tracklist,
             error,
             isSynced,
+            listenersCount,
             togglePlay,
             refresh,
         }}>
