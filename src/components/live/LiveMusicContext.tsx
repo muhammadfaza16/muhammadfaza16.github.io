@@ -59,21 +59,23 @@ const LiveMusicContext = createContext<LiveMusicState>({
 
 export const useLiveMusic = () => useContext(LiveMusicContext);
 
-// ─── Sync Tuning Constants ─────────────────────────────────────────────────
-// Drift below this is considered "in sync" — no action needed.
-const DRIFT_TOLERANCE = 1.0;
-// Drift between DRIFT_TOLERANCE and HARD_SYNC_THRESHOLD uses gentle playbackRate.
-// Max playbackRate offset is 2%, which is imperceptible on music.
-const SOFT_RATE = 0.02; // 1.02x or 0.98x
-// Drift above this triggers an immediate seek (tab was sleeping, etc.)
-const HARD_SYNC_THRESHOLD = 5.0;
-// Normal polling interval
-const POLL_INTERVAL = 15000;
-// When audio is within this many seconds of the song's end, do an early fetch
-// to ensure a seamless transition to the next song.
-const TRANSITION_LOOKAHEAD = 4;
+// ─── Tuning ─────────────────────────────────────────────────────────────────
+// Drift (in seconds) above which the LIVE indicator turns gray.
+const SYNC_DRIFT_THRESHOLD = 5.0;
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Architecture: Free-Flow + Manual Sync
+//
+// 1. On mount       → fetchAndSync() → load audio, defer seek to canplay
+// 2. First play     → re-fetchAndSync() for a fresh position → seek + play
+// 3. During play    → NO polling, NO playbackRate changes, audio at 1.0x
+// 4. Song ends      → 1s delay → fetchAndSync() → load next song
+// 5. SYNC button    → fetchAndSync() → hard seek to server position
+// 6. Play / Pause   → simple play() / pause(), no sync
+// ─────────────────────────────────────────────────────────────────────────────
 
 export function LiveMusicProvider({ children }: { children: React.ReactNode }) {
+    // ─── React state (drives UI) ────────────────────────────────────────────
     const [isLive, setIsLive] = useState(false);
     const [isPlaying, setIsPlaying] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
@@ -91,19 +93,38 @@ export function LiveMusicProvider({ children }: { children: React.ReactNode }) {
     const [error, setError] = useState<string | null>(null);
     const [isSynced, setIsSynced] = useState(false);
 
+    // ─── Refs (stable across renders, no stale closures) ────────────────────
     const audioRef = useRef<HTMLAudioElement | null>(null);
-    const pollTimerRef = useRef<NodeJS.Timeout | null>(null);
-    const correctionTimerRef = useRef<NodeJS.Timeout | null>(null);
-    const transitionTimerRef = useRef<NodeJS.Timeout | null>(null);
     const currentSongUrlRef = useRef<string>("");
     const hasUserInteractedRef = useRef(false);
-    const isSyncingRef = useRef(false);
-    const songDurationRef = useRef<number>(0);
+    const hasEverPlayedRef = useRef(false);
+    const isFetchingRef = useRef(false);
 
-    // ─── Core Fetch ────────────────────────────────────────────────────────
-    const fetchNow = useCallback(async (isInitial = false) => {
-        if (isSyncingRef.current && !isInitial) return;
-        isSyncingRef.current = true;
+    // Pending seek — the position to jump to once the browser fires canplay.
+    // This avoids seeking before the audio source is ready.
+    const pendingSeekRef = useRef<number | null>(null);
+
+    // Server sync reference — snapshot from the last fetch.
+    // Used in onTimeUpdate to compute expected server position in real-time
+    // without any network calls: expected = serverSeek + (now - fetchedAt).
+    const serverSyncRef = useRef<{
+        serverSeek: number;
+        fetchedAt: number;
+        songUrl: string;
+    }>({ serverSeek: 0, fetchedAt: Date.now(), songUrl: "" });
+
+    // Tracks whether isSynced actually changed, to avoid unnecessary re-renders.
+    const lastSyncedRef = useRef(false);
+
+    // Safety timer for the onEnded → same-song edge case.
+    const retryTimerRef = useRef<NodeJS.Timeout | null>(null);
+
+    // ─── Core: Fetch & Sync ─────────────────────────────────────────────────
+    // Fetches the current server state and synchronizes the <audio> element.
+    // Called on: mount, first play, song ended, and manual SYNC press.
+    const fetchAndSync = useCallback(async () => {
+        if (isFetchingRef.current) return;
+        isFetchingRef.current = true;
 
         const fetchStart = Date.now();
 
@@ -111,9 +132,11 @@ export function LiveMusicProvider({ children }: { children: React.ReactNode }) {
             const res = await fetch("/api/live-music/now", { cache: "no-store" });
             const data = await res.json();
 
+            // Estimate one-way network latency (capped at 500ms)
             const rtt = Date.now() - fetchStart;
             const oneWayLatency = Math.min(rtt / 2, 500) / 1000;
 
+            // ── Not live ────────────────────────────────────────────────────
             if (!data.isLive) {
                 setIsLive(false);
                 setCurrentSong(null);
@@ -123,18 +146,20 @@ export function LiveMusicProvider({ children }: { children: React.ReactNode }) {
                     audioRef.current.src = "";
                 }
                 setIsLoading(false);
-                isSyncingRef.current = false;
+                isFetchingRef.current = false;
                 return;
             }
 
+            // ── Server error ────────────────────────────────────────────────
             if (data.error) {
                 setIsLive(true);
                 setError(data.error);
                 setIsLoading(false);
-                isSyncingRef.current = false;
+                isFetchingRef.current = false;
                 return;
             }
 
+            // ── Update metadata state ───────────────────────────────────────
             setIsLive(true);
             setError(null);
             setSongIndex(data.songIndex);
@@ -143,145 +168,108 @@ export function LiveMusicProvider({ children }: { children: React.ReactNode }) {
             setPlaylistCover(data.playlistCover || null);
             setPlaylistColor(data.playlistColor || null);
             setTracklist(data.tracklist || []);
-            setSeekPosition(data.seekPosition);
 
             const song: LiveSong = data.song;
-            setCurrentSong(song);
-            songDurationRef.current = song.duration || 0;
-
             const serverSeek = data.seekPosition + oneWayLatency;
 
-            // ─── Song Change: Hard Load ────────────────────────────────────
+            setCurrentSong(song);
+            setSeekPosition(serverSeek);
+
+            // Update the sync reference point
+            serverSyncRef.current = {
+                serverSeek,
+                fetchedAt: Date.now(),
+                songUrl: song.audioUrl,
+            };
+
+            if (!audioRef.current) {
+                isFetchingRef.current = false;
+                return;
+            }
+
+            const audio = audioRef.current;
+
+            // ── Different song → load new source ────────────────────────────
             if (currentSongUrlRef.current !== song.audioUrl) {
                 currentSongUrlRef.current = song.audioUrl;
 
-                if (correctionTimerRef.current) {
-                    clearTimeout(correctionTimerRef.current);
-                    correctionTimerRef.current = null;
-                }
-                if (transitionTimerRef.current) {
-                    clearTimeout(transitionTimerRef.current);
-                    transitionTimerRef.current = null;
-                }
+                // Store the target seek position.
+                // It will be applied in the onCanPlay handler once the
+                // browser has buffered enough data to actually seek.
+                pendingSeekRef.current = serverSeek > 1.0 ? serverSeek : 0;
 
-                if (audioRef.current) {
-                    const audio = audioRef.current;
-                    audio.playbackRate = 1.0;
-                    audio.src = song.audioUrl;
+                audio.playbackRate = 1.0;
+                audio.src = song.audioUrl;
+                // audio.load() is implicit when src changes.
 
-                    if (serverSeek > 1.0) {
-                        audio.currentTime = serverSeek;
-                    } else {
-                        audio.currentTime = 0;
-                    }
+                setIsWaitingForSync(false);
 
-                    setIsWaitingForSync(false);
+                // Don't call play() here — the onCanPlay handler will do it
+                // after applying the seek, if the user has interacted.
 
-                    if (hasUserInteractedRef.current) {
-                        audio.play().catch(() => {});
-                    }
+            // ── Same song → hard seek only ──────────────────────────────────
+            } else {
+                audio.currentTime = serverSeek;
+                audio.playbackRate = 1.0;
+
+                if (hasUserInteractedRef.current && audio.paused) {
+                    audio.play().catch(() => {});
                 }
 
-                scheduleTransitionFetch(song.duration, serverSeek);
-
-            } else if (audioRef.current) {
-                // ─── Same Song: Graceful Sync ──────────────────────────────
-                const audio = audioRef.current;
-                const drift = serverSeek - audio.currentTime;
-                const absDrift = Math.abs(drift);
-
-                if (absDrift > HARD_SYNC_THRESHOLD) {
-                    audio.currentTime = serverSeek;
-                } else if (absDrift > DRIFT_TOLERANCE) {
-                    if (correctionTimerRef.current) {
-                        clearTimeout(correctionTimerRef.current);
-                        correctionTimerRef.current = null;
-                    }
-
-                    const rate = drift > 0 ? (1 + SOFT_RATE) : (1 - SOFT_RATE);
-                    audio.playbackRate = rate;
-
-                    const correctionDuration = (absDrift / SOFT_RATE) * 1000;
-                    const maxCorrectionMs = Math.min(correctionDuration, POLL_INTERVAL - 2000);
-
-                    correctionTimerRef.current = setTimeout(() => {
-                        if (audioRef.current) {
-                            audioRef.current.playbackRate = 1.0;
-                        }
-                        correctionTimerRef.current = null;
-                    }, maxCorrectionMs);
-                } else {
-                    if (audio.playbackRate !== 1.0) {
-                        audio.playbackRate = 1.0;
-                    }
-                    if (correctionTimerRef.current) {
-                        clearTimeout(correctionTimerRef.current);
-                        correctionTimerRef.current = null;
-                    }
-                }
-
-                scheduleTransitionFetch(song.duration, audio.currentTime);
+                setIsWaitingForSync(false);
             }
 
             setIsLoading(false);
+            setIsSynced(true);
+            lastSyncedRef.current = true;
+
         } catch (err: any) {
             setError(err.message || "Failed to connect to live stream");
             setIsLoading(false);
         } finally {
-            isSyncingRef.current = false;
+            isFetchingRef.current = false;
         }
     }, []);
 
-    // ─── Predictive Transition ─────────────────────────────────────────────
-    // Schedules an early fetch before the current song ends, ensuring the client
-    // has the next song's data ready for a seamless gapless transition.
-    const scheduleTransitionFetch = useCallback((songDuration: number, currentPos: number) => {
-        if (transitionTimerRef.current) {
-            clearTimeout(transitionTimerRef.current);
-            transitionTimerRef.current = null;
-        }
-
-        const remaining = songDuration - currentPos;
-        const fetchAhead = remaining - TRANSITION_LOOKAHEAD;
-
-        if (fetchAhead > 0) {
-            transitionTimerRef.current = setTimeout(() => {
-                fetchNow(true);
-            }, fetchAhead * 1000);
-        }
-    }, [fetchNow]);
-
-    // ─── Lifecycle ─────────────────────────────────────────────────────────
+    // ─── Lifecycle: fetch on mount only ─────────────────────────────────────
     useEffect(() => {
-        fetchNow(true);
-
-        // Start polling
-        pollTimerRef.current = setInterval(() => fetchNow(false), POLL_INTERVAL);
-
+        fetchAndSync();
         return () => {
-            if (pollTimerRef.current) clearInterval(pollTimerRef.current);
-            if (correctionTimerRef.current) clearTimeout(correctionTimerRef.current);
-            if (transitionTimerRef.current) clearTimeout(transitionTimerRef.current);
+            if (retryTimerRef.current) clearTimeout(retryTimerRef.current);
         };
-    }, [fetchNow]);
+    }, [fetchAndSync]);
 
+    // ─── User action: Play / Pause ──────────────────────────────────────────
     const togglePlay = useCallback(() => {
-        if (!audioRef.current || !currentSong) return;
-
+        if (!audioRef.current) return;
         hasUserInteractedRef.current = true;
 
         if (isPlaying) {
+            // Pausing: simple, no sync needed.
             audioRef.current.pause();
         } else {
-            audioRef.current.play().catch(() => {});
+            if (!hasEverPlayedRef.current) {
+                // Very first play since page load.
+                // Re-sync to get a fresh server position because the user
+                // might have waited before pressing play.
+                hasEverPlayedRef.current = true;
+                fetchAndSync();
+            } else {
+                // Subsequent play from paused: just resume, no sync.
+                audioRef.current.play().catch(() => {});
+            }
         }
-    }, [isPlaying, currentSong]);
+    }, [isPlaying, fetchAndSync]);
 
+    // ─── User action: Manual SYNC ───────────────────────────────────────────
     const refresh = useCallback(() => {
         hasUserInteractedRef.current = true;
-        fetchNow(true);
-    }, [fetchNow]);
+        hasEverPlayedRef.current = true;
+        setIsWaitingForSync(true);
+        fetchAndSync();
+    }, [fetchAndSync]);
 
+    // ─── Render ─────────────────────────────────────────────────────────────
     return (
         <LiveMusicContext.Provider value={{
             isLive,
@@ -307,28 +295,56 @@ export function LiveMusicProvider({ children }: { children: React.ReactNode }) {
                 ref={audioRef}
                 preload="auto"
                 onWaiting={() => setIsBuffering(true)}
-                onCanPlay={() => setIsBuffering(false)}
+                onCanPlay={() => {
+                    setIsBuffering(false);
+
+                    // Apply deferred seek once browser is ready.
+                    if (pendingSeekRef.current !== null && audioRef.current) {
+                        audioRef.current.currentTime = pendingSeekRef.current;
+                        pendingSeekRef.current = null;
+
+                        // Auto-play if the user has already interacted.
+                        if (hasUserInteractedRef.current) {
+                            audioRef.current.play().catch(() => {});
+                        }
+                    }
+                }}
                 onPlaying={() => {
                     setIsBuffering(false);
                     setIsPlaying(true);
+                    setIsWaitingForSync(false);
                 }}
                 onPause={() => setIsPlaying(false)}
                 onEnded={() => {
+                    // Song finished naturally.
+                    // Wait 1s for the server clock to advance past the
+                    // transition point, then fetch the next song.
                     setIsPlaying(false);
                     setIsWaitingForSync(true);
-                    fetchNow(true);
+
+                    if (retryTimerRef.current) clearTimeout(retryTimerRef.current);
+                    retryTimerRef.current = setTimeout(() => {
+                        fetchAndSync();
+                    }, 1000);
                 }}
                 onTimeUpdate={() => {
-                    if (audioRef.current) {
-                        const t = audioRef.current.currentTime;
-                        setCurrentTime(t);
-                        
-                        // Recalculate sync status
-                        if (seekPosition > 0 && isPlaying && !isBuffering && !isWaitingForSync) {
-                            const drift = Math.abs(t - seekPosition);
-                            setIsSynced(drift < DRIFT_TOLERANCE);
-                        } else {
-                            setIsSynced(false);
+                    if (!audioRef.current) return;
+                    const t = audioRef.current.currentTime;
+                    setCurrentTime(t);
+
+                    // Compute drift from expected server position.
+                    // Expected = serverSeek + wallclock elapsed since fetch.
+                    const sync = serverSyncRef.current;
+                    if (sync.songUrl && sync.songUrl === currentSongUrlRef.current) {
+                        const elapsed = (Date.now() - sync.fetchedAt) / 1000;
+                        const expectedPos = sync.serverSeek + elapsed;
+                        const drift = Math.abs(expectedPos - t);
+                        const synced = drift < SYNC_DRIFT_THRESHOLD;
+
+                        // Only update state when the value actually changes.
+                        if (synced !== lastSyncedRef.current) {
+                            lastSyncedRef.current = synced;
+                            setIsSynced(synced);
                         }
                     }
                 }}
