@@ -274,7 +274,7 @@ export function LiveMusicPlayer() {
 
             {/* Song Info */}
             <div style={{ textAlign: "center", display: "flex", flexDirection: "column", alignItems: "center", gap: "8px" }}>
-                <h2 style={{ fontFamily: headerFont, fontWeight: 900, fontSize: "1.4rem", margin: 0, letterSpacing: "-0.04em", color: isDark ? "#FFF" : "#000" }}>
+                <h2 style={{ fontFamily: headerFont, fontWeight: 900, fontSize: "1.5rem", margin: 0, letterSpacing: "-0.04em", color: isDark ? "#FFF" : "#000" }}>
                     {cleanTitle}
                 </h2>
                 {labels.length > 0 && (
@@ -291,7 +291,7 @@ export function LiveMusicPlayer() {
                         ))}
                     </div>
                 )}
-                <p style={{ fontFamily: headerFont, fontWeight: 600, fontSize: "0.9rem", margin: 0, color: isDark ? "rgba(255,255,255,0.5)" : "#888" }}>
+                <p style={{ fontFamily: headerFont, fontWeight: 700, fontSize: "0.95rem", margin: 0, letterSpacing: "0.02em", color: isDark ? "rgba(255,255,255,0.6)" : "#666" }}>
                     {artist}
                 </p>
             </div>

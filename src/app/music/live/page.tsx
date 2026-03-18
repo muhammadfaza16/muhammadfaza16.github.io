@@ -35,7 +35,7 @@ export default function LiveMusicPage() {
                             whileTap={{ scale: 0.9 }}
                             style={{
                                 display: "flex", alignItems: "center", justifyContent: "center",
-                                background: isDark ? "rgba(255, 255, 255, 0.05)" : "rgba(0,0,0,0.05)",
+                                background: isDark ? "rgba(255, 255, 255, 0.1)" : "rgba(0,0,0,0.05)",
                                 border: "none",
                                 padding: "8px", cursor: "pointer",
                                 color: isDark ? "#FFF" : "#000",
@@ -46,7 +46,7 @@ export default function LiveMusicPage() {
                         </motion.button>
                     </Link>
                 </div>
-                <span style={{ fontFamily: headerFont, fontWeight: 900, fontSize: "0.75rem", textTransform: "uppercase", letterSpacing: "0.05em", color: isDark ? "rgba(255,255,255,0.4)" : "rgba(0,0,0,0.3)" }}>
+                <span style={{ fontFamily: headerFont, fontWeight: 800, fontSize: "0.75rem", textTransform: "uppercase", letterSpacing: "0.1em", color: isDark ? "rgba(255,255,255,0.9)" : "rgba(0,0,0,0.8)" }}>
                     Live Radio
                 </span>
             </div>
