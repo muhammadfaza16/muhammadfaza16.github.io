@@ -710,7 +710,8 @@ export function AudioProvider({ children, initialSongs = [] }: { children: React
             <TimeContext.Provider value={{ currentTime, duration, isBuffering }}>
             <audio
                 ref={audioRef}
-                src={getSafeUrl(queue[currentIndex]?.audioUrl)}
+                src={queue[currentIndex]?.audioUrl ? getSafeUrl(queue[currentIndex].audioUrl) : undefined}
+
                 preload="auto"
                 onTimeUpdate={handleTimeUpdate}
                 onLoadedMetadata={() => {
