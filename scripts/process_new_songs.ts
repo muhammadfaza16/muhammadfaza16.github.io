@@ -57,6 +57,20 @@ function cleanFileName(filename: string) {
     if (name.includes('CINTA YANG LAIN UNGU')) {
         name = 'Ungu - Cinta Yang Lain';
     }
+    if (name.includes('Bahagia Lagi')) {
+        name = 'Piche Kota - Bahagia Lagi';
+    }
+    if (name.includes('Jangan Paksa Rindu (Beda)')) {
+        name = 'Ifan 17 - Jangan Paksa Rindu (Beda)';
+    }
+    if (name.includes('Mangu')) {
+        name = 'Hindia - Mangu';
+    }
+    if (name.includes('Semua Tak Sama') && !name.toLowerCase().includes('padi')) {
+        name = 'Padi - Semua Tak Sama';
+    }
+
+
 
     // Medley detection (x separator)
     const isMedley = name.includes(' x ') || name.includes(' X ') || name.includes(' x ');
@@ -130,6 +144,30 @@ function cleanFileName(filename: string) {
     return { finalTitleStr, safeFileName };
 }
 
+function categorize(title: string) {
+    const INDO_KEYWORDS = [
+        'cinta', 'rindu', 'hati', 'kasih', 'sayang', 'jangan', 'kau', 'aku', 'kita', 'kami', 'mereka',
+        'bintang', 'langit', 'bumi', 'malam', 'pagi', 'siang', 'sore', 'resah', 'luka', 'sepuh', 'sempurna',
+        'terbaik', 'bahagia', 'sedih', 'berjalan', 'pulang', 'pergi', 'kembali', 'menunggu', 'tetap', 'usai'
+    ];
+
+    const INDO_ARTISTS = [
+        'Sheila on 7', 'Noah', 'Ungu', 'Samsons', 'D\'masiv', 'St12', 'Hijau Daun', 'Vagetoz', 
+        'Vierra', 'Virgoun', 'Virzha', 'Wali', 'Slam', 'Exists', 'Exist', 'Spoon', 'Screen', 'Ukays', 
+        'Ella', 'Stings', 'Taxi', 'Taxi Band', 'Utopia', 'Last Child', 'Lyodra', 'Andra', 'Dewa', 
+        'Tulus', 'Risalah', 'Andmesh', 'Bernadya', 'Budi Doremi', 'Daun Jatuh', 'Feast', 'Firman', 
+        'Ghea Indrawari', 'Keisya Levronka', 'Mahen', 'Nadhif Basalamah', 'Padi', 'Pamungkas', 
+        'Panji Sakti', 'Peterpan', 'The Lantis', 'Barasuara', 'Lobow', 'Feby Putri', 'Fiersa Besari',
+        'Hindia', 'Mangu', 'Acha', 'Melly Goeslaw', 'Astrid', 'Gigi', 'Yovie', 'Nuno', 'Ifan 17', 'Piche Kota'
+    ];
+
+    const lower = title.toLowerCase();
+    if (INDO_ARTISTS.some(a => lower.includes(a.toLowerCase()))) return 'Indo';
+    if (INDO_KEYWORDS.some(k => lower.includes(k))) return 'Indo';
+    return 'Luar';
+}
+
+
 async function main() {
     if (!fs.existsSync(SOURCE_DIR)) {
         console.error("Source directory not found:", SOURCE_DIR);
@@ -156,10 +194,10 @@ async function main() {
             fs.renameSync(oldPath, newPath); // overwrite
         }
 
-        const audioUrl = `/audio/${safeFileName}`; // New standard: no encodeURIComponent needed on the URL because it's already a slug
+        const audioUrl = `/audio/${safeFileName}`; 
+        const category = categorize(finalTitleStr);
 
         // Upsert into DB
-        // Try finding by slugified URL
         const songRecord = await prisma.song.findFirst({
             where: { audioUrl }
         });
@@ -169,18 +207,22 @@ async function main() {
                 data: {
                     title: finalTitleStr,
                     audioUrl: audioUrl,
-                    source: "local"
+                    source: "local",
+                    category: category
                 }
             });
-            console.log(`  -> Added to database.`);
+            console.log(`  -> Added to database (${category}).`);
         } else {
-            // Update title if it changed
             await prisma.song.update({
                 where: { id: songRecord.id },
-                data: { title: finalTitleStr }
+                data: { 
+                    title: finalTitleStr,
+                    category: category
+                }
             });
-            console.log(`  -> Updated database record.`);
+            console.log(`  -> Updated database record (${category}).`);
         }
+
     }
 
     console.log("Done processing all songs.");
