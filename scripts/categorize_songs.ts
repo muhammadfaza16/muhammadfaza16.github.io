@@ -1,97 +1,101 @@
 import { PrismaClient } from '@prisma/client';
+import * as fs from 'fs';
+import * as path from 'path';
 
 const prisma = new PrismaClient();
 
-const INDO_ARTISTS = [
-  'Sheila on 7', 'Noah', 'Ungu', 'Samsons', 'D\'masiv', 'St12', 'Hijau Daun', 'Ungu', 'Vagetoz', 
-  'Vierra', 'Virgoun', 'Virzha', 'Wali', 'Slam', 'Exists', 'Exist', 'Spoon', 'Screen', 'Ukays', 
-  'Ella', 'Stings', 'Taxi', 'Taxi Band', 'Utopia', 'For Revenge', 'Fredy', 'Geisha', 'Geisha', 
-  'Element', 'Eren', 'Janji', 'Desy Ratnasari', 'David Bayu', 'Daun Jatuh', 'Samsons', 'Last Child',
-  'Lyodra', 'Andra', 'Dewa', 'Tulus', 'Risalah'
+const INDO_KEYWORDS = [
+    "cinta", "hati", "kamu", "aku", "satu", "kita", "yang", "kau", "tuk", "ini", "esok", "seterusnya", 
+    "mencintaimu", "tinggal", "duka", "hujan", "kemarin", "pesan", "terakhir", "lagu", "tentang", 
+    "rindu", "melawan", "restu", "kisah", "sempurna", "menunggu", "bayang", "mimpi", "pulang",
+    "bertaut", "lantas", "abadi", "sampai", "menutup", "mata", "luka", "suara", "berharap",
+    "buih", "permadani", "mencari", "alasan", "gerimis", "mengundang", "sembilu", "serana",
+    "kenang", "pergilah", "kasih", "melepasmu", "bersama", "bintang", "merindukanmu", "merindukan",
+    "pelan", "sejauh", "mungkin", "luka", "demi", "waktu", "dalam", "asmara", "kehadiranmu",
+    "betapa", "mencintaimu", "kesepian", "baik", "selamat", "tentang", "pernah", "ada",
+    "jangan", "pergi", "hanya", "ingin", "tahu", "hingga", "akhir"
 ];
 
-async function main() {
-  console.log('Starting regional categorization...');
+const LUAR_KEYWORDS = [
+    "love", "you", "me", "night", "stars", "hymn", "weekend", "dreams", "sky", "high", "stereo", 
+    "alone", "faded", "lily", "play", "spectre", "homicide", "memories", "glimpse", "us", 
+    "back", "friends", "save", "tears", "good", "bad", "liar", "sweet", "psycho", "kings", "queens", 
+    "it", "will", "rain", "locked", "heaven", "talking", "moon", "shameless", "never", "same", 
+    "apocalypse", "cry", "im", "blue", "rewrite", "impossible", "ghost", "somewhere", "only", 
+    "we", "know", "7", "years", "chamber", "reflection", "pill", "ibiza", "happier", "way", 
+    "all", "want", "there", "nothing", "holding", "back", "angel", "baby", "dynamite", "closer",
+    "dont", "let", "down", "man", "who", "superheroes", "hall", "fame", "habits", "stay", "high",
+    "apologize", "hurt", "tattoo", "fearless"
+];
 
-  // 1. Ensure Playlists exist in DB
-  const playlists = [
-    { slug: 'indo-hits', title: 'Indo Hits', description: 'Koleksi lagu-lagu terbaik dari tanah air dan sekitarnya.' },
-    { slug: 'international-favorites', title: 'International Favorites', description: 'Top global tracks that define the current era.' }
-  ];
+const INDO_ARTISTS = [
+    "sheila on 7", "peterpan", "noah", "ungu", "tulus", "raisa", "isayana", "mahalini", "lyodra", 
+    "andmesh", "virzha", "fiersa besari", "nadin amizah", "sal priadi", "naif", "nidji", "kangen band", 
+    "st12", "setia band", "armada", "seventeen", "d'masiv", "dmasiv", "kerispatih", "naff", "vagetoz", 
+    "drive", "ipang", "sal priadi", "nadhif basalamah", "acha septriasa", "melly goeslaw", "ungu", 
+    "cassandra", "eclat", "hivi", "juicy luicy", "sal priadi", "rio clappy", "batas senja", "dendi nata",
+    "ipang", "raim laode", "andra and the backbone", "andra & the backbone", "vierra", "setia band",
+    "last child", "virgoun", "stings", "ukays", "iklim", "exist", "exists", "slam", "spoon", "ukays",
+    "lestari", "poppy mercury", "angga binandra", "astrid", "bagindas", "bondan prakoso", "daun jatuh",
+    "david bayu", "drive", "element", "eren", "fredy", "geisha", "hal", "hijau daun", "jikustik", "judika",
+    "kotak", "la luna", "lobow", "lyla", "maudy ayunda", "nineball", "padi", "repvblik", "samsons", "utopia"
+];
 
-  for (const p of playlists) {
-    await prisma.playlist.upsert({
-      where: { slug: p.slug },
-      update: { title: p.title, description: p.description },
-      create: { slug: p.slug, title: p.title, description: p.description, vibes: [] }
-    });
-  }
+async function analyze() {
+    const songs = await prisma.song.findMany();
+    const result: any = {
+        indo: [],
+        luar: [],
+        uncertain: []
+    };
 
-  const indoPlaylist = await prisma.playlist.findUnique({ where: { slug: 'indo-hits' } });
-  const intlPlaylist = await prisma.playlist.findUnique({ where: { slug: 'international-favorites' } });
+    for (const song of songs) {
+        const titleLower = song.title.toLowerCase();
+        let score = 0;
 
-  if (!indoPlaylist || !intlPlaylist) throw new Error('Playlists not found');
-
-  // 2. Fetch all songs
-  const songs = await prisma.song.findMany();
-  console.log(`Found ${songs.length} songs total.`);
-
-  let indoCount = 0;
-  let intlCount = 0;
-
-  for (const song of songs) {
-    const isIndo = INDO_ARTISTS.some(artist => song.title.toLowerCase().includes(artist.toLowerCase()));
-    const targetPlaylistId = isIndo ? indoPlaylist.id : intlPlaylist.id;
-
-    // Check if already in playlist
-    const exists = await prisma.playlistSong.findUnique({
-      where: {
-        playlistId_songId: {
-          playlistId: targetPlaylistId,
-          songId: song.id
+        // Artist check
+        if (INDO_ARTISTS.some(artist => titleLower.includes(artist))) {
+            score += 10;
         }
-      }
-    });
 
-    if (!exists) {
-      await prisma.playlistSong.create({
-        data: {
-          playlistId: targetPlaylistId,
-          songId: song.id
+        // Keyword check
+        INDO_KEYWORDS.forEach(kw => {
+            if (new RegExp(`\\b${kw}\\b`, 'i').test(titleLower)) score += 2;
+        });
+        LUAR_KEYWORDS.forEach(kw => {
+            if (new RegExp(`\\b${kw}\\b`, 'i').test(titleLower)) score -= 2;
+        });
+
+        if (score > 1) {
+            result.indo.push({ title: song.title, score });
+        } else if (score < -1) {
+            result.luar.push({ title: song.title, score });
+        } else {
+            result.uncertain.push({ title: song.title, score });
         }
-      });
-      if (isIndo) indoCount++; else intlCount++;
     }
-  }
 
-  console.log(`Categorization complete!`);
-  console.log(`Added to Indo Hits: ${indoCount}`);
-  console.log(`Added to International Favorites: ${intlCount}`);
+    // Sort by score
+    result.indo.sort((a: any, b: any) => b.score - a.score);
+    result.luar.sort((a: any, b: any) => a.score - b.score);
 
-  // Output lists for static sync
-  const indoSongs = await prisma.playlistSong.findMany({
-    where: { playlistId: indoPlaylist.id },
-    include: { song: true }
-  });
-  const intlSongs = await prisma.playlistSong.findMany({
-    where: { playlistId: intlPlaylist.id },
-    include: { song: true }
-  });
+    let output = "# Proposed Song Categorization\n\n";
+    output += `Total Analyzed: ${songs.length}\n`;
+    output += `- Indo: ${result.indo.length}\n`;
+    output += `- Luar: ${result.luar.length}\n`;
+    output += `- Uncertain: ${result.uncertain.length}\n\n`;
 
-  const fs = require('fs');
-  fs.writeFileSync('./tmp/categorized_results.json', JSON.stringify({
-    indo: indoSongs.map(ps => ps.song.title),
-    intl: intlSongs.map(ps => ps.song.title)
-  }, null, 2));
+    output += "## 🇮🇩 Indo (Proposed)\n";
+    result.indo.forEach((s: any) => output += `- ${s.title}\n`);
 
-  console.log('--- RESULTS WRITTEN TO ./tmp/categorized_results.json ---');
+    output += "\n## 🌐 Luar (Proposed)\n";
+    result.luar.forEach((s: any) => output += `- ${s.title}\n`);
+
+    output += "\n## ❓ Uncertain (Needs Manual Check)\n";
+    result.uncertain.forEach((s: any) => output += `- ${s.title}\n`);
+
+    fs.writeFileSync(path.join(process.cwd(), 'proposed_categories.md'), output);
+    console.log("Analysis written to proposed_categories.md");
 }
 
-main()
-  .catch((e) => {
-    console.error(e);
-    process.exit(1);
-  })
-  .finally(async () => {
-    await prisma.$disconnect();
-  });
+analyze().catch(console.error).finally(() => prisma.$disconnect());

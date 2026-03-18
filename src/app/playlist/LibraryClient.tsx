@@ -10,13 +10,8 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useTheme } from "@/components/ThemeProvider";
 
-const INDO_ARTISTS = [
-    'Sheila on 7', 'Noah', 'Ungu', 'Samsons', 'D\'masiv', 'St12', 'Hijau Daun', 'Vagetoz', 
-    'Vierra', 'Virgoun', 'Virzha', 'Wali', 'Slam', 'Exists', 'Exist', 'Spoon', 'Screen', 'Ukays', 
-    'Ella', 'Stings', 'Taxi', 'Taxi Band', 'Utopia', 'For Revenge', 'Fredy', 'Geisha', 
-    'Element', 'Eren', 'Janji', 'Desy Ratnasari', 'David Bayu', 'Daun Jatuh', 'Last Child',
-    'Lyodra', 'Andra', 'Dewa', 'Tulus', 'Risalah'
-];
+// INDO_ARTISTS moved to database categories
+
 
 const VIBE_TAGS = [
     { label: "All", value: "", icon: Sparkles },
@@ -53,19 +48,16 @@ export default function LibraryClient({ songCount }: { songCount: number }) {
         const newCounts: Record<string, number> = {};
         PLAYLIST_CATEGORIES.forEach(p => {
             if (p.id === 'indo-hits') {
-                newCounts[p.id] = dbSongs.filter(s => 
-                    INDO_ARTISTS.some(artist => s.title.toLowerCase().includes(artist.toLowerCase()))
-                ).length;
+                newCounts[p.id] = dbSongs.filter(s => s.category === 'Indo').length;
             } else if (p.id === 'international-favorites') {
-                newCounts[p.id] = dbSongs.filter(s => 
-                    !INDO_ARTISTS.some(artist => s.title.toLowerCase().includes(artist.toLowerCase()))
-                ).length;
+                newCounts[p.id] = dbSongs.filter(s => s.category === 'Luar').length;
             } else {
                 newCounts[p.id] = dbSongs.filter(s => 
                     p.songTitles.some(t => s.title.toLowerCase().includes(t.toLowerCase()))
                 ).length;
             }
         });
+
         setCounts(newCounts);
     }, [dbSongs]);
 
