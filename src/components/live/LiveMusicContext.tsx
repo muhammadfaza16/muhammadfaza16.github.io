@@ -79,7 +79,9 @@ const PRELOAD_AHEAD_SECS = 8; // Start preloading next song when ≤8s remain
 // 7. SYNC button    → fetchAndSync() → hard seek to server position
 // ─────────────────────────────────────────────────────────────────────────────
 
-export function LiveMusicProvider({ children }: { children: React.ReactNode }) {
+export function LiveMusicProvider({ children, sessionId }: { children: React.ReactNode; sessionId?: string }) {
+    // Build query string suffix for API calls
+    const sessionQuery = sessionId ? `?sessionId=${sessionId}` : "";
     // ─── React state (drives UI) ────────────────────────────────────────────
     const [isLive, setIsLive] = useState(false);
     const [isPlaying, setIsPlaying] = useState(false);
@@ -132,13 +134,14 @@ export function LiveMusicProvider({ children }: { children: React.ReactNode }) {
 
     // ─── Core: Fetch & Sync ─────────────────────────────────────────────────
     const fetchAndSync = useCallback(async (opts?: { metadataOnly?: boolean }) => {
+        const sq = sessionId ? `?sessionId=${sessionId}` : "";
         if (isFetchingRef.current) return;
         isFetchingRef.current = true;
 
         const fetchStart = Date.now();
 
         try {
-            const res = await fetch("/api/live-music/now", { cache: "no-store" });
+            const res = await fetch(`/api/live-music/now${sq}`, { cache: "no-store" });
             const data = await res.json();
 
             const rtt = Date.now() - fetchStart;
@@ -242,7 +245,7 @@ export function LiveMusicProvider({ children }: { children: React.ReactNode }) {
         } finally {
             isFetchingRef.current = false;
         }
-    }, []);
+    }, [sessionId]);
 
     // ─── Preload next song ──────────────────────────────────────────────────
     const preloadNextSong = useCallback(async () => {
@@ -250,7 +253,7 @@ export function LiveMusicProvider({ children }: { children: React.ReactNode }) {
         
         // Fetch the current server state to get the next song's audio URL
         try {
-            const res = await fetch("/api/live-music/now", { cache: "no-store" });
+            const res = await fetch(`/api/live-music/now${sessionQuery}`, { cache: "no-store" });
             const data = await res.json();
             
             if (!data.isLive || data.error || !data.song) return;
@@ -269,7 +272,7 @@ export function LiveMusicProvider({ children }: { children: React.ReactNode }) {
             // a few seconds from now by requesting /api/live-music/now with
             // a time offset. But since the API doesn't support that,
             // let's preload by fetching the next song data.
-            const nextRes = await fetch(`/api/live-music/next?currentIndex=${currentIdx}`, { cache: "no-store" });
+            const nextRes = await fetch(`/api/live-music/next?currentIndex=${currentIdx}${sessionId ? `&sessionId=${sessionId}` : ""}`, { cache: "no-store" });
             
             if (nextRes.ok) {
                 const nextData = await nextRes.json();
@@ -328,7 +331,9 @@ export function LiveMusicProvider({ children }: { children: React.ReactNode }) {
         fetchAndSync();
     }, [fetchAndSync]);
 
-    // ─── Instant Swap Handler ───────────────────────────────────────────────
+    // ─── Song Ended Handler ──────────────────────────────────────────────────
+    // Uses cached next-song URL from preload (browser HTTP cache should have it).
+    // NO ref swapping — all playback stays on the primary <audio> element.
     const handleSongEnded = useCallback(() => {
         if (!audioRef.current) return;
 
@@ -337,26 +342,13 @@ export function LiveMusicProvider({ children }: { children: React.ReactNode }) {
         isTransitioningRef.current = true;
         setIsTransitioning(true);
 
-        // If we have a preloaded song ready, do instant swap
-        if (preloadReadyRef.current && preloadAudioRef.current && nextSongDataRef.current) {
-            const preloaded = preloadAudioRef.current;
+        // If we have a cached next song URL, load it directly on the primary element
+        if (nextSongDataRef.current && nextSongDataRef.current.audioUrl) {
             const nextSong = nextSongDataRef.current;
+            const audio = audioRef.current;
 
-            // Swap: pause primary, start preloaded at position 0
-            audioRef.current.pause();
-            audioRef.current.src = "";
-
-            // Move preloaded to primary
+            // Update tracking
             currentSongUrlRef.current = nextSong.audioUrl;
-            preloaded.currentTime = 0;
-            preloaded.playbackRate = 1.0;
-
-            // Swap the refs
-            const oldPrimary = audioRef.current;
-            audioRef.current = preloaded;
-            preloadAudioRef.current = oldPrimary;
-
-            // Update state
             setCurrentSong(nextSong);
             setSongIndex(nextSongIndexRef.current);
             setCurrentTime(0);
@@ -368,39 +360,30 @@ export function LiveMusicProvider({ children }: { children: React.ReactNode }) {
             nextSongDataRef.current = null;
             nextSongIndexRef.current = -1;
 
-            // Play immediately
-            preloaded.play().then(() => {
-                isTransitioningRef.current = false;
-                setIsTransitioning(false);
-                setIsWaitingForSync(false);
-                setIsPlaying(true);
-            }).catch(() => {
-                isTransitioningRef.current = false;
-                setIsTransitioning(false);
-            });
+            // Load on primary element — browser HTTP cache should have the file
+            // from the preload element's earlier .load() call
+            pendingSeekRef.current = 0;
+            audio.src = nextSong.audioUrl;
+            // onCanPlay will seek to 0 and auto-play (hasUserInteractedRef is true)
 
-            // Update sync reference
+            // Update sync reference — song starts at position 0
             serverSyncRef.current = {
                 serverSeek: 0,
                 fetchedAt: Date.now(),
                 songUrl: nextSong.audioUrl,
             };
 
-            // Background metadata refresh
+            // Background metadata refresh (listener count, tracklist, etc.)
             setTimeout(() => fetchAndSync({ metadataOnly: true }), 500);
 
         } else {
-            // Fallback: no preloaded song, use the old fetchAndSync approach
-            // but keep transitioning state active
+            // Fallback: no cached next song — do a quick fetchAndSync
             if (retryTimerRef.current) clearTimeout(retryTimerRef.current);
             retryTimerRef.current = setTimeout(() => {
-                fetchAndSync().then(() => {
-                    // Clear transition after fetch completes and audio starts
-                    // The onPlaying handler will clear it
-                });
-            }, 500);
+                fetchAndSync();
+            }, 300);
         }
-    }, [fetchAndSync]);
+    }, [fetchAndSync, sessionId]);
 
     // ─── Render ─────────────────────────────────────────────────────────────
     return (

@@ -4,35 +4,49 @@ import prisma from "@/lib/prisma";
 export const dynamic = "force-dynamic";
 
 // GET — Returns the next song in the playlist for preloading
-// Used by the client to pre-buffer the next track before the current one ends
+// Accepts ?currentIndex=N&sessionId=X
 export async function GET(request: Request) {
     try {
         const { searchParams } = new URL(request.url);
         const currentIndex = parseInt(searchParams.get("currentIndex") || "0", 10);
+        const sessionId = searchParams.get("sessionId");
 
-        const session = await prisma.liveSession.findFirst({
-            where: { isActive: true },
-            include: {
-                playlist: {
-                    select: {
-                        songs: {
-                            orderBy: { order: "asc" },
-                            include: {
-                                song: {
-                                    select: {
-                                        id: true,
-                                        title: true,
-                                        audioUrl: true,
-                                        duration: true,
-                                        category: true
+        const session = sessionId
+            ? await prisma.liveSession.findFirst({
+                where: { id: sessionId, isActive: true },
+                include: {
+                    playlist: {
+                        select: {
+                            songs: {
+                                orderBy: { order: "asc" },
+                                include: {
+                                    song: {
+                                        select: { id: true, title: true, audioUrl: true, duration: true, category: true }
                                     }
                                 }
                             }
                         }
                     }
                 }
-            }
-        });
+            })
+            : await prisma.liveSession.findFirst({
+                where: { isActive: true },
+                include: {
+                    playlist: {
+                        select: {
+                            songs: {
+                                orderBy: { order: "asc" },
+                                include: {
+                                    song: {
+                                        select: { id: true, title: true, audioUrl: true, duration: true, category: true }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                orderBy: { startedAt: "desc" }
+            });
 
         if (!session) {
             return NextResponse.json({ isLive: false });
@@ -45,7 +59,6 @@ export async function GET(request: Request) {
             return NextResponse.json({ error: "No playable songs" }, { status: 404 });
         }
 
-        // Get the next song (wrapping around to the start)
         const nextIndex = (currentIndex + 1) % playableSongs.length;
         const nextSong = playableSongs[nextIndex];
 

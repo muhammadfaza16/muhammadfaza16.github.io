@@ -1,32 +1,25 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useTheme } from "@/components/ThemeProvider";
-import { ChevronLeft, Radio, Headphones, Play, Heart, Users } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import { Radio, Play, Users } from "lucide-react";
+import { motion } from "framer-motion";
 import Link from "next/link";
 import { useLiveMusic } from "@/components/live/LiveMusicContext";
 import { parseSongTitle } from "@/utils/songUtils";
 
-// Mock data for the UI exploration phase
-const HERO_SESSION = {
-    id: "sanctuary-radio-alpha",
-    title: "Sanctuary Radio",
-    host: "System",
-    listeners: 142,
-    currentSong: "Midnight City",
-    currentArtist: "M83",
-    coverUrl: "(https://images.unsplash.com/photo-1614113489855-66422ad300a4?q=80&w=642&auto=format&fit=crop)", // Unsplash deep space/abstract placeholder
-    tags: ["Chill", "Indie"]
-};
-
-// Will fetch authentic placeholders for the design
-const ACTIVE_STATIONS = [
-    { id: "s1", title: "Morning Vibes", host: "Alice", listeners: 45, coverUrl: "https://images.unsplash.com/photo-1493225457124-a1a2a5f5f462?q=80&w=600&auto=format&fit=crop" },
-    { id: "s2", title: "Workout Mix", host: "Bob", listeners: 89, coverUrl: "https://images.unsplash.com/photo-1534258936925-c58bed479fcb?q=80&w=600&auto=format&fit=crop" },
-    { id: "s3", title: "Focus Deep", host: "Charlie", listeners: 210, coverUrl: "https://images.unsplash.com/photo-1478737270239-2f02b77fc618?q=80&w=600&auto=format&fit=crop" },
-    { id: "s4", title: "Late Night Lofi", host: "Diana", listeners: 12, coverUrl: "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?q=80&w=600&auto=format&fit=crop" },
-];
+interface StationData {
+    id: string;
+    title: string;
+    description: string | null;
+    playlistTitle: string;
+    coverImage: string | null;
+    coverColor: string | null;
+    currentSong: { title: string; category?: string } | null;
+    totalSongs: number;
+    songIndex: number;
+    startedAt: string;
+}
 
 export default function LiveHubPage() {
     const { theme } = useTheme();
@@ -36,24 +29,48 @@ export default function LiveHubPage() {
 
     const { isLive, currentSong, playlistTitle, playlistCover, listenersCount } = useLiveMusic();
 
-    let heroTitle = HERO_SESSION.title;
-    let heroHost = HERO_SESSION.host;
-    let heroListeners = HERO_SESSION.listeners;
-    let heroCover = HERO_SESSION.coverUrl;
-    let heroSong = HERO_SESSION.currentSong;
-    let heroArtist = HERO_SESSION.currentArtist;
+    // Fetch all active sessions for the station cards
+    const [stations, setStations] = useState<StationData[]>([]);
+    const [loadingStations, setLoadingStations] = useState(true);
+
+    useEffect(() => {
+        fetch("/api/live-music/sessions", { cache: "no-store" })
+            .then(res => res.json())
+            .then(data => {
+                setStations(data.sessions || []);
+                setLoadingStations(false);
+            })
+            .catch(() => setLoadingStations(false));
+    }, []);
+
+    // Hero card — uses primary live context (first/default session)
+    const fallbackCover = "https://images.unsplash.com/photo-1614113489855-66422ad300a4?q=80&w=642&auto=format&fit=crop";
+    let heroTitle = "Live Radio";
+    let heroDescription = "No active sessions";
+    let heroListeners = 0;
+    let heroCover = fallbackCover;
+    let heroSong = "Waiting for broadcast...";
+    let heroArtist = "";
     let heroIsLive = false;
+    let heroSessionId = "";
 
     if (isLive && currentSong) {
         const { cleanTitle, artist } = parseSongTitle(currentSong.title);
         heroTitle = playlistTitle || "Live Radio";
-        heroHost = "Admin";
         heroListeners = listenersCount || 1;
-        heroCover = playlistCover || HERO_SESSION.coverUrl;
+        heroCover = playlistCover || fallbackCover;
         heroSong = cleanTitle;
         heroArtist = artist || "Unknown Artist";
         heroIsLive = true;
     }
+
+    // If we have stations from the API, use the first one as the hero session ID
+    if (stations.length > 0) {
+        heroSessionId = stations[0].id;
+    }
+
+    // Secondary stations = all stations except the hero (first one)
+    const secondaryStations = stations.slice(1);
 
     return (
         <main style={{
@@ -67,7 +84,7 @@ export default function LiveHubPage() {
             paddingBottom: "80px"
         }}>
             <div style={{ width: "100%", maxWidth: "440px", margin: "0 auto", display: "flex", flexDirection: "column" }}>
-                {/* Header / Nav */}
+                {/* Header */}
                 <div style={{ position: "relative", display: "flex", justifyContent: "center", alignItems: "center", marginBottom: "32px", marginTop: "24px", paddingTop: "env(safe-area-inset-top)" }}>
                     <h1 style={{ 
                         fontFamily: headerFont, 
@@ -83,9 +100,9 @@ export default function LiveHubPage() {
                     </h1>
                 </div>
 
-                {/* Hero Section */}
+                {/* Hero Section — Primary Session */}
                 <div style={{ padding: "0 20px", marginBottom: "48px" }}>
-                    <Link href={`/music/live`} passHref style={{ textDecoration: "none" }}>
+                    <Link href={heroSessionId ? `/music/live?session=${heroSessionId}` : `/music/live`} passHref style={{ textDecoration: "none" }}>
                         <motion.div
                             whileHover={{ scale: 0.98 }}
                             whileTap={{ scale: 0.95 }}
@@ -112,7 +129,7 @@ export default function LiveHubPage() {
                             }} />
                             <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.3) 50%, rgba(0,0,0,0.4) 100%)", zIndex: 1 }} />
 
-                            {/* Top Info */}
+                            {/* Top Badges */}
                             <div style={{ position: "absolute", top: "20px", left: "20px", zIndex: 2, display: "flex", gap: "8px" }}>
                                 <div style={{
                                     display: "flex", alignItems: "center", gap: "6px",
@@ -128,34 +145,38 @@ export default function LiveHubPage() {
                                         {heroIsLive ? "Live" : "Offline"}
                                     </span>
                                 </div>
-                                <div style={{
-                                    display: "flex", alignItems: "center", gap: "6px",
-                                    background: "rgba(255, 255, 255, 0.15)", backdropFilter: "blur(20px)",
-                                    border: "1px solid rgba(255, 255, 255, 0.15)",
-                                    padding: "6px 12px", borderRadius: "100px",
-                                }}>
-                                    <Users size={12} color="#FFF" />
-                                    <span style={{ fontFamily: monoFont, fontWeight: 700, fontSize: "0.6rem", color: "#FFF" }}>{heroListeners}</span>
-                                </div>
+                                {heroIsLive && (
+                                    <div style={{
+                                        display: "flex", alignItems: "center", gap: "6px",
+                                        background: "rgba(255, 255, 255, 0.15)", backdropFilter: "blur(20px)",
+                                        border: "1px solid rgba(255, 255, 255, 0.15)",
+                                        padding: "6px 12px", borderRadius: "100px",
+                                    }}>
+                                        <Users size={12} color="#FFF" />
+                                        <span style={{ fontFamily: monoFont, fontWeight: 700, fontSize: "0.6rem", color: "#FFF" }}>{heroListeners}</span>
+                                    </div>
+                                )}
                             </div>
 
-                            {/* Minimal Content */}
+                            {/* Bottom Content */}
                             <div style={{ position: "relative", zIndex: 2, padding: "24px" }}>
                                 <h2 style={{ fontFamily: headerFont, fontWeight: 900, fontSize: "1.75rem", color: "#FFF", margin: "0 0 4px", letterSpacing: "-0.02em" }}>
                                     {heroTitle}
                                 </h2>
-                                <p style={{ margin: "0 0 20px", color: "rgba(255,255,255,0.6)", fontSize: "0.9rem", fontWeight: 600 }}>
-                                    Hosted by {heroHost}
-                                </p>
+                                {heroIsLive && heroArtist && (
+                                    <p style={{ margin: "0 0 20px", color: "rgba(255,255,255,0.6)", fontSize: "0.9rem", fontWeight: 600 }}>
+                                        {heroArtist}
+                                    </p>
+                                )}
                                 
-                                {/* Listening Now Mini-Bar */}
+                                {/* Now Playing Mini-Bar */}
                                 <div style={{ display: "flex", alignItems: "center", gap: "12px", background: "rgba(255,255,255,0.08)", padding: "10px 16px", borderRadius: "20px", backdropFilter: "blur(20px)", border: "1px solid rgba(255,255,255,0.1)" }}>
                                     <motion.div whileTap={{ scale: 0.9 }} style={{ width: "36px", height: "36px", borderRadius: "100px", background: heroIsLive ? "#FFF" : "rgba(255,255,255,0.5)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
                                         <Play size={16} color="#000" fill="#000" style={{ marginLeft: "2px", opacity: heroIsLive ? 1 : 0.5 }} />
                                     </motion.div>
                                     <div style={{ minWidth: 0 }}>
                                         <p style={{ margin: 0, fontFamily: headerFont, fontWeight: 800, fontSize: "0.8rem", color: "#FFF", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", opacity: heroIsLive ? 1 : 0.7 }}>{heroSong}</p>
-                                        <p style={{ margin: 0, fontSize: "0.65rem", color: "rgba(255,255,255,0.5)", fontWeight: 600, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{heroArtist}</p>
+                                        {heroArtist && <p style={{ margin: 0, fontSize: "0.65rem", color: "rgba(255,255,255,0.5)", fontWeight: 600, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{heroArtist}</p>}
                                     </div>
                                 </div>
                             </div>
@@ -163,70 +184,105 @@ export default function LiveHubPage() {
                     </Link>
                 </div>
 
-                {/* Active Stations Grid / Carousel */}
-                <div>
-                    <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "16px", justifyContent: "space-between", paddingLeft: "24px", paddingRight: "24px" }}>
-                        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                            <div style={{
-                                width: "24px",
-                                height: "24px",
-                                borderRadius: "6px",
-                                background: "linear-gradient(135deg, #EC4899, #8B5CF6)",
-                                display: "flex",
-                                alignItems: "center",
-                                justifyContent: "center",
-                                boxShadow: "0 4px 10px rgba(236, 72, 153, 0.2)"
-                            }}>
-                                <Radio size={12} color="#fff" />
+                {/* Active Stations — Real Data */}
+                {(secondaryStations.length > 0 || loadingStations) && (
+                    <div>
+                        <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "16px", paddingLeft: "24px", paddingRight: "24px" }}>
+                            <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                                <div style={{
+                                    width: "24px", height: "24px", borderRadius: "6px",
+                                    background: "linear-gradient(135deg, #EC4899, #8B5CF6)",
+                                    display: "flex", alignItems: "center", justifyContent: "center",
+                                    boxShadow: "0 4px 10px rgba(236, 72, 153, 0.2)"
+                                }}>
+                                    <Radio size={12} color="#fff" />
+                                </div>
+                                <span style={{ 
+                                    fontFamily: headerFont, fontWeight: 800, fontSize: "0.7rem", 
+                                    textTransform: "uppercase", letterSpacing: "0.1em",
+                                    color: isDark ? "rgba(255,255,255,0.5)" : "rgba(0,0,0,0.4)"
+                                }}>Active Stations</span>
                             </div>
-                            <span style={{ 
-                                fontFamily: headerFont, 
-                                fontWeight: 800, 
-                                fontSize: "0.7rem", 
-                                textTransform: "uppercase",
-                                letterSpacing: "0.1em",
-                                color: isDark ? "rgba(255,255,255,0.5)" : "rgba(0,0,0,0.4)"
-                            }}>Active Stations</span>
+                        </div>
+                        
+                        <div style={{ 
+                            display: "flex", gap: "16px", overflowX: "auto", 
+                            padding: "0 24px 32px", scrollbarWidth: "none", msOverflowStyle: "none",
+                            WebkitOverflowScrolling: "touch"
+                        }}>
+                            {loadingStations ? (
+                                // Loading skeleton cards
+                                [...Array(3)].map((_, i) => (
+                                    <div key={i} style={{ flexShrink: 0, width: "135px", opacity: 0.3 }}>
+                                        <div style={{ 
+                                            width: "135px", aspectRatio: "1/1", borderRadius: "24px", 
+                                            background: isDark ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.05)",
+                                            marginBottom: "12px"
+                                        }} />
+                                        <div style={{ width: "80%", height: "12px", borderRadius: "6px", background: isDark ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.05)", marginBottom: "6px" }} />
+                                        <div style={{ width: "50%", height: "10px", borderRadius: "6px", background: isDark ? "rgba(255,255,255,0.03)" : "rgba(0,0,0,0.03)" }} />
+                                    </div>
+                                ))
+                            ) : (
+                                secondaryStations.map((station) => {
+                                    const songInfo = station.currentSong ? parseSongTitle(station.currentSong.title) : null;
+                                    return (
+                                        <Link key={station.id} href={`/music/live?session=${station.id}`} style={{ textDecoration: "none", color: "inherit" }}>
+                                            <motion.div 
+                                                whileHover={{ scale: 0.97 }}
+                                                whileTap={{ scale: 0.93 }}
+                                                style={{ flexShrink: 0, width: "135px", cursor: "pointer" }}
+                                            >
+                                                <div style={{ 
+                                                    position: "relative", width: "135px", aspectRatio: "1/1", borderRadius: "24px", 
+                                                    overflow: "hidden", background: station.coverColor || (isDark ? "#111" : "#E5E5E5"), marginBottom: "12px",
+                                                    border: isDark ? "1px solid rgba(255,255,255,0.1)" : "1px solid rgba(0,0,0,0.05)",
+                                                    boxShadow: isDark ? "0 10px 20px rgba(0,0,0,0.4)" : "0 4px 12px rgba(0,0,0,0.05)"
+                                                }}>
+                                                    {station.coverImage && (
+                                                        <div style={{
+                                                            position: "absolute", inset: 0,
+                                                            backgroundImage: `url(${station.coverImage})`,
+                                                            backgroundSize: "cover", backgroundPosition: "center",
+                                                            filter: "brightness(0.7) blur(2px)", zIndex: 0
+                                                        }} />
+                                                    )}
+                                                    {/* Live badge */}
+                                                    <div style={{ position: "absolute", top: "10px", left: "10px", zIndex: 2, display: "flex", alignItems: "center", gap: "4px", background: "rgba(239, 68, 68, 0.5)", padding: "3px 8px", borderRadius: "100px", backdropFilter: "blur(10px)" }}>
+                                                        <motion.div animate={{ opacity: [1, 0.3, 1] }} transition={{ repeat: Infinity, duration: 2 }} style={{ width: 5, height: 5, borderRadius: "50%", background: "#FFF" }} />
+                                                        <span style={{ fontFamily: headerFont, fontWeight: 900, fontSize: "0.5rem", color: "#FFF", textTransform: "uppercase", letterSpacing: "0.1em" }}>Live</span>
+                                                    </div>
+                                                    {/* Play button overlay */}
+                                                    <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1 }}>
+                                                        <div style={{ width: "36px", height: "36px", borderRadius: "100px", background: "rgba(255,255,255,0.2)", backdropFilter: "blur(10px)", display: "flex", alignItems: "center", justifyContent: "center", border: "1px solid rgba(255,255,255,0.4)" }}>
+                                                            <Play size={14} color="#FFF" fill="#FFF" style={{ marginLeft: "2px" }} />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <h4 style={{ fontFamily: headerFont, fontWeight: 800, fontSize: "0.85rem", margin: "0 0 2px", color: isDark ? "#FFF" : "#1A1A1A" }}>{station.title}</h4>
+                                                <p style={{ margin: 0, fontSize: "0.7rem", color: isDark ? "rgba(255,255,255,0.5)" : "rgba(0,0,0,0.5)", fontWeight: 600, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                                                    {songInfo ? `${songInfo.cleanTitle}` : `${station.totalSongs} tracks`}
+                                                </p>
+                                            </motion.div>
+                                        </Link>
+                                    );
+                                })
+                            )}
                         </div>
                     </div>
-                    
-                    <div style={{ 
-                        display: "flex", gap: "16px", overflowX: "auto", 
-                        padding: "0 24px 32px", scrollbarWidth: "none", msOverflowStyle: "none",
-                        WebkitOverflowScrolling: "touch"
+                )}
+
+                {/* Intro Text */}
+                <div style={{ padding: "0 24px", marginBottom: "24px" }}>
+                    <p style={{ 
+                        fontFamily: headerFont, fontWeight: 600, fontSize: "0.8rem", 
+                        color: isDark ? "rgba(255,255,255,0.3)" : "rgba(0,0,0,0.3)",
+                        textAlign: "center", lineHeight: 1.6, margin: 0
                     }}>
-                        {ACTIVE_STATIONS.map((station) => (
-                            <div key={station.id} style={{ flexShrink: 0, width: "135px", opacity: 0.4, filter: "grayscale(100%)", pointerEvents: "none" }}>
-                                <div style={{ 
-                                    position: "relative", width: "135px", aspectRatio: "1/1", borderRadius: "24px", 
-                                    overflow: "hidden", background: isDark ? "#111" : "#E5E5E5", marginBottom: "12px",
-                                    border: isDark ? "1px solid rgba(255,255,255,0.1)" : "1px solid rgba(0,0,0,0.05)",
-                                    boxShadow: isDark ? "0 10px 20px rgba(0,0,0,0.4)" : "0 4px 12px rgba(0,0,0,0.05)"
-                                }}>
-                                    <div style={{
-                                        position: "absolute", inset: 0,
-                                        backgroundImage: `url(${station.coverUrl})`,
-                                        backgroundSize: "cover", backgroundPosition: "center",
-                                        filter: "brightness(0.7) blur(2px)", zIndex: 0
-                                    }} />
-                                    <div style={{ position: "absolute", top: "10px", right: "10px", zIndex: 1, display: "flex", alignItems: "center", gap: "4px", background: "rgba(0,0,0,0.5)", padding: "4px 8px", borderRadius: "100px", backdropFilter: "blur(10px)" }}>
-                                        <Heart size={10} color="#FFF" fill="#FFF" />
-                                        <span style={{ fontFamily: monoFont, fontWeight: 700, fontSize: "0.55rem", color: "#FFF" }}>{station.listeners}</span>
-                                    </div>
-                                    <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1 }}>
-                                        <div style={{ width: "36px", height: "36px", borderRadius: "100px", background: "rgba(255,255,255,0.2)", backdropFilter: "blur(10px)", display: "flex", alignItems: "center", justifyContent: "center", border: "1px solid rgba(255,255,255,0.4)" }}>
-                                            <Play size={14} color="#FFF" fill="#FFF" style={{ marginLeft: "2px" }} />
-                                        </div>
-                                    </div>
-                                </div>
-                                <h4 style={{ fontFamily: headerFont, fontWeight: 800, fontSize: "0.85rem", margin: "0 0 2px" }}>{station.title}</h4>
-                                <p style={{ margin: 0, fontSize: "0.7rem", color: isDark ? "rgba(255,255,255,0.5)" : "rgba(0,0,0,0.5)", fontWeight: 600 }}>{station.host}</p>
-                            </div>
-                        ))}
-                    </div>
+                        Tune in to live curated radio stations. Every listener hears the same song at the same time — a shared musical moment.
+                    </p>
                 </div>
             </div>
-
         </main>
     );
 }

@@ -4,45 +4,77 @@ import prisma from "@/lib/prisma";
 export const dynamic = "force-dynamic";
 
 // GET — Public endpoint: what's playing right now?
-// Calculates current song + seek position based on server clock vs session startedAt
-export async function GET() {
+// Accepts optional ?sessionId=X to tune into a specific station.
+// If no sessionId, returns the first active session (backward compatible).
+export async function GET(request: Request) {
     try {
-        const session = await prisma.liveSession.findFirst({
-            where: { isActive: true },
-            include: {
-                playlist: {
-                    select: {
-                        id: true,
-                        title: true,
-                        slug: true,
-                        coverImage: true,
-                        coverColor: true,
-                        songs: {
-                            orderBy: { order: "asc" },
-                            include: {
-                                song: {
-                                    select: {
-                                        id: true,
-                                        title: true,
-                                        audioUrl: true,
-                                        duration: true,
-                                        category: true
+        const { searchParams } = new URL(request.url);
+        const sessionId = searchParams.get("sessionId");
+
+        const session = sessionId
+            ? await prisma.liveSession.findFirst({
+                where: { id: sessionId, isActive: true },
+                include: {
+                    playlist: {
+                        select: {
+                            id: true,
+                            title: true,
+                            slug: true,
+                            coverImage: true,
+                            coverColor: true,
+                            songs: {
+                                orderBy: { order: "asc" },
+                                include: {
+                                    song: {
+                                        select: {
+                                            id: true,
+                                            title: true,
+                                            audioUrl: true,
+                                            duration: true,
+                                            category: true
+                                        }
                                     }
                                 }
                             }
                         }
                     }
                 }
-            }
-        });
+            })
+            : await prisma.liveSession.findFirst({
+                where: { isActive: true },
+                include: {
+                    playlist: {
+                        select: {
+                            id: true,
+                            title: true,
+                            slug: true,
+                            coverImage: true,
+                            coverColor: true,
+                            songs: {
+                                orderBy: { order: "asc" },
+                                include: {
+                                    song: {
+                                        select: {
+                                            id: true,
+                                            title: true,
+                                            audioUrl: true,
+                                            duration: true,
+                                            category: true
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                orderBy: { startedAt: "desc" }
+            });
 
         if (!session) {
             return NextResponse.json({ isLive: false });
         }
 
         const songs = session.playlist.songs.map((ps: any) => ps.song);
-
-        // Filter out songs without duration (can't calculate position without it)
         const playableSongs = songs.filter((s: any) => s.duration && s.duration > 0);
 
         if (playableSongs.length === 0) {
@@ -53,17 +85,11 @@ export async function GET() {
             });
         }
 
-        // Calculate total playlist duration in seconds
         const totalDuration = playableSongs.reduce((sum: number, s: any) => sum + (s.duration || 0), 0);
-
-        // How many seconds have passed since the session started (sub-second precision)
         const now = Date.now();
         const elapsed = (now - new Date(session.startedAt).getTime()) / 1000;
-
-        // Loop the playlist: find position within the cycle
         const positionInCycle = elapsed % totalDuration;
 
-        // Walk through songs to find which one is playing
         let accumulated = 0;
         let currentSongIndex = 0;
         let seekPosition = 0;
@@ -88,6 +114,7 @@ export async function GET() {
 
         return NextResponse.json({
             isLive: true,
+            sessionId: session.id,
             serverTime: now,
             song: {
                 title: currentSong.title,
@@ -98,11 +125,10 @@ export async function GET() {
             seekPosition,
             songIndex: currentSongIndex,
             totalSongs: playableSongs.length,
-            playlistTitle: session.playlist.title,
+            playlistTitle: session.title || session.playlist.title,
             playlistCover: session.playlist.coverImage,
             playlistColor: session.playlist.coverColor,
             listenersCount,
-            // Send full tracklist for queue preview
             tracklist: playableSongs.map((s: any, i: number) => ({
                 title: s.title,
                 duration: s.duration,

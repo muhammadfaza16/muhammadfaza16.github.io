@@ -134,6 +134,8 @@ model LiveSession {
   id          String   @id @default(uuid())
   playlistId  String
   playlist    Playlist @relation(fields: [playlistId], references: [id])
+  title       String?
+  description String?
   startedAt   DateTime @default(now())
   isActive    Boolean  @default(true)
   createdAt   DateTime @default(now())
