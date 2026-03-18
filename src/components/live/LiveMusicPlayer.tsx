@@ -2,7 +2,7 @@
 
 import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Play, Pause, Radio, Disc, Music, ListMusic } from "lucide-react";
+import { Play, Pause, Radio, Disc, Music, ListMusic, ChevronDown, RefreshCw } from "lucide-react";
 import { useLiveMusic } from "./LiveMusicContext";
 import { parseSongTitle } from "@/utils/songUtils";
 import { useTheme } from "@/components/ThemeProvider";
@@ -276,7 +276,23 @@ export function LiveMusicPlayer() {
                 </div>
             </div>
 
-            <div style={{ display: "flex", justifyContent: "center", margin: "12px 0" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", width: "100%", maxWidth: "340px", margin: "12px auto" }}>
+                {/* Left: Queue Toggle */}
+                <motion.button
+                    whileTap={{ scale: 0.9 }}
+                    onClick={() => setShowQueue(true)}
+                    style={{
+                        width: "48px", height: "48px", borderRadius: "100px",
+                        background: isDark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.04)",
+                        display: "flex", alignItems: "center", justifyContent: "center",
+                        border: "none", cursor: "pointer",
+                        color: isDark ? "rgba(255,255,255,0.7)" : "rgba(0,0,0,0.6)",
+                    }}
+                >
+                    <ListMusic size={20} />
+                </motion.button>
+
+                {/* Center: Play/Pause */}
                 {isWaitingForSync ? (
                     <motion.div
                         animate={{ rotate: 360 }}
@@ -308,27 +324,24 @@ export function LiveMusicPlayer() {
                         }
                     </motion.button>
                 )}
-            </div>
 
-            {/* Queue Toggle Button (Floating or Integrated) */}
-            <div style={{ display: "flex", justifyContent: "center", marginTop: "8px" }}>
+                {/* Right: Refresh (Matches Queue Icon for Balance) */}
                 <motion.button
                     whileTap={{ scale: 0.9 }}
-                    onClick={() => setShowQueue(true)}
+                    onClick={refresh}
                     style={{
-                        display: "flex", alignItems: "center", gap: "8px",
-                        padding: "8px 16px", borderRadius: "100px", cursor: "pointer",
+                        width: "48px", height: "48px", borderRadius: "100px",
                         background: isDark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.04)",
-                        border: isDark ? "1px solid rgba(255,255,255,0.1)" : "1px solid rgba(0,0,0,0.06)",
+                        display: "flex", alignItems: "center", justifyContent: "center",
+                        border: "none", cursor: "pointer",
                         color: isDark ? "rgba(255,255,255,0.7)" : "rgba(0,0,0,0.6)",
-                        fontFamily: headerFont, fontWeight: 800, fontSize: "0.65rem",
-                        letterSpacing: "0.05em", textTransform: "uppercase"
                     }}
                 >
-                    <ListMusic size={16} />
-                    View Tracklist
+                    <RefreshCw size={20} />
                 </motion.button>
             </div>
+
+
 
             {/* Modal Queue (Bottom Sheet) */}
             <AnimatePresence>
@@ -356,20 +369,26 @@ export function LiveMusicPlayer() {
                             style={{
                                 position: "fixed", bottom: 0, left: 0, right: 0, zIndex: 9999,
                                 background: isDark ? "#121212" : "#FFF",
-                                borderTopLeftRadius: "32px", borderTopRightRadius: "32px",
-                                maxHeight: "85vh", overflow: "hidden",
+                                borderTopLeftRadius: "24px", borderTopRightRadius: "24px",
+                                height: "100svh", overflow: "hidden",
                                 boxShadow: "0 -20px 60px rgba(0,0,0,0.3)"
                             }}
                         >
-                            {/* Handle / Drag Indicator */}
-                            <div 
-                                onClick={() => setShowQueue(false)}
-                                style={{
-                                    width: "40px", height: "4px", borderRadius: "100px",
-                                    backgroundColor: isDark ? "rgba(255,255,255,0.2)" : "rgba(0,0,0,0.1)",
-                                    margin: "12px auto", cursor: "pointer"
-                                }} 
-                            />
+                            {/* Down Arrow / Close Indicator */}
+                            <div style={{ display: "flex", justifyContent: "center", paddingTop: "12px", paddingBottom: "8px" }}>
+                                <motion.button
+                                    whileTap={{ scale: 0.9 }}
+                                    onClick={() => setShowQueue(false)}
+                                    style={{
+                                        width: "48px", height: "48px", borderRadius: "100px",
+                                        background: isDark ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.05)",
+                                        display: "flex", alignItems: "center", justifyContent: "center",
+                                        border: "none", cursor: "pointer",
+                                    }}
+                                >
+                                    <ChevronDown size={28} color={isDark ? "rgba(255,255,255,0.5)" : "rgba(0,0,0,0.4)"} />
+                                </motion.button>
+                            </div>
 
                             <div style={{
                                 padding: "8px 20px 24px",

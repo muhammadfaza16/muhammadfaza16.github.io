@@ -55,14 +55,20 @@ export function LayoutShell({ children }: { children: React.ReactNode }) {
         );
     }
 
+    const isLivePage = pathname === "/music/live";
+
     return (
         <>
             <main id="main-content" style={{ flex: 1 }}>
                 {children}
             </main>
             <MusicSmoothScroll />
-            <MusicBottomNav />
-            <GlobalBottomPlayer />
+            {!isLivePage && (
+                <>
+                    <MusicBottomNav />
+                    <GlobalBottomPlayer />
+                </>
+            )}
         </>
     );
 }
