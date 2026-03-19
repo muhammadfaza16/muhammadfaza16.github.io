@@ -131,7 +131,9 @@ export async function GET(request: Request) {
             listenersCount,
             tracklist: playableSongs.map((s: any, i: number) => ({
                 title: s.title,
+                audioUrl: s.audioUrl,
                 duration: s.duration,
+                category: s.category,
                 isCurrent: i === currentSongIndex
             }))
         });

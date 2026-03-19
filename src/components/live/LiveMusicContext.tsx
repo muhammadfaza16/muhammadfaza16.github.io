@@ -11,7 +11,9 @@ interface LiveSong {
 
 interface TracklistItem {
     title: string;
+    audioUrl: string;
     duration: number;
+    category?: string;
     isCurrent: boolean;
 }
 
@@ -120,8 +122,10 @@ export function LiveMusicProvider({ children }: { children: React.ReactNode }) {
 
     // Preload tracking
     const preloadedSongUrlRef = useRef<string>("");
-    const nextSongDataRef = useRef<LiveSong | null>(null);
-    const nextSongIndexRef = useRef<number>(-1);
+
+    // Local tracklist cache for zero-network transitions
+    const tracklistCacheRef = useRef<TracklistItem[]>([]);
+    const currentSongIndexRef = useRef<number>(0);
 
     // Server sync reference
     const serverSyncRef = useRef<{
@@ -183,6 +187,8 @@ export function LiveMusicProvider({ children }: { children: React.ReactNode }) {
             setPlaylistCover(data.playlistCover || null);
             setPlaylistColor(data.playlistColor || null);
             setTracklist(data.tracklist || []);
+            tracklistCacheRef.current = data.tracklist || [];
+            currentSongIndexRef.current = data.songIndex;
             setListenersCount(data.listenersCount || 0);
 
             const song: LiveSong = data.song;
@@ -245,43 +251,25 @@ export function LiveMusicProvider({ children }: { children: React.ReactNode }) {
         }
     }, [getSessionQuery]);
 
-    // ─── Preload next song (cache warm only) ────────────────────────────────
-    const preloadNextSong = useCallback(async () => {
+    // ─── Preload next song (local data, no network) ─────────────────────────
+    const preloadNextSong = useCallback(() => {
         if (!preloadAudioRef.current) return;
-        
-        const sq = getSessionQuery();
+        const tl = tracklistCacheRef.current;
+        if (tl.length === 0) return;
 
-        try {
-            const res = await fetch(`/api/live-music/now${sq}`, { cache: "no-store" });
-            const data = await res.json();
-            
-            if (!data.isLive || data.error || !data.song) return;
+        const nextIdx = (currentSongIndexRef.current + 1) % tl.length;
+        const nextTrack = tl[nextIdx];
+        if (!nextTrack || !nextTrack.audioUrl) return;
 
-            const currentIdx = data.songIndex as number;
-            const sid = sessionIdRef.current;
-            const nextRes = await fetch(`/api/live-music/next?currentIndex=${currentIdx}${sid ? `&sessionId=${sid}` : ""}`, { cache: "no-store" });
-            
-            if (nextRes.ok) {
-                const nextData = await nextRes.json();
-                if (nextData.song && nextData.song.audioUrl) {
-                    const nextSong = nextData.song as LiveSong;
-                    
-                    // Don't re-preload the same song
-                    if (preloadedSongUrlRef.current === nextSong.audioUrl) return;
-                    
-                    preloadedSongUrlRef.current = nextSong.audioUrl;
-                    nextSongDataRef.current = nextSong;
-                    nextSongIndexRef.current = nextData.songIndex;
-                    
-                    // Warm the browser HTTP cache
-                    preloadAudioRef.current.src = nextSong.audioUrl;
-                    preloadAudioRef.current.load();
-                }
-            }
-        } catch {
-            // Preload failure is non-critical
-        }
-    }, [getSessionQuery]);
+        // Don't re-preload the same song
+        if (preloadedSongUrlRef.current === nextTrack.audioUrl) return;
+
+        preloadedSongUrlRef.current = nextTrack.audioUrl;
+
+        // Warm the browser HTTP cache
+        preloadAudioRef.current.src = nextTrack.audioUrl;
+        preloadAudioRef.current.load();
+    }, []);
 
     // ─── Lifecycle: fetch on mount ──────────────────────────────────────────
     useEffect(() => {
@@ -296,10 +284,10 @@ export function LiveMusicProvider({ children }: { children: React.ReactNode }) {
         sessionIdRef.current = newSessionId;
         setActiveSessionId(newSessionId);
 
-        // Clear preload state
+        // Clear preload + local cache state
         preloadedSongUrlRef.current = "";
-        nextSongDataRef.current = null;
-        nextSongIndexRef.current = -1;
+        tracklistCacheRef.current = [];
+        currentSongIndexRef.current = 0;
 
         // Re-fetch for the new session
         isFetchingRef.current = false; // Force allow
@@ -333,25 +321,74 @@ export function LiveMusicProvider({ children }: { children: React.ReactNode }) {
     }, [fetchAndSync]);
 
     // ─── Song Ended Handler ─────────────────────────────────────────────────
-    // Key fix: do a FULL fetchAndSync (not metadataOnly) so we get the
-    // correct server seek position for the new song. The preload element
-    // already warmed the browser cache, so loading is fast.
+    // 100% LOCAL transition — zero network calls.
+    // Looks up next song from cached tracklist, plays from position 0.
+    // Drift accumulates but user can SYNC manually anytime.
     const handleSongEnded = useCallback(() => {
         if (!audioRef.current) return;
 
-        // Enter transitioning state — keeps sync spinner visible
+        const tl = tracklistCacheRef.current;
+        if (tl.length === 0) {
+            // No tracklist cached — fallback to server sync
+            isFetchingRef.current = false;
+            fetchAndSync();
+            return;
+        }
+
+        // Enter transitioning state
         isTransitioningRef.current = true;
         setIsTransitioning(true);
 
+        // Advance to next song locally
+        const nextIdx = (currentSongIndexRef.current + 1) % tl.length;
+        const nextTrack = tl[nextIdx];
+
+        if (!nextTrack || !nextTrack.audioUrl) {
+            // Invalid track — fallback to server sync
+            isFetchingRef.current = false;
+            fetchAndSync();
+            return;
+        }
+
+        const audio = audioRef.current;
+        const nextSong: LiveSong = {
+            title: nextTrack.title,
+            audioUrl: nextTrack.audioUrl,
+            duration: nextTrack.duration,
+            category: nextTrack.category,
+        };
+
+        // Update state
+        currentSongUrlRef.current = nextSong.audioUrl;
+        currentSongIndexRef.current = nextIdx;
+        setCurrentSong(nextSong);
+        setSongIndex(nextIdx);
+        setCurrentTime(0);
+        setSeekPosition(0);
+
+        // Update tracklist isCurrent flags
+        const updatedTl = tl.map((t, i) => ({ ...t, isCurrent: i === nextIdx }));
+        tracklistCacheRef.current = updatedTl;
+        setTracklist(updatedTl);
+
         // Clear preload tracking
         preloadedSongUrlRef.current = "";
-        nextSongDataRef.current = null;
-        nextSongIndexRef.current = -1;
 
-        // Full fetchAndSync — gets correct song + seek position from server
-        // Browser HTTP cache has the next song file → audio loads fast
-        isFetchingRef.current = false; // Force allow
-        fetchAndSync();
+        // Load on primary element — browser HTTP cache has it from preload
+        pendingSeekRef.current = 0;
+        audio.src = nextSong.audioUrl;
+        // onCanPlay → seek to 0 → play (hasUserInteractedRef is true)
+
+        // Update local sync reference
+        serverSyncRef.current = {
+            serverSeek: 0,
+            fetchedAt: Date.now(),
+            songUrl: nextSong.audioUrl,
+        };
+
+        // Mark as desynced from server (user can SYNC to correct)
+        setIsSynced(false);
+        lastSyncedRef.current = false;
     }, [fetchAndSync]);
 
     // ─── Render ─────────────────────────────────────────────────────────────
