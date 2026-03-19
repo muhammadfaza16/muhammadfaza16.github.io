@@ -1,0 +1,130 @@
+﻿Γû▓ Next.js 16.1.1 (Turbopack)
+- Environments: .env.local, .env
+
+  Creating an optimized production build ...
+Γ£ô Compiled successfully in 13.5s
+  Running TypeScript ...
+  Collecting page data using 15 workers ...
+  Generating static pages using 15 workers (0/97) ...
+  Generating static pages using 15 workers (24/97) 
+  Generating static pages using 15 workers (48/97) 
+  Generating static pages using 15 workers (72/97) 
+Γ£ô Generating static pages using 15 workers (97/97) in 21.2s
+  Finalizing page optimization ...
+
+Route (app)
+Γöî Γùï /
+Γö£ Γùï /_not-found
+Γö£ Γùï /about
+Γö£ Γùï /admin
+Γö£ ╞Æ /api/auth
+Γö£ ╞Æ /api/bookshelf
+Γö£ ╞Æ /api/crypto
+Γö£ ╞Æ /api/curation
+Γö£ ╞Æ /api/curation/[id]
+Γö£ ╞Æ /api/curation/comments
+Γö£ ╞Æ /api/curation/metadata
+Γö£ ╞Æ /api/curation/reminder
+Γö£ ╞Æ /api/curation/seed-metrics
+Γö£ ╞Æ /api/curation/suggestions
+Γö£ ╞Æ /api/curation/top
+Γö£ ╞Æ /api/football
+Γö£ ╞Æ /api/github
+Γö£ ╞Æ /api/greeting
+Γö£ ╞Æ /api/holidays
+Γö£ ╞Æ /api/live-music
+Γö£ ╞Æ /api/live-music/next
+Γö£ ╞Æ /api/live-music/now
+Γö£ ╞Æ /api/live-music/sessions
+Γö£ ╞Æ /api/migrate
+Γö£ ╞Æ /api/movies
+Γö£ ╞Æ /api/music/log
+Γö£ ╞Æ /api/music/logs
+Γö£ ╞Æ /api/music/master/playlists
+Γö£ ╞Æ /api/music/master/playlists/[id]/songs
+Γö£ ╞Æ /api/music/songs
+Γö£ ╞Æ /api/music/songs/[id]
+Γö£ ╞Æ /api/news
+Γö£ ╞Æ /api/prayer
+Γö£ ╞Æ /api/pulse
+Γö£ ╞Æ /api/quote
+Γö£ ╞Æ /api/secrets
+Γö£ ╞Æ /api/upload
+Γö£ ╞Æ /api/weather
+Γö£ ╞Æ /api/wishlist
+Γö£ ╞Æ /api/writing
+Γö£ ╞Æ /api/writing/[slug]
+Γö£ Γùï /blog
+Γö£ ΓùÅ /blog/[slug]
+Γöé Γö£ /blog/kita-dan-bintang
+Γöé Γö£ /blog/musuh-imajinerr
+Γöé Γö£ /blog/anatomi-keberuntungan
+Γöé Γöö [+7 more paths]
+Γö£ Γùï /bookshelf
+Γö£ Γùï /changelog
+Γö£ Γùï /clock
+Γö£ Γùï /colophon
+Γö£ Γùï /curation
+Γö£ ╞Æ /curation/[id]
+Γö£ Γùï /curation/collections
+Γö£ Γùï /curation/dashboard
+Γö£ Γùï /curation/discover
+Γö£ Γùï /curation/highlights
+Γö£ Γùï /curation/library
+Γö£ Γùï /curation/profile
+Γö£ Γùï /curation/recap
+Γö£ Γùï /experience
+Γö£ Γùï /guest
+Γö£ Γùï /guest/no28
+Γö£ Γùï /guest/no28/journal
+Γö£ Γùï /guest/no28/letter
+Γö£ Γùï /guest/no28/special_day
+Γö£ Γùï /guest/no28/special_day/confessions
+Γö£ Γùï /guest/no28/special_day/history
+Γö£ Γùï /guest/no28/special_day/melody
+Γö£ Γùï /guest/no28/special_day/year
+Γö£ Γùï /ideas
+Γö£ Γùï /insights
+Γö£ Γùï /journal
+Γö£ ╞Æ /journal/[slug]
+Γö£ Γùï /journey
+Γö£ Γùï /journey/ai-agent
+Γö£ Γùï /journey/brand-building
+Γö£ Γùï /journey/english
+Γö£ Γùï /journey/marketing
+Γö£ Γùï /journey/psychology
+Γö£ Γùï /journey/storytelling
+Γö£ Γùï /life-compass
+Γö£ Γùï /links
+Γö£ Γùï /master
+Γö£ Γùï /movies
+Γö£ Γùï /music
+Γö£ Γùï /music/live
+Γö£ Γùï /music/live-hub
+Γö£ Γùï /music/master
+Γö£ Γùï /notes
+Γö£ Γùï /now
+Γö£ ╞Æ /playlist
+Γö£ ΓùÅ /playlist/[id]
+Γöé Γö£ /playlist/teman-sunyi
+Γöé Γö£ /playlist/line-up-inti
+Γöé Γö£ /playlist/menunggu-pagi
+Γöé Γöö [+4 more paths]
+Γö£ Γùï /portfolio
+Γö£ Γùï /project
+Γö£ Γùï /projects
+Γö£ Γùï /rss
+Γö£ Γùï /secrets
+Γö£ Γùï /secrets/editor
+Γö£ Γùï /sitemap.xml
+Γö£ Γùï /starlight
+Γö£ Γùï /til
+Γö£ Γùï /uses
+Γö£ Γùï /wishlist
+Γöö Γùï /workspace
+
+
+Γùï  (Static)   prerendered as static content
+ΓùÅ  (SSG)      prerendered as static HTML (uses generateStaticParams)
+╞Æ  (Dynamic)  server-rendered on demand
+

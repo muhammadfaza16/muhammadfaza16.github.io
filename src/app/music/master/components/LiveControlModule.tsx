@@ -26,7 +26,9 @@ export function LiveControlModule() {
 
     const [playlists, setPlaylists] = useState<Playlist[]>([]);
     const [selectedPlaylistId, setSelectedPlaylistId] = useState("");
-    const [currentSession, setCurrentSession] = useState<LiveSession | null>(null);
+    const [stationTitle, setStationTitle] = useState("");
+    const [stationDesc, setStationDesc] = useState("");
+    const [activeSessions, setActiveSessions] = useState<LiveSession[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [isActioning, setIsActioning] = useState(false);
     const [statusMessage, setStatusMessage] = useState<{ text: string; type: "success" | "error" } | null>(null);
@@ -36,7 +38,7 @@ export function LiveControlModule() {
             const res = await fetch("/api/live-music");
             const data = await res.json();
             if (data.success) {
-                setCurrentSession(data.session || null);
+                setActiveSessions(data.sessions || []);
             }
         } catch {
             // Silent fail
@@ -70,11 +72,18 @@ export function LiveControlModule() {
             const res = await fetch("/api/live-music", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ action: "start", playlistId: selectedPlaylistId })
+                body: JSON.stringify({ 
+                    action: "start", 
+                    playlistId: selectedPlaylistId,
+                    title: stationTitle,
+                    description: stationDesc
+                })
             });
             const data = await res.json();
             if (data.success) {
-                setCurrentSession(data.session);
+                setActiveSessions(prev => [data.session, ...prev]);
+                setStationTitle("");
+                setStationDesc("");
                 setStatusMessage({ text: "LIVE SESSION STARTED", type: "success" });
             } else {
                 setStatusMessage({ text: data.error || "Failed to go live", type: "error" });
@@ -85,19 +94,24 @@ export function LiveControlModule() {
         setIsActioning(false);
     };
 
-    const handleStopLive = async () => {
+    const handleStopSession = async (sessionId?: string) => {
         setIsActioning(true);
         setStatusMessage(null);
         try {
             const res = await fetch("/api/live-music", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ action: "stop" })
+                body: JSON.stringify({ action: "stop", sessionId })
             });
             const data = await res.json();
             if (data.success) {
-                setCurrentSession(null);
-                setStatusMessage({ text: "LIVE SESSION STOPPED", type: "success" });
+                if (sessionId) {
+                    setActiveSessions(prev => prev.filter(s => s.id !== sessionId));
+                    setStatusMessage({ text: "STATION STOPPED", type: "success" });
+                } else {
+                    setActiveSessions([]);
+                    setStatusMessage({ text: "ALL SESSIONS STOPPED", type: "success" });
+                }
             } else {
                 setStatusMessage({ text: data.error || "Failed to stop", type: "error" });
             }
@@ -106,8 +120,6 @@ export function LiveControlModule() {
         }
         setIsActioning(false);
     };
-
-    const isLive = currentSession?.isActive === true;
 
     if (isLoading) {
         return (
@@ -118,8 +130,8 @@ export function LiveControlModule() {
     }
 
     return (
-        <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
-            {/* Status Card */}
+        <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
+            {/* Start Session Module */}
             <div style={{
                 backgroundColor: isDark ? "rgba(255,255,255,0.03)" : "rgba(255,255,255,0.45)",
                 border: isDark ? "1px solid rgba(255,255,255,0.08)" : "1px solid rgba(0,0,0,0.05)",
@@ -127,61 +139,16 @@ export function LiveControlModule() {
                 boxShadow: isDark ? "0 20px 60px rgba(0,0,0,0.4)" : "0 10px 30px rgba(0,0,0,0.03)"
             }}>
                 <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "16px", borderBottom: isDark ? "1px solid rgba(255,255,255,0.05)" : "1px solid rgba(0,0,0,0.03)", paddingBottom: "12px" }}>
-                    <Radio size={16} color={isLive ? "#EF4444" : (isDark ? "#FFF" : "#000")} />
+                    <Play size={16} color={isDark ? "#FFF" : "#000"} />
                     <h2 style={{ margin: 0, fontFamily: headerFont, fontSize: "0.85rem", fontWeight: 900, textTransform: "uppercase", letterSpacing: "0.05em" }}>
-                        Live Control
+                        Start New Session
                     </h2>
                 </div>
 
-                {/* Current Status */}
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
-                    <span style={{ fontFamily: monoFont, fontSize: "0.65rem", fontWeight: 700, color: isDark ? "rgba(255,255,255,0.4)" : "rgba(0,0,0,0.4)", textTransform: "uppercase" }}>
-                        Broadcast Status
-                    </span>
-                    <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                        <motion.div
-                            animate={isLive ? { scale: [1, 1.3, 1] } : {}}
-                            transition={{ repeat: Infinity, duration: 1.5 }}
-                            style={{
-                                width: "8px", height: "8px", borderRadius: "50%",
-                                backgroundColor: isLive ? "#EF4444" : (isDark ? "rgba(255,255,255,0.2)" : "rgba(0,0,0,0.2)"),
-                                boxShadow: isLive ? "0 0 10px rgba(239,68,68,0.5)" : "none"
-                            }}
-                        />
-                        <span style={{
-                            fontFamily: monoFont, fontSize: "0.65rem", fontWeight: 700,
-                            color: isLive ? "#EF4444" : (isDark ? "rgba(255,255,255,0.4)" : "rgba(0,0,0,0.4)"),
-                            textTransform: "uppercase"
-                        }}>
-                            {isLive ? "ON AIR" : "OFF AIR"}
-                        </span>
-                    </div>
-                </div>
-
-                {/* Current playlist info if live */}
-                {isLive && currentSession && (
-                    <div style={{
-                        padding: "12px", borderRadius: "14px", marginBottom: "16px",
-                        background: isDark ? "rgba(239,68,68,0.08)" : "rgba(239,68,68,0.05)",
-                        border: "1px solid rgba(239,68,68,0.15)"
-                    }}>
-                        <div style={{ fontFamily: monoFont, fontSize: "0.6rem", fontWeight: 700, color: isDark ? "rgba(255,255,255,0.4)" : "rgba(0,0,0,0.4)", textTransform: "uppercase", marginBottom: "4px" }}>
-                            NOW STREAMING
-                        </div>
-                        <div style={{ fontFamily: headerFont, fontSize: "0.9rem", fontWeight: 900, color: isDark ? "#FFF" : "#000" }}>
-                            {currentSession.playlist.title}
-                        </div>
-                        <div style={{ fontFamily: monoFont, fontSize: "0.55rem", fontWeight: 700, color: isDark ? "rgba(255,255,255,0.3)" : "rgba(0,0,0,0.3)", marginTop: "4px" }}>
-                            STARTED {new Date(currentSession.startedAt).toLocaleTimeString()}
-                        </div>
-                    </div>
-                )}
-
-                {/* Playlist Picker (when not live) */}
-                {!isLive && (
-                    <div style={{ marginBottom: "16px" }}>
+                <div style={{ display: "flex", flexDirection: "column", gap: "12px", marginBottom: "16px" }}>
+                    <div>
                         <label style={{ fontFamily: monoFont, fontSize: "0.6rem", fontWeight: 700, color: isDark ? "rgba(255,255,255,0.4)" : "rgba(0,0,0,0.4)", textTransform: "uppercase", display: "block", marginBottom: "8px" }}>
-                            SELECT PLAYLIST
+                            PLAYLIST
                         </label>
                         <div style={{ position: "relative" }}>
                             <select
@@ -189,7 +156,7 @@ export function LiveControlModule() {
                                 onChange={(e) => setSelectedPlaylistId(e.target.value)}
                                 style={{
                                     width: "100%", padding: "12px 14px", appearance: "none",
-                                    backgroundColor: isDark ? "rgba(255,255,255,0.05)" : "rgba(255,255,255,0.8)",
+                                    backgroundColor: isDark ? "rgba(0,0,0,0.2)" : "rgba(255,255,255,0.8)",
                                     border: isDark ? "1px solid rgba(255,255,255,0.1)" : "1px solid rgba(0,0,0,0.08)",
                                     borderRadius: "14px", color: isDark ? "#FFF" : "#000",
                                     fontFamily: headerFont, fontSize: "0.85rem", fontWeight: 800,
@@ -197,7 +164,7 @@ export function LiveControlModule() {
                                 }}
                             >
                                 {playlists.map(p => (
-                                    <option key={p.id} value={p.id} style={{ background: isDark ? "#1A1A1A" : "#FFF", color: isDark ? "#FFF" : "#000" }}>
+                                    <option key={p.id} value={p.id} style={{ background: isDark ? "#111" : "#FFF", color: isDark ? "#FFF" : "#000" }}>
                                         {p.title}
                                     </option>
                                 ))}
@@ -205,75 +172,150 @@ export function LiveControlModule() {
                             <ChevronDown size={16} style={{ position: "absolute", right: "14px", top: "50%", transform: "translateY(-50%)", pointerEvents: "none", color: isDark ? "rgba(255,255,255,0.4)" : "rgba(0,0,0,0.4)" }} />
                         </div>
                     </div>
-                )}
 
-                {/* Action Buttons */}
+                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
+                        <div>
+                            <label style={{ fontFamily: monoFont, fontSize: "0.6rem", fontWeight: 700, color: isDark ? "rgba(255,255,255,0.4)" : "rgba(0,0,0,0.4)", textTransform: "uppercase", display: "block", marginBottom: "8px" }}>
+                                STATION TITLE
+                            </label>
+                            <input 
+                                value={stationTitle}
+                                onChange={e => setStationTitle(e.target.value)}
+                                placeholder="e.g. Midnight Chill"
+                                style={{
+                                    width: "100%", padding: "12px 14px",
+                                    backgroundColor: isDark ? "rgba(0,0,0,0.2)" : "rgba(255,255,255,0.8)",
+                                    border: isDark ? "1px solid rgba(255,255,255,0.1)" : "1px solid rgba(0,0,0,0.08)",
+                                    borderRadius: "14px", color: isDark ? "#FFF" : "#000",
+                                    fontFamily: headerFont, fontSize: "0.8rem", fontWeight: 700,
+                                    outline: "none"
+                                }}
+                            />
+                        </div>
+                        <div>
+                            <label style={{ fontFamily: monoFont, fontSize: "0.6rem", fontWeight: 700, color: isDark ? "rgba(255,255,255,0.4)" : "rgba(0,0,0,0.4)", textTransform: "uppercase", display: "block", marginBottom: "8px" }}>
+                                TAGLINE
+                            </label>
+                            <input 
+                                value={stationDesc}
+                                onChange={e => setStationDesc(e.target.value)}
+                                placeholder="Optional description"
+                                style={{
+                                    width: "100%", padding: "12px 14px",
+                                    backgroundColor: isDark ? "rgba(0,0,0,0.2)" : "rgba(255,255,255,0.8)",
+                                    border: isDark ? "1px solid rgba(255,255,255,0.1)" : "1px solid rgba(0,0,0,0.08)",
+                                    borderRadius: "14px", color: isDark ? "#FFF" : "#000",
+                                    fontFamily: headerFont, fontSize: "0.8rem", fontWeight: 700,
+                                    outline: "none"
+                                }}
+                            />
+                        </div>
+                    </div>
+                </div>
+
                 <div style={{ display: "flex", gap: "10px" }}>
-                    {isLive ? (
-                        <motion.button
-                            whileTap={{ scale: 0.98 }}
-                            onClick={handleStopLive}
-                            disabled={isActioning}
-                            style={{
-                                flex: 1, padding: "14px", borderRadius: "14px",
-                                background: "#EF4444", color: "#FFF",
-                                border: "none", cursor: isActioning ? "not-allowed" : "pointer",
-                                fontFamily: headerFont, fontWeight: 900, fontSize: "0.8rem",
-                                textTransform: "uppercase", letterSpacing: "0.05em",
-                                display: "flex", alignItems: "center", justifyContent: "center", gap: "8px",
-                                opacity: isActioning ? 0.7 : 1
-                            }}
-                        >
-                            {isActioning ? <Loader2 size={16} className="animate-spin" /> : <Square size={16} fill="#FFF" />}
-                            STOP LIVE
-                        </motion.button>
-                    ) : (
-                        <motion.button
-                            whileTap={{ scale: 0.98 }}
-                            onClick={handleGoLive}
-                            disabled={isActioning || !selectedPlaylistId}
-                            style={{
-                                flex: 1, padding: "14px", borderRadius: "14px",
-                                background: isDark ? "#6366F1" : "#000", color: "#FFF",
-                                border: "none", cursor: (isActioning || !selectedPlaylistId) ? "not-allowed" : "pointer",
-                                fontFamily: headerFont, fontWeight: 900, fontSize: "0.8rem",
-                                textTransform: "uppercase", letterSpacing: "0.05em",
-                                display: "flex", alignItems: "center", justifyContent: "center", gap: "8px",
-                                opacity: (isActioning || !selectedPlaylistId) ? 0.7 : 1
-                            }}
-                        >
-                            {isActioning ? <Loader2 size={16} className="animate-spin" /> : <Play size={16} fill="#FFF" />}
-                            GO LIVE
-                        </motion.button>
-                    )}
                     <motion.button
-                        whileTap={{ scale: 0.95 }}
-                        onClick={() => { fetchStatus(); }}
+                        whileTap={{ scale: 0.98 }}
+                        onClick={handleGoLive}
+                        disabled={isActioning || !selectedPlaylistId}
                         style={{
-                            padding: "0 16px", borderRadius: "14px",
-                            background: isDark ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.05)",
-                            border: isDark ? "1px solid rgba(255,255,255,0.1)" : "1px solid rgba(0,0,0,0.08)",
-                            color: isDark ? "#FFF" : "#000", cursor: "pointer",
-                            display: "flex", alignItems: "center", justifyContent: "center"
+                            flex: 1, padding: "14px", borderRadius: "14px",
+                            background: isDark ? "#6366F1" : "#000", color: "#FFF",
+                            border: "none", cursor: (isActioning || !selectedPlaylistId) ? "not-allowed" : "pointer",
+                            fontFamily: headerFont, fontWeight: 900, fontSize: "0.8rem",
+                            textTransform: "uppercase", letterSpacing: "0.05em",
+                            display: "flex", alignItems: "center", justifyContent: "center", gap: "8px",
+                            opacity: (isActioning || !selectedPlaylistId) ? 0.7 : 1
                         }}
                     >
-                        <RefreshCw size={16} />
+                        {isActioning ? <Loader2 size={16} className="animate-spin" /> : <Radio size={16} />}
+                        START BROADCAST
                     </motion.button>
                 </div>
 
-                {/* Status Message */}
                 {statusMessage && (
                     <div style={{
                         marginTop: "12px", padding: "10px 14px", borderRadius: "12px",
-                        backgroundColor: statusMessage.type === "success"
-                            ? (isDark ? "rgba(16,185,129,0.08)" : "rgba(16,185,129,0.05)")
-                            : (isDark ? "rgba(239,68,68,0.08)" : "rgba(239,68,68,0.05)"),
+                        backgroundColor: statusMessage.type === "success" ? "rgba(16,185,129,0.1)" : "rgba(239,68,68,0.1)",
                         border: `1px solid ${statusMessage.type === "success" ? "rgba(16,185,129,0.2)" : "rgba(239,68,68,0.2)"}`,
                         fontFamily: monoFont, fontSize: "0.65rem", fontWeight: 700,
                         color: statusMessage.type === "success" ? "#10B981" : "#EF4444",
-                        textTransform: "uppercase"
                     }}>
                         {statusMessage.text}
+                    </div>
+                )}
+            </div>
+
+            {/* Active Sessions List */}
+            <div style={{
+                backgroundColor: isDark ? "rgba(255,255,255,0.03)" : "rgba(255,255,255,0.45)",
+                border: isDark ? "1px solid rgba(255,255,255,0.08)" : "1px solid rgba(0,0,0,0.05)",
+                borderRadius: "20px", padding: "20px",
+            }}>
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "16px" }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                        <Radio size={16} color={activeSessions.length > 0 ? "#EF4444" : "#666"} />
+                        <h2 style={{ margin: 0, fontFamily: headerFont, fontSize: "0.85rem", fontWeight: 900, textTransform: "uppercase", letterSpacing: "0.05em" }}>
+                            Active Stations ({activeSessions.length})
+                        </h2>
+                    </div>
+                    <motion.button
+                        whileTap={{ scale: 0.95 }}
+                        onClick={() => fetchStatus()}
+                        style={{ background: "none", border: "none", color: isDark ? "rgba(255,255,255,0.4)" : "#666", cursor: "pointer" }}
+                    >
+                        <RefreshCw size={14} className={isActioning ? "animate-spin" : ""} />
+                    </motion.button>
+                </div>
+
+                {activeSessions.length === 0 ? (
+                    <div style={{ padding: "40px 20px", textAlign: "center", fontFamily: headerFont, fontSize: "0.8rem", color: isDark ? "rgba(255,255,255,0.3)" : "#999", border: `1px dashed ${isDark ? "rgba(255,255,255,0.1)" : "#DDD"}`, borderRadius: "14px" }}>
+                        NO ACTIVE BROADCASTS
+                    </div>
+                ) : (
+                    <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+                        {activeSessions.map((session) => (
+                            <div key={session.id} style={{
+                                padding: "16px", borderRadius: "16px",
+                                background: isDark ? "rgba(255,255,255,0.02)" : "rgba(255,255,255,0.8)",
+                                border: isDark ? "1px solid rgba(255,255,255,0.05)" : "1px solid rgba(0,0,0,0.05)",
+                                display: "flex", alignItems: "center", justifyContent: "space-between"
+                            }}>
+                                <div style={{ minWidth: 0 }}>
+                                    <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "4px" }}>
+                                        <div style={{ width: 6, height: 6, borderRadius: "50%", background: "#EF4444", boxShadow: "0 0 8px #EF4444" }} />
+                                        <h3 style={{ margin: 0, fontFamily: headerFont, fontSize: "0.9rem", fontWeight: 900, color: isDark ? "#FFF" : "#000", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                                            {session.playlist.title}
+                                        </h3>
+                                    </div>
+                                    <div style={{ fontFamily: monoFont, fontSize: "0.6rem", fontWeight: 700, color: isDark ? "rgba(255,255,255,0.4)" : "#666" }}>
+                                        SESSION ID: {session.id.slice(0, 8)}... • STARTED {new Date(session.startedAt).toLocaleTimeString()}
+                                    </div>
+                                </div>
+                                <motion.button
+                                    whileTap={{ scale: 0.95 }}
+                                    onClick={() => handleStopSession(session.id)}
+                                    style={{
+                                        width: "36px", height: "36px", borderRadius: "10px",
+                                        background: isDark ? "rgba(239, 68, 68, 0.15)" : "rgba(239, 68, 68, 0.05)",
+                                        border: "none", color: "#EF4444", cursor: "pointer",
+                                        display: "flex", alignItems: "center", justifyContent: "center"
+                                    }}
+                                >
+                                    <Square size={14} fill="currentColor" />
+                                </motion.button>
+                            </div>
+                        ))}
+                        
+                        <button 
+                            onClick={() => handleStopSession()}
+                            style={{ 
+                                marginTop: "10px", padding: "10px", background: "none", border: `1px solid ${isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)"}`, 
+                                borderRadius: "10px", color: "#EF4444", fontFamily: monoFont, fontSize: "0.6rem", fontWeight: 800, cursor: "pointer", textTransform: "uppercase" 
+                            }}
+                        >
+                            Emergency Stop All
+                        </button>
                     </div>
                 )}
             </div>

@@ -21,10 +21,12 @@ export function CleanHomeHero() {
     const [isMobile, setIsMobile] = useState(false);
     const { isPlaying, togglePlay, currentSong, hasInteracted, nextSong, prevSong, seekTo, activePlaylistId, setIsPlayerExpanded } = useAudio();
     const { currentTime, duration } = useTime();
-    const songParts = currentSong.title.split("—");
-    const artist = songParts[0]?.trim() || "Unknown";
-    const song = songParts[1]?.trim() || currentSong.title;
-    const { lyrics } = useLyrics(currentSong.title);
+    
+    // WC-4: Robust null-checks for when DB is down
+    const songParts = currentSong?.title?.split("—") || [];
+    const artist = songParts[0]?.trim() || "Unknown Artist";
+    const song = songParts[1]?.trim() || currentSong?.title || "No Audio Loaded";
+    const { lyrics } = useLyrics(currentSong?.title || "");
     const lyricsContainerRef = useRef<HTMLDivElement>(null);
 
     // Find current lyric index
