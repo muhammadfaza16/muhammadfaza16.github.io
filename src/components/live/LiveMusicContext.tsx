@@ -36,6 +36,7 @@ interface LiveMusicState {
     error: string | null;
     isSynced: boolean;
     listenersCount: number;
+    activeSessionId?: string;
     togglePlay: () => void;
     refresh: () => void;
     switchSession: (sessionId?: string) => void;
@@ -147,12 +148,19 @@ export function LiveMusicProvider({ children }: { children: React.ReactNode }) {
         if (isFetchingRef.current) return;
         isFetchingRef.current = true;
 
+        const capturedSessionId = sessionIdRef.current;
         const sq = getSessionQuery();
         const fetchStart = Date.now();
 
         try {
             const res = await fetch(`/api/live-music/now${sq}`, { cache: "no-store" });
             const data = await res.json();
+
+            // ABORT if session was switched while we were fetching
+            if (sessionIdRef.current !== capturedSessionId) {
+                isFetchingRef.current = false;
+                return;
+            }
 
             const rtt = Date.now() - fetchStart;
             const oneWayLatency = Math.min(rtt / 2, 500) / 1000;
@@ -412,6 +420,7 @@ export function LiveMusicProvider({ children }: { children: React.ReactNode }) {
             error,
             isSynced,
             listenersCount,
+            activeSessionId,
             togglePlay,
             refresh,
             switchSession,

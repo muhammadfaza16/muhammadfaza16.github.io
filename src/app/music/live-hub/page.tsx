@@ -27,7 +27,7 @@ export default function LiveHubPage() {
     const headerFont = "var(--font-display), system-ui, sans-serif";
     const monoFont = "var(--font-mono), monospace";
 
-    const { isLive, currentSong, playlistTitle, playlistCover, listenersCount } = useLiveMusic();
+    const { isLive, currentSong, playlistTitle, playlistCover, listenersCount, activeSessionId } = useLiveMusic();
 
     // Fetch all active sessions for the station cards
     const [stations, setStations] = useState<StationData[]>([]);
@@ -43,7 +43,7 @@ export default function LiveHubPage() {
             .catch(() => setLoadingStations(false));
     }, []);
 
-    // Hero card — uses primary live context (first/default session)
+    // Hero card — uses primary live context (first/default session or active session)
     const fallbackCover = "https://images.unsplash.com/photo-1614113489855-66422ad300a4?q=80&w=642&auto=format&fit=crop";
     let heroTitle = "Live Radio";
     let heroDescription = "No active sessions";
@@ -54,6 +54,13 @@ export default function LiveHubPage() {
     let heroIsLive = false;
     let heroSessionId = "";
 
+    // Determine Hero Session ID: Active session from context OR the first station
+    if (activeSessionId) {
+        heroSessionId = activeSessionId;
+    } else if (stations.length > 0) {
+        heroSessionId = stations[0].id;
+    }
+
     if (isLive && currentSong) {
         const { cleanTitle, artist } = parseSongTitle(currentSong.title);
         heroTitle = playlistTitle || "Live Radio";
@@ -62,15 +69,23 @@ export default function LiveHubPage() {
         heroSong = cleanTitle;
         heroArtist = artist || "Unknown Artist";
         heroIsLive = true;
+    } else if (stations.length > 0) {
+        // Fallback: if context isn't live yet, use data from the default hero station
+        const heroStation = stations.find(s => s.id === heroSessionId);
+        if (heroStation) {
+            heroTitle = heroStation.playlistTitle;
+            heroCover = heroStation.coverImage || fallbackCover;
+            if (heroStation.currentSong) {
+                const { cleanTitle, artist } = parseSongTitle(heroStation.currentSong.title);
+                heroSong = cleanTitle;
+                heroArtist = artist || "Unknown Artist";
+                heroIsLive = true;
+            }
+        }
     }
 
-    // If we have stations from the API, use the first one as the hero session ID
-    if (stations.length > 0) {
-        heroSessionId = stations[0].id;
-    }
-
-    // Secondary stations = all stations except the hero (first one)
-    const secondaryStations = stations.slice(1);
+    // Secondary stations = all stations except the hero
+    const secondaryStations = stations.filter(s => s.id !== heroSessionId);
 
     return (
         <main style={{
