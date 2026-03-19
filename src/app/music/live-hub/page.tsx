@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { useTheme } from "@/components/ThemeProvider";
-import { Radio, Play, Users } from "lucide-react";
+import { Radio, Play, Users, Headphones } from "lucide-react";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { useLiveMusic } from "@/components/live/LiveMusicContext";
@@ -187,7 +187,7 @@ export default function LiveHubPage() {
                                 {/* Now Playing Mini-Bar */}
                                 <div style={{ display: "flex", alignItems: "center", gap: "12px", background: "rgba(255,255,255,0.08)", padding: "10px 16px", borderRadius: "20px", backdropFilter: "blur(20px)", border: "1px solid rgba(255,255,255,0.1)" }}>
                                     <motion.div whileTap={{ scale: 0.9 }} style={{ width: "36px", height: "36px", borderRadius: "100px", background: heroIsLive ? "#FFF" : "rgba(255,255,255,0.5)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                                        <Play size={16} color="#000" fill="#000" style={{ marginLeft: "2px", opacity: heroIsLive ? 1 : 0.5 }} />
+                                        <Headphones size={16} color="#000" style={{ opacity: heroIsLive ? 1 : 0.5 }} />
                                     </motion.div>
                                     <div style={{ minWidth: 0 }}>
                                         <p style={{ margin: 0, fontFamily: headerFont, fontWeight: 800, fontSize: "0.8rem", color: "#FFF", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", opacity: heroIsLive ? 1 : 0.7 }}>{heroSong}</p>
@@ -270,7 +270,7 @@ export default function LiveHubPage() {
                                                     {/* Play button overlay */}
                                                     <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1 }}>
                                                         <div style={{ width: "36px", height: "36px", borderRadius: "100px", background: "rgba(255,255,255,0.2)", backdropFilter: "blur(10px)", display: "flex", alignItems: "center", justifyContent: "center", border: "1px solid rgba(255,255,255,0.4)" }}>
-                                                            <Play size={14} color="#FFF" fill="#FFF" style={{ marginLeft: "2px" }} />
+                                                            <Headphones size={14} color="#FFF" />
                                                         </div>
                                                     </div>
                                                 </div>

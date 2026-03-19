@@ -2,7 +2,7 @@
 
 import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Play, Pause, Radio, Disc, Music, ListMusic, ChevronDown, Heart } from "lucide-react";
+import { Play, Pause, Radio, Disc, Music, ListMusic, ChevronDown, Heart, Headphones, Power, Loader2 } from "lucide-react";
 import { useLiveMusic } from "./LiveMusicContext";
 import { parseSongTitle } from "@/utils/songUtils";
 import { useTheme } from "@/components/ThemeProvider";
@@ -403,38 +403,64 @@ export function LiveMusicPlayer() {
                         </motion.button>
                     </div>
 
-                {/* Center: Play/Pause */}
-                {(isWaitingForSync || isTransitioning) ? (
-                    <motion.div
-                        animate={{ rotate: 360 }}
-                        transition={{ repeat: Infinity, duration: 2, ease: "linear" }}
+                {/* Center: Play/Pause -> Join/Leave */}
+                {(isWaitingForSync || isTransitioning || isBuffering) ? (
+                    <div
                         style={{
-                            width: "80px", height: "80px", borderRadius: "100px",
+                            height: "64px", padding: "0 32px", borderRadius: "100px",
                             background: isDark ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.05)",
-                            display: "flex", alignItems: "center", justifyContent: "center",
+                            display: "flex", alignItems: "center", justifyContent: "center", gap: "12px",
                             border: isDark ? "1px solid rgba(255,255,255,0.1)" : "1px solid rgba(0,0,0,0.1)",
                         }}
                     >
-                        <Radio size={32} color={isDark ? "rgba(255,255,255,0.4)" : "rgba(0,0,0,0.4)"} />
-                    </motion.div>
+                        <motion.div
+                            animate={{ rotate: 360 }}
+                            transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
+                            style={{ display: "flex", alignItems: "center", justifyContent: "center" }}
+                        >
+                            <Loader2 size={20} color={isDark ? "rgba(255,255,255,0.6)" : "rgba(0,0,0,0.6)"} />
+                        </motion.div>
+                        <span style={{ 
+                            fontFamily: "var(--font-display), system-ui, sans-serif", 
+                            fontWeight: 900, fontSize: "0.75rem", letterSpacing: "0.1em", 
+                            textTransform: "uppercase",
+                            color: isDark ? "rgba(255,255,255,0.6)" : "rgba(0,0,0,0.6)"
+                        }}>
+                            {isWaitingForSync ? "Syncing" : "Tuning In"}
+                        </span>
+                    </div>
                 ) : (
                     <motion.button
-                        whileTap={{ scale: 0.9 }}
+                        whileTap={{ scale: 0.95 }}
                         onClick={togglePlay}
                         style={{
-                            width: "80px", height: "80px", borderRadius: "100px",
-                            background: isDark ? "rgba(255,255,255,0.15)" : "rgba(255,255,255,0.6)",
+                            height: "64px", padding: "0 36px", borderRadius: "100px",
+                            background: isPlaying 
+                                ? (isDark ? "rgba(239, 68, 68, 0.15)" : "rgba(239, 68, 68, 0.1)") 
+                                : (isDark ? "#FFF" : "#000"),
                             backdropFilter: "blur(30px)",
-                            display: "flex", alignItems: "center", justifyContent: "center",
-                            border: isDark ? "1px solid rgba(255,255,255,0.2)" : "1px solid rgba(0,0,0,0.05)",
+                            display: "flex", alignItems: "center", justifyContent: "center", gap: "10px",
+                            border: isPlaying ? (isDark ? "1px solid rgba(239, 68, 68, 0.3)" : "1px solid rgba(239, 68, 68, 0.2)") : "none",
                             cursor: "pointer",
-                            boxShadow: isDark ? "0 20px 40px rgba(0,0,0,0.5)" : "0 10px 30px rgba(0,0,0,0.1)"
+                            boxShadow: isPlaying ? "none" : (isDark ? "0 20px 40px rgba(255,255,255,0.15)" : "0 10px 30px rgba(0,0,0,0.2)"),
+                            color: isPlaying ? "#EF4444" : (isDark ? "#000" : "#FFF")
                         }}
                     >
-                        {isPlaying
-                            ? <Pause size={36} color={isDark ? "#FFF" : "#000"} fill="currentColor" />
-                            : <Play size={36} color={isDark ? "#FFF" : "#000"} fill="currentColor" style={{ marginLeft: "6px" }} />
-                        }
+                        {isPlaying ? (
+                            <>
+                                <Power size={20} color="currentColor" strokeWidth={2.5} />
+                                <span style={{ fontFamily: "var(--font-display), system-ui, sans-serif", fontWeight: 900, fontSize: "0.85rem", letterSpacing: "0.05em", textTransform: "uppercase" }}>
+                                    Leave
+                                </span>
+                            </>
+                        ) : (
+                            <>
+                                <Headphones size={20} color="currentColor" strokeWidth={2.5} />
+                                <span style={{ fontFamily: "var(--font-display), system-ui, sans-serif", fontWeight: 900, fontSize: "0.85rem", letterSpacing: "0.05em", textTransform: "uppercase" }}>
+                                    Join
+                                </span>
+                            </>
+                        )}
                     </motion.button>
                 )}
 

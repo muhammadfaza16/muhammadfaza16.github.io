@@ -468,6 +468,8 @@ export function AudioProvider({ children, initialSongs = [] }: { children: React
         setActiveLyrics([]);
         setCurrentLyricText(null);
 
+        if (!currentSong) return;
+
         // Check cache first
         const cached = lyricsCacheRef.current.get(currentSong.title);
         if (cached) {
@@ -500,7 +502,7 @@ export function AudioProvider({ children, initialSongs = [] }: { children: React
         };
         fetchLyrics();
         return () => { isMounted = false; };
-    }, [currentSong.title]);
+    }, [currentSong?.title]);
 
     // Throttle ref for performance (mobile-first)
     const lastTimeUpdateRef = useRef(0);
