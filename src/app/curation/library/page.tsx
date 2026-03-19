@@ -262,9 +262,9 @@ export default function LibraryPage() {
                             <div className="flex items-center bg-zinc-50 dark:bg-zinc-900/60 rounded-xl border border-zinc-200/50 dark:border-zinc-800/50 divide-x divide-zinc-200/60 dark:divide-zinc-800/60">
                                 {[
                                     { label: "read", value: readIds.size },
-                                    { label: "day streak", value: streak },
+                                    { label: "streak", value: streak },
                                     { label: "this week", value: weeklyTotal },
-                                    { label: "min read", value: totalReadingMins },
+                                    { label: "mins read", value: totalReadingMins },
                                 ].map(stat => (
                                     <div key={stat.label} className="flex-1 text-center py-0.5">
                                         <span className="text-[16px] font-bold text-zinc-900 dark:text-zinc-100 tabular-nums">{stat.value}</span>
@@ -275,7 +275,7 @@ export default function LibraryPage() {
 
                             {/* ── Weekly Activity ── */}
                             <section>
-                                <Label><Calendar size={11} className="inline mr-1 -mt-px" />This Week</Label>
+                                <Label><Calendar size={11} className="inline mr-1 -mt-px" />Weekly Activity</Label>
                                 <div className="flex items-end gap-1.5 px-1">
                                     {weeklyActivity.map((count, i) => {
                                         const maxCount = Math.max(...weeklyActivity, 1);
@@ -304,7 +304,7 @@ export default function LibraryPage() {
                             {/* ── Best Read ── */}
                             {bestArticle && bestArticle.qualityScore >= 50 && (
                                 <section>
-                                    <Label><Award size={11} className="inline mr-1 -mt-px" />Highest Rated Read</Label>
+                                    <Label><Award size={11} className="inline mr-1 -mt-px" />Top Rated Read</Label>
                                     <Link href={`/curation/${bestArticle.id}`} className="flex items-center gap-3 p-3 rounded-xl bg-zinc-50 dark:bg-zinc-900/50 border border-zinc-200/50 dark:border-zinc-800/50 group hover:border-zinc-300 dark:hover:border-zinc-700 transition-all">
                                         <div className="w-12 h-12 rounded-lg overflow-hidden bg-zinc-100 dark:bg-zinc-800 shrink-0 relative">
                                             {bestArticle.imageUrl ? <Image src={bestArticle.imageUrl} alt="" fill className="object-cover" /> : <div className="w-full h-full flex items-center justify-center text-zinc-400"><FileText size={16} /></div>}
@@ -384,7 +384,7 @@ export default function LibraryPage() {
                                             <h2 className="text-[16px] font-bold text-zinc-900 dark:text-zinc-100">{activeCollection.name}</h2>
                                         </div>
                                         <span className="text-[10px] text-zinc-500 font-medium">
-                                            {activeCollection.articleIds.length} items
+                                            {activeCollection.articleIds.length} item
                                         </span>
                                     </div>
                                     <div className="space-y-0">
@@ -417,7 +417,7 @@ export default function LibraryPage() {
                                         </div>
                                         <div className="flex-1 text-center py-0.5">
                                             <span className="text-[16px] font-bold text-zinc-900 dark:text-zinc-100 tabular-nums">{savedArticles.reduce((s, a) => s + readTime(a.content), 0)}</span>
-                                            <span className="text-[9px] text-zinc-500 ml-1.5">min total</span>
+                                            <span className="text-[9px] text-zinc-500 ml-1.5">total mins</span>
                                         </div>
                                     </div>
 
@@ -438,7 +438,7 @@ export default function LibraryPage() {
                                                         <FolderCheck size={16} />
                                                     </div>
                                                     <h3 className="text-[13px] font-bold text-zinc-900 dark:text-zinc-100 mb-0.5 leading-snug">{c.name}</h3>
-                                                    <span className="text-[10px] text-zinc-500 font-medium">{c.articleIds.length} items</span>
+                                                    <span className="text-[10px] text-zinc-500 font-medium">{c.articleIds.length} item</span>
                                                 </button>
                                             ))}
                                             {isCreatingCollection && (
@@ -493,9 +493,9 @@ export default function LibraryPage() {
                             ) : (
                                 <div className="py-16 text-center">
                                     <Bookmark size={24} className="mx-auto text-zinc-300 dark:text-zinc-700 mb-2" />
-                                    <p className="text-[12px] text-zinc-500">No saved articles yet</p>
-                                    <p className="text-[10px] text-zinc-400 mt-1">Bookmark articles while reading to save them here</p>
-                                    <Link href="/curation/discover" className="text-[11px] text-blue-500 hover:text-blue-600 mt-2 inline-block">Discover articles →</Link>
+                                    <p className="text-[12px] text-zinc-500">No articles saved yet</p>
+                                    <p className="text-[10px] text-zinc-400 mt-1">Save articles while reading to see them here</p>
+                                    <Link href="/curation/discover" className="text-[11px] text-blue-500 hover:text-blue-600 mt-2 inline-block">Find articles →</Link>
                                 </div>
                             )}
 

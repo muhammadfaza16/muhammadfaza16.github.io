@@ -6,7 +6,8 @@ import {
     Search, ArrowLeft, X, Loader2, FileText, Clock,
     ChevronRight, Flame, BookOpen, Hash, Bookmark,
     Brain, Rocket, Coffee, Zap, TrendingUp, Sparkles,
-    Star, CheckCheck, Heart, Repeat, MessageCircle, Info
+    Star, CheckCheck, Heart, Repeat, MessageCircle, Info,
+    Sun, Moon, Menu
 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
@@ -14,6 +15,7 @@ import { getVisitorState, getReadHistoryAsync } from "@/lib/storage";
 import { formatTitle, formatMetric } from "@/lib/utils";
 import { useSearchParams } from "next/navigation";
 import { Suspense } from "react";
+import { useTheme } from "@/components/ThemeProvider";
 
 // ─── Constants ───
 
@@ -34,9 +36,9 @@ const CATEGORIES = [
 ];
 
 const READING_LISTS = [
-    { title: "Mastering Focus", desc: "Deep work essentials", category: "Productivity & Deep Work", icon: Zap },
-    { title: "Naval's Anthology", desc: "Philosophy & wealth", category: "Philosophy & Psychology", icon: Coffee },
-    { title: "Agentic Future", desc: "AI tools & agents", category: "AI & Tech", icon: Brain },
+    { title: "Mastering Focus", desc: "The essence of deep work", category: "Productivity & Deep Work", icon: Zap },
+    { title: "Naval Anthology", desc: "Wealth & philosophy", category: "Philosophy & Psychology", icon: Coffee },
+    { title: "Future of Agents", desc: "AI tools & agents", category: "AI & Tech", icon: Brain },
     { title: "Growth Vault", desc: "Systems thinking", category: "Growth & Systems", icon: TrendingUp },
     { title: "Wealth Wisdom", desc: "Strategy & finance", category: "Wealth & Business", icon: Rocket },
     { title: "Mind & Meaning", desc: "Stoicism & clarity", category: "Philosophy & Psychology", icon: BookOpen },
@@ -96,6 +98,22 @@ function ExploreContent() {
     const resultsRef = useRef<HTMLDivElement>(null);
     const isShowingSearch = searchQuery.trim().length > 0 || activeCategory !== null;
 
+    const { theme, setTheme } = useTheme();
+    const [isAtlasMenuOpen, setIsAtlasMenuOpen] = useState(false);
+
+    const toggleTheme = () => {
+        setTheme(theme === "dark" ? "light" : "dark");
+    };
+
+    const VERTICALS = [
+        { key: "books", label: "Books", href: "/curation/books" },
+        { key: "skills", label: "Skills Lab", href: "/curation/skills" },
+        { key: "frameworks", label: "Frameworks", href: "/curation/frameworks" },
+        { key: "codex", label: "Codex", href: "/curation/codex" },
+        { key: "collections", label: "Collections", href: "/curation/collections" },
+        { key: "highlights", label: "Highlights", href: "/curation/highlights" },
+    ];
+
     // ─── Fetch ───
 
     useEffect(() => {
@@ -117,10 +135,13 @@ function ExploreContent() {
                 const aD = aR.ok ? await aR.json() : { articles: [] };
                 
                 if (!tR.ok || !lR.ok || !aR.ok) {
+                    const tText = !tR.ok ? await tR.text() : "";
+                    const lText = !lR.ok ? await lR.text() : "";
+                    const aText = !aR.ok ? await aR.text() : "";
                     console.error("Initial fetch failed:", { 
-                        trending: tR.status, 
-                        latest: lR.status, 
-                        all: aR.status 
+                        trending: { status: tR.status, error: tText.slice(0, 100) }, 
+                        latest: { status: lR.status, error: lText.slice(0, 100) }, 
+                        all: { status: aR.status, error: aText.slice(0, 100) } 
                     });
                 }
                 const trending = tD.articles || [], latest = lD.articles || [], all = aD.articles || [];
@@ -197,10 +218,10 @@ function ExploreContent() {
                         <h3 className="text-[12.5px] font-medium text-zinc-900 dark:text-zinc-100 leading-snug line-clamp-2">{formatTitle(article.title)}</h3>
                         <div className="flex items-center gap-1.5 mt-0.5">
                             <span className="text-[10px] text-zinc-400">
-                                {new Date(article.createdAt).toLocaleDateString('id-ID', { day: 'numeric', month: 'short' })}
+                                {new Date(article.createdAt).toLocaleDateString('en-US', { day: 'numeric', month: 'short' })}
                             </span>
                             <span className="text-zinc-300 dark:text-zinc-700 text-[7px]">·</span>
-                            <span className="text-[10px] text-zinc-400">{readTime(article.content)} menit</span>
+                            <span className="text-[10px] text-zinc-400">{readTime(article.content)} min read</span>
                             
                             {(article.likes || article.reposts || article.replies) && (
                                 <>
@@ -233,7 +254,7 @@ function ExploreContent() {
                                     <span className="text-zinc-300 dark:text-zinc-700 text-[7px]">·</span>
                                     <span className="text-[10px] text-blue-500 flex items-center gap-0.5 font-medium">
                                         <Bookmark size={9} className="fill-blue-500/20" />
-                                        disimpan
+                                        saved
                                     </span>
                                 </>
                             )}
@@ -242,7 +263,7 @@ function ExploreContent() {
                                     <span className="text-zinc-300 dark:text-zinc-700 text-[7px]">·</span>
                                     <span className="text-[10px] text-emerald-500 flex items-center gap-0.5 font-medium">
                                         <CheckCheck size={9} />
-                                        selesai
+                                        read
                                     </span>
                                 </>
                             )}
@@ -273,33 +294,55 @@ function ExploreContent() {
     return (
         <div className="min-h-screen bg-[#fafaf8] dark:bg-[#050505] text-zinc-900 dark:text-zinc-100">
             {/* ═══ HEADER ═══ */}
-            <header className="sticky top-0 z-50 bg-[#fafaf8]/85 dark:bg-[#050505]/85 backdrop-blur-xl border-b border-zinc-200/40 dark:border-zinc-800/40">
-                <div className="px-4 pt-3 pb-2.5 max-w-2xl mx-auto">
-                    <div className="flex items-center gap-3">
-                        <Link href="/curation" className="w-9 h-9 flex items-center justify-center text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 active:scale-90 rounded-full transition-all shrink-0">
-                            <ArrowLeft size={20} />
-                        </Link>
-                        <div className="relative flex-1">
-                            <Search size={15} className={`absolute left-3 top-1/2 -translate-y-1/2 transition-colors ${isSearchFocused ? "text-zinc-600 dark:text-zinc-300" : "text-zinc-400"}`} />
-                            <input ref={searchRef} type="text" placeholder="Cari tulisan, bidang..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} onFocus={() => setIsSearchFocused(true)} onBlur={() => setIsSearchFocused(false)} className="w-full h-9 pl-9 pr-8 bg-zinc-100 dark:bg-zinc-900 border-none rounded-lg text-[13px] outline-none focus:ring-1 focus:ring-zinc-300 dark:focus:ring-zinc-700 transition-all placeholder:text-zinc-400" />
-                            {searchQuery && <button onClick={() => { setSearchQuery(""); setActiveCategory(null); }} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-600"><X size={13} /></button>}
+            <header className="sticky top-0 z-[110] bg-[#fafaf8]/80 dark:bg-[#050505]/80 backdrop-blur-xl border-b border-zinc-200/40 dark:border-zinc-800/40 shrink-0 h-16 flex items-center px-4 transition-colors duration-500">
+                {/* Search Only Header */}
+                <div className="flex-1 flex justify-center px-2">
+                    <div className="w-full max-w-[800px]">
+                        <div className="relative group max-w-4xl mx-auto">
+                            <Search size={15} className={`absolute left-3.5 top-1/2 -translate-y-1/2 transition-colors ${isSearchFocused ? "text-zinc-600 dark:text-zinc-300" : "text-zinc-400"}`} />
+                            <input 
+                                ref={searchRef} 
+                                type="text" 
+                                placeholder="Search articles, topics..." 
+                                value={searchQuery} 
+                                onChange={(e) => setSearchQuery(e.target.value)} 
+                                onFocus={() => setIsSearchFocused(true)} 
+                                onBlur={() => setIsSearchFocused(false)} 
+                                className="w-full h-9 bg-zinc-100/60 dark:bg-zinc-800/60 border border-transparent focus:bg-white dark:focus:bg-zinc-900/50 focus:border-zinc-200 dark:focus:border-zinc-700/50 rounded-full pl-9 pr-9 text-[13px] text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-500/80 transition-all outline-none" 
+                            />
+                            {searchQuery && (
+                                <button 
+                                    onClick={() => { setSearchQuery(""); setActiveCategory(null); }} 
+                                    className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 hover:bg-zinc-200 dark:hover:bg-zinc-700 rounded-full transition-colors"
+                                >
+                                    <X size={14} className="text-zinc-400" />
+                                </button>
+                            )}
                         </div>
-                    </div>
-                    <div className="flex items-center gap-1.5 mt-4 overflow-x-auto no-scrollbar">
-                        {[{ key: "popularity" as const, label: "Populer", Icon: Flame }, { key: "date" as const, label: "Terbaru", Icon: Clock }].map(s => (
-                            <button key={s.key} onClick={() => setActiveSort(s.key)} className={`flex items-center gap-1 px-2.5 py-1 shrink-0 rounded-full text-[10.5px] font-medium transition-all ${activeSort === s.key ? "bg-zinc-800 text-zinc-100 dark:bg-zinc-200 dark:text-zinc-900" : "bg-zinc-100 dark:bg-zinc-800/80 text-zinc-500"}`}>
-                                <s.Icon size={10} /> {s.label}
-                            </button>
-                        ))}
-                        <div className="w-px h-3.5 bg-zinc-200 dark:bg-zinc-800 mx-0.5 shrink-0" />
-                        {CATEGORIES.map(cat => (
-                            <button key={cat.name} onClick={() => setActiveCategory(activeCategory === cat.name ? null : cat.name)} className={`flex items-center gap-1 px-2.5 py-1 shrink-0 rounded-full text-[10.5px] font-medium transition-all whitespace-nowrap ${activeCategory === cat.name ? "bg-zinc-800 text-zinc-100 dark:bg-zinc-200 dark:text-zinc-900" : "bg-zinc-100 dark:bg-zinc-800/80 text-zinc-500"}`}>
-                                <cat.icon size={10} /> {cat.name.split(" & ")[0]}
-                            </button>
-                        ))}
                     </div>
                 </div>
             </header>
+            
+            {/* Sub-header Filter Row (Sticky below Search) */}
+            {!isShowingSearch && (
+                <div className="sticky top-16 z-[105] bg-[#fafaf8]/80 dark:bg-[#050505]/80 backdrop-blur-xl border-b border-zinc-200/40 dark:border-zinc-800/40 py-2 transition-colors duration-500 overflow-hidden">
+                    <div className="max-w-2xl mx-auto px-4">
+                        <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar">
+                            {[{ key: "popularity" as const, label: "Popular", Icon: Flame }, { key: "date" as const, label: "Latest", Icon: Clock }].map(s => (
+                                <button key={s.key} onClick={() => setActiveSort(s.key)} className={`flex items-center gap-1 px-2.5 py-1 shrink-0 rounded-full text-[10.5px] font-medium transition-all ${activeSort === s.key ? "bg-zinc-800 text-zinc-100 dark:bg-zinc-200 dark:text-zinc-900" : "bg-zinc-100 dark:bg-zinc-800/80 text-zinc-500"}`}>
+                                    <s.Icon size={10} /> {s.label}
+                                </button>
+                            ))}
+                            <div className="w-px h-3.5 bg-zinc-200 dark:bg-zinc-800 mx-0.5 shrink-0" />
+                            {CATEGORIES.map(cat => (
+                                <button key={cat.name} onClick={() => setActiveCategory(activeCategory === cat.name ? null : cat.name)} className={`flex items-center gap-1 px-2.5 py-1 shrink-0 rounded-full text-[10.5px] font-medium transition-all whitespace-nowrap ${activeCategory === cat.name ? "bg-zinc-800 text-zinc-100 dark:bg-zinc-200 dark:text-zinc-900" : "bg-zinc-100 dark:bg-zinc-800/80 text-zinc-500"}`}>
+                                    <cat.icon size={10} /> {cat.name.split(" & ")[0]}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            )}
 
             {/* ═══ CONTENT ═══ */}
             <main className="max-w-2xl mx-auto px-4 pt-6 pb-32">
@@ -331,14 +374,14 @@ function ExploreContent() {
                             <div ref={resultsRef} className="flex items-center justify-between mb-2 scroll-mt-24">
                                 <div className="flex items-center gap-2">
                                     {activeCategory && <button onClick={() => setActiveCategory(null)} className="text-[10px] bg-zinc-800 dark:bg-zinc-200 text-zinc-100 dark:text-zinc-900 px-2 py-0.5 rounded-full font-medium flex items-center gap-1">{activeCategory} <X size={9} /></button>}
-                                    <span className="text-[11px] text-zinc-400">{isSearchingApi ? "Mencari..." : `${searchResults.length} hasil`}</span>
+                                    <span className="text-[11px] text-zinc-400">{isSearchingApi ? "Searching..." : `${searchResults.length} results`}</span>
                                 </div>
-                                <button onClick={() => { setSearchQuery(""); setActiveCategory(null); }} className="text-[10px] text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300">Bersihkan</button>
+                                <button onClick={() => { setSearchQuery(""); setActiveCategory(null); }} className="text-[10px] text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300">Clear</button>
                             </div>
                             {isSearchingApi ? <Skeleton n={5} /> : searchResults.length > 0 ? (
                                 <div>{searchResults.map((a, i) => <ArticleRow key={a.id} article={a} i={i} />)}</div>
                             ) : (
-                                <div className="py-16 text-center"><Search size={24} className="mx-auto text-zinc-300 dark:text-zinc-700 mb-2" /><p className="text-[12px] text-zinc-500">Tulisan tidak ditemukan</p></div>
+                                <div className="py-16 text-center"><Search size={24} className="mx-auto text-zinc-300 dark:text-zinc-700 mb-2" /><p className="text-[12px] text-zinc-500">No articles found</p></div>
                             )}
                         </motion.div>
                     ) : (
@@ -348,19 +391,19 @@ function ExploreContent() {
                             <div className="flex items-center bg-zinc-50 dark:bg-zinc-900/60 rounded-xl border border-zinc-200/50 dark:border-zinc-800/50 divide-x divide-zinc-200/60 dark:divide-zinc-800/60">
                                 <div className="flex-1 text-center py-0.5">
                                     <span className="text-[16px] font-bold text-zinc-900 dark:text-zinc-100 tabular-nums">{allCount}</span>
-                                    <span className="text-[9px] text-zinc-500 ml-1.5">tulisan</span>
+                                    <span className="text-[9px] text-zinc-500 ml-1.5">articles</span>
                                 </div>
                                 <div className="flex-1 text-center py-0.5">
                                     <span className="text-[16px] font-bold text-zinc-900 dark:text-zinc-100 tabular-nums">{readStats.readCount}</span>
-                                    <span className="text-[9px] text-zinc-500 ml-1.5">dibaca</span>
+                                    <span className="text-[9px] text-zinc-500 ml-1.5">read</span>
                                 </div>
                                 <div className="flex-1 text-center py-0.5">
                                     <span className="text-[16px] font-bold text-zinc-900 dark:text-zinc-100 tabular-nums">{readStats.bookmarkCount}</span>
-                                    <span className="text-[9px] text-zinc-500 ml-1.5">disimpan</span>
+                                    <span className="text-[9px] text-zinc-500 ml-1.5">saved</span>
                                 </div>
                                 <div className="flex-1 text-center py-0.5">
                                     <span className="text-[16px] font-bold text-zinc-900 dark:text-zinc-100 tabular-nums">{completionPct}%</span>
-                                    <span className="text-[9px] text-zinc-500 ml-1.5">selesai</span>
+                                    <span className="text-[9px] text-zinc-500 ml-1.5">done</span>
                                 </div>
                             </div>
 
@@ -381,7 +424,7 @@ function ExploreContent() {
                                             </div>
                                             <h3 className="text-[14px] font-bold text-zinc-900 dark:text-zinc-100 mb-1.5">Your feed is waiting</h3>
                                             <p className="text-[11.5px] text-zinc-500 dark:text-zinc-400 mb-4 max-w-[240px] mx-auto leading-relaxed">
-                                                Read a few articles to teach the algorithm what you like. We'll curate the best pieces for you.
+                                                Read a few articles to train the algorithm on what you like. I'll curate the best pieces for you.
                                             </p>
                                             <button
                                                 onClick={() => {
@@ -405,8 +448,8 @@ function ExploreContent() {
                             {/* Latest */}
                             <section>
                                 <div className="flex items-center justify-between">
-                                    <Label color="emerald">New Additions</Label>
-                                    <span className="text-[10px] text-zinc-400 -mt-3">terbaru</span>
+                                    <Label color="emerald">Recently Added</Label>
+                                    <span className="text-[10px] text-zinc-400 -mt-3">latest</span>
                                 </div>
                                 {isLoading ? <Skeleton n={4} /> : <div>{latestArticles.map((a, i) => <ArticleRow key={a.id} article={a} i={i} />)}</div>}
                             </section>
@@ -415,7 +458,7 @@ function ExploreContent() {
                             <section id="trending-section">
                                 <div className="flex items-center justify-between">
                                     <Label color="blue">Trending Now</Label>
-                                    <span className="text-[10px] text-zinc-400 -mt-3">populer</span>
+                                    <span className="text-[10px] text-zinc-400 -mt-3">popular</span>
                                 </div>
                                 {isLoading ? <Skeleton n={5} /> : <div>{trendingArticles.map((a, i) => <ArticleRow key={a.id} article={a} i={i} rank />)}</div>}
                             </section>
@@ -438,7 +481,7 @@ function ExploreContent() {
                                                 <div className="flex-1 min-w-0">
                                                     <p className="text-[12.5px] font-medium text-zinc-900 dark:text-zinc-100">{cat.name}</p>
                                                 </div>
-                                                <span className="text-[10.5px] text-zinc-400 tabular-nums shrink-0">{count} tulisan</span>
+                                                <span className="text-[10.5px] text-zinc-400 tabular-nums shrink-0">{count} articles</span>
                                                 <ChevronRight size={12} className="text-zinc-300 dark:text-zinc-700 shrink-0" />
                                             </button>
                                         );
@@ -470,6 +513,48 @@ function ExploreContent() {
                     )}
                 </AnimatePresence>
             </main>
+
+            {/* ═══ ATLAS MENU ═══ */}
+            <AnimatePresence>
+                {isAtlasMenuOpen && (
+                    <motion.div
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: 10 }}
+                        transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+                        className="fixed inset-0 z-[100] bg-[#fafaf8]/95 dark:bg-[#050505]/95 backdrop-blur-3xl flex flex-col pt-14"
+                    >
+                        <nav className="flex-1 px-10 flex flex-col pt-[18vh] gap-3">
+                            <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-zinc-400 mb-6 opacity-60">Knowledge Archives</p>
+                            {VERTICALS.map((v, i) => (
+                                <motion.div
+                                    key={v.key}
+                                    initial={{ opacity: 0, x: -20 }}
+                                    animate={{ opacity: 1, x: 0 }}
+                                    transition={{ delay: i * 0.08, duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+                                >
+                                    <Link
+                                        href={v.href}
+                                        onClick={() => setIsAtlasMenuOpen(false)}
+                                        className="group py-2.5 block"
+                                    >
+                                        <div className="flex items-center gap-6">
+                                            <span className="text-[11px] font-bold text-zinc-300 dark:text-zinc-700 tabular-nums">0{i + 1}</span>
+                                            <span
+                                                className="text-[36px] md:text-[52px] font-light tracking-tight text-zinc-900 dark:text-zinc-100 group-hover:italic transition-all duration-300"
+                                                style={{ fontFamily: "'Playfair Display', serif" }}
+                                            >
+                                                {v.label}
+                                            </span>
+                                        </div>
+                                    </Link>
+                                </motion.div>
+                            ))}
+                        </nav>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
         </div>
     );
 }

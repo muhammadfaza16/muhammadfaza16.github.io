@@ -415,8 +415,8 @@ export default function PersonalCMS() {
         } else if (activeCategory === "books") {
             if (!formExtra) { toast.error("Author is required"); setIsSubmitting(false); setUploadStatus("idle"); return; }
             const res = editItemId
-                ? await updateBook(editItemId, formTitle, formExtra, "", formNotes, imageUrl)
-                : await createBook(formTitle, formExtra, "", formNotes, imageUrl);
+                ? await updateBook(editItemId, { title: formTitle, author: formExtra, review: formNotes, imageUrl })
+                : await createBook({ title: formTitle, author: formExtra, review: formNotes, imageUrl });
             success = res.success; data = res.data; errorMsg = res.error || errorMsg;
         } else if (activeCategory === "wishlist") {
             const res = editItemId

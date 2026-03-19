@@ -305,37 +305,273 @@ export async function deleteWritingArticle(id: string) {
 // ==========================================
 // BOOKS (Book Model)
 // ==========================================
-export async function getBooks() {
+export async function getBooks(options?: { category?: string; status?: string; sortBy?: string }) {
     try {
-        const books = await prisma.book.findMany({ orderBy: { createdAt: "desc" } });
+        const where: any = {};
+        if (options?.category) where.category = options.category;
+        if (options?.status) where.status = options.status;
+
+        const orderBy = options?.sortBy === 'rating'
+            ? { rating: 'desc' as const }
+            : { createdAt: 'desc' as const };
+
+        const books = await prisma.book.findMany({ where, orderBy });
         return { success: true, data: books };
     } catch (e: any) { return { success: false, error: e.message }; }
 }
 
-export async function createBook(title: string, author: string, url: string, review: string, imageUrl?: string) {
-    if (!title || !author) return { success: false, error: "Title and author required" };
+export async function getBookById(id: string) {
     try {
-        const book = await prisma.book.create({
-            data: { title, author, url, review: review || "", imageUrl: imageUrl || null }
-        });
+        const book = await prisma.book.findUnique({ where: { id } });
+        if (!book) return { success: false, error: "Book not found" };
         return { success: true, data: book };
     } catch (e: any) { return { success: false, error: e.message }; }
 }
 
-export async function updateBook(id: string, title: string, author: string, url: string, review: string, imageUrl?: string) {
-    if (!title || !author) return { success: false, error: "Title and author required" };
+export async function createBook(data: {
+    title: string; author: string; url?: string; review?: string;
+    imageUrl?: string; status?: string; verdict?: string;
+    takeaways?: string; category?: string; rating?: number;
+    finishedAt?: string;
+}) {
+    if (!data.title || !data.author) return { success: false, error: "Title and author required" };
     try {
-        const book = await prisma.book.update({
-            where: { id },
-            data: { title, author, url, review: review || "", imageUrl: imageUrl || null }
+        const book = await prisma.book.create({
+            data: {
+                title: data.title,
+                author: data.author,
+                url: data.url || null,
+                review: data.review || null,
+                imageUrl: data.imageUrl || null,
+                status: data.status || 'want-to-read',
+                verdict: data.verdict || null,
+                takeaways: data.takeaways || null,
+                category: data.category || null,
+                rating: data.rating || 0,
+                finishedAt: data.finishedAt ? new Date(data.finishedAt) : null,
+            }
         });
+        revalidatePath('/curation/books');
+        return { success: true, data: book };
+    } catch (e: any) { return { success: false, error: e.message }; }
+}
+
+export async function updateBook(id: string, data: {
+    title?: string; author?: string; url?: string; review?: string;
+    imageUrl?: string; status?: string; verdict?: string;
+    takeaways?: string; category?: string; rating?: number;
+    finishedAt?: string;
+}) {
+    try {
+        const payload: any = { ...data };
+        if (data.finishedAt) payload.finishedAt = new Date(data.finishedAt);
+        else if (data.finishedAt === null) payload.finishedAt = null;
+        delete payload.finishedAt;
+        if (data.finishedAt) payload.finishedAt = new Date(data.finishedAt);
+
+        const book = await prisma.book.update({ where: { id }, data: payload });
+        revalidatePath('/curation/books');
         return { success: true, data: book };
     } catch (e: any) { return { success: false, error: e.message }; }
 }
 
 export async function deleteBook(id: string) {
-    try { await prisma.book.delete({ where: { id } }); return { success: true }; }
+    try {
+        await prisma.book.delete({ where: { id } });
+        revalidatePath('/curation/books');
+        return { success: true };
+    }
     catch (e: any) { return { success: false, error: e.message }; }
+}
+
+// ==========================================
+// COURSES / SKILLS LAB (Course Model)
+// ==========================================
+export async function getCourses(options?: { category?: string; difficulty?: string }) {
+    try {
+        const where: any = {};
+        if (options?.category) where.category = options.category;
+        if (options?.difficulty) where.difficulty = options.difficulty;
+
+        const courses = await prisma.course.findMany({ where, orderBy: { createdAt: 'desc' } });
+        return { success: true, data: courses };
+    } catch (e: any) { return { success: false, error: e.message }; }
+}
+
+export async function getCourseById(id: string) {
+    try {
+        const course = await prisma.course.findUnique({ where: { id } });
+        if (!course) return { success: false, error: "Course not found" };
+        return { success: true, data: course };
+    } catch (e: any) { return { success: false, error: e.message }; }
+}
+
+export async function createCourse(data: {
+    title: string; content?: string; source?: string; sourceType?: string;
+    category?: string; difficulty?: string; imageUrl?: string; url?: string;
+}) {
+    if (!data.title) return { success: false, error: "Title is required" };
+    try {
+        const course = await prisma.course.create({
+            data: {
+                title: data.title,
+                content: data.content || null,
+                source: data.source || null,
+                sourceType: data.sourceType || null,
+                category: data.category || null,
+                difficulty: data.difficulty || null,
+                imageUrl: data.imageUrl || null,
+                url: data.url || null,
+            }
+        });
+        revalidatePath('/curation/skills');
+        return { success: true, data: course };
+    } catch (e: any) { return { success: false, error: e.message }; }
+}
+
+export async function updateCourse(id: string, data: {
+    title?: string; content?: string; source?: string; sourceType?: string;
+    category?: string; difficulty?: string; imageUrl?: string; url?: string;
+}) {
+    try {
+        const course = await prisma.course.update({ where: { id }, data });
+        revalidatePath('/curation/skills');
+        return { success: true, data: course };
+    } catch (e: any) { return { success: false, error: e.message }; }
+}
+
+export async function deleteCourse(id: string) {
+    try {
+        await prisma.course.delete({ where: { id } });
+        revalidatePath('/curation/skills');
+        return { success: true };
+    } catch (e: any) { return { success: false, error: e.message }; }
+}
+
+// ==========================================
+// FRAMEWORKS (Framework Model)
+// ==========================================
+export async function getFrameworks(options?: { category?: string; type?: string }) {
+    try {
+        const where: any = {};
+        if (options?.category) where.category = options.category;
+        if (options?.type) where.type = options.type;
+
+        const frameworks = await prisma.framework.findMany({ where, orderBy: { createdAt: 'desc' } });
+        return { success: true, data: frameworks };
+    } catch (e: any) { return { success: false, error: e.message }; }
+}
+
+export async function getFrameworkById(id: string) {
+    try {
+        const framework = await prisma.framework.findUnique({ where: { id } });
+        if (!framework) return { success: false, error: "Framework not found" };
+        return { success: true, data: framework };
+    } catch (e: any) { return { success: false, error: e.message }; }
+}
+
+export async function createFramework(data: {
+    name: string; type?: string; summary?: string; content?: string;
+    source?: string; whenToUse?: string; category?: string; imageUrl?: string;
+}) {
+    if (!data.name) return { success: false, error: "Name is required" };
+    try {
+        const framework = await prisma.framework.create({
+            data: {
+                name: data.name,
+                type: data.type || 'mental-model',
+                summary: data.summary || null,
+                content: data.content || null,
+                source: data.source || null,
+                whenToUse: data.whenToUse || null,
+                category: data.category || null,
+                imageUrl: data.imageUrl || null,
+            }
+        });
+        revalidatePath('/curation/frameworks');
+        return { success: true, data: framework };
+    } catch (e: any) { return { success: false, error: e.message }; }
+}
+
+export async function updateFramework(id: string, data: {
+    name?: string; type?: string; summary?: string; content?: string;
+    source?: string; whenToUse?: string; category?: string; imageUrl?: string;
+}) {
+    try {
+        const framework = await prisma.framework.update({ where: { id }, data });
+        revalidatePath('/curation/frameworks');
+        return { success: true, data: framework };
+    } catch (e: any) { return { success: false, error: e.message }; }
+}
+
+export async function deleteFramework(id: string) {
+    try {
+        await prisma.framework.delete({ where: { id } });
+        revalidatePath('/curation/frameworks');
+        return { success: true };
+    } catch (e: any) { return { success: false, error: e.message }; }
+}
+
+// ==========================================
+// CODEX (Codex Model)
+// ==========================================
+export async function getCodexEntries(options?: { category?: string; domain?: string }) {
+    try {
+        const where: any = {};
+        if (options?.category) where.category = options.category;
+        if (options?.domain) where.domain = options.domain;
+
+        const entries = await prisma.codex.findMany({ where, orderBy: { createdAt: 'desc' } });
+        return { success: true, data: entries };
+    } catch (e: any) { return { success: false, error: e.message }; }
+}
+
+export async function getCodexById(id: string) {
+    try {
+        const entry = await prisma.codex.findUnique({ where: { id } });
+        if (!entry) return { success: false, error: "Codex entry not found" };
+        return { success: true, data: entry };
+    } catch (e: any) { return { success: false, error: e.message }; }
+}
+
+export async function createCodexEntry(data: {
+    title: string; domain?: string; content?: string;
+    conviction?: string; status?: string; category?: string;
+}) {
+    if (!data.title) return { success: false, error: "Title is required" };
+    try {
+        const entry = await prisma.codex.create({
+            data: {
+                title: data.title,
+                domain: data.domain || null,
+                content: data.content || null,
+                conviction: data.conviction || null,
+                status: data.status || 'evolving',
+                category: data.category || null,
+            }
+        });
+        revalidatePath('/curation/codex');
+        return { success: true, data: entry };
+    } catch (e: any) { return { success: false, error: e.message }; }
+}
+
+export async function updateCodexEntry(id: string, data: {
+    title?: string; domain?: string; content?: string;
+    conviction?: string; status?: string; category?: string;
+}) {
+    try {
+        const entry = await prisma.codex.update({ where: { id }, data });
+        revalidatePath('/curation/codex');
+        return { success: true, data: entry };
+    } catch (e: any) { return { success: false, error: e.message }; }
+}
+
+export async function deleteCodexEntry(id: string) {
+    try {
+        await prisma.codex.delete({ where: { id } });
+        revalidatePath('/curation/codex');
+        return { success: true };
+    } catch (e: any) { return { success: false, error: e.message }; }
 }
 
 // ==========================================

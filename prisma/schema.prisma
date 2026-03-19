@@ -70,15 +70,71 @@ model Post {
 }
 
 model Book {
+  id         String    @id @default(uuid())
+  title      String
+  author     String
+  review     String?
+  rating     Int       @default(0)
+  status     String    @default("want-to-read")
+  verdict    String?
+  takeaways  String?
+  category   String?
+  finishedAt DateTime?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  imageUrl   String?   @map("image_url")
+  url        String?
+
+  @@index([category])
+  @@index([status])
+}
+
+model Course {
+  id         String   @id @default(uuid())
+  title      String
+  content    String?
+  source     String?
+  sourceType String?
+  category   String?
+  difficulty String?
+  imageUrl   String?  @map("image_url")
+  url        String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([category])
+}
+
+model Framework {
   id        String   @id @default(uuid())
-  title     String
-  author    String
-  review    String?
-  rating    Int      @default(0)
+  name      String
+  type      String   @default("mental-model")
+  summary   String?
+  content   String?
+  source    String?
+  whenToUse String?
+  category  String?
+  imageUrl  String?  @map("image_url")
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  imageUrl  String?  @map("image_url")
-  url       String?
+
+  @@index([category])
+  @@index([type])
+}
+
+model Codex {
+  id         String   @id @default(uuid())
+  title      String
+  domain     String?
+  content    String?
+  conviction String?
+  status     String   @default("evolving")
+  category   String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([category])
+  @@index([domain])
 }
 
 model WishlistItem {

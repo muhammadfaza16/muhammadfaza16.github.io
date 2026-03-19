@@ -82,6 +82,8 @@ export async function GET(request: Request) {
         const sortOrder = (searchParams.get("sortOrder") as "asc" | "desc") || "desc";
         const limitStr = searchParams.get("limit");
         const limit = limitStr ? parseInt(limitStr) : 10;
+        const offsetStr = searchParams.get("offset");
+        const offset = offsetStr ? parseInt(offsetStr) : 0;
 
         // Build WHERE with a single explicit AND array — all conditions go here
         const conditions: any[] = [];
@@ -111,7 +113,7 @@ export async function GET(request: Request) {
 
         const where = conditions.length === 1 ? conditions[0] : { AND: conditions };
 
-        const getArticlesCacheKey = `curation-feed-v3-${sortBy}-${sortOrder}-${limit}-${category || 'none'}-${queryText || 'none'}-${cursor || 'none'}`;
+        const getArticlesCacheKey = `curation-feed-v3-${sortBy}-${sortOrder}-${limit}-${category || 'none'}-${queryText || 'none'}-${cursor || 'none'}-${offset}`;
 
         const getCachedArticles = unstable_cache(
             async () => {
@@ -147,6 +149,8 @@ export async function GET(request: Request) {
                 if (cursor) {
                     query.cursor = { id: cursor };
                     query.skip = 1;
+                } else if (offset > 0) {
+                    query.skip = offset;
                 }
 
                 const articles = await prisma.article.findMany(query);

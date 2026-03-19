@@ -55,7 +55,7 @@ const THEMES = {
 
 type ThemeKey = keyof typeof THEMES;
 
-const LABEL_CLASS = "text-[11px] font-semibold uppercase tracking-wider text-zinc-400/80 ml-1";
+const LABEL_CLASS = "text-[11px] font-semibold uppercase tracking-wider text-zinc-500/80 dark:text-zinc-400/80 ml-1";
 
 const CATEGORIES = [
     { name: "AI & Tech", emoji: "🤖" },
@@ -1027,7 +1027,7 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
                                 </div>
                             )}
 
-                            <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-zinc-400 dark:text-zinc-500 font-sans text-[13px] font-medium">
+                            <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-zinc-500 dark:text-zinc-400 font-sans text-[13px] font-medium">
                                 <span className="text-zinc-500 dark:text-zinc-400">
                                     {new Date(article.createdAt).toLocaleDateString('en-US', {
                                         year: 'numeric', month: 'long', day: 'numeric'
@@ -1470,7 +1470,7 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
                                         <span className="font-bold text-[14px] font-sans" style={{ color: THEMES[readerSettings.theme].text }}>
                                             {comment.authorName}
                                         </span>
-                                        <span className="text-[11px] font-medium text-zinc-400 uppercase tracking-widest">
+                                        <span className="text-[11px] font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-widest">
                                             {new Date(comment.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
                                         </span>
                                     </div>

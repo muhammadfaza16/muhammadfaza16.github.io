@@ -33,8 +33,9 @@ export default function CurationPlatformLayout({
     const isLibrary = pathSegments.length === 2 && pathSegments[1] === 'library';
     const isProfile = pathSegments.length === 2 && pathSegments[1] === 'profile';
     const isDashboard = pathSegments.length === 2 && pathSegments[1] === 'dashboard';
+    const isVerticalList = pathSegments.length === 2 && ['books', 'skills', 'frameworks', 'codex'].includes(pathSegments[1]);
 
-    const shouldShowDock = isHome || isExplore || isLibrary || isProfile || isDashboard;
+    const shouldShowDock = isHome || isExplore || isLibrary || isProfile || isDashboard || isVerticalList;
 
     const navVariants = {
         hidden: { y: 100, opacity: 0 },
@@ -75,13 +76,13 @@ export default function CurationPlatformLayout({
                                     transition-all duration-300
                                     ${isActive
                                         ? 'text-zinc-950 dark:text-white'
-                                        : 'text-zinc-400 dark:text-zinc-500 hover:text-zinc-600 dark:hover:text-zinc-300'}
+                                        : 'text-zinc-500 dark:text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300'}
                                 `}>
                                     <Icon size={17} strokeWidth={isActive ? 2 : 1.5} />
                                 </div>
                                 <span className={`
                                     text-[11px] leading-none font-light tracking-tight transition-colors duration-300
-                                    ${isActive ? 'text-zinc-900 dark:text-white' : 'text-zinc-400 dark:text-zinc-500'}
+                                    ${isActive ? 'text-zinc-900 dark:text-white' : 'text-zinc-500 dark:text-zinc-500'}
                                 `}>
                                     {item.name}
                                 </span>
