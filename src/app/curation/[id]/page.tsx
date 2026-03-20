@@ -3,7 +3,7 @@
 import { use, useEffect, useState, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { motion, useScroll, useSpring, useMotionValueEvent, AnimatePresence, useTransform } from "framer-motion";
-import { ArrowLeft, ChevronLeft, Headphones, Clock, CheckCircle, Share, Trash2, Globe, Pencil, Camera, X, Clipboard, ImageIcon, MessageSquareQuote, ChevronsUp, Maximize, Minimize, Minus, Plus, Type, Bookmark, Volume2, VolumeX, Pause, Play, FolderPlus, FolderCheck, Check, Sparkles, ChevronDown, ChevronUp, Heart, RefreshCw, MessageSquare, Download } from "lucide-react";
+import { ArrowLeft, ChevronLeft, Headphones, Clock, CheckCircle, Share, Trash2, Globe, Pencil, Camera, X, Clipboard, ImageIcon, MessageSquareQuote, ChevronsUp, Maximize, Minimize, Minus, Plus, Type, Bookmark, Volume2, VolumeX, Pause, Play, FolderPlus, FolderCheck, Check, Sparkles, ChevronDown, ChevronUp, Heart, RefreshCw, MessageSquare, Download, FileText } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import ReactMarkdown from "react-markdown";
@@ -64,6 +64,14 @@ const CATEGORIES = [
     { name: "Productivity & Deep Work", emoji: "⚡" },
     { name: "Growth & Systems", emoji: "📈" },
 ];
+
+const CATEGORY_COLOR_MAP: Record<string, { bg: string, text: string, darkBg: string, darkText: string }> = {
+    "AI & Tech": { bg: "bg-blue-50/80", text: "text-blue-600", darkBg: "dark:bg-blue-500/10", darkText: "dark:text-blue-400" },
+    "Wealth & Business": { bg: "bg-amber-50/80", text: "text-amber-600", darkBg: "dark:bg-amber-500/10", darkText: "dark:text-amber-400" },
+    "Philosophy & Psychology": { bg: "bg-indigo-50/80", text: "text-indigo-600", darkBg: "dark:bg-indigo-500/10", darkText: "dark:text-indigo-400" },
+    "Productivity & Deep Work": { bg: "bg-emerald-50/80", text: "text-emerald-600", darkBg: "dark:bg-emerald-500/10", darkText: "dark:text-emerald-400" },
+    "Growth & Systems": { bg: "bg-rose-50/80", text: "text-rose-600", darkBg: "dark:bg-rose-500/10", darkText: "dark:text-rose-400" },
+};
 
 import { uploadImageToSupabase } from "@/lib/uploadImage";
 import { BottomSheet, ImagePicker, QuickPasteInput, RichTextEditor } from "@/components/sanctuary";
@@ -585,38 +593,82 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
 
     if (isLoading) {
         return (
-            <div className="min-h-screen bg-[#fafaf8] antialiased">
-                {/* Hero skeleton */}
-                <div className="w-full h-[55vh] bg-zinc-200 animate-pulse rounded-b-[2.5rem]" />
+            <div className="min-h-screen bg-white dark:bg-[#030303] antialiased">
+                {/* Back button row skeleton */}
+                <div className="max-w-3xl mx-auto px-5 md:px-12 py-3 flex items-center">
+                    <div className="w-8 h-8 rounded-full bg-zinc-100 dark:bg-zinc-900 border border-zinc-200/50 dark:border-zinc-800/50 relative overflow-hidden">
+                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 dark:via-white/5 to-transparent animate-shimmer" />
+                    </div>
+                </div>
+
+                {/* Hero skeleton - Adjusted size */}
+                <div className="w-full h-[38vh] bg-zinc-100 dark:bg-zinc-900 relative overflow-hidden">
+                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 dark:via-white/5 to-transparent animate-shimmer" />
+                </div>
 
                 {/* Content skeleton */}
-                <div className="max-w-[65ch] mx-auto px-5 pt-10 space-y-6">
-                    {/* Title */}
-                    <div className="space-y-3">
-                        <div className="h-8 bg-zinc-200 rounded-xl animate-pulse w-[90%]" />
-                        <div className="h-8 bg-zinc-200 rounded-xl animate-pulse w-[60%]" />
+                <div className="max-w-3xl mx-auto px-5 md:px-12 pt-10 space-y-8">
+                    {/* Title and Category */}
+                    <div className="space-y-4">
+                        <div className="h-3 w-20 bg-blue-100/50 dark:bg-blue-900/20 rounded-full relative overflow-hidden">
+                            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 dark:via-white/10 to-transparent animate-shimmer" />
+                        </div>
+                        <div className="space-y-3">
+                            <div className="h-9 bg-zinc-100 dark:bg-zinc-900 rounded-xl relative overflow-hidden w-[95%]">
+                                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 dark:via-white/5 to-transparent animate-shimmer" />
+                            </div>
+                            <div className="h-9 bg-zinc-100 dark:bg-zinc-900 rounded-xl relative overflow-hidden w-[70%]">
+                                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 dark:via-white/5 to-transparent animate-shimmer" />
+                            </div>
+                        </div>
                     </div>
 
                     {/* Meta bar */}
-                    <div className="flex items-center gap-3">
-                        <div className="h-5 w-32 bg-zinc-100 rounded-full animate-pulse" />
-                        <div className="h-5 w-20 bg-zinc-100 rounded-full animate-pulse" />
+                    <div className="flex items-center gap-4 border-b border-zinc-100 dark:border-zinc-900 pb-8">
+                        <div className="h-4 w-32 bg-zinc-50 dark:bg-zinc-900/50 rounded-full relative overflow-hidden">
+                            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 dark:via-white/5 to-transparent animate-shimmer" />
+                        </div>
+                        <div className="h-1 w-1 rounded-full bg-zinc-200 dark:bg-zinc-800" />
+                        <div className="h-4 w-20 bg-zinc-50 dark:bg-zinc-900/50 rounded-full relative overflow-hidden">
+                            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 dark:via-white/5 to-transparent animate-shimmer" />
+                        </div>
                     </div>
 
-                    {/* Paragraph lines */}
-                    <div className="space-y-3 pt-4">
-                        <div className="h-4 bg-zinc-100 rounded animate-pulse w-full" />
-                        <div className="h-4 bg-zinc-100 rounded animate-pulse w-[95%]" />
-                        <div className="h-4 bg-zinc-100 rounded animate-pulse w-[88%]" />
-                        <div className="h-4 bg-zinc-100 rounded animate-pulse w-full" />
-                        <div className="h-4 bg-zinc-100 rounded animate-pulse w-[70%]" />
+                    {/* Paragraph lines - Body Content */}
+                    <div className="space-y-4 pt-2">
+                        <div className="h-4 bg-zinc-50 dark:bg-zinc-900/40 rounded relative overflow-hidden w-full">
+                            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 dark:via-white/5 to-transparent animate-shimmer" />
+                        </div>
+                        <div className="h-4 bg-zinc-50 dark:bg-zinc-900/40 rounded relative overflow-hidden w-[96%]">
+                            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 dark:via-white/5 to-transparent animate-shimmer" />
+                        </div>
+                        <div className="h-4 bg-zinc-50 dark:bg-zinc-900/40 rounded relative overflow-hidden w-[98%]">
+                            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 dark:via-white/5 to-transparent animate-shimmer" />
+                        </div>
+                        <div className="h-4 bg-zinc-50 dark:bg-zinc-900/40 rounded relative overflow-hidden w-[92%]">
+                            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 dark:via-white/5 to-transparent animate-shimmer" />
+                        </div>
+                        <div className="h-4 bg-zinc-50 dark:bg-zinc-900/40 rounded relative overflow-hidden w-[85%]">
+                            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 dark:via-white/5 to-transparent animate-shimmer" />
+                        </div>
+                        <div className="h-4 bg-zinc-50 dark:bg-zinc-900/40 rounded relative overflow-hidden w-[40%]">
+                            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 dark:via-white/5 to-transparent animate-shimmer" />
+                        </div>
                     </div>
 
-                    <div className="space-y-3 pt-2">
-                        <div className="h-4 bg-zinc-100 rounded animate-pulse w-full" />
-                        <div className="h-4 bg-zinc-100 rounded animate-pulse w-[92%]" />
-                        <div className="h-4 bg-zinc-100 rounded animate-pulse w-[85%]" />
-                        <div className="h-4 bg-zinc-100 rounded animate-pulse w-[50%]" />
+                    <div className="space-y-4 pt-4">
+                        <div className="h-4 bg-zinc-50 dark:bg-zinc-900/40 rounded relative overflow-hidden w-full">
+                            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 dark:via-white/5 to-transparent animate-shimmer" />
+                        </div>
+                        <div className="h-4 bg-zinc-50 dark:bg-zinc-900/40 rounded relative overflow-hidden w-[94%]">
+                            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 dark:via-white/5 to-transparent animate-shimmer" />
+                        </div>
+                        <div className="h-4 bg-zinc-50 dark:bg-zinc-900/40 rounded relative overflow-hidden w-[97%]">
+                            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 dark:via-white/5 to-transparent animate-shimmer" />
+                        </div>
+                        <div className="h-4 bg-zinc-50 dark:bg-zinc-900/40 rounded relative overflow-hidden w-[30%]">
+                            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 dark:via-white/5 to-transparent animate-shimmer" />
+                        </div>
                     </div>
                 </div>
             </div>
@@ -919,10 +971,10 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
             <AnimatePresence>
                 {isZenMode && (
                     <motion.button
-                        initial={{ y: 60, opacity: 0 }}
-                        animate={{ y: 0, opacity: 1 }}
-                        exit={{ y: 60, opacity: 0 }}
-                        transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: 0.25, ease: "linear" }}
                         whileHover={{ scale: 1.1, opacity: 1 }}
                         whileTap={{ scale: 0.9 }}
                         onClick={() => setIsZenMode(false)}
@@ -934,19 +986,16 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
                 )}
             </AnimatePresence>
 
-
-
-
             <motion.div 
                 animate={{ filter: isZenMode ? "grayscale(30%) brightness(0.8)" : "grayscale(0%) brightness(1)" }} 
                 transition={{ duration: 0.8 }} 
                 className={isZenMode ? "pointer-events-none" : ""}
             >
                 {/* Back Button Row - Balanced & Minimal */}
-                <div className="max-w-3xl mx-auto px-5 md:px-12 py-3 flex items-center">
+                <div className="max-w-3xl mx-auto px-5 md:px-12 py-3 flex items-center justify-between">
                     <Link
                         href="/curation"
-                        className="flex items-center gap-2 text-zinc-400 hover:text-zinc-900 transition-colors group"
+                        className={`flex items-center gap-2 transition-all group ${isZenMode ? "opacity-0 pointer-events-none" : "text-zinc-400 hover:text-zinc-900"}`}
                         title="Back to Feed"
                     >
                         <div className="w-8 h-8 flex items-center justify-center -ml-2">
@@ -1362,9 +1411,11 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
                             <h3 className="text-[18px] font-bold tracking-tight font-sans" style={{ color: THEMES[readerSettings.theme].text }}>
                                 Read Next
                             </h3>
-                            <span className="bg-zinc-100 text-zinc-500 text-[10px] uppercase tracking-wider font-bold px-2 py-0.5 rounded ml-2 dark:bg-zinc-800 dark:text-zinc-400">
-                                {article.category}
-                            </span>
+                            {article.category && CATEGORY_COLOR_MAP[article.category] && (
+                                <span className={`text-[10px] uppercase tracking-wider font-bold px-2 py-0.5 rounded ml-2 ${CATEGORY_COLOR_MAP[article.category].bg} ${CATEGORY_COLOR_MAP[article.category].text} ${CATEGORY_COLOR_MAP[article.category].darkBg} ${CATEGORY_COLOR_MAP[article.category].darkText}`}>
+                                    {article.category}
+                                </span>
+                            )}
                         </div>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             {relatedArticles.map((rel) => (
@@ -1381,13 +1432,40 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
                                                 />
                                             </div>
                                         )}
-                                        <div>
+                                        <div className="flex flex-col flex-1">
                                             <h4 className="font-bold font-sans text-[15px] leading-snug mb-2 transition-colors line-clamp-2" style={{ color: THEMES[readerSettings.theme].text }}>
                                                 {formatTitle(rel.title)}
                                             </h4>
-                                            <div className="text-[12px] text-zinc-500 flex items-center gap-1.5 font-medium">
-                                                <Clock size={12} />
-                                                {new Date(rel.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                                            
+                                            {/* Metrics & Meta */}
+                                            <div className="mt-auto flex items-center justify-between">
+                                                <div className="text-[11px] text-zinc-500 flex items-center gap-1.5 font-medium opacity-60">
+                                                    <Clock size={11} />
+                                                    {new Date(rel.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                                                </div>
+
+                                                {(rel.likes || rel.reposts || rel.replies) && (
+                                                    <div className="flex items-center gap-3">
+                                                        {rel.likes ? (
+                                                            <div className="flex items-center gap-1 opacity-40">
+                                                                <Heart size={10} className="stroke-[2.5]" />
+                                                                <span className="text-[10px] font-bold tabular-nums">{formatMetrics(rel.likes)}</span>
+                                                            </div>
+                                                        ) : null}
+                                                        {rel.reposts ? (
+                                                            <div className="flex items-center gap-1 opacity-40">
+                                                                <RefreshCw size={10} className="stroke-[2.5]" />
+                                                                <span className="text-[10px] font-bold tabular-nums">{formatMetrics(rel.reposts)}</span>
+                                                            </div>
+                                                        ) : null}
+                                                        {rel.replies ? (
+                                                            <div className="flex items-center gap-1 opacity-40">
+                                                                <MessageSquare size={10} className="stroke-[2.5]" />
+                                                                <span className="text-[10px] font-bold tabular-nums">{formatMetrics(rel.replies)}</span>
+                                                            </div>
+                                                        ) : null}
+                                                    </div>
+                                                )}
                                             </div>
                                         </div>
                                     </div>

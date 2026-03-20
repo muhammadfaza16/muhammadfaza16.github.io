@@ -1446,7 +1446,7 @@ export default function CurationList() {
 
         {/* ═══ ARTICLE FEED ═══ */}
         <div className="min-h-fit relative">
-          {(isLoading || isTransitioning) && filteredArticles.length === 0 ? (
+          {isLoading || isTransitioning ? (
             <motion.div
               key="skeleton"
               initial={{ opacity: 0 }}
@@ -1459,11 +1459,6 @@ export default function CurationList() {
                   : "flex flex-col gap-4 md:grid md:grid-cols-2 md:gap-4 px-5 mb-10"
               }
             >
-              {!debouncedSearchQuery && (
-                <div className="md:col-span-2 rounded-[2rem] bg-zinc-200/50 dark:bg-zinc-800/40 h-[280px] relative overflow-hidden">
-                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 dark:via-white/5 to-transparent animate-shimmer" />
-                </div>
-              )}
               {[1, 2, 3, 4, 5, 6].map((i) => (
                 <div
                   key={i}
@@ -1486,32 +1481,6 @@ export default function CurationList() {
                 </div>
               ))}
             </motion.div>
-          ) : (isLoading || isTransitioning) && filteredArticles.length > 0 ? (
-            <motion.div
-              key="transition-pulse"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className={
-                debouncedSearchQuery
-                  ? "flex flex-col gap-3 px-5 mb-10 opacity-50 animate-pulse"
-                  : "flex flex-col gap-4 md:grid md:grid-cols-2 md:gap-4 px-5 mb-10 opacity-50 animate-pulse"
-              }
-            >
-              {filteredArticles.map((article: ArticleMeta, index: number) => (
-                <div
-                  key={`skeleton-${article.id}-${index}`}
-                  className="bg-white dark:bg-zinc-900 rounded-[1.5rem] border border-zinc-100 dark:border-zinc-800/60 p-4 flex items-center gap-4 h-[120px]"
-                >
-                  <div className="w-20 h-20 md:w-24 md:h-24 rounded-xl bg-zinc-100 dark:bg-zinc-800/80 shrink-0" />
-                  <div className="flex-1 space-y-2.5">
-                    <div className="h-2.5 bg-zinc-100 dark:bg-zinc-800 rounded-full w-1/3" />
-                    <div className="h-4 bg-zinc-200/60 dark:bg-zinc-800/60 rounded-lg w-full" />
-                    <div className="h-4 bg-zinc-200/60 dark:bg-zinc-800/60 rounded-lg w-2/3" />
-                  </div>
-                </div>
-              ))}
-            </motion.div>
           ) : !isLoading && !isTransitioning && filteredArticles.length === 0 ? (
             <motion.div
               key="empty"
@@ -1520,19 +1489,20 @@ export default function CurationList() {
               exit={{ opacity: 0 }}
               className="flex flex-col items-center justify-center pt-24 pb-32 text-center px-10"
             >
-              <div className="w-16 h-16 bg-zinc-50 dark:bg-white/5 rounded-full flex items-center justify-center mb-6 border border-zinc-100 dark:border-white/5">
-                <span className="text-2xl">✨</span>
+              <div className="mb-6 text-zinc-200 dark:text-zinc-800">
+                {debouncedSearchQuery ? (
+                  <Search size={48} strokeWidth={1} />
+                ) : (
+                  <Library size={48} strokeWidth={1} />
+                )}
               </div>
-              <h3 className="text-[17px] font-semibold text-zinc-900 dark:text-zinc-100 mb-2 tracking-tight">
-                {debouncedSearchQuery ? "No results" : "Collection Empty"}
+              <h3 className="text-[18px] font-bold text-zinc-900 dark:text-zinc-100 mb-2 tracking-tight">
+                {debouncedSearchQuery ? "No entries found" : "Your collection is empty"}
               </h3>
-              <h3 className="text-[17px] font-semibold text-zinc-900 dark:text-zinc-100 mb-2 tracking-tight">
-                {debouncedSearchQuery ? "No results" : "Collection Empty"}
-              </h3>
-              <p className="text-[14px] text-zinc-400 dark:text-zinc-500 max-w-[240px] leading-relaxed">
+              <p className="text-[14px] text-zinc-500 dark:text-zinc-400 max-w-[280px] leading-relaxed">
                 {debouncedSearchQuery
-                  ? `No articles match the search "${debouncedSearchQuery}".`
-                  : "No collections here yet. Start adding your interesting reads."}
+                  ? `We couldn't find any articles matching "${debouncedSearchQuery}".`
+                  : "Start adding interesting reads to your personal curation to see them here."}
               </p>
             </motion.div>
           ) : (
