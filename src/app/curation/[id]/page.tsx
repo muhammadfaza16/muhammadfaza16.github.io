@@ -1,8 +1,9 @@
 "use client";
 
-import { use, useEffect, useState, useRef, useCallback } from "react";
+import { use, useEffect, useState, useRef, useCallback, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { motion, useScroll, useSpring, useMotionValueEvent, AnimatePresence, useTransform } from "framer-motion";
+import Lenis from 'lenis';
 import { ArrowLeft, ChevronLeft, Headphones, Clock, CheckCircle, Share, Trash2, Globe, Pencil, Camera, X, Clipboard, ImageIcon, MessageSquareQuote, ChevronsUp, Maximize, Minimize, Minus, Plus, Type, Bookmark, Volume2, VolumeX, Pause, Play, FolderPlus, FolderCheck, Check, Sparkles, ChevronDown, ChevronUp, Heart, RefreshCw, MessageSquare, Download, FileText } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
@@ -278,7 +279,8 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
     const supabase = getSupabase();
 
     // 1. Scroll Progress & Hide-On-Scroll Logic (Must be above early returns)
-    const { scrollY, scrollYProgress } = useScroll();
+    const scrollContainerRef = useRef<HTMLDivElement>(null);
+    const { scrollY, scrollYProgress } = useScroll({ container: scrollContainerRef });
     const topMaskOpacity = useTransform(scrollY, [100, 300], [0, 1]);
     const [isNavVisible, setIsNavVisible] = useState(true);
     const lastYRef = useRef(0);
@@ -349,11 +351,12 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
                 setTimeout(() => {
                     try {
                         const progress = localStorage.getItem(`curation_progress_${id}`);
-                        if (progress) {
+                        if (progress && scrollContainerRef.current) {
                             const pct = parseFloat(progress);
                             if (pct > 0.05 && pct < 0.95) {
-                                const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
-                                window.scrollTo({ top: maxScroll * pct, behavior: 'auto' });
+                                const container = scrollContainerRef.current;
+                                const maxScroll = container.scrollHeight - container.clientHeight;
+                                container.scrollTo({ top: maxScroll * pct, behavior: 'auto' });
                                 toast('Resumed where you left off', { icon: '\ud83d\udcd6', duration: 2000 });
                             }
                         }
@@ -389,48 +392,76 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
         // Save reading progress on scroll (debounced)
         let saveTimer: ReturnType<typeof setTimeout>;
         const handleProgressSave = () => {
+            if (!scrollContainerRef.current) return;
             clearTimeout(saveTimer);
             saveTimer = setTimeout(() => {
-                const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+                const container = scrollContainerRef.current;
+                if (!container) return;
+                const maxScroll = container.scrollHeight - container.clientHeight;
                 if (maxScroll <= 0) return;
-                const pct = window.scrollY / maxScroll;
+                const pct = container.scrollTop / maxScroll;
                 try { localStorage.setItem(`curation_progress_${id}`, pct.toFixed(3)); } catch { }
                 // Auto-mark read at 90%
                 if (pct > 0.9) {
                     const alreadyAutoMarked = sessionStorage.getItem(`auto_read_${id}`);
                     if (!alreadyAutoMarked) {
                         sessionStorage.setItem(`auto_read_${id}`, 'true');
+                        // Use both local and remote persistence
                         updateToReadArticleAsync(id as string).then(() => appendToReadHistoryAsync(id as string));
-                        // Also persist to DB (fire-and-forget)
                         toggleReadStatus(id, false).catch(() => { });
                     }
                 }
             }, 500);
         };
-        window.addEventListener('scroll', handleProgressSave, { passive: true });
+
+        const container = scrollContainerRef.current;
+        if (container) {
+          container.addEventListener('scroll', handleProgressSave, { passive: true });
+        }
 
         return () => {
-            window.removeEventListener('scroll', handleProgressSave);
+            if (container) container.removeEventListener('scroll', handleProgressSave);
             clearTimeout(saveTimer);
             if (typeof speechSynthesis !== 'undefined') speechSynthesis.cancel();
             document.body.style.overscrollBehaviorY = '';
         };
     }, [id]);
 
-    // Apply Kindle-like scroll behavior and sync body background on mount
+    // Apply Kindle-like weighted scroll behavior (Lenis) and sync body background
     useEffect(() => {
-        // "ga licin tapi ga terlalu heavy" -> no overscroll rubber-banding
-        document.body.style.overscrollBehaviorY = 'none';
+        if (!scrollContainerRef.current || isLoading) return;
+
+        const lenis = new Lenis({
+            wrapper: scrollContainerRef.current,
+            content: scrollContainerRef.current.firstElementChild as HTMLElement,
+            duration: 1.2,
+            easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+            orientation: 'vertical',
+            gestureOrientation: 'vertical',
+            smoothWheel: true,
+            wheelMultiplier: 1,
+            touchMultiplier: 1.5,
+            infinite: false,
+        });
+
+        function raf(time: number) {
+            lenis.raf(time);
+            requestAnimationFrame(raf);
+        }
+
+        requestAnimationFrame(raf);
 
         // Sync body bg to prevent "black blip" on fast overscroll
         const originalBg = document.body.style.backgroundColor;
         document.body.style.backgroundColor = THEMES[readerSettings.theme].bg;
+        document.body.style.overscrollBehaviorY = 'none';
 
         return () => {
+            lenis.destroy();
             document.body.style.overscrollBehaviorY = '';
             document.body.style.backgroundColor = originalBg;
         };
-    }, [readerSettings.theme]);
+    }, [isLoading, readerSettings.theme]);
 
     // TTS Functions
     const startTTS = useCallback(() => {
@@ -568,8 +599,9 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
     }, [formUrl]);
 
     const scrollToTop = useCallback(() => {
+        if (!scrollContainerRef.current) return;
         const duration = 1500; // Deliberate duration for "don't rush"
-        const startPosition = window.pageYOffset;
+        const startPosition = scrollContainerRef.current.scrollTop;
         const startTime = performance.now();
 
         const easeInOutCubic = (t: number) => {
@@ -577,11 +609,12 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
         };
 
         const animate = (currentTime: number) => {
+            if (!scrollContainerRef.current) return;
             const elapsedTime = currentTime - startTime;
             const progress = Math.min(elapsedTime / duration, 1);
             const easedProgress = easeInOutCubic(progress);
 
-            window.scrollTo(0, startPosition * (1 - easedProgress));
+            scrollContainerRef.current.scrollTo(0, startPosition * (1 - easedProgress));
 
             if (progress < 1) {
                 requestAnimationFrame(animate);
@@ -593,81 +626,55 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
 
     if (isLoading) {
         return (
-            <div className="min-h-[100dvh] bg-white dark:bg-[#030303] antialiased">
-                {/* Back button row skeleton */}
-                <div className="max-w-3xl mx-auto px-5 md:px-12 py-3 flex items-center">
-                    <div className="w-8 h-8 rounded-full bg-zinc-100 dark:bg-zinc-900 border border-zinc-200/50 dark:border-zinc-800/50 relative overflow-hidden">
+            <div className="h-[100svh] flex flex-col bg-white dark:bg-[#030303] antialiased overflow-hidden">
+                <div className="h-[3px] w-full" />
+                <div ref={scrollContainerRef} className="flex-1 overflow-y-auto">
+                    <div className="max-w-3xl mx-auto px-5 md:px-12 pt-4 pb-1 flex items-center">
+                        <div className="w-8 h-8 rounded-full bg-zinc-100 dark:bg-zinc-900 border border-zinc-200/50 dark:border-zinc-800/50 relative overflow-hidden">
+                            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 dark:via-white/5 to-transparent animate-shimmer" />
+                        </div>
+                    </div>
+                    <div className="w-full aspect-[2.4/1] bg-zinc-100 dark:bg-zinc-900 relative overflow-hidden mb-2">
                         <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 dark:via-white/5 to-transparent animate-shimmer" />
                     </div>
-                </div>
-
-                {/* Hero skeleton - Adjusted size */}
-                <div className="w-full h-[38dvh] bg-zinc-100 dark:bg-zinc-900 relative overflow-hidden">
-                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 dark:via-white/5 to-transparent animate-shimmer" />
-                </div>
-
-                {/* Content skeleton */}
-                <div className="max-w-3xl mx-auto px-5 md:px-12 pt-10 space-y-8">
-                    {/* Title and Category */}
-                    <div className="space-y-4">
-                        <div className="h-3 w-20 bg-blue-100/50 dark:bg-blue-900/20 rounded-full relative overflow-hidden">
-                            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 dark:via-white/10 to-transparent animate-shimmer" />
-                        </div>
-                        <div className="space-y-3">
-                            <div className="h-9 bg-zinc-100 dark:bg-zinc-900 rounded-xl relative overflow-hidden w-[95%]">
-                                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 dark:via-white/5 to-transparent animate-shimmer" />
+                    <div className="max-w-3xl mx-auto px-5 md:px-12 pt-2 space-y-8">
+                        <div className="space-y-4">
+                            <div className="h-3 w-20 bg-blue-100/50 dark:bg-blue-900/20 rounded-full relative overflow-hidden">
+                                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 dark:via-white/10 to-transparent animate-shimmer" />
                             </div>
-                            <div className="h-9 bg-zinc-100 dark:bg-zinc-900 rounded-xl relative overflow-hidden w-[70%]">
-                                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 dark:via-white/5 to-transparent animate-shimmer" />
+                            <div className="space-y-3">
+                                <div className="h-9 bg-zinc-100 dark:bg-zinc-900 rounded-xl relative overflow-hidden w-[95%]">
+                                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 dark:via-white/5 to-transparent animate-shimmer" />
+                                </div>
+                                <div className="h-9 bg-zinc-100 dark:bg-zinc-900 rounded-xl relative overflow-hidden w-[70%]">
+                                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 dark:via-white/5 to-transparent animate-shimmer" />
+                                </div>
                             </div>
                         </div>
-                    </div>
-
-                    {/* Meta bar */}
-                    <div className="flex items-center gap-4 border-b border-zinc-100 dark:border-zinc-900 pb-8">
-                        <div className="h-4 w-32 bg-zinc-50 dark:bg-zinc-900/50 rounded-full relative overflow-hidden">
-                            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 dark:via-white/5 to-transparent animate-shimmer" />
+                        <div className="flex items-center gap-4 border-b border-zinc-100 dark:border-zinc-900 pb-8">
+                            <div className="h-4 w-32 bg-zinc-50 dark:bg-zinc-900/50 rounded-full relative overflow-hidden">
+                                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 dark:via-white/5 to-transparent animate-shimmer" />
+                            </div>
+                            <div className="h-1 w-1 rounded-full bg-zinc-200 dark:bg-zinc-800" />
+                            <div className="h-4 w-20 bg-zinc-50 dark:bg-zinc-900/50 rounded-full relative overflow-hidden">
+                                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 dark:via-white/5 to-transparent animate-shimmer" />
+                            </div>
                         </div>
-                        <div className="h-1 w-1 rounded-full bg-zinc-200 dark:bg-zinc-800" />
-                        <div className="h-4 w-20 bg-zinc-50 dark:bg-zinc-900/50 rounded-full relative overflow-hidden">
-                            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 dark:via-white/5 to-transparent animate-shimmer" />
+                        <div className="space-y-4 pt-2">
+                            <div className="h-4 bg-zinc-50 dark:bg-zinc-900/40 rounded relative overflow-hidden w-full">
+                                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 dark:via-white/5 to-transparent animate-shimmer" />
+                            </div>
+                            <div className="h-4 bg-zinc-50 dark:bg-zinc-900/40 rounded relative overflow-hidden w-[96%]">
+                                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 dark:via-white/5 to-transparent animate-shimmer" />
+                            </div>
                         </div>
-                    </div>
-
-                    {/* Paragraph lines - Body Content */}
-                    <div className="space-y-4 pt-2">
-                        <div className="h-4 bg-zinc-50 dark:bg-zinc-900/40 rounded relative overflow-hidden w-full">
-                            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 dark:via-white/5 to-transparent animate-shimmer" />
-                        </div>
-                        <div className="h-4 bg-zinc-50 dark:bg-zinc-900/40 rounded relative overflow-hidden w-[96%]">
-                            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 dark:via-white/5 to-transparent animate-shimmer" />
-                        </div>
-                        <div className="h-4 bg-zinc-50 dark:bg-zinc-900/40 rounded relative overflow-hidden w-[98%]">
-                            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 dark:via-white/5 to-transparent animate-shimmer" />
-                        </div>
-                        <div className="h-4 bg-zinc-50 dark:bg-zinc-900/40 rounded relative overflow-hidden w-[92%]">
-                            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 dark:via-white/5 to-transparent animate-shimmer" />
-                        </div>
-                        <div className="h-4 bg-zinc-50 dark:bg-zinc-900/40 rounded relative overflow-hidden w-[85%]">
-                            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 dark:via-white/5 to-transparent animate-shimmer" />
-                        </div>
-                        <div className="h-4 bg-zinc-50 dark:bg-zinc-900/40 rounded relative overflow-hidden w-[40%]">
-                            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 dark:via-white/5 to-transparent animate-shimmer" />
-                        </div>
-                    </div>
-
-                    <div className="space-y-4 pt-4">
-                        <div className="h-4 bg-zinc-50 dark:bg-zinc-900/40 rounded relative overflow-hidden w-full">
-                            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 dark:via-white/5 to-transparent animate-shimmer" />
-                        </div>
-                        <div className="h-4 bg-zinc-50 dark:bg-zinc-900/40 rounded relative overflow-hidden w-[94%]">
-                            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 dark:via-white/5 to-transparent animate-shimmer" />
-                        </div>
-                        <div className="h-4 bg-zinc-50 dark:bg-zinc-900/40 rounded relative overflow-hidden w-[97%]">
-                            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 dark:via-white/5 to-transparent animate-shimmer" />
-                        </div>
-                        <div className="h-4 bg-zinc-50 dark:bg-zinc-900/40 rounded relative overflow-hidden w-[30%]">
-                            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 dark:via-white/5 to-transparent animate-shimmer" />
+                        <div className="space-y-4 pt-4">
+                            <div className="h-4 bg-zinc-50 dark:bg-zinc-900/40 rounded relative overflow-hidden w-full">
+                                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 dark:via-white/5 to-transparent animate-shimmer" />
+                            </div>
+                            <div className="h-4 bg-zinc-50 dark:bg-zinc-900/40 rounded relative overflow-hidden w-[30%]">
+                                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 dark:via-white/5 to-transparent animate-shimmer" />
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -675,7 +682,7 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
         );
     }
 
-    if (!article) return null;
+    if (!article) return <div ref={scrollContainerRef} />;
 
     let validImageUrl: string | null = null;
     const activeImage = article.imageUrl;
@@ -920,25 +927,35 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
 
     return (
         <div
-            className="min-h-[100dvh] transition-colors duration-500 selection:bg-blue-200 antialiased pb-8 overscroll-none"
-            style={{ 
-                backgroundColor: THEMES[readerSettings.theme].bg, 
-                color: THEMES[readerSettings.theme].text,
-                scrollbarGutter: 'stable'
-            }}
+            className="h-[100svh] flex flex-col transition-colors duration-500 selection:bg-blue-200 antialiased overflow-hidden"
+            style={{ backgroundColor: THEMES[readerSettings.theme].bg, color: THEMES[readerSettings.theme].text }}
         >
-            {/* Top Reading Progress Bar */}
-            <AnimatePresence>
-                {!isZenMode && (
+            {/* Top Reading Progress Bar - Outside Scroll Container in a fixed-height track */}
+            <div className="h-[3px] w-full relative overflow-hidden">
+                <AnimatePresence>
                     <motion.div
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
-                        className="fixed top-0 left-0 right-0 h-[3px] bg-blue-600 origin-left z-[60]"
+                        className="absolute inset-0 bg-blue-600 origin-left z-[60]"
                         style={{ scaleX }}
                     />
-                )}
-            </AnimatePresence>
+                </AnimatePresence>
+            </div>
+
+            <main 
+                ref={scrollContainerRef}
+                className="flex-1 overflow-y-auto overscroll-contain transition-colors duration-500"
+                style={{ 
+                    scrollbarWidth: 'none', /* Hide for Firefox */
+                    msOverflowStyle: 'none', /* Hide for IE/Edge */
+                }}
+            >
+                <style jsx>{`
+                    main::-webkit-scrollbar {
+                        display: none; /* Hide for Chrome/Safari */
+                    }
+                `}</style>
 
             {/* Zen Mode Fade-Out Masks */}
             <AnimatePresence>
@@ -949,7 +966,7 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
                             animate={{ opacity: 1 }}
                             exit={{ opacity: 0 }}
                             transition={{ duration: 0.7 }}
-                            className="fixed top-0 left-0 right-0 h-[10dvh] z-[40] pointer-events-none"
+                            className="fixed top-0 left-0 right-0 h-[10vh] z-[40] pointer-events-none"
                         >
                             <motion.div
                                 style={{
@@ -964,7 +981,7 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
                             animate={{ opacity: 1 }}
                             exit={{ opacity: 0 }}
                             transition={{ duration: 0.7 }}
-                            className="fixed bottom-0 left-0 right-0 h-[10dvh] z-[40] pointer-events-none"
+                            className="fixed bottom-0 left-0 right-0 h-[10vh] z-[40] pointer-events-none"
                             style={{ background: `linear-gradient(to top, ${THEMES[readerSettings.theme].bg} 20%, transparent 100%)` }}
                         />
                     </>
@@ -996,13 +1013,13 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
                 className={isZenMode ? "pointer-events-none" : ""}
             >
                 {/* Back Button Row - Balanced & Minimal */}
-                <div className="max-w-3xl mx-auto px-5 md:px-12 py-3 flex items-center justify-between">
+                <div className="max-w-3xl mx-auto px-5 md:px-12 pt-4 pb-1 flex items-center justify-between">
                     <Link
                         href="/curation"
-                        className={`flex items-center gap-2 transition-all group ${isZenMode ? "opacity-0 pointer-events-none" : "text-zinc-400 hover:text-zinc-900"}`}
+                        className={`flex items-center gap-2 transition-all group ${isZenMode ? "opacity-0 pointer-events-none" : "text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white"}`}
                         title="Back to Feed"
                     >
-                        <div className="w-8 h-8 flex items-center justify-center -ml-2">
+                        <div className="w-8 h-8 flex items-center justify-center -ml-2 rounded-full hover:bg-black/5 dark:hover:bg-white/5 transition-colors">
                             <ChevronLeft size={22} className="group-hover:-translate-x-1 transition-transform" />
                         </div>
                         <span className="text-[10px] font-semibold uppercase tracking-[0.1em] opacity-0 group-hover:opacity-100 transition-opacity">Back</span>
@@ -1011,17 +1028,15 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
 
                 {/* 1. Pure Cover Image Banner (No Overlays) */}
                 {validImageUrl ? (
-                    <div className="w-full relative overflow-hidden bg-transparent mb-4 flex flex-col items-center group/cover min-h-[38dvh]">
-                        <div className="w-full h-[38dvh] relative">
-                            <Image 
-                                src={validImageUrl} 
-                                alt="Cover" 
-                                fill 
-                                sizes="100vw" 
-                                priority 
-                                className="object-contain" 
-                            />
-                        </div>
+                    <div className="w-full aspect-[2.4/1] relative overflow-hidden bg-black/5 dark:bg-white/5 mb-2 flex flex-col items-center group/cover">
+                        <Image 
+                            src={validImageUrl} 
+                            alt="Cover" 
+                            fill 
+                            sizes="100vw" 
+                            priority 
+                            className="object-contain" 
+                        />
 
                         {/* Floating TTS Control - Contextual on Cover (Mobile Polish) */}
                         <div className="absolute top-4 right-4 z-40 opacity-0 group-hover/cover:opacity-100 transition-opacity duration-300">
@@ -1035,7 +1050,7 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
                         </div>
                     </div>
                 ) : (
-                    <div className="pt-24" />
+                    <div className="pt-8" />
                 )}
 
                 {/* 2. Separate Metadata "Label" Block Below */}
@@ -1275,7 +1290,7 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
                 )}
 
                 <article
-                    className="reader-content prose max-w-[65ch] mx-auto select-text touch-auto
+                    className={`reader-content prose max-w-[65ch] mx-auto select-text touch-auto
                     prose-p:mb-8 prose-p:leading-[1.75]
                     prose-headings:font-sans prose-headings:font-bold prose-headings:tracking-tight
                     prose-h2:text-[30px] md:text-[34px] prose-h2:font-bold prose-h2:mt-14 prose-h2:mb-6 prose-h2:tracking-tight
@@ -1285,7 +1300,7 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
                     prose-hr:my-12 prose-hr:border-zinc-200/60 dark:prose-hr:border-zinc-800/60
                     prose-blockquote:border-l-[2px] prose-blockquote:border-blue-500/40 prose-blockquote:pl-6 prose-blockquote:font-serif prose-blockquote:italic prose-blockquote:text-[1.1em] prose-blockquote:text-zinc-600 dark:prose-blockquote:text-zinc-400 prose-blockquote:bg-transparent prose-blockquote:my-10 prose-blockquote:py-1
                     prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded-md prose-code:bg-zinc-100 dark:prose-code:bg-zinc-800/60 prose-code:text-rose-500 dark:prose-code:text-rose-400 prose-code:font-medium prose-code:before:content-none prose-code:after:content-none
-                    prose-pre:bg-zinc-900 prose-pre:text-zinc-100 prose-pre:border prose-pre:border-zinc-800 prose-pre:rounded-2xl prose-pre:shadow-sm prose-pre:p-6"
+                    prose-pre:bg-zinc-900 prose-pre:text-zinc-100 prose-pre:border prose-pre:border-zinc-800 prose-pre:rounded-2xl prose-pre:shadow-sm prose-pre:p-6`}
                     style={{
                         WebkitUserSelect: 'text',
                         userSelect: 'text',
@@ -1996,6 +2011,7 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
                     </div>
                 </div>
             </BottomSheet>
+            </main>
         </div>
     );
 }
