@@ -233,10 +233,24 @@ export default function LibraryPage() {
     );
 
     return (
-        <div className="h-full flex flex-col bg-[#fafaf8] dark:bg-[#050505] text-zinc-900 dark:text-zinc-100 overflow-hidden">
+        <div 
+            ref={scrollContainerRef}
+            onScroll={() => {
+              if (scrollContainerRef.current) {
+                scrollYRef.current = scrollContainerRef.current.scrollTop;
+              }
+            }}
+            className="h-full flex flex-col bg-[#fafaf8] dark:bg-[#050505] text-zinc-900 dark:text-zinc-100 overflow-y-auto overflow-x-hidden"
+            style={{
+                WebkitOverflowScrolling: "touch",
+                overscrollBehaviorY: "none",
+                overflowAnchor: "auto",
+                scrollbarGutter: "stable",
+            } as React.CSSProperties}
+        >
 
             {/* ═══ HEADER ═══ */}
-            <header className="sticky top-0 z-50 bg-[#fafaf8]/85 dark:bg-[#050505]/85 backdrop-blur-xl border-b border-zinc-200/40 dark:border-zinc-800/40">
+            <header className="sticky top-0 z-50 bg-[#fafaf8]/85 dark:bg-[#050505]/85 backdrop-blur-xl border-b border-zinc-200/40 dark:border-zinc-800/40 h-[110px] shrink-0">
                 <div className="px-4 pt-3 pb-2.5 max-w-2xl mx-auto">
                     <div className="flex items-center gap-3 mb-3">
                         <Link href="/curation" className="w-9 h-9 flex items-center justify-center text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 active:scale-90 rounded-full transition-all shrink-0">
@@ -267,21 +281,7 @@ export default function LibraryPage() {
             </header>
 
             {/* ═══ CONTENT ═══ */}
-            <main 
-                ref={scrollContainerRef}
-                onScroll={() => {
-                  if (scrollContainerRef.current) {
-                    scrollYRef.current = scrollContainerRef.current.scrollTop;
-                  }
-                }}
-                className="flex-1 overflow-y-auto overflow-x-hidden pt-4 pb-32"
-                style={{
-                    WebkitOverflowScrolling: "touch",
-                    overscrollBehaviorY: "none",
-                    overflowAnchor: "auto",
-                    scrollbarGutter: "stable",
-                } as React.CSSProperties}
-            >
+            <main className="flex-1 overflow-visible pt-4 pb-32">
                 <div className="max-w-2xl mx-auto px-4">
                 <AnimatePresence mode="wait">
                     {tab === "activity" ? (
