@@ -1293,7 +1293,7 @@ export default function CurationList() {
 
         {/* ═══ ARCHIVE LIST SECTION ═══ */}
         <div ref={resultsRef} className={`px-5 mb-4 scroll-mt-24 flex items-center gap-3 transition-all ${searchQuery ? "mt-2" : "mt-8"}`}>
-          {!searchQuery && <div className="w-[4px] h-6 bg-zinc-900 dark:bg-white rounded-full shrink-0 shadow-sm" />}
+          {!searchQuery && <div className="w-[4px] h-6 bg-gradient-to-b from-blue-600 to-blue-400 dark:from-blue-500 dark:to-blue-400 rounded-full shrink-0 shadow-sm" />}
           <h3 className="text-[17px] font-bold tracking-tight text-zinc-800 dark:text-zinc-200" style={{ fontFamily: "'Playfair Display', serif" }}>
             {debouncedSearchQuery
               ? "Search Results"
