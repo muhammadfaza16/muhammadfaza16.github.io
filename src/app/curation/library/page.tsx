@@ -12,6 +12,11 @@ import Link from "next/link";
 import Image from "next/image";
 import { getVisitorState, getReadHistoryAsync, removeFromReadHistoryAsync, getCollectionsAsync, saveCollectionsAsync, VisitorState, ReadEntry, Collection } from "@/lib/storage";
 import { formatTitle } from "@/lib/utils";
+import { 
+    ArticleRow, 
+    SkeletonRow, 
+    SectionLabel 
+} from "@/components/curation/CurationComponents";
 
 // ─── Types ───
 
@@ -165,56 +170,6 @@ export default function LibraryPage() {
 
     // ─── Renderers ───
 
-    const ArticleRow = ({ article, i, showTime, onRemove }: { article: any; i: number; showTime?: boolean; onRemove?: (id: string) => void }) => (
-        <motion.div key={article.id} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.2, delay: i * 0.02 }} className="group relative">
-            <Link href={`/curation/${article.id}`} className="flex items-center gap-2.5 py-2 border-b border-zinc-100 dark:border-zinc-800/50 last:border-0 transition-colors pr-6">
-                <div className="w-10 h-10 rounded-md overflow-hidden bg-zinc-100 dark:bg-zinc-800/80 shrink-0 relative">
-                    {article.imageUrl ? <Image src={article.imageUrl} alt="" fill className="object-cover" /> : <div className="w-full h-full flex items-center justify-center text-zinc-400"><FileText size={14} /></div>}
-                </div>
-                <div className="flex-1 min-w-0">
-                    <h3 className="text-[12.5px] font-medium text-zinc-900 dark:text-zinc-100 leading-snug line-clamp-2">{formatTitle(article.title)}</h3>
-                    <div className="flex items-center gap-1.5 mt-0.5">
-                        <span className="text-[10px] text-zinc-500">{article.category || "General"}</span>
-                        <span className="text-zinc-300 dark:text-zinc-700 text-[7px]">·</span>
-                        <span className="text-[10px] text-zinc-400">{readTime(article.content)}m</span>
-                        {showTime && historyMap.has(article.id) && (
-                            <>
-                                <span className="text-zinc-300 dark:text-zinc-700 text-[7px]">·</span>
-                                <span className="text-[10px] text-zinc-400">{timeAgo(historyMap.get(article.id)!)}</span>
-                            </>
-                        )}
-                        {article.qualityScore != null && article.qualityScore >= 70 && (
-                            <>
-                                <span className="text-zinc-300 dark:text-zinc-700 text-[7px]">·</span>
-                                <span className="text-[10px] text-zinc-400 flex items-center gap-0.5"><Star size={8} />{article.qualityScore}</span>
-                            </>
-                        )}
-                    </div>
-                </div>
-                {!onRemove && <ChevronRight size={12} className="text-zinc-300 dark:text-zinc-700 shrink-0" />}
-            </Link>
-            {onRemove && (
-                <button
-                    onClick={(e) => { e.preventDefault(); e.stopPropagation(); onRemove(article.id); }}
-                    className="absolute right-0 top-1/2 -translate-y-1/2 p-2 text-zinc-300 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-full transition-all opacity-0 group-hover:opacity-100"
-                    title="Remove from history"
-                >
-                    <X size={14} />
-                </button>
-            )}
-        </motion.div>
-    );
-
-    const Skeleton = ({ n }: { n: number }) => (<>{Array(n).fill(0).map((_, i) => (
-        <div key={i} className="flex items-center gap-2.5 py-2">
-            <div className="w-10 h-10 rounded-md bg-zinc-100 dark:bg-zinc-800 animate-pulse shrink-0" />
-            <div className="flex-1 space-y-1.5"><div className="h-2.5 bg-zinc-100 dark:bg-zinc-800 rounded animate-pulse w-3/4" /><div className="h-2 bg-zinc-100 dark:bg-zinc-800 rounded animate-pulse w-1/2" /></div>
-        </div>
-    ))}</>);
-
-    const Label = ({ children }: { children: React.ReactNode }) => (
-        <h2 className="text-[11px] font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-widest mb-2.5">{children}</h2>
-    );
 
     if (!mounted) return (
         <div className="min-h-screen bg-[#fafaf8] dark:bg-[#050505] flex flex-col items-center justify-center gap-4 animate-pulse">
@@ -280,7 +235,7 @@ export default function LibraryPage() {
 
                             {/* ── Weekly Activity ── */}
                             <section>
-                                <Label><Calendar size={11} className="inline mr-1 -mt-px" />Weekly Activity</Label>
+                                <SectionLabel><Calendar size={11} className="inline mr-1 -mt-px" />Weekly Activity</SectionLabel>
                                 <div className="flex items-end gap-1.5 px-1">
                                     {weeklyActivity.map((count, i) => {
                                         const maxCount = Math.max(...weeklyActivity, 1);
@@ -309,10 +264,10 @@ export default function LibraryPage() {
                             {/* ── Best Read ── */}
                             {bestArticle && bestArticle.qualityScore >= 50 && (
                                 <section>
-                                    <Label><Award size={11} className="inline mr-1 -mt-px" />Top Rated Read</Label>
+                                    <SectionLabel><Award size={11} className="inline mr-1 -mt-px" />Top Rated Read</SectionLabel>
                                     <Link href={`/curation/${bestArticle.id}`} className="flex items-center gap-3 p-3 rounded-xl bg-zinc-50 dark:bg-zinc-900/50 border border-zinc-200/50 dark:border-zinc-800/50 group hover:border-zinc-300 dark:hover:border-zinc-700 transition-all">
                                         <div className="w-12 h-12 rounded-lg overflow-hidden bg-zinc-100 dark:bg-zinc-800 shrink-0 relative">
-                                            {bestArticle.imageUrl ? <Image src={bestArticle.imageUrl} alt="" fill className="object-cover" /> : <div className="w-full h-full flex items-center justify-center text-zinc-400"><FileText size={16} /></div>}
+                                            {bestArticle.imageUrl ? <Image src={bestArticle.imageUrl} alt="" fill className="object-cover" sizes="48px" /> : <div className="w-full h-full flex items-center justify-center text-zinc-400"><FileText size={16} /></div>}
                                         </div>
                                         <div className="flex-1 min-w-0">
                                             <h3 className="text-[13px] font-semibold text-zinc-900 dark:text-zinc-100 leading-snug line-clamp-2">{formatTitle(bestArticle.title)}</h3>
@@ -330,7 +285,7 @@ export default function LibraryPage() {
                             {/* ── Category Breakdown ── */}
                             {categoryBreakdown.length > 0 && (
                                 <section>
-                                    <Label><Hash size={11} className="inline mr-1 -mt-px" />Reading Breakdown</Label>
+                                    <SectionLabel><Hash size={11} className="inline mr-1 -mt-px" />Reading Breakdown</SectionLabel>
                                     <div className="space-y-0">
                                         {categoryBreakdown.map(([cat, count]) => {
                                             const total = readArticles.length;
@@ -364,9 +319,23 @@ export default function LibraryPage() {
 
                             {/* ── Reading History ── */}
                             <section>
-                                <Label><BookOpen size={11} className="inline mr-1 -mt-px" />Reading History</Label>
-                                {isLoading ? <Skeleton n={5} /> : sortedReadArticles.length > 0 ? (
-                                    <div>{sortedReadArticles.slice(0, 20).map((a, i) => <ArticleRow key={a.id} article={a} i={i} showTime onRemove={handleRemoveHistory} />)}</div>
+                                <SectionLabel><BookOpen size={11} className="inline mr-1 -mt-px" />Reading History</SectionLabel>
+                                {isLoading ? (
+                                    <SkeletonRow n={5} />
+                                ) : sortedReadArticles.length > 0 ? (
+                                    <div>
+                                        {sortedReadArticles.slice(0, 20).map((a, i) => (
+                                            <ArticleRow 
+                                                key={a.id} 
+                                                article={a} 
+                                                index={i} 
+                                                showTime 
+                                                historyTimestamp={historyMap.get(a.id)}
+                                                onRemove={handleRemoveHistory} 
+                                                isRead
+                                            />
+                                        ))}
+                                    </div>
                                 ) : (
                                     <div className="py-12 text-center">
                                         <BookOpen size={24} className="mx-auto text-zinc-300 dark:text-zinc-700 mb-2" />
@@ -403,7 +372,15 @@ export default function LibraryPage() {
                                             activeCollection.articleIds.map((id, i) => {
                                                 const a = allArticles.find(x => x.id === id);
                                                 if (!a) return null;
-                                                return <ArticleRow key={id} article={a} i={i} />;
+                                                return (
+                                                    <ArticleRow 
+                                                        key={id} 
+                                                        article={a} 
+                                                        index={i} 
+                                                        isRead={readIds.has(id)}
+                                                        isBookmarked={savedIds.has(id)}
+                                                    />
+                                                );
                                             })
                                         )}
                                     </div>
@@ -429,7 +406,7 @@ export default function LibraryPage() {
                                     {/* Collections Folders */}
                                     <section className="mb-8">
                                         <div className="flex items-center justify-between mb-3">
-                                            <Label><FolderCheck size={11} className="inline mr-1 -mt-px" /> Collections</Label>
+                                            <SectionLabel><FolderCheck size={11} className="inline mr-1 -mt-px" /> Collections</SectionLabel>
                                             <button onClick={() => setIsCreatingCollection(true)} className="text-[9px] text-blue-500 font-bold hover:text-blue-600 uppercase tracking-widest active:scale-95 transition-all">+ New Folder</button>
                                         </div>
                                         <div className="grid grid-cols-2 gap-3">
@@ -482,17 +459,29 @@ export default function LibraryPage() {
                                     </section>
 
                             {/* Saved articles grouped by category */}
-                            {isLoading ? <Skeleton n={5} /> : savedArticles.length > 0 ? (
+                            {isLoading ? (
+                                <SkeletonRow n={5} />
+                            ) : savedArticles.length > 0 ? (
                                 savedByCategory.map(([cat, articles]) => (
                                     <section key={cat}>
                                         <div className="flex items-center justify-between mb-2">
-                                            <Label>
+                                            <SectionLabel>
                                                 {CATEGORIES[cat] ? React.createElement(CATEGORIES[cat].icon, { size: 11, className: "inline mr-1 -mt-px" }) : null}
                                                 {cat}
-                                            </Label>
+                                            </SectionLabel>
                                             <span className="text-[10px] text-zinc-400 tabular-nums">{articles.length}</span>
                                         </div>
-                                        <div>{articles.map((a: any, i: number) => <ArticleRow key={a.id} article={a} i={i} />)}</div>
+                                        <div>
+                                            {articles.map((a: any, i: number) => (
+                                                <ArticleRow 
+                                                    key={a.id} 
+                                                    article={a} 
+                                                    index={i} 
+                                                    isRead={readIds.has(a.id)}
+                                                    isBookmarked={savedIds.has(a.id)}
+                                                />
+                                            ))}
+                                        </div>
                                     </section>
                                 ))
                             ) : (

@@ -549,27 +549,29 @@ export function CleanHomeHero() {
                 onTouchStart={handleTouchStart}
                 onTouchEnd={handleTouchEnd}
                 style={{
-                    // High-End Liquid Material (iOS/visionOS blend)
-                    background: "linear-gradient(165deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.02) 40%, rgba(255, 255, 255, 0.01) 100%)",
-                    // Refractive Depth
-                    backdropFilter: "blur(42px) saturate(180%) brightness(105%)",
-                    WebkitBackdropFilter: "blur(42px) saturate(180%) brightness(105%)",
+                    // Ultra-Premium Liquid Material (visionOS 2.0 style)
+                    background: "linear-gradient(165deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.01) 40%, rgba(255, 255, 255, 0) 100%)",
+                    // High-Refraction Depth
+                    backdropFilter: "blur(50px) saturate(210%) brightness(110%)",
+                    WebkitBackdropFilter: "blur(50px) saturate(210%) brightness(110%)",
                     borderRadius: "32px",
-                    // Specular Reflection Border (v2)
-                    border: "1px solid rgba(255,255,255,0.08)",
-                    borderTop: "1.5px solid rgba(255,255,255,0.35)",
-                    borderLeft: "1px solid rgba(255,255,255,0.15)",
-                    // Multi-layer Depth Shadow
+                    // Liquid Specular Highlight Border
+                    border: "1px solid rgba(255,255,255,0.06)",
+                    borderTop: "1.8px solid rgba(255,255,255,0.45)",
+                    borderLeft: "1.2px solid rgba(255,255,255,0.18)",
+                    // High-End Multi-layer Depth Shadow
                     boxShadow: `
-                        0 24px 48px -12px rgba(0,0,0,0.35), 
-                        inset 0 0 0 1px rgba(255,255,255,0.06),
-                        inset 0 1px 2px rgba(255,255,255,0.1)
+                        0 28px 60px -12px rgba(0,0,0,0.45), 
+                        inset 0 0 0 1px rgba(255,255,255,0.08),
+                        inset 0 1px 3px rgba(255,255,255,0.15)
                     `,
                     padding: "1rem",
                     position: "relative",
                     overflow: "hidden",
                     touchAction: "pan-y",
                     cursor: "pointer",
+                    // Extra liquid smoothness
+                    transition: "all 0.6s cubic-bezier(0.16, 1, 0.3, 1)",
                 }}>
                 {/* Dynamic Ambient Aura - Remains the same to provide color bleed */}
                 <motion.div

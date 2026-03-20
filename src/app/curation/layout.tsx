@@ -50,8 +50,8 @@ export default function CurationPlatformLayout({
     const isDark = theme === "dark";
 
     return (
-        <div className={`min-h-screen bg-[#fafaf8] dark:bg-[#050505] text-[#1a1a1a] dark:text-[#f2f2f2] curation-app ${isDark ? 'dark' : ''}`}>
-            <div className="">
+        <div className={`h-[100svh] w-full flex flex-col overflow-hidden bg-[#fafaf8] dark:bg-[#050505] text-[#1a1a1a] dark:text-[#f2f2f2] curation-app ${isDark ? 'dark' : ''}`}>
+            <div className="flex-1 flex flex-col overflow-hidden relative">
                 {children}
             </div>
 

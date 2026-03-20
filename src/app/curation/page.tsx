@@ -43,6 +43,12 @@ import {
 import { useRouter } from "next/navigation";
 import { formatTitle, formatMetric } from "@/lib/utils";
 import { Toaster, toast } from "react-hot-toast";
+import { 
+  SwipeableArticleCard, 
+  SectionLabel, 
+  SkeletonRow,
+  getReadTime 
+} from "@/components/curation/CurationComponents";
 import { updateToReadArticle, createToReadArticle } from "@/app/master/actions";
 import { getVisitorState, saveVisitorStateAsync, getReadHistoryAsync } from "@/lib/storage";
 import { uploadImageToSupabase } from "@/lib/uploadImage";
@@ -906,7 +912,7 @@ export default function CurationList() {
     statusFilter !== "all";
 
   return (
-    <div className="h-[100svh] w-full flex flex-col bg-[#fcfcfc] dark:bg-[#050505] text-zinc-900 dark:text-zinc-100 font-sans antialiased overflow-hidden relative selection:bg-blue-100 dark:selection:bg-blue-900/30 transition-colors duration-700">
+    <div className="flex-1 w-full flex flex-col bg-[#fcfcfc] dark:bg-[#050505] text-zinc-900 dark:text-zinc-100 font-sans antialiased relative selection:bg-blue-100 dark:selection:bg-blue-900/30 transition-colors duration-700">
       <Toaster
         position="bottom-center"
         toastOptions={{
@@ -1051,7 +1057,7 @@ export default function CurationList() {
         id="curation-scroll-container"
         ref={scrollContainerRef}
         onScroll={(e) => (scrollYRef.current = e.currentTarget.scrollTop)}
-        className="flex-1 overflow-y-auto overflow-x-hidden pt-2 pb-8 relative z-10 w-full max-w-4xl md:max-w-6xl mx-auto"
+        className="flex-1 overflow-y-auto overflow-x-hidden pt-2 pb-8 relative z-10 w-full max-w-7xl mx-auto"
         style={
           {
             WebkitOverflowScrolling: "touch",
@@ -1117,118 +1123,18 @@ export default function CurationList() {
                     ref={heroCarouselRef}
                     className="flex gap-4 overflow-x-auto no-scrollbar pb-6 snap-x snap-mandatory pr-5"
                   >
-                {topArticles.map((featuredArticle) => {
-                  const postDate = new Date(featuredArticle.createdAt);
-                  const readTime = estimateReadTime(featuredArticle.content);
-                  const validImageUrl = getImageUrl(featuredArticle);
-
-                  return (
-                    <motion.div
-                      key={featuredArticle.id}
-                      whileHover={{ y: -4, scale: 1.002 }}
-                      transition={{ type: "spring", stiffness: 400, damping: 30 }}
-                      className="shrink-0 w-[75vw] md:w-[480px] snap-start group relative rounded-[2rem] overflow-hidden bg-white dark:bg-[#0a0a0a] border border-zinc-200/50 dark:border-zinc-800/50 shadow-[0_4px_20px_rgba(0,0,0,0.03)] hover:shadow-[0_12px_40px_rgba(0,0,0,0.08)] hover:border-zinc-300 dark:hover:border-zinc-700 active:scale-[0.99] transition-all duration-500 flex flex-col"
-                    >
-                      <Link
-                        href={`/curation/${featuredArticle.id}`}
-                        onClick={() => {
-                          setNavigatingId(featuredArticle.id);
-                        }}
-                        className="flex flex-col h-full"
-                      >
-                        {/* Top Image Section */}
-                        <div className="relative w-full h-[180px] md:h-[200px] overflow-hidden bg-zinc-100 dark:bg-zinc-800 shrink-0">
-                          {validImageUrl && !imgErrors[featuredArticle.id] ? (
-                            <Image
-                              src={validImageUrl}
-                              alt=""
-                              fill
-                              priority={true}
-                              sizes="(max-width: 768px) 100vw, 600px"
-                              className="object-cover object-top opacity-90 group-hover:opacity-100 group-hover:scale-105 transition-all duration-700"
-                              onError={() =>
-                                setImgErrors((prev) => ({
-                                  ...prev,
-                                  [featuredArticle.id]: true,
-                                }))
-                              }
-                            />
-                          ) : (
-                            <div className="w-full h-full bg-gradient-to-br from-zinc-200 to-zinc-300 dark:from-zinc-800 dark:to-zinc-900" />
-                          )}
-                          <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
-                          <div className="absolute inset-0 shadow-[inset_0_0_0_1px_rgba(0,0,0,0.05)] dark:shadow-[inset_0_0_0_1px_rgba(255,255,255,0.05)] z-20" />
-                        </div>
-
-                        <div className="px-5 pt-5 pb-2 md:px-6 md:pt-6 md:pb-2 flex flex-col relative z-20 h-full">
-                          <div className="flex items-center gap-2 mb-3 flex-wrap">
-                            <span className="text-[9px] font-bold uppercase tracking-[0.2em] bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 px-2 py-0.5 rounded-[4px] shadow-sm">
-                              TRENDING
-                            </span>
-                            {(() => {
-                              const catData = CATEGORIES.find(c => c.name === featuredArticle.category);
-                              return featuredArticle.category ? (
-                                <span className={`text-[9px] font-bold uppercase tracking-[0.15em] px-2 py-0.5 rounded-md ml-1 ${catData ? `${catData.color.bg} ${catData.color.text} ${catData.color.darkBg} ${catData.color.darkText}` : "text-zinc-500 bg-zinc-100 dark:bg-zinc-800 opacity-80"}`}>
-                                  {featuredArticle.category}
-                                </span>
-                              ) : null;
-                            })()}
-                          </div>
-
-                          <h3
-                            className="text-[18px] md:text-[22px] font-bold tracking-[-0.01em] text-zinc-900 dark:text-zinc-100 leading-[1.3] line-clamp-2 mb-3 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors duration-300"
-                            style={{ fontFamily: "'Playfair Display', Georgia, serif" }}
-                          >
-                            {formatTitle(featuredArticle.title)}
-                          </h3>
-
-                          <div className="flex items-center justify-between mt-auto">
-                            <div className="flex items-center gap-2 text-[12px] font-medium text-zinc-400 dark:text-zinc-500">
-                              <span>
-                                {postDate.toLocaleDateString("en-US", {
-                                  month: "short",
-                                  day: "numeric",
-                                  year: "numeric",
-                                })}
-                              </span>
-                              <span className="text-zinc-200 dark:text-zinc-800">•</span>
-                              <span>{readTime}m read</span>
-                            </div>
-
-                            {(featuredArticle.likes || featuredArticle.reposts || featuredArticle.replies) ? (
-                              <div className="flex items-center gap-3.5">
-                                {featuredArticle.likes ? (
-                                  <div className="flex items-center gap-1.5 group/metric">
-                                    <Heart size={12} strokeWidth={2.5} className="text-zinc-400 group-hover:text-zinc-900 dark:group-hover:text-zinc-100 transition-colors" />
-                                    <span className="text-[11px] tabular-nums font-bold text-zinc-500 dark:text-zinc-400">{formatMetric(featuredArticle.likes)}</span>
-                                  </div>
-                                ) : null}
-                                {featuredArticle.reposts ? (
-                                  <div className="flex items-center gap-1.5 group/metric">
-                                    <Repeat size={12} strokeWidth={2.5} className="text-zinc-400 group-hover:text-zinc-900 dark:group-hover:text-zinc-100 transition-colors" />
-                                    <span className="text-[11px] tabular-nums font-bold text-zinc-500 dark:text-zinc-400">{formatMetric(featuredArticle.reposts)}</span>
-                                  </div>
-                                ) : null}
-                                {featuredArticle.replies ? (
-                                  <div className="flex items-center gap-1.5 group/metric">
-                                    <MessageCircle size={12} strokeWidth={2.5} className="text-zinc-400 group-hover:text-zinc-900 dark:group-hover:text-zinc-100 transition-colors" />
-                                    <span className="text-[11px] tabular-nums font-bold text-zinc-500 dark:text-zinc-400">{formatMetric(featuredArticle.replies)}</span>
-                                  </div>
-                                ) : null}
-                              </div>
-                            ) : null}
-                          </div>
-                        </div>
-                      </Link>
-
-                      {navigatingId === featuredArticle.id && (
-                        <div className="absolute inset-0 bg-white/40 dark:bg-black/40 backdrop-blur-[2px] z-50 animate-pulse rounded-[2rem]" />
-                      )}
-                    </motion.div>
-                  );
-                })}
+                    {topArticles.map((featuredArticle) => (
+                      <FeaturedArticleCard
+                        key={featuredArticle.id}
+                        featuredArticle={featuredArticle}
+                        navigatingId={navigatingId}
+                        onArticleClick={setNavigatingId}
+                        imgErrors={imgErrors}
+                        setImgErrors={setImgErrors}
+                      />
+                    ))}
+                  </div>
                 </div>
-              </div>
             </motion.div>
           )}
         </AnimatePresence>
@@ -1291,9 +1197,8 @@ export default function CurationList() {
         <AtlasMenu items={[...VERTICALS]} isOpen={isAtlasMenuOpen} onClose={() => setIsAtlasMenuOpen(false)} />
 
         {/* ═══ ARCHIVE LIST SECTION ═══ */}
-        <div ref={resultsRef} className={`px-5 mb-4 scroll-mt-24 flex items-center gap-3 transition-all ${searchQuery ? "mt-2" : "mt-8"}`}>
-          {!searchQuery && <div className="w-[4px] h-6 bg-gradient-to-b from-zinc-500 to-zinc-300 dark:from-zinc-400 dark:to-zinc-600 rounded-full shrink-0" />}
-          <h3 className="text-[17px] font-bold tracking-tight text-zinc-800 dark:text-zinc-200" style={{ fontFamily: "'Playfair Display', serif" }}>
+        <div ref={resultsRef} className={`px-5 mb-1 scroll-mt-24 transition-all ${searchQuery ? "mt-2" : "mt-8"}`}>
+          <SectionLabel color="zinc">
             {debouncedSearchQuery
               ? "Search Results"
               : categoryFilter.length > 0
@@ -1301,7 +1206,7 @@ export default function CurationList() {
                 : statusFilter !== "all"
                   ? "Status View"
                   : "All Entries"}
-          </h3>
+          </SectionLabel>
         </div>
 
         {/* ═══ MAIN PILLS (Sort & Status) ═══ */}
@@ -1497,22 +1402,13 @@ export default function CurationList() {
             >
               {filteredArticles.map((article: ArticleMeta, index: number) => {
                 const validImageUrl = getImageUrl(article);
-
-                // The article will render normally below the Hero Carousel.
-
-                const postDate = new Date(article.createdAt);
-                const readTime = estimateReadTime(article.content);
-                const rawSummary = aiData[article.id]?.summary || article.content.substring(0, 160);
                 const isVisitorRead = visitorState.read[article.id];
                 const isVisitorBookmarked = visitorState.bookmarked[article.id];
 
                 if (debouncedSearchQuery) {
-                  // ═══ COMPACT SEARCH RESULT ROW ═══
-                  const rawSummary =
-                    (article as any).summary || article.content || "";
-                  const plainSummary = rawSummary
-                    .replace(/<[^>]+>/g, "")
-                    .trim();
+                  // Compact Search Result Row (Optional: could also use SwipeableArticleCard if desired, but keeping search result distinct)
+                  const rawSummary = (article as any).summary || article.content || "";
+                  const plainSummary = rawSummary.replace(/<[^>]+>/g, "").trim();
 
                   return (
                     <motion.div
@@ -1520,126 +1416,44 @@ export default function CurationList() {
                       initial={{ opacity: 0, y: 16 }}
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, scale: 0.97 }}
-                      transition={{
-                        duration: 0.3,
-                        delay: Math.min(index * 0.04, 0.4),
-                      }}
+                      transition={{ duration: 0.3, delay: Math.min(index * 0.04, 0.4) }}
                     >
                       <Link
                         href={`/curation/${article.id}`}
                         onClick={() => setNavigatingId(article.id)}
                         className="flex gap-4 p-4 rounded-2xl bg-white dark:bg-[#0a0a0a] border border-zinc-200/50 dark:border-zinc-800/50 hover:border-zinc-300 dark:hover:border-zinc-700 active:scale-[0.98] transition-all hover:shadow-[0_12px_40px_rgba(0,0,0,0.06)] shadow-sm group/row relative overflow-hidden"
                       >
-                        {/* Left Thumbnail (Optional but nice) */}
                         {validImageUrl && !imgErrors[article.id] ? (
                           <div className="shrink-0 w-20 h-20 md:w-24 md:h-24 rounded-xl overflow-hidden relative bg-zinc-100 dark:bg-zinc-800">
-                            <Image
-                              src={validImageUrl}
-                              alt=""
-                              fill
-                              sizes="96px"
-                              className="object-cover opacity-90 group-hover/row:opacity-100 group-hover/row:scale-105 transition-all duration-500"
-                              onError={() =>
-                                setImgErrors((prev) => ({
-                                  ...prev,
-                                  [article.id]: true,
-                                }))
-                              }
-                            />
+                            <Image src={validImageUrl} alt="" fill sizes="96px" className="object-cover opacity-90 group-hover/row:opacity-100 group-hover/row:scale-105 transition-all duration-500" onError={() => setImgErrors((prev) => ({ ...prev, [article.id]: true }))} />
                           </div>
                         ) : (
                           <div className="shrink-0 w-20 h-20 md:w-24 md:h-24 rounded-xl overflow-hidden bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center">
-                            <FileText
-                              size={24}
-                              className="text-zinc-300 dark:text-zinc-700"
-                            />
+                            <FileText size={24} className="text-zinc-300 dark:text-zinc-700" />
                           </div>
                         )}
-
-                        {/* Right Content */}
                         <div className="flex-1 min-w-0 flex flex-col justify-center">
-                          <div className="flex items-center justify-between mt-auto">
-                            <div className="flex items-center gap-1.5 overflow-hidden">
-                              {(() => {
-                                const catData = CATEGORIES.find(c => c.name === article.category);
-                                return article.category ? (
-                                  <>
-                                    <span className={`text-[9px] font-bold uppercase tracking-[0.12em] px-2 py-0.5 rounded-md ${catData && !debouncedSearchQuery ? `${catData.color.bg} ${catData.color.text} ${catData.color.darkBg} ${catData.color.darkText}` : "text-zinc-500 bg-zinc-100 dark:bg-zinc-800"} shrink-0 shadow-[0_1px_4px_rgba(0,0,0,0.02)]`}>
-                                      {article.category}
-                                    </span>
-                                    <div className="w-[3px] h-[3px] rounded-full bg-zinc-200 dark:bg-zinc-800 shrink-0" />
-                                  </>
-                                ) : null;
-                              })()}
-                              <span className="text-[10px] font-medium text-zinc-400 dark:text-zinc-500 shrink-0">
-                                {postDate.toLocaleDateString("en-US", {
-                                  month: "short",
-                                  day: "numeric",
-                                })}
-                              </span>
-                              <div className="w-[3px] h-[3px] rounded-full bg-zinc-200 dark:bg-zinc-800 shrink-0" />
-                              <span className="text-[10px] font-medium text-zinc-400 dark:text-zinc-500 shrink-0">
-                                {readTime} min
-                              </span>
-                            </div>
-
-                            {/* Search Result Metrics (Monochrome, Right-aligned) */}
-                            {(article.likes || article.reposts || article.replies) ? (
-                              <div className="flex items-center gap-2.5">
-                                {article.replies ? (
-                                  <div className="flex items-center gap-1 group/metric">
-                                    <MessageCircle size={9} className="text-zinc-400 group-hover/metric:text-zinc-900 dark:group-hover/metric:text-zinc-100 transition-colors" />
-                                    <span className="text-[10px] text-zinc-400 tabular-nums">{formatMetric(article.replies)}</span>
-                                  </div>
-                                ) : null}
-                                {article.reposts ? (
-                                  <div className="flex items-center gap-1 group/metric">
-                                    <Repeat size={9} className="text-zinc-400 group-hover/metric:text-zinc-900 dark:group-hover/metric:text-zinc-100 transition-colors" />
-                                    <span className="text-[10px] text-zinc-400 tabular-nums">{formatMetric(article.reposts)}</span>
-                                  </div>
-                                ) : null}
-                                {article.likes ? (
-                                  <div className="flex items-center gap-1 group/metric">
-                                    <Heart size={9} className="text-zinc-400 group-hover/metric:text-zinc-900 dark:group-hover/metric:text-zinc-100 transition-colors" />
-                                    <span className="text-[10px] text-zinc-400 tabular-nums">{formatMetric(article.likes)}</span>
-                                  </div>
-                                ) : null}
-                              </div>
-                            ) : null}
-                          </div>
                           <h4 className="text-[15px] md:text-[17px] font-bold text-zinc-900 dark:text-zinc-100 leading-snug line-clamp-2 mb-1 group-hover/row:text-blue-600 dark:group-hover/row:text-blue-400 transition-colors">
-                            <HighlightText
-                              text={formatTitle(article.title)}
-                              query={searchQuery}
-                            />
+                            <HighlightText text={formatTitle(article.title)} query={searchQuery} />
                           </h4>
                           <p className="text-[13px] text-zinc-500 dark:text-zinc-400 line-clamp-2 leading-relaxed">
-                            <HighlightText
-                              text={plainSummary}
-                              query={searchQuery}
-                            />
+                            <HighlightText text={plainSummary} query={searchQuery} />
                           </p>
                         </div>
-
-                        {navigatingId === article.id && (
-                          <div className="absolute inset-0 bg-white/40 dark:bg-black/40 backdrop-blur-[2px] z-50 animate-pulse rounded-2xl" />
-                        )}
+                        {navigatingId === article.id && <div className="absolute inset-0 bg-white/40 dark:bg-black/40 backdrop-blur-[2px] z-50 animate-pulse rounded-2xl" />}
                       </Link>
                     </motion.div>
                   );
                 }
+
                 return (
                   <motion.div
                     key={article.id}
                     initial={{ opacity: 0, y: 16 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, scale: 0.97 }}
-                    transition={{
-                      duration: 0.3,
-                      delay: Math.min(index * 0.04, 0.4),
-                    }}
+                    transition={{ duration: 0.3, delay: Math.min(index * 0.04, 0.4) }}
                   >
-                    {/* ═══ SWIPEABLE ARTICLE CARD ═══ */}
                     <SwipeableArticleCard
                       id={article.id}
                       title={article.title}
@@ -1650,7 +1464,7 @@ export default function CurationList() {
                       replies={article.replies}
                       validImageUrl={validImageUrl}
                       createdAt={article.createdAt}
-                      readTime={readTime}
+                      readTime={getReadTime(article.content)}
                       isVisitorRead={!!isVisitorRead}
                       isVisitorBookmarked={!!isVisitorBookmarked}
                       imgError={!!imgErrors[article.id]}
@@ -1884,269 +1698,70 @@ export default function CurationList() {
   );
 }
 
-// ═══ SWIPEABLE ARTICLE CARD ═══
 
-interface SwipeableArticleCardProps {
-  id: string;
-  title: string;
-  category: string | null;
-  socialScore?: number;
-  likes?: number;
-  reposts?: number;
-  replies?: number;
-  validImageUrl: string | null;
-  createdAt: string;
-  readTime: number;
-  isVisitorRead: boolean;
-  isVisitorBookmarked: boolean;
-  imgError: boolean;
-  onImgError: React.Dispatch<React.SetStateAction<Record<string, boolean>>>;
-  onClick: (id: string) => void;
-  onRead: (id: string) => void;
-  onBookmark: (id: string) => void;
-  isNavigating?: boolean;
-  progress?: number;
-  onShare?: (article: ArticleMeta) => void;
-  articleRaw: ArticleMeta;
-}
+// ═══ FEATURED MINI CARD (Local for Carousel) ═══
 
-const SwipeableArticleCard = memo(({
-  id,
-  title,
-  category,
-  socialScore,
-  likes,
-  reposts,
-  replies,
-  validImageUrl,
-  createdAt,
-  readTime,
-  isVisitorRead,
-  isVisitorBookmarked,
-  imgError,
-  onImgError,
-  onClick,
-  onRead,
-  onBookmark,
-  isNavigating,
-  progress = 0,
-  onShare,
-  articleRaw,
-}: SwipeableArticleCardProps) => {
-  const postDate = new Date(createdAt);
-  const x = useMotionValue(0);
-  const [isDragging, setIsDragging] = useState(false);
+const FeaturedArticleCard = memo(({ featuredArticle, navigatingId, onArticleClick, imgErrors, setImgErrors }: any) => {
+    const postDate = new Date(featuredArticle.createdAt);
+    const readTime = getReadTime(featuredArticle.content);
+    const validImageUrl = featuredArticle.imageUrl || (featuredArticle.content && featuredArticle.content.match(/src="([^"]+)"/)?.[1]);
 
-  const bgRightOpacity = useTransform(x, [0, 60], [0, 1]);
-  const bgLeftOpacity = useTransform(x, [0, -60], [0, 1]);
-  const scaleRightIcon = useTransform(x, [20, 70], [0.5, 1.2]);
-  const scaleLeftIcon = useTransform(x, [-20, -70], [0.5, 1.2]);
-
-  const handleDragEnd = (event: any, info: any) => {
-    setIsDragging(false);
-    const swipeThreshold = 80;
-    if (info.offset.x > swipeThreshold) {
-      onRead(id);
-    } else if (info.offset.x < -swipeThreshold) {
-      onBookmark(id);
-    }
-  };
-
-  return (
-    <div className="relative group/card touch-pan-y">
-      {/* Action Backgrounds */}
-      <div className="absolute inset-0 rounded-[1.5rem] overflow-hidden">
+    return (
         <motion.div
-          className={`absolute inset-y-0 left-0 w-1/2 flex items-center pl-6 font-bold text-white shadow-inner ${isVisitorRead ? "bg-amber-500" : "bg-emerald-500"}`}
-          style={{ opacity: bgRightOpacity }}
+            whileHover={{ y: -4, scale: 1.002 }}
+            transition={{ type: "spring", stiffness: 400, damping: 30 }}
+            className="shrink-0 w-[75vw] md:w-[480px] snap-start group relative rounded-[2rem] overflow-hidden bg-white dark:bg-[#0a0a0a] border border-zinc-200/50 dark:border-zinc-800/50 shadow-[0_4px_20px_rgba(0,0,0,0.03)] hover:shadow-[0_12px_40px_rgba(0,0,0,0.08)] hover:border-zinc-300 dark:hover:border-zinc-700 active:scale-[0.99] transition-all duration-500 flex flex-col"
         >
-          <motion.div
-            style={{ scale: scaleRightIcon }}
-            className="flex items-center gap-2 drop-shadow-md"
-          >
-            <CheckCircle size={22} />
-            <span className="text-sm tracking-wide">
-              {isVisitorRead ? "Undo" : "Done"}
-            </span>
-          </motion.div>
-        </motion.div>
-        <motion.div
-          className="absolute inset-y-0 right-0 w-1/2 flex items-center justify-end pr-6 font-bold text-white bg-blue-500 shadow-inner"
-          style={{ opacity: bgLeftOpacity }}
-        >
-          <motion.div
-            style={{ scale: scaleLeftIcon }}
-            className="flex items-center gap-2 drop-shadow-md"
-          >
-            <span className="text-sm tracking-wide">
-              {isVisitorBookmarked ? "Remove" : "Save"}
-            </span>
-            <Bookmark
-              fill={isVisitorBookmarked ? "none" : "white"}
-              size={22}
-              className={isVisitorBookmarked ? "" : "fill-white"}
-            />
-          </motion.div>
-        </motion.div>
-      </div>
-
-      {/* Foreground Card */}
-      <motion.div
-        drag="x"
-        dragConstraints={{ left: 0, right: 0 }}
-        dragElastic={0.6}
-        onDragStart={() => setIsDragging(true)}
-        onDragEnd={handleDragEnd}
-        style={{ x }}
-        whileTap={{ cursor: "grabbing" }}
-        className="bg-white dark:bg-[#0a0a0a] rounded-[1.5rem] border border-zinc-100 dark:border-zinc-800/60 overflow-hidden shadow-[0_2px_8px_rgba(0,0,0,0.02)] hover:shadow-[0_8px_24px_rgba(0,0,0,0.06)] transition-all duration-500 p-4 relative z-10 cursor-grab touch-pan-y"
-      >
-        <Link
-          href={`/curation/${id}`}
-          onClick={(e) => {
-            if (isDragging) {
-              e.preventDefault();
-              e.stopPropagation();
-            } else {
-              onClick(id);
-            }
-          }}
-          className="flex items-center gap-4 outline-none w-full relative"
-          draggable={false}
-        >
-          {isNavigating && (
-            <div
-              className="absolute inset-0 bg-white/40 dark:bg-zinc-900/40 backdrop-blur-[2px] z-50 animate-pulse rounded-xl"
-              style={{ margin: "-8px", padding: "8px" }}
-            />
-          )}
-          {/* Thumbnail */}
-          <div className="w-[80px] h-[80px] rounded-2xl overflow-hidden bg-zinc-50 dark:bg-zinc-800 shrink-0 border border-zinc-100/60 dark:border-zinc-700/60 relative pointer-events-none">
-            {validImageUrl && !imgError ? (
-              <Image
-                src={validImageUrl}
-                alt=""
-                fill
-                sizes="80px"
-                draggable={false}
-                className="object-cover"
-                onError={() => onImgError(prev => ({ ...prev, [id]: true }))}
-              />
-            ) : (
-              <div className="w-full h-full flex items-center justify-center text-zinc-200 dark:text-zinc-700 bg-gradient-to-br from-zinc-50 dark:from-zinc-800 to-zinc-100 dark:to-zinc-900">
-                <FileText size={22} strokeWidth={1.5} />
-              </div>
-            )}
-            <div className="absolute inset-0 ring-1 ring-inset ring-black/5 dark:ring-white/5 rounded-2xl" />
-          </div>
-          {/* Text */}
-          <div className="flex-1 min-w-0 py-0.5 pointer-events-none">
-            <div className="flex items-center gap-1.5 mb-2 flex-wrap">
-              {isVisitorRead ? (
-                <span className="text-[9px] font-bold uppercase tracking-[0.1em] bg-zinc-100 dark:bg-zinc-800 text-zinc-400 dark:text-zinc-500 px-1.5 py-[2px] rounded">
-                  READ
-                </span>
-              ) : (Date.now() - postDate.getTime() <= 7 * 24 * 60 * 60 * 1000) ? (
-                <span className="text-[9px] font-bold uppercase tracking-[0.1em] bg-blue-50 dark:bg-blue-900/30 text-blue-500 dark:text-blue-400 px-1.5 py-[2px] rounded">
-                  NEW
-                </span>
-              ) : null}
-              {typeof socialScore === 'number' && socialScore >= 1000 && (
-                <>
-                  <div className="w-[3px] h-[3px] rounded-full bg-zinc-200 dark:bg-zinc-700 shrink-0" />
-                  <span className="text-[9px] font-bold uppercase tracking-[0.1em] bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-500 px-1.5 py-[2px] rounded">
-                    ⭐ TOP
-                  </span>
-                </>
-              )}
-              {category && (
-                <>
-                  <div className="w-[3px] h-[3px] rounded-full bg-zinc-200 dark:bg-zinc-700 shrink-0" />
-                  <span className="text-[10px] font-semibold text-zinc-400 dark:text-zinc-500 truncate">
-                    {category}
-                  </span>
-                </>
-              )}
-              {isVisitorBookmarked && (
-                <>
-                  <div className="w-[3px] h-[3px] rounded-full bg-zinc-200 dark:bg-zinc-700 shrink-0" />
-                  <Bookmark
-                    size={11}
-                    className="fill-blue-500 text-blue-500 dark:fill-blue-400 dark:text-blue-400"
-                  />
-                </>
-              )}
-            </div>
-            <h3 className="text-[15px] font-semibold tracking-tight text-zinc-900 dark:text-zinc-100 leading-[1.35] line-clamp-2 mb-1.5 group-hover/card:text-blue-600 dark:group-hover/card:text-blue-400 transition-colors">
-              {formatTitle(title)}
-            </h3>
-            <div className="flex items-center justify-between mt-auto">
-              <div className="flex items-center gap-1.5 text-[11px] font-medium text-zinc-400 dark:text-zinc-500">
-                <span>
-                  {postDate.toLocaleDateString("en-US", {
-                    month: "short",
-                    day: "numeric",
-                  })}
-                  {postDate.getFullYear() !== new Date().getFullYear() &&
-                    `, ${postDate.getFullYear()}`}
-                </span>
-                <div className="w-[3px] h-[3px] rounded-full bg-zinc-200 dark:bg-zinc-800 shrink-0" />
-                <span>{readTime}m read</span>
-              </div>
-
-              {/* Subtle Metrics (Strict Monochrome, Right-aligned) */}
-              {(likes || reposts || replies) ? (
-                <div className="flex items-center gap-3">
-                  {likes ? (
-                    <div className="flex items-center gap-1 group/metric">
-                      <Heart size={10} className="text-zinc-400 group-hover/metric:text-zinc-900 dark:group-hover/metric:text-zinc-200 transition-colors" />
-                      <span className="text-[10px] text-zinc-400 dark:text-zinc-500 tabular-nums">{formatMetric(likes)}</span>
-                    </div>
-                  ) : null}
-                  {reposts ? (
-                    <div className="flex items-center gap-1 group/metric">
-                      <Repeat size={10} className="text-zinc-400 group-hover/metric:text-zinc-900 dark:group-hover/metric:text-zinc-200 transition-colors" />
-                      <span className="text-[10px] text-zinc-400 dark:text-zinc-500 tabular-nums">{formatMetric(reposts)}</span>
-                    </div>
-                  ) : null}
-                  {replies ? (
-                    <div className="flex items-center gap-1 group/metric">
-                      <MessageCircle size={10} className="text-zinc-400 group-hover/metric:text-zinc-900 dark:group-hover/metric:text-zinc-200 transition-colors" />
-                      <span className="text-[10px] text-zinc-400 dark:text-zinc-500 tabular-nums">{formatMetric(replies)}</span>
-                    </div>
-                  ) : null}
+            <Link
+                href={`/curation/${featuredArticle.id}`}
+                onClick={() => onArticleClick(featuredArticle.id)}
+                className="flex flex-col h-full"
+            >
+                <div className="relative w-full h-[180px] md:h-[200px] overflow-hidden bg-zinc-100 dark:bg-zinc-800 shrink-0">
+                    {validImageUrl && !imgErrors[featuredArticle.id] ? (
+                        <Image
+                            src={validImageUrl}
+                            alt=""
+                            fill
+                            priority={true}
+                            sizes="(max-width: 768px) 100vw, 600px"
+                            className="object-cover object-top opacity-90 group-hover:opacity-100 group-hover:scale-105 transition-all duration-700"
+                            onError={() => setImgErrors((prev: any) => ({ ...prev, [featuredArticle.id]: true }))}
+                        />
+                    ) : (
+                        <div className="w-full h-full bg-gradient-to-br from-zinc-200 to-zinc-300 dark:from-zinc-800 dark:to-zinc-900" />
+                    )}
                 </div>
-              ) : null}
-            </div>
-          </div>
-        </Link>
-
-        {/* Share button */}
-        {onShare && (
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              onShare(articleRaw);
-            }}
-            className="absolute top-3 right-3 z-20 p-2 rounded-full bg-white/90 dark:bg-zinc-800/90 border border-zinc-100 dark:border-zinc-700 shadow-sm opacity-0 group-hover/card:opacity-100 transition-opacity active:scale-90 pointer-events-auto"
-            aria-label="Share"
-          >
-            <Share2 size={14} className="text-zinc-500 dark:text-zinc-400" />
-          </button>
-        )}
-
-        {/* Reading progress bar */}
-        {progress > 0.05 && (
-          <div className="mt-2 w-full h-1 bg-zinc-100 dark:bg-zinc-800 rounded-full overflow-hidden">
-            <div
-              className={`h-full rounded-full transition-all ${progress >= 0.95 ? "bg-emerald-400" : "bg-gradient-to-r from-blue-400 to-blue-500"}`}
-              style={{ width: `${Math.min(Math.round(progress * 100), 100)}%` }}
-            />
-          </div>
-        )}
-      </motion.div>
-    </div>
-  );
+                <div className="px-5 pt-5 pb-2 md:px-6 md:pt-6 md:pb-2 flex flex-col relative z-20 h-full">
+                    <div className="flex items-center gap-2 mb-3 flex-wrap">
+                        <span className="text-[9px] font-bold uppercase tracking-[0.2em] bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 px-2 py-0.5 rounded-[4px] shadow-sm">
+                            TRENDING
+                        </span>
+                        {featuredArticle.category && (
+                            <span className="text-[9px] font-bold uppercase tracking-[0.15em] px-2 py-0.5 rounded-md ml-1 text-zinc-500 bg-zinc-100 dark:bg-zinc-800 opacity-80">
+                                {featuredArticle.category}
+                            </span>
+                        )}
+                    </div>
+                    <h3
+                        className="text-[18px] md:text-[22px] font-bold tracking-[-0.01em] text-zinc-900 dark:text-zinc-100 leading-[1.3] line-clamp-2 mb-3 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors duration-300"
+                        style={{ fontFamily: "'Playfair Display', Georgia, serif" }}
+                    >
+                        {formatTitle(featuredArticle.title)}
+                    </h3>
+                    <div className="flex items-center justify-between mt-auto">
+                        <div className="flex items-center gap-2 text-[12px] font-medium text-zinc-400 dark:text-zinc-500">
+                            <span>{postDate.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}</span>
+                            <span className="text-zinc-200 dark:text-zinc-800">•</span>
+                            <span>{readTime}m read</span>
+                        </div>
+                    </div>
+                </div>
+            </Link>
+            {navigatingId === featuredArticle.id && (
+                <div className="absolute inset-0 bg-white/40 dark:bg-black/40 backdrop-blur-[2px] z-50 animate-pulse rounded-[2rem]" />
+            )}
+        </motion.div>
+    );
 });
-
-SwipeableArticleCard.displayName = "SwipeableArticleCard";
+FeaturedArticleCard.displayName = "FeaturedArticleCard";
