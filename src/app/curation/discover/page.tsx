@@ -97,6 +97,8 @@ function ExploreContent() {
 
     const searchRef = useRef<HTMLInputElement>(null);
     const resultsRef = useRef<HTMLDivElement>(null);
+    const scrollContainerRef = useRef<HTMLDivElement>(null);
+    const scrollYRef = useRef(0);
     const isShowingSearch = searchQuery.trim().length > 0 || activeCategory !== null;
 
     const { theme, setTheme } = useTheme();
@@ -168,6 +170,13 @@ function ExploreContent() {
         })();
     }, []);
 
+    // Restore scroll position
+    useEffect(() => {
+        if (!isLoading && mounted && scrollContainerRef.current && scrollYRef.current > 0) {
+            scrollContainerRef.current.scrollTop = scrollYRef.current;
+        }
+    }, [isLoading, mounted]);
+
     // ─── Search ───
 
     useEffect(() => {
@@ -209,7 +218,7 @@ function ExploreContent() {
         const isRead = readStats.readIds.has(article.id);
         const isSaved = readStats.savedIds.has(article.id);
         return (
-            <motion.div key={article.id} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.2, delay: i * 0.02 }}>
+            <motion.div key={article.id} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.2, delay: i * 0.02 }} className="min-h-[64px] flex flex-col justify-center">
                 <Link href={`/curation/${article.id}`} className={`group flex items-center gap-2.5 py-2 border-b border-zinc-100 dark:border-zinc-800/50 last:border-0 transition-colors ${isRead ? "opacity-60" : ""}`}>
                     {rank && <span className="text-[15px] font-bold text-zinc-200 dark:text-zinc-800 w-5 text-center shrink-0 tabular-nums">{i + 1}</span>}
                     <div className="w-10 h-10 rounded-md overflow-hidden bg-zinc-100 dark:bg-zinc-800/80 shrink-0 relative">
@@ -277,7 +286,7 @@ function ExploreContent() {
     };
 
     const Skeleton = ({ n }: { n: number }) => (<>{Array(n).fill(0).map((_, i) => (
-        <div key={i} className="flex items-center gap-2.5 py-2">
+        <div key={i} className="flex items-center gap-2.5 py-2 min-h-[64px] border-b border-zinc-100 dark:border-zinc-800/50 last:border-0">
             <div className="w-10 h-10 rounded-md bg-zinc-100 dark:bg-zinc-800 animate-pulse shrink-0" />
             <div className="flex-1 space-y-1.5"><div className="h-2.5 bg-zinc-100 dark:bg-zinc-800 rounded animate-pulse w-3/4" /><div className="h-2 bg-zinc-100 dark:bg-zinc-800 rounded animate-pulse w-1/2" /></div>
         </div>
@@ -298,7 +307,7 @@ function ExploreContent() {
     );
 
     return (
-        <div className="min-h-screen bg-[#fafaf8] dark:bg-[#050505] text-zinc-900 dark:text-zinc-100">
+        <div className="h-full flex flex-col bg-[#fafaf8] dark:bg-[#050505] text-zinc-900 dark:text-zinc-100 overflow-hidden">
             {/* ═══ HEADER ═══ */}
             <header className="sticky top-0 z-[110] bg-[#fafaf8]/80 dark:bg-[#050505]/80 backdrop-blur-xl border-b border-zinc-200/40 dark:border-zinc-800/40 shrink-0 h-16 flex items-center px-4 transition-colors duration-500">
                 {/* Search Only Header */}
@@ -351,7 +360,22 @@ function ExploreContent() {
             )}
 
             {/* ═══ CONTENT ═══ */}
-            <main className="max-w-2xl mx-auto px-4 pt-6 pb-32">
+            <main 
+                ref={scrollContainerRef}
+                onScroll={() => {
+                  if (scrollContainerRef.current) {
+                    scrollYRef.current = scrollContainerRef.current.scrollTop;
+                  }
+                }}
+                className="flex-1 overflow-y-auto overflow-x-hidden pt-6 pb-32"
+                style={{
+                    WebkitOverflowScrolling: "touch",
+                    overscrollBehaviorY: "none",
+                    overflowAnchor: "auto",
+                    scrollbarGutter: "stable",
+                } as React.CSSProperties}
+            >
+                <div className="max-w-2xl mx-auto px-4">
                 <AnimatePresence mode="wait">
                     {isShowingSearch ? (
                         <motion.div key="search" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.15 }} className="min-h-[400px]">
@@ -518,6 +542,7 @@ function ExploreContent() {
                         </motion.div>
                     )}
                 </AnimatePresence>
+                </div>
             </main>
 
             {/* ═══ ATLAS MENU ═══ */}

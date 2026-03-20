@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
     Bookmark, BookOpen, ChevronRight, Clock, FileText,
@@ -87,6 +87,8 @@ export default function LibraryPage() {
     const [activeCollection, setActiveCollection] = useState<Collection | null>(null);
     const [isCreatingCollection, setIsCreatingCollection] = useState(false);
     const [newCollectionName, setNewCollectionName] = useState("");
+    const scrollContainerRef = useRef<HTMLDivElement>(null);
+    const scrollYRef = useRef(0);
 
     useEffect(() => {
         setMounted(true);
@@ -111,6 +113,13 @@ export default function LibraryPage() {
             finally { setIsLoading(false); }
         })();
     }, []);
+
+    // Restore scroll position
+    useEffect(() => {
+        if (!isLoading && mounted && scrollContainerRef.current && scrollYRef.current > 0) {
+            scrollContainerRef.current.scrollTop = scrollYRef.current;
+        }
+    }, [isLoading, mounted]);
 
     // ─── Actions ───
     const handleRemoveHistory = async (id: string) => {
@@ -166,7 +175,7 @@ export default function LibraryPage() {
     // ─── Renderers ───
 
     const ArticleRow = ({ article, i, showTime, onRemove }: { article: any; i: number; showTime?: boolean; onRemove?: (id: string) => void }) => (
-        <motion.div key={article.id} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.2, delay: i * 0.02 }} className="group relative">
+        <motion.div key={article.id} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.2, delay: i * 0.02 }} className="group relative min-h-[64px] flex flex-col justify-center">
             <Link href={`/curation/${article.id}`} className="flex items-center gap-2.5 py-2 border-b border-zinc-100 dark:border-zinc-800/50 last:border-0 transition-colors pr-6">
                 <div className="w-10 h-10 rounded-md overflow-hidden bg-zinc-100 dark:bg-zinc-800/80 shrink-0 relative">
                     {article.imageUrl ? <Image src={article.imageUrl} alt="" fill className="object-cover" /> : <div className="w-full h-full flex items-center justify-center text-zinc-400"><FileText size={14} /></div>}
@@ -206,7 +215,7 @@ export default function LibraryPage() {
     );
 
     const Skeleton = ({ n }: { n: number }) => (<>{Array(n).fill(0).map((_, i) => (
-        <div key={i} className="flex items-center gap-2.5 py-2">
+        <div key={i} className="flex items-center gap-2.5 py-2 min-h-[64px] border-b border-zinc-100 dark:border-zinc-800/50 last:border-0">
             <div className="w-10 h-10 rounded-md bg-zinc-100 dark:bg-zinc-800 animate-pulse shrink-0" />
             <div className="flex-1 space-y-1.5"><div className="h-2.5 bg-zinc-100 dark:bg-zinc-800 rounded animate-pulse w-3/4" /><div className="h-2 bg-zinc-100 dark:bg-zinc-800 rounded animate-pulse w-1/2" /></div>
         </div>
@@ -224,7 +233,7 @@ export default function LibraryPage() {
     );
 
     return (
-        <div className="min-h-screen bg-[#fafaf8] dark:bg-[#050505] text-zinc-900 dark:text-zinc-100">
+        <div className="h-full flex flex-col bg-[#fafaf8] dark:bg-[#050505] text-zinc-900 dark:text-zinc-100 overflow-hidden">
 
             {/* ═══ HEADER ═══ */}
             <header className="sticky top-0 z-50 bg-[#fafaf8]/85 dark:bg-[#050505]/85 backdrop-blur-xl border-b border-zinc-200/40 dark:border-zinc-800/40">
@@ -258,7 +267,22 @@ export default function LibraryPage() {
             </header>
 
             {/* ═══ CONTENT ═══ */}
-            <main className="max-w-2xl mx-auto px-4 pt-4 pb-32">
+            <main 
+                ref={scrollContainerRef}
+                onScroll={() => {
+                  if (scrollContainerRef.current) {
+                    scrollYRef.current = scrollContainerRef.current.scrollTop;
+                  }
+                }}
+                className="flex-1 overflow-y-auto overflow-x-hidden pt-4 pb-32"
+                style={{
+                    WebkitOverflowScrolling: "touch",
+                    overscrollBehaviorY: "none",
+                    overflowAnchor: "auto",
+                    scrollbarGutter: "stable",
+                } as React.CSSProperties}
+            >
+                <div className="max-w-2xl mx-auto px-4">
                 <AnimatePresence mode="wait">
                     {tab === "activity" ? (
                         <motion.div key="activity" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.15 }} className="space-y-8">
@@ -281,7 +305,7 @@ export default function LibraryPage() {
                             {/* ── Weekly Activity ── */}
                             <section>
                                 <Label><Calendar size={11} className="inline mr-1 -mt-px" />Weekly Activity</Label>
-                                <div className="flex items-end gap-1.5 px-1">
+                                <div className="flex items-end gap-1.5 px-1 min-h-[56px]">
                                     {weeklyActivity.map((count, i) => {
                                         const maxCount = Math.max(...weeklyActivity, 1);
                                         const heightPct = Math.max(10, (count / maxCount) * 100);
@@ -509,6 +533,7 @@ export default function LibraryPage() {
                         </motion.div>
                     )}
                 </AnimatePresence>
+                </div>
             </main>
         </div>
     );
