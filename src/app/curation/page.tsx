@@ -1134,7 +1134,10 @@ export default function CurationList() {
                    <div className="shrink-0 w-[75vw] md:w-[480px] h-[320px] md:h-[380px] bg-zinc-200/50 dark:bg-zinc-800/40 rounded-[2rem] border border-zinc-200/50 dark:border-zinc-700/30 relative overflow-hidden">
                      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 dark:via-white/5 to-transparent animate-shimmer" />
                    </div>
-                   <div className="shrink-0 w-[75vw] md:w-[480px] h-[320px] md:h-[380px] bg-zinc-200/50 dark:bg-zinc-800/40 rounded-[2rem] border border-zinc-200/50 dark:border-zinc-700/30 relative overflow-hidden hidden md:block">
+                   <div className="shrink-0 w-[75vw] md:w-[480px] h-[320px] md:h-[380px] bg-zinc-200/50 dark:bg-zinc-800/40 rounded-[2rem] border border-zinc-200/50 dark:border-zinc-700/30 relative overflow-hidden">
+                     <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 dark:via-white/5 to-transparent animate-shimmer" />
+                   </div>
+                   <div className="shrink-0 w-[75vw] md:w-[480px] h-[320px] md:h-[380px] bg-zinc-200/50 dark:bg-zinc-800/40 rounded-[2rem] border border-zinc-200/50 dark:border-zinc-700/30 relative overflow-hidden hidden lg:block">
                      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 dark:via-white/5 to-transparent animate-shimmer" />
                    </div>
                 </div>
