@@ -16,13 +16,6 @@ import { formatTitle, formatMetric } from "@/lib/utils";
 import { useSearchParams } from "next/navigation";
 import { Suspense } from "react";
 import { useTheme } from "@/components/ThemeProvider";
-import { 
-    ArticleRow, 
-    SkeletonRow, 
-    SectionLabel 
-} from "@/components/curation/CurationComponents";
-import { AtlasMenu } from "@/components/AtlasMenu";
-import { VERTICALS } from "@/lib/curation-config";
 
 // ─── Constants ───
 
@@ -112,6 +105,15 @@ function ExploreContent() {
     const toggleTheme = () => {
         setTheme(theme === "dark" ? "light" : "dark");
     };
+
+    const VERTICALS = [
+        { key: "books", label: "Books", href: "/curation/books" },
+        { key: "skills", label: "Skills Lab", href: "/curation/skills" },
+        { key: "frameworks", label: "Frameworks", href: "/curation/frameworks" },
+        { key: "codex", label: "Codex", href: "/curation/codex" },
+        { key: "collections", label: "Collections", href: "/curation/collections" },
+        { key: "highlights", label: "Highlights", href: "/curation/highlights" },
+    ];
 
     // ─── Fetch ───
 
@@ -203,6 +205,90 @@ function ExploreContent() {
 
     // ─── Renderers ───
 
+    const ArticleRow = ({ article, i, rank }: { article: any; i: number; rank?: boolean }) => {
+        const isRead = readStats.readIds.has(article.id);
+        const isSaved = readStats.savedIds.has(article.id);
+        return (
+            <motion.div key={article.id} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.2, delay: i * 0.02 }}>
+                <Link href={`/curation/${article.id}`} className={`group flex items-center gap-2.5 py-2 border-b border-zinc-100 dark:border-zinc-800/50 last:border-0 transition-colors ${isRead ? "opacity-60" : ""}`}>
+                    {rank && <span className="text-[15px] font-bold text-zinc-200 dark:text-zinc-800 w-5 text-center shrink-0 tabular-nums">{i + 1}</span>}
+                    <div className="w-10 h-10 rounded-md overflow-hidden bg-zinc-100 dark:bg-zinc-800/80 shrink-0 relative">
+                        {article.imageUrl ? <Image src={article.imageUrl} alt="" fill className="object-cover" /> : <div className="w-full h-full flex items-center justify-center text-zinc-400"><FileText size={14} /></div>}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                        <h3 className="text-[12.5px] font-medium text-zinc-900 dark:text-zinc-100 leading-snug line-clamp-2">{formatTitle(article.title)}</h3>
+                        <div className="flex items-center gap-1.5 mt-0.5">
+                            <span className="text-[10px] text-zinc-400">
+                                {new Date(article.createdAt).toLocaleDateString('en-US', { day: 'numeric', month: 'short' })}
+                            </span>
+                            <span className="text-zinc-300 dark:text-zinc-700 text-[7px]">·</span>
+                            <span className="text-[10px] text-zinc-400">{readTime(article.content)} min read</span>
+                            
+                            {(article.likes || article.reposts || article.replies) && (
+                                <>
+                                    <span className="text-zinc-300 dark:text-zinc-700 text-[7px]">·</span>
+                                    <div className="flex items-center gap-2">
+                                        {article.replies > 0 && (
+                                            <span className="text-[10px] text-zinc-400 flex items-center gap-0.5">
+                                                <MessageCircle size={8} className="text-zinc-400" />
+                                                {formatMetric(article.replies)}
+                                            </span>
+                                        )}
+                                        {article.reposts > 0 && (
+                                            <span className="text-[10px] text-zinc-400 flex items-center gap-0.5">
+                                                <Repeat size={8} className="text-zinc-400" />
+                                                {formatMetric(article.reposts)}
+                                            </span>
+                                        )}
+                                        {article.likes > 0 && (
+                                            <span className="text-[10px] text-zinc-400 flex items-center gap-0.5">
+                                                <Heart size={8} className="text-zinc-400" />
+                                                {formatMetric(article.likes)}
+                                            </span>
+                                        )}
+                                    </div>
+                                </>
+                            )}
+
+                            {isSaved && (
+                                <>
+                                    <span className="text-zinc-300 dark:text-zinc-700 text-[7px]">·</span>
+                                    <span className="text-[10px] text-blue-500 flex items-center gap-0.5 font-medium">
+                                        <Bookmark size={9} className="fill-blue-500/20" />
+                                        saved
+                                    </span>
+                                </>
+                            )}
+                            {isRead && (
+                                <>
+                                    <span className="text-zinc-300 dark:text-zinc-700 text-[7px]">·</span>
+                                    <span className="text-[10px] text-emerald-500 flex items-center gap-0.5 font-medium">
+                                        <CheckCheck size={9} />
+                                        read
+                                    </span>
+                                </>
+                            )}
+                        </div>
+                    </div>
+                    <ChevronRight size={12} className="text-zinc-300 dark:text-zinc-700 shrink-0" />
+                </Link>
+            </motion.div>
+        );
+    };
+
+    const Skeleton = ({ n }: { n: number }) => (<>{Array(n).fill(0).map((_, i) => (
+        <div key={i} className="flex items-center gap-2.5 py-2">
+            <div className="w-10 h-10 rounded-md bg-zinc-100 dark:bg-zinc-800 animate-pulse shrink-0" />
+            <div className="flex-1 space-y-1.5"><div className="h-2.5 bg-zinc-100 dark:bg-zinc-800 rounded animate-pulse w-3/4" /><div className="h-2 bg-zinc-100 dark:bg-zinc-800 rounded animate-pulse w-1/2" /></div>
+        </div>
+    ))}</>);
+
+    const Label = ({ children, color = "blue" }: { children: React.ReactNode, color?: "blue" | "emerald" | "zinc" }) => (
+        <div className="flex items-center gap-2 mb-3">
+            <div className={`w-[3px] h-3 rounded-full ${color === "blue" ? "bg-blue-500" : color === "emerald" ? "bg-emerald-500" : "bg-zinc-400"}`} />
+            <h2 className="text-[11px] font-bold text-zinc-900 dark:text-zinc-100 uppercase tracking-[0.2em]">{children}</h2>
+        </div>
+    );
 
     if (!mounted) return (
         <div className="min-h-screen bg-[#fafaf8] dark:bg-[#050505] flex flex-col items-center justify-center gap-4 animate-pulse">
@@ -298,18 +384,8 @@ function ExploreContent() {
                                 </div>
                                 <button onClick={() => { setSearchQuery(""); setActiveCategory(null); }} className="text-[10px] text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300">Clear</button>
                             </div>
-                            {isSearchingApi ? <SkeletonRow n={5} /> : searchResults.length > 0 ? (
-                                <div>
-                                    {searchResults.map((a, i) => (
-                                        <ArticleRow 
-                                            key={a.id} 
-                                            article={a} 
-                                            index={i} 
-                                            isRead={readStats.readIds.has(a.id)}
-                                            isBookmarked={readStats.savedIds.has(a.id)}
-                                        />
-                                    ))}
-                                </div>
+                            {isSearchingApi ? <Skeleton n={5} /> : searchResults.length > 0 ? (
+                                <div>{searchResults.map((a, i) => <ArticleRow key={a.id} article={a} i={i} />)}</div>
                             ) : (
                                 <div className="py-16 text-center"><Search size={24} className="mx-auto text-zinc-300 dark:text-zinc-700 mb-2" /><p className="text-[12px] text-zinc-500">No articles found</p></div>
                             )}
@@ -340,10 +416,10 @@ function ExploreContent() {
                             {/* Picked For You */}
                             <section>
                                 <div className="flex items-center justify-between">
-                                    <SectionLabel color="blue">Picked For You</SectionLabel>
+                                    <Label color="blue">Picked For You</Label>
                                     <span className="text-[10px] text-zinc-400 -mt-3">personal</span>
                                 </div>
-                                {isLoading ? <SkeletonRow n={3} /> : readStats.readCount === 0 ? (
+                                {isLoading ? <Skeleton n={3} /> : readStats.readCount === 0 ? (
                                     <div className="bg-gradient-to-br from-blue-50/50 to-indigo-50/50 dark:from-blue-500/5 dark:to-indigo-500/5 border border-blue-100/50 dark:border-blue-500/10 rounded-2xl p-6 text-center shadow-sm relative overflow-hidden group">
                                         <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
                                             <Brain size={64} className="text-blue-500 transform rotate-12" />
@@ -371,70 +447,31 @@ function ExploreContent() {
                                         </div>
                                     </div>
                                 ) : (
-                                    <div>
-                                        {forYouArticles.map((a, i) => (
-                                            <ArticleRow 
-                                                key={a.id} 
-                                                article={a} 
-                                                index={i} 
-                                                isRead={readStats.readIds.has(a.id)}
-                                                isBookmarked={readStats.savedIds.has(a.id)}
-                                            />
-                                        ))}
-                                    </div>
+                                    <div>{forYouArticles.map((a, i) => <ArticleRow key={a.id} article={a} i={i} />)}</div>
                                 )}
                             </section>
 
                             {/* Latest */}
                             <section>
                                 <div className="flex items-center justify-between">
-                                    <SectionLabel color="emerald">Recently Added</SectionLabel>
+                                    <Label color="emerald">Recently Added</Label>
                                     <span className="text-[10px] text-zinc-400 -mt-3">latest</span>
                                 </div>
-                                {isLoading ? (
-                                    <SkeletonRow n={4} />
-                                ) : (
-                                    <div>
-                                        {latestArticles.map((a, i) => (
-                                            <ArticleRow 
-                                                key={a.id} 
-                                                article={a} 
-                                                index={i} 
-                                                isRead={readStats.readIds.has(a.id)}
-                                                isBookmarked={readStats.savedIds.has(a.id)}
-                                            />
-                                        ))}
-                                    </div>
-                                )}
+                                {isLoading ? <Skeleton n={4} /> : <div>{latestArticles.map((a, i) => <ArticleRow key={a.id} article={a} i={i} />)}</div>}
                             </section>
 
                             {/* Trending */}
                             <section id="trending-section">
                                 <div className="flex items-center justify-between">
-                                    <SectionLabel color="blue">Trending Now</SectionLabel>
+                                    <Label color="blue">Trending Now</Label>
                                     <span className="text-[10px] text-zinc-400 -mt-3">popular</span>
                                 </div>
-                                {isLoading ? (
-                                    <SkeletonRow n={5} />
-                                ) : (
-                                    <div>
-                                        {trendingArticles.map((a, i) => (
-                                            <ArticleRow 
-                                                key={a.id} 
-                                                article={a} 
-                                                index={i} 
-                                                showRank 
-                                                isRead={readStats.readIds.has(a.id)}
-                                                isBookmarked={readStats.savedIds.has(a.id)}
-                                            />
-                                        ))}
-                                    </div>
-                                )}
+                                {isLoading ? <Skeleton n={5} /> : <div>{trendingArticles.map((a, i) => <ArticleRow key={a.id} article={a} i={i} rank />)}</div>}
                             </section>
 
                             {/* Topics — compact inline rows */}
                             <section>
-                                <SectionLabel color="zinc">Topics</SectionLabel>
+                                <Label color="zinc">Topics</Label>
                                 <div className="space-y-0">
                                     {CATEGORIES.map(cat => {
                                         const count = categoryStats[cat.name] || 0;
@@ -460,7 +497,7 @@ function ExploreContent() {
 
                             {/* Reading Lists — compact horizontal scroll */}
                             <section>
-                                <SectionLabel color="blue">Reading Lists</SectionLabel>
+                                <Label color="blue">Reading Lists</Label>
                                 <div className="flex gap-2 overflow-x-auto no-scrollbar pb-0.5 -mx-1 px-1">
                                     {READING_LISTS.map(list => (
                                         <button
@@ -484,11 +521,45 @@ function ExploreContent() {
             </main>
 
             {/* ═══ ATLAS MENU ═══ */}
-            <AtlasMenu 
-                items={[...VERTICALS]} 
-                isOpen={isAtlasMenuOpen} 
-                onClose={() => setIsAtlasMenuOpen(false)} 
-            />
+            <AnimatePresence>
+                {isAtlasMenuOpen && (
+                    <motion.div
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: 10 }}
+                        transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+                        className="fixed inset-0 z-[100] bg-[#fafaf8]/95 dark:bg-[#050505]/95 backdrop-blur-3xl flex flex-col pt-14"
+                    >
+                        <nav className="flex-1 px-10 flex flex-col pt-[18vh] gap-3">
+                            <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-zinc-400 mb-6 opacity-60">Knowledge Archives</p>
+                            {VERTICALS.map((v, i) => (
+                                <motion.div
+                                    key={v.key}
+                                    initial={{ opacity: 0, x: -20 }}
+                                    animate={{ opacity: 1, x: 0 }}
+                                    transition={{ delay: i * 0.08, duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+                                >
+                                    <Link
+                                        href={v.href}
+                                        onClick={() => setIsAtlasMenuOpen(false)}
+                                        className="group py-2.5 block"
+                                    >
+                                        <div className="flex items-center gap-6">
+                                            <span className="text-[11px] font-bold text-zinc-300 dark:text-zinc-700 tabular-nums">0{i + 1}</span>
+                                            <span
+                                                className="text-[36px] md:text-[52px] font-light tracking-tight text-zinc-900 dark:text-zinc-100 group-hover:italic transition-all duration-300"
+                                                style={{ fontFamily: "'Playfair Display', serif" }}
+                                            >
+                                                {v.label}
+                                            </span>
+                                        </div>
+                                    </Link>
+                                </motion.div>
+                            ))}
+                        </nav>
+                    </motion.div>
+                )}
+            </AnimatePresence>
 
         </div>
     );
