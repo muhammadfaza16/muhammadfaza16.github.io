@@ -13,6 +13,8 @@ import {
   Search,
   ChevronLeft,
   ChevronRight,
+  ChevronsLeft,
+  ChevronsRight,
   Bookmark,
   FileText,
   CheckCircle,
@@ -1160,7 +1162,7 @@ export default function CurationList() {
                           <div className="absolute inset-0 shadow-[inset_0_0_0_1px_rgba(0,0,0,0.05)] dark:shadow-[inset_0_0_0_1px_rgba(255,255,255,0.05)] z-20" />
                         </div>
 
-                        <div className="px-5 pt-5 pb-2 md:px-6 md:pt-6 md:pb-2 flex flex-col relative z-20 h-full">
+                        <div className="px-6 pt-7 pb-4 md:px-8 md:pt-8 md:pb-4 flex flex-col relative z-20 h-full">
                           <div className="flex items-center gap-2 mb-3 flex-wrap">
                             <span className="text-[9px] font-bold uppercase tracking-[0.2em] bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 px-2 py-0.5 rounded-[4px] shadow-sm">
                               TRENDING
@@ -1191,7 +1193,6 @@ export default function CurationList() {
                                   year: "numeric",
                                 })}
                               </span>
-                              <span className="text-zinc-200 dark:text-zinc-800">•</span>
                               <span>{readTime}m read</span>
                             </div>
 
@@ -1292,7 +1293,7 @@ export default function CurationList() {
 
         {/* ═══ ARCHIVE LIST SECTION ═══ */}
         <div ref={resultsRef} className={`px-5 mb-4 scroll-mt-24 flex items-center gap-3 transition-all ${searchQuery ? "mt-2" : "mt-8"}`}>
-          {!searchQuery && <div className="w-[4px] h-6 bg-gradient-to-b from-zinc-500 to-zinc-300 dark:from-zinc-400 dark:to-zinc-600 rounded-full shrink-0" />}
+          {!searchQuery && <div className="w-[4px] h-6 bg-zinc-900 dark:bg-white rounded-full shrink-0 shadow-sm" />}
           <h3 className="text-[17px] font-bold tracking-tight text-zinc-800 dark:text-zinc-200" style={{ fontFamily: "'Playfair Display', serif" }}>
             {debouncedSearchQuery
               ? "Search Results"
@@ -1564,10 +1565,9 @@ export default function CurationList() {
                                 const catData = CATEGORIES.find(c => c.name === article.category);
                                 return article.category ? (
                                   <>
-                                    <span className={`text-[9px] font-bold uppercase tracking-[0.12em] px-2 py-0.5 rounded-md ${catData && !debouncedSearchQuery ? `${catData.color.bg} ${catData.color.text} ${catData.color.darkBg} ${catData.color.darkText}` : "text-zinc-500 bg-zinc-100 dark:bg-zinc-800"} shrink-0 shadow-[0_1px_4px_rgba(0,0,0,0.02)]`}>
-                                      {article.category}
-                                    </span>
-                                    <div className="w-[3px] h-[3px] rounded-full bg-zinc-200 dark:bg-zinc-800 shrink-0" />
+                                      <span className={`text-[9px] font-bold uppercase tracking-[0.12em] px-2 py-0.5 rounded-md ${catData && !debouncedSearchQuery ? `${catData.color.bg} ${catData.color.text} ${catData.color.darkBg} ${catData.color.darkText}` : "text-zinc-500 bg-zinc-100 dark:bg-zinc-800"} shrink-0 shadow-[0_1px_4px_rgba(0,0,0,0.02)]`}>
+                                        {article.category}
+                                      </span>
                                   </>
                                 ) : null;
                               })()}
@@ -1577,7 +1577,6 @@ export default function CurationList() {
                                   day: "numeric",
                                 })}
                               </span>
-                              <div className="w-[3px] h-[3px] rounded-full bg-zinc-200 dark:bg-zinc-800 shrink-0" />
                               <span className="text-[10px] font-medium text-zinc-400 dark:text-zinc-500 shrink-0">
                                 {readTime} min
                               </span>
@@ -1669,33 +1668,50 @@ export default function CurationList() {
 
               {/* Pagination Controls */}
               {totalCount > 5 && (
-                <div className="flex items-center justify-center gap-10 md:gap-20 px-5 py-6 mt-2 border-t border-zinc-100 dark:border-zinc-800/50">
-                  <button
-                    disabled={currentPage === 1 || isLoading || isTransitioning}
-                    onClick={() => handlePageChange(currentPage - 1)}
-                    className="flex items-center gap-1.5 text-[11px] font-bold tracking-widest uppercase text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 transition-all disabled:opacity-20 active:scale-95"
-                  >
-                    <ChevronLeft size={18} strokeWidth={2.5} />
-                    <span>Prev</span>
-                  </button>
+                <div className="flex items-center justify-center mt-2 mb-8">
+                  <div className="flex items-center gap-2 p-1.5 bg-zinc-50/50 dark:bg-zinc-900/40 backdrop-blur-md border border-zinc-200/50 dark:border-zinc-800/50 rounded-full shadow-sm">
+                    <button
+                      disabled={currentPage === 1 || isLoading || isTransitioning}
+                      onClick={() => handlePageChange(1)}
+                      className="flex items-center justify-center w-8 h-8 text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200 transition-all disabled:opacity-10 active:scale-90 rounded-full"
+                      title="First Page"
+                    >
+                      <ChevronsLeft size={14} strokeWidth={2.5} />
+                    </button>
 
-                  <div className="flex flex-col items-center gap-0.5">
-                    <span className="text-[9px] font-bold text-zinc-300 dark:text-zinc-700 uppercase tracking-[0.25em]">
-                      Page
-                    </span>
-                    <span className="text-[11px] md:text-[13px] font-bold text-zinc-900 dark:text-zinc-100 tabular-nums">
-                      {currentPage} <span className="text-zinc-300 dark:text-zinc-700 mx-0.5">/</span> {Math.ceil(totalCount / 5)}
-                    </span>
+                    <button
+                      disabled={currentPage === 1 || isLoading || isTransitioning}
+                      onClick={() => handlePageChange(currentPage - 1)}
+                      className="flex items-center gap-1 px-3 h-8 text-[10px] font-bold tracking-widest uppercase text-zinc-600 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-zinc-100 transition-all disabled:opacity-20 active:scale-95 bg-white dark:bg-zinc-800 rounded-full border border-zinc-200/50 dark:border-zinc-700/50 shadow-sm"
+                    >
+                      <ChevronLeft size={12} strokeWidth={3} />
+                      <span className="hidden sm:inline">Prev</span>
+                    </button>
+
+                    <div className="flex items-center min-w-[50px] justify-center px-1">
+                      <span className="text-[11px] font-black text-zinc-900 dark:text-zinc-100 tabular-nums">
+                        {currentPage} <span className="text-zinc-300 dark:text-zinc-700 font-medium mx-0.5">/</span> {Math.ceil(totalCount / 5)}
+                      </span>
+                    </div>
+
+                    <button
+                      disabled={currentPage >= Math.ceil(totalCount / 5) || isLoading || isTransitioning}
+                      onClick={() => handlePageChange(currentPage + 1)}
+                      className="flex items-center gap-1 px-3 h-8 text-[10px] font-bold tracking-widest uppercase text-zinc-600 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-zinc-100 transition-all disabled:opacity-20 active:scale-95 bg-white dark:bg-zinc-800 rounded-full border border-zinc-200/50 dark:border-zinc-700/50 shadow-sm"
+                    >
+                      <span className="hidden sm:inline">Next</span>
+                      <ChevronRight size={12} strokeWidth={3} />
+                    </button>
+
+                    <button
+                      disabled={currentPage >= Math.ceil(totalCount / 5) || isLoading || isTransitioning}
+                      onClick={() => handlePageChange(Math.ceil(totalCount / 5))}
+                      className="flex items-center justify-center w-8 h-8 text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200 transition-all disabled:opacity-10 active:scale-90 rounded-full"
+                      title="Last Page"
+                    >
+                      <ChevronsRight size={14} strokeWidth={2.5} />
+                    </button>
                   </div>
-
-                  <button
-                    disabled={currentPage >= Math.ceil(totalCount / 5) || isLoading || isTransitioning}
-                    onClick={() => handlePageChange(currentPage + 1)}
-                    className="flex items-center gap-1.5 text-[11px] font-bold tracking-widest uppercase text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 transition-all disabled:opacity-20 active:scale-95"
-                  >
-                    <span>Next</span>
-                    <ChevronRight size={18} strokeWidth={2.5} />
-                  </button>
                 </div>
               )}
 
@@ -2053,7 +2069,6 @@ const SwipeableArticleCard = memo(({
               ) : null}
               {typeof socialScore === 'number' && socialScore >= 1000 && (
                 <>
-                  <div className="w-[3px] h-[3px] rounded-full bg-zinc-200 dark:bg-zinc-700 shrink-0" />
                   <span className="text-[9px] font-bold uppercase tracking-[0.1em] bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-500 px-1.5 py-[2px] rounded">
                     ⭐ TOP
                   </span>
@@ -2069,10 +2084,9 @@ const SwipeableArticleCard = memo(({
               )}
               {isVisitorBookmarked && (
                 <>
-                  <div className="w-[3px] h-[3px] rounded-full bg-zinc-200 dark:bg-zinc-700 shrink-0" />
                   <Bookmark
                     size={11}
-                    className="fill-blue-500 text-blue-500 dark:fill-blue-400 dark:text-blue-400"
+                    className="fill-blue-500 text-blue-500 dark:fill-blue-400 dark:text-blue-400 ml-0.5"
                   />
                 </>
               )}
@@ -2090,7 +2104,6 @@ const SwipeableArticleCard = memo(({
                   {postDate.getFullYear() !== new Date().getFullYear() &&
                     `, ${postDate.getFullYear()}`}
                 </span>
-                <div className="w-[3px] h-[3px] rounded-full bg-zinc-200 dark:bg-zinc-800 shrink-0" />
                 <span>{readTime}m read</span>
               </div>
 
