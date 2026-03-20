@@ -233,34 +233,15 @@ export default function LibraryPage() {
     );
 
     return (
-        <div 
-            ref={scrollContainerRef}
-            onScroll={() => {
-              if (scrollContainerRef.current) {
-                scrollYRef.current = scrollContainerRef.current.scrollTop;
-              }
-            }}
-            className="h-full flex flex-col bg-[#fafaf8] dark:bg-[#050505] text-zinc-900 dark:text-zinc-100 overflow-y-auto overflow-x-hidden"
-            style={{
-                WebkitOverflowScrolling: "touch",
-                overscrollBehaviorY: "none",
-                overflowAnchor: "auto",
-                scrollbarGutter: "stable",
-            } as React.CSSProperties}
-        >
+        <div className="w-full bg-[#fcfcfc] dark:bg-[#050505] text-zinc-900 dark:text-zinc-100 font-sans antialiased relative selection:bg-blue-100 dark:selection:bg-blue-900/30 transition-colors duration-700">
 
-            {/* ═══ HEADER ═══ */}
-            <header className="sticky top-0 z-50 bg-[#fafaf8]/85 dark:bg-[#050505]/85 backdrop-blur-xl border-b border-zinc-200/40 dark:border-zinc-800/40 h-[110px] shrink-0">
-                <div className="px-4 pt-3 pb-2.5 max-w-2xl mx-auto">
-                    <div className="flex items-center gap-3 mb-3">
-                        <Link href="/curation" className="w-9 h-9 flex items-center justify-center text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 active:scale-90 rounded-full transition-all shrink-0">
-                            <ArrowLeft size={20} />
-                        </Link>
-                        <h1 className="text-[16px] font-semibold">Library</h1>
-                    </div>
-
-                    {/* Tab Switcher */}
-                    <div className="flex gap-1 bg-zinc-100 dark:bg-zinc-900 rounded-lg p-0.5">
+            {/* ═══ TAB SWITCHER (STICKY HEADER) ═══ */}
+            <div 
+                style={{ transform: "translateZ(0)", willChange: "transform", isolation: "isolate" }}
+                className="sticky top-0 z-[110] bg-white/95 dark:bg-[#050505]/95 backdrop-blur-xl border-b border-zinc-200/60 dark:border-zinc-800/60 pt-5 pb-3 px-4 transition-colors duration-500"
+            >
+                <div className="max-w-2xl mx-auto">
+                    <div className="flex gap-1 bg-zinc-100 dark:bg-zinc-900 rounded-lg p-0.5 shadow-inner">
                         {[
                             { key: "activity" as const, label: "Activity", icon: BarChart3 },
                             { key: "saved" as const, label: "Saved", icon: Bookmark },
@@ -278,10 +259,10 @@ export default function LibraryPage() {
                         ))}
                     </div>
                 </div>
-            </header>
+            </div>
 
             {/* ═══ CONTENT ═══ */}
-            <main className="flex-1 overflow-visible pt-4 pb-32">
+            <main className="flex-1 overflow-visible pt-4 pb-0">
                 <div className="max-w-2xl mx-auto px-4">
                 <AnimatePresence mode="wait">
                     {tab === "activity" ? (

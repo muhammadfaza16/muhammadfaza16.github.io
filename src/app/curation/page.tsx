@@ -920,7 +920,7 @@ export default function CurationList() {
     statusFilter !== "all";
 
   return (
-    <div className="h-[100svh] w-full flex flex-col bg-[#fcfcfc] dark:bg-[#050505] text-zinc-900 dark:text-zinc-100 font-sans antialiased overflow-hidden relative selection:bg-blue-100 dark:selection:bg-blue-900/30 transition-colors duration-700">
+    <div className="w-full bg-[#fcfcfc] dark:bg-[#050505] text-zinc-900 dark:text-zinc-100 font-sans antialiased relative selection:bg-blue-100 dark:selection:bg-blue-900/30 transition-colors duration-700">
       <Toaster
         position="bottom-center"
         toastOptions={{
@@ -939,7 +939,10 @@ export default function CurationList() {
       />
 
       {/* ═══ HEADER ═══ */}
-      <header className="sticky top-0 z-[110] bg-[#fafaf8]/80 dark:bg-[#050505]/80 backdrop-blur-xl border-b border-zinc-200/40 dark:border-zinc-800/40 shrink-0 h-16 flex items-center px-4 transition-colors duration-500">
+      <header 
+        style={{ transform: "translateZ(0)", willChange: "transform", isolation: "isolate" }}
+        className="sticky top-0 z-[110] bg-white/90 dark:bg-[#050505]/90 backdrop-blur-xl border-b border-zinc-200/60 dark:border-zinc-800/60 shrink-0 h-16 flex items-center px-4 transition-colors duration-500"
+      >
         {/* Left: Close/Back */}
         <motion.div 
           animate={{ width: searchQuery || isSearchFocused ? 0 : 48, opacity: searchQuery || isSearchFocused ? 0 : 1 }}
@@ -1060,21 +1063,8 @@ export default function CurationList() {
 
 
 
-      {/* ═══ SCROLLABLE CONTENT ═══ */}
-      <div
-        id="curation-scroll-container"
-        ref={scrollContainerRef}
-        onScroll={(e) => (scrollYRef.current = e.currentTarget.scrollTop)}
-        className="flex-1 overflow-y-auto overflow-x-hidden pt-2 pb-8 relative z-10 w-full max-w-4xl md:max-w-6xl mx-auto"
-        style={
-          {
-            WebkitOverflowScrolling: "touch",
-            overscrollBehaviorY: "none",
-            overflowAnchor: "auto",
-            scrollbarGutter: "stable",
-          } as React.CSSProperties
-        }
-      >
+      {/* ═══ CONTENT ═══ */}
+      <div className="pt-2 pb-0 relative z-10 w-full max-w-4xl md:max-w-6xl mx-auto">
 
         {/* ═══ HERO ENTRANCE ═══ */}
         <motion.div
