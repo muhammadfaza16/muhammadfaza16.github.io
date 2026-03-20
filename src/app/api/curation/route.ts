@@ -111,9 +111,16 @@ export async function GET(request: Request) {
             });
         }
 
+        // Filter by IDs (for Continue Reading hydration)
+        const ids = searchParams.get("ids");
+        if (ids) {
+            const idList = ids.split(",");
+            conditions.push({ id: { in: idList } });
+        }
+
         const where = conditions.length === 1 ? conditions[0] : { AND: conditions };
 
-        const getArticlesCacheKey = `curation-feed-v3-${sortBy}-${sortOrder}-${limit}-${category || 'none'}-${queryText || 'none'}-${cursor || 'none'}-${offset}`;
+        const getArticlesCacheKey = `curation-feed-v4-${sortBy}-${sortOrder}-${limit}-${category || 'none'}-${queryText || 'none'}-${cursor || 'none'}-${offset}-${ids || 'all'}`;
 
         const getCachedArticles = unstable_cache(
             async () => {

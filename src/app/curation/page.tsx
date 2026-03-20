@@ -182,6 +182,7 @@ export default function CurationList() {
   const [readingProgress, setReadingProgress] = useState<
     Record<string, number>
   >({});
+  const [inProgressArticles, setInProgressArticles] = useState<ArticleMeta[]>([]);
 
   // Refs
   const hasRestoredCache = useRef(false);
@@ -314,7 +315,7 @@ export default function CurationList() {
         }
       }
     },
-    [articles.length],
+    [],
   );
 
   // Form State
@@ -772,6 +773,17 @@ export default function CurationList() {
         }
       }
       setReadingProgress(progressMap);
+
+      // Hydrate in-progress articles
+      const inProgressIds = Object.keys(progressMap);
+      if (inProgressIds.length > 0) {
+        fetch(`/api/curation?ids=${inProgressIds.join(",")}`)
+          .then(res => res.json())
+          .then(data => {
+            if (data.articles) setInProgressArticles(data.articles);
+          })
+          .catch(console.error);
+      }
     } catch { }
 
     // Calculate weekly reads streak
@@ -1100,7 +1112,32 @@ export default function CurationList() {
 
           {/* ═══ HERO CAROUSEL ═══ */}
           <AnimatePresence mode="wait">
-            {!searchQuery && !isLoadingTop && topArticles.length > 0 && (
+            {isLoadingTop ? (
+              <motion.div
+                key="trending-skeleton"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="px-5 mb-10 mt-4 overflow-hidden"
+              >
+                <div className="flex items-center gap-3 mb-5">
+                   <div className="w-[4px] h-6 bg-zinc-200 dark:bg-zinc-800 rounded-full shrink-0 relative overflow-hidden">
+                     <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 dark:via-white/10 to-transparent animate-shimmer" />
+                   </div>
+                   <div className="w-24 h-5 bg-zinc-200 dark:bg-zinc-800 rounded relative overflow-hidden">
+                     <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 dark:via-white/10 to-transparent animate-shimmer" />
+                   </div>
+                </div>
+                <div className="flex gap-4 overflow-hidden pr-5">
+                   <div className="shrink-0 w-[75vw] md:w-[480px] h-[320px] md:h-[380px] bg-zinc-200/50 dark:bg-zinc-800/40 rounded-[2rem] border border-zinc-200/50 dark:border-zinc-700/30 relative overflow-hidden">
+                     <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 dark:via-white/5 to-transparent animate-shimmer" />
+                   </div>
+                   <div className="shrink-0 w-[75vw] md:w-[480px] h-[320px] md:h-[380px] bg-zinc-200/50 dark:bg-zinc-800/40 rounded-[2rem] border border-zinc-200/50 dark:border-zinc-700/30 relative overflow-hidden hidden md:block">
+                     <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 dark:via-white/5 to-transparent animate-shimmer" />
+                   </div>
+                </div>
+              </motion.div>
+            ) : !searchQuery && topArticles.length > 0 && (
               <motion.div
                 initial={{ opacity: 1, height: "auto" }}
                 animate={{ opacity: 1, height: "auto" }}
@@ -1117,7 +1154,7 @@ export default function CurationList() {
                 <div className="mb-6 pl-5">
                   <div
                     ref={heroCarouselRef}
-                    className="flex gap-4 overflow-x-auto no-scrollbar pb-6 snap-x snap-mandatory pr-5"
+                    className="flex gap-4 overflow-x-auto no-scrollbar snap-x snap-mandatory pr-5"
                   >
                 {topArticles.map((featuredArticle) => {
                   const postDate = new Date(featuredArticle.createdAt);
@@ -1236,7 +1273,7 @@ export default function CurationList() {
 
           {/* ═══ CONTINUE READING ═══ */}
           {(() => {
-            const inProgress = articles.filter((a) => {
+            const inProgress = inProgressArticles.filter((a) => {
               const pct = readingProgress[a.id];
               return pct && pct > 0.05 && pct < 0.95;
             });
@@ -1245,7 +1282,7 @@ export default function CurationList() {
             return (
               <div className="mb-10 px-5 mt-8">
                 <div className="flex items-center gap-3 mb-4">
-                  <div className="w-[4px] h-6 bg-gradient-to-b from-orange-600 to-orange-400 dark:from-orange-500 dark:to-orange-400 rounded-full shrink-0" />
+                  <div className="w-[4px] h-6 bg-gradient-to-b from-blue-600 to-blue-400 dark:from-blue-500 dark:to-blue-400 rounded-full shrink-0" />
                   <h3 className="text-[17px] font-bold tracking-tight text-zinc-800 dark:text-zinc-200" style={{ fontFamily: "'Playfair Display', serif" }}>
                     Recent Reads
                   </h3>
@@ -1292,114 +1329,120 @@ export default function CurationList() {
         <AtlasMenu items={[...VERTICALS]} isOpen={isAtlasMenuOpen} onClose={() => setIsAtlasMenuOpen(false)} />
 
         {/* ═══ ARCHIVE LIST SECTION ═══ */}
-        <div ref={resultsRef} className={`px-5 mb-4 scroll-mt-24 flex items-center gap-3 transition-all ${searchQuery ? "mt-2" : "mt-8"}`}>
-          {!searchQuery && <div className="w-[4px] h-6 bg-gradient-to-b from-blue-600 to-blue-400 dark:from-blue-500 dark:to-blue-400 rounded-full shrink-0 shadow-sm" />}
-          <h3 className="text-[17px] font-bold tracking-tight text-zinc-800 dark:text-zinc-200" style={{ fontFamily: "'Playfair Display', serif" }}>
-            {debouncedSearchQuery
-              ? "Search Results"
-              : categoryFilter.length > 0
-                ? "Category View"
-                : statusFilter !== "all"
-                  ? "Status View"
-                  : "All Entries"}
-          </h3>
-        </div>
+        {(!isLoadingTop || articles.length > 0) && (
+          <div ref={resultsRef} className={`px-5 mb-4 scroll-mt-24 flex items-center gap-3 transition-all ${searchQuery ? "mt-2" : "mt-8"}`}>
+            {!searchQuery && <div className="w-[4px] h-6 bg-gradient-to-b from-blue-600 to-blue-400 dark:from-blue-500 dark:to-blue-400 rounded-full shrink-0 shadow-sm" />}
+            <h3 className="text-[17px] font-bold tracking-tight text-zinc-800 dark:text-zinc-200" style={{ fontFamily: "'Playfair Display', serif" }}>
+              {debouncedSearchQuery
+                ? "Search Results"
+                : categoryFilter.length > 0
+                  ? "Category View"
+                  : statusFilter !== "all"
+                    ? "Status View"
+                    : "All Entries"}
+            </h3>
+          </div>
+        )}
 
         {/* ═══ MAIN PILLS (Sort & Status) ═══ */}
-        <div className="flex items-center gap-2 overflow-x-auto px-5 pb-2 no-scrollbar mb-1 w-full">
-          {/* Integrated Sort Dimension & Order Toggles */}
-          <div className="flex bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-full overflow-hidden shrink-0 shadow-sm p-0.5 relative">
-            {[
-              { id: "date" as const, label: "Date" },
-              { id: "popularity" as const, label: "Popularity" }
-            ].map((dim) => {
-              const isActive = sortBy === dim.id;
-              return (
+        {(!isLoadingTop || articles.length > 0) && (
+          <>
+            <div className="flex items-center gap-2 overflow-x-auto px-5 pb-2 no-scrollbar mb-1 w-full">
+              {/* Integrated Sort Dimension & Order Toggles */}
+              <div className="flex bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-full overflow-hidden shrink-0 shadow-sm p-0.5 relative">
+                {[
+                  { id: "date" as const, label: "Date" },
+                  { id: "popularity" as const, label: "Popularity" }
+                ].map((dim) => {
+                  const isActive = sortBy === dim.id;
+                  return (
+                    <button
+                      key={dim.id}
+                      onClick={() => handleSortDimensionClick(dim.id)}
+                      className={`flex items-center gap-1.5 px-3 py-1 text-[11px] font-bold rounded-full transition-all whitespace-nowrap z-10 active:scale-95 relative ${isActive
+                        ? "text-white dark:text-zinc-900"
+                        : "text-zinc-400 dark:text-zinc-500 hover:text-zinc-600 dark:hover:text-zinc-300 bg-transparent"
+                        }`}
+                    >
+                      {isActive && (
+                        <motion.div
+                          layoutId="activeSort"
+                          className="absolute inset-0 bg-zinc-800 dark:bg-zinc-100 rounded-full -z-10 shadow-sm"
+                          transition={{ type: "spring", stiffness: 400, damping: 30 }}
+                        />
+                      )}
+                      <span>{dim.label}</span>
+                      {isActive && (
+                        <motion.div
+                          initial={{ scale: 0, opacity: 0 }}
+                          animate={{ scale: 1, opacity: 1, rotate: sortOrder === "asc" ? 180 : 0 }}
+                          transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                          className="flex items-center justify-center ml-0.5"
+                        >
+                          <ArrowDown size={14} strokeWidth={2.5} />
+                        </motion.div>
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+
+              <div className="w-[1px] h-4 bg-zinc-200 dark:bg-zinc-800 mx-1 shrink-0" />
+
+              {/* Status Filter Pills */}
+              {[
+                { key: "all" as const, label: "All" },
+                { key: "unread" as const, label: "Unread" },
+                { key: "bookmarked" as const, label: "Bookmarked" },
+              ].map((f) => (
                 <button
-                  key={dim.id}
-                  onClick={() => handleSortDimensionClick(dim.id)}
-                  className={`flex items-center gap-1.5 px-3 py-1 text-[11px] font-bold rounded-full transition-all whitespace-nowrap z-10 active:scale-95 relative ${isActive
+                  key={f.key}
+                  onClick={() => setStatusFilter(f.key)}
+                  className={`px-3 py-1 text-[11px] font-semibold tracking-wide rounded-full transition-all active:scale-[0.96] whitespace-nowrap shrink-0 relative ${statusFilter === f.key
                     ? "text-white dark:text-zinc-900"
-                    : "text-zinc-400 dark:text-zinc-500 hover:text-zinc-600 dark:hover:text-zinc-300 bg-transparent"
+                    : "text-zinc-400 dark:text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100 bg-transparent"
                     }`}
                 >
-                  {isActive && (
+                  {statusFilter === f.key && (
                     <motion.div
-                      layoutId="activeSort"
-                      className="absolute inset-0 bg-zinc-800 dark:bg-zinc-100 rounded-full -z-10 shadow-sm"
+                      layoutId="activeStatus"
+                      className="absolute inset-0 bg-zinc-900 dark:bg-zinc-100 rounded-full -z-10 shadow-[0_2px_10px_rgba(0,0,0,0.1)]"
                       transition={{ type: "spring", stiffness: 400, damping: 30 }}
                     />
                   )}
-                  <span>{dim.label}</span>
-                  {isActive && (
-                    <motion.div
-                      initial={{ scale: 0, opacity: 0 }}
-                      animate={{ scale: 1, opacity: 1, rotate: sortOrder === "asc" ? 180 : 0 }}
-                      transition={{ type: "spring", stiffness: 300, damping: 20 }}
-                      className="flex items-center justify-center ml-0.5"
-                    >
-                      <ArrowDown size={14} strokeWidth={2.5} />
-                    </motion.div>
-                  )}
+                  {f.label}
                 </button>
-              );
-            })}
-          </div>
-
-          <div className="w-[1px] h-4 bg-zinc-200 dark:bg-zinc-800 mx-1 shrink-0" />
-
-          {/* Status Filter Pills */}
-          {[
-            { key: "all" as const, label: "All" },
-            { key: "unread" as const, label: "Unread" },
-            { key: "bookmarked" as const, label: "Bookmarked" },
-          ].map((f) => (
-            <button
-              key={f.key}
-              onClick={() => setStatusFilter(f.key)}
-              className={`px-3 py-1 text-[11px] font-semibold tracking-wide rounded-full transition-all active:scale-[0.96] whitespace-nowrap shrink-0 relative ${statusFilter === f.key
-                ? "text-white dark:text-zinc-900"
-                : "text-zinc-400 dark:text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100 bg-transparent"
-                }`}
+              ))}
+            </div>
+            {/* ═══ CATEGORY PILLS (Always Available) ═══ */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="flex gap-1.5 overflow-x-auto px-5 no-scrollbar pb-2 mb-1"
             >
-              {statusFilter === f.key && (
-                <motion.div
-                  layoutId="activeStatus"
-                  className="absolute inset-0 bg-zinc-900 dark:bg-zinc-100 rounded-full -z-10 shadow-[0_2px_10px_rgba(0,0,0,0.1)]"
-                  transition={{ type: "spring", stiffness: 400, damping: 30 }}
-                />
-              )}
-              {f.label}
-            </button>
-          ))}
-        </div>
-        {/* ═══ CATEGORY PILLS (Always Available) ═══ */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          className="flex gap-1.5 overflow-x-auto px-5 no-scrollbar pb-2 mb-1"
-        >
-          {CATEGORIES.map((cat) => {
-            const isActive = categoryFilter.includes(cat.name);
-            return (
-              <button
-                key={cat.name}
-                onClick={() => handleCategoryToggle(cat.name)}
-                className={`px-3 py-1 text-[11px] font-semibold tracking-wide rounded-full transition-all active:scale-[0.96] whitespace-nowrap shrink-0 border ${isActive
-                  ? "bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 border-zinc-900 dark:border-zinc-100 shadow-sm"
-                  : `${cat.color.bg} ${cat.color.text} ${cat.color.darkBg} ${cat.color.darkText} border-transparent opacity-60 hover:opacity-100`
-                  }`}
-              >
-                {cat.name}
-              </button>
-            );
-          })}
-        </motion.div>
+              {CATEGORIES.map((cat) => {
+                const isActive = categoryFilter.includes(cat.name);
+                return (
+                  <button
+                    key={cat.name}
+                    onClick={() => handleCategoryToggle(cat.name)}
+                    className={`px-3 py-1 text-[11px] font-semibold tracking-wide rounded-full transition-all active:scale-[0.96] whitespace-nowrap shrink-0 border ${isActive
+                      ? "bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 border-zinc-900 dark:border-zinc-100 shadow-sm"
+                      : `${cat.color.bg} ${cat.color.text} ${cat.color.darkBg} ${cat.color.darkText} border-transparent opacity-60 hover:opacity-100`
+                      }`}
+                  >
+                    {cat.name}
+                  </button>
+                );
+              })}
+            </motion.div>
 
-        {/* Separator Line (Almost Full Width) */}
-        <div className="px-5 mb-5 mt-1">
-          <div className="h-px bg-zinc-200/60 dark:bg-zinc-800/60 w-full" />
-        </div>
+            {/* Separator Line (Almost Full Width) */}
+            <div className="px-5 mb-5 mt-1">
+              <div className="h-px bg-zinc-200/60 dark:bg-zinc-800/60 w-full" />
+            </div>
+          </>
+        )}
 
         {/* ═══ ARTICLE FEED ═══ */}
         <div className="min-h-fit relative">
@@ -1417,20 +1460,28 @@ export default function CurationList() {
               }
             >
               {!debouncedSearchQuery && (
-                <div className="md:col-span-2 rounded-[2rem] bg-zinc-200/50 dark:bg-zinc-800/40 h-[280px] animate-pulse relative overflow-hidden">
-                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full animate-[shimmer_2s_infinite]" />
+                <div className="md:col-span-2 rounded-[2rem] bg-zinc-200/50 dark:bg-zinc-800/40 h-[280px] relative overflow-hidden">
+                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 dark:via-white/5 to-transparent animate-shimmer" />
                 </div>
               )}
               {[1, 2, 3, 4, 5, 6].map((i) => (
                 <div
                   key={i}
-                  className="bg-white dark:bg-zinc-900 rounded-[1.5rem] border border-zinc-100 dark:border-zinc-800/60 p-4 flex items-center gap-4 h-[120px]"
+                  className="bg-white dark:bg-[#0a0a0a] rounded-[1.5rem] border border-zinc-100 dark:border-zinc-800/60 p-4 flex items-center gap-4 h-[120px] relative overflow-hidden"
                 >
-                  <div className="w-20 h-20 md:w-24 md:h-24 rounded-xl bg-zinc-100 dark:bg-zinc-800/80 animate-pulse shrink-0" />
+                  <div className="w-20 h-20 md:w-24 md:h-24 rounded-xl bg-zinc-100 dark:bg-zinc-800 relative overflow-hidden shrink-0">
+                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 dark:via-white/5 to-transparent animate-shimmer" />
+                  </div>
                   <div className="flex-1 space-y-2.5">
-                    <div className="h-2.5 bg-zinc-100 dark:bg-zinc-800 rounded-full animate-pulse w-1/3" />
-                    <div className="h-4 bg-zinc-200/60 dark:bg-zinc-800/60 rounded-lg animate-pulse w-full" />
-                    <div className="h-4 bg-zinc-200/60 dark:bg-zinc-800/60 rounded-lg animate-pulse w-2/3" />
+                    <div className="h-2.5 bg-zinc-100 dark:bg-zinc-800 rounded-full relative overflow-hidden w-1/3">
+                      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 dark:via-white/10 to-transparent animate-shimmer" />
+                    </div>
+                    <div className="h-4 bg-zinc-200/60 dark:bg-zinc-800/80 rounded-lg relative overflow-hidden w-full">
+                      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 dark:via-white/5 to-transparent animate-shimmer" />
+                    </div>
+                    <div className="h-4 bg-zinc-200/60 dark:bg-zinc-800/80 rounded-lg relative overflow-hidden w-2/3">
+                      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 dark:via-white/5 to-transparent animate-shimmer" />
+                    </div>
                   </div>
                 </div>
               ))}
@@ -1491,8 +1542,8 @@ export default function CurationList() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               className={
-                debouncedSearchQuery
-                  ? "flex flex-col gap-3 px-5 mb-10"
+                debouncedSearchQuery || !debouncedSearchQuery
+                  ? "flex flex-col gap-4 md:grid md:grid-cols-2 md:gap-4 px-5 mb-10"
                   : "flex flex-col gap-4 md:grid md:grid-cols-2 md:gap-4 px-5 mb-10"
               }
             >
@@ -1508,13 +1559,6 @@ export default function CurationList() {
                 const isVisitorBookmarked = visitorState.bookmarked[article.id];
 
                 if (debouncedSearchQuery) {
-                  // ═══ COMPACT SEARCH RESULT ROW ═══
-                  const rawSummary =
-                    (article as any).summary || article.content || "";
-                  const plainSummary = rawSummary
-                    .replace(/<[^>]+>/g, "")
-                    .trim();
-
                   return (
                     <motion.div
                       key={article.id}
@@ -1526,104 +1570,29 @@ export default function CurationList() {
                         delay: Math.min(index * 0.04, 0.4),
                       }}
                     >
-                      <Link
-                        href={`/curation/${article.id}`}
-                        onClick={() => setNavigatingId(article.id)}
-                        className="flex gap-4 p-4 rounded-2xl bg-white dark:bg-[#0a0a0a] border border-zinc-200/50 dark:border-zinc-800/50 hover:border-zinc-300 dark:hover:border-zinc-700 active:scale-[0.98] transition-all hover:shadow-[0_12px_40px_rgba(0,0,0,0.06)] shadow-sm group/row relative overflow-hidden"
-                      >
-                        {/* Left Thumbnail (Optional but nice) */}
-                        {validImageUrl && !imgErrors[article.id] ? (
-                          <div className="shrink-0 w-20 h-20 md:w-24 md:h-24 rounded-xl overflow-hidden relative bg-zinc-100 dark:bg-zinc-800">
-                            <Image
-                              src={validImageUrl}
-                              alt=""
-                              fill
-                              sizes="96px"
-                              className="object-cover opacity-90 group-hover/row:opacity-100 group-hover/row:scale-105 transition-all duration-500"
-                              onError={() =>
-                                setImgErrors((prev) => ({
-                                  ...prev,
-                                  [article.id]: true,
-                                }))
-                              }
-                            />
-                          </div>
-                        ) : (
-                          <div className="shrink-0 w-20 h-20 md:w-24 md:h-24 rounded-xl overflow-hidden bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center">
-                            <FileText
-                              size={24}
-                              className="text-zinc-300 dark:text-zinc-700"
-                            />
-                          </div>
-                        )}
-
-                        {/* Right Content */}
-                        <div className="flex-1 min-w-0 flex flex-col justify-center">
-                          <div className="flex items-center justify-between mt-auto">
-                            <div className="flex items-center gap-1.5 overflow-hidden">
-                              {(() => {
-                                const catData = CATEGORIES.find(c => c.name === article.category);
-                                return article.category ? (
-                                  <>
-                                      <span className={`text-[9px] font-bold uppercase tracking-[0.12em] px-2 py-0.5 rounded-md ${catData && !debouncedSearchQuery ? `${catData.color.bg} ${catData.color.text} ${catData.color.darkBg} ${catData.color.darkText}` : "text-zinc-500 bg-zinc-100 dark:bg-zinc-800"} shrink-0 shadow-[0_1px_4px_rgba(0,0,0,0.02)]`}>
-                                        {article.category}
-                                      </span>
-                                  </>
-                                ) : null;
-                              })()}
-                              <span className="text-[10px] font-medium text-zinc-400 dark:text-zinc-500 shrink-0">
-                                {postDate.toLocaleDateString("en-US", {
-                                  month: "short",
-                                  day: "numeric",
-                                })}
-                              </span>
-                              <span className="text-[10px] font-medium text-zinc-400 dark:text-zinc-500 shrink-0">
-                                {readTime} min
-                              </span>
-                            </div>
-
-                            {/* Search Result Metrics (Monochrome, Right-aligned) */}
-                            {(article.likes || article.reposts || article.replies) ? (
-                              <div className="flex items-center gap-2.5">
-                                {article.replies ? (
-                                  <div className="flex items-center gap-1 group/metric">
-                                    <MessageCircle size={9} className="text-zinc-400 group-hover/metric:text-zinc-900 dark:group-hover/metric:text-zinc-100 transition-colors" />
-                                    <span className="text-[10px] text-zinc-400 tabular-nums">{formatMetric(article.replies)}</span>
-                                  </div>
-                                ) : null}
-                                {article.reposts ? (
-                                  <div className="flex items-center gap-1 group/metric">
-                                    <Repeat size={9} className="text-zinc-400 group-hover/metric:text-zinc-900 dark:group-hover/metric:text-zinc-100 transition-colors" />
-                                    <span className="text-[10px] text-zinc-400 tabular-nums">{formatMetric(article.reposts)}</span>
-                                  </div>
-                                ) : null}
-                                {article.likes ? (
-                                  <div className="flex items-center gap-1 group/metric">
-                                    <Heart size={9} className="text-zinc-400 group-hover/metric:text-zinc-900 dark:group-hover/metric:text-zinc-100 transition-colors" />
-                                    <span className="text-[10px] text-zinc-400 tabular-nums">{formatMetric(article.likes)}</span>
-                                  </div>
-                                ) : null}
-                              </div>
-                            ) : null}
-                          </div>
-                          <h4 className="text-[15px] md:text-[17px] font-bold text-zinc-900 dark:text-zinc-100 leading-snug line-clamp-2 mb-1 group-hover/row:text-blue-600 dark:group-hover/row:text-blue-400 transition-colors">
-                            <HighlightText
-                              text={formatTitle(article.title)}
-                              query={searchQuery}
-                            />
-                          </h4>
-                          <p className="text-[13px] text-zinc-500 dark:text-zinc-400 line-clamp-2 leading-relaxed">
-                            <HighlightText
-                              text={plainSummary}
-                              query={searchQuery}
-                            />
-                          </p>
-                        </div>
-
-                        {navigatingId === article.id && (
-                          <div className="absolute inset-0 bg-white/40 dark:bg-black/40 backdrop-blur-[2px] z-50 animate-pulse rounded-2xl" />
-                        )}
-                      </Link>
+                      <SwipeableArticleCard
+                        id={article.id}
+                        title={article.title}
+                        category={article.category}
+                        socialScore={article.socialScore}
+                        likes={article.likes}
+                        reposts={article.reposts}
+                        replies={article.replies}
+                        validImageUrl={validImageUrl}
+                        createdAt={article.createdAt}
+                        readTime={readTime}
+                        isVisitorRead={!!isVisitorRead}
+                        isVisitorBookmarked={!!isVisitorBookmarked}
+                        imgError={!!imgErrors[article.id]}
+                        onImgError={setImgErrors}
+                        onClick={handleCardClick}
+                        onRead={handleCardRead}
+                        onBookmark={handleCardBookmark}
+                        isNavigating={navigatingId === article.id}
+                        progress={readingProgress[article.id] || 0}
+                        onShare={handleCardShare}
+                        articleRaw={article}
+                      />
                     </motion.div>
                   );
                 }
@@ -1960,10 +1929,15 @@ const SwipeableArticleCard = memo(({
 
   const handleDragEnd = (event: any, info: any) => {
     setIsDragging(false);
-    const swipeThreshold = 80;
-    if (info.offset.x > swipeThreshold) {
+    
+    // Swipe activation constants
+    const THRESHOLD = 65;
+    const MIN_VELOCITY = 150;
+    
+    // Check for trigger via distance OR fast flick
+    if (info.offset.x > THRESHOLD || (info.velocity.x > MIN_VELOCITY && info.offset.x > 20)) {
       onRead(id);
-    } else if (info.offset.x < -swipeThreshold) {
+    } else if (info.offset.x < -THRESHOLD || (info.velocity.x < -MIN_VELOCITY && info.offset.x < -20)) {
       onBookmark(id);
     }
   };
@@ -2015,7 +1989,7 @@ const SwipeableArticleCard = memo(({
         onDragEnd={handleDragEnd}
         style={{ x }}
         whileTap={{ cursor: "grabbing" }}
-        className="bg-white dark:bg-[#0a0a0a] rounded-[1.5rem] border border-zinc-100 dark:border-zinc-800/60 overflow-hidden shadow-[0_2px_8px_rgba(0,0,0,0.02)] hover:shadow-[0_8px_24px_rgba(0,0,0,0.06)] transition-all duration-500 p-4 relative z-10 cursor-grab touch-pan-y"
+        className="bg-white dark:bg-[#0a0a0a] rounded-[1.5rem] border border-zinc-100 dark:border-zinc-800/60 overflow-hidden shadow-[0_2px_8px_rgba(0,0,0,0.02)] hover:shadow-[0_8px_24px_rgba(0,0,0,0.06)] p-4 relative z-10 cursor-grab touch-pan-y"
       >
         <Link
           href={`/curation/${id}`}

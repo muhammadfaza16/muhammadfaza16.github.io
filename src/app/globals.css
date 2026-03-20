@@ -652,7 +652,6 @@
   }
 
   @keyframes pulse {
-
     0%,
     100% {
       opacity: 1;
@@ -661,6 +660,15 @@
     50% {
       opacity: 0.5;
     }
+  }
+
+  @keyframes shimmer {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+  }
+
+  .animate-shimmer {
+    animation: shimmer 2s infinite linear;
   }
 
   @keyframes fadeInOpacity {
