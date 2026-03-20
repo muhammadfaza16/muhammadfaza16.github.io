@@ -7,7 +7,6 @@ import {
     CheckCircle2,
     XCircle,
     Clipboard,
-    Loader2,
     Save,
     PenLine,
     Lock,

@@ -63,8 +63,8 @@ export function LayoutShell({ children }: { children: React.ReactNode }) {
                 id="main-content" 
                 style={{ 
                     flex: 1,
-                    height: isLivePage ? "100svh" : "auto",
-                    overflow: isLivePage ? "hidden" : "auto"
+                    height: (isLivePage || pathname.startsWith("/curation")) ? "100svh" : "auto",
+                    overflow: (isLivePage || pathname.startsWith("/curation")) ? "hidden" : "auto"
                 }}
             >
                 {children}

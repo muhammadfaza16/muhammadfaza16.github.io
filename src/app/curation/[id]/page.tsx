@@ -3,7 +3,7 @@
 import { use, useEffect, useState, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { motion, useScroll, useSpring, useMotionValueEvent, AnimatePresence, useTransform } from "framer-motion";
-import { ArrowLeft, ChevronLeft, Headphones, Clock, CheckCircle, Share, Trash2, Globe, Pencil, Loader2, Camera, X, Clipboard, ImageIcon, MessageSquareQuote, ChevronsUp, Maximize, Minimize, Minus, Plus, Type, Bookmark, Volume2, VolumeX, Pause, Play, FolderPlus, FolderCheck, Check, Sparkles, ChevronDown, ChevronUp, Heart, RefreshCw, MessageSquare, Download } from "lucide-react";
+import { ArrowLeft, ChevronLeft, Headphones, Clock, CheckCircle, Share, Trash2, Globe, Pencil, Camera, X, Clipboard, ImageIcon, MessageSquareQuote, ChevronsUp, Maximize, Minimize, Minus, Plus, Type, Bookmark, Volume2, VolumeX, Pause, Play, FolderPlus, FolderCheck, Check, Sparkles, ChevronDown, ChevronUp, Heart, RefreshCw, MessageSquare, Download } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import ReactMarkdown from "react-markdown";
@@ -1279,14 +1279,10 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
                         className={`flex items-center gap-2 px-5 py-2.5 rounded-full font-bold text-[13px] transition-all active:scale-95 border shadow-sm ${article.isBookmarked
                             ? "bg-blue-50 text-blue-600 border-blue-200 hover:bg-blue-100"
                             : "bg-white text-zinc-700 border-gray-200 hover:bg-gray-50"
-                            }`}
+                            } ${isTogglingBookmark ? "animate-pulse" : ""}`}
                     >
-                        {isTogglingBookmark ? (
-                            <Loader2 size={16} className="animate-spin" />
-                        ) : (
-                            <Bookmark size={16} className={article.isBookmarked ? "fill-blue-600 border-blue-600" : ""} />
-                        )}
-                        {article.isBookmarked ? "Bookmarked" : "Bookmark"}
+                        <Bookmark size={16} className={article.isBookmarked ? "fill-blue-600 border-blue-600" : ""} />
+                        {isTogglingBookmark ? (article.isBookmarked ? "Removing..." : "Saving...") : (article.isBookmarked ? "Bookmarked" : "Bookmark")}
                     </button>
                 </div>
 
@@ -1444,9 +1440,9 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
                                 <button
                                     type="submit"
                                     disabled={!newCommentText.trim() || isSubmittingComment}
-                                    className="h-10 px-6 bg-blue-600 text-white rounded-full font-semibold text-[13px] tracking-wide shadow-md active:scale-95 transition-all disabled:opacity-50 disabled:active:scale-100 flex items-center justify-center min-w-[100px]"
+                                    className={`h-10 px-6 bg-blue-600 text-white rounded-full font-semibold text-[13px] tracking-wide shadow-md active:scale-95 transition-all disabled:opacity-50 disabled:active:scale-100 flex items-center justify-center min-w-[100px] ${isSubmittingComment ? "animate-pulse" : ""}`}
                                 >
-                                    {isSubmittingComment ? <Loader2 size={16} className="animate-spin" /> : "Kirim"}
+                                    {isSubmittingComment ? "Kirim..." : "Kirim"}
                                 </button>
                             </div>
                         </div>
@@ -1455,8 +1451,14 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
                     {/* Comments List */}
                     <div className="flex flex-col gap-6">
                         {isLoadingComments ? (
-                            <div className="flex justify-center py-8">
-                                <Loader2 size={24} className="animate-spin text-zinc-400" />
+                            <div className="flex flex-col gap-4 py-4">
+                                {[1, 2, 3].map((i) => (
+                                    <div key={i} className="flex flex-col gap-2 animate-pulse">
+                                        <div className="h-4 bg-zinc-200/50 dark:bg-zinc-800/50 rounded-full w-24" />
+                                        <div className="h-4 bg-zinc-100/50 dark:bg-zinc-800/20 rounded-lg w-full" />
+                                        <div className="h-4 bg-zinc-100/50 dark:bg-zinc-800/20 rounded-lg w-2/3" />
+                                    </div>
+                                ))}
                             </div>
                         ) : comments.length === 0 ? (
                             <div className="py-8 text-center bg-black/[0.02] dark:bg-white/[0.02] rounded-2xl border" style={{ borderColor: THEMES[readerSettings.theme].text + '10' }}>
@@ -1536,10 +1538,10 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
                         <button
                             onClick={handleMarkAsRead}
                             disabled={isMarkingRead}
-                            className={`p-2.5 active:scale-95 transition-transform flex items-center justify-center disabled:opacity-50 ${article.isRead ? "text-emerald-400" : "text-white/80 hover:text-white"}`}
+                            className={`p-2.5 active:scale-95 transition-transform flex items-center justify-center disabled:opacity-50 ${article.isRead ? "text-emerald-400" : "text-white/80 hover:text-white"} ${isMarkingRead ? "animate-pulse" : ""}`}
                             title={article.isRead ? "Mark as unread" : "Mark as read"}
                         >
-                            {isMarkingRead ? <Loader2 size={18} className="animate-spin" /> : <CheckCircle size={18} />}
+                            {isMarkingRead ? <CheckCircle size={18} className="opacity-50" /> : <CheckCircle size={18} />}
                         </button>
 
                         {/* Edit Button Back on Pill Float */}
@@ -1706,13 +1708,9 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
                             disabled={isSubmitting || !formTitle || !formUrl}
                             className="flex-1 h-11 bg-black rounded-full flex items-center justify-center text-white font-semibold text-[15px] shadow-lg active:scale-95 transition-all disabled:opacity-50"
                         >
-                            {isSubmitting ? (
-                                <Loader2 size={16} className="animate-spin" />
-                            ) : (
-                                <span className="flex items-center justify-center">
-                                    Save Changes
-                                </span>
-                            )}
+                            <span className={`flex items-center justify-center ${isSubmitting ? "animate-pulse" : ""}`}>
+                                {isSubmitting ? "Saving..." : "Save Changes"}
+                            </span>
                         </button>
                     </div>
                 }
@@ -1722,8 +1720,7 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
                     <div className="flex items-center justify-between">
                         <label className="text-[11px] font-semibold uppercase tracking-wider text-zinc-400/80 ml-1">URL / Link</label>
                         {isFetchingMetadata && (
-                            <div className="flex items-center gap-1.5 text-zinc-400">
-                                <Loader2 size={12} className="animate-spin" />
+                            <div className="flex items-center gap-1.5 text-zinc-400 animate-pulse">
                                 <span className="text-[10px] font-bold uppercase tracking-wider">Scanning...</span>
                             </div>
                         )}
@@ -1863,7 +1860,7 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
                             className="w-full max-w-[280px] h-12 bg-black rounded-full flex items-center justify-center text-white font-semibold text-base shadow-lg active:scale-95 transition-all disabled:opacity-50"
                         >
                             {isGeneratingQuote ? (
-                                <Loader2 size={18} className="animate-spin" />
+                                <span className="animate-pulse">Generating...</span>
                             ) : (
                                 <span className="flex items-center gap-2">
                                     <Download size={18} /> Save Image

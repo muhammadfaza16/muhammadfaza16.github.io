@@ -11,7 +11,6 @@ import {
     Save,
     X,
     ListMusic,
-    Loader2,
     Palette,
     Music,
     Search,
@@ -305,8 +304,9 @@ export function PlaylistModule({ addLog, isBusy, setIsBusy, insetBox }: Playlist
     };
 
     if (isLoading) return (
-        <div style={{ padding: "2rem", textAlign: "center", color: theme === "dark" ? "rgba(255,255,255,0.4)" : "#444" }}>
-            <Loader2 size={24} className="animate-spin" />
+        <div style={{ padding: "2rem", display: "flex", flexDirection: "column", alignItems: "center", gap: "10px" }} className="animate-pulse">
+            <div style={{ width: "24px", height: "24px", borderRadius: "50%", background: theme === "dark" ? "rgba(255,255,255,0.2)" : "rgba(0,0,0,0.1)" }} />
+            <div style={{ width: "60px", height: "6px", borderRadius: "3px", background: theme === "dark" ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.05)" }} />
         </div>
     );
 

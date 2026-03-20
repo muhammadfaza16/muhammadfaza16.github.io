@@ -15,7 +15,6 @@ import {
   ChevronRight,
   Bookmark,
   FileText,
-  Loader2,
   CheckCircle,
   Send,
   X,
@@ -907,7 +906,7 @@ export default function CurationList() {
     statusFilter !== "all";
 
   return (
-    <div className="h-screen w-full flex flex-col bg-[#fcfcfc] dark:bg-[#050505] text-zinc-900 dark:text-zinc-100 font-sans antialiased overflow-hidden relative selection:bg-blue-100 dark:selection:bg-blue-900/30 transition-colors duration-700">
+    <div className="h-[100svh] w-full flex flex-col bg-[#fcfcfc] dark:bg-[#050505] text-zinc-900 dark:text-zinc-100 font-sans antialiased overflow-hidden relative selection:bg-blue-100 dark:selection:bg-blue-900/30 transition-colors duration-700">
       <Toaster
         position="bottom-center"
         toastOptions={{
@@ -958,7 +957,7 @@ export default function CurationList() {
           <motion.div 
             layout
             className="w-full"
-            animate={{ maxWidth: searchQuery || isSearchFocused ? "800px" : "240px" }}
+            animate={{ maxWidth: searchQuery || isSearchFocused ? "800px" : "420px" }}
             transition={{ type: "spring", stiffness: 400, damping: 35 }}
           >
             <div className="relative group max-w-4xl mx-auto">
@@ -1052,7 +1051,7 @@ export default function CurationList() {
         id="curation-scroll-container"
         ref={scrollContainerRef}
         onScroll={(e) => (scrollYRef.current = e.currentTarget.scrollTop)}
-        className="flex-1 overflow-y-auto overflow-x-hidden pt-2 pb-8 relative z-10 w-full max-w-2xl md:max-w-5xl mx-auto"
+        className="flex-1 overflow-y-auto overflow-x-hidden pt-2 pb-8 relative z-10 w-full max-w-4xl md:max-w-6xl mx-auto"
         style={
           {
             WebkitOverflowScrolling: "touch",
@@ -1089,7 +1088,7 @@ export default function CurationList() {
               >
                 Curation.
               </h1>
-              <p className="text-[16px] md:text-[18px] text-zinc-400 dark:text-zinc-500 font-medium tracking-tight max-w-lg mt-2 leading-relaxed">
+              <p className="text-[16px] md:text-[18px] text-zinc-400 dark:text-zinc-500 font-medium tracking-tight max-w-2xl mt-2 leading-relaxed">
                 A highly refined collection of human knowledge, mental models, and excellence. Curated to help you think better, build faster, and live more intentionally.
               </p>
             </div>
@@ -1222,14 +1221,8 @@ export default function CurationList() {
                         </div>
                       </Link>
 
-                      {/* Navigation Progress Indicator */}
                       {navigatingId === featuredArticle.id && (
-                        <div className="absolute inset-0 bg-white/60 dark:bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center">
-                          <div className="flex flex-col items-center gap-3">
-                            <Loader2 size={36} className="animate-spin text-zinc-800 dark:text-white" />
-                            <span className="text-zinc-800 dark:text-white text-[10px] font-bold tracking-[0.2em] uppercase opacity-60">Opening</span>
-                          </div>
-                        </div>
+                        <div className="absolute inset-0 bg-white/40 dark:bg-black/40 backdrop-blur-[2px] z-50 animate-pulse rounded-[2rem]" />
                       )}
                     </motion.div>
                   );
@@ -1409,52 +1402,7 @@ export default function CurationList() {
 
         {/* ═══ ARTICLE FEED ═══ */}
         <div className="min-h-fit relative">
-          {/* Halus Loader (Complete Hijack) */}
-          <AnimatePresence mode="wait">
-            {isTransitioning && (
-              <motion.div
-                key="loader"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.2 }}
-                className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-[#fcfcfc]/80 dark:bg-[#050505]/80 backdrop-blur-sm"
-              >
-                <div className="flex flex-col items-center gap-6">
-                  <div className="relative">
-                    <motion.div
-                      animate={{ 
-                        rotate: 360,
-                        scale: [1, 1.1, 1],
-                      }}
-                      transition={{ 
-                        rotate: { repeat: Infinity, duration: 1, ease: "linear" },
-                        scale: { repeat: Infinity, duration: 2, ease: "easeInOut" }
-                      }}
-                      className="relative z-10"
-                    >
-                      <Loader2 size={42} strokeWidth={1.5} className="text-zinc-900 dark:text-zinc-100 opacity-80" />
-                    </motion.div>
-                    <div className="absolute inset-0 blur-2xl bg-blue-500/20 dark:bg-blue-400/10 rounded-full animate-pulse" />
-                  </div>
-                  <div className="flex flex-col items-center gap-1">
-                    <span className="text-[10px] font-bold tracking-[0.4em] uppercase text-zinc-400 dark:text-zinc-600">Curating</span>
-                    <div className="flex gap-1">
-                      {[0, 1, 2].map((i) => (
-                        <motion.div
-                          key={i}
-                          animate={{ opacity: [0.3, 1, 0.3] }}
-                          transition={{ repeat: Infinity, duration: 1, delay: i * 0.2 }}
-                          className="w-1 h-1 rounded-full bg-zinc-300 dark:bg-zinc-700"
-                        />
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
-          {isLoading && filteredArticles.length === 0 ? (
+          {(isLoading || isTransitioning) && filteredArticles.length === 0 ? (
             <motion.div
               key="skeleton"
               initial={{ opacity: 0 }}
@@ -1486,7 +1434,33 @@ export default function CurationList() {
                 </div>
               ))}
             </motion.div>
-          ) : !isLoading && filteredArticles.length === 0 ? (
+          ) : (isLoading || isTransitioning) && filteredArticles.length > 0 ? (
+            <motion.div
+              key="transition-pulse"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className={
+                debouncedSearchQuery
+                  ? "flex flex-col gap-3 px-5 mb-10 opacity-50 animate-pulse"
+                  : "flex flex-col gap-4 md:grid md:grid-cols-2 md:gap-4 px-5 mb-10 opacity-50 animate-pulse"
+              }
+            >
+              {filteredArticles.map((article: ArticleMeta, index: number) => (
+                <div
+                  key={`skeleton-${article.id}-${index}`}
+                  className="bg-white dark:bg-zinc-900 rounded-[1.5rem] border border-zinc-100 dark:border-zinc-800/60 p-4 flex items-center gap-4 h-[120px]"
+                >
+                  <div className="w-20 h-20 md:w-24 md:h-24 rounded-xl bg-zinc-100 dark:bg-zinc-800/80 shrink-0" />
+                  <div className="flex-1 space-y-2.5">
+                    <div className="h-2.5 bg-zinc-100 dark:bg-zinc-800 rounded-full w-1/3" />
+                    <div className="h-4 bg-zinc-200/60 dark:bg-zinc-800/60 rounded-lg w-full" />
+                    <div className="h-4 bg-zinc-200/60 dark:bg-zinc-800/60 rounded-lg w-2/3" />
+                  </div>
+                </div>
+              ))}
+            </motion.div>
+          ) : !isLoading && !isTransitioning && filteredArticles.length === 0 ? (
             <motion.div
               key="empty"
               initial={{ opacity: 0, scale: 0.98 }}
@@ -1497,6 +1471,9 @@ export default function CurationList() {
               <div className="w-16 h-16 bg-zinc-50 dark:bg-white/5 rounded-full flex items-center justify-center mb-6 border border-zinc-100 dark:border-white/5">
                 <span className="text-2xl">✨</span>
               </div>
+              <h3 className="text-[17px] font-semibold text-zinc-900 dark:text-zinc-100 mb-2 tracking-tight">
+                {debouncedSearchQuery ? "No results" : "Collection Empty"}
+              </h3>
               <h3 className="text-[17px] font-semibold text-zinc-900 dark:text-zinc-100 mb-2 tracking-tight">
                 {debouncedSearchQuery ? "No results" : "Collection Empty"}
               </h3>
@@ -1645,12 +1622,7 @@ export default function CurationList() {
                         </div>
 
                         {navigatingId === article.id && (
-                          <div className="absolute inset-0 bg-white/60 dark:bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center">
-                            <Loader2
-                              size={24}
-                              className="animate-spin text-zinc-800 dark:text-white"
-                            />
-                          </div>
+                          <div className="absolute inset-0 bg-white/40 dark:bg-black/40 backdrop-blur-[2px] z-50 animate-pulse rounded-2xl" />
                         )}
                       </Link>
                     </motion.div>
@@ -1769,12 +1741,9 @@ export default function CurationList() {
             className="w-full h-12 bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 rounded-full flex items-center justify-center font-bold text-[15px] shadow-[0_8px_30px_rgba(0,0,0,0.12)] active:scale-[0.97] transition-all disabled:opacity-40 disabled:active:scale-100"
           >
             {isSubmitting ? (
-              <div className="flex items-center gap-2">
-                <div className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full" />
-                <span>
-                  {uploadStatus === "uploading" ? "Uploading…" : "Saving…"}
-                </span>
-              </div>
+              <span className="animate-pulse">
+                {uploadStatus === "uploading" ? "Uploading…" : "Saving…"}
+              </span>
             ) : isAdmin ? (
               editingId ? (
                 "Update Article"
@@ -1791,8 +1760,8 @@ export default function CurationList() {
           <div className="flex items-center justify-between">
             <label className={LABEL_CLASS}>URL / Link</label>
             {isFetchingMetadata && (
-              <span className="text-[10px] text-zinc-400 flex items-center gap-1">
-                <Loader2 size={10} className="animate-spin" /> Fetching…
+              <span className="text-[10px] text-zinc-400 animate-pulse">
+                Fetching…
               </span>
             )}
           </div>
@@ -2047,14 +2016,9 @@ const SwipeableArticleCard = memo(({
         >
           {isNavigating && (
             <div
-              className="absolute inset-0 bg-white/60 dark:bg-zinc-900/60 backdrop-blur-[2px] z-50 flex items-center justify-center rounded-xl"
+              className="absolute inset-0 bg-white/40 dark:bg-zinc-900/40 backdrop-blur-[2px] z-50 animate-pulse rounded-xl"
               style={{ margin: "-8px", padding: "8px" }}
-            >
-              <Loader2
-                size={24}
-                className="animate-spin text-blue-600 dark:text-blue-400"
-              />
-            </div>
+            />
           )}
           {/* Thumbnail */}
           <div className="w-[80px] h-[80px] rounded-2xl overflow-hidden bg-zinc-50 dark:bg-zinc-800 shrink-0 border border-zinc-100/60 dark:border-zinc-700/60 relative pointer-events-none">

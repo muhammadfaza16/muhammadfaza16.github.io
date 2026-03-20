@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-    Search, ArrowLeft, X, Loader2, FileText, Clock,
+    Search, ArrowLeft, X, FileText, Clock,
     ChevronRight, Flame, BookOpen, Hash, Bookmark,
     Brain, Rocket, Coffee, Zap, TrendingUp, Sparkles,
     Star, CheckCheck, Heart, Repeat, MessageCircle, Info,
@@ -64,8 +64,9 @@ function readTime(content?: string): number {
 export default function ExplorePage() {
     return (
         <Suspense fallback={
-            <div className="min-h-screen bg-white dark:bg-black flex items-center justify-center">
-                <Loader2 size={32} className="animate-spin text-zinc-300 dark:text-zinc-700" />
+            <div className="min-h-screen bg-white dark:bg-black flex flex-col items-center justify-center gap-4 animate-pulse">
+                <div className="w-12 h-12 bg-zinc-100 dark:bg-zinc-800 rounded-full" />
+                <div className="w-24 h-3 bg-zinc-100 dark:bg-zinc-800 rounded-full" />
             </div>
         }>
             <ExploreContent />
@@ -289,7 +290,12 @@ function ExploreContent() {
         </div>
     );
 
-    if (!mounted) return <div className="min-h-screen bg-[#fafaf8] dark:bg-[#050505] flex items-center justify-center"><Loader2 className="animate-spin text-zinc-400" size={24} /></div>;
+    if (!mounted) return (
+        <div className="min-h-screen bg-[#fafaf8] dark:bg-[#050505] flex flex-col items-center justify-center gap-4 animate-pulse">
+            <div className="w-12 h-12 bg-zinc-100 dark:bg-zinc-800 rounded-full" />
+            <div className="w-24 h-3 bg-zinc-100 dark:bg-zinc-800 rounded-full" />
+        </div>
+    );
 
     return (
         <div className="min-h-screen bg-[#fafaf8] dark:bg-[#050505] text-zinc-900 dark:text-zinc-100">

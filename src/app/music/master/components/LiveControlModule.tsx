@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from "react";
 import { motion } from "framer-motion";
-import { Radio, Play, Square, RefreshCw, Loader2, ChevronDown } from "lucide-react";
+import { Radio, Play, Square, RefreshCw, ChevronDown } from "lucide-react";
 import { useTheme } from "@/components/ThemeProvider";
 
 interface Playlist {
@@ -123,8 +123,9 @@ export function LiveControlModule() {
 
     if (isLoading) {
         return (
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "center", padding: "40px" }}>
-                <Loader2 size={24} className="animate-spin" color={isDark ? "#FFF" : "#000"} />
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "40px", gap: "12px" }} className="animate-pulse">
+                <div style={{ width: "24px", height: "24px", borderRadius: "50%", background: isDark ? "rgba(255,255,255,0.2)" : "rgba(0,0,0,0.1)" }} />
+                <div style={{ width: "80px", height: "8px", borderRadius: "4px", background: isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.05)" }} />
             </div>
         );
     }
@@ -228,7 +229,7 @@ export function LiveControlModule() {
                             opacity: (isActioning || !selectedPlaylistId) ? 0.7 : 1
                         }}
                     >
-                        {isActioning ? <Loader2 size={16} className="animate-spin" /> : <Radio size={16} />}
+                        {isActioning ? <span className="animate-pulse">...</span> : <Radio size={16} />}
                         START BROADCAST
                     </motion.button>
                 </div>

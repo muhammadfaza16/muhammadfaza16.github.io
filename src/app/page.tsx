@@ -142,7 +142,7 @@ export default function HomePage() {
             display: "flex",
             alignItems: "flex-start",
             justifyContent: "center",
-            paddingTop: "clamp(1.5rem, 6vh, 4rem)",
+            paddingTop: "clamp(3.5rem, 12vh, 10rem)",
           }}>
             <CleanHomeHero />
           </div>

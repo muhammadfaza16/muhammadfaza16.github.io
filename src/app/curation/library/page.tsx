@@ -4,7 +4,7 @@ import React, { useState, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
     Bookmark, BookOpen, ChevronRight, Clock, FileText,
-    Hash, Loader2, ArrowLeft, TrendingUp,
+    Hash, ArrowLeft, TrendingUp,
     Brain, Rocket, Coffee, Zap, BarChart3, Calendar,
     Star, Award, X, FolderPlus, FolderCheck
 } from "lucide-react";
@@ -216,7 +216,12 @@ export default function LibraryPage() {
         <h2 className="text-[11px] font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-widest mb-2.5">{children}</h2>
     );
 
-    if (!mounted) return <div className="min-h-screen bg-[#fafaf8] dark:bg-[#050505] flex items-center justify-center"><Loader2 className="animate-spin text-zinc-400" size={24} /></div>;
+    if (!mounted) return (
+        <div className="min-h-screen bg-[#fafaf8] dark:bg-[#050505] flex flex-col items-center justify-center gap-4 animate-pulse">
+            <div className="w-12 h-12 bg-zinc-100 dark:bg-zinc-800 rounded-full" />
+            <div className="w-24 h-3 bg-zinc-100 dark:bg-zinc-800 rounded-full" />
+        </div>
+    );
 
     return (
         <div className="min-h-screen bg-[#fafaf8] dark:bg-[#050505] text-zinc-900 dark:text-zinc-100">

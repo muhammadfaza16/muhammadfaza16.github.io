@@ -2,7 +2,7 @@
 
 import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Play, Pause, Radio, Disc, Music, ListMusic, ChevronDown, Heart, Headphones, Power, Loader2 } from "lucide-react";
+import { Play, Pause, Radio, Disc, Music, ListMusic, ChevronDown, Heart, Headphones, Power } from "lucide-react";
 import { useLiveMusic } from "./LiveMusicContext";
 import { parseSongTitle } from "@/utils/songUtils";
 import { useTheme } from "@/components/ThemeProvider";
@@ -414,17 +414,18 @@ export function LiveMusicPlayer() {
                         }}
                     >
                         <motion.div
-                            animate={{ rotate: 360 }}
-                            transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
+                            animate={{ opacity: [0.3, 1, 0.3] }}
+                            transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" }}
                             style={{ display: "flex", alignItems: "center", justifyContent: "center" }}
                         >
-                            <Loader2 size={20} color={isDark ? "rgba(255,255,255,0.6)" : "rgba(0,0,0,0.6)"} />
+                            <Radio size={18} color={isDark ? "rgba(255,255,255,0.6)" : "rgba(0,0,0,0.6)"} />
                         </motion.div>
                         <span style={{ 
                             fontFamily: "var(--font-display), system-ui, sans-serif", 
                             fontWeight: 900, fontSize: "0.75rem", letterSpacing: "0.1em", 
                             textTransform: "uppercase",
-                            color: isDark ? "rgba(255,255,255,0.6)" : "rgba(0,0,0,0.6)"
+                            color: isDark ? "rgba(255,255,255,0.6)" : "rgba(0,0,0,0.6)",
+                            animation: "pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite"
                         }}>
                             {isWaitingForSync ? "Syncing" : "Tuning In"}
                         </span>
