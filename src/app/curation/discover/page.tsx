@@ -64,9 +64,9 @@ function readTime(content?: string): number {
 export default function ExplorePage() {
     return (
         <Suspense fallback={
-            <div className="min-h-screen bg-white dark:bg-black flex flex-col items-center justify-center gap-4 animate-pulse">
-                <div className="w-12 h-12 bg-zinc-100 dark:bg-zinc-800 rounded-full" />
-                <div className="w-24 h-3 bg-zinc-100 dark:bg-zinc-800 rounded-full" />
+            <div className="h-[100dvh] w-full bg-[#fafaf8] dark:bg-[#050505] flex flex-col items-center justify-center gap-4 transition-colors duration-500">
+                <div className="w-12 h-12 bg-zinc-100 dark:bg-zinc-800 rounded-full animate-pulse" />
+                <div className="w-24 h-2.5 bg-zinc-200 dark:bg-zinc-800 rounded-full animate-pulse" />
             </div>
         }>
             <ExploreContent />
@@ -218,16 +218,34 @@ function ExploreContent() {
         const isRead = readStats.readIds.has(article.id);
         const isSaved = readStats.savedIds.has(article.id);
         return (
-            <motion.div key={article.id} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.2, delay: i * 0.02 }} className="min-h-[64px] flex flex-col justify-center">
-                <Link href={`/curation/${article.id}`} className={`group flex items-center gap-2.5 py-2 border-b border-zinc-100 dark:border-zinc-800/50 last:border-0 transition-colors ${isRead ? "opacity-60" : ""}`}>
+            <motion.div 
+                key={article.id} 
+                initial={{ opacity: 0, y: 6 }} 
+                animate={{ opacity: 1, y: 0 }} 
+                transition={{ duration: 0.2, delay: i * 0.02 }} 
+                className="min-h-[72px] flex flex-col justify-center"
+            >
+                <Link href={`/curation/${article.id}`} className={`group flex items-center gap-2.5 py-2.5 border-b border-zinc-100 dark:border-zinc-800/50 last:border-0 transition-all duration-300 ${isRead ? "opacity-60" : ""}`}>
                     {rank && <span className="text-[15px] font-bold text-zinc-200 dark:text-zinc-800 w-5 text-center shrink-0 tabular-nums">{i + 1}</span>}
-                    <div className="w-10 h-10 rounded-md overflow-hidden bg-zinc-100 dark:bg-zinc-800/80 shrink-0 relative">
-                        {article.imageUrl ? <Image src={article.imageUrl} alt="" fill className="object-cover" /> : <div className="w-full h-full flex items-center justify-center text-zinc-400"><FileText size={14} /></div>}
+                    <div className="w-10 h-10 rounded-md overflow-hidden bg-zinc-100 dark:bg-zinc-800/80 shrink-0 relative aspect-square">
+                        {article.imageUrl ? (
+                            <Image 
+                                src={article.imageUrl} 
+                                alt="" 
+                                fill 
+                                sizes="40px"
+                                className="object-cover transition-transform duration-500 group-hover:scale-105" 
+                            />
+                        ) : (
+                            <div className="w-full h-full flex items-center justify-center text-zinc-400">
+                                <FileText size={14} />
+                            </div>
+                        )}
                     </div>
                     <div className="flex-1 min-w-0">
-                        <h3 className="text-[12.5px] font-medium text-zinc-900 dark:text-zinc-100 leading-snug line-clamp-2">{formatTitle(article.title)}</h3>
+                        <h3 className="text-[12.5px] font-medium text-zinc-900 dark:text-zinc-100 leading-snug line-clamp-2 transition-colors group-hover:text-blue-600 dark:group-hover:text-blue-400">{formatTitle(article.title)}</h3>
                         <div className="flex items-center gap-1.5 mt-0.5">
-                            <span className="text-[10px] text-zinc-400">
+                            <span className="text-[10px] text-zinc-400 tabular-nums">
                                 {new Date(article.createdAt).toLocaleDateString('en-US', { day: 'numeric', month: 'short' })}
                             </span>
                             <span className="text-zinc-300 dark:text-zinc-700 text-[7px]">·</span>
@@ -285,12 +303,25 @@ function ExploreContent() {
         );
     };
 
-    const Skeleton = ({ n }: { n: number }) => (<>{Array(n).fill(0).map((_, i) => (
-        <div key={i} className="flex items-center gap-2.5 py-2 min-h-[64px] border-b border-zinc-100 dark:border-zinc-800/50 last:border-0">
-            <div className="w-10 h-10 rounded-md bg-zinc-100 dark:bg-zinc-800 animate-pulse shrink-0" />
-            <div className="flex-1 space-y-1.5"><div className="h-2.5 bg-zinc-100 dark:bg-zinc-800 rounded animate-pulse w-3/4" /><div className="h-2 bg-zinc-100 dark:bg-zinc-800 rounded animate-pulse w-1/2" /></div>
-        </div>
-    ))}</>);
+    const Skeleton = ({ n }: { n: number }) => (
+        <>
+            {Array(n).fill(0).map((_, i) => (
+                <div key={i} className="flex items-center gap-2.5 py-2.5 min-h-[72px] border-b border-zinc-100 dark:border-zinc-800/50 last:border-0">
+                    <div className="w-10 h-10 rounded-md bg-zinc-100 dark:bg-zinc-800/60 animate-pulse shrink-0 relative overflow-hidden">
+                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 dark:via-white/5 to-transparent animate-shimmer" />
+                    </div>
+                    <div className="flex-1 space-y-2">
+                        <div className="h-3 bg-zinc-100 dark:bg-zinc-800/60 rounded animate-pulse w-3/4 relative overflow-hidden">
+                            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 dark:via-white/5 to-transparent animate-shimmer" />
+                        </div>
+                        <div className="h-2 bg-zinc-50 dark:bg-zinc-800/40 rounded animate-pulse w-1/2 relative overflow-hidden">
+                            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 dark:via-white/5 to-transparent animate-shimmer" />
+                        </div>
+                    </div>
+                </div>
+            ))}
+        </>
+    );
 
     const Label = ({ children, color = "blue" }: { children: React.ReactNode, color?: "blue" | "emerald" | "zinc" }) => (
         <div className="flex items-center gap-2 mb-3">
@@ -307,7 +338,7 @@ function ExploreContent() {
     );
 
     return (
-        <div className="h-full flex flex-col bg-[#fafaf8] dark:bg-[#050505] text-zinc-900 dark:text-zinc-100 overflow-hidden">
+        <div className="h-[100svh] flex flex-col bg-[#fafaf8] dark:bg-[#050505] text-zinc-900 dark:text-zinc-100 overflow-hidden transition-colors duration-500">
             {/* ═══ HEADER ═══ */}
             <header className="sticky top-0 z-[110] bg-[#fafaf8]/80 dark:bg-[#050505]/80 backdrop-blur-xl border-b border-zinc-200/40 dark:border-zinc-800/40 shrink-0 h-16 flex items-center px-4 transition-colors duration-500">
                 {/* Search Only Header */}
@@ -380,26 +411,33 @@ function ExploreContent() {
                     {isShowingSearch ? (
                         <motion.div key="search" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.15 }} className="min-h-[400px]">
                             {/* Topic Insight Guide */}
-                            {activeCategory && TOPIC_INSIGHTS[activeCategory] && (
-                                <motion.div 
-                                    initial={{ opacity: 0, y: -10 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    className="mb-8 p-5 bg-zinc-50 dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800/60 rounded-2xl relative overflow-hidden group"
-                                >
-                                    <div className="absolute top-0 right-0 p-3 opacity-10 group-hover:opacity-20 transition-opacity">
-                                        <Info size={40} className="text-zinc-400" />
-                                    </div>
-                                    <div className="flex flex-col gap-2 relative z-10">
-                                        <div className="flex items-center gap-2">
-                                            <div className="w-1 h-3.5 bg-blue-500 rounded-full" />
-                                            <h4 className="text-[11px] font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">{activeCategory}</h4>
-                                        </div>
-                                        <p className="text-[13px] leading-relaxed text-zinc-600 dark:text-zinc-300 font-medium italic">
-                                            &quot;{TOPIC_INSIGHTS[activeCategory]}&quot;
-                                        </p>
-                                    </div>
-                                </motion.div>
-                            )}
+                            <div className="min-h-[100px]">
+                                <AnimatePresence mode="wait">
+                                    {activeCategory && TOPIC_INSIGHTS[activeCategory] ? (
+                                        <motion.div 
+                                            key={activeCategory}
+                                            initial={{ opacity: 0, scale: 0.98 }}
+                                            animate={{ opacity: 1, scale: 1 }}
+                                            exit={{ opacity: 0, scale: 0.98 }}
+                                            transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+                                            className="mb-8 p-5 bg-zinc-50 dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800/60 rounded-2xl relative overflow-hidden group"
+                                        >
+                                            <div className="absolute top-0 right-0 p-3 opacity-10 group-hover:opacity-20 transition-opacity">
+                                                <Info size={40} className="text-zinc-400" />
+                                            </div>
+                                            <div className="flex flex-col gap-2 relative z-10">
+                                                <div className="flex items-center gap-2">
+                                                    <div className="w-1 h-3.5 bg-blue-500 rounded-full" />
+                                                    <h4 className="text-[11px] font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">{activeCategory}</h4>
+                                                </div>
+                                                <p className="text-[13px] leading-relaxed text-zinc-600 dark:text-zinc-300 font-medium italic">
+                                                    &quot;{TOPIC_INSIGHTS[activeCategory]}&quot;
+                                                </p>
+                                            </div>
+                                        </motion.div>
+                                    ) : null}
+                                </AnimatePresence>
+                            </div>
                             
                             <div ref={resultsRef} className="flex items-center justify-between mb-2 scroll-mt-24">
                                 <div className="flex items-center gap-2">
@@ -418,22 +456,22 @@ function ExploreContent() {
                         <motion.div key="discover" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.15 }} className="space-y-8">
 
                             {/* Reading Pulse — stats row style */}
-                            <div className="flex items-center bg-zinc-50 dark:bg-zinc-900/60 rounded-xl border border-zinc-200/50 dark:border-zinc-800/50 divide-x divide-zinc-200/60 dark:divide-zinc-800/60">
-                                <div className="flex-1 text-center py-0.5">
-                                    <span className="text-[16px] font-bold text-zinc-900 dark:text-zinc-100 tabular-nums">{allCount}</span>
-                                    <span className="text-[9px] text-zinc-500 ml-1.5">articles</span>
+                            <div className="flex items-center bg-zinc-50 dark:bg-zinc-900/60 rounded-xl border border-zinc-200/50 dark:border-zinc-800/50 divide-x divide-zinc-200/60 dark:divide-zinc-800/60 min-h-[48px] overflow-hidden">
+                                <div className="flex-1 text-center py-1.5 px-1">
+                                    <span className="text-[14px] md:text-[16px] font-bold text-zinc-900 dark:text-zinc-100 tabular-nums">{allCount}</span>
+                                    <span className="text-[9px] text-zinc-500 ml-1.5 hidden sm:inline">articles</span>
                                 </div>
-                                <div className="flex-1 text-center py-0.5">
-                                    <span className="text-[16px] font-bold text-zinc-900 dark:text-zinc-100 tabular-nums">{readStats.readCount}</span>
-                                    <span className="text-[9px] text-zinc-500 ml-1.5">read</span>
+                                <div className="flex-1 text-center py-1.5 px-1">
+                                    <span className="text-[14px] md:text-[16px] font-bold text-zinc-900 dark:text-zinc-100 tabular-nums">{readStats.readCount}</span>
+                                    <span className="text-[9px] text-zinc-500 ml-1.5 hidden sm:inline">read</span>
                                 </div>
-                                <div className="flex-1 text-center py-0.5">
-                                    <span className="text-[16px] font-bold text-zinc-900 dark:text-zinc-100 tabular-nums">{readStats.bookmarkCount}</span>
-                                    <span className="text-[9px] text-zinc-500 ml-1.5">saved</span>
+                                <div className="flex-1 text-center py-1.5 px-1">
+                                    <span className="text-[14px] md:text-[16px] font-bold text-zinc-900 dark:text-zinc-100 tabular-nums">{readStats.bookmarkCount}</span>
+                                    <span className="text-[9px] text-zinc-500 ml-1.5 hidden sm:inline">saved</span>
                                 </div>
-                                <div className="flex-1 text-center py-0.5">
-                                    <span className="text-[16px] font-bold text-zinc-900 dark:text-zinc-100 tabular-nums">{completionPct}%</span>
-                                    <span className="text-[9px] text-zinc-500 ml-1.5">done</span>
+                                <div className="flex-1 text-center py-1.5 px-1">
+                                    <span className="text-[14px] md:text-[16px] font-bold text-zinc-900 dark:text-zinc-100 tabular-nums">{completionPct}%</span>
+                                    <span className="text-[9px] text-zinc-500 ml-1.5 hidden sm:inline">done</span>
                                 </div>
                             </div>
 
@@ -443,36 +481,44 @@ function ExploreContent() {
                                     <Label color="blue">Picked For You</Label>
                                     <span className="text-[10px] text-zinc-400 -mt-3">personal</span>
                                 </div>
-                                {isLoading ? <Skeleton n={3} /> : readStats.readCount === 0 ? (
-                                    <div className="bg-gradient-to-br from-blue-50/50 to-indigo-50/50 dark:from-blue-500/5 dark:to-indigo-500/5 border border-blue-100/50 dark:border-blue-500/10 rounded-2xl p-6 text-center shadow-sm relative overflow-hidden group">
-                                        <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
-                                            <Brain size={64} className="text-blue-500 transform rotate-12" />
-                                        </div>
-                                        <div className="relative z-10">
-                                            <div className="w-10 h-10 bg-white dark:bg-zinc-800 rounded-full shadow-sm flex items-center justify-center mx-auto mb-3 border border-zinc-100 dark:border-zinc-700">
-                                                <Sparkles size={16} className="text-blue-500" />
+                                <div className="min-h-[200px]">
+                                    {isLoading ? (
+                                        <Skeleton n={3} />
+                                    ) : readStats.readCount === 0 ? (
+                                        <motion.div 
+                                            initial={{ opacity: 0 }}
+                                            animate={{ opacity: 1 }}
+                                            className="bg-gradient-to-br from-blue-50/50 to-indigo-50/50 dark:from-blue-500/5 dark:to-indigo-500/5 border border-blue-100/50 dark:border-blue-500/10 rounded-2xl p-6 text-center shadow-sm relative overflow-hidden group"
+                                        >
+                                            <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                                                <Brain size={64} className="text-blue-500 transform rotate-12" />
                                             </div>
-                                            <h3 className="text-[14px] font-bold text-zinc-900 dark:text-zinc-100 mb-1.5">Your feed is waiting</h3>
-                                            <p className="text-[11.5px] text-zinc-500 dark:text-zinc-400 mb-4 max-w-[240px] mx-auto leading-relaxed">
-                                                Read a few articles to train the algorithm on what you like. I'll curate the best pieces for you.
-                                            </p>
-                                            <button
-                                                onClick={() => {
-                                                    const trendingSection = document.getElementById('trending-section');
-                                                    if (trendingSection) {
-                                                        const y = trendingSection.getBoundingClientRect().top + window.scrollY - 100;
-                                                        window.scrollTo({ top: y, behavior: 'smooth' });
-                                                    }
-                                                }}
-                                                className="inline-flex items-center bg-blue-600 hover:bg-blue-700 text-white text-[11.5px] font-bold px-4 py-2 rounded-full transition-colors active:scale-95"
-                                            >
-                                                Explore Trending <ChevronRight size={14} className="ml-0.5 -mr-1" />
-                                            </button>
-                                        </div>
-                                    </div>
-                                ) : (
-                                    <div>{forYouArticles.map((a, i) => <ArticleRow key={a.id} article={a} i={i} />)}</div>
-                                )}
+                                            <div className="relative z-10">
+                                                <div className="w-10 h-10 bg-white dark:bg-zinc-800 rounded-full shadow-sm flex items-center justify-center mx-auto mb-3 border border-zinc-100 dark:border-zinc-700">
+                                                    <Sparkles size={16} className="text-blue-500" />
+                                                </div>
+                                                <h3 className="text-[14px] font-bold text-zinc-900 dark:text-zinc-100 mb-1.5">Your feed is waiting</h3>
+                                                <p className="text-[11.5px] text-zinc-500 dark:text-zinc-400 mb-4 max-w-[240px] mx-auto leading-relaxed">
+                                                    Read a few articles to train the algorithm on what you like. I'll curate the best pieces for you.
+                                                </p>
+                                                <button
+                                                    onClick={() => {
+                                                        const trendingSection = document.getElementById('trending-section');
+                                                        if (trendingSection) {
+                                                            const y = trendingSection.getBoundingClientRect().top + window.scrollY - 100;
+                                                            window.scrollTo({ top: y, behavior: 'smooth' });
+                                                        }
+                                                    }}
+                                                    className="inline-flex items-center bg-blue-600 hover:bg-blue-700 text-white text-[11.5px] font-bold px-4 py-2 rounded-full transition-colors active:scale-95"
+                                                >
+                                                    Explore Trending <ChevronRight size={14} className="ml-0.5 -mr-1" />
+                                                </button>
+                                            </div>
+                                        </motion.div>
+                                    ) : (
+                                        <div>{forYouArticles.map((a, i) => <ArticleRow key={a.id} article={a} i={i} />)}</div>
+                                    )}
+                                </div>
                             </section>
 
                             {/* Latest */}
@@ -555,7 +601,7 @@ function ExploreContent() {
                         transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
                         className="fixed inset-0 z-[100] bg-[#fafaf8]/95 dark:bg-[#050505]/95 backdrop-blur-3xl flex flex-col pt-14"
                     >
-                        <nav className="flex-1 px-10 flex flex-col pt-[18vh] gap-3">
+                        <nav className="flex-1 px-10 flex flex-col pt-[18svh] gap-3">
                             <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-zinc-400 mb-6 opacity-60">Knowledge Archives</p>
                             {VERTICALS.map((v, i) => (
                                 <motion.div

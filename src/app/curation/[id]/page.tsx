@@ -593,7 +593,7 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
 
     if (isLoading) {
         return (
-            <div className="min-h-screen bg-white dark:bg-[#030303] antialiased">
+            <div className="min-h-[100dvh] bg-white dark:bg-[#030303] antialiased">
                 {/* Back button row skeleton */}
                 <div className="max-w-3xl mx-auto px-5 md:px-12 py-3 flex items-center">
                     <div className="w-8 h-8 rounded-full bg-zinc-100 dark:bg-zinc-900 border border-zinc-200/50 dark:border-zinc-800/50 relative overflow-hidden">
@@ -602,7 +602,7 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
                 </div>
 
                 {/* Hero skeleton - Adjusted size */}
-                <div className="w-full h-[38vh] bg-zinc-100 dark:bg-zinc-900 relative overflow-hidden">
+                <div className="w-full h-[38dvh] bg-zinc-100 dark:bg-zinc-900 relative overflow-hidden">
                     <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 dark:via-white/5 to-transparent animate-shimmer" />
                 </div>
 
@@ -920,8 +920,12 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
 
     return (
         <div
-            className="min-h-screen transition-colors duration-500 selection:bg-blue-200 antialiased pb-8 overscroll-none"
-            style={{ backgroundColor: THEMES[readerSettings.theme].bg, color: THEMES[readerSettings.theme].text }}
+            className="min-h-[100dvh] transition-colors duration-500 selection:bg-blue-200 antialiased pb-8 overscroll-none"
+            style={{ 
+                backgroundColor: THEMES[readerSettings.theme].bg, 
+                color: THEMES[readerSettings.theme].text,
+                scrollbarGutter: 'stable'
+            }}
         >
             {/* Top Reading Progress Bar */}
             <AnimatePresence>
@@ -945,7 +949,7 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
                             animate={{ opacity: 1 }}
                             exit={{ opacity: 0 }}
                             transition={{ duration: 0.7 }}
-                            className="fixed top-0 left-0 right-0 h-[10vh] z-[40] pointer-events-none"
+                            className="fixed top-0 left-0 right-0 h-[10dvh] z-[40] pointer-events-none"
                         >
                             <motion.div
                                 style={{
@@ -960,7 +964,7 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
                             animate={{ opacity: 1 }}
                             exit={{ opacity: 0 }}
                             transition={{ duration: 0.7 }}
-                            className="fixed bottom-0 left-0 right-0 h-[10vh] z-[40] pointer-events-none"
+                            className="fixed bottom-0 left-0 right-0 h-[10dvh] z-[40] pointer-events-none"
                             style={{ background: `linear-gradient(to top, ${THEMES[readerSettings.theme].bg} 20%, transparent 100%)` }}
                         />
                     </>
@@ -1007,21 +1011,17 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
 
                 {/* 1. Pure Cover Image Banner (No Overlays) */}
                 {validImageUrl ? (
-                    <div className="w-full relative overflow-hidden bg-transparent mb-4 flex flex-col items-center group/cover">
-                        <img 
-                            src={validImageUrl} 
-                            alt="" 
-                            className="w-full h-auto opacity-0 invisible pointer-events-none" 
-                            aria-hidden="true" 
-                        />
-                        <Image 
-                            src={validImageUrl} 
-                            alt="Cover" 
-                            fill 
-                            sizes="100vw" 
-                            priority 
-                            className="object-contain" 
-                        />
+                    <div className="w-full relative overflow-hidden bg-transparent mb-4 flex flex-col items-center group/cover min-h-[38dvh]">
+                        <div className="w-full h-[38dvh] relative">
+                            <Image 
+                                src={validImageUrl} 
+                                alt="Cover" 
+                                fill 
+                                sizes="100vw" 
+                                priority 
+                                className="object-contain" 
+                            />
+                        </div>
 
                         {/* Floating TTS Control - Contextual on Cover (Mobile Polish) */}
                         <div className="absolute top-4 right-4 z-40 opacity-0 group-hover/cover:opacity-100 transition-opacity duration-300">

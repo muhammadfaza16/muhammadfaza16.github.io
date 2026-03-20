@@ -175,21 +175,39 @@ export default function LibraryPage() {
     // ─── Renderers ───
 
     const ArticleRow = ({ article, i, showTime, onRemove }: { article: any; i: number; showTime?: boolean; onRemove?: (id: string) => void }) => (
-        <motion.div key={article.id} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.2, delay: i * 0.02 }} className="group relative min-h-[64px] flex flex-col justify-center">
-            <Link href={`/curation/${article.id}`} className="flex items-center gap-2.5 py-2 border-b border-zinc-100 dark:border-zinc-800/50 last:border-0 transition-colors pr-6">
-                <div className="w-10 h-10 rounded-md overflow-hidden bg-zinc-100 dark:bg-zinc-800/80 shrink-0 relative">
-                    {article.imageUrl ? <Image src={article.imageUrl} alt="" fill className="object-cover" /> : <div className="w-full h-full flex items-center justify-center text-zinc-400"><FileText size={14} /></div>}
+        <motion.div 
+            key={article.id} 
+            initial={{ opacity: 0, y: 6 }} 
+            animate={{ opacity: 1, y: 0 }} 
+            transition={{ duration: 0.2, delay: i * 0.02 }} 
+            className="group relative min-h-[72px] flex flex-col justify-center"
+        >
+            <Link href={`/curation/${article.id}`} className="flex items-center gap-2.5 py-2.5 border-b border-zinc-100 dark:border-zinc-800/50 last:border-0 transition-all duration-300 pr-6 group-hover:bg-zinc-50/50 dark:group-hover:bg-zinc-900/40">
+                <div className="w-10 h-10 rounded-md overflow-hidden bg-zinc-100 dark:bg-zinc-800/80 shrink-0 relative aspect-square">
+                    {article.imageUrl ? (
+                        <Image 
+                            src={article.imageUrl} 
+                            alt="" 
+                            fill 
+                            sizes="40px"
+                            className="object-cover transition-transform duration-500 group-hover:scale-105" 
+                        />
+                    ) : (
+                        <div className="w-full h-full flex items-center justify-center text-zinc-400">
+                            <FileText size={14} />
+                        </div>
+                    )}
                 </div>
                 <div className="flex-1 min-w-0">
-                    <h3 className="text-[12.5px] font-medium text-zinc-900 dark:text-zinc-100 leading-snug line-clamp-2">{formatTitle(article.title)}</h3>
+                    <h3 className="text-[12.5px] font-medium text-zinc-900 dark:text-zinc-100 leading-snug line-clamp-2 transition-colors group-hover:text-blue-600 dark:group-hover:text-blue-400">{formatTitle(article.title)}</h3>
                     <div className="flex items-center gap-1.5 mt-0.5">
-                        <span className="text-[10px] text-zinc-500">{article.category || "General"}</span>
+                        <span className="text-[10px] text-zinc-500 uppercase tracking-tighter tabular-nums">{article.category || "General"}</span>
                         <span className="text-zinc-300 dark:text-zinc-700 text-[7px]">·</span>
-                        <span className="text-[10px] text-zinc-400">{readTime(article.content)}m</span>
+                        <span className="text-[10px] text-zinc-400 tabular-nums">{readTime(article.content)}m</span>
                         {showTime && historyMap.has(article.id) && (
                             <>
                                 <span className="text-zinc-300 dark:text-zinc-700 text-[7px]">·</span>
-                                <span className="text-[10px] text-zinc-400">{timeAgo(historyMap.get(article.id)!)}</span>
+                                <span className="text-[10px] text-zinc-400 tabular-nums">{timeAgo(historyMap.get(article.id)!)}</span>
                             </>
                         )}
                         {article.qualityScore != null && article.qualityScore >= 70 && (
@@ -200,7 +218,7 @@ export default function LibraryPage() {
                         )}
                     </div>
                 </div>
-                {!onRemove && <ChevronRight size={12} className="text-zinc-300 dark:text-zinc-700 shrink-0" />}
+                {!onRemove && <ChevronRight size={12} className="text-zinc-300 dark:text-zinc-700 shrink-0 transition-transform group-hover:translate-x-0.5" />}
             </Link>
             {onRemove && (
                 <button
@@ -214,35 +232,44 @@ export default function LibraryPage() {
         </motion.div>
     );
 
-    const Skeleton = ({ n }: { n: number }) => (<>{Array(n).fill(0).map((_, i) => (
-        <div key={i} className="flex items-center gap-2.5 py-2 min-h-[64px] border-b border-zinc-100 dark:border-zinc-800/50 last:border-0">
-            <div className="w-10 h-10 rounded-md bg-zinc-100 dark:bg-zinc-800 animate-pulse shrink-0" />
-            <div className="flex-1 space-y-1.5"><div className="h-2.5 bg-zinc-100 dark:bg-zinc-800 rounded animate-pulse w-3/4" /><div className="h-2 bg-zinc-100 dark:bg-zinc-800 rounded animate-pulse w-1/2" /></div>
-        </div>
-    ))}</>);
+    const Skeleton = ({ n }: { n: number }) => (
+        <>
+            {Array(n).fill(0).map((_, i) => (
+                <div key={i} className="flex items-center gap-2.5 py-2.5 min-h-[72px] border-b border-zinc-100 dark:border-zinc-800/50 last:border-0">
+                    <div className="w-10 h-10 rounded-md bg-zinc-100 dark:bg-zinc-800/60 animate-pulse shrink-0 relative overflow-hidden">
+                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 dark:via-white/5 to-transparent animate-shimmer" />
+                    </div>
+                    <div className="flex-1 space-y-2">
+                        <div className="h-3 bg-zinc-100 dark:bg-zinc-800/60 rounded animate-pulse w-3/4 relative overflow-hidden">
+                            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 dark:via-white/5 to-transparent animate-shimmer" />
+                        </div>
+                        <div className="h-2 bg-zinc-50 dark:bg-zinc-800/40 rounded animate-pulse w-1/2 relative overflow-hidden">
+                            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 dark:via-white/5 to-transparent animate-shimmer" />
+                        </div>
+                    </div>
+                </div>
+            ))}
+        </>
+    );
 
     const Label = ({ children }: { children: React.ReactNode }) => (
         <h2 className="text-[11px] font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-widest mb-2.5">{children}</h2>
     );
 
     if (!mounted) return (
-        <div className="min-h-screen bg-[#fafaf8] dark:bg-[#050505] flex flex-col items-center justify-center gap-4 animate-pulse">
-            <div className="w-12 h-12 bg-zinc-100 dark:bg-zinc-800 rounded-full" />
-            <div className="w-24 h-3 bg-zinc-100 dark:bg-zinc-800 rounded-full" />
+        <div className="h-[100dvh] bg-[#fafaf8] dark:bg-[#050505] flex flex-col items-center justify-center gap-4 transition-colors duration-500">
+            <div className="w-12 h-12 bg-zinc-100 dark:bg-zinc-800 rounded-full animate-pulse" />
+            <div className="w-24 h-2.5 bg-zinc-200 dark:bg-zinc-800 rounded-full animate-pulse" />
         </div>
     );
 
     return (
-        <div className="h-full flex flex-col bg-[#fafaf8] dark:bg-[#050505] text-zinc-900 dark:text-zinc-100 overflow-hidden">
+        <div className="h-[100svh] flex flex-col bg-[#fafaf8] dark:bg-[#050505] text-zinc-900 dark:text-zinc-100 overflow-hidden transition-colors duration-500">
 
             {/* ═══ HEADER ═══ */}
             <header className="sticky top-0 z-50 bg-[#fafaf8]/85 dark:bg-[#050505]/85 backdrop-blur-xl border-b border-zinc-200/40 dark:border-zinc-800/40">
                 <div className="px-4 pt-3 pb-2.5 max-w-2xl mx-auto">
-                    <div className="flex items-center gap-3 mb-3">
-                        <Link href="/curation" className="w-9 h-9 flex items-center justify-center text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 active:scale-90 rounded-full transition-all shrink-0">
-                            <ArrowLeft size={20} />
-                        </Link>
-                        <h1 className="text-[16px] font-semibold">Library</h1>
+                    <div className="flex items-center h-2 mb-2">
                     </div>
 
                     {/* Tab Switcher */}
@@ -288,16 +315,16 @@ export default function LibraryPage() {
                         <motion.div key="activity" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.15 }} className="space-y-8">
 
                             {/* ── Stats Row ── */}
-                            <div className="flex items-center bg-zinc-50 dark:bg-zinc-900/60 rounded-xl border border-zinc-200/50 dark:border-zinc-800/50 divide-x divide-zinc-200/60 dark:divide-zinc-800/60">
+                            <div className="flex items-center bg-zinc-50 dark:bg-zinc-900/60 rounded-xl border border-zinc-200/50 dark:border-zinc-800/50 divide-x divide-zinc-200/60 dark:divide-zinc-800/60 min-h-[48px] overflow-hidden">
                                 {[
                                     { label: "read", value: readIds.size },
                                     { label: "streak", value: streak },
                                     { label: "this week", value: weeklyTotal },
                                     { label: "mins read", value: totalReadingMins },
                                 ].map(stat => (
-                                    <div key={stat.label} className="flex-1 text-center py-0.5">
-                                        <span className="text-[16px] font-bold text-zinc-900 dark:text-zinc-100 tabular-nums">{stat.value}</span>
-                                        <span className="text-[9px] text-zinc-500 ml-1.5">{stat.label}</span>
+                                    <div key={stat.label} className="flex-1 text-center py-1.5 px-1">
+                                        <span className="text-[14px] md:text-[16px] font-bold text-zinc-900 dark:text-zinc-100 tabular-nums">{stat.value}</span>
+                                        <span className="text-[9px] text-zinc-500 ml-1.5 inline">{stat.label}</span>
                                     </div>
                                 ))}
                             </div>
@@ -305,7 +332,7 @@ export default function LibraryPage() {
                             {/* ── Weekly Activity ── */}
                             <section>
                                 <Label><Calendar size={11} className="inline mr-1 -mt-px" />Weekly Activity</Label>
-                                <div className="flex items-end gap-1.5 px-1 min-h-[56px]">
+                                <div className="flex items-end gap-1.5 px-1 min-h-[64px]">
                                     {weeklyActivity.map((count, i) => {
                                         const maxCount = Math.max(...weeklyActivity, 1);
                                         const heightPct = Math.max(10, (count / maxCount) * 100);
@@ -314,13 +341,18 @@ export default function LibraryPage() {
                                         const isToday = i === 6;
                                         return (
                                             <div key={i} className="flex-1 flex flex-col items-center gap-1">
-                                                {count > 0 && (
-                                                    <span className="text-[8px] text-zinc-500 tabular-nums font-medium">{count}</span>
-                                                )}
+                                                <div className="h-4 flex items-center justify-center">
+                                                    {count > 0 && (
+                                                        <span className="text-[8px] text-zinc-500 tabular-nums font-medium mb-0.5">{count}</span>
+                                                    )}
+                                                </div>
                                                 <div className="w-full flex items-end justify-center" style={{ height: "32px" }}>
-                                                    <div
-                                                        className={`w-full rounded-[3px] transition-all ${count > 0 ? (isToday ? "bg-zinc-900 dark:bg-zinc-100" : "bg-zinc-600 dark:bg-zinc-400") : "bg-zinc-200 dark:bg-zinc-800"}`}
-                                                        style={{ height: `${heightPct}%`, minHeight: "4px" }}
+                                                    <motion.div
+                                                        initial={{ height: 0 }}
+                                                        animate={{ height: `${heightPct}%` }}
+                                                        transition={{ duration: 0.5, delay: i * 0.05 }}
+                                                        className={`w-full rounded-[3px] transition-colors ${count > 0 ? (isToday ? "bg-zinc-900 dark:bg-zinc-100" : "bg-zinc-600 dark:bg-zinc-400") : "bg-zinc-200 dark:bg-zinc-800"}`}
+                                                        style={{ minHeight: "4px" }}
                                                     />
                                                 </div>
                                                 <span className={`text-[8px] uppercase ${isToday ? "text-zinc-900 dark:text-zinc-100 font-semibold" : "text-zinc-400"}`}>{DAY_LABELS[dayIdx]}</span>
@@ -335,8 +367,8 @@ export default function LibraryPage() {
                                 <section>
                                     <Label><Award size={11} className="inline mr-1 -mt-px" />Top Rated Read</Label>
                                     <Link href={`/curation/${bestArticle.id}`} className="flex items-center gap-3 p-3 rounded-xl bg-zinc-50 dark:bg-zinc-900/50 border border-zinc-200/50 dark:border-zinc-800/50 group hover:border-zinc-300 dark:hover:border-zinc-700 transition-all">
-                                        <div className="w-12 h-12 rounded-lg overflow-hidden bg-zinc-100 dark:bg-zinc-800 shrink-0 relative">
-                                            {bestArticle.imageUrl ? <Image src={bestArticle.imageUrl} alt="" fill className="object-cover" /> : <div className="w-full h-full flex items-center justify-center text-zinc-400"><FileText size={16} /></div>}
+                                        <div className="w-12 h-12 rounded-lg overflow-hidden bg-zinc-100 dark:bg-zinc-800 shrink-0 relative aspect-square">
+                                            {bestArticle.imageUrl ? <Image src={bestArticle.imageUrl} alt="" fill sizes="48px" className="object-cover transition-transform duration-500 group-hover:scale-105" /> : <div className="w-full h-full flex items-center justify-center text-zinc-400"><FileText size={16} /></div>}
                                         </div>
                                         <div className="flex-1 min-w-0">
                                             <h3 className="text-[13px] font-semibold text-zinc-900 dark:text-zinc-100 leading-snug line-clamp-2">{formatTitle(bestArticle.title)}</h3>
@@ -435,18 +467,18 @@ export default function LibraryPage() {
                             ) : (
                                 <>
                                     {/* Saved summary */}
-                                    <div className="flex items-center bg-zinc-50 dark:bg-zinc-900/60 rounded-xl border border-zinc-200/50 dark:border-zinc-800/50 divide-x divide-zinc-200/60 dark:divide-zinc-800/60">
-                                        <div className="flex-1 text-center py-0.5">
-                                            <span className="text-[16px] font-bold text-zinc-900 dark:text-zinc-100 tabular-nums">{savedArticles.length}</span>
-                                            <span className="text-[9px] text-zinc-500 ml-1.5">saved</span>
+                                    <div className="flex items-center bg-zinc-50 dark:bg-zinc-900/60 rounded-xl border border-zinc-200/50 dark:border-zinc-800/50 divide-x divide-zinc-200/60 dark:divide-zinc-800/60 min-h-[48px] overflow-hidden">
+                                        <div className="flex-1 text-center py-1.5 px-1">
+                                            <span className="text-[14px] md:text-[16px] font-bold text-zinc-900 dark:text-zinc-100 tabular-nums">{savedArticles.length}</span>
+                                            <span className="text-[9px] text-zinc-500 ml-1.5 inline">saved</span>
                                         </div>
-                                        <div className="flex-1 text-center py-0.5">
-                                            <span className="text-[16px] font-bold text-zinc-900 dark:text-zinc-100 tabular-nums">{savedByCategory.length}</span>
-                                            <span className="text-[9px] text-zinc-500 ml-1.5">categories</span>
+                                        <div className="flex-1 text-center py-1.5 px-1">
+                                            <span className="text-[14px] md:text-[16px] font-bold text-zinc-900 dark:text-zinc-100 tabular-nums">{savedByCategory.length}</span>
+                                            <span className="text-[9px] text-zinc-500 ml-1.5 inline">categories</span>
                                         </div>
-                                        <div className="flex-1 text-center py-0.5">
-                                            <span className="text-[16px] font-bold text-zinc-900 dark:text-zinc-100 tabular-nums">{savedArticles.reduce((s, a) => s + readTime(a.content), 0)}</span>
-                                            <span className="text-[9px] text-zinc-500 ml-1.5">total mins</span>
+                                        <div className="flex-1 text-center py-1.5 px-1">
+                                            <span className="text-[14px] md:text-[16px] font-bold text-zinc-900 dark:text-zinc-100 tabular-nums">{savedArticles.reduce((s, a) => s + readTime(a.content), 0)}</span>
+                                            <span className="text-[9px] text-zinc-500 ml-1.5 inline">total mins</span>
                                         </div>
                                     </div>
 

@@ -941,7 +941,7 @@ export default function CurationList() {
       {/* ═══ HEADER ═══ */}
       <header className="sticky top-0 z-[110] bg-[#fafaf8]/80 dark:bg-[#050505]/80 backdrop-blur-xl border-b border-zinc-200/40 dark:border-zinc-800/40 shrink-0 h-16 flex items-center px-4 transition-colors duration-500">
         {/* Left: Close/Back */}
-        <motion.div 
+        <motion.div
           animate={{ width: searchQuery || isSearchFocused ? 0 : 48, opacity: searchQuery || isSearchFocused ? 0 : 1 }}
           transition={{ type: "spring", stiffness: 400, damping: 35 }}
           className="flex items-center overflow-hidden"
@@ -968,7 +968,7 @@ export default function CurationList() {
 
         {/* Center: Search */}
         <div className="flex-1 flex justify-center px-2">
-          <motion.div 
+          <motion.div
             layout
             className="w-full"
             animate={{ maxWidth: searchQuery || isSearchFocused ? "800px" : "420px" }}
@@ -1004,7 +1004,7 @@ export default function CurationList() {
         </div>
 
         {/* Right: Actions */}
-        <motion.div 
+        <motion.div
           animate={{ width: searchQuery || isSearchFocused ? 0 : 80, opacity: searchQuery || isSearchFocused ? 0 : 1 }}
           transition={{ type: "spring", stiffness: 400, damping: 35 }}
           className="flex items-center justify-end overflow-hidden"
@@ -1079,7 +1079,7 @@ export default function CurationList() {
         {/* ═══ HERO ENTRANCE ═══ */}
         <motion.div
           initial={{ opacity: 0, y: 15 }}
-          animate={{ 
+          animate={{
             opacity: searchQuery ? 0 : 1,
             height: searchQuery ? 0 : "auto",
             marginTop: searchQuery ? -20 : 0,
@@ -1098,7 +1098,7 @@ export default function CurationList() {
               </span>
             </div>
             <div className="flex flex-col">
-              <h1 
+              <h1
                 className="text-[48px] md:text-[72px] font-bold tracking-tighter text-zinc-900 dark:text-zinc-100 leading-[1.05]"
                 style={{ fontFamily: "'Playfair Display', serif" }}
               >
@@ -1112,223 +1112,242 @@ export default function CurationList() {
         </motion.div>
 
 
-          {/* ═══ HERO CAROUSEL ═══ */}
-          <AnimatePresence mode="wait">
-            {isLoadingTop ? (
-              <motion.div
-                key="trending-skeleton"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                className="px-5 mb-10 mt-4 overflow-hidden"
-              >
-                <div className="flex items-center gap-3 mb-5">
-                   <div className="w-[4px] h-6 bg-zinc-200 dark:bg-zinc-800 rounded-full shrink-0 relative overflow-hidden">
-                     <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 dark:via-white/10 to-transparent animate-shimmer" />
-                   </div>
-                   <div className="w-24 h-5 bg-zinc-200 dark:bg-zinc-800 rounded relative overflow-hidden">
-                     <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 dark:via-white/10 to-transparent animate-shimmer" />
-                   </div>
+        {/* ═══ HERO CAROUSEL ═══ */}
+        <AnimatePresence mode="wait">
+          {isLoadingTop ? (
+            <motion.div
+              key="trending-skeleton"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="px-5 mb-10 mt-4 overflow-hidden"
+            >
+              <div className="flex items-center gap-3 mb-5">
+                <div className="w-[4px] h-6 bg-zinc-200 dark:bg-zinc-800 rounded-full shrink-0 relative overflow-hidden">
+                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 dark:via-white/10 to-transparent animate-shimmer" />
                 </div>
-                <div className="flex gap-4 overflow-hidden pr-5">
-                   <div className="shrink-0 w-[75vw] md:w-[480px] h-[320px] md:h-[380px] bg-zinc-200/50 dark:bg-zinc-800/40 rounded-[2rem] border border-zinc-200/50 dark:border-zinc-700/30 relative overflow-hidden">
-                     <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 dark:via-white/5 to-transparent animate-shimmer" />
-                   </div>
-                   <div className="shrink-0 w-[75vw] md:w-[480px] h-[320px] md:h-[380px] bg-zinc-200/50 dark:bg-zinc-800/40 rounded-[2rem] border border-zinc-200/50 dark:border-zinc-700/30 relative overflow-hidden">
-                     <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 dark:via-white/5 to-transparent animate-shimmer" />
-                   </div>
-                   <div className="shrink-0 w-[75vw] md:w-[480px] h-[320px] md:h-[380px] bg-zinc-200/50 dark:bg-zinc-800/40 rounded-[2rem] border border-zinc-200/50 dark:border-zinc-700/30 relative overflow-hidden hidden lg:block">
-                     <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 dark:via-white/5 to-transparent animate-shimmer" />
-                   </div>
+                <div className="w-24 h-5 bg-zinc-200 dark:bg-zinc-800 rounded relative overflow-hidden">
+                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 dark:via-white/10 to-transparent animate-shimmer" />
                 </div>
-              </motion.div>
-            ) : !searchQuery && topArticles.length > 0 && (
-              <motion.div
-                initial={{ opacity: 1, height: "auto" }}
-                animate={{ opacity: 1, height: "auto" }}
-                exit={{ opacity: 0, height: 0, marginTop: -20, marginBottom: 0 }}
-                transition={{ duration: 0.4, ease: [0.32, 0.72, 0, 1] }}
-                className="overflow-hidden"
-              >
-                <div className="px-5 mb-5 mt-4 flex items-center gap-3">
-                  <div className="w-[4px] h-6 bg-gradient-to-b from-blue-600 to-blue-400 dark:from-blue-500 dark:to-blue-400 rounded-full shrink-0" />
-                  <h3 className="text-[17px] font-bold tracking-tight text-zinc-800 dark:text-zinc-200" style={{ fontFamily: "'Playfair Display', serif" }}>
-                    Trending Article
-                  </h3>
-                </div>
-                <div className="mb-6 pl-5">
-                  <div
-                    ref={heroCarouselRef}
-                    className="flex gap-4 overflow-x-auto no-scrollbar snap-x snap-mandatory pr-5"
-                  >
-                {topArticles.map((featuredArticle) => {
-                  const postDate = new Date(featuredArticle.createdAt);
-                  const readTime = estimateReadTime(featuredArticle.content);
-                  const validImageUrl = getImageUrl(featuredArticle);
-
-                  return (
-                    <motion.div
-                      key={featuredArticle.id}
-                      whileHover={{ y: -4, scale: 1.002 }}
-                      transition={{ type: "spring", stiffness: 400, damping: 30 }}
-                      className="shrink-0 w-[75vw] md:w-[480px] snap-start group relative rounded-[2rem] overflow-hidden bg-white dark:bg-[#0a0a0a] border border-zinc-200/50 dark:border-zinc-800/50 shadow-[0_4px_20px_rgba(0,0,0,0.03)] hover:shadow-[0_12px_40px_rgba(0,0,0,0.08)] hover:border-zinc-300 dark:hover:border-zinc-700 active:scale-[0.99] transition-all duration-500 flex flex-col"
-                    >
-                      <Link
-                        href={`/curation/${featuredArticle.id}`}
-                        onClick={() => {
-                          setNavigatingId(featuredArticle.id);
-                        }}
-                        className="flex flex-col h-full"
-                      >
-                        {/* Top Image Section */}
-                        <div className="relative w-full aspect-[16/6] md:aspect-[21/9] overflow-hidden bg-zinc-100 dark:bg-zinc-800 shrink-0">
-                          {validImageUrl && !imgErrors[featuredArticle.id] ? (
-                            <Image
-                              src={validImageUrl}
-                              alt=""
-                              fill
-                              priority={true}
-                              sizes="(max-width: 768px) 100vw, 600px"
-                              className="object-cover object-top opacity-90 group-hover:opacity-100 group-hover:scale-105 transition-all duration-700"
-                              onError={() =>
-                                setImgErrors((prev) => ({
-                                  ...prev,
-                                  [featuredArticle.id]: true,
-                                }))
-                              }
-                            />
-                          ) : (
-                            <div className="w-full h-full bg-gradient-to-br from-zinc-200 to-zinc-300 dark:from-zinc-800 dark:to-zinc-900" />
-                          )}
-                          <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
-                          <div className="absolute inset-0 shadow-[inset_0_0_0_1px_rgba(0,0,0,0.05)] dark:shadow-[inset_0_0_0_1px_rgba(255,255,255,0.05)] z-20" />
+              </div>
+              <div className="flex gap-4 overflow-hidden pr-5">
+                {[1, 2, 3].map((i) => (
+                  <div key={i} className={`shrink-0 w-[75vw] md:w-[480px] bg-white dark:bg-[#0a0a0a] rounded-[2rem] border border-zinc-200/50 dark:border-zinc-800/50 relative overflow-hidden flex flex-col ${i > 2 ? 'hidden lg:flex' : ''}`}>
+                    {/* Image Skeleton */}
+                    <div className="relative w-full aspect-[16/6] md:aspect-[21/9] bg-zinc-100 dark:bg-zinc-800 relative overflow-hidden">
+                      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 dark:via-white/5 to-transparent animate-shimmer" />
+                    </div>
+                    {/* Content Skeleton */}
+                    <div className="px-6 pt-7 pb-4 md:px-8 md:pt-8 md:pb-4 flex flex-col gap-3 h-full">
+                      <div className="h-3 bg-zinc-100 dark:bg-zinc-800 rounded-full w-24 relative overflow-hidden">
+                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 dark:via-white/10 to-transparent animate-shimmer" />
+                      </div>
+                      <div className="h-5 bg-zinc-200/60 dark:bg-zinc-800/80 rounded-lg w-full relative overflow-hidden">
+                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 dark:via-white/5 to-transparent animate-shimmer" />
+                      </div>
+                      <div className="h-5 bg-zinc-200/60 dark:bg-zinc-800/80 rounded-lg w-2/3 relative overflow-hidden">
+                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 dark:via-white/5 to-transparent animate-shimmer" />
+                      </div>
+                      <div className="mt-auto flex justify-between">
+                        <div className="h-3 bg-zinc-100 dark:bg-zinc-800/60 rounded-full w-20 relative overflow-hidden">
+                          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 dark:via-white/10 to-transparent animate-shimmer" />
                         </div>
+                        <div className="h-3 bg-zinc-100 dark:bg-zinc-800/60 rounded-full w-16 relative overflow-hidden">
+                          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 dark:via-white/10 to-transparent animate-shimmer" />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </motion.div>
+          ) : !searchQuery && topArticles.length > 0 && (
+            <motion.div
+              initial={{ opacity: 1, height: "auto" }}
+              animate={{ opacity: 1, height: "auto" }}
+              exit={{ opacity: 0, height: 0, marginTop: -20, marginBottom: 0 }}
+              transition={{ duration: 0.4, ease: [0.32, 0.72, 0, 1] }}
+              className="overflow-hidden"
+            >
+              <div className="px-5 mb-5 mt-4 flex items-center gap-3">
+                <div className="w-[4px] h-6 bg-gradient-to-b from-blue-600 to-blue-400 dark:from-blue-500 dark:to-blue-400 rounded-full shrink-0" />
+                <h3 className="text-[17px] font-bold tracking-tight text-zinc-800 dark:text-zinc-200" style={{ fontFamily: "'Playfair Display', serif" }}>
+                  Trending Article
+                </h3>
+              </div>
+              <div className="mb-6 pl-5">
+                <div
+                  ref={heroCarouselRef}
+                  className="flex gap-4 overflow-x-auto no-scrollbar snap-x snap-mandatory pr-5"
+                >
+                  {topArticles.map((featuredArticle) => {
+                    const postDate = new Date(featuredArticle.createdAt);
+                    const readTime = estimateReadTime(featuredArticle.content);
+                    const validImageUrl = getImageUrl(featuredArticle);
 
-                        <div className="px-6 pt-7 pb-4 md:px-8 md:pt-8 md:pb-4 flex flex-col relative z-20 h-full">
-                          <div className="flex items-center gap-2 mb-3 flex-wrap">
-                            <span className="text-[9px] font-bold uppercase tracking-[0.2em] bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 px-2 py-0.5 rounded-[4px] shadow-sm">
-                              TRENDING
-                            </span>
-                            {(() => {
-                              const catData = CATEGORIES.find(c => c.name === featuredArticle.category);
-                              return featuredArticle.category ? (
-                                <span className={`text-[9px] font-bold uppercase tracking-[0.15em] px-2 py-0.5 rounded-md ml-1 ${catData ? `${catData.color.bg} ${catData.color.text} ${catData.color.darkBg} ${catData.color.darkText}` : "text-zinc-500 bg-zinc-100 dark:bg-zinc-800 opacity-80"}`}>
-                                  {featuredArticle.category}
-                                </span>
-                              ) : null;
-                            })()}
+                    return (
+                      <motion.div
+                        key={featuredArticle.id}
+                        whileHover={{ y: -4, scale: 1.002 }}
+                        transition={{ type: "spring", stiffness: 400, damping: 30 }}
+                        className="shrink-0 w-[75vw] md:w-[480px] snap-start group relative rounded-[2rem] overflow-hidden bg-white dark:bg-[#0a0a0a] border border-zinc-200/50 dark:border-zinc-800/50 shadow-[0_4px_20px_rgba(0,0,0,0.03)] hover:shadow-[0_12px_40px_rgba(0,0,0,0.08)] hover:border-zinc-300 dark:hover:border-zinc-700 active:scale-[0.99] transition-all duration-500 flex flex-col"
+                      >
+                        <Link
+                          href={`/curation/${featuredArticle.id}`}
+                          onClick={() => {
+                            setNavigatingId(featuredArticle.id);
+                          }}
+                          className="flex flex-col h-full"
+                        >
+                          {/* Top Image Section */}
+                          <div className="relative w-full aspect-[16/6] md:aspect-[21/9] overflow-hidden bg-zinc-100 dark:bg-zinc-800 shrink-0">
+                            {validImageUrl && !imgErrors[featuredArticle.id] ? (
+                              <Image
+                                src={validImageUrl}
+                                alt=""
+                                fill
+                                priority={true}
+                                sizes="(max-width: 768px) 100vw, 600px"
+                                className="object-cover object-top opacity-90 group-hover:opacity-100 group-hover:scale-105 transition-all duration-700"
+                                onError={() =>
+                                  setImgErrors((prev) => ({
+                                    ...prev,
+                                    [featuredArticle.id]: true,
+                                  }))
+                                }
+                              />
+                            ) : (
+                              <div className="w-full h-full bg-gradient-to-br from-zinc-200 to-zinc-300 dark:from-zinc-800 dark:to-zinc-900" />
+                            )}
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
+                            <div className="absolute inset-0 shadow-[inset_0_0_0_1px_rgba(0,0,0,0.05)] dark:shadow-[inset_0_0_0_1px_rgba(255,255,255,0.05)] z-20" />
                           </div>
 
-                          <h3
-                            className="text-[18px] md:text-[22px] font-bold tracking-[-0.01em] text-zinc-900 dark:text-zinc-100 leading-[1.3] line-clamp-2 mb-3 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors duration-300"
-                            style={{ fontFamily: "'Playfair Display', Georgia, serif" }}
-                          >
-                            {formatTitle(featuredArticle.title)}
-                          </h3>
-
-                          <div className="flex items-center justify-between mt-auto">
-                            <div className="flex items-center gap-2 text-[12px] font-medium text-zinc-400 dark:text-zinc-500">
-                              <span>
-                                {postDate.toLocaleDateString("en-US", {
-                                  month: "short",
-                                  day: "numeric",
-                                  year: "numeric",
-                                })}
+                          <div className="px-6 pt-7 pb-4 md:px-8 md:pt-8 md:pb-4 flex flex-col relative z-20 h-full">
+                            <div className="flex items-center gap-2 mb-3 flex-wrap">
+                              <span className="text-[9px] font-bold uppercase tracking-[0.2em] bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 px-2 py-0.5 rounded-[4px] shadow-sm">
+                                TRENDING
                               </span>
-                              <span>{readTime}m read</span>
+                              {(() => {
+                                const catData = CATEGORIES.find(c => c.name === featuredArticle.category);
+                                return featuredArticle.category ? (
+                                  <span className={`text-[9px] font-bold uppercase tracking-[0.15em] px-2 py-0.5 rounded-md ml-1 ${catData ? `${catData.color.bg} ${catData.color.text} ${catData.color.darkBg} ${catData.color.darkText}` : "text-zinc-500 bg-zinc-100 dark:bg-zinc-800 opacity-80"}`}>
+                                    {featuredArticle.category}
+                                  </span>
+                                ) : null;
+                              })()}
                             </div>
 
-                            {(featuredArticle.likes || featuredArticle.reposts || featuredArticle.replies) ? (
-                              <div className="flex items-center gap-3.5">
-                                {featuredArticle.likes ? (
-                                  <div className="flex items-center gap-1.5 group/metric">
-                                    <Heart size={12} strokeWidth={2.5} className="text-zinc-400 group-hover:text-zinc-900 dark:group-hover:text-zinc-100 transition-colors" />
-                                    <span className="text-[11px] tabular-nums font-bold text-zinc-500 dark:text-zinc-400">{formatMetric(featuredArticle.likes)}</span>
-                                  </div>
-                                ) : null}
-                                {featuredArticle.reposts ? (
-                                  <div className="flex items-center gap-1.5 group/metric">
-                                    <Repeat size={12} strokeWidth={2.5} className="text-zinc-400 group-hover:text-zinc-900 dark:group-hover:text-zinc-100 transition-colors" />
-                                    <span className="text-[11px] tabular-nums font-bold text-zinc-500 dark:text-zinc-400">{formatMetric(featuredArticle.reposts)}</span>
-                                  </div>
-                                ) : null}
-                                {featuredArticle.replies ? (
-                                  <div className="flex items-center gap-1.5 group/metric">
-                                    <MessageCircle size={12} strokeWidth={2.5} className="text-zinc-400 group-hover:text-zinc-900 dark:group-hover:text-zinc-100 transition-colors" />
-                                    <span className="text-[11px] tabular-nums font-bold text-zinc-500 dark:text-zinc-400">{formatMetric(featuredArticle.replies)}</span>
-                                  </div>
-                                ) : null}
-                              </div>
-                            ) : null}
-                          </div>
-                        </div>
-                      </Link>
+                            <h3
+                              className="text-[18px] md:text-[22px] font-bold tracking-[-0.01em] text-zinc-900 dark:text-zinc-100 leading-[1.3] line-clamp-2 mb-3 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors duration-300"
+                              style={{ fontFamily: "'Playfair Display', Georgia, serif" }}
+                            >
+                              {formatTitle(featuredArticle.title)}
+                            </h3>
 
-                      {navigatingId === featuredArticle.id && (
-                        <div className="absolute inset-0 bg-white/40 dark:bg-black/40 backdrop-blur-[2px] z-50 animate-pulse rounded-[2rem]" />
-                      )}
-                    </motion.div>
-                  );
-                })}
+                            <div className="flex items-center justify-between mt-auto">
+                              <div className="flex items-center gap-2 text-[12px] font-medium text-zinc-400 dark:text-zinc-500">
+                                <span>
+                                  {postDate.toLocaleDateString("en-US", {
+                                    month: "short",
+                                    day: "numeric",
+                                    year: "numeric",
+                                  })}
+                                </span>
+                                <span>{readTime}m read</span>
+                              </div>
+
+                              {(featuredArticle.likes || featuredArticle.reposts || featuredArticle.replies) ? (
+                                <div className="flex items-center gap-3.5">
+                                  {featuredArticle.likes ? (
+                                    <div className="flex items-center gap-1.5 group/metric">
+                                      <Heart size={12} strokeWidth={2.5} className="text-zinc-400 group-hover:text-zinc-900 dark:group-hover:text-zinc-100 transition-colors" />
+                                      <span className="text-[11px] tabular-nums font-bold text-zinc-500 dark:text-zinc-400">{formatMetric(featuredArticle.likes)}</span>
+                                    </div>
+                                  ) : null}
+                                  {featuredArticle.reposts ? (
+                                    <div className="flex items-center gap-1.5 group/metric">
+                                      <Repeat size={12} strokeWidth={2.5} className="text-zinc-400 group-hover:text-zinc-900 dark:group-hover:text-zinc-100 transition-colors" />
+                                      <span className="text-[11px] tabular-nums font-bold text-zinc-500 dark:text-zinc-400">{formatMetric(featuredArticle.reposts)}</span>
+                                    </div>
+                                  ) : null}
+                                  {featuredArticle.replies ? (
+                                    <div className="flex items-center gap-1.5 group/metric">
+                                      <MessageCircle size={12} strokeWidth={2.5} className="text-zinc-400 group-hover:text-zinc-900 dark:group-hover:text-zinc-100 transition-colors" />
+                                      <span className="text-[11px] tabular-nums font-bold text-zinc-500 dark:text-zinc-400">{formatMetric(featuredArticle.replies)}</span>
+                                    </div>
+                                  ) : null}
+                                </div>
+                              ) : null}
+                            </div>
+                          </div>
+                        </Link>
+
+                        {navigatingId === featuredArticle.id && (
+                          <div className="absolute inset-0 bg-white/40 dark:bg-black/40 backdrop-blur-[2px] z-50 animate-pulse rounded-[2rem]" />
+                        )}
+                      </motion.div>
+                    );
+                  })}
                 </div>
               </div>
             </motion.div>
           )}
         </AnimatePresence>
 
-          {/* ═══ CONTINUE READING ═══ */}
-          {(() => {
-            const inProgress = inProgressArticles.filter((a) => {
-              const pct = readingProgress[a.id];
-              return pct && pct > 0.05 && pct < 0.95;
-            });
-            if (inProgress.length === 0) return null;
-            if (searchQuery) return null;
-            return (
-              <div className="mb-10 px-5 mt-8">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="w-[4px] h-6 bg-gradient-to-b from-blue-600 to-blue-400 dark:from-blue-500 dark:to-blue-400 rounded-full shrink-0" />
-                  <h3 className="text-[17px] font-bold tracking-tight text-zinc-800 dark:text-zinc-200" style={{ fontFamily: "'Playfair Display', serif" }}>
-                    Recent Reads
-                  </h3>
-                </div>
-                <div className="flex gap-3 overflow-x-auto no-scrollbar pb-2">
-                  {inProgress.map((article) => (
-                    <motion.div
-                      key={article.id}
-                      whileHover={{ y: -2 }}
-                      className="shrink-0 w-[240px]"
-                    >
-                      <Link
-                        href={`/curation/${article.id}`}
-                        onClick={() => setNavigatingId(article.id)}
-                        className="block bg-white dark:bg-[#0a0a0a] border border-zinc-200/50 dark:border-zinc-800/60 rounded-2xl p-4 active:scale-[0.98] transition-all hover:shadow-[0_4px_20px_rgba(0,0,0,0.04)] group"
-                      >
-                        <h4 className="text-[13px] font-semibold text-zinc-800 dark:text-zinc-200 leading-snug line-clamp-2 mb-3 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
-                          {formatTitle(article.title)}
-                        </h4>
-                        <div className="flex items-center justify-between mb-2">
-                          <span className="text-[10px] font-medium text-zinc-400 dark:text-zinc-500 tracking-wider">
-                            {Math.round((readingProgress[article.id] || 0) * 100)}% COMPLETE
-                          </span>
-                        </div>
-                        <div className="w-full h-1 bg-zinc-100 dark:bg-zinc-800/80 rounded-full overflow-hidden">
-                          <div
-                            className="h-full bg-gradient-to-r from-blue-400 to-blue-500 rounded-full transition-all"
-                            style={{
-                              width: `${Math.round((readingProgress[article.id] || 0) * 100)}%`,
-                            }}
-                          />
-                        </div>
-                      </Link>
-                    </motion.div>
-                  ))}
-                </div>
+        {/* ═══ CONTINUE READING ═══ */}
+        {(() => {
+          const inProgress = inProgressArticles.filter((a) => {
+            const pct = readingProgress[a.id];
+            return pct && pct > 0.05 && pct < 0.95;
+          });
+          if (inProgress.length === 0) return null;
+          if (searchQuery) return null;
+          return (
+            <div className="mb-10 px-5 mt-8">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-[4px] h-6 bg-gradient-to-b from-blue-600 to-blue-400 dark:from-blue-500 dark:to-blue-400 rounded-full shrink-0" />
+                <h3 className="text-[17px] font-bold tracking-tight text-zinc-800 dark:text-zinc-200" style={{ fontFamily: "'Playfair Display', serif" }}>
+                  Recent Reads
+                </h3>
               </div>
-            );
-          })()}
+              <div className="flex gap-3 overflow-x-auto no-scrollbar pb-2">
+                {inProgress.map((article) => (
+                  <motion.div
+                    key={article.id}
+                    whileHover={{ y: -2 }}
+                    className="shrink-0 w-[240px]"
+                  >
+                    <Link
+                      href={`/curation/${article.id}`}
+                      onClick={() => setNavigatingId(article.id)}
+                      className="block bg-white dark:bg-[#0a0a0a] border border-zinc-200/50 dark:border-zinc-800/60 rounded-2xl p-4 active:scale-[0.98] transition-all hover:shadow-[0_4px_20px_rgba(0,0,0,0.04)] group"
+                    >
+                      <h4 className="text-[13px] font-semibold text-zinc-800 dark:text-zinc-200 leading-snug line-clamp-2 mb-3 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                        {formatTitle(article.title)}
+                      </h4>
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-[10px] font-medium text-zinc-400 dark:text-zinc-500 tracking-wider">
+                          {Math.round((readingProgress[article.id] || 0) * 100)}% COMPLETE
+                        </span>
+                      </div>
+                      <div className="w-full h-1 bg-zinc-100 dark:bg-zinc-800/80 rounded-full overflow-hidden">
+                        <div
+                          className="h-full bg-gradient-to-r from-blue-400 to-blue-500 rounded-full transition-all"
+                          style={{
+                            width: `${Math.round((readingProgress[article.id] || 0) * 100)}%`,
+                          }}
+                        />
+                      </div>
+                    </Link>
+                  </motion.div>
+                ))}
+              </div>
+            </div>
+          );
+        })()}
 
-          {/* ═══ (Library Shelves Removed for Minimalist UI) ═══ */}
+        {/* ═══ (Library Shelves Removed for Minimalist UI) ═══ */}
 
         {/* ═══ ATLAS MENU ═══ */}
         <AtlasMenu items={[...VERTICALS]} isOpen={isAtlasMenuOpen} onClose={() => setIsAtlasMenuOpen(false)} />
@@ -1458,18 +1477,14 @@ export default function CurationList() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.3 }}
-              className={
-                debouncedSearchQuery
-                  ? "flex flex-col gap-3 px-5 mb-10"
-                  : "flex flex-col gap-4 md:grid md:grid-cols-2 md:gap-4 px-5 mb-10"
-              }
+              className="flex flex-col gap-4 md:grid md:grid-cols-2 md:gap-4 px-5 mb-10"
             >
               {[1, 2, 3, 4, 5, 6].map((i) => (
                 <div
                   key={i}
                   className="bg-white dark:bg-[#0a0a0a] rounded-[1.5rem] border border-zinc-100 dark:border-zinc-800/60 p-4 flex items-center gap-4 min-h-[120px] relative overflow-hidden"
                 >
-                  <div className="w-20 h-20 md:w-24 md:h-24 rounded-xl bg-zinc-100 dark:bg-zinc-800 relative overflow-hidden shrink-0">
+                  <div className="w-20 h-20 rounded-2xl bg-zinc-100 dark:bg-zinc-800 relative overflow-hidden shrink-0">
                     <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 dark:via-white/5 to-transparent animate-shimmer" />
                   </div>
                   <div className="flex-1 space-y-2.5">
@@ -1904,11 +1919,11 @@ const SwipeableArticleCard = memo(({
 
   const handleDragEnd = (event: any, info: any) => {
     setIsDragging(false);
-    
+
     // Swipe activation constants
     const THRESHOLD = 65;
     const MIN_VELOCITY = 150;
-    
+
     // Check for trigger via distance OR fast flick
     if (info.offset.x > THRESHOLD || (info.velocity.x > MIN_VELOCITY && info.offset.x > 20)) {
       onRead(id);
