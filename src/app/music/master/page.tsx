@@ -119,7 +119,7 @@ export default function MasterPanelPage() {
     return (
         <main style={{
             minHeight: "100svh",
-            padding: "16px 16px 120px 16px",
+            padding: "16px 16px 200px 16px",
             maxWidth: "600px",
             margin: "0 auto",
             backgroundColor: theme === "dark" ? "#0A0A0A" : "#f9f9f9",

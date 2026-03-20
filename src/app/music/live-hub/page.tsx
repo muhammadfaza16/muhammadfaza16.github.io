@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useTheme } from "@/components/ThemeProvider";
 import { Radio, Play, Users, Headphones } from "lucide-react";
 import { motion } from "framer-motion";
@@ -22,6 +22,8 @@ interface StationData {
 }
 
 export default function LiveHubPage() {
+    const scrollContainerRef = useRef<HTMLDivElement>(null);
+    const scrollYRef = useRef<number>(0);
     const { theme } = useTheme();
     const isDark = theme === "dark";
     const headerFont = "var(--font-display), system-ui, sans-serif";
@@ -42,6 +44,13 @@ export default function LiveHubPage() {
             })
             .catch(() => setLoadingStations(false));
     }, []);
+
+    // Scroll restoration after data loads
+    useEffect(() => {
+        if (!loadingStations && scrollContainerRef.current && scrollYRef.current > 0) {
+            scrollContainerRef.current.scrollTop = scrollYRef.current;
+        }
+    }, [loadingStations]);
 
     // Hero card — uses primary live context (first/default session or active session)
     const fallbackCover = "https://images.unsplash.com/photo-1614113489855-66422ad300a4?q=80&w=642&auto=format&fit=crop";
@@ -89,15 +98,31 @@ export default function LiveHubPage() {
 
     return (
         <main style={{
-            minHeight: "100svh",
+            height: "100%",
+            width: "100%",
+            overflow: "hidden",
             backgroundColor: isDark ? "#0A0A0A" : "#F8F5F2",
             backgroundImage: isDark 
                 ? "radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.1) 0, transparent 50%), radial-gradient(at 100% 100%, rgba(139, 92, 246, 0.08) 0, transparent 50%)"
                 : "radial-gradient(at 0% 0%, rgba(255, 255, 255, 0.5) 0, transparent 50%), radial-gradient(at 100% 100%, rgba(255, 255, 255, 0.3) 0, transparent 50%)",
             color: isDark ? "#FFF" : "#1A1A1A",
             transition: "all 0.5s ease",
-            paddingBottom: "80px"
         }}>
+            <div 
+                ref={scrollContainerRef}
+                onScroll={() => {
+                  if (scrollContainerRef.current) {
+                    scrollYRef.current = scrollContainerRef.current.scrollTop;
+                  }
+                }}
+                className="w-full h-full overflow-y-auto pt-4 pb-[200px]"
+                style={{
+                  WebkitOverflowScrolling: "touch",
+                  overscrollBehaviorY: "none",
+                  overflowAnchor: "auto",
+                  scrollbarGutter: "stable",
+                } as React.CSSProperties}
+            >
             <div style={{ width: "100%", maxWidth: "440px", margin: "0 auto", display: "flex", flexDirection: "column" }}>
                 {/* Header */}
                 <div style={{ position: "relative", display: "flex", justifyContent: "center", alignItems: "center", marginBottom: "32px", marginTop: "24px", paddingTop: "env(safe-area-inset-top)" }}>
@@ -297,6 +322,7 @@ export default function LiveHubPage() {
                         Tune in to live curated radio stations. Every listener hears the same song at the same time — a shared musical moment.
                     </p>
                 </div>
+            </div>
             </div>
         </main>
     );

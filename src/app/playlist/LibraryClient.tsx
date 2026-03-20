@@ -122,7 +122,7 @@ export default function LibraryClient({ songCount }: { songCount: number }) {
                     scrollYRef.current = scrollContainerRef.current.scrollTop;
                   }
                 }}
-                className="flex-1 overflow-y-auto overflow-x-hidden w-full h-full pt-6 pb-[140px]"
+                className="flex-1 overflow-y-auto overflow-x-hidden w-full h-full flex flex-col items-center pt-4 pb-[200px] px-4"
                 style={{
                     WebkitOverflowScrolling: "touch",
                     overscrollBehaviorY: "none",

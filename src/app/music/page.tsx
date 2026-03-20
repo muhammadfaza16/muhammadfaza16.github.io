@@ -100,7 +100,7 @@ export default function AudioHubPage() {
                     scrollYRef.current = scrollContainerRef.current.scrollTop;
                   }
                 }}
-                className="flex-1 overflow-y-auto overflow-x-hidden w-full h-full flex flex-col items-center pt-4 pb-[140px] px-4"
+                className="flex-1 overflow-y-auto overflow-x-hidden w-full h-full flex flex-col items-center pt-4 pb-[200px] px-4"
                 style={{
                     WebkitOverflowScrolling: "touch",
                     overscrollBehaviorY: "none",
