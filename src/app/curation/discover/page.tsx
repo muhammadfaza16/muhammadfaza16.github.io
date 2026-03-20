@@ -307,10 +307,23 @@ function ExploreContent() {
     );
 
     return (
-        <div className="h-full flex flex-col bg-[#fafaf8] dark:bg-[#050505] text-zinc-900 dark:text-zinc-100 overflow-hidden">
+        <div 
+            ref={scrollContainerRef}
+            onScroll={() => {
+              if (scrollContainerRef.current) {
+                scrollYRef.current = scrollContainerRef.current.scrollTop;
+              }
+            }}
+            className="h-full flex flex-col bg-[#fafaf8] dark:bg-[#050505] text-zinc-900 dark:text-zinc-100 overflow-y-auto overflow-x-hidden"
+            style={{
+                WebkitOverflowScrolling: "touch",
+                overscrollBehaviorY: "none",
+                overflowAnchor: "auto",
+                scrollbarGutter: "stable",
+            } as React.CSSProperties}
+        >
             {/* ═══ HEADER ═══ */}
             <header className="sticky top-0 z-[110] bg-[#fafaf8]/80 dark:bg-[#050505]/80 backdrop-blur-xl border-b border-zinc-200/40 dark:border-zinc-800/40 shrink-0 h-16 flex items-center px-4 transition-colors duration-500">
-                {/* Search Only Header */}
                 <div className="flex-1 flex justify-center px-2">
                     <div className="w-full max-w-[800px]">
                         <div className="relative group max-w-4xl mx-auto">
@@ -337,8 +350,7 @@ function ExploreContent() {
                     </div>
                 </div>
             </header>
-            
-            {/* Sub-header Filter Row (Sticky below Search) */}
+
             {!isShowingSearch && (
                 <div className="sticky top-16 z-[105] bg-[#fafaf8]/80 dark:bg-[#050505]/80 backdrop-blur-xl border-b border-zinc-200/40 dark:border-zinc-800/40 py-2 transition-colors duration-500 overflow-hidden">
                     <div className="max-w-2xl mx-auto px-4">
@@ -358,23 +370,8 @@ function ExploreContent() {
                     </div>
                 </div>
             )}
-
-            {/* ═══ CONTENT ═══ */}
-            <main 
-                ref={scrollContainerRef}
-                onScroll={() => {
-                  if (scrollContainerRef.current) {
-                    scrollYRef.current = scrollContainerRef.current.scrollTop;
-                  }
-                }}
-                className="flex-1 overflow-y-auto overflow-x-hidden pt-6 pb-32"
-                style={{
-                    WebkitOverflowScrolling: "touch",
-                    overscrollBehaviorY: "none",
-                    overflowAnchor: "auto",
-                    scrollbarGutter: "stable",
-                } as React.CSSProperties}
-            >
+            
+            <main className="flex-1 overflow-visible pt-2 pb-32">
                 <div className="max-w-2xl mx-auto px-4">
                 <AnimatePresence mode="wait">
                     {isShowingSearch ? (
@@ -544,8 +541,6 @@ function ExploreContent() {
                 </AnimatePresence>
                 </div>
             </main>
-
-            {/* ═══ ATLAS MENU ═══ */}
             <AnimatePresence>
                 {isAtlasMenuOpen && (
                     <motion.div
@@ -585,7 +580,6 @@ function ExploreContent() {
                     </motion.div>
                 )}
             </AnimatePresence>
-
         </div>
     );
 }
