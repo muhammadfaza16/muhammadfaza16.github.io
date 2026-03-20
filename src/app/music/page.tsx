@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import Link from "next/link";
 import { ListMusic, ChevronLeft, ArrowRight, Sparkles, LibraryBig, Music, Play, Pause, Disc, Radio } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -21,6 +21,10 @@ export default function AudioHubPage() {
     const { currentSong, isPlaying, togglePlay, setIsPlayerExpanded } = useAudio();
     const { currentTime, duration } = useTime();
     const { theme } = useTheme();
+    const scrollContainerRef = useRef<HTMLDivElement>(null);
+    const scrollYRef = useRef(0);
+    const [mounted, setMounted] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
 
     const [dbSongs, setDbSongs] = useState<any[]>([]);
     const counts = useMemo(() => {
@@ -42,6 +46,24 @@ export default function AudioHubPage() {
         return newCounts;
     }, [dbSongs]);
 
+    useEffect(() => {
+        setMounted(true);
+        fetch("/api/music/songs")
+            .then(res => res.json())
+            .then(data => {
+                if (data.success && data.songs) setDbSongs(data.songs);
+                setIsLoading(false);
+            })
+            .catch(() => setIsLoading(false));
+    }, []);
+
+    // Restore scroll position
+    useEffect(() => {
+        if (!isLoading && mounted && scrollContainerRef.current && scrollYRef.current > 0) {
+            scrollContainerRef.current.scrollTop = scrollYRef.current;
+        }
+    }, [isLoading, mounted]);
+
     const cardStyle = {
         backgroundColor: theme === "dark" ? "rgba(255, 255, 255, 0.03)" : "rgba(255, 255, 255, 0.7)",
         backdropFilter: "blur(20px)",
@@ -57,7 +79,9 @@ export default function AudioHubPage() {
 
     return (
         <main style={{
-            minHeight: "100svh",
+            height: "100%",
+            width: "100%",
+            overflow: "hidden",
             backgroundColor: theme === "dark" ? "#0A0A0A" : "#F8F5F2",
             backgroundImage: theme === "dark" 
                 ? "radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.1) 0, transparent 50%), radial-gradient(at 100% 100%, rgba(139, 92, 246, 0.08) 0, transparent 50%)"
@@ -69,7 +93,22 @@ export default function AudioHubPage() {
             color: theme === "dark" ? "#FFFFFF" : "#1A1A1A",
             transition: "all 0.5s ease"
         }}>
-            <div style={{ width: "100%", maxWidth: "440px", display: "flex", flexDirection: "column", gap: "24px" }}>
+            <div 
+                ref={scrollContainerRef}
+                onScroll={() => {
+                  if (scrollContainerRef.current) {
+                    scrollYRef.current = scrollContainerRef.current.scrollTop;
+                  }
+                }}
+                className="flex-1 overflow-y-auto overflow-x-hidden w-full h-full flex flex-col items-center pt-4 pb-[140px] px-4"
+                style={{
+                    WebkitOverflowScrolling: "touch",
+                    overscrollBehaviorY: "none",
+                    overflowAnchor: "auto",
+                    scrollbarGutter: "stable",
+                } as React.CSSProperties}
+            >
+                <div style={{ width: "100%", maxWidth: "440px", display: "flex", flexDirection: "column", gap: "24px" }}>
                 {/* Header */}
                 <div style={{ position: "relative", display: "flex", justifyContent: "center", alignItems: "center", marginBottom: "32px", marginTop: "24px" }}>
                     <div style={{ position: "absolute", left: 0 }}>
@@ -658,6 +697,7 @@ export default function AudioHubPage() {
                     </div>
                 </div>
             </div>
+        </div>
         </main>
     );
 }

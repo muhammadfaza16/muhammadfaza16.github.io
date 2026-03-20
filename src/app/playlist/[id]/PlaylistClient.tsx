@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useMemo, useEffect } from "react";
+import React, { useState, useMemo, useEffect, useRef } from "react";
 import { Play, Pause, Search, Shuffle, ChevronLeft, Disc } from "lucide-react";
 import { Virtuoso } from 'react-virtuoso';
 import { useAudio } from "@/components/AudioContext";
@@ -120,6 +120,8 @@ export default function PlaylistClient({ playlistId, initialSongs = [] }: { play
     const [searchQuery, setSearchQuery] = useState("");
     const [mounted, setMounted] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
+    const scrollContainerRef = useRef<HTMLDivElement>(null);
+    const scrollYRef = useRef(0);
     
     // Explicitly fallback initialSongs if none provided.
     const [dbSongs, setDbSongs] = useState<{ title: string; audioUrl: string; duration?: number; id?: string; category?: string }[]>(initialSongs || []);
@@ -129,9 +131,6 @@ export default function PlaylistClient({ playlistId, initialSongs = [] }: { play
 
     useEffect(() => {
         setMounted(true);
-    }, []);
-
-    useEffect(() => {
         setIsLoading(true);
         fetch("/api/music/songs")
             .then(res => res.json())
@@ -146,6 +145,13 @@ export default function PlaylistClient({ playlistId, initialSongs = [] }: { play
                 setTimeout(() => setIsLoading(false), 800);
             });
     }, []);
+
+    // Restore scroll position
+    useEffect(() => {
+        if (!isLoading && mounted && scrollContainerRef.current && scrollYRef.current > 0) {
+            scrollContainerRef.current.scrollTop = scrollYRef.current;
+        }
+    }, [isLoading, mounted]);
 
     const activePlaylist = useMemo(() => {
         if (playlistId === "all") return null;
@@ -191,7 +197,9 @@ export default function PlaylistClient({ playlistId, initialSongs = [] }: { play
     return (
         <main style={{
             position: "relative",
-            minHeight: "100svh",
+            height: "100%",
+            width: "100%",
+            overflow: "hidden",
             padding: "16px 16px 120px 16px",
             maxWidth: "600px",
             margin: "0 auto",
@@ -202,6 +210,22 @@ export default function PlaylistClient({ playlistId, initialSongs = [] }: { play
             color: theme === "dark" ? "#FFF" : "#000",
             transition: "all 0.5s ease"
         }}>
+            <div 
+                ref={scrollContainerRef}
+                onScroll={() => {
+                  if (scrollContainerRef.current) {
+                    scrollYRef.current = scrollContainerRef.current.scrollTop;
+                  }
+                }}
+                className="flex-1 overflow-y-auto overflow-x-hidden w-full h-full flex flex-col items-center pt-4 pb-[120px] px-4"
+                style={{
+                    WebkitOverflowScrolling: "touch",
+                    overscrollBehaviorY: "none",
+                    overflowAnchor: "auto",
+                    scrollbarGutter: "stable",
+                } as React.CSSProperties}
+            >
+                <div style={{ width: "100%", maxWidth: "600px", display: "flex", flexDirection: "column", gap: "1.5rem" }}>
             <div style={{ position: "relative", display: "flex", justifyContent: "center", alignItems: "center", marginTop: "16px", marginBottom: "8px" }}>
                 <div style={{ position: "absolute", left: 0 }}>
                     <Link href="/playlist" style={{ textDecoration: "none" }}>
@@ -473,7 +497,8 @@ export default function PlaylistClient({ playlistId, initialSongs = [] }: { play
                 ) : (
                     <Virtuoso
                         key={activePlaylist?.id || "playlist-list"}
-                        useWindowScroll
+                        useWindowScroll={false}
+                        customScrollParent={scrollContainerRef.current || undefined}
                         data={filteredPlaylist}
                         itemContent={(index, song: any) => (
                             <TrackRow
@@ -490,6 +515,8 @@ export default function PlaylistClient({ playlistId, initialSongs = [] }: { play
                         )}
                     />
                 )}
+            </div>
+                </div>
             </div>
         </main>
     );

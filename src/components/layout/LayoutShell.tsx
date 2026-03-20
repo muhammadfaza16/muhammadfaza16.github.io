@@ -56,6 +56,10 @@ export function LayoutShell({ children }: { children: React.ReactNode }) {
     }
 
     const isLivePage = pathname === "/music/live";
+    const isStablizedPath = isLivePage || 
+                           pathname.startsWith("/curation") || 
+                           pathname.startsWith("/music") || 
+                           pathname.startsWith("/playlist");
 
     return (
         <>
@@ -63,8 +67,8 @@ export function LayoutShell({ children }: { children: React.ReactNode }) {
                 id="main-content" 
                 style={{ 
                     flex: 1,
-                    height: (isLivePage || pathname.startsWith("/curation")) ? "100dvh" : "auto",
-                    overflow: (isLivePage || pathname.startsWith("/curation")) ? "hidden" : "auto"
+                    height: isStablizedPath ? "100dvh" : "auto",
+                    overflow: isStablizedPath ? "hidden" : "auto"
                 }}
             >
                 {children}

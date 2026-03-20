@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useMemo, useEffect } from "react";
+import React, { useState, useMemo, useEffect, useRef } from "react";
 import { Search, Disc, Shuffle, ChevronLeft, Filter, Music, ArrowRight, Sparkles, Flame, Clock, Heart, Compass } from "lucide-react";
 import { useAudio, useTime } from "@/components/AudioContext";
 import { parseSongTitle } from "@/utils/songUtils";
@@ -30,17 +30,31 @@ export default function LibraryClient({ songCount }: { songCount: number }) {
     const [activeVibe, setActiveVibe] = useState(initialVibe);
     const [dbSongs, setDbSongs] = useState<any[]>([]);
     const [counts, setCounts] = useState<Record<string, number>>({});
+    const scrollContainerRef = useRef<HTMLDivElement>(null);
+    const scrollYRef = useRef(0);
+    const [mounted, setMounted] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
+        setMounted(true);
+        setIsLoading(true);
         fetch("/api/music/songs")
             .then(res => res.json())
             .then(data => {
                 if (data.success && data.songs) {
                     setDbSongs(data.songs);
                 }
+                setIsLoading(false);
             })
-            .catch(() => { });
+            .catch(() => setIsLoading(false));
     }, []);
+
+    // Restore scroll position
+    useEffect(() => {
+        if (!isLoading && mounted && scrollContainerRef.current && scrollYRef.current > 0) {
+            scrollContainerRef.current.scrollTop = scrollYRef.current;
+        }
+    }, [isLoading, mounted]);
 
     useEffect(() => {
         if (!dbSongs.length) return;
@@ -88,7 +102,9 @@ export default function LibraryClient({ songCount }: { songCount: number }) {
 
     return (
         <main style={{
-            minHeight: "100svh",
+            height: "100%",
+            width: "100%",
+            overflow: "hidden",
             padding: "24px 20px 140px 20px",
             maxWidth: "500px",
             margin: "0 auto",
@@ -99,6 +115,22 @@ export default function LibraryClient({ songCount }: { songCount: number }) {
             color: theme === "dark" ? "#FFFFFF" : "#1A1A1A",
             transition: "all 0.5s ease"
         }}>
+            <div 
+                ref={scrollContainerRef}
+                onScroll={() => {
+                  if (scrollContainerRef.current) {
+                    scrollYRef.current = scrollContainerRef.current.scrollTop;
+                  }
+                }}
+                className="flex-1 overflow-y-auto overflow-x-hidden w-full h-full pt-6 pb-[140px]"
+                style={{
+                    WebkitOverflowScrolling: "touch",
+                    overscrollBehaviorY: "none",
+                    overflowAnchor: "auto",
+                    scrollbarGutter: "stable",
+                } as React.CSSProperties}
+            >
+                <div style={{ maxWidth: "500px", margin: "0 auto", padding: "0 20px", display: "flex", flexDirection: "column", gap: "28px" }}>
             {/* Header Section */}
             <header style={{ display: "flex", alignItems: "center", gap: "12px" }}>
                 <div style={{ 
@@ -293,6 +325,8 @@ export default function LibraryClient({ songCount }: { songCount: number }) {
                     <p style={{ fontFamily: headerFont, fontWeight: 700 }}>No vibes found...</p>
                 </motion.div>
             )}
+                </div>
+            </div>
         </main>
     );
 }
