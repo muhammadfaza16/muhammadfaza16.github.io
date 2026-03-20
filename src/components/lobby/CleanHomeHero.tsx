@@ -509,6 +509,12 @@ export function CleanHomeHero() {
                 </div>
 
                 <style>{`
+                    @keyframes sheen {
+                        0% { transform: translateX(-150%) skewX(-25deg); opacity: 0; }
+                        20% { opacity: 0.3; }
+                        40% { transform: translateX(150%) skewX(-25deg); opacity: 0; }
+                        100% { transform: translateX(150%) skewX(-25deg); opacity: 0; }
+                    }
                     @keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.5; transform: scale(0.85); } }
                     @keyframes blink-cursor { 0%,100%{opacity:1} 50%{opacity:0} } 
                     @keyframes today-pulse { 0%,100%{box-shadow:0 0 6px rgba(255,59,48,0.4)} 50%{box-shadow:0 0 14px rgba(255,59,48,0.7)} }
@@ -543,18 +549,22 @@ export function CleanHomeHero() {
                 onTouchStart={handleTouchStart}
                 onTouchEnd={handleTouchEnd}
                 style={{
-                    // Premium Sheer Background (preserves contrast while letting atmospheric light shine through)
-                    background: "rgba(255, 255, 255, 0.03)",
-                    // Maximum Depth Blur
-                    backdropFilter: "blur(40px) saturate(140%)",
-                    WebkitBackdropFilter: "blur(40px) saturate(140%)",
-                    borderRadius: "32px", // Increased radius for softer look
-                    // Subtle light-catching borders
+                    // High-End Liquid Material (iOS/visionOS blend)
+                    background: "linear-gradient(165deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.02) 40%, rgba(255, 255, 255, 0.01) 100%)",
+                    // Refractive Depth
+                    backdropFilter: "blur(42px) saturate(180%) brightness(105%)",
+                    WebkitBackdropFilter: "blur(42px) saturate(180%) brightness(105%)",
+                    borderRadius: "32px",
+                    // Specular Reflection Border (v2)
                     border: "1px solid rgba(255,255,255,0.08)",
-                    borderTop: "1px solid rgba(255,255,255,0.15)",
-                    borderLeft: "1px solid rgba(255,255,255,0.1)",
-                    // Elevation
-                    boxShadow: "0 24px 48px -12px rgba(0,0,0,0.2), inset 0 0 0 1px rgba(255,255,255,0.02)",
+                    borderTop: "1.5px solid rgba(255,255,255,0.35)",
+                    borderLeft: "1px solid rgba(255,255,255,0.15)",
+                    // Multi-layer Depth Shadow
+                    boxShadow: `
+                        0 24px 48px -12px rgba(0,0,0,0.35), 
+                        inset 0 0 0 1px rgba(255,255,255,0.06),
+                        inset 0 1px 2px rgba(255,255,255,0.1)
+                    `,
                     padding: "1rem",
                     position: "relative",
                     overflow: "hidden",
@@ -565,29 +575,41 @@ export function CleanHomeHero() {
                 <motion.div
                     animate={{
                         background:
-                            WIDGETS[widgetIndex] === 'music' ? "radial-gradient(circle at 50% 120%, rgba(255, 159, 10, 0.15) 0%, transparent 60%)" :
-                                WIDGETS[widgetIndex] === 'crypto' ? "radial-gradient(circle at 80% 100%, rgba(52, 211, 153, 0.12) 0%, rgba(6, 182, 212, 0.08) 50%, transparent 75%)" :
-                                    WIDGETS[widgetIndex] === 'news' ? "radial-gradient(circle at 20% 110%, rgba(147, 197, 253, 0.15) 0%, transparent 65%)" :
-                                        "radial-gradient(circle at 50% 100%, rgba(167, 139, 250, 0.12) 0%, transparent 60%)"
+                            WIDGETS[widgetIndex] === 'music' ? "radial-gradient(circle at 50% 120%, rgba(255, 159, 10, 0.18) 0%, transparent 70%)" :
+                                WIDGETS[widgetIndex] === 'crypto' ? "radial-gradient(circle at 80% 100%, rgba(52, 211, 153, 0.15) 0%, rgba(6, 182, 212, 0.1) 50%, transparent 80%)" :
+                                    WIDGETS[widgetIndex] === 'news' ? "radial-gradient(circle at 20% 110%, rgba(147, 197, 253, 0.18) 0%, transparent 75%)" :
+                                        "radial-gradient(circle at 50% 100%, rgba(167, 139, 250, 0.15) 0%, transparent 70%)",
+                        scale: [1, 1.05, 1],
+                        opacity: [0.8, 1, 0.8],
                     }}
-                    transition={{ duration: 1.5, ease: "easeInOut" }}
+                    transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
                     style={{
                         position: "absolute",
-                        inset: "-20%",
-                        filter: "blur(60px)",
+                        inset: "-30%",
+                        filter: "blur(80px)",
                         pointerEvents: "none",
                         zIndex: 0,
                     }}
                 />
 
-                {/* Glass Noise Texture - Enhanced for physical realism */}
+                {/* Physical Sheen (Glass Reflection Sweep) */}
                 <div style={{
                     position: "absolute",
                     inset: 0,
-                    backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.6' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
-                    opacity: 0.12,
+                    background: "linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.08) 50%, transparent 100%)",
+                    animation: "sheen 6s infinite ease-in-out",
+                    zIndex: 2,
                     pointerEvents: "none",
-                    mixBlendMode: "overlay",
+                }} />
+
+                {/* Glass Noise Texture (Organic Refraction) */}
+                <div style={{
+                    position: "absolute",
+                    inset: 0,
+                    backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
+                    opacity: 0.1,
+                    pointerEvents: "none",
+                    mixBlendMode: "soft-light",
                     zIndex: 1,
                 }} />
 
