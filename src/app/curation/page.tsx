@@ -1069,7 +1069,9 @@ export default function CurationList() {
         style={
           {
             WebkitOverflowScrolling: "touch",
-            overscrollBehaviorY: "auto",
+            overscrollBehaviorY: "none",
+            overflowAnchor: "auto",
+            scrollbarGutter: "stable",
           } as React.CSSProperties
         }
       >
@@ -1176,7 +1178,7 @@ export default function CurationList() {
                         className="flex flex-col h-full"
                       >
                         {/* Top Image Section */}
-                        <div className="relative w-full h-[180px] md:h-[200px] overflow-hidden bg-zinc-100 dark:bg-zinc-800 shrink-0">
+                        <div className="relative w-full aspect-[16/6] md:aspect-[21/9] overflow-hidden bg-zinc-100 dark:bg-zinc-800 shrink-0">
                           {validImageUrl && !imgErrors[featuredArticle.id] ? (
                             <Image
                               src={validImageUrl}
@@ -1445,7 +1447,7 @@ export default function CurationList() {
         )}
 
         {/* ═══ ARTICLE FEED ═══ */}
-        <div className="min-h-fit relative">
+        <div className="min-h-[60vh] relative">
           {isLoading || isTransitioning ? (
             <motion.div
               key="skeleton"
@@ -1462,7 +1464,7 @@ export default function CurationList() {
               {[1, 2, 3, 4, 5, 6].map((i) => (
                 <div
                   key={i}
-                  className="bg-white dark:bg-[#0a0a0a] rounded-[1.5rem] border border-zinc-100 dark:border-zinc-800/60 p-4 flex items-center gap-4 h-[120px] relative overflow-hidden"
+                  className="bg-white dark:bg-[#0a0a0a] rounded-[1.5rem] border border-zinc-100 dark:border-zinc-800/60 p-4 flex items-center gap-4 min-h-[120px] relative overflow-hidden"
                 >
                   <div className="w-20 h-20 md:w-24 md:h-24 rounded-xl bg-zinc-100 dark:bg-zinc-800 relative overflow-hidden shrink-0">
                     <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 dark:via-white/5 to-transparent animate-shimmer" />
@@ -1959,7 +1961,7 @@ const SwipeableArticleCard = memo(({
         onDragEnd={handleDragEnd}
         style={{ x }}
         whileTap={{ cursor: "grabbing" }}
-        className="bg-white dark:bg-[#0a0a0a] rounded-[1.5rem] border border-zinc-100 dark:border-zinc-800/60 overflow-hidden shadow-[0_2px_8px_rgba(0,0,0,0.02)] hover:shadow-[0_8px_24px_rgba(0,0,0,0.06)] p-4 relative z-10 cursor-grab touch-pan-y"
+        className="bg-white dark:bg-[#0a0a0a] rounded-[1.5rem] border border-zinc-100 dark:border-zinc-800/60 overflow-hidden shadow-[0_2px_8px_rgba(0,0,0,0.02)] hover:shadow-[0_8px_24px_rgba(0,0,0,0.06)] p-4 relative z-10 cursor-grab touch-pan-y min-h-[120px] flex flex-col justify-center"
       >
         <Link
           href={`/curation/${id}`}
