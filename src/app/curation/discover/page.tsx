@@ -307,23 +307,12 @@ function ExploreContent() {
     );
 
     return (
-        <div 
-            ref={scrollContainerRef}
-            onScroll={() => {
-              if (scrollContainerRef.current) {
-                scrollYRef.current = scrollContainerRef.current.scrollTop;
-              }
-            }}
-            className="h-full flex flex-col bg-[#fafaf8] dark:bg-[#050505] text-zinc-900 dark:text-zinc-100 overflow-y-auto overflow-x-hidden"
-            style={{
-                WebkitOverflowScrolling: "touch",
-                overscrollBehaviorY: "none",
-                overflowAnchor: "auto",
-                scrollbarGutter: "stable",
-            } as React.CSSProperties}
-        >
+        <div className="w-full bg-[#fcfcfc] dark:bg-[#050505] text-zinc-900 dark:text-zinc-100 font-sans antialiased relative selection:bg-blue-100 dark:selection:bg-blue-900/30 transition-colors duration-700">
             {/* ═══ HEADER ═══ */}
-            <header className="sticky top-0 z-[110] bg-[#fafaf8]/80 dark:bg-[#050505]/80 backdrop-blur-xl border-b border-zinc-200/40 dark:border-zinc-800/40 shrink-0 h-16 flex items-center px-4 transition-colors duration-500">
+            <header 
+                style={{ transform: "translateZ(0)", willChange: "transform", isolation: "isolate" }}
+                className="sticky top-0 z-[110] bg-white/90 dark:bg-[#050505]/90 backdrop-blur-xl border-b border-zinc-200/60 dark:border-zinc-800/60 shrink-0 h-16 flex items-center px-4 transition-colors duration-500"
+            >
                 <div className="flex-1 flex justify-center px-2">
                     <div className="w-full max-w-[800px]">
                         <div className="relative group max-w-4xl mx-auto">
@@ -351,27 +340,35 @@ function ExploreContent() {
                 </div>
             </header>
 
-            {!isShowingSearch && (
-                <div className="sticky top-16 z-[105] bg-[#fafaf8]/80 dark:bg-[#050505]/80 backdrop-blur-xl border-b border-zinc-200/40 dark:border-zinc-800/40 py-2 transition-colors duration-500 overflow-hidden">
-                    <div className="max-w-2xl mx-auto px-4">
-                        <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar">
-                            {[{ key: "popularity" as const, label: "Popular", Icon: Flame }, { key: "date" as const, label: "Latest", Icon: Clock }].map(s => (
-                                <button key={s.key} onClick={() => setActiveSort(s.key)} className={`flex items-center gap-1 px-2.5 py-1 shrink-0 rounded-full text-[10.5px] font-medium transition-all ${activeSort === s.key ? "bg-zinc-800 text-zinc-100 dark:bg-zinc-200 dark:text-zinc-900" : "bg-zinc-100 dark:bg-zinc-800/80 text-zinc-500"}`}>
-                                    <s.Icon size={10} /> {s.label}
-                                </button>
-                            ))}
-                            <div className="w-px h-3.5 bg-zinc-200 dark:bg-zinc-800 mx-0.5 shrink-0" />
-                            {CATEGORIES.map(cat => (
-                                <button key={cat.name} onClick={() => setActiveCategory(activeCategory === cat.name ? null : cat.name)} className={`flex items-center gap-1 px-2.5 py-1 shrink-0 rounded-full text-[10.5px] font-medium transition-all whitespace-nowrap ${activeCategory === cat.name ? "bg-zinc-800 text-zinc-100 dark:bg-zinc-200 dark:text-zinc-900" : "bg-zinc-100 dark:bg-zinc-800/80 text-zinc-500"}`}>
-                                    <cat.icon size={10} /> {cat.name.split(" & ")[0]}
-                                </button>
-                            ))}
+            <AnimatePresence>
+                {!isShowingSearch && (
+                    <motion.div 
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: "auto", opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        transition={{ duration: 0.3, ease: [0.32, 0.72, 0, 1] }}
+                        className="bg-white/95 dark:bg-[#050505]/95 backdrop-blur-xl border-b border-zinc-200/60 dark:border-zinc-800/60 py-2 transition-colors duration-500 overflow-hidden"
+                    >
+                        <div className="max-w-2xl mx-auto px-4">
+                            <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar">
+                                {[{ key: "popularity" as const, label: "Popular", Icon: Flame }, { key: "date" as const, label: "Latest", Icon: Clock }].map(s => (
+                                    <button key={s.key} onClick={() => setActiveSort(s.key)} className={`flex items-center gap-1 px-2.5 py-1 shrink-0 rounded-full text-[10.5px] font-medium transition-all ${activeSort === s.key ? "bg-zinc-800 text-zinc-100 dark:bg-zinc-200 dark:text-zinc-900" : "bg-zinc-100 dark:bg-zinc-800/80 text-zinc-500"}`}>
+                                        <s.Icon size={10} /> {s.label}
+                                    </button>
+                                ))}
+                                <div className="w-px h-3.5 bg-zinc-200 dark:bg-zinc-800 mx-0.5 shrink-0" />
+                                {CATEGORIES.map(cat => (
+                                    <button key={cat.name} onClick={() => setActiveCategory(activeCategory === cat.name ? null : cat.name)} className={`flex items-center gap-1 px-2.5 py-1 shrink-0 rounded-full text-[10.5px] font-medium transition-all whitespace-nowrap ${activeCategory === cat.name ? "bg-zinc-800 text-zinc-100 dark:bg-zinc-200 dark:text-zinc-900" : "bg-zinc-100 dark:bg-zinc-800/80 text-zinc-500"}`}>
+                                        <cat.icon size={10} /> {cat.name.split(" & ")[0]}
+                                    </button>
+                                ))}
+                            </div>
                         </div>
-                    </div>
-                </div>
-            )}
-            
-            <main className="flex-1 overflow-visible pt-2 pb-32">
+                    </motion.div>
+                )}
+            </AnimatePresence>
+            {/* ═══ CONTENT ═══ */}
+            <main className="flex-1 overflow-visible pt-4 pb-0">
                 <div className="max-w-2xl mx-auto px-4">
                 <AnimatePresence mode="wait">
                     {isShowingSearch ? (
