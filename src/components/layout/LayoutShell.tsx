@@ -65,11 +65,7 @@ export function LayoutShell({ children }: { children: React.ReactNode }) {
         <>
             <main 
                 id="main-content" 
-                style={{ 
-                    flex: 1,
-                    height: isStablizedPath ? "100dvh" : "auto",
-                    overflow: isStablizedPath ? "hidden" : "auto"
-                }}
+                className="flex-1"
             >
                 {children}
             </main>

@@ -441,7 +441,6 @@ export function GlobalBottomPlayer() {
                 )}
             </AnimatePresence>
 
-            <MusicBottomNav />
         </>
     );
 }

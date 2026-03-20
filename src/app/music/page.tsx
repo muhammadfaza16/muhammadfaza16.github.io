@@ -9,9 +9,6 @@ import { useAudio, useTime } from "@/components/AudioContext";
 import { parseSongTitle } from "@/utils/songUtils";
 import { useTheme } from "@/components/ThemeProvider";
 
-// INDO_ARTISTS moved to database categories
-
-
 const MENU_ITEMS = [
     { id: "songs", label: "All Songs", subtitle: "Full Library", icon: LibraryBig, href: "/playlist/all" },
     { id: "playlists", label: "Playlists", subtitle: "Curated Sets", icon: ListMusic, href: "/playlist" },
@@ -78,39 +75,17 @@ export default function AudioHubPage() {
     const monoFont = "var(--font-mono), monospace";
 
     return (
-        <main style={{
-            height: "100%",
-            width: "100%",
-            overflow: "hidden",
-            backgroundColor: theme === "dark" ? "#0A0A0A" : "#F8F5F2",
-            backgroundImage: theme === "dark" 
-                ? "radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.1) 0, transparent 50%), radial-gradient(at 100% 100%, rgba(139, 92, 246, 0.08) 0, transparent 50%)"
-                : "radial-gradient(at 0% 0%, rgba(255, 255, 255, 0.5) 0, transparent 50%), radial-gradient(at 100% 100%, rgba(255, 255, 255, 0.3) 0, transparent 50%)",
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            padding: "16px 16px 140px 16px",
-            color: theme === "dark" ? "#FFFFFF" : "#1A1A1A",
-            transition: "all 0.5s ease"
-        }}>
-            <div 
-                ref={scrollContainerRef}
-                onScroll={() => {
-                  if (scrollContainerRef.current) {
-                    scrollYRef.current = scrollContainerRef.current.scrollTop;
-                  }
-                }}
-                className="flex-1 overflow-y-auto overflow-x-hidden w-full h-full flex flex-col items-center pt-4 pb-[200px] px-4"
-                style={{
-                    WebkitOverflowScrolling: "touch",
-                    overscrollBehaviorY: "none",
-                    overflowAnchor: "auto",
-                    scrollbarGutter: "stable",
-                } as React.CSSProperties}
-            >
-                <div style={{ width: "100%", maxWidth: "440px", display: "flex", flexDirection: "column", gap: "24px" }}>
+        <main 
+            className="w-full flex flex-col items-center pt-4 pb-[100px] px-4"
+            style={{ 
+                isolation: "isolate",
+                transition: "all 0.5s ease",
+                transform: "translateZ(0)"
+            }}
+        >
+            <div style={{ width: "100%", maxWidth: "440px", display: "flex", flexDirection: "column", gap: "24px" }}>
                 {/* Header */}
-                <div style={{ position: "relative", display: "flex", justifyContent: "center", alignItems: "center", marginBottom: "32px", marginTop: "24px" }}>
+                <div style={{ position: "relative", display: "flex", justifyContent: "center", alignItems: "center", marginBottom: "32px" }}>
                     <div style={{ position: "absolute", left: 0 }}>
                         <Link href="/" style={{ textDecoration: "none" }}>
                             <motion.button 
@@ -697,7 +672,6 @@ export default function AudioHubPage() {
                     </div>
                 </div>
             </div>
-        </div>
         </main>
     );
 }

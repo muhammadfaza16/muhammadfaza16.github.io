@@ -101,36 +101,15 @@ export default function LibraryClient({ songCount }: { songCount: number }) {
     const monoFont = "var(--font-mono), monospace";
 
     return (
-        <main style={{
-            height: "100%",
-            width: "100%",
-            overflow: "hidden",
-            padding: "24px 20px 140px 20px",
-            maxWidth: "500px",
-            margin: "0 auto",
-            display: "flex",
-            flexDirection: "column",
-            gap: "28px",
-            backgroundColor: theme === "dark" ? "#0A0A0A" : "#F8F5F2",
-            color: theme === "dark" ? "#FFFFFF" : "#1A1A1A",
-            transition: "all 0.5s ease"
-        }}>
-            <div 
-                ref={scrollContainerRef}
-                onScroll={() => {
-                  if (scrollContainerRef.current) {
-                    scrollYRef.current = scrollContainerRef.current.scrollTop;
-                  }
-                }}
-                className="flex-1 overflow-y-auto overflow-x-hidden w-full h-full flex flex-col items-center pt-4 pb-[200px] px-4"
-                style={{
-                    WebkitOverflowScrolling: "touch",
-                    overscrollBehaviorY: "none",
-                    overflowAnchor: "auto",
-                    scrollbarGutter: "stable",
-                } as React.CSSProperties}
-            >
-                <div style={{ maxWidth: "500px", margin: "0 auto", padding: "0 20px", display: "flex", flexDirection: "column", gap: "28px" }}>
+        <div 
+            className="w-full flex flex-col items-center pt-8 pb-[100px] px-4"
+            style={{ 
+                isolation: "isolate",
+                transition: "all 0.5s ease",
+                transform: "translateZ(0)"
+            }}
+        >
+        <div style={{ width: "100%", maxWidth: "440px", margin: "0 auto", display: "flex", flexDirection: "column", gap: "20px" }}>
             {/* Header Section */}
             <header style={{ display: "flex", alignItems: "center", gap: "12px" }}>
                 <div style={{ 
@@ -142,7 +121,7 @@ export default function LibraryClient({ songCount }: { songCount: number }) {
                     <Compass size={16} color="#fff" />
                 </div>
                 <h1 style={{
-                    fontFamily: headerFont, fontSize: "1.1rem", fontWeight: 800,
+                    fontFamily: headerFont, fontSize: "1rem", fontWeight: 800,
                     margin: 0, letterSpacing: "0.02em", textTransform: "uppercase",
                     color: theme === "dark" ? "#FFF" : "#000"
                 }}>
@@ -154,10 +133,11 @@ export default function LibraryClient({ songCount }: { songCount: number }) {
             <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
                 <div style={{
                     height: "52px", borderRadius: "18px", padding: "0 18px",
-                    backgroundColor: theme === "dark" ? "rgba(255, 255, 255, 0.04)" : "rgba(255, 255, 255, 0.8)",
-                    backdropFilter: "blur(20px)", display: "flex", alignItems: "center", gap: "12px",
+                    backgroundColor: theme === "dark" ? "#1A1A1A" : "#FFFFFF",
+                    display: "flex", alignItems: "center", gap: "12px",
                     border: theme === "dark" ? "1px solid rgba(255, 255, 255, 0.08)" : "1px solid rgba(0, 0, 0, 0.05)",
-                    boxShadow: theme === "dark" ? "0 10px 30px rgba(0,0,0,0.2)" : "0 4px 12px rgba(0,0,0,0.02)"
+                    transform: "translateZ(0)",
+                    boxShadow: theme === "dark" ? "0 4px 20px rgba(0,0,0,0.3)" : "0 4px 12px rgba(0,0,0,0.02)"
                 }}>
                     <Search size={20} style={{ opacity: 0.4 }} />
                     <input
@@ -203,7 +183,7 @@ export default function LibraryClient({ songCount }: { songCount: number }) {
             </div>
 
             {/* Bento Grid */}
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: "16px" }}>
                 {/* Global Catalog Large Card */}
                 <Link href="/playlist/all" onClick={triggerHaptic} style={{ textDecoration: "none", gridColumn: "span 2" }}>
                     <motion.div
@@ -227,7 +207,7 @@ export default function LibraryClient({ songCount }: { songCount: number }) {
                                     color: "rgba(255,255,255,0.5)", textTransform: "uppercase", letterSpacing: "0.1em" 
                                 }}>Master Catalog</span>
                                 <h2 style={{ 
-                                    fontFamily: headerFont, fontSize: "1.4rem", fontWeight: 900, 
+                                    fontFamily: headerFont, fontSize: "1.05rem", fontWeight: 900, 
                                     color: "#fff", margin: 0, lineHeight: 1 
                                 }}>ALL TRACKS</h2>
                             </div>
@@ -253,7 +233,7 @@ export default function LibraryClient({ songCount }: { songCount: number }) {
                             >
                                 <Link href={`/playlist/${playlist.id}`} onClick={triggerHaptic} style={{ textDecoration: "none" }}>
                                     <div style={{
-                                        aspectRatio: "1/1", borderRadius: "24px", position: "relative",
+                                        aspectRatio: "1/1", borderRadius: "20px", position: "relative",
                                         overflow: "hidden", backgroundColor: playlist.coverColor,
                                         display: "flex", flexDirection: "column", justifyContent: "flex-end",
                                         boxShadow: "0 10px 25px rgba(0,0,0,0.08)", border: "1px solid rgba(255,255,255,0.1)"
@@ -289,7 +269,7 @@ export default function LibraryClient({ songCount }: { songCount: number }) {
                                         <div style={{ position: "relative", zIndex: 3, padding: "16px" }}>
                                             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end" }}>
                                                 <h3 style={{ 
-                                                    fontFamily: headerFont, fontSize: "0.85rem", fontWeight: 900, 
+                                                    fontFamily: headerFont, fontSize: "0.9rem", fontWeight: 900, 
                                                     color: "#fff", margin: 0, lineHeight: 1.1, textTransform: "uppercase" 
                                                 }}>
                                                     {playlist.title}
@@ -301,7 +281,7 @@ export default function LibraryClient({ songCount }: { songCount: number }) {
                                                 )}
                                             </div>
                                             <div style={{ 
-                                                fontFamily: monoFont, fontSize: "0.55rem", fontWeight: 800, 
+                                                fontFamily: monoFont, fontSize: "0.65rem", fontWeight: 800, 
                                                 color: "rgba(255,255,255,0.6)", marginTop: "4px", letterSpacing: "0.05em"
                                             }}>
                                                 {counts[playlist.id] || playlist.vibes[0]}
@@ -326,7 +306,6 @@ export default function LibraryClient({ songCount }: { songCount: number }) {
                 </motion.div>
             )}
                 </div>
-            </div>
-        </main>
+        </div>
     );
 }

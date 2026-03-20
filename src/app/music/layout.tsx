@@ -13,9 +13,14 @@ export default function AudioHubLayout({
     const isLivePage = pathname?.startsWith("/music/live");
 
     return (
-        <>
-            {!isLivePage && <ThemeToggle />}
+        <div className="curation-app w-full min-h-screen flex flex-col bg-[#F8F5F2] dark:bg-[#0A0A0A] transition-colors duration-500" style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}>
+            {!isLivePage && (
+                <div className="fixed top-4 right-4 z-[200]">
+                    <ThemeToggle />
+                </div>
+            )}
+            
             {children}
-        </>
+        </div>
     );
 }

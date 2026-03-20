@@ -52,8 +52,8 @@ export function MusicBottomNav({ isInline = false }: { isInline?: boolean }) {
             bottom: "20px",
             left: "50%",
             transform: "translateX(-50%)",
-            width: "calc(100% - 40px)",
-            maxWidth: "360px",
+            width: "92%",
+            maxWidth: "400px",
             backgroundColor: theme === "dark" ? "rgba(20, 20, 20, 0.55)" : "rgba(255, 255, 255, 0.4)",
             backdropFilter: "blur(40px) saturate(180%)",
             border: theme === "dark" 
@@ -137,8 +137,8 @@ export function MusicBottomNav({ isInline = false }: { isInline?: boolean }) {
                         <Icon size={18} strokeWidth={isActive ? 2.5 : 2} />
                         <span style={{
                             fontFamily: headerFont,
-                            fontSize: "0.6rem",
-                            fontWeight: isActive ? 800 : 600,
+                            fontSize: "0.55rem",
+                            fontWeight: isActive ? 800 : 700,
                             letterSpacing: "0.01em"
                         }}>
                             {item.label}

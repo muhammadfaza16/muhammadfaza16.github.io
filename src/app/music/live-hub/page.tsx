@@ -97,35 +97,17 @@ export default function LiveHubPage() {
     const secondaryStations = stations.filter(s => s.id !== heroSessionId);
 
     return (
-        <main style={{
-            height: "100%",
-            width: "100%",
-            overflow: "hidden",
-            backgroundColor: isDark ? "#0A0A0A" : "#F8F5F2",
-            backgroundImage: isDark 
-                ? "radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.1) 0, transparent 50%), radial-gradient(at 100% 100%, rgba(139, 92, 246, 0.08) 0, transparent 50%)"
-                : "radial-gradient(at 0% 0%, rgba(255, 255, 255, 0.5) 0, transparent 50%), radial-gradient(at 100% 100%, rgba(255, 255, 255, 0.3) 0, transparent 50%)",
-            color: isDark ? "#FFF" : "#1A1A1A",
-            transition: "all 0.5s ease",
-        }}>
-            <div 
-                ref={scrollContainerRef}
-                onScroll={() => {
-                  if (scrollContainerRef.current) {
-                    scrollYRef.current = scrollContainerRef.current.scrollTop;
-                  }
-                }}
-                className="w-full h-full overflow-y-auto pt-4 pb-[200px]"
-                style={{
-                  WebkitOverflowScrolling: "touch",
-                  overscrollBehaviorY: "none",
-                  overflowAnchor: "auto",
-                  scrollbarGutter: "stable",
-                } as React.CSSProperties}
-            >
+        <div 
+            className="w-full flex flex-col items-center pt-8 pb-[100px] px-4"
+            style={{ 
+                isolation: "isolate",
+                transition: "all 0.5s ease",
+                transform: "translateZ(0)"
+            }}
+        >
             <div style={{ width: "100%", maxWidth: "440px", margin: "0 auto", display: "flex", flexDirection: "column" }}>
                 {/* Header */}
-                <div style={{ position: "relative", display: "flex", justifyContent: "center", alignItems: "center", marginBottom: "32px", marginTop: "24px", paddingTop: "env(safe-area-inset-top)" }}>
+                <div style={{ position: "relative", display: "flex", justifyContent: "center", alignItems: "center", marginBottom: "32px" }}>
                     <h1 style={{ 
                         fontFamily: headerFont, 
                         fontWeight: 900, 
@@ -323,7 +305,6 @@ export default function LiveHubPage() {
                     </p>
                 </div>
             </div>
-            </div>
-        </main>
+        </div>
     );
 }

@@ -51,15 +51,12 @@ export default function CurationPlatformLayout({
 
     return (
         <div 
-            className={`h-[100dvh] w-screen overflow-hidden flex flex-col bg-[#fafaf8] dark:bg-[#050505] text-[#1a1a1a] dark:text-[#f2f2f2] curation-app ${isDark ? 'dark' : ''}`}
+            className={`w-screen min-h-screen flex flex-col bg-[#fafaf8] dark:bg-[#050505] text-[#1a1a1a] dark:text-[#f2f2f2] curation-app ${isDark ? 'dark' : ''}`}
             style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}
         >
-            {/* ═══ THE SINGLE SCROLL CONTAINER FOR ALL PAGES ═══ */}
-            <main id="curation-root-scroller" className="flex-1 relative overflow-y-auto overflow-x-hidden pb-32">
-                {children}
-            </main>
+            {children}
 
-            {/* Persistent Platform Dock (Full Width, Zero Padding) */}
+            {/* Persistent Platform Dock */}
             {shouldShowDock && (
                 <motion.nav
                     initial="hidden"

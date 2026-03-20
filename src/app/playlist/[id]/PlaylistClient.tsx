@@ -195,37 +195,16 @@ export default function PlaylistClient({ playlistId, initialSongs = [] }: { play
     if (!mounted) return null;
 
     return (
-        <main style={{
-            position: "relative",
-            height: "100%",
-            width: "100%",
-            overflow: "hidden",
-            padding: "16px 16px 120px 16px",
-            maxWidth: "600px",
-            margin: "0 auto",
-            display: "flex",
-            flexDirection: "column",
-            gap: "1.5rem",
-            backgroundColor: theme === "dark" ? "#0A0A0A" : "#f9f9f9",
-            color: theme === "dark" ? "#FFF" : "#000",
-            transition: "all 0.5s ease"
-        }}>
-            <div 
-                ref={scrollContainerRef}
-                onScroll={() => {
-                  if (scrollContainerRef.current) {
-                    scrollYRef.current = scrollContainerRef.current.scrollTop;
-                  }
-                }}
-                className="flex-1 overflow-y-auto overflow-x-hidden w-full h-full flex flex-col items-center pt-4 pb-[200px] px-4"
-                style={{
-                    WebkitOverflowScrolling: "touch",
-                    overscrollBehaviorY: "none",
-                    overflowAnchor: "auto",
-                    scrollbarGutter: "stable",
-                } as React.CSSProperties}
-            >
-                <div style={{ width: "100%", maxWidth: "600px", display: "flex", flexDirection: "column", gap: "1.5rem" }}>
+        <main 
+            className="w-full flex flex-col pt-0"
+            style={{ 
+                maxWidth: "600px",
+                margin: "0 auto",
+                paddingBottom: "100px", 
+                transform: "translateZ(0)"
+            }}
+        >
+            <div style={{ width: "100%", maxWidth: "600px", display: "flex", flexDirection: "column", gap: "1.5rem", padding: "16px" }}>
             <div style={{ position: "relative", display: "flex", justifyContent: "center", alignItems: "center", marginTop: "16px", marginBottom: "8px" }}>
                 <div style={{ position: "absolute", left: 0 }}>
                     <Link href="/playlist" style={{ textDecoration: "none" }}>
@@ -429,12 +408,13 @@ export default function PlaylistClient({ playlistId, initialSongs = [] }: { play
 
             <div style={{
                 position: "sticky",
-                top: "16px",
+                top: "1px",
                 zIndex: 40,
                 width: "100%",
                 height: "44px",
-                backgroundColor: theme === "dark" ? "rgba(255, 255, 255, 0.03)" : "rgba(255, 255, 255, 0.6)",
-                backdropFilter: "blur(12px)",
+                backgroundColor: theme === "dark" ? "#1A1A1A" : "#FFFFFF",
+                transform: "translateZ(0)",
+                willChange: "transform",
                 display: "flex",
                 alignItems: "center",
                 padding: "0 14px",
@@ -497,8 +477,7 @@ export default function PlaylistClient({ playlistId, initialSongs = [] }: { play
                 ) : (
                     <Virtuoso
                         key={activePlaylist?.id || "playlist-list"}
-                        useWindowScroll={false}
-                        customScrollParent={scrollContainerRef.current || undefined}
+                        useWindowScroll={true}
                         data={filteredPlaylist}
                         itemContent={(index, song: any) => (
                             <TrackRow
@@ -517,7 +496,6 @@ export default function PlaylistClient({ playlistId, initialSongs = [] }: { play
                 )}
             </div>
                 </div>
-            </div>
-        </main>
+            </main>
     );
 }
