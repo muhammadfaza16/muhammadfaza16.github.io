@@ -2,7 +2,7 @@
 
 import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Play, Pause, Radio, Disc, Music, ListMusic, ChevronDown, Heart, Headphones, Power } from "lucide-react";
+import { Play, Pause, Radio, Disc, Music, ListMusic, ChevronDown, ChevronLeft, Heart, Headphones, Power } from "lucide-react";
 import { useLiveMusic } from "./LiveMusicContext";
 import { parseSongTitle } from "@/utils/songUtils";
 import { useTheme } from "@/components/ThemeProvider";
@@ -204,7 +204,7 @@ export function LiveMusicPlayer() {
             </AnimatePresence>
             <div style={{ position: "absolute", inset: "-150px", zIndex: 0, pointerEvents: "none", backgroundColor: isDark ? "rgba(0,0,0,0.35)" : "rgba(255,255,255,0.4)" }} />
 
-            <div style={{ position: "relative", zIndex: 1, flex: 1, display: "flex", flexDirection: "column", width: "100%", maxWidth: "500px", margin: "0 auto" }}>
+            <div style={{ position: "relative", zIndex: showQueue ? 999999 : 1, flex: 1, display: "flex", flexDirection: "column", width: "100%", maxWidth: "500px", margin: "0 auto" }}>
             {/* Playlist Info & Listeners */}
             <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "6px", padding: "8px 16px 0", marginBottom: "4px" }}>
                 <span style={{ fontFamily: headerFont, fontWeight: 800, fontSize: "0.95rem", letterSpacing: "0.05em", color: isDark ? "rgba(255,255,255,0.9)" : "rgba(0,0,0,0.9)", display: "flex", alignItems: "center", gap: "8px" }}>
@@ -213,9 +213,9 @@ export function LiveMusicPlayer() {
                 </span>
 
                 <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                    <div style={{ display: "inline-flex", alignItems: "center", gap: "6px", padding: "4px 10px", borderRadius: "100px", background: isDark ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.03)", border: isDark ? "1px solid rgba(255,255,255,0.05)" : "1px solid rgba(0,0,0,0.03)" }}>
+                    <div style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", gap: "6px", padding: "0 10px", height: "20px", borderRadius: "100px", background: isDark ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.03)", border: isDark ? "1px solid rgba(255,255,255,0.05)" : "1px solid rgba(0,0,0,0.03)" }}>
                         <Heart size={10} fill={isDark ? "rgba(255,255,255,0.4)" : "rgba(0,0,0,0.4)"} color={isDark ? "rgba(255,255,255,0.4)" : "rgba(0,0,0,0.4)"} /> 
-                        <span style={{ fontFamily: monoFont, fontWeight: 700, fontSize: "0.6rem", color: isDark ? "rgba(255,255,255,0.5)" : "rgba(0,0,0,0.5)" }}>
+                        <span style={{ fontFamily: monoFont, fontWeight: 700, fontSize: "0.6rem", color: isDark ? "rgba(255,255,255,0.5)" : "rgba(0,0,0,0.5)", lineHeight: 1 }}>
                             {listenersCount} LISTENING
                         </span>
                     </div>
@@ -514,7 +514,7 @@ export function LiveMusicPlayer() {
                             exit={{ opacity: 0 }}
                             onClick={() => setShowQueue(false)}
                             style={{
-                                position: "fixed", inset: 0, zIndex: 9998,
+                                position: "fixed", inset: 0, zIndex: 999999,
                                 backgroundColor: "rgba(0,0,0,0.6)",
                                 backdropFilter: "blur(8px)"
                             }}
@@ -527,48 +527,52 @@ export function LiveMusicPlayer() {
                             exit={{ y: "100%" }}
                             transition={{ type: "spring", damping: 30, stiffness: 280 }}
                             style={{
-                                position: "fixed", bottom: 0, left: 0, right: 0, zIndex: 9999,
+                                position: "fixed", inset: 0, zIndex: 999999,
                                 background: isDark ? "#121212" : "#FFF",
-                                borderTopLeftRadius: "24px", borderTopRightRadius: "24px",
-                                height: "100svh", overflow: "hidden",
+                                borderRadius: 0,
+                                overflow: "hidden",
+                                display: "flex",
+                                flexDirection: "column",
                                 boxShadow: "0 -20px 60px rgba(0,0,0,0.3)"
                             }}
                         >
-                            {/* Down Arrow / Close Indicator */}
-                            <div style={{ display: "flex", justifyContent: "center", paddingTop: "12px", paddingBottom: "8px" }}>
+                            {/* Header Area */}
+                            <div style={{ 
+                                display: "flex", 
+                                alignItems: "center", 
+                                padding: "calc(env(safe-area-inset-top) + 16px) 20px 16px",
+                                borderBottom: isDark ? "1px solid rgba(255,255,255,0.05)" : "1px solid rgba(0,0,0,0.05)"
+                            }}>
                                 <motion.button
                                     whileTap={{ scale: 0.9 }}
                                     onClick={() => setShowQueue(false)}
                                     style={{
-                                        width: "48px", height: "48px", borderRadius: "100px",
+                                        width: "40px", height: "40px", borderRadius: "100px",
                                         background: isDark ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.05)",
                                         display: "flex", alignItems: "center", justifyContent: "center",
-                                        border: "none", cursor: "pointer",
+                                        border: "none", cursor: "pointer", marginRight: "16px"
                                     }}
                                 >
-                                    <ChevronDown size={28} color={isDark ? "rgba(255,255,255,0.5)" : "rgba(0,0,0,0.4)"} />
+                                    <ChevronLeft size={24} color={isDark ? "#FFF" : "#000"} />
                                 </motion.button>
-                            </div>
-
-                            <div style={{
-                                padding: "8px 20px 24px",
-                                display: "flex", justifyContent: "space-between", alignItems: "center",
-                                borderBottom: isDark ? "1px solid rgba(255,255,255,0.05)" : "1px solid rgba(0,0,0,0.05)"
-                            }}>
-                                <span style={{ fontFamily: headerFont, fontWeight: 900, fontSize: "0.8rem", textTransform: "uppercase", letterSpacing: "0.05em", color: isDark ? "#FFF" : "#000" }}>
-                                    UP NEXT
-                                </span>
-                                <span style={{ fontFamily: monoFont, fontWeight: 700, fontSize: "0.65rem", color: isDark ? "rgba(255,255,255,0.4)" : "rgba(0,0,0,0.4)" }}>
-                                    {totalSongs} TRACKS
-                                </span>
+                                
+                                <div style={{ flex: 1 }}>
+                                    <div style={{ fontFamily: headerFont, fontWeight: 900, fontSize: "0.8rem", textTransform: "uppercase", letterSpacing: "0.05em", color: isDark ? "#FFF" : "#000" }}>
+                                        UP NEXT
+                                    </div>
+                                    <div style={{ fontFamily: monoFont, fontWeight: 700, fontSize: "0.6rem", color: isDark ? "rgba(255,255,255,0.4)" : "rgba(0,0,0,0.4)", textTransform: "uppercase" }}>
+                                        {totalSongs} TRACKS • LIVE MUSIC
+                                    </div>
+                                </div>
                             </div>
 
                             <div 
                                 ref={scrollContainerRef}
                                 style={{ 
-                                padding: "8px 0 40px", 
+                                padding: "8px 0 100px", 
                                 overflowY: "auto", 
-                                maxHeight: "calc(85vh - 80px)" 
+                                flex: 1,
+                                height: "auto"
                             }}>
                                 {tracklist.map((track, i) => {
                                     const { cleanTitle: tTitle, artist: tArtist } = parseSongTitle(track.title);
@@ -578,8 +582,8 @@ export function LiveMusicPlayer() {
                                             ref={track.isCurrent ? activeTrackRef : null}
                                             style={{
                                             display: "flex", alignItems: "center", gap: "12px",
-                                            padding: "12px 20px",
-                                            backgroundColor: track.isCurrent ? (isDark ? "rgba(239,68,68,0.08)" : "rgba(239,68,68,0.05)") : "transparent",
+                                            padding: "16px 20px",
+                                            backgroundColor: track.isCurrent ? (isDark ? "rgba(239,68,68,0.1)" : "rgba(239,68,68,0.05)") : "transparent",
                                             borderBottom: isDark ? "1px solid rgba(255,255,255,0.03)" : "1px solid rgba(0,0,0,0.02)"
                                         }}>
                                             <div style={{

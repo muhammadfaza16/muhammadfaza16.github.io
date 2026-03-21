@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useMemo, useEffect } from "react";
+import React, { useState, useMemo, useEffect, useRef, useCallback } from "react";
 import { Play, Pause, Search, Shuffle, ChevronLeft, Disc } from "lucide-react";
 import { Virtuoso } from 'react-virtuoso';
 import { useAudio } from "@/components/AudioContext";
@@ -64,7 +64,7 @@ function TrackRow({ song, index, isActive, isPlaying, onPlay }: {
                 const { cleanTitle, artist, labels } = parseSongTitle(song.title);
                 return (
                     <>
-                        <div style={{ width: "20px", textAlign: "center", fontWeight: 700, fontFamily: monoFont, fontSize: "0.65rem", color: isActive ? "#fff" : (theme === "dark" ? "rgba(255,255,255,0.4)" : "rgba(0,0,0,0.4)") }}>
+                        <div style={{ width: "20px", textAlign: "center", fontWeight: 700, fontFamily: monoFont, fontSize: "0.65rem", color: isActive ? "#fff" : (theme === "dark" ? "rgba(255,255,255,0.4)" : "rgba(0,0,0,0.4)"), fontVariantNumeric: "tabular-nums" }}>
                             {isActive && isPlaying ? (
                                 <div style={{
                                     width: "20px",
@@ -82,19 +82,19 @@ function TrackRow({ song, index, isActive, isPlaying, onPlay }: {
                         </div>
                         <div style={{ flex: 1, minWidth: 0 }}>
                             <div style={{ display: "flex", alignItems: "center", gap: "6px", overflow: "hidden" }}>
-                                <div style={{ fontWeight: 800, fontSize: "0.85rem", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", fontFamily: headerFont, letterSpacing: "-0.01em", lineHeight: 1.2 }}>
+                                <div style={{ fontWeight: 600, fontSize: "0.95rem", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", fontFamily: headerFont, letterSpacing: "-0.015em", lineHeight: 1.2 }}>
                                     {cleanTitle}
                                 </div>
                                 {labels.map(label => (
                                     <span key={label} style={{
-                                        fontSize: "0.38rem",
+                                        fontSize: "0.55rem",
                                         fontFamily: headerFont,
-                                        fontWeight: 800,
+                                        fontWeight: 700,
                                         backgroundColor: isActive ? "rgba(255,255,255,0.15)" : (theme === "dark" ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.04)"),
                                         color: isActive ? "#fff" : (theme === "dark" ? "rgba(255,255,255,0.6)" : "rgba(0,0,0,0.5)"),
-                                        padding: "1.5px 6px",
+                                        padding: "2.5px 9px",
                                         borderRadius: "100px",
-                                        letterSpacing: "0.06em",
+                                        letterSpacing: "0.04em",
                                         textTransform: "uppercase",
                                         border: isActive ? "1px solid rgba(255,255,255,0.2)" : (theme === "dark" ? "1px solid rgba(255,255,255,0.1)" : "1px solid rgba(0,0,0,0.06)"),
                                         flexShrink: 0
@@ -103,7 +103,7 @@ function TrackRow({ song, index, isActive, isPlaying, onPlay }: {
                                     </span>
                                 ))}
                             </div>
-                            <div style={{ color: isActive ? "rgba(255,255,255,0.6)" : (theme === "dark" ? "rgba(255,255,255,0.4)" : "rgba(0,0,0,0.5)"), fontSize: "0.65rem", fontFamily: monoFont, fontWeight: 700, marginTop: "1px", textTransform: "uppercase" }}>
+                            <div style={{ color: isActive ? "rgba(255,255,255,0.7)" : (theme === "dark" ? "rgba(255,255,255,0.55)" : "rgba(0,0,0,0.55)"), fontSize: "0.75rem", fontFamily: headerFont, fontWeight: 500, marginTop: "2px", letterSpacing: "0.01em" }}>
                                 {artist}
                             </div>
                         </div>
@@ -119,6 +119,8 @@ export default function PlaylistClient({ playlistId, initialSongs = [] }: { play
     const { theme } = useTheme();
     const [searchQuery, setSearchQuery] = useState("");
     const [mounted, setMounted] = useState(false);
+    const scrollContainerRef = useRef<HTMLDivElement>(null);
+    const scrollYRef = useRef(0);
     const [isLoading, setIsLoading] = useState(true);
     
     // Explicitly fallback initialSongs if none provided.
@@ -146,6 +148,38 @@ export default function PlaylistClient({ playlistId, initialSongs = [] }: { play
                 setTimeout(() => setIsLoading(false), 800);
             });
     }, []);
+
+    const CACHE_KEY = `playlist_detail_scroll_${playlistId}_v1`;
+
+    // Restore scroll position
+    useEffect(() => {
+        if (!mounted || isLoading) return;
+        try {
+            const cached = sessionStorage.getItem(CACHE_KEY);
+            if (cached) {
+                const parsed = JSON.parse(cached);
+                if (parsed.scrollY) {
+                    setTimeout(() => {
+                        if (scrollContainerRef.current) {
+                            scrollContainerRef.current.scrollTop = parsed.scrollY;
+                            scrollYRef.current = parsed.scrollY;
+                        }
+                    }, 100);
+                }
+            }
+        } catch (e) {
+            console.error("Failed to restore scroll position", e);
+        }
+    }, [mounted, isLoading, playlistId]);
+
+    // Save scroll position on unmount
+    useEffect(() => {
+        return () => {
+            try {
+                sessionStorage.setItem(CACHE_KEY, JSON.stringify({ scrollY: scrollYRef.current }));
+            } catch (e) { }
+        };
+    }, [playlistId]);
 
     const activePlaylist = useMemo(() => {
         if (playlistId === "all") return null;
@@ -190,44 +224,40 @@ export default function PlaylistClient({ playlistId, initialSongs = [] }: { play
 
     return (
         <main style={{
-            position: "relative",
-            minHeight: "100svh",
-            padding: "16px 16px 120px 16px",
-            maxWidth: "600px",
-            margin: "0 auto",
+            height: "100svh",
+            backgroundColor: theme === "dark" ? "#0A0A0A" : "#F8F5F2",
+            backgroundImage: theme === "dark" 
+                ? "radial-gradient(at 50% 0%, rgba(99, 102, 241, 0.15) 0, transparent 60%), radial-gradient(at 100% 100%, rgba(139, 92, 246, 0.08) 0, transparent 50%)"
+                : "radial-gradient(at 50% 0%, rgba(255, 255, 255, 0.6) 0, transparent 60%), radial-gradient(at 100% 100%, rgba(255, 255, 255, 0.3) 0, transparent 50%)",
             display: "flex",
             flexDirection: "column",
-            gap: "1.5rem",
-            backgroundColor: theme === "dark" ? "#0A0A0A" : "#f9f9f9",
+            overflow: "hidden",
             color: theme === "dark" ? "#FFF" : "#000",
             transition: "all 0.5s ease"
         }}>
-            <div style={{ position: "relative", display: "flex", justifyContent: "center", alignItems: "center", marginTop: "16px", marginBottom: "8px" }}>
-                <div style={{ position: "absolute", left: 0 }}>
-                    <Link href="/playlist" style={{ textDecoration: "none" }}>
-                        <motion.button 
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
-                            transition={{ type: "spring", stiffness: 400, damping: 17 }}
-                            style={{ 
-                                display: "flex", alignItems: "center", gap: "6px", 
-                                background: theme === "dark" ? "rgba(255, 255, 255, 0.05)" : "rgba(255, 255, 255, 0.8)", 
-                                border: theme === "dark" ? "1px solid rgba(255, 255, 255, 0.1)" : "1px solid rgba(0,0,0,0.05)",
-                                padding: "6px 12px", cursor: "pointer", 
-                                fontFamily: headerFont, fontWeight: 800, color: theme === "dark" ? "#FFF" : "#000",
-                                fontSize: "0.7rem",
-                                borderRadius: "100px",
-                                boxShadow: theme === "dark" ? "0 4px 12px rgba(0,0,0,0.2)" : "0 2px 8px rgba(0,0,0,0.02)"
-                            }}
-                        >
-                            <ChevronLeft size={14} /> Back
-                        </motion.button>
-                    </Link>
-                </div>
-                <span style={{ fontFamily: headerFont, fontWeight: 900, fontSize: "0.75rem", textTransform: "uppercase", letterSpacing: "0.05em", color: theme === "dark" ? "rgba(255,255,255,0.4)" : "rgba(0,0,0,0.3)" }}>
-                    {activePlaylist ? "Playlist" : "Library"}
-                </span>
-            </div>
+
+            <div 
+                id="playlist-detail-scroll-container"
+                ref={scrollContainerRef}
+                onScroll={(e) => (scrollYRef.current = e.currentTarget.scrollTop)}
+                style={{
+                    flex: 1,
+                    overflowY: "auto",
+                    overflowX: "hidden",
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    padding: "40px 16px 120px 16px",
+                    maxWidth: "600px",
+                    width: "100%",
+                    margin: "0 auto",
+                    gap: "1.5rem",
+                    WebkitOverflowScrolling: "touch",
+                    overscrollBehaviorY: "none",
+                    scrollbarGutter: "stable"
+                }}
+            >
+
 
             <AnimatePresence>
                 {isLoading && (
@@ -405,18 +435,19 @@ export default function PlaylistClient({ playlistId, initialSongs = [] }: { play
 
             <div style={{
                 position: "sticky",
-                top: "16px",
+                top: "12px",
                 zIndex: 40,
-                width: "100%",
-                height: "44px",
-                backgroundColor: theme === "dark" ? "rgba(255, 255, 255, 0.03)" : "rgba(255, 255, 255, 0.6)",
-                backdropFilter: "blur(12px)",
+                width: "calc(100% - 4px)",
+                height: "46px",
+                backgroundColor: theme === "dark" ? "rgba(255, 255, 255, 0.05)" : "rgba(255, 255, 255, 0.7)",
+                backdropFilter: "blur(20px)",
                 display: "flex",
                 alignItems: "center",
-                padding: "0 14px",
-                border: theme === "dark" ? "1px solid rgba(255,255,255,0.08)" : "1px solid rgba(0,0,0,0.05)",
-                borderRadius: "14px",
-                boxShadow: theme === "dark" ? "0 10px 40px rgba(0,0,0,0.3)" : "0 4px 12px rgba(0,0,0,0.02)"
+                padding: "0 16px",
+                border: theme === "dark" ? "1px solid rgba(255,255,255,0.12)" : "1px solid rgba(0,0,0,0.08)",
+                borderRadius: "16px",
+                boxShadow: theme === "dark" ? "0 10px 40px rgba(0,0,0,0.4)" : "0 4px 16px rgba(0,0,0,0.03)",
+                margin: "4px auto 8px auto"
             }}>
                 <Search size={18} color="#888" />
                 <input
@@ -473,7 +504,7 @@ export default function PlaylistClient({ playlistId, initialSongs = [] }: { play
                 ) : (
                     <Virtuoso
                         key={activePlaylist?.id || "playlist-list"}
-                        useWindowScroll
+                        customScrollParent={scrollContainerRef.current || undefined}
                         data={filteredPlaylist}
                         itemContent={(index, song: any) => (
                             <TrackRow
@@ -490,6 +521,7 @@ export default function PlaylistClient({ playlistId, initialSongs = [] }: { play
                         )}
                     />
                 )}
+            </div>
             </div>
         </main>
     );

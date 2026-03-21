@@ -473,14 +473,14 @@ export function PlaylistModule({ addLog, isBusy, setIsBusy, insetBox }: Playlist
                                                     <div style={{ color: theme === "dark" ? "#FFF" : "#000", fontSize: "0.65rem", fontWeight: 800 }}>{cleanTitle}</div>
                                                     {labels.map(label => (
                                                         <span key={label} style={{
-                                                            fontSize: "0.38rem",
+                                                            fontSize: "0.55rem",
                                                             fontFamily: "var(--font-sans)",
                                                             fontWeight: 800,
                                                             backgroundColor: theme === "dark" ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.04)",
                                                             color: theme === "dark" ? "rgba(255,255,255,0.75)" : "rgba(0,0,0,0.5)",
-                                                            padding: "1px 5px",
+                                                            padding: "2.5px 8px",
                                                             borderRadius: "100px",
-                                                            letterSpacing: "0.06em",
+                                                            letterSpacing: "0.05em",
                                                             textTransform: "uppercase",
                                                             border: "1px solid " + (theme === "dark" ? "rgba(255,255,255,0.12)" : "rgba(0,0,0,0.06)"),
                                                             flexShrink: 0
@@ -512,14 +512,14 @@ export function PlaylistModule({ addLog, isBusy, setIsBusy, insetBox }: Playlist
                                                     <div style={{ color: theme === "dark" ? "#FFF" : "#000", fontSize: "0.65rem", fontWeight: 800 }}>{cleanTitle}</div>
                                                     {labels.map(label => (
                                                         <span key={label} style={{
-                                                            fontSize: "0.38rem",
+                                                            fontSize: "0.55rem",
                                                             fontFamily: "var(--font-sans)",
                                                             fontWeight: 800,
                                                             backgroundColor: theme === "dark" ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.04)",
                                                             color: theme === "dark" ? "rgba(255,255,255,0.75)" : "rgba(0,0,0,0.5)",
-                                                            padding: "1px 5px",
+                                                            padding: "2.5px 8px",
                                                             borderRadius: "100px",
-                                                            letterSpacing: "0.06em",
+                                                            letterSpacing: "0.05em",
                                                             textTransform: "uppercase",
                                                             border: "1px solid " + (theme === "dark" ? "rgba(255,255,255,0.12)" : "rgba(0,0,0,0.06)"),
                                                             flexShrink: 0

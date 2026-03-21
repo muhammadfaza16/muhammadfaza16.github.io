@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useTheme } from "@/components/ThemeProvider";
-import { Radio, Play, Users, Headphones } from "lucide-react";
+import { Radio, Play, Users, Headphones, ChevronLeft } from "lucide-react";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { useLiveMusic } from "@/components/live/LiveMusicContext";
@@ -26,6 +26,8 @@ export default function LiveHubPage() {
     const isDark = theme === "dark";
     const headerFont = "var(--font-display), system-ui, sans-serif";
     const monoFont = "var(--font-mono), monospace";
+    const scrollContainerRef = useRef<HTMLDivElement>(null);
+    const scrollYRef = useRef(0);
 
     const { isLive, currentSong, playlistTitle, playlistCover, listenersCount, activeSessionId } = useLiveMusic();
 
@@ -43,9 +45,40 @@ export default function LiveHubPage() {
             .catch(() => setLoadingStations(false));
     }, []);
 
+    const CACHE_KEY = "live_hub_scroll_v1";
+
+    // Restore scroll position
+    useEffect(() => {
+        try {
+            const cached = sessionStorage.getItem(CACHE_KEY);
+            if (cached) {
+                const parsed = JSON.parse(cached);
+                if (parsed.scrollY) {
+                    setTimeout(() => {
+                        if (scrollContainerRef.current) {
+                            scrollContainerRef.current.scrollTop = parsed.scrollY;
+                            scrollYRef.current = parsed.scrollY;
+                        }
+                    }, 100);
+                }
+            }
+        } catch (e) {
+            console.error("Failed to restore scroll position", e);
+        }
+    }, []);
+
+    // Save scroll position on unmount
+    useEffect(() => {
+        return () => {
+            try {
+                sessionStorage.setItem(CACHE_KEY, JSON.stringify({ scrollY: scrollYRef.current }));
+            } catch (e) { }
+        };
+    }, []);
+
     // Hero card — uses primary live context (first/default session or active session)
     const fallbackCover = "https://images.unsplash.com/photo-1614113489855-66422ad300a4?q=80&w=642&auto=format&fit=crop";
-    let heroTitle = "Live Radio";
+    let heroTitle = "Live Music";
     let heroDescription = "No active sessions";
     let heroListeners = 0;
     let heroCover = fallbackCover;
@@ -63,7 +96,7 @@ export default function LiveHubPage() {
 
     if (isLive && currentSong) {
         const { cleanTitle, artist } = parseSongTitle(currentSong.title);
-        heroTitle = playlistTitle || "Live Radio";
+        heroTitle = playlistTitle || "Live Music";
         heroListeners = listenersCount || 1;
         heroCover = playlistCover || fallbackCover;
         heroSong = cleanTitle;
@@ -89,31 +122,51 @@ export default function LiveHubPage() {
 
     return (
         <main style={{
-            minHeight: "100svh",
+            height: "100svh",
             backgroundColor: isDark ? "#0A0A0A" : "#F8F5F2",
             backgroundImage: isDark 
-                ? "radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.1) 0, transparent 50%), radial-gradient(at 100% 100%, rgba(139, 92, 246, 0.08) 0, transparent 50%)"
-                : "radial-gradient(at 0% 0%, rgba(255, 255, 255, 0.5) 0, transparent 50%), radial-gradient(at 100% 100%, rgba(255, 255, 255, 0.3) 0, transparent 50%)",
+                ? "radial-gradient(at 50% 0%, rgba(99, 102, 241, 0.15) 0, transparent 60%), radial-gradient(at 100% 100%, rgba(139, 92, 246, 0.08) 0, transparent 50%)"
+                : "radial-gradient(at 50% 0%, rgba(255, 255, 255, 0.6) 0, transparent 60%), radial-gradient(at 100% 100%, rgba(255, 255, 255, 0.3) 0, transparent 50%)",
             color: isDark ? "#FFF" : "#1A1A1A",
             transition: "all 0.5s ease",
-            paddingBottom: "80px"
+            display: "flex",
+            flexDirection: "column",
+            overflow: "hidden"
         }}>
-            <div style={{ width: "100%", maxWidth: "440px", margin: "0 auto", display: "flex", flexDirection: "column" }}>
-                {/* Header */}
-                <div style={{ position: "relative", display: "flex", justifyContent: "center", alignItems: "center", marginBottom: "32px", marginTop: "24px", paddingTop: "env(safe-area-inset-top)" }}>
-                    <h1 style={{ 
-                        fontFamily: headerFont, 
-                        fontWeight: 900, 
-                        fontSize: "1.4rem", 
-                        textTransform: "uppercase", 
-                        letterSpacing: "-0.04em",
-                        margin: 0,
-                        color: isDark ? "#FFF" : "#000",
-                        lineHeight: 1
-                    }}>
-                        Live Hub
-                    </h1>
-                </div>
+
+
+            <div 
+                id="live-hub-scroll-container"
+                ref={scrollContainerRef}
+                onScroll={(e) => (scrollYRef.current = e.currentTarget.scrollTop)}
+                style={{
+                    flex: 1,
+                    overflowY: "auto",
+                    overflowX: "hidden",
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    paddingBottom: "80px",
+                    WebkitOverflowScrolling: "touch",
+                    overscrollBehaviorY: "none",
+                    scrollbarGutter: "stable"
+                }}
+            >
+                <div style={{ width: "100%", maxWidth: "440px", margin: "0 auto", display: "flex", flexDirection: "column", paddingTop: "40px" }}>
+                    {/* Immersive Inline Header */}
+                    <div style={{ position: "relative", display: "flex", justifyContent: "center", alignItems: "center", marginBottom: "24px", padding: "0 16px" }}>
+                        <h1 style={{ 
+                            fontFamily: headerFont, 
+                            fontWeight: 700, 
+                            fontSize: "1.35rem", 
+                            letterSpacing: "-0.015em",
+                            margin: 0,
+                            color: isDark ? "#FFF" : "#000",
+                            lineHeight: 1
+                        }}>
+                            Live Music
+                        </h1>
+                    </div>
 
                 {/* Hero Section — Primary Session */}
                 <div style={{ padding: "0 20px", marginBottom: "48px" }}>
@@ -146,20 +199,20 @@ export default function LiveHubPage() {
 
                             {/* Top Badges */}
                             <div style={{ position: "absolute", top: "20px", left: "20px", zIndex: 2, display: "flex", gap: "8px" }}>
-                                <div style={{
-                                    display: "flex", alignItems: "center", gap: "6px",
-                                    background: heroIsLive ? "rgba(239, 68, 68, 0.4)" : "rgba(255, 255, 255, 0.15)", 
-                                    backdropFilter: "blur(20px)",
-                                    border: heroIsLive ? "1px solid rgba(239, 68, 68, 0.5)" : "1px solid rgba(255, 255, 255, 0.2)",
-                                    padding: "6px 12px", borderRadius: "100px",
-                                }}>
-                                    {heroIsLive && (
-                                        <motion.div animate={{ opacity: [1, 0.2, 1] }} transition={{ repeat: Infinity, duration: 2 }} style={{ width: 6, height: 6, borderRadius: "50%", background: "#FFECEC", boxShadow: "0 0 10px #FF3333" }} />
-                                    )}
-                                    <span style={{ fontFamily: headerFont, fontWeight: 900, fontSize: "0.6rem", textTransform: "uppercase", letterSpacing: "0.15em", color: "#FFF" }}>
-                                        {heroIsLive ? "Live" : "Offline"}
-                                    </span>
-                                </div>
+                                    <div style={{
+                                        display: "flex", alignItems: "center", justifyContent: "center", gap: "6px",
+                                        background: heroIsLive ? "rgba(239, 68, 68, 0.4)" : "rgba(255, 255, 255, 0.15)", 
+                                        backdropFilter: "blur(20px)",
+                                        border: heroIsLive ? "1px solid rgba(239, 68, 68, 0.5)" : "1px solid rgba(255, 255, 255, 0.2)",
+                                        padding: "0 12px", height: "24px", borderRadius: "100px",
+                                    }}>
+                                        {heroIsLive && (
+                                            <motion.div animate={{ opacity: [1, 0.2, 1] }} transition={{ repeat: Infinity, duration: 2 }} style={{ width: 6, height: 6, borderRadius: "50%", background: "#FFECEC", boxShadow: "0 0 10px #FF3333" }} />
+                                        )}
+                                        <span style={{ fontFamily: headerFont, fontWeight: 900, fontSize: "0.6rem", textTransform: "uppercase", letterSpacing: "0.15em", color: "#FFF", lineHeight: 1 }}>
+                                            {heroIsLive ? "Live" : "Offline"}
+                                        </span>
+                                    </div>
                                 {heroIsLive && (
                                     <div style={{
                                         display: "flex", alignItems: "center", gap: "6px",
@@ -263,9 +316,9 @@ export default function LiveHubPage() {
                                                         }} />
                                                     )}
                                                     {/* Live badge */}
-                                                    <div style={{ position: "absolute", top: "10px", left: "10px", zIndex: 2, display: "flex", alignItems: "center", gap: "4px", background: "rgba(239, 68, 68, 0.5)", padding: "3px 8px", borderRadius: "100px", backdropFilter: "blur(10px)" }}>
+                                                    <div style={{ position: "absolute", top: "10px", left: "10px", zIndex: 2, display: "flex", alignItems: "center", justifyContent: "center", gap: "4px", background: "rgba(239, 68, 68, 0.5)", padding: "0 8px", height: "18px", borderRadius: "100px", backdropFilter: "blur(10px)" }}>
                                                         <motion.div animate={{ opacity: [1, 0.3, 1] }} transition={{ repeat: Infinity, duration: 2 }} style={{ width: 5, height: 5, borderRadius: "50%", background: "#FFF" }} />
-                                                        <span style={{ fontFamily: headerFont, fontWeight: 900, fontSize: "0.5rem", color: "#FFF", textTransform: "uppercase", letterSpacing: "0.1em" }}>Live</span>
+                                                        <span style={{ fontFamily: headerFont, fontWeight: 900, fontSize: "0.5rem", color: "#FFF", textTransform: "uppercase", letterSpacing: "0.1em", lineHeight: 1 }}>Live</span>
                                                     </div>
                                                     {/* Play button overlay */}
                                                     <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1 }}>
@@ -294,9 +347,10 @@ export default function LiveHubPage() {
                         color: isDark ? "rgba(255,255,255,0.3)" : "rgba(0,0,0,0.3)",
                         textAlign: "center", lineHeight: 1.6, margin: 0
                     }}>
-                        Tune in to live curated radio stations. Every listener hears the same song at the same time — a shared musical moment.
+                        Tune in to live music stations. Everyone hears the same song at once — a shared listening experience.
                     </p>
                 </div>
+            </div>
             </div>
         </main>
     );

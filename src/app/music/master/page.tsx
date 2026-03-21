@@ -113,22 +113,90 @@ export default function MasterPanelPage() {
         }
     }, [activeModule]);
 
+    const scrollContainerRef = useRef<HTMLDivElement>(null);
+    const scrollYRef = useRef(0);
+    const CACHE_KEY = "master_vault_scroll_v1";
+
+    // Restore scroll position
+    useEffect(() => {
+        try {
+            const cached = sessionStorage.getItem(CACHE_KEY);
+            if (cached) {
+                const parsed = JSON.parse(cached);
+                if (parsed.scrollY) {
+                    setTimeout(() => {
+                        if (scrollContainerRef.current) {
+                            scrollContainerRef.current.scrollTop = parsed.scrollY;
+                            scrollYRef.current = parsed.scrollY;
+                        }
+                    }, 100);
+                }
+            }
+        } catch (e) {
+            console.error("Failed to restore scroll position", e);
+        }
+    }, [activeModule]);
+
+    // Save scroll position on unmount or module change
+    useEffect(() => {
+        return () => {
+            try {
+                sessionStorage.setItem(CACHE_KEY, JSON.stringify({ scrollY: scrollYRef.current }));
+            } catch (e) { }
+        };
+    }, [activeModule]);
+
     const headerFont = "var(--font-display), system-ui, sans-serif";
     const monoFont = "var(--font-mono), monospace";
 
     return (
         <main style={{
-            minHeight: "100svh",
-            padding: "16px 16px 120px 16px",
-            maxWidth: "600px",
-            margin: "0 auto",
-            backgroundColor: theme === "dark" ? "#0A0A0A" : "#f9f9f9",
+            height: "100svh",
+            backgroundColor: theme === "dark" ? "#0A0A0A" : "#F8F5F2",
+            backgroundImage: theme === "dark" 
+                ? "radial-gradient(at 50% 0%, rgba(99, 102, 241, 0.15) 0, transparent 60%), radial-gradient(at 100% 100%, rgba(139, 92, 246, 0.08) 0, transparent 50%)"
+                : "radial-gradient(at 50% 0%, rgba(255, 255, 255, 0.6) 0, transparent 60%), radial-gradient(at 100% 100%, rgba(255, 255, 255, 0.3) 0, transparent 50%)",
             color: theme === "dark" ? "#FFF" : "#000",
             fontFamily: monoFont,
-            transition: "all 0.5s ease"
+            transition: "all 0.5s ease",
+            display: "flex",
+            flexDirection: "column",
+            overflow: "hidden"
         }}>
-            <ZenHideable>
-                <div style={{ padding: "1rem", paddingTop: "5rem" }}>
+            <div 
+                id="master-vault-scroll-container"
+                ref={scrollContainerRef}
+                onScroll={(e) => (scrollYRef.current = e.currentTarget.scrollTop)}
+                style={{
+                    flex: 1,
+                    overflowY: "auto",
+                    overflowX: "hidden",
+                    display: "flex",
+                    flexDirection: "column",
+                    padding: "40px 16px 140px 16px",
+                    WebkitOverflowScrolling: "touch",
+                    overscrollBehaviorY: "none",
+                    scrollbarGutter: "stable"
+                }}
+            >
+                <div style={{ width: "100%", maxWidth: "440px", margin: "0 auto", display: "flex", flexDirection: "column" }}>
+                    {/* Immersive Inline Header */}
+                    <div style={{ position: "relative", display: "flex", justifyContent: "center", alignItems: "center", marginBottom: "24px", padding: "0 16px" }}>
+                        <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+                            <h1 style={{ 
+                                fontFamily: headerFont, 
+                                fontWeight: 700, 
+                                fontSize: "1.35rem", 
+                                letterSpacing: "-0.015em",
+                                margin: 0,
+                                color: theme === "dark" ? "#FFF" : "#000",
+                                lineHeight: 1
+                            }}>
+                                Vault Master
+                            </h1>
+                        </div>
+                    </div>
+                <div style={{ padding: "1rem", paddingTop: "1.5rem" }}>
                     {/* System Shell */}
                     <motion.div
                         initial={{ opacity: 0, y: 20 }}
@@ -138,20 +206,6 @@ export default function MasterPanelPage() {
                             width: "100%", display: "flex", flexDirection: "column", gap: "24px"
                         }}
                     >
-                        <div style={{ textAlign: "center", marginBottom: "8px" }}>
-                            <h1 style={{
-                                fontFamily: headerFont, fontSize: "1.5rem", fontWeight: 900,
-                                color: theme === "dark" ? "#FFF" : "#000", margin: 0, textTransform: "uppercase", lineHeight: 1, letterSpacing: "-0.03em"
-                            }}>
-                                Vault Master
-                            </h1>
-                            <p style={{
-                                fontSize: "0.6rem", fontWeight: 700, color: theme === "dark" ? "rgba(255,255,255,0.4)" : "#888", marginTop: "6px", 
-                                textTransform: "uppercase", letterSpacing: "0.05em"
-                            }}>
-                                SYSTEM CONTROLS & MONITORING
-                            </p>
-                        </div>
 
                         <AnimatePresence mode="wait">
                             {activeModule === "dashboard" && (
@@ -160,53 +214,6 @@ export default function MasterPanelPage() {
                                     initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 10 }}
                                     style={{ display: "flex", flexDirection: "column", gap: "20px" }}
                                 >
-                                    {/* Player Intelligence Card */}
-                                    <div style={{
-                                        backgroundColor: theme === "dark" ? "rgba(255, 255, 255, 0.03)" : "rgba(255, 255, 255, 0.45)",
-                                        border: theme === "dark" ? "1px solid rgba(255,255,255,0.08)" : "1px solid rgba(0,0,0,0.05)",
-                                        borderRadius: "24px",
-                                        padding: "20px",
-                                        boxShadow: theme === "dark" ? "0 20px 60px rgba(0,0,0,0.4)" : "0 10px 30px rgba(0,0,0,0.03)",
-                                        display: "flex",
-                                        flexDirection: "column",
-                                        gap: "14px"
-                                    }}>
-                                        <div style={{ display: "flex", alignItems: "center", gap: "10px", borderBottom: theme === "dark" ? "1px solid rgba(255,255,255,0.05)" : "1px solid rgba(0,0,0,0.03)", paddingBottom: "12px" }}>
-                                            <Database size={16} color={theme === "dark" ? "#FFF" : "#000"} />
-                                            <h2 style={{ margin: 0, fontFamily: headerFont, fontSize: "0.85rem", fontWeight: 900, textTransform: "uppercase", letterSpacing: "0.05em" }}>
-                                                Player Intelligence
-                                            </h2>
-                                        </div>
-                                        
-                                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                                            <span style={{ fontFamily: monoFont, fontSize: "0.65rem", fontWeight: 700, color: theme === "dark" ? "rgba(255,255,255,0.4)" : "rgba(0,0,0,0.4)", textTransform: "uppercase", letterSpacing: "0.02em" }}>Catalog Weight</span>
-                                            <span style={{ fontFamily: headerFont, fontSize: "1.1rem", fontWeight: 900, color: theme === "dark" ? "#FFF" : "#000" }}>
-                                                {dbSongs.length > 0 ? `${dbSongs.length} TRACKS` : "..."}
-                                            </span>
-                                        </div>
-
-                                        {playlistStats.length > 0 && (
-                                            <div style={{ display: "flex", flexDirection: "column", gap: "10px", marginTop: "4px", borderTop: "1px dashed rgba(0,0,0,0.05)", paddingTop: "16px" }}>
-                                                {playlistStats.map(stat => (
-                                                    <div key={stat.title} style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                                                        <div style={{ display: "flex", flexDirection: "column" }}>
-                                                            <span style={{ fontFamily: headerFont, fontSize: "0.8rem", fontWeight: 800, color: theme === "dark" ? "#FFF" : "#000", letterSpacing: "-0.01em" }}>{stat.title}</span>
-                                                            <span style={{ fontFamily: monoFont, fontSize: "0.55rem", fontWeight: 700, color: theme === "dark" ? "rgba(255,255,255,0.4)" : "#888", textTransform: "uppercase" }}>{stat.vibes.slice(0, 1).join(", ")}</span>
-                                                        </div>
-                                                        <span style={{ fontFamily: monoFont, fontSize: "0.8rem", fontWeight: 900, color: theme === "dark" ? "#FFF" : "#000" }}>{stat.count}</span>
-                                                    </div>
-                                                ))}
-                                            </div>
-                                        )}
-                                        
-                                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "8px", borderTop: theme === "dark" ? "1px solid rgba(255,255,255,0.05)" : "1px solid rgba(0,0,0,0.03)", paddingTop: "12px" }}>
-                                            <span style={{ fontFamily: monoFont, fontSize: "0.65rem", fontWeight: 700, color: theme === "dark" ? "rgba(255,255,255,0.4)" : "rgba(0,0,0,0.4)", textTransform: "uppercase" }}>Status</span>
-                                            <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                                                <div style={{ width: "6px", height: "6px", borderRadius: "50%", background: "#10b981", boxShadow: "0 0 8px rgba(16, 185, 129, 0.4)" }} />
-                                                <span style={{ fontFamily: monoFont, fontSize: "0.65rem", fontWeight: 700, color: theme === "dark" ? "#FFF" : "#000", textTransform: "uppercase" }}>Verified Online</span>
-                                            </div>
-                                        </div>
-                                    </div>
 
                                     {/* Tool Buttons */}
                                     <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: "12px" }}>
@@ -434,34 +441,59 @@ export default function MasterPanelPage() {
                             )}
                         </AnimatePresence>
 
-                        {/* Recent Activity Log */}
-                        <div style={{ borderTop: theme === "dark" ? "1px solid rgba(255,255,255,0.05)" : "1px solid rgba(0,0,0,0.05)", padding: "20px 0", marginTop: "16px" }}>
-                            <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "12px" }}>
-                                <Activity size={14} color={theme === "dark" ? "rgba(255,255,255,0.4)" : "rgba(0,0,0,0.4)"} />
-                                <span style={{ color: theme === "dark" ? "rgba(255,255,255,0.4)" : "rgba(0,0,0,0.4)", fontSize: "0.6rem", fontWeight: 800, letterSpacing: "0.1em", textTransform: "uppercase", fontFamily: monoFont }}>Recent Activity Log</span>
+
+                        {/* Player Intelligence Card (Moved to bottom) */}
+                         <div style={{
+                            backgroundColor: theme === "dark" ? "rgba(255, 255, 255, 0.03)" : "rgba(255, 255, 255, 0.45)",
+                            border: theme === "dark" ? "1px solid rgba(255,255,255,0.08)" : "1px solid rgba(0,0,0,0.05)",
+                            borderRadius: "24px",
+                            padding: "20px",
+                            boxShadow: theme === "dark" ? "0 20px 60px rgba(0,0,0,0.4)" : "0 10px 30px rgba(0,0,0,0.03)",
+                            display: "flex",
+                            flexDirection: "column",
+                            gap: "14px",
+                            marginTop: "8px"
+                        }}>
+                            <div style={{ display: "flex", alignItems: "center", gap: "10px", borderBottom: theme === "dark" ? "1px solid rgba(255,255,255,0.05)" : "1px solid rgba(0,0,0,0.03)", paddingBottom: "12px" }}>
+                                <Database size={16} color={theme === "dark" ? "#FFF" : "#000"} />
+                                <h2 style={{ margin: 0, fontFamily: headerFont, fontSize: "0.85rem", fontWeight: 900, textTransform: "uppercase", letterSpacing: "0.05em" }}>
+                                    Player Intelligence
+                                </h2>
                             </div>
-                                <div style={{ 
-                                    minHeight: "60px", 
-                                    padding: "16px", 
-                                    backgroundColor: theme === "dark" ? "rgba(255, 255, 255, 0.02)" : "rgba(255, 255, 255, 0.45)",
-                                    border: theme === "dark" ? "1px solid rgba(255,255,255,0.05)" : "1px solid rgba(0,0,0,0.05)",
-                                    borderRadius: "16px",
-                                    boxShadow: theme === "dark" ? "0 10px 40px rgba(0,0,0,0.3)" : "0 4px 12px rgba(0,0,0,0.02)"
-                                }}>
-                                {logs.length === 0 ? (
-                                    <div style={{ color: "#aaa", fontSize: "0.65rem", fontFamily: monoFont, fontWeight: 700 }}>SYSTEM STANDBY...</div>
-                                ) : (
-                                    logs.slice(-4).map((log, i) => (
-                                        <div key={i} style={{ color: logColor(log.type), fontSize: "0.65rem", fontFamily: monoFont, fontWeight: 700, marginBottom: "4px" }}>
-                                            {log.text.toUpperCase()}
+                            
+                            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                                <span style={{ fontFamily: monoFont, fontSize: "0.65rem", fontWeight: 700, color: theme === "dark" ? "rgba(255,255,255,0.4)" : "rgba(0,0,0,0.4)", textTransform: "uppercase", letterSpacing: "0.02em" }}>Catalog Weight</span>
+                                <span style={{ fontFamily: headerFont, fontSize: "1.1rem", fontWeight: 900, color: theme === "dark" ? "#FFF" : "#000" }}>
+                                    {dbSongs.length > 0 ? `${dbSongs.length} TRACKS` : "..."}
+                                </span>
+                            </div>
+
+                            {playlistStats.length > 0 && (
+                                <div style={{ display: "flex", flexDirection: "column", gap: "10px", marginTop: "4px", borderTop: "1px dashed rgba(0,0,0,0.05)", paddingTop: "16px" }}>
+                                    {playlistStats.map(stat => (
+                                        <div key={stat.title} style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                                            <div style={{ display: "flex", flexDirection: "column" }}>
+                                                <span style={{ fontFamily: headerFont, fontSize: "0.8rem", fontWeight: 800, color: theme === "dark" ? "#FFF" : "#000", letterSpacing: "-0.01em" }}>{stat.title}</span>
+                                                <span style={{ fontFamily: monoFont, fontSize: "0.55rem", fontWeight: 700, color: theme === "dark" ? "rgba(255,255,255,0.4)" : "#888", textTransform: "uppercase" }}>{stat.vibes.slice(0, 1).join(", ")}</span>
+                                            </div>
+                                            <span style={{ fontFamily: monoFont, fontSize: "0.8rem", fontWeight: 900, color: theme === "dark" ? "#FFF" : "#000" }}>{stat.count}</span>
                                         </div>
-                                    ))
-                                )}
+                                    ))}
+                                </div>
+                            )}
+                            
+                            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "8px", borderTop: theme === "dark" ? "1px solid rgba(255,255,255,0.05)" : "1px solid rgba(0,0,0,0.03)", paddingTop: "12px" }}>
+                                <span style={{ fontFamily: monoFont, fontSize: "0.65rem", fontWeight: 700, color: theme === "dark" ? "rgba(255,255,255,0.4)" : "rgba(0,0,0,0.4)", textTransform: "uppercase" }}>Status</span>
+                                <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                                    <div style={{ width: "6px", height: "6px", borderRadius: "50%", background: "#10b981", boxShadow: "0 0 8px rgba(16, 185, 129, 0.4)" }} />
+                                    <span style={{ fontFamily: monoFont, fontSize: "0.65rem", fontWeight: 700, color: theme === "dark" ? "#FFF" : "#000", textTransform: "uppercase" }}>Verified Online</span>
+                                </div>
                             </div>
                         </div>
                     </motion.div>
                 </div>
-            </ZenHideable>
-        </main>
+            </div>
+        </div>
+    </main>
     );
 }

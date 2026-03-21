@@ -39,7 +39,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
     useEffect(() => {
         if (mounted) {
-            const isThemable = pathname?.startsWith('/curation') || pathname?.startsWith('/music') || pathname?.startsWith('/playlist');
+            const isThemable = pathname?.startsWith('/curation') || pathname?.startsWith('/music');
             const root = document.documentElement;
 
             if (!isThemable) {
@@ -83,7 +83,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
                 });
 
                 // Immediate DOM update for the transition snapshot
-                const isThemable = pathname?.startsWith('/curation') || pathname?.startsWith('/music') || pathname?.startsWith('/playlist');
+                const isThemable = pathname?.startsWith('/curation') || pathname?.startsWith('/music');
                 const root = document.documentElement;
                 if (!isThemable || newTheme === "dark") {
                     root.classList.add("dark");

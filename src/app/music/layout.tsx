@@ -10,11 +10,11 @@ export default function AudioHubLayout({
     children: React.ReactNode;
 }) {
     const pathname = usePathname();
+    const isMusicHome = pathname === "/music";
     const isLivePage = pathname?.startsWith("/music/live");
 
     return (
         <>
-            {!isLivePage && <ThemeToggle />}
             {children}
         </>
     );

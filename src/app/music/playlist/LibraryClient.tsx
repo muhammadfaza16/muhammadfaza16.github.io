@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useMemo, useEffect } from "react";
+import React, { useState, useMemo, useEffect, useRef } from "react";
 import { Search, Disc, Shuffle, ChevronLeft, Filter, Music, ArrowRight, Sparkles, Flame, Clock, Heart, Compass } from "lucide-react";
 import { useAudio, useTime } from "@/components/AudioContext";
 import { parseSongTitle } from "@/utils/songUtils";
@@ -13,17 +13,19 @@ import { useTheme } from "@/components/ThemeProvider";
 // INDO_ARTISTS moved to database categories
 
 
-const VIBE_TAGS = [
-    { label: "All", value: "", icon: Sparkles },
+const MUSIC_TAGS = [
+    { label: "All", value: "", icon: Compass },
     { label: "Indo", value: "Indo", icon: Music },
-    { label: "Viral", value: "Main Character", icon: Flame },
-    { label: "Relax", value: "Melancholic", icon: Clock },
+    { label: "Trending", value: "Main Character", icon: Flame },
+    { label: "Chill", value: "Melancholic", icon: Clock },
     { label: "Love", value: "Love", icon: Heart },
 ];
 
 export default function LibraryClient({ songCount }: { songCount: number }) {
     const { isPlaying, activePlaylistId } = useAudio();
     const { theme } = useTheme();
+    const scrollContainerRef = useRef<HTMLDivElement>(null);
+    const scrollYRef = useRef(0);
     const searchParams = useSearchParams();
     const initialVibe = searchParams.get('vibe') || "";
     const [searchQuery, setSearchQuery] = useState("");
@@ -61,6 +63,37 @@ export default function LibraryClient({ songCount }: { songCount: number }) {
         setCounts(newCounts);
     }, [dbSongs]);
 
+    const CACHE_KEY = "playlist_library_scroll_v1";
+
+    // Restore scroll position
+    useEffect(() => {
+        try {
+            const cached = sessionStorage.getItem(CACHE_KEY);
+            if (cached) {
+                const parsed = JSON.parse(cached);
+                if (parsed.scrollY) {
+                    setTimeout(() => {
+                        if (scrollContainerRef.current) {
+                            scrollContainerRef.current.scrollTop = parsed.scrollY;
+                            scrollYRef.current = parsed.scrollY;
+                        }
+                    }, 100);
+                }
+            }
+        } catch (e) {
+            console.error("Failed to restore scroll position", e);
+        }
+    }, []);
+
+    // Save scroll position on unmount
+    useEffect(() => {
+        return () => {
+            try {
+                sessionStorage.setItem(CACHE_KEY, JSON.stringify({ scrollY: scrollYRef.current }));
+            } catch (e) { }
+        };
+    }, []);
+
     useEffect(() => {
         const vibe = searchParams.get('vibe');
         if (vibe) {
@@ -88,38 +121,43 @@ export default function LibraryClient({ songCount }: { songCount: number }) {
 
     return (
         <main style={{
-            minHeight: "100svh",
-            padding: "24px 20px 140px 20px",
-            maxWidth: "500px",
-            margin: "0 auto",
+            height: "100svh",
+            backgroundColor: theme === "dark" ? "#0A0A0A" : "#F8F5F2",
+            backgroundImage: theme === "dark" 
+                ? "radial-gradient(at 50% 0%, rgba(99, 102, 241, 0.15) 0, transparent 60%), radial-gradient(at 100% 100%, rgba(139, 92, 246, 0.08) 0, transparent 50%)"
+                : "radial-gradient(at 50% 0%, rgba(255, 255, 255, 0.6) 0, transparent 60%), radial-gradient(at 100% 100%, rgba(255, 255, 255, 0.3) 0, transparent 50%)",
             display: "flex",
             flexDirection: "column",
-            gap: "28px",
-            backgroundColor: theme === "dark" ? "#0A0A0A" : "#F8F5F2",
+            overflow: "hidden",
             color: theme === "dark" ? "#FFFFFF" : "#1A1A1A",
             transition: "all 0.5s ease"
         }}>
-            {/* Header Section */}
-            <header style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-                <div style={{ 
-                    width: "32px", height: "32px", borderRadius: "8px", 
-                    background: "linear-gradient(135deg, #6366F1, #8B5CF6)",
-                    display: "flex", alignItems: "center", justifyContent: "center",
-                    boxShadow: "0 6px 12px rgba(99, 102, 241, 0.2)"
-                }}>
-                    <Compass size={16} color="#fff" />
-                </div>
-                <h1 style={{
-                    fontFamily: headerFont, fontSize: "1.1rem", fontWeight: 800,
-                    margin: 0, letterSpacing: "0.02em", textTransform: "uppercase",
-                    color: theme === "dark" ? "#FFF" : "#000"
-                }}>
-                    Curated Archives
-                </h1>
-            </header>
+
+            <div 
+                id="playlist-scroll-container"
+                ref={scrollContainerRef}
+                onScroll={(e) => (scrollYRef.current = e.currentTarget.scrollTop)}
+                style={{
+                    flex: 1,
+                    overflowY: "auto",
+                    overflowX: "hidden",
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    padding: "40px 16px 140px 16px",
+                    maxWidth: "500px",
+                    width: "100%",
+                    margin: "0 auto",
+                    gap: "28px",
+                    WebkitOverflowScrolling: "touch",
+                    overscrollBehaviorY: "none",
+                    scrollbarGutter: "stable"
+                }}
+            >
+
 
             {/* Search & Filters */}
-            <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: "16px", width: "100%" }}>
                 <div style={{
                     height: "52px", borderRadius: "18px", padding: "0 18px",
                     backgroundColor: theme === "dark" ? "rgba(255, 255, 255, 0.04)" : "rgba(255, 255, 255, 0.8)",
@@ -142,11 +180,17 @@ export default function LibraryClient({ songCount }: { songCount: number }) {
 
                 {/* Vibe Selector */}
                 <div style={{ 
-                    display: "flex", gap: "10px", overflowX: "auto", padding: "4px 0 12px 0",
-                    scrollbarWidth: "none", msOverflowStyle: "none" 
+                    display: "flex", 
+                    gap: "10px", 
+                    overflowX: "auto", 
+                    padding: "4px 20px 12px 20px",
+                    margin: "0 -20px",
+                    width: "calc(100% + 40px)",
+                    scrollbarWidth: "none", 
+                    msOverflowStyle: "none" 
                 }}>
                     <style>{`div::-webkit-scrollbar { display: none; }`}</style>
-                    {VIBE_TAGS.map((vibe) => (
+                    {MUSIC_TAGS.map((vibe) => (
                         <motion.button
                             key={vibe.label}
                             whileTap={{ scale: 0.95 }}
@@ -173,7 +217,7 @@ export default function LibraryClient({ songCount }: { songCount: number }) {
             {/* Bento Grid */}
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
                 {/* Global Catalog Large Card */}
-                <Link href="/playlist/all" onClick={triggerHaptic} style={{ textDecoration: "none", gridColumn: "span 2" }}>
+                <Link href="/music/playlist/all" onClick={triggerHaptic} style={{ textDecoration: "none", gridColumn: "span 2" }}>
                     <motion.div
                         whileHover={{ y: -5 }}
                         whileTap={{ scale: 0.98 }}
@@ -191,16 +235,16 @@ export default function LibraryClient({ songCount }: { songCount: number }) {
                         <div style={{ position: "relative", zIndex: 1, display: "flex", justifyContent: "space-between", alignItems: "flex-end" }}>
                             <div>
                                 <span style={{ 
-                                    fontFamily: monoFont, fontSize: "0.6rem", fontWeight: 800, 
-                                    color: "rgba(255,255,255,0.5)", textTransform: "uppercase", letterSpacing: "0.1em" 
+                                    fontFamily: headerFont, fontSize: "0.75rem", fontWeight: 500, 
+                                    color: "rgba(255,255,255,0.7)", letterSpacing: "0.01em" 
                                 }}>Master Catalog</span>
                                 <h2 style={{ 
-                                    fontFamily: headerFont, fontSize: "1.4rem", fontWeight: 900, 
-                                    color: "#fff", margin: 0, lineHeight: 1 
-                                }}>ALL TRACKS</h2>
+                                    fontFamily: headerFont, fontSize: "1.25rem", fontWeight: 700, 
+                                    color: "#fff", margin: 0, lineHeight: 1.1, letterSpacing: "-0.015em" 
+                                }}>All Tracks</h2>
                             </div>
                             <div style={{ opacity: 0.6, display: "flex", alignItems: "center", gap: "6px" }}>
-                                <span style={{ fontFamily: monoFont, fontSize: "0.65rem", fontWeight: 700, color: "#fff" }}>{songCount}</span>
+                                <span style={{ fontFamily: monoFont, fontSize: "0.65rem", fontWeight: 700, color: "#fff", fontVariantNumeric: "tabular-nums" }}>{songCount}</span>
                                 <ArrowRight size={14} color="#fff" />
                             </div>
                         </div>
@@ -219,7 +263,7 @@ export default function LibraryClient({ songCount }: { songCount: number }) {
                                 exit={{ opacity: 0, scale: 0.9 }}
                                 transition={{ duration: 0.4, delay: idx * 0.05 }}
                             >
-                                <Link href={`/playlist/${playlist.id}`} onClick={triggerHaptic} style={{ textDecoration: "none" }}>
+                                <Link href={`/music/playlist/${playlist.id}`} onClick={triggerHaptic} style={{ textDecoration: "none" }}>
                                     <div style={{
                                         aspectRatio: "1/1", borderRadius: "24px", position: "relative",
                                         overflow: "hidden", backgroundColor: playlist.coverColor,
@@ -290,9 +334,10 @@ export default function LibraryClient({ songCount }: { songCount: number }) {
                     style={{ textAlign: "center", padding: "40px 0", opacity: 0.5 }}
                 >
                     <Disc size={48} style={{ margin: "0 auto 16px auto", display: "block" }} />
-                    <p style={{ fontFamily: headerFont, fontWeight: 700 }}>No vibes found...</p>
+                    <p style={{ fontFamily: headerFont, fontWeight: 700 }}>No tracks found...</p>
                 </motion.div>
             )}
+            </div>
         </main>
     );
 }

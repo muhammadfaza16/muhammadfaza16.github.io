@@ -12,7 +12,7 @@ export function MusicBottomNav({ isInline = false }: { isInline?: boolean }) {
     const router = useRouter();
 
     // Only render on music-related pages
-    const isMusicApp = pathname?.startsWith("/music") || pathname?.startsWith("/playlist");
+    const isMusicApp = pathname?.startsWith("/music");
     if (!isMusicApp) return null;
 
     const { activePlaylistId, queue, isPlayerExpanded, setIsPlayerExpanded } = useAudio();
@@ -28,8 +28,8 @@ export function MusicBottomNav({ isInline = false }: { isInline?: boolean }) {
 
     const navItems = [
         { label: "Home", href: "/music", icon: Home },
-        { label: "Explore", href: "/playlist", icon: Compass, matchPrefix: true },
-        { label: "Live", href: "/music/live", icon: Radio },
+        { label: "Explore", href: "/music/playlist", icon: Compass, matchPrefix: true },
+        { label: "Live", href: "/music/live-hub", icon: Radio },
         { label: "Player", href: playerHref, icon: Disc },
         { label: "Settings", href: "/music/master", icon: Settings },
     ];
@@ -54,7 +54,7 @@ export function MusicBottomNav({ isInline = false }: { isInline?: boolean }) {
             transform: "translateX(-50%)",
             width: "calc(100% - 40px)",
             maxWidth: "360px",
-            backgroundColor: theme === "dark" ? "rgba(20, 20, 20, 0.55)" : "rgba(255, 255, 255, 0.4)",
+            backgroundColor: theme === "dark" ? "rgba(20, 20, 20, 0.55)" : "rgba(255, 255, 255, 0.45)",
             backdropFilter: "blur(40px) saturate(180%)",
             border: theme === "dark" 
                 ? "1px solid rgba(255, 255, 255, 0.08)" 
@@ -65,10 +65,23 @@ export function MusicBottomNav({ isInline = false }: { isInline?: boolean }) {
             alignItems: "center",
             justifyContent: "space-between",
             zIndex: 100000,
+            overflow: "hidden",
             boxShadow: theme === "dark" 
-                ? "0 20px 50px rgba(0, 0, 0, 0.5), inset 0 0 0 0.5px rgba(255, 255, 255, 0.05)" 
-                : "0 10px 40px rgba(0, 0, 0, 0.04), inset 0 0 0 0.5px rgba(255, 255, 255, 0.5)",
+                ? "0 20px 50px rgba(0, 0, 0, 0.5), inset 0 0 0 1px rgba(255, 255, 255, 0.05)" 
+                : "0 10px 40px rgba(0, 0, 0, 0.04), inset 0 0 0 1px rgba(255, 255, 255, 0.5)",
         }}>
+            {/* Shimmer Effect */}
+            {!isInline && (
+                <motion.div
+                    animate={{ x: ["-100%", "200%"] }}
+                    transition={{ duration: 10, repeat: Infinity, ease: "linear", repeatDelay: 4 }}
+                    style={{
+                        position: "absolute", inset: 0,
+                        background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.02) 40%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0.02) 60%, transparent)",
+                        pointerEvents: "none"
+                    }}
+                />
+            )}
             {navItems.map((item) => {
                 let isActive = false;
                 
@@ -80,9 +93,9 @@ export function MusicBottomNav({ isInline = false }: { isInline?: boolean }) {
                     } else if (item.label === "Settings") {
                         isActive = pathname === "/music/master";
                     } else if (item.label === "Explore") {
-                        isActive = pathname?.startsWith("/playlist");
+                        isActive = pathname?.startsWith("/music/playlist");
                     } else if (item.label === "Live") {
-                        isActive = pathname === "/music/live";
+                        isActive = pathname === "/music/live-hub" || pathname === "/music/live";
                     }
                 }
                     

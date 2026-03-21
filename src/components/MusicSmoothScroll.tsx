@@ -9,7 +9,7 @@ export function MusicSmoothScroll() {
 
     useEffect(() => {
         // Only initialize on music and playlist routes
-        const isMusicRoute = pathname?.startsWith("/music") || pathname?.startsWith("/playlist");
+        const isMusicRoute = pathname?.startsWith("/music");
         
         if (!isMusicRoute) return;
 

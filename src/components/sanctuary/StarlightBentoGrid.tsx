@@ -143,7 +143,7 @@ export function StarlightBentoGrid({ activeDock, setActiveDock }: StarlightBento
 
     const dock3Apps = [
         { title: "Movies", href: "/movies", icon: <Film />, iconColor: "#FF453A" }, // Red
-        { title: "Playlist", href: "/playlist", icon: <Music />, iconColor: "#FF2D55" }, // Pink-Red
+        { title: "Playlist", href: "/music/playlist", icon: <Music />, iconColor: "#FF2D55" }, // Pink-Red
         { title: "Secrets", href: "/secrets", icon: <Lock />, iconColor: "#8E8E93" }, // Gray
         { title: "Master", href: "/master", icon: <BookOpen />, iconColor: "#BF5AF2" }, // Purple
     ];

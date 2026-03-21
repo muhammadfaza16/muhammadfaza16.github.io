@@ -46,8 +46,8 @@ export function ZenProvider({ children }: { children: React.ReactNode }) {
     // Reset Zen mode on route change - except for homepage and blog articles
     useEffect(() => {
         const isHomepage = pathname === "/";
-        const isPlaylist = pathname === "/playlist";
-        const isPlaylistSubpage = pathname?.startsWith("/playlist/");
+        const isPlaylist = pathname === "/music/playlist";
+        const isPlaylistSubpage = pathname?.startsWith("/music/playlist/");
         const zenAllowedRoutes = isHomepage || isBlogArticle || isPlaylist || isPlaylistSubpage;
 
         if (!zenAllowedRoutes && isZen) {

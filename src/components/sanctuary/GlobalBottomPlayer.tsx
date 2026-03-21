@@ -104,15 +104,12 @@ export function GlobalBottomPlayer() {
                         transition={{ type: "spring", damping: 30, stiffness: 250 }}
                         style={{
                             position: "fixed",
-                            top: 0,
-                            left: 0,
-                            width: "100%",
-                            height: "100dvh",
+                            inset: 0,
                             backgroundColor: theme === "dark" ? "#0A0A0A" : "#F8F5F2",
                             backgroundImage: theme === "dark" 
                                 ? "radial-gradient(circle at 50% 20%, rgba(99, 102, 241, 0.1), transparent 50%), radial-gradient(circle at 20% 80%, rgba(139, 92, 246, 0.05), transparent 50%)"
                                 : "radial-gradient(circle at 50% 20%, rgba(255, 217, 61, 0.15), transparent 50%), radial-gradient(circle at 20% 80%, rgba(255, 128, 171, 0.1), transparent 50%)",
-                            zIndex: 100001,
+                            zIndex: 999999,
                             display: "flex",
                             flexDirection: "column",
                             padding: "env(safe-area-inset-top) 0 0 0",
@@ -341,10 +338,10 @@ export function GlobalBottomPlayer() {
                                     exit={{ y: "100%" }}
                                     transition={{ type: "spring", damping: 30, stiffness: 200 }}
                                     style={{
-                                        position: "absolute", top: 0, left: 0, right: 0, bottom: 0,
+                                        position: "absolute", inset: 0,
                                         backgroundColor: theme === "dark" ? "rgba(10, 10, 10, 0.98)" : "rgba(248, 245, 242, 0.98)", 
                                         backdropFilter: "blur(20px)",
-                                        zIndex: 100005, padding: "24px", display: "flex", flexDirection: "column"
+                                        zIndex: 100005, padding: "24px 24px 0", display: "flex", flexDirection: "column"
                                     }}
                                 >
                                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px", marginTop: "env(safe-area-inset-top)" }}>
@@ -354,7 +351,7 @@ export function GlobalBottomPlayer() {
 
                                     {/* Queue Search Bar */}
                                     <div style={{ 
-                                        marginBottom: "20px",
+                                        marginBottom: "0px",
                                         padding: "10px 14px",
                                         background: theme === "dark" ? "rgba(255,255,255,0.03)" : "rgba(0,0,0,0.03)",
                                         borderRadius: "14px",
@@ -385,7 +382,7 @@ export function GlobalBottomPlayer() {
                                         )}
                                     </div>
 
-                                    <div style={{ flex: 1, overflowY: "auto", display: "flex", flexDirection: "column", gap: "12px" }}>
+                                    <div style={{ flex: 1, overflowY: "auto", display: "flex", flexDirection: "column", gap: "12px", paddingBottom: "100px" }}>
                                         {filteredQueue.map((song, idx) => {
                                             const isCurrent = currentSong && song.audioUrl === currentSong.audioUrl;
                                             const { cleanTitle, artist, labels: qLabels } = parseSongTitle(song.title);
