@@ -249,11 +249,28 @@ export default function PlaylistClient({ playlistId, initialSongs = [] }: { play
                     alignItems: "center",
                     padding: "40px 16px 120px 16px",
                     WebkitOverflowScrolling: "touch",
-                    overscrollBehaviorY: "none",
                     scrollbarGutter: "stable"
                 }}
             >
-                <div style={{ width: "100%", maxWidth: "440px", display: "flex", flexDirection: "column", gap: "24px" }}>
+                <div style={{ width: "100%", maxWidth: "440px", display: "flex", flexDirection: "column", gap: "24px", paddingTop: "40px" }}>
+
+                    {/* Entrance Navigation */}
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "-8px", padding: "0 4px" }}>
+                        <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+                            <Link href="/music" style={{ textDecoration: "none" }}>
+                                <motion.div 
+                                    whileHover={{ x: -4 }}
+                                    style={{ 
+                                        display: "inline-flex", alignItems: "center", gap: "8px", 
+                                        color: theme === "dark" ? "rgba(255,255,255,0.6)" : "rgba(0,0,0,0.5)",
+                                        fontFamily: headerFont, fontWeight: 700, fontSize: "0.8rem", textTransform: "uppercase", letterSpacing: "0.05em"
+                                    }}
+                                >
+                                    <ChevronLeft size={16} /> Back
+                                </motion.div>
+                            </Link>
+                        </div>
+                    </div>
 
 
             <AnimatePresence>

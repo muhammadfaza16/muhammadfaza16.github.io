@@ -161,8 +161,8 @@ export default function MasterPanelPage() {
             transition: "all 0.5s ease",
             display: "flex",
             flexDirection: "column",
-            overflow: "hidden"
         }}>
+
             <div 
                 id="master-vault-scroll-container"
                 ref={scrollContainerRef}
@@ -173,26 +173,33 @@ export default function MasterPanelPage() {
                     overflowX: "hidden",
                     display: "flex",
                     flexDirection: "column",
-                    padding: "40px 16px 140px 16px",
+                    padding: "0px 16px 140px 16px",
                     WebkitOverflowScrolling: "touch",
                     overscrollBehaviorY: "none",
                     scrollbarGutter: "stable"
                 }}
             >
-                <div style={{ width: "100%", maxWidth: "440px", margin: "0 auto", display: "flex", flexDirection: "column" }}>
-                    {/* Immersive Inline Header */}
-                    <div style={{ position: "relative", display: "flex", justifyContent: "center", alignItems: "center", marginBottom: "24px", padding: "0 16px" }}>
-                        <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+                <div style={{ width: "100%", maxWidth: "440px", margin: "0 auto", display: "flex", flexDirection: "column", paddingTop: "40px" }}>
+                    {/* Entrance Navigation */}
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", padding: "0 16px", marginBottom: "-8px" }}>
+                        <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+                            <Link href="/music" style={{ textDecoration: "none" }}>
+                                <motion.div 
+                                    whileHover={{ x: -4 }}
+                                    style={{ 
+                                        display: "inline-flex", alignItems: "center", gap: "8px", 
+                                        color: theme === "dark" ? "rgba(255,255,255,0.6)" : "rgba(0,0,0,0.5)",
+                                        fontFamily: headerFont, fontWeight: 700, fontSize: "0.8rem", textTransform: "uppercase", letterSpacing: "0.05em"
+                                    }}
+                                >
+                                    <ChevronLeft size={16} /> Back
+                                </motion.div>
+                            </Link>
                             <h1 style={{ 
-                                fontFamily: headerFont, 
-                                fontWeight: 700, 
-                                fontSize: "1.35rem", 
-                                letterSpacing: "-0.015em",
-                                margin: 0,
-                                color: theme === "dark" ? "#FFF" : "#000",
-                                lineHeight: 1
+                                fontFamily: headerFont, fontWeight: 900, fontSize: "2.5rem", lineHeight: 1, margin: 0,
+                                letterSpacing: "-0.05em", color: theme === "dark" ? "#FFF" : "#000"
                             }}>
-                                Vault Master
+                                System<br />Config.
                             </h1>
                         </div>
                     </div>
@@ -442,7 +449,8 @@ export default function MasterPanelPage() {
                         </AnimatePresence>
 
 
-                        {/* Player Intelligence Card (Moved to bottom) */}
+                        {/* Player Intelligence Card (Only visible on Dashboard) */}
+                        {activeModule === "dashboard" && (
                          <div style={{
                             backgroundColor: theme === "dark" ? "rgba(255, 255, 255, 0.03)" : "rgba(255, 255, 255, 0.45)",
                             border: theme === "dark" ? "1px solid rgba(255,255,255,0.08)" : "1px solid rgba(0,0,0,0.05)",
@@ -490,6 +498,7 @@ export default function MasterPanelPage() {
                                 </div>
                             </div>
                         </div>
+                        )}
                     </motion.div>
                 </div>
             </div>

@@ -70,18 +70,7 @@ export function MusicBottomNav({ isInline = false }: { isInline?: boolean }) {
                 ? "0 20px 50px rgba(0, 0, 0, 0.5), inset 0 0 0 1px rgba(255, 255, 255, 0.05)" 
                 : "0 10px 40px rgba(0, 0, 0, 0.04), inset 0 0 0 1px rgba(255, 255, 255, 0.5)",
         }}>
-            {/* Shimmer Effect */}
-            {!isInline && (
-                <motion.div
-                    animate={{ x: ["-100%", "200%"] }}
-                    transition={{ duration: 10, repeat: Infinity, ease: "linear", repeatDelay: 4 }}
-                    style={{
-                        position: "absolute", inset: 0,
-                        background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.02) 40%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0.02) 60%, transparent)",
-                        pointerEvents: "none"
-                    }}
-                />
-            )}
+
             {navItems.map((item) => {
                 let isActive = false;
                 

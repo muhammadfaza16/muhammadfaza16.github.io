@@ -152,6 +152,29 @@ export default function LibraryClient({ songCount }: { songCount: number }) {
             >
                 <div style={{ width: "100%", maxWidth: "440px", display: "flex", flexDirection: "column", gap: "24px" }}>
 
+                    {/* Entrance Navigation */}
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "-8px", padding: "0 4px" }}>
+                        <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+                            <Link href="/music" style={{ textDecoration: "none" }}>
+                                <motion.div 
+                                    whileHover={{ x: -4 }}
+                                    style={{ 
+                                        display: "inline-flex", alignItems: "center", gap: "8px", 
+                                        color: theme === "dark" ? "rgba(255,255,255,0.6)" : "rgba(0,0,0,0.5)",
+                                        fontFamily: headerFont, fontWeight: 700, fontSize: "0.8rem", textTransform: "uppercase", letterSpacing: "0.05em"
+                                    }}
+                                >
+                                    <ChevronLeft size={16} /> Back
+                                </motion.div>
+                            </Link>
+                            <h1 style={{ 
+                                fontFamily: headerFont, fontWeight: 900, fontSize: "2.5rem", lineHeight: 1, margin: 0,
+                                letterSpacing: "-0.05em", color: theme === "dark" ? "#FFF" : "#000"
+                            }}>
+                                The<br />Archive.
+                            </h1>
+                        </div>
+                    </div>
 
             {/* Search & Filters */}
             <div style={{ display: "flex", flexDirection: "column", gap: "16px", width: "100%" }}>

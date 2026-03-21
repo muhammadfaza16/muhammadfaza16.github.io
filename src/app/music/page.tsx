@@ -103,87 +103,7 @@ export default function AudioHubPage() {
             color: theme === "dark" ? "#FFFFFF" : "#1A1A1A",
             transition: "all 0.5s ease"
         }}>
-            <header style={{
-                position: "fixed", top: 0, left: 0, right: 0, zIndex: 100,
-                height: "72px", display: "flex", alignItems: "center", justifyContent: "space-between",
-                padding: "0 20px",
-                backgroundColor: theme === "dark" 
-                    ? "rgba(20, 20, 20, 0.55)" 
-                    : "rgba(255, 255, 255, 0.45)",
-                backdropFilter: "blur(40px) saturate(180%)",
-                borderRadius: "0 0 32px 32px",
-                boxShadow: theme === "dark" 
-                    ? "0 10px 40px rgba(0, 0, 0, 0.5), inset 0 0 0 1px rgba(255, 255, 255, 0.05)" 
-                    : "0 8px 30px rgba(0, 0, 0, 0.04), inset 0 0 0 1px rgba(255, 255, 255, 0.5)",
-                borderBottom: theme === "dark" 
-                    ? "1px solid rgba(255, 255, 255, 0.08)" 
-                    : "1px solid rgba(255, 255, 255, 0.3)",
-                transition: "all 0.5s ease",
-                overflow: "hidden"
-            }}>
-                {/* Shimmer Effect */}
-                <motion.div
-                    animate={{ x: ["-100%", "200%"] }}
-                    transition={{ duration: 10, repeat: Infinity, ease: "linear", repeatDelay: 4 }}
-                    style={{
-                        position: "absolute", inset: 0,
-                        background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.02) 40%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0.02) 60%, transparent)",
-                        pointerEvents: "none"
-                    }}
-                />
-                <div style={{ width: "100%", maxWidth: "440px", margin: "0 auto", padding: "24px 16px 0 16px" }}>
-                    <div style={{ position: "relative", display: "flex", justifyContent: "center", alignItems: "center", marginBottom: "16px" }}>
-                        <div style={{ position: "absolute", left: 0 }}>
-                            <Link href="/" style={{ textDecoration: "none" }}>
-                                <motion.button 
-                                    whileHover={{ scale: 1.05, x: -2 }}
-                                    whileTap={{ scale: 0.95 }}
-                                    style={{ 
-                                        display: "flex", alignItems: "center", justifyContent: "center", 
-                                        background: theme === "dark" ? "rgba(255,255,255,0.05)" : "rgba(255,255,255,0.8)", 
-                                        border: theme === "dark" ? "1px solid rgba(255,255,255,0.1)" : "1px solid rgba(0,0,0,0.05)",
-                                        padding: "8px", cursor: "pointer", 
-                                        fontFamily: headerFont, fontWeight: 700, color: theme === "dark" ? "#FFF" : "#000",
-                                        fontSize: "0.85rem", borderRadius: "100px",
-                                        backdropFilter: "blur(8px)",
-                                        boxShadow: theme === "dark" ? "0 4px 12px rgba(0,0,0,0.2)" : "0 2px 10px rgba(0,0,0,0.03)"
-                                    }}
-                                >
-                                    <ChevronLeft size={18} />
-                                </motion.button>
-                            </Link>
-                        </div>
-                        <h1 style={{ 
-                            fontFamily: headerFont, 
-                            fontWeight: 900, 
-                            fontSize: "1.75rem", 
-                            textTransform: "uppercase", 
-                            letterSpacing: "-0.05em",
-                            margin: 0,
-                            color: theme === "dark" ? "#FFF" : "#000",
-                            lineHeight: 1,
-                            filter: "drop-shadow(0 4px 8px rgba(0,0,0,0.1))"
-                        }}>
-                            Music
-                        </h1>
-                        <div style={{ position: "absolute", right: 0 }}>
-                            <div style={{ 
-                                display: "flex", alignItems: "center", justifyContent: "center",
-                                width: "38px", height: "38px",
-                                background: theme === "dark" ? "rgba(255,255,255,0.05)" : "rgba(255,255,255,0.8)", 
-                                border: theme === "dark" ? "1px solid rgba(255,255,255,0.1)" : "1px solid rgba(0,0,0,0.05)",
-                                borderRadius: "100px",
-                                backdropFilter: "blur(8px)",
-                                boxShadow: theme === "dark" ? "0 4px 12px rgba(0,0,0,0.2)" : "0 2px 10px rgba(0,0,0,0.03)",
-                                overflow: "hidden"
-                            }}>
-                                <ThemeToggle transparent />
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </header>
-            <div 
+            <div
                 id="music-scroll-container"
                 ref={scrollContainerRef}
                 onScroll={(e) => (scrollYRef.current = e.currentTarget.scrollTop)}
@@ -200,7 +120,39 @@ export default function AudioHubPage() {
                     scrollbarGutter: "stable"
                 }}
             >
-                <div style={{ width: "100%", maxWidth: "440px", display: "flex", flexDirection: "column", gap: "24px", paddingTop: "112px" }}>
+                <div style={{ width: "100%", maxWidth: "440px", display: "flex", flexDirection: "column", gap: "24px", paddingTop: "40px" }}>
+
+                    {/* Entrance Text (Hero Typography) */}
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "8px" }}>
+                        <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+                            <Link href="/" style={{ textDecoration: "none" }}>
+                                <motion.div 
+                                    whileHover={{ x: -4 }}
+                                    style={{ 
+                                        display: "inline-flex", alignItems: "center", gap: "8px", 
+                                        color: theme === "dark" ? "rgba(255,255,255,0.6)" : "rgba(0,0,0,0.5)",
+                                        fontFamily: headerFont, fontWeight: 700, fontSize: "0.8rem", textTransform: "uppercase", letterSpacing: "0.05em"
+                                    }}
+                                >
+                                    <ChevronLeft size={16} /> Back
+                                </motion.div>
+                            </Link>
+                            <h1 style={{ 
+                                fontFamily: headerFont, fontWeight: 900, fontSize: "2.5rem", lineHeight: 1, margin: 0,
+                                letterSpacing: "-0.05em", color: theme === "dark" ? "#FFF" : "#000"
+                            }}>
+                                Your<br />Soundscape.
+                            </h1>
+                        </div>
+                        <div style={{ 
+                            display: "flex", alignItems: "center", justifyContent: "center",
+                            width: "44px", height: "44px", borderRadius: "100px",
+                            background: theme === "dark" ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.03)",
+                            border: theme === "dark" ? "1px solid rgba(255,255,255,0.1)" : "1px solid rgba(0,0,0,0.05)"
+                        }}>
+                            <ThemeToggle transparent />
+                        </div>
+                    </div>
 
                 {/* Home Dashboard */}
                 <div style={{ display: "flex", flexDirection: "column", gap: "40px" }}>
@@ -268,9 +220,7 @@ export default function AudioHubPage() {
                                                 width: "6px", 
                                                 height: "6px", 
                                                 borderRadius: "50%", 
-                                                backgroundColor: isPlaying 
-                                                    ? "#6366F1" 
-                                                    : (theme === "dark" ? "rgba(255,255,255,0.4)" : "rgba(0,0,0,0.2)"),
+                                                backgroundColor: "#6366F1", 
                                             }} 
                                         />
                                         <span style={{ 
@@ -372,7 +322,7 @@ export default function AudioHubPage() {
                                             <Disc 
                                                 className={isPlaying ? "animate-spin-slow" : ""} 
                                                 size={24} 
-                                                color={isPlaying ? "#fff" : (theme === "dark" ? "rgba(255,255,255,0.65)" : "rgba(0,0,0,0.35)")} 
+                                                color={isPlaying ? "#fff" : "#6366F1"} 
                                                 style={{ zIndex: 2, opacity: isPlaying ? 0.9 : 1 }}
                                             />
                                         </div>
@@ -502,86 +452,6 @@ export default function AudioHubPage() {
                     </AnimatePresence>
                     </div>
 
-                    {/* Live Radio Flagship Section */}
-                    <div style={{ perspective: "1000px" }}>
-                    <Link href="/music/live-hub" style={{ textDecoration: "none" }}>
-                        <motion.div
-                            whileHover={{ y: -6, scale: 1.02, rotateX: 2, rotateY: -2 }}
-                            whileTap={{ scale: 0.98, rotateX: 0, rotateY: 0 }}
-                            transition={{ type: "spring", stiffness: 400, damping: 20 }}
-                            style={{
-                                ...cardStyle,
-                                background: theme === "dark" 
-                                    ? "rgba(255, 255, 255, 0.03)" 
-                                    : "rgba(255, 255, 255, 0.7)",
-                                border: theme === "dark" ? "1px solid rgba(99, 102, 241, 0.15)" : "1px solid rgba(30, 27, 75, 0.08)",
-                                padding: "24px",
-                                position: "relative",
-                                overflow: "hidden",
-                                display: "flex",
-                                flexDirection: "column",
-                                gap: "20px",
-                                boxShadow: theme === "dark" ? "0 20px 40px rgba(0,0,0,0.3)" : "0 10px 24px rgba(30, 27, 75, 0.04)"
-                            }}
-                        >
-
-                            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", position: "relative", zIndex: 1 }}>
-                                <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-                                    <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                                        <div style={{ 
-                                            width: "48px", height: "48px", borderRadius: "16px",
-                                            display: "flex", alignItems: "center", justifyContent: "center",
-                                            background: "linear-gradient(135deg, #1E1B4B, #312E81)",
-                                            color: "#fff", boxShadow: "0 10px 20px rgba(30, 27, 75, 0.2)",
-                                            position: "relative", overflow: "hidden"
-                                        }}>
-                                            <div style={{
-                                                position: "absolute",
-                                                inset: 0,
-                                                background: "radial-gradient(circle at 10% 10%, rgba(99, 102, 241, 0.45), transparent 80%)",
-                                            }} />
-                                            <Radio size={24} style={{ position: "relative", zIndex: 1 }} />
-                                        </div>
-                                        <div>
-                                            <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                                                <h2 style={{ fontFamily: headerFont, fontWeight: 700, fontSize: "1.1rem", color: theme === "dark" ? "#FFF" : "#000", margin: 0, letterSpacing: "-0.015em" }}>Live Music</h2>
-                                                <div style={{ width: "8px", height: "8px", borderRadius: "50%", backgroundColor: "#9966FF" }} />
-                                            </div>
-                                            <p style={{ margin: 0, fontFamily: monoFont, fontSize: "0.65rem", fontWeight: 700, color: theme === "dark" ? "rgba(255,255,255,0.4)" : "rgba(0,0,0,0.45)", textTransform: "uppercase", letterSpacing: "0.1em" }}>Music Stations & Hub</p>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div style={{ 
-                                    background: theme === "dark" ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.03)", 
-                                    padding: "0 10px", height: "20px", display: "flex", alignItems: "center", justifyContent: "center",
-                                    borderRadius: "100px", border: theme === "dark" ? "1px solid rgba(255,255,255,0.1)" : "1px solid rgba(0,0,0,0.05)"
-                                }}>
-                                    <span style={{ fontFamily: monoFont, fontSize: "0.6rem", fontWeight: 800, color: theme === "dark" ? "#FFF" : "#000", letterSpacing: "0.05em", lineHeight: 1 }}>LIVE NOW</span>
-                                </div>
-                            </div>
-
-                            <div style={{ position: "relative", zIndex: 1 }}>
-                                <p style={{ 
-                                    margin: 0, fontFamily: headerFont, fontSize: "0.85rem", fontWeight: 600, 
-                                    lineHeight: 1.5, color: theme === "dark" ? "rgba(255,255,255,0.7)" : "rgba(0,0,0,0.6)",
-                                    maxWidth: "280px"
-                                }}>
-                                    Join the live broadcast. Listen together with everyone else in real-time.
-                                </p>
-                            </div>
-
-                            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", position: "relative", zIndex: 1, marginTop: "4px" }}>
-                                <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                                    <span style={{ fontFamily: monoFont, fontSize: "0.6rem", fontWeight: 700, color: "#6366F1", textTransform: "uppercase" }}>Music Status: Active</span>
-                                </div>
-                                <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                                    <span style={{ fontFamily: headerFont, fontSize: "0.8rem", fontWeight: 900, color: theme === "dark" ? "#FFF" : "#000" }}>GO TO HUB</span>
-                                </div>
-                            </div>
-                        </motion.div>
-                    </Link>
-                    </div>
-
                     {/* Library Section */}
                     <div>
                         <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "16px", paddingLeft: "4px" }}>
@@ -596,6 +466,85 @@ export default function AudioHubPage() {
                             }}>Browse Library</span>
                         </div>
                         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px", perspective: "1000px" }}>
+                            {/* Hero Card: Live Music */}
+                            <Link href="/music/live-hub" style={{ textDecoration: "none", gridColumn: "span 2" }}>
+                                <motion.div
+                                    whileHover={{ y: -6, scale: 1.01, rotateX: 2 }}
+                                    whileTap={{ scale: 0.99 }}
+                                    transition={{ type: "spring", stiffness: 400, damping: 20 }}
+                                    style={{
+                                        ...cardStyle,
+                                        background: theme === "dark" 
+                                            ? "rgba(255, 255, 255, 0.03)" 
+                                            : "rgba(255, 255, 255, 0.7)",
+                                        border: theme === "dark" ? "1px solid rgba(99, 102, 241, 0.15)" : "1px solid rgba(30, 27, 75, 0.08)",
+                                        padding: "24px",
+                                        position: "relative",
+                                        overflow: "hidden",
+                                        display: "flex",
+                                        flexDirection: "column",
+                                        gap: "20px",
+                                        boxShadow: theme === "dark" ? "0 20px 40px rgba(0,0,0,0.3)" : "0 10px 24px rgba(30, 27, 75, 0.04)"
+                                    }}
+                                >
+
+                                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", position: "relative", zIndex: 1 }}>
+                                        <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+                                            <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                                                <div style={{ 
+                                                    width: "48px", height: "48px", borderRadius: "16px",
+                                                    display: "flex", alignItems: "center", justifyContent: "center",
+                                                    background: "linear-gradient(135deg, #450A0A, #7F1D1D)",
+                                                    color: "#fff", boxShadow: "0 10px 20px rgba(69, 10, 10, 0.2)",
+                                                    position: "relative", overflow: "hidden"
+                                                }}>
+                                                    <div style={{
+                                                        position: "absolute",
+                                                        inset: 0,
+                                                        background: "radial-gradient(circle at 10% 10%, rgba(239, 68, 68, 0.45), transparent 80%)",
+                                                    }} />
+                                                    <Radio size={24} style={{ position: "relative", zIndex: 1 }} />
+                                                </div>
+                                                <div>
+                                                    <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                                                        <h2 style={{ fontFamily: headerFont, fontWeight: 700, fontSize: "1.1rem", color: theme === "dark" ? "#FFF" : "#000", margin: 0, letterSpacing: "-0.015em" }}>Live Music</h2>
+                                                        <div style={{ width: "8px", height: "8px", borderRadius: "50%", backgroundColor: "#EF4444" }} />
+                                                    </div>
+                                                    <p style={{ margin: 0, fontFamily: monoFont, fontSize: "0.65rem", fontWeight: 700, color: theme === "dark" ? "rgba(255,255,255,0.4)" : "rgba(0,0,0,0.45)", textTransform: "uppercase", letterSpacing: "0.1em" }}>Music Stations & Hub</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div style={{ 
+                                            background: theme === "dark" ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.03)", 
+                                            padding: "0 10px", height: "20px", display: "flex", alignItems: "center", justifyContent: "center",
+                                            borderRadius: "100px", border: theme === "dark" ? "1px solid rgba(255,255,255,0.1)" : "1px solid rgba(0,0,0,0.05)"
+                                        }}>
+                                            <span style={{ fontFamily: monoFont, fontSize: "0.6rem", fontWeight: 800, color: theme === "dark" ? "#FFF" : "#000", letterSpacing: "0.05em", lineHeight: 1 }}>LIVE NOW</span>
+                                        </div>
+                                    </div>
+
+                                    <div style={{ position: "relative", zIndex: 1 }}>
+                                        <p style={{ 
+                                            margin: 0, fontFamily: headerFont, fontSize: "0.85rem", fontWeight: 600, 
+                                            lineHeight: 1.5, color: theme === "dark" ? "rgba(255,255,255,0.7)" : "rgba(0,0,0,0.6)",
+                                            maxWidth: "280px"
+                                        }}>
+                                            Join the live broadcast. Listen together with everyone else in real-time.
+                                        </p>
+                                    </div>
+
+                                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", position: "relative", zIndex: 1, marginTop: "4px" }}>
+                                        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                                            <span style={{ fontFamily: monoFont, fontSize: "0.6rem", fontWeight: 700, color: "#EF4444", textTransform: "uppercase" }}>Music Status: Active</span>
+                                        </div>
+                                        <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                                            <span style={{ fontFamily: headerFont, fontSize: "0.8rem", fontWeight: 900, color: theme === "dark" ? "#FFF" : "#000" }}>GO TO HUB</span>
+                                        </div>
+                                    </div>
+                                </motion.div>
+                            </Link>
+
+                            {/* Standard Library Cards */}
                             {MENU_ITEMS.map((item, idx) => (
                                 <Link key={item.id} href={item.href} style={{ textDecoration: "none" }}>
                                     <motion.div
@@ -774,4 +723,25 @@ export default function AudioHubPage() {
             </div>
         </main>
     );
+}
+
+// Global Custom Animations
+const globalStyles = `
+    @keyframes spin-slow {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+    }
+    .animate-spin-slow {
+        animation: spin-slow 15s linear infinite;
+    }
+    @keyframes colorful-shimmer {
+        0% { background-position: 0% 50%; }
+        100% { background-position: 200% 50%; }
+    }
+`;
+
+if (typeof document !== 'undefined') {
+    const styleTag = document.createElement('style');
+    styleTag.textContent = globalStyles;
+    document.head.appendChild(styleTag);
 }
