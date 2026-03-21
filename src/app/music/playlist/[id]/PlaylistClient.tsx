@@ -248,15 +248,12 @@ export default function PlaylistClient({ playlistId, initialSongs = [] }: { play
                     flexDirection: "column",
                     alignItems: "center",
                     padding: "40px 16px 120px 16px",
-                    maxWidth: "600px",
-                    width: "100%",
-                    margin: "0 auto",
-                    gap: "1.5rem",
                     WebkitOverflowScrolling: "touch",
                     overscrollBehaviorY: "none",
                     scrollbarGutter: "stable"
                 }}
             >
+                <div style={{ width: "100%", maxWidth: "440px", display: "flex", flexDirection: "column", gap: "24px" }}>
 
 
             <AnimatePresence>
@@ -521,6 +518,7 @@ export default function PlaylistClient({ playlistId, initialSongs = [] }: { play
                         )}
                     />
                 )}
+            </div>
             </div>
             </div>
         </main>

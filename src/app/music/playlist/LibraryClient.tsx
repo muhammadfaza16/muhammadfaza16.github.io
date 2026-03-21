@@ -145,15 +145,12 @@ export default function LibraryClient({ songCount }: { songCount: number }) {
                     flexDirection: "column",
                     alignItems: "center",
                     padding: "40px 16px 140px 16px",
-                    maxWidth: "500px",
-                    width: "100%",
-                    margin: "0 auto",
-                    gap: "28px",
                     WebkitOverflowScrolling: "touch",
                     overscrollBehaviorY: "none",
                     scrollbarGutter: "stable"
                 }}
             >
+                <div style={{ width: "100%", maxWidth: "440px", display: "flex", flexDirection: "column", gap: "24px" }}>
 
 
             {/* Search & Filters */}
@@ -337,6 +334,7 @@ export default function LibraryClient({ songCount }: { songCount: number }) {
                     <p style={{ fontFamily: headerFont, fontWeight: 700 }}>No tracks found...</p>
                 </motion.div>
             )}
+            </div>
             </div>
         </main>
     );
