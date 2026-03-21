@@ -4,7 +4,6 @@ import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import {
     User,
-    Settings,
     LogOut,
     ChevronRight,
     Moon,
@@ -39,148 +38,139 @@ export default function ProfilePage() {
         }
     };
 
-    const handleAdminToggle = () => {
-        const newValue = !isAdmin;
-        setIsAdmin(newValue);
-        if (newValue) {
-            localStorage.setItem("curation_admin", "true");
-            toast.success("Admin mode enabled.");
-        } else {
-            localStorage.removeItem("curation_admin");
-            toast.success("Admin mode disabled.");
-        }
-    };
-
     const handleComingSoon = () => {
         toast.error("This feature is currently under development.", {
-            icon: '🚧',
             duration: 2000,
             style: {
-                borderRadius: '12px',
+                borderRadius: '100px',
                 background: '#18181b',
                 color: '#fafafa',
                 border: '1px solid rgba(255,255,255,0.1)',
-                fontSize: '13px',
-                fontWeight: '500',
-                padding: '12px 16px',
-                boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.3)',
+                fontSize: '12px',
+                fontWeight: '600',
+                padding: '10px 20px',
+                boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.5)',
             },
         });
     };
 
     return (
-        <div className="max-w-2xl mx-auto px-6 pt-12 pb-20">
+        <div className="h-[100svh] flex flex-col bg-[#fafaf8] dark:bg-[#050505] text-[#1a1a1a] dark:text-[#f2f2f2] overflow-hidden selection:bg-blue-100 dark:selection:bg-blue-900/30">
             <Toaster position="top-center" />
-            <header className="mb-10 flex flex-col items-center">
-                <div className="w-20 h-20 rounded-[1.75rem] bg-white dark:bg-zinc-800/40 flex items-center justify-center text-zinc-900 dark:text-white mb-5 border border-zinc-200/50 dark:border-zinc-800/50">
-                    <User size={32} strokeWidth={1.5} />
-                </div>
-                <h1 className="text-2xl font-medium tracking-tight mb-0.5 text-zinc-900 dark:text-white" style={{ fontFamily: "'Playfair Display', serif" }}>Muhammad Faza</h1>
-                <div className="flex items-center gap-2 mb-5">
-                    <p className="text-zinc-400 text-[10px] font-medium uppercase tracking-[0.2em]">Software Engineer</p>
-                </div>
+            
+            {/* Stable Main Scroll Section */}
+            <main className="flex-1 overflow-y-auto pt-16 pb-24" style={{ WebkitOverflowScrolling: "touch", overscrollBehaviorY: "none" }}>
+                <div className="max-w-2xl mx-auto px-6">
+                    <header className="mb-10 flex flex-col items-center">
+                        <div className="w-20 h-20 rounded-full bg-white dark:bg-zinc-800/40 flex items-center justify-center text-zinc-900 dark:text-white mb-5 border border-zinc-200/50 dark:border-zinc-800/50 shadow-sm shadow-black/[0.02]">
+                            <User size={32} strokeWidth={1.5} />
+                        </div>
+                        <h1 className="text-2xl font-medium tracking-tight mb-0.5 text-zinc-900 dark:text-white" style={{ fontFamily: "'Playfair Display', serif" }}>Muhammad Faza</h1>
+                        <div className="flex items-center gap-2 mb-5">
+                            <p className="text-zinc-400 text-[10px] font-medium uppercase tracking-[0.2em]">Software Engineer</p>
+                        </div>
 
-                <div className="flex gap-2">
-                    <button 
-                        onClick={handleComingSoon}
-                        className="px-5 py-2 rounded-lg bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 text-[10px] font-medium uppercase tracking-widest active:scale-95 transition-all"
-                    >
-                        Sign Up
-                    </button>
-                    <button 
-                        onClick={handleComingSoon}
-                        className="px-5 py-2 rounded-lg bg-zinc-100 dark:bg-zinc-800/40 border border-zinc-200/60 dark:border-zinc-800/60 text-zinc-700 dark:text-zinc-300 text-[10px] font-medium uppercase tracking-widest active:scale-95 transition-all"
-                    >
-                        Sign In
-                    </button>
-                </div>
-            </header>
+                        <div className="flex gap-2">
+                            <button 
+                                onClick={handleComingSoon}
+                                className="px-5 py-2 rounded-lg bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 text-[10px] font-medium uppercase tracking-widest active:scale-95 transition-all"
+                            >
+                                Sign Up
+                            </button>
+                            <button 
+                                onClick={handleComingSoon}
+                                className="px-5 py-2 rounded-lg bg-zinc-100 dark:bg-zinc-800/40 border border-zinc-200/60 dark:border-zinc-800/60 text-zinc-700 dark:text-zinc-300 text-[10px] font-medium uppercase tracking-widest active:scale-95 transition-all"
+                            >
+                                Sign In
+                            </button>
+                        </div>
+                    </header>
 
-            {/* Roadmap / Under Construction */}
-            <section className="mb-10">
-                <div className="bg-zinc-50 dark:bg-zinc-900/30 rounded-2xl border border-dashed border-zinc-200 dark:border-zinc-800 p-6 flex flex-col items-center text-center">
-                    <div className="w-12 h-12 rounded-full bg-white dark:bg-zinc-800 flex items-center justify-center text-zinc-400 mb-4 shadow-sm">
-                        <Construction size={20} />
+                    {/* Roadmap / Under Construction */}
+                    <section className="mb-10">
+                        <div className="bg-zinc-50 dark:bg-zinc-900/30 rounded-3xl border border-dashed border-zinc-200 dark:border-zinc-800 p-8 flex flex-col items-center text-center">
+                            <div className="w-12 h-12 rounded-full bg-white dark:bg-zinc-800 flex items-center justify-center text-zinc-400 mb-4 shadow-sm">
+                                <Construction size={20} />
+                            </div>
+                            <h2 className="text-[15px] font-semibold text-zinc-900 dark:text-zinc-100 mb-2">Under Development</h2>
+                            <p className="text-[13px] text-zinc-500 max-w-[280px] leading-relaxed">
+                                Personalized feeds, topic interests, and weekly digests are currently being built to enhance your reading experience.
+                            </p>
+                        </div>
+                    </section>
+
+                    {/* Preferences Roadmap */}
+                    <section className="space-y-4 mb-10 opacity-60">
+                        <div className="flex items-center justify-between ml-0.5 mb-2">
+                            <h2 className="text-[12px] font-medium text-zinc-400 uppercase tracking-widest px-4 font-normal">Upcoming</h2>
+                        </div>
+                        <div className="space-y-1.5 px-2">
+                            <div className="w-full flex items-center gap-4 p-4 px-6 rounded-full border border-black/[0.03] dark:border-white/[0.03] bg-black/[0.01] dark:bg-white/[0.01] select-none opacity-80">
+                                <div className="text-zinc-300 dark:text-zinc-600">
+                                    <Hash size={16} />
+                                </div>
+                                <div className="flex-1 text-left">
+                                    <span className="block text-[13px] font-medium text-zinc-400 dark:text-zinc-500">Content Interests</span>
+                                </div>
+                            </div>
+                            <div className="w-full flex items-center gap-4 p-4 px-6 rounded-full border border-black/[0.03] dark:border-white/[0.03] bg-black/[0.01] dark:bg-white/[0.01] select-none opacity-80">
+                                <div className="text-zinc-300 dark:text-zinc-600">
+                                    <Bell size={16} />
+                                </div>
+                                <div className="flex-1 text-left">
+                                    <span className="block text-[13px] font-medium text-zinc-400 dark:text-zinc-500">Email Digest</span>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section className="space-y-4">
+                        <h2 className="text-[12px] font-medium text-zinc-400 mb-6 ml-0.5 px-4 font-normal">
+                            Account
+                        </h2>
+
+                        <div className="space-y-1.5 px-2">
+                            <button onClick={handleThemeToggle} className="w-full flex items-center gap-4 p-4 px-6 rounded-full border border-black/[0.03] dark:border-white/[0.03] bg-black/[0.01] dark:bg-white/[0.01] hover:bg-black/[0.03] dark:hover:bg-white/[0.03] transition-all group active:scale-[0.98]">
+                                <div className={`text-zinc-300 dark:text-zinc-600 group-hover:text-zinc-900 dark:group-hover:text-zinc-100 transition-colors`}>
+                                    {theme === 'light' ? <Sun size={17} /> : <Moon size={17} />}
+                                </div>
+                                <span className="flex-1 text-[13px] font-medium text-left text-zinc-400 dark:text-zinc-500 group-hover:text-zinc-900 dark:group-hover:text-zinc-100 transition-colors">
+                                    Appearance: {theme === 'light' ? 'Light' : 'Dark'}
+                                </span>
+                                <ChevronRight size={14} className="text-zinc-200 dark:text-zinc-800 transition-transform group-hover:translate-x-0.5" />
+                            </button>
+                            
+                            <button onClick={handleComingSoon} className="w-full flex items-center gap-4 p-4 px-6 rounded-full border border-black/[0.03] dark:border-white/[0.03] bg-black/[0.01] dark:bg-white/[0.01] hover:bg-black/[0.03] dark:hover:bg-white/[0.03] transition-all group active:scale-[0.98]">
+                                <div className={`text-zinc-300 dark:text-zinc-600 group-hover:text-zinc-900 dark:group-hover:text-zinc-100 transition-colors`}>
+                                    <Wrench size={17} />
+                                </div>
+                                <span className="flex-1 text-[13px] font-medium text-left text-zinc-400 dark:text-zinc-500 group-hover:text-zinc-900 dark:group-hover:text-zinc-100 transition-colors">
+                                    Admin Mode: {isAdmin ? "Enabled" : "Disabled"}
+                                </span>
+                                <ChevronRight size={14} className="text-zinc-200 dark:text-zinc-800 transition-transform group-hover:translate-x-0.5" />
+                            </button>
+
+                            <button onClick={handleClearData} className="w-full flex items-center gap-4 p-4 px-6 rounded-full border border-black/[0.03] dark:border-white/[0.03] bg-black/[0.01] dark:bg-white/[0.01] hover:bg-red-500/[0.03] dark:hover:bg-red-400/[0.03] transition-all group active:scale-[0.98]">
+                                <div className={`text-zinc-300 dark:text-zinc-600 group-hover:text-red-500 dark:group-hover:text-red-400 transition-colors`}>
+                                    <DatabaseZap size={17} />
+                                </div>
+                                <span className="flex-1 text-[13px] font-medium text-left text-zinc-400 dark:text-zinc-500 group-hover:text-red-500 dark:group-hover:text-red-400 transition-colors">Clear Local Data</span>
+                                <ChevronRight size={14} className="text-zinc-200 dark:text-zinc-800 transition-transform group-hover:translate-x-0.5" />
+                            </button>
+                        </div>
+                    </section>
+
+                    <div className="mt-10 pt-6 border-t border-zinc-200/60 dark:border-zinc-800/60 mb-8 px-2">
+                        <button 
+                            onClick={handleComingSoon}
+                            className="w-full flex items-center justify-center gap-2 p-4 rounded-full bg-zinc-50 dark:bg-zinc-900/40 border border-zinc-200/60 dark:border-zinc-800/60 text-zinc-500 dark:text-zinc-500 hover:text-red-500 dark:hover:text-red-400 hover:border-red-200/50 dark:hover:border-red-900/20 transition-all text-[11px] font-medium uppercase tracking-widest active:scale-95 shadow-sm"
+                        >
+                            <LogOut size={16} />
+                            Log Out
+                        </button>
                     </div>
-                    <h2 className="text-[15px] font-semibold text-zinc-900 dark:text-zinc-100 mb-2">Under Development</h2>
-                    <p className="text-[13px] text-zinc-500 max-w-[280px] leading-relaxed">
-                        Personalized feeds, topic interests, and weekly digests are currently being built to enhance your reading experience.
-                    </p>
                 </div>
-            </section>
-
-            {/* Preferences Roadmap */}
-            <section className="space-y-4 mb-10 opacity-60">
-                <div className="flex items-center justify-between ml-0.5 mb-2">
-                    <h2 className="text-[12px] font-medium text-zinc-400 uppercase tracking-widest">Roadmap</h2>
-                </div>
-                <div className="bg-white dark:bg-zinc-900/40 rounded-2xl border border-zinc-200/60 dark:border-zinc-800/60 overflow-hidden divide-y divide-zinc-100 dark:divide-zinc-800/40">
-                    <div className="w-full flex items-center gap-4 p-4 select-none">
-                        <div className="text-zinc-400">
-                            <Hash size={18} />
-                        </div>
-                        <div className="flex-1 text-left">
-                            <span className="block text-[14px] font-medium text-zinc-700 dark:text-zinc-300">Content Interests</span>
-                            <span className="block text-[11px] text-zinc-500 mt-0.5">Customize your feed based on preferred topics (Development)</span>
-                        </div>
-                    </div>
-                    <div className="w-full flex items-center gap-4 p-4 select-none">
-                        <div className="text-zinc-400">
-                            <Bell size={18} />
-                        </div>
-                        <div className="flex-1 text-left">
-                            <span className="block text-[14px] font-medium text-zinc-700 dark:text-zinc-300">Email Digest</span>
-                            <span className="block text-[11px] text-zinc-500 mt-0.5">Weekly curated updates delivered to your inbox (Development)</span>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <section className="space-y-4">
-                <h2 className="text-[12px] font-medium text-zinc-400 mb-6 ml-0.5">
-                    Account Settings
-                </h2>
-
-                <div className="bg-white dark:bg-zinc-900/40 rounded-2xl border border-zinc-200/60 dark:border-zinc-800/60 overflow-hidden divide-y divide-zinc-100 dark:divide-zinc-800/40">
-                    <button onClick={handleComingSoon} className="w-full flex items-center gap-4 p-4 hover:bg-zinc-50 dark:hover:bg-zinc-800/60 transition-colors group">
-                        <div className={`text-zinc-400 group-hover:text-zinc-900 dark:group-hover:text-zinc-100 transition-colors`}>
-                            {theme === 'light' ? <Sun size={18} /> : <Moon size={18} />}
-                        </div>
-                        <span className="flex-1 text-[14px] font-medium text-left text-zinc-700 dark:text-zinc-300">
-                            Theme: {theme === 'light' ? 'Light' : 'Dark'}
-                        </span>
-                        <ChevronRight size={14} className="text-zinc-300 transition-transform group-hover:translate-x-0.5" />
-                    </button>
-                    
-                    <button onClick={handleComingSoon} className="w-full flex items-center gap-4 p-4 hover:bg-zinc-50 dark:hover:bg-zinc-800/60 transition-colors group">
-                        <div className={`text-zinc-400 group-hover:text-zinc-900 dark:group-hover:text-zinc-100 transition-colors`}>
-                            <Wrench size={18} />
-                        </div>
-                        <span className="flex-1 text-[14px] font-medium text-left text-zinc-700 dark:text-zinc-300">
-                            Admin Mode: {isAdmin ? "Enabled" : "Disabled"}
-                        </span>
-                        <ChevronRight size={14} className="text-zinc-300 transition-transform group-hover:translate-x-0.5" />
-                    </button>
-
-                    <button onClick={handleComingSoon} className="w-full flex items-center gap-4 p-4 hover:bg-red-50 dark:hover:bg-red-900/10 transition-colors group">
-                        <div className={`text-red-400 group-hover:text-red-600 dark:group-hover:text-red-400 transition-colors`}>
-                            <DatabaseZap size={18} />
-                        </div>
-                        <span className="flex-1 text-[14px] font-medium text-left text-red-500 dark:text-red-400">Clear Local Data</span>
-                        <ChevronRight size={14} className="text-red-300 transition-transform group-hover:translate-x-0.5" />
-                    </button>
-                </div>
-            </section>
-
-            <div className="mt-10 pt-6 border-t border-zinc-200/60 dark:border-zinc-800/60">
-                <button 
-                    onClick={handleComingSoon}
-                    className="w-full flex items-center justify-center gap-2 p-4 rounded-2xl bg-zinc-50 dark:bg-zinc-900/40 border border-zinc-200/60 dark:border-zinc-800/60 text-zinc-400 hover:text-red-500 hover:border-red-200/50 dark:hover:border-red-900/20 transition-all text-[11px] font-medium uppercase tracking-widest"
-                >
-                    <LogOut size={16} />
-                    Log Out
-                </button>
-            </div>
+            </main>
         </div>
     );
 }
