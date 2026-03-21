@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
+import { usePathname } from "next/navigation";
 import { useTheme } from "./ThemeProvider";
 
 const funnyMessages = [
@@ -16,8 +17,12 @@ const funnyMessages = [
     "Okay okay, aku surrender! 🏳️",
 ];
 
-export function ThemeToggle() {
+export function ThemeToggle({ transparent = false }: { transparent?: boolean }) {
+    const pathname = usePathname();
     const { theme, toggleTheme } = useTheme();
+    
+    // Explicitly hide on pages other than /music as per request
+    if (pathname !== "/music") return null;
     const [clickCount, setClickCount] = useState(0);
     const [showDialog, setShowDialog] = useState(false);
     const [message, setMessage] = useState("");
@@ -64,7 +69,9 @@ export function ThemeToggle() {
         <>
             <button
                 onClick={handleClick}
-                className="relative w-9 h-9 flex items-center justify-center rounded-full hover:bg-[var(--border)] transition-all duration-300"
+                className={`relative w-9 h-9 flex items-center justify-center rounded-full transition-all duration-300 ${
+                    transparent ? "bg-transparent hover:bg-white/5" : "hover:bg-[var(--border)]"
+                }`}
                 aria-label={`Switch to ${theme === "light" ? "dark" : "light"} mode`}
             >
                 {/* Sun Icon */}
