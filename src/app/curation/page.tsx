@@ -393,29 +393,24 @@ export default function CurationList() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [formUrl]);
 
-  // Auto-scrolling Hero Carousel
+  // Auto-scrolling Hero Carousel with focus on boutique stability
   useEffect(() => {
     if (topArticles.length <= 1) return;
 
     let isPaused = false;
+    let currentIndex = 0;
     let resumeTimeout: NodeJS.Timeout;
     const carousel = heroCarouselRef.current;
 
-    const handlePause = () => {
-      isPaused = true;
-      clearTimeout(resumeTimeout);
-    };
-
-    const handleResume = () => {
-      isPaused = false;
-    };
-
+    const handlePause = () => { isPaused = true; if (resumeTimeout) clearTimeout(resumeTimeout); };
+    const handleResume = () => { isPaused = false; };
     const handleTouchEnd = () => {
-      // Give users a 3-second grace period on mobile after swiping before auto-scroll takes over again
-      clearTimeout(resumeTimeout);
-      resumeTimeout = setTimeout(() => {
-        isPaused = false;
-      }, 3000);
+      if (resumeTimeout) clearTimeout(resumeTimeout);
+      resumeTimeout = setTimeout(() => { isPaused = false; }, 4000);
+    };
+
+    const handleVisibilityChange = () => {
+      isPaused = document.hidden;
     };
 
     if (carousel) {
@@ -423,67 +418,58 @@ export default function CurationList() {
       carousel.addEventListener('mouseleave', handleResume);
       carousel.addEventListener('touchstart', handlePause, { passive: true });
       carousel.addEventListener('touchend', handleTouchEnd, { passive: true });
+      document.addEventListener('visibilitychange', handleVisibilityChange);
     }
 
-    // Easing function for a luxurious, slow swipe (easeInOutCubic)
     const smoothScroll = (element: HTMLElement, targetLeft: number, duration: number) => {
       const startLeft = element.scrollLeft;
       const distance = targetLeft - startLeft;
       let startTime: number | null = null;
-
-      // Disable disruptive CSS snap physics during the JS animation
       element.style.scrollSnapType = 'none';
 
       const animation = (currentTime: number) => {
         if (startTime === null) startTime = currentTime;
         const timeElapsed = currentTime - startTime;
         const progress = Math.min(timeElapsed / duration, 1);
-
-        // easeInOutCubic formula
-        const ease = progress < 0.5
-          ? 4 * progress * progress * progress
-          : 1 - Math.pow(-2 * progress + 2, 3) / 2;
-
+        const ease = progress < 0.5 ? 4 * progress * progress * progress : 1 - Math.pow(-2 * progress + 2, 3) / 2;
         element.scrollLeft = startLeft + distance * ease;
 
-        if (timeElapsed < duration) {
-          requestAnimationFrame(animation);
-        } else {
-          // Restore snap physics immediately after frame completes
-          element.style.scrollSnapType = 'x mandatory';
-        }
+        if (timeElapsed < duration) requestAnimationFrame(animation);
+        else element.style.scrollSnapType = 'x mandatory';
       };
-
       requestAnimationFrame(animation);
     };
 
     const interval = setInterval(() => {
-      if (!carousel || isPaused) return;
+      const currentCarousel = heroCarouselRef.current;
+      if (!currentCarousel || isPaused || document.hidden) return;
 
-      const { scrollLeft, scrollWidth, clientWidth } = carousel;
-      // Buffer of 10px to account for rounding errors
-      const isEnd = scrollLeft + clientWidth >= scrollWidth - 10;
-
-      if (isEnd) {
-        // Slow rewind to start (1.5 seconds)
-        smoothScroll(carousel, 0, 1500);
+      // Update current index based on actual scroll position to catch manual swipes
+      const { scrollLeft, scrollWidth, clientWidth } = currentCarousel;
+      const cardWidth = currentCarousel.children[0] ? (currentCarousel.children[0] as HTMLElement).offsetWidth + 16 : clientWidth;
+      
+      // Calculate current index from scroll position
+      currentIndex = Math.round(scrollLeft / cardWidth);
+      
+      // Move to next or reset if at end
+      if (currentIndex >= topArticles.length - 1) {
+        currentIndex = 0;
+        smoothScroll(currentCarousel, 0, 1500);
       } else {
-        // Dynamically get the width of the first card + gap
-        const firstCard = carousel.children[0] as HTMLElement;
-        const scrollAmount = firstCard ? firstCard.offsetWidth + 16 : 400; // 16px is gap-4
-        // Slow cinematic swipe to next card (1.2 seconds)
-        smoothScroll(carousel, scrollLeft + scrollAmount, 1200);
+        currentIndex++;
+        smoothScroll(currentCarousel, currentIndex * cardWidth, 1200);
       }
-    }, 5000); // 5 seconds duration between slides
+    }, 5500); 
 
     return () => {
       clearInterval(interval);
-      clearTimeout(resumeTimeout);
+      if (resumeTimeout) clearTimeout(resumeTimeout);
       if (carousel) {
         carousel.removeEventListener('mouseenter', handlePause);
         carousel.removeEventListener('mouseleave', handleResume);
         carousel.removeEventListener('touchstart', handlePause);
         carousel.removeEventListener('touchend', handleTouchEnd);
+        document.removeEventListener('visibilitychange', handleVisibilityChange);
       }
     };
   }, [topArticles]);
