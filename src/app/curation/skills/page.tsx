@@ -26,6 +26,10 @@ export default function SkillsLabPage() {
   const [loading, setLoading] = useState(true);
   const [activeCategory, setActiveCategory] = useState("all");
   const [activeDifficulty, setActiveDifficulty] = useState("all");
+  const [activeSort, setActiveSort] = useState<"popularity" | "date">("date");
+  const [nextCursor, setNextCursor] = useState<string | null>(null);
+  const [isSearchingMore, setIsSearchingMore] = useState(false);
+  const [totalCount, setTotalCount] = useState(0);
   const [isAdmin, setIsAdmin] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [isSearchFocused, setIsSearchFocused] = useState(false);
@@ -55,20 +59,31 @@ export default function SkillsLabPage() {
   const [formImagePreview, setFormImagePreview] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const fetchSkills = useCallback(async () => {
-    setLoading(true);
+  const fetchSkills = useCallback(async (isLoadMore = false) => {
+    if (isLoadMore) setIsSearchingMore(true);
+    else setLoading(true);
+
     try {
       const params = new URLSearchParams();
       if (activeCategory !== "all") params.set("category", activeCategory);
       if (activeDifficulty !== "all") params.set("difficulty", activeDifficulty);
+      params.set("sortBy", activeSort);
+      if (isLoadMore && nextCursor) params.set("cursor", nextCursor);
+      params.set("limit", "12");
+
       const res = await fetch(`/api/curation/skills?${params}`);
       const data = await res.json();
-      setSkills(data.items || []);
+      
+      setSkills(prev => isLoadMore ? [...prev, ...(data.items || [])] : (data.items || []));
+      setNextCursor(data.nextCursor || null);
+      setTotalCount(data.totalCount || 0);
     } catch { toast.error("Failed to load skills"); }
+    
     setLoading(false);
-  }, [activeCategory, activeDifficulty]);
+    setIsSearchingMore(false);
+  }, [activeCategory, activeDifficulty, activeSort, nextCursor]);
 
-  useEffect(() => { fetchSkills(); }, [fetchSkills]);
+  useEffect(() => { fetchSkills(false); }, [activeCategory, activeDifficulty, activeSort]);
   useEffect(() => { fetch("/api/auth").then(r => r.json()).then(d => { if (d.isAdmin) setIsAdmin(true); }).catch(() => {}); }, []);
 
   const filtered = skills.filter(s => !searchQuery || s.title.toLowerCase().includes(searchQuery.toLowerCase()));
@@ -251,8 +266,15 @@ export default function SkillsLabPage() {
           </motion.div>
         </div>
 
-        {/* Filters Row */}
-        <div className="px-5 pb-3 pt-1 space-y-2">
+        <div className="flex flex-col gap-2 px-5 pb-3">
+          {/* Main Sort Pills */}
+          <div className="flex gap-1.5 items-center mb-1">
+            <button onClick={() => setActiveSort("date")} className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider transition-all ${activeSort === "date" ? "bg-zinc-800 dark:bg-zinc-200 text-zinc-100 dark:text-zinc-900" : "bg-zinc-100 dark:bg-zinc-800 text-zinc-500"}`}>Latest</button>
+            <button onClick={() => setActiveSort("popularity")} className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider transition-all ${activeSort === "popularity" ? "bg-zinc-800 dark:bg-zinc-200 text-zinc-100 dark:text-zinc-900" : "bg-zinc-100 dark:bg-zinc-800 text-zinc-500"}`}>Popular</button>
+            <div className="w-px h-3 bg-zinc-200 dark:bg-zinc-800 mx-1" />
+            <span className="text-[10px] text-zinc-400 font-medium uppercase tracking-widest">{totalCount} Resources</span>
+          </div>
+
           {/* Category pills */}
           <div className="flex gap-2 overflow-x-auto no-scrollbar">
             <button key="all" onClick={() => setActiveCategory("all")}
@@ -274,7 +296,7 @@ export default function SkillsLabPage() {
           </div>
 
           {/* Difficulty pills */}
-          <div className="flex gap-2 overflow-x-auto no-scrollbar">
+          <div className="flex gap-2 overflow-x-auto no-scrollbar pt-1">
             {[{ key: "all", label: "All Levels" }, ...DIFFICULTY_LEVELS].map(d => (
               <button key={d.key} onClick={() => setActiveDifficulty(d.key)}
                 className={`shrink-0 px-3.5 py-1 rounded-full text-[12px] font-bold transition-all active:scale-95 ${
@@ -339,6 +361,18 @@ export default function SkillsLabPage() {
                 </Link>
               </motion.div>
             ))}
+            
+            {nextCursor && (
+              <div className="py-8 flex justify-center">
+                <button 
+                  onClick={() => fetchSkills(true)}
+                  disabled={isSearchingMore}
+                  className="px-8 py-3 bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 text-[13px] font-bold rounded-full transition-all active:scale-95 disabled:opacity-50"
+                >
+                  {isSearchingMore ? "Loading..." : "Load more resources"}
+                </button>
+              </div>
+            )}
           </div>
         )}
       </main>

@@ -27,6 +27,10 @@ export default function FrameworksPage() {
   const [loading, setLoading] = useState(true);
   const [activeCategory, setActiveCategory] = useState("all");
   const [activeType, setActiveType] = useState("all");
+  const [activeSort, setActiveSort] = useState<"popularity" | "date">("date");
+  const [nextCursor, setNextCursor] = useState<string | null>(null);
+  const [isSearchingMore, setIsSearchingMore] = useState(false);
+  const [totalCount, setTotalCount] = useState(0);
   const [isAdmin, setIsAdmin] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [isSearchFocused, setIsSearchFocused] = useState(false);
@@ -57,20 +61,31 @@ export default function FrameworksPage() {
   const [formImagePreview, setFormImagePreview] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const fetchFrameworks = useCallback(async () => {
-    setLoading(true);
+  const fetchFrameworks = useCallback(async (isLoadMore = false) => {
+    if (isLoadMore) setIsSearchingMore(true);
+    else setLoading(true);
+
     try {
       const params = new URLSearchParams();
       if (activeCategory !== "all") params.set("category", activeCategory);
       if (activeType !== "all") params.set("type", activeType);
+      params.set("sortBy", activeSort);
+      if (isLoadMore && nextCursor) params.set("cursor", nextCursor);
+      params.set("limit", "12");
+
       const res = await fetch(`/api/curation/frameworks?${params}`);
       const data = await res.json();
-      setFrameworks(data.items || []);
+      
+      setFrameworks(prev => isLoadMore ? [...prev, ...(data.items || [])] : (data.items || []));
+      setNextCursor(data.nextCursor || null);
+      setTotalCount(data.totalCount || 0);
     } catch { toast.error("Failed to load frameworks"); }
+    
     setLoading(false);
-  }, [activeCategory, activeType]);
+    setIsSearchingMore(false);
+  }, [activeCategory, activeType, activeSort, nextCursor]);
 
-  useEffect(() => { fetchFrameworks(); }, [fetchFrameworks]);
+  useEffect(() => { fetchFrameworks(false); }, [activeCategory, activeType, activeSort]);
   useEffect(() => { fetch("/api/auth").then(r => r.json()).then(d => { if (d.isAdmin) setIsAdmin(true); }).catch(() => {}); }, []);
 
   const filtered = frameworks.filter(f => !searchQuery || f.name.toLowerCase().includes(searchQuery.toLowerCase()));
@@ -254,18 +269,27 @@ export default function FrameworksPage() {
           </motion.div>
         </div>
 
-        <div className="flex gap-2 overflow-x-auto no-scrollbar px-5 pb-3">
-          {[{ key: "all", label: "All" }, ...FRAMEWORK_TYPES].map(t => (
-            <button key={t.key} onClick={() => setActiveType(activeType === t.key ? "all" : t.key)}
-              className={`shrink-0 px-4 py-1.5 rounded-full text-[13px] font-bold transition-all ${
-                activeType === t.key
-                  ? "bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 shadow-lg"
-                  : "bg-white dark:bg-zinc-800/80 text-zinc-500 dark:text-zinc-500 dark:text-zinc-400 shadow-sm"
-              }`}>
-              {t.label.replace(/[\u{1F600}-\u{1F64F}\u{1F300}-\u{1F5FF}\u{1F680}-\u{1F6FF}\u{1F1E0}-\u{1F1FF}]/gu, '').trim()}
-              {(typeCounts[t.key] || 0) > 0 && <span className="ml-1 opacity-60">{typeCounts[t.key]}</span>}
-            </button>
-          ))}
+        <div className="flex flex-col gap-2 px-5 pb-3">
+          {/* Main Sort Pills */}
+          <div className="flex gap-1.5 items-center mb-1">
+            <button onClick={() => setActiveSort("date")} className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider transition-all ${activeSort === "date" ? "bg-zinc-800 dark:bg-zinc-200 text-zinc-100 dark:text-zinc-900" : "bg-zinc-100 dark:bg-zinc-800 text-zinc-500"}`}>Latest</button>
+            <button onClick={() => setActiveSort("popularity")} className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider transition-all ${activeSort === "popularity" ? "bg-zinc-800 dark:bg-zinc-200 text-zinc-100 dark:text-zinc-900" : "bg-zinc-100 dark:bg-zinc-800 text-zinc-500"}`}>Popular</button>
+            <div className="w-px h-3 bg-zinc-200 dark:bg-zinc-800 mx-1" />
+            <span className="text-[10px] text-zinc-400 font-medium uppercase tracking-widest">{totalCount} Frameworks</span>
+          </div>
+          
+          <div className="flex gap-2 overflow-x-auto no-scrollbar">
+            {[{ key: "all", label: "All" }, ...FRAMEWORK_TYPES].map(t => (
+              <button key={t.key} onClick={() => setActiveType(t.key)}
+                className={`shrink-0 px-4 py-1.5 rounded-full text-[13px] font-bold transition-all ${
+                  activeType === t.key
+                    ? "bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 shadow-lg"
+                    : "bg-white dark:bg-zinc-800/80 text-zinc-500 dark:text-zinc-400 shadow-sm"
+                }`}>
+                {t.label.replace(/[\u{1F600}-\u{1F64F}\u{1F300}-\u{1F5FF}\u{1F680}-\u{1F6FF}\u{1F1E0}-\u{1F1FF}]/gu, '').trim()}
+              </button>
+            ))}
+          </div>
         </div>
       </header>
 
@@ -314,6 +338,18 @@ export default function FrameworksPage() {
                 </motion.div>
               );
             })}
+            
+            {nextCursor && (
+              <div className="py-8 flex justify-center">
+                <button 
+                  onClick={() => fetchFrameworks(true)}
+                  disabled={isSearchingMore}
+                  className="px-8 py-3 bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 text-[13px] font-bold rounded-full transition-all active:scale-95 disabled:opacity-50"
+                >
+                  {isSearchingMore ? "Loading..." : "Load more frameworks"}
+                </button>
+              </div>
+            )}
           </div>
         )}
       </main>

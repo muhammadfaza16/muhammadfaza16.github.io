@@ -4,7 +4,8 @@ import React, { useState, useEffect, useRef, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
     Search, ArrowLeft, X, FileText, Clock,
-    ChevronRight, Flame, BookOpen, Hash, Bookmark,
+    ChevronRight, ChevronLeft, ChevronsRight, ChevronsLeft,
+    Flame, BookOpen, Hash, Bookmark, ArrowDown,
     Brain, Rocket, Coffee, Zap, TrendingUp, Sparkles,
     Star, CheckCheck, Heart, Repeat, MessageCircle, Info,
     Sun, Moon, Menu
@@ -24,7 +25,8 @@ const TOPIC_INSIGHTS: Record<string, string> = {
     "Wealth & Business": "Kumpulan strategi membangun asymmetric scale, memahami leverage, dan navigasi dunia startup/SaaS. Fokus pada capital allocation dan mindset membangun wealth jangka panjang.",
     "Philosophy & Psychology": "Framework mental untuk kejernihan berpikir. Dari Stoicisme sampe psikologi perilaku, artikel di sini ngebantu lo 'rewire' perspektif dalam menghadapi chaos di kehidupan modern.",
     "Productivity & Deep Work": "Sistem praktis untuk kerja elite. Bukan sekadar tips manajemen waktu, tapi metode deep work, optimasi energi, dan cara membangun habit yang sustain secara jangka panjang.",
-    "Growth & Systems": "Panduan skalasi audience dan compounding systems. Pelajari teknik marketing modern, SEO, conversion funnel, sampe sistem akuisisi yang bisa jalan secara autopilot."
+    "Growth & Systems": "Panduan skalasi audience dan compounding systems. Pelajari teknik marketing modern, SEO, conversion funnel, sampe sistem akuisisi yang bisa jalan secara autopilot.",
+    "All Entries": "Selamat datang di repositori lengkap. Di sini lo bisa nemuin semua artikel, blueprint, dan framework yang udah gue kurasi lintas kategori. Gunakan filter untuk nemuin spesifik apa yang lo cari buat asahan otak hari ini."
 };
 
 const CATEGORIES = [
@@ -86,8 +88,12 @@ function ExploreContent() {
     const [forYouArticles, setForYouArticles] = useState<any[]>([]);
     const [trendingArticles, setTrendingArticles] = useState<any[]>([]);
     const [latestArticles, setLatestArticles] = useState<any[]>([]);
+    const [allArticles, setAllArticles] = useState<any[]>([]);
     const [searchResults, setSearchResults] = useState<any[]>([]);
     const [allCount, setAllCount] = useState(0);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [activeOrder, setActiveOrder] = useState<"asc" | "desc">("desc");
+    const [isSearchingMore, setIsSearchingMore] = useState(false);
     const [categoryStats, setCategoryStats] = useState<Record<string, number>>({});
 
     const [isLoading, setIsLoading] = useState(true);
@@ -99,7 +105,8 @@ function ExploreContent() {
     const resultsRef = useRef<HTMLDivElement>(null);
     const scrollContainerRef = useRef<HTMLDivElement>(null);
     const scrollYRef = useRef(0);
-    const isShowingSearch = searchQuery.trim().length > 0 || activeCategory !== null;
+    const [isSeeAllActive, setIsSeeAllActive] = useState(false);
+    const isShowingSearch = searchQuery.trim().length > 0 || activeCategory !== null || isSeeAllActive;
 
     const { theme, setTheme } = useTheme();
     const [isAtlasMenuOpen, setIsAtlasMenuOpen] = useState(false);
@@ -131,7 +138,7 @@ function ExploreContent() {
                 const [tR, lR, aR] = await Promise.all([
                     fetch("/api/curation?limit=8&sortBy=popularity"),
                     fetch("/api/curation?limit=5&sortBy=date"),
-                    fetch("/api/curation?limit=100&sortBy=date"),
+                    fetch("/api/curation?limit=10&sortBy=date"),
                 ]);
                 const tD = tR.ok ? await tR.json() : { articles: [] };
                 const lD = lR.ok ? await lR.json() : { articles: [] };
@@ -177,34 +184,51 @@ function ExploreContent() {
         }
     }, [isLoading, mounted]);
 
-    // ─── Search ───
+    // Unified Fetch for Search/Filter/Home
+    const fetchArticles = async (page = 1) => {
+        const isSearch = searchQuery.trim().length > 0 || activeCategory !== null || isSeeAllActive;
+        const limit = 10;
+        const offset = (page - 1) * limit;
+
+        setIsSearchingApi(true);
+
+        try {
+            let url = `/api/curation?limit=${limit}&sortBy=${activeSort}&sortOrder=${activeOrder}&offset=${offset}`;
+            if (searchQuery.trim()) url += `&q=${encodeURIComponent(searchQuery)}`;
+            if (activeCategory) url += `&category=${encodeURIComponent(activeCategory)}`;
+            
+            const res = await fetch(url);
+            if (!res.ok) throw new Error(`API error ${res.status}`);
+            const data = await res.json();
+            
+            if (isSearch) {
+                setSearchResults(data.articles || []);
+            } else {
+                setAllArticles(data.articles || []);
+            }
+            setAllCount(data.totalCount || 0);
+            setCurrentPage(page);
+        } catch (err) {
+            console.error("Fetch error:", err);
+        } finally {
+            setIsSearchingApi(false);
+            setIsSearchingMore(false);
+        }
+    };
 
     useEffect(() => {
-        if (!searchQuery.trim() && !activeCategory) { setSearchResults([]); return; }
-
-        // Scroll to results when search/filter changed
-        if (mounted) {
-            resultsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        const isSearch = searchQuery.trim().length > 0 || activeCategory !== null;
+        
+        // Immediate feedback for non-search (sort/category) or see-all changes
+        if (!searchQuery.trim() || isSeeAllActive) {
+            setIsSearchingApi(true);
         }
 
-        const t = setTimeout(async () => {
-            setIsSearchingApi(true);
-            try {
-                let url = `/api/curation?limit=20&sortBy=${activeSort}`;
-                if (searchQuery.trim()) url += `&q=${encodeURIComponent(searchQuery)}`;
-                if (activeCategory) url += `&category=${encodeURIComponent(activeCategory)}`;
-                const res = await fetch(url);
-                if (!res.ok) {
-                    const errorText = await res.text();
-                    console.error(`Search fetch error ${res.status}:`, errorText.slice(0, 100));
-                    throw new Error(`API error ${res.status}`);
-                }
-                const data = await res.json();
-                if (data.articles) setSearchResults(data.articles);
-            } catch { } finally { setIsSearchingApi(false); }
-        }, 250);
+        const t = setTimeout(() => {
+            fetchArticles(1);
+        }, isSearch && !isSeeAllActive ? 250 : 0);
         return () => clearTimeout(t);
-    }, [searchQuery, activeCategory, activeSort, mounted]);
+    }, [searchQuery, activeCategory, activeSort, activeOrder, isSeeAllActive, mounted]);
 
     // Completion percentage
     const completionPct = useMemo(() => {
@@ -213,6 +237,172 @@ function ExploreContent() {
     }, [readStats.readCount, allCount]);
 
     // ─── Renderers ───
+
+    const CATEGORY_COLORS: Record<string, { bg: string, text: string, darkBg: string, darkText: string }> = {
+        "AI & Tech": { bg: "bg-blue-50/50", text: "text-blue-600", darkBg: "dark:bg-blue-500/10", darkText: "dark:text-blue-400" },
+        "Wealth & Business": { bg: "bg-amber-50/50", text: "text-amber-600", darkBg: "dark:bg-amber-500/10", darkText: "dark:text-amber-400" },
+        "Philosophy & Psychology": { bg: "bg-indigo-50/50", text: "text-indigo-600", darkBg: "dark:bg-indigo-500/10", darkText: "dark:text-indigo-400" },
+        "Productivity & Deep Work": { bg: "bg-emerald-50/50", text: "text-emerald-600", darkBg: "dark:bg-emerald-500/10", darkText: "dark:text-emerald-400" },
+        "Growth & Systems": { bg: "bg-orange-50/50", text: "text-orange-600", darkBg: "dark:bg-orange-500/10", darkText: "dark:text-orange-400" },
+    };
+
+    const CategoryPills = () => {
+        const [isMenuOpen, setIsMenuOpen] = useState(false);
+        const showSorting = activeCategory !== null || isSeeAllActive || searchQuery.trim().length > 0;
+        
+        return (
+            <div className="flex items-center gap-2 py-3 mb-2 flex-wrap">
+                {/* Home Feed style sorting for Result Views */}
+                {showSorting && (
+                    <div className="flex bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-full overflow-hidden shrink-0 shadow-sm p-0.5 relative">
+                        {[
+                            { id: "date" as const, label: "Date" },
+                            { id: "popularity" as const, label: "Popularity" }
+                        ].map((dim) => {
+                            const isActive = activeSort === dim.id;
+                            const handleSortClick = (id: "date" | "popularity") => {
+                                setIsSearchingApi(true); // Immediate skeleton
+                                if (id === activeSort) {
+                                    setActiveOrder(prev => prev === "desc" ? "asc" : "desc");
+                                } else {
+                                    setActiveSort(id);
+                                    setActiveOrder("desc");
+                                    // Hard clear lists to prevent blip
+                                    setAllArticles([]);
+                                    setSearchResults([]);
+                                }
+                            };
+                            return (
+                                <button
+                                    key={dim.id}
+                                    onClick={() => handleSortClick(dim.id)}
+                                    className={`flex items-center gap-1.5 px-3 py-1 text-[11px] font-bold rounded-full transition-all whitespace-nowrap z-10 active:scale-95 relative ${isActive
+                                        ? "text-white dark:text-zinc-900"
+                                        : "text-zinc-400 dark:text-zinc-500 hover:text-zinc-600 dark:hover:text-zinc-300 bg-transparent"
+                                        }`}
+                                >
+                                    {isActive && (
+                                        <motion.div
+                                            layoutId="activeSort"
+                                            className="absolute inset-0 bg-zinc-800 dark:bg-zinc-100 rounded-full -z-10 shadow-sm"
+                                            transition={{ type: "spring", stiffness: 400, damping: 30 }}
+                                        />
+                                    )}
+                                    <span>{dim.label}</span>
+                                    {isActive && (
+                                        <motion.div
+                                            initial={{ scale: 0, opacity: 0 }}
+                                            animate={{ scale: 1, opacity: 1, rotate: activeOrder === "asc" ? 180 : 0 }}
+                                            transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                                            className="flex items-center justify-center ml-0.5"
+                                        >
+                                            <ArrowDown size={14} strokeWidth={2.5} />
+                                        </motion.div>
+                                    )}
+                                </button>
+                            );
+                        })}
+                    </div>
+                )}
+
+                {/* Category Dropdown Trigger */}
+                <div className="relative">
+                    <button 
+                        onClick={() => setIsMenuOpen(!isMenuOpen)}
+                        className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-[11px] font-bold transition-all border shadow-sm active:scale-95 ${activeCategory 
+                            ? "bg-zinc-800 text-zinc-100 dark:bg-zinc-200 dark:text-zinc-900 border-transparent" 
+                            : "bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 border-zinc-200 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700"}`}
+                    >
+                        <Hash size={12} className={activeCategory ? "text-zinc-300 dark:text-zinc-700" : "text-zinc-400"} />
+                        <span>{activeCategory || "Categories"}</span>
+                        <ChevronRight size={10} className={`opacity-60 transition-transform ${isMenuOpen ? "rotate-90" : ""}`} />
+                    </button>
+                    
+                    <AnimatePresence>
+                        {isMenuOpen && (
+                            <motion.div 
+                                initial={{ opacity: 0, scale: 0.95, y: 10 }}
+                                animate={{ opacity: 1, scale: 1, y: 0 }}
+                                exit={{ opacity: 0, scale: 0.95, y: 10 }}
+                                className="absolute top-full left-0 mt-2 w-48 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl shadow-xl z-[150] overflow-hidden p-1 backdrop-blur-xl"
+                            >
+                                    {CATEGORIES.map(cat => (
+                                        <button 
+                                            key={cat.name}
+                                            onClick={() => { 
+                                                setIsSearchingApi(true); // Immediate skeleton
+                                                if (activeCategory === cat.name) {
+                                                    setActiveCategory(null);
+                                                } else {
+                                                    setActiveCategory(cat.name);
+                                                }
+                                                setSearchResults([]); // Hard clear search to prevent blip
+                                                setIsMenuOpen(false); 
+                                            }}
+                                            className={`w-full flex items-center gap-2 px-3 py-2 text-[11px] font-bold rounded-lg transition-colors ${activeCategory === cat.name ? "bg-zinc-100 dark:bg-zinc-800 text-blue-600" : "text-zinc-900 dark:text-zinc-100 hover:bg-zinc-50 dark:hover:bg-zinc-800/50"}`}
+                                        >
+                                            <cat.icon size={12} className={activeCategory === cat.name ? "text-blue-500" : "text-zinc-500"} />
+                                            {cat.name}
+                                        </button>
+                                    ))}
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
+                </div>
+            </div>
+        );
+    };
+
+    const Pagination = ({ current, total, onPage }: { current: number; total: number; onPage: (p: number) => void }) => {
+        const totalPages = Math.ceil(total / 10);
+        if (totalPages <= 1) return null;
+        
+        return (
+            <div className="flex items-center justify-center mt-6 mb-6">
+                <div className="flex items-center gap-2 p-1.5 bg-zinc-50/50 dark:bg-zinc-900/40 backdrop-blur-md border border-zinc-200/50 dark:border-zinc-800/50 rounded-full shadow-sm">
+                    <button
+                        disabled={current === 1}
+                        onClick={() => { onPage(1); resultsRef.current?.scrollIntoView({ behavior: 'smooth' }); }}
+                        className="flex items-center justify-center w-8 h-8 text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200 transition-all disabled:opacity-10 active:scale-90 rounded-full"
+                    >
+                        <ChevronsLeft size={14} strokeWidth={2.5} />
+                    </button>
+
+                    <button
+                        disabled={current === 1}
+                        onClick={() => { onPage(current - 1); resultsRef.current?.scrollIntoView({ behavior: 'smooth' }); }}
+                        className="flex items-center gap-1 px-3 h-8 text-[10px] font-bold tracking-widest uppercase text-zinc-600 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-zinc-100 transition-all disabled:opacity-20 active:scale-95 bg-white dark:bg-zinc-800 rounded-full border border-zinc-200/50 dark:border-zinc-700/50 shadow-sm"
+                    >
+                        <ChevronLeft size={12} strokeWidth={3} />
+                        <span className="hidden sm:inline">Prev</span>
+                    </button>
+
+                    <div className="flex items-center min-w-[50px] justify-center px-1">
+                        <span className="text-[11px] font-black text-zinc-900 dark:text-zinc-100 tabular-nums">
+                            {current} <span className="text-zinc-300 dark:text-zinc-700 font-medium mx-0.5">/</span> {totalPages}
+                        </span>
+                    </div>
+
+                    <button
+                        disabled={current >= totalPages}
+                        onClick={() => { onPage(current + 1); resultsRef.current?.scrollIntoView({ behavior: 'smooth' }); }}
+                        className="flex items-center gap-1 px-3 h-8 text-[10px] font-bold tracking-widest uppercase text-zinc-600 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-zinc-100 transition-all disabled:opacity-20 active:scale-95 bg-white dark:bg-zinc-800 rounded-full border border-zinc-200/50 dark:border-zinc-700/50 shadow-sm"
+                    >
+                        <span className="hidden sm:inline">Next</span>
+                        <ChevronRight size={12} strokeWidth={3} />
+                    </button>
+
+                    <button
+                        disabled={current >= totalPages}
+                        onClick={() => { onPage(totalPages); resultsRef.current?.scrollIntoView({ behavior: 'smooth' }); }}
+                        className="flex items-center justify-center w-8 h-8 text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200 transition-all disabled:opacity-10 active:scale-90 rounded-full"
+                    >
+                        <ChevronsRight size={14} strokeWidth={2.5} />
+                    </button>
+                </div>
+            </div>
+        );
+    };
 
     const ArticleRow = ({ article, i, rank }: { article: any; i: number; rank?: boolean }) => {
         const isRead = readStats.readIds.has(article.id);
@@ -307,6 +497,7 @@ function ExploreContent() {
         <>
             {Array(n).fill(0).map((_, i) => (
                 <div key={i} className="flex items-center gap-2.5 py-2.5 min-h-[72px] border-b border-zinc-100 dark:border-zinc-800/50 last:border-0">
+                    <div className="w-5 h-5 rounded-full bg-zinc-100 dark:bg-zinc-800/50 shrink-0 animate-pulse" />
                     <div className="w-10 h-10 rounded-md bg-zinc-100 dark:bg-zinc-800/60 animate-pulse shrink-0 relative overflow-hidden">
                         <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 dark:via-white/5 to-transparent animate-shimmer" />
                     </div>
@@ -323,9 +514,9 @@ function ExploreContent() {
         </>
     );
 
-    const Label = ({ children, color = "blue" }: { children: React.ReactNode, color?: "blue" | "emerald" | "zinc" }) => (
+    const Label = ({ children }: { children: React.ReactNode }) => (
         <div className="flex items-center gap-2 mb-3">
-            <div className={`w-[3px] h-3 rounded-full ${color === "blue" ? "bg-blue-500" : color === "emerald" ? "bg-emerald-500" : "bg-zinc-400"}`} />
+            <div className="w-[3px] h-3 rounded-full bg-blue-500" />
             <h2 className="text-[11px] font-bold text-zinc-900 dark:text-zinc-100 uppercase tracking-[0.2em]">{children}</h2>
         </div>
     );
@@ -369,26 +560,6 @@ function ExploreContent() {
                 </div>
             </header>
             
-            {/* Sub-header Filter Row (Sticky below Search) */}
-            {!isShowingSearch && (
-                <div className="sticky top-16 z-[105] bg-[#fafaf8]/80 dark:bg-[#050505]/80 backdrop-blur-xl border-b border-zinc-200/40 dark:border-zinc-800/40 py-2 transition-colors duration-500 overflow-hidden">
-                    <div className="max-w-2xl mx-auto px-4">
-                        <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar">
-                            {[{ key: "popularity" as const, label: "Popular", Icon: Flame }, { key: "date" as const, label: "Latest", Icon: Clock }].map(s => (
-                                <button key={s.key} onClick={() => setActiveSort(s.key)} className={`flex items-center gap-1 px-2.5 py-1 shrink-0 rounded-full text-[10.5px] font-medium transition-all ${activeSort === s.key ? "bg-zinc-800 text-zinc-100 dark:bg-zinc-200 dark:text-zinc-900" : "bg-zinc-100 dark:bg-zinc-800/80 text-zinc-500"}`}>
-                                    <s.Icon size={10} /> {s.label}
-                                </button>
-                            ))}
-                            <div className="w-px h-3.5 bg-zinc-200 dark:bg-zinc-800 mx-0.5 shrink-0" />
-                            {CATEGORIES.map(cat => (
-                                <button key={cat.name} onClick={() => setActiveCategory(activeCategory === cat.name ? null : cat.name)} className={`flex items-center gap-1 px-2.5 py-1 shrink-0 rounded-full text-[10.5px] font-medium transition-all whitespace-nowrap ${activeCategory === cat.name ? "bg-zinc-800 text-zinc-100 dark:bg-zinc-200 dark:text-zinc-900" : "bg-zinc-100 dark:bg-zinc-800/80 text-zinc-500"}`}>
-                                    <cat.icon size={10} /> {cat.name.split(" & ")[0]}
-                                </button>
-                            ))}
-                        </div>
-                    </div>
-                </div>
-            )}
 
             {/* ═══ CONTENT ═══ */}
             <main 
@@ -398,7 +569,7 @@ function ExploreContent() {
                     scrollYRef.current = scrollContainerRef.current.scrollTop;
                   }
                 }}
-                className="flex-1 overflow-y-auto overflow-x-hidden pt-6 pb-32"
+                className="flex-1 overflow-y-auto overflow-x-hidden pt-2 pb-16"
                 style={{
                     WebkitOverflowScrolling: "touch",
                     overscrollBehaviorY: "none",
@@ -411,16 +582,16 @@ function ExploreContent() {
                     {isShowingSearch ? (
                         <motion.div key="search" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.15 }} className="min-h-[400px]">
                             {/* Topic Insight Guide */}
-                            <div className="min-h-[100px]">
+                            <div className="min-h-0">
                                 <AnimatePresence mode="wait">
-                                    {activeCategory && TOPIC_INSIGHTS[activeCategory] ? (
+                                    {(activeCategory || isSeeAllActive) ? (
                                         <motion.div 
-                                            key={activeCategory}
+                                            key={activeCategory || "all"}
                                             initial={{ opacity: 0, scale: 0.98 }}
                                             animate={{ opacity: 1, scale: 1 }}
                                             exit={{ opacity: 0, scale: 0.98 }}
                                             transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-                                            className="mb-8 p-5 bg-zinc-50 dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800/60 rounded-2xl relative overflow-hidden group"
+                                            className="mb-6 p-6 bg-zinc-50 dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800/60 rounded-2xl relative overflow-hidden group h-auto"
                                         >
                                             <div className="absolute top-0 right-0 p-3 opacity-10 group-hover:opacity-20 transition-opacity">
                                                 <Info size={40} className="text-zinc-400" />
@@ -428,29 +599,51 @@ function ExploreContent() {
                                             <div className="flex flex-col gap-2 relative z-10">
                                                 <div className="flex items-center gap-2">
                                                     <div className="w-1 h-3.5 bg-blue-500 rounded-full" />
-                                                    <h4 className="text-[11px] font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">{activeCategory}</h4>
+                                                    <h4 className="text-[11px] font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">{activeCategory || "EXPLORE ALL"}</h4>
                                                 </div>
-                                                <p className="text-[13px] leading-relaxed text-zinc-600 dark:text-zinc-300 font-medium italic">
-                                                    &quot;{TOPIC_INSIGHTS[activeCategory]}&quot;
+                                                <p className="text-[13px] leading-relaxed text-zinc-600 dark:text-zinc-300 font-medium italic m-0">
+                                                    {TOPIC_INSIGHTS[activeCategory || "All Entries"]}
                                                 </p>
                                             </div>
                                         </motion.div>
                                     ) : null}
                                 </AnimatePresence>
+                                <CategoryPills />
                             </div>
                             
                             <div ref={resultsRef} className="flex items-center justify-between mb-2 scroll-mt-24">
                                 <div className="flex items-center gap-2">
-                                    {activeCategory && <button onClick={() => setActiveCategory(null)} className="text-[10px] bg-zinc-800 dark:bg-zinc-200 text-zinc-100 dark:text-zinc-900 px-2 py-0.5 rounded-full font-medium flex items-center gap-1">{activeCategory} <X size={9} /></button>}
-                                    <span className="text-[11px] text-zinc-400">{isSearchingApi ? "Searching..." : `${searchResults.length} results`}</span>
+                                    {(activeCategory || isSeeAllActive) && (
+                                        <button 
+                                            onClick={() => { setActiveCategory(null); setIsSeeAllActive(false); }} 
+                                            className="text-[10px] bg-zinc-800 dark:bg-zinc-200 text-zinc-100 dark:text-zinc-900 px-2 py-0.5 rounded-full font-medium flex items-center gap-1"
+                                        >
+                                            {activeCategory || "All Entries"} <X size={9} />
+                                        </button>
+                                    )}
+                                    <span className="text-[11px] text-zinc-400">
+                                        {isSearchingApi ? "Searching..." : `${allCount > 0 ? allCount : searchResults.length} articles found`}
+                                    </span>
                                 </div>
-                                <button onClick={() => { setSearchQuery(""); setActiveCategory(null); }} className="text-[10px] text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300">Clear</button>
+                                <button onClick={() => { setSearchQuery(""); setActiveCategory(null); setIsSeeAllActive(false); }} className="text-[10px] text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300">Clear</button>
                             </div>
-                            {isSearchingApi ? <Skeleton n={5} /> : searchResults.length > 0 ? (
-                                <div>{searchResults.map((a, i) => <ArticleRow key={a.id} article={a} i={i} />)}</div>
-                            ) : (
-                                <div className="py-16 text-center"><Search size={24} className="mx-auto text-zinc-300 dark:text-zinc-700 mb-2" /><p className="text-[12px] text-zinc-500">No articles found</p></div>
-                            )}
+                             <AnimatePresence mode="wait">
+                                {isSearchingApi ? (
+                                    <motion.div key="skeleton" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}>
+                                        <Skeleton n={5} />
+                                    </motion.div>
+                                ) : searchResults.length > 0 ? (
+                                    <motion.div key="results" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }} className="space-y-4">
+                                        <div>{searchResults.map((a, i) => <ArticleRow key={a.id} article={a} i={i} rank={true} />)}</div>
+                                        <Pagination current={currentPage} total={allCount} onPage={fetchArticles} />
+                                    </motion.div>
+                                ) : (
+                                    <motion.div key="empty" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }} className="py-16 text-center">
+                                        <Search size={24} className="mx-auto text-zinc-300 dark:text-zinc-700 mb-2" />
+                                        <p className="text-[12px] text-zinc-500">No articles found</p>
+                                    </motion.div>
+                                )}
+                             </AnimatePresence>
                         </motion.div>
                     ) : (
                         <motion.div key="discover" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.15 }} className="space-y-8">
@@ -475,10 +668,57 @@ function ExploreContent() {
                                 </div>
                             </div>
 
+                             {/* All Entries — The primary feed */}
+                            <section>
+                                <div className="flex items-center justify-between mb-1">
+                                    <Label>All Entries</Label>
+                                    <button 
+                                        onClick={() => {
+                                            setIsSearchingApi(true); // Immediate skeleton
+                                            setActiveSort(activeSort === 'date' ? 'popularity' : 'date');
+                                            setAllArticles([]); // Hard clear list to prevent blip
+                                        }}
+                                        className="flex items-center gap-1 -mt-3 group transition-opacity"
+                                    >
+                                        <span className="text-[10px] text-zinc-400 group-hover:text-zinc-500 transition-colors">sorted by</span>
+                                        <span className="text-[10px] text-blue-500 font-bold uppercase tracking-wider group-hover:text-blue-400 transition-colors">
+                                            {activeSort === 'popularity' ? 'Popularity' : 'Latest'}
+                                        </span>
+                                    </button>
+                                </div>
+                                <div className="min-h-[300px]">
+                                    <AnimatePresence mode="wait">
+                                        {isSearchingApi ? (
+                                            <motion.div key="skeleton" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}>
+                                                <Skeleton n={10} />
+                                            </motion.div>
+                                        ) : allArticles.length > 0 ? (
+                                            <motion.div key="all-list" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}>
+                                                <div>
+                                                    {allArticles.map((a, i) => (
+                                                        <ArticleRow key={a.id} article={a} i={i} rank={true} />
+                                                    ))}
+                                                </div>
+                                                <div className="pt-2 pb-1 border-t border-zinc-100 dark:border-zinc-800/50 mt-2">
+                                                    <button 
+                                                        onClick={() => setIsSeeAllActive(true)}
+                                                        className="w-full py-2 text-[10px] font-bold text-blue-500 dark:text-blue-400 hover:underline transition-colors uppercase tracking-[0.1em] flex items-center justify-center gap-1.5"
+                                                    >
+                                                        See All Entries <ChevronRight size={11} className="inline" />
+                                                    </button>
+                                                </div>
+                                            </motion.div>
+                                        ) : (
+                                            <motion.div key="all-none" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }} className="py-20 text-center opacity-40">No entries yet.</motion.div>
+                                        )}
+                                    </AnimatePresence>
+                                </div>
+                            </section>
+
                             {/* Picked For You */}
                             <section>
                                 <div className="flex items-center justify-between">
-                                    <Label color="blue">Picked For You</Label>
+                                    <Label>Picked For You</Label>
                                     <span className="text-[10px] text-zinc-400 -mt-3">personal</span>
                                 </div>
                                 <div className="min-h-[200px]">
@@ -516,49 +756,49 @@ function ExploreContent() {
                                             </div>
                                         </motion.div>
                                     ) : (
-                                        <div>{forYouArticles.map((a, i) => <ArticleRow key={a.id} article={a} i={i} />)}</div>
+                                        <div>{forYouArticles.map((a, i) => <ArticleRow key={a.id} article={a} i={i} rank={true} />)}</div>
                                     )}
                                 </div>
-                            </section>
-
-                            {/* Latest */}
-                            <section>
-                                <div className="flex items-center justify-between">
-                                    <Label color="emerald">Recently Added</Label>
-                                    <span className="text-[10px] text-zinc-400 -mt-3">latest</span>
-                                </div>
-                                {isLoading ? <Skeleton n={4} /> : <div>{latestArticles.map((a, i) => <ArticleRow key={a.id} article={a} i={i} />)}</div>}
                             </section>
 
                             {/* Trending */}
                             <section id="trending-section">
                                 <div className="flex items-center justify-between">
-                                    <Label color="blue">Trending Now</Label>
+                                    <Label>Trending Now</Label>
                                     <span className="text-[10px] text-zinc-400 -mt-3">popular</span>
                                 </div>
-                                {isLoading ? <Skeleton n={5} /> : <div>{trendingArticles.map((a, i) => <ArticleRow key={a.id} article={a} i={i} rank />)}</div>}
+                                {isLoading ? <Skeleton n={4} /> : <div>{trendingArticles.slice(0, 4).map((a, i) => <ArticleRow key={a.id} article={a} i={i} rank={true} />)}</div>}
+                            </section>
+
+                            {/* Latest */}
+                            <section>
+                                <div className="flex items-center justify-between">
+                                    <Label>Recently Added</Label>
+                                    <span className="text-[10px] text-zinc-400 -mt-3">latest</span>
+                                </div>
+                                {isLoading ? <Skeleton n={4} /> : <div>{latestArticles.slice(0, 4).map((a, i) => <ArticleRow key={a.id} article={a} i={i} rank={true} />)}</div>}
                             </section>
 
                             {/* Topics — compact inline rows */}
                             <section>
-                                <Label color="zinc">Topics</Label>
-                                <div className="space-y-0">
+                                <Label>Topics</Label>
+                                <div className="space-y-1">
                                     {CATEGORIES.map(cat => {
                                         const count = categoryStats[cat.name] || 0;
                                         return (
                                             <button
                                                 key={cat.name}
                                                 onClick={() => setActiveCategory(cat.name)}
-                                                className="w-full flex items-center gap-3 py-2.5 border-b border-zinc-100 dark:border-zinc-800/50 last:border-0 hover:bg-zinc-50/60 dark:hover:bg-zinc-800/20 transition-colors text-left"
+                                                className="w-full flex items-center gap-4 p-3 rounded-2xl border border-transparent hover:border-zinc-200/50 dark:hover:border-zinc-800/50 hover:bg-white dark:hover:bg-zinc-900/50 transition-all group text-left active:scale-[0.985]"
                                             >
-                                                <div className="w-8 h-8 rounded-md bg-zinc-100 dark:bg-zinc-800/80 flex items-center justify-center shrink-0 text-zinc-500 dark:text-zinc-400">
-                                                    <cat.icon size={15} />
+                                                <div className="w-10 h-10 rounded-xl bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center text-zinc-500 dark:text-zinc-400 group-hover:bg-blue-500 group-hover:text-white transition-colors duration-300 shadow-sm group-hover:shadow-blue-500/20">
+                                                    <cat.icon size={18} />
                                                 </div>
                                                 <div className="flex-1 min-w-0">
-                                                    <p className="text-[12.5px] font-medium text-zinc-900 dark:text-zinc-100">{cat.name}</p>
+                                                    <p className="text-[13px] font-bold text-zinc-900 dark:text-zinc-100 leading-tight mb-0.5">{cat.name}</p>
+                                                    <span className="text-[10px] text-zinc-400 font-medium tabular-nums">{count} articles</span>
                                                 </div>
-                                                <span className="text-[10.5px] text-zinc-400 tabular-nums shrink-0">{count} articles</span>
-                                                <ChevronRight size={12} className="text-zinc-300 dark:text-zinc-700 shrink-0" />
+                                                <ChevronRight size={14} className="text-zinc-300 dark:text-zinc-700 group-hover:text-blue-500 transition-colors" />
                                             </button>
                                         );
                                     })}
@@ -567,7 +807,7 @@ function ExploreContent() {
 
                             {/* Reading Lists — compact horizontal scroll */}
                             <section>
-                                <Label color="blue">Reading Lists</Label>
+                                <Label>Reading Lists</Label>
                                 <div className="flex gap-2 overflow-x-auto no-scrollbar pb-0.5 -mx-1 px-1">
                                     {READING_LISTS.map(list => (
                                         <button

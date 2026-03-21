@@ -42,6 +42,10 @@ export default function BooksPage() {
   const [loading, setLoading] = useState(true);
   const [activeStatus, setActiveStatus] = useState("all");
   const [activeCategory, setActiveCategory] = useState("all");
+  const [activeSort, setActiveSort] = useState<"popularity" | "date">("date");
+  const [nextCursor, setNextCursor] = useState<string | null>(null);
+  const [isSearchingMore, setIsSearchingMore] = useState(false);
+  const [totalCount, setTotalCount] = useState(0);
   const [isAdmin, setIsAdmin] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [isSearchFocused, setIsSearchFocused] = useState(false);
@@ -62,20 +66,31 @@ export default function BooksPage() {
   const [formImagePreview, setFormImagePreview] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const fetchBooks = useCallback(async () => {
-    setLoading(true);
+  const fetchBooks = useCallback(async (isLoadMore = false) => {
+    if (isLoadMore) setIsSearchingMore(true);
+    else setLoading(true);
+
     try {
       const params = new URLSearchParams();
       if (activeStatus !== "all") params.set("status", activeStatus);
       if (activeCategory !== "all") params.set("category", activeCategory);
+      params.set("sortBy", activeSort);
+      if (isLoadMore && nextCursor) params.set("cursor", nextCursor);
+      params.set("limit", "12");
+
       const res = await fetch(`/api/curation/books?${params}`);
       const data = await res.json();
-      setBooks(data.items || []);
+      
+      setBooks(prev => isLoadMore ? [...prev, ...(data.items || [])] : (data.items || []));
+      setNextCursor(data.nextCursor || null);
+      setTotalCount(data.totalCount || 0);
     } catch { toast.error("Failed to load books"); }
+    
     setLoading(false);
-  }, [activeStatus, activeCategory]);
+    setIsSearchingMore(false);
+  }, [activeStatus, activeCategory, activeSort, nextCursor]);
 
-  useEffect(() => { fetchBooks(); }, [fetchBooks]);
+  useEffect(() => { fetchBooks(false); }, [activeStatus, activeCategory, activeSort]);
   useEffect(() => {
     fetch("/api/auth").then(r => r.json()).then(d => { if (d.isAdmin) setIsAdmin(true); }).catch(() => {});
   }, []);
@@ -284,18 +299,27 @@ export default function BooksPage() {
         </div>
       </header>
 
-      {/* Status filter pills */}
-      <div className="flex gap-2 overflow-x-auto no-scrollbar px-5 py-3 bg-[#fafaf8] dark:bg-[#050505]">
-        {[{ key: "all", label: "All" }, ...BOOK_STATUSES.map(s => ({ key: s.key, label: s.label }))].map(s => (
-          <button key={s.key} onClick={() => setActiveStatus(s.key)}
-            className={`shrink-0 px-4 py-1.5 rounded-full text-[13px] font-bold transition-all active:scale-95 ${
-              activeStatus === s.key
-                ? "bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 shadow-[0_2px_8px_rgba(0,0,0,0.12)]"
-                : "bg-white dark:bg-zinc-800/80 text-zinc-500 dark:text-zinc-400 shadow-sm"
-            }`}>
-            {s.label}
-          </button>
-        ))}
+      <div className="flex flex-col gap-2 px-5 py-3 bg-[#fafaf8] dark:bg-[#050505]">
+        {/* Main Sort Pills */}
+        <div className="flex gap-1.5 items-center mb-1">
+          <button onClick={() => setActiveSort("date")} className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider transition-all ${activeSort === "date" ? "bg-zinc-800 dark:bg-zinc-200 text-zinc-100 dark:text-zinc-900" : "bg-zinc-100 dark:bg-zinc-800 text-zinc-500"}`}>Latest</button>
+          <button onClick={() => setActiveSort("popularity")} className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider transition-all ${activeSort === "popularity" ? "bg-zinc-800 dark:bg-zinc-200 text-zinc-100 dark:text-zinc-900" : "bg-zinc-100 dark:bg-zinc-800 text-zinc-500"}`}>Popular</button>
+          <div className="w-px h-3 bg-zinc-200 dark:bg-zinc-800 mx-1" />
+          <span className="text-[10px] text-zinc-400 font-medium uppercase tracking-widest">{totalCount} Books</span>
+        </div>
+
+        <div className="flex gap-2 overflow-x-auto no-scrollbar">
+          {[{ key: "all", label: "All" }, ...BOOK_STATUSES.map(s => ({ key: s.key, label: s.label }))].map(s => (
+            <button key={s.key} onClick={() => setActiveStatus(s.key)}
+              className={`shrink-0 px-4 py-1.5 rounded-full text-[13px] font-bold transition-all active:scale-95 ${
+                activeStatus === s.key
+                  ? "bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 shadow-[0_2px_8px_rgba(0,0,0,0.12)]"
+                  : "bg-white dark:bg-zinc-800/80 text-zinc-500 dark:text-zinc-400 shadow-sm"
+              }`}>
+              {s.label}
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* Book Grid */}
@@ -372,6 +396,18 @@ export default function BooksPage() {
                 </motion.div>
               );
             })}
+            
+            {nextCursor && (
+              <div className="py-8 flex justify-center">
+                <button 
+                  onClick={() => fetchBooks(true)}
+                  disabled={isSearchingMore}
+                  className="px-8 py-3 bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 text-[13px] font-bold rounded-full transition-all active:scale-95 disabled:opacity-50"
+                >
+                  {isSearchingMore ? "Loading..." : "Load more books"}
+                </button>
+              </div>
+            )}
           </div>
         )}
       </main>

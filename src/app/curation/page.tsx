@@ -966,42 +966,8 @@ export default function CurationList() {
           </AnimatePresence>
         </motion.div>
 
-        {/* Center: Search */}
-        <div className="flex-1 flex justify-center px-2">
-          <motion.div
-            layout
-            className="w-full"
-            animate={{ maxWidth: searchQuery || isSearchFocused ? "800px" : "420px" }}
-            transition={{ type: "spring", stiffness: 400, damping: 35 }}
-          >
-            <div className="relative group max-w-4xl mx-auto">
-              <Search
-                size={14}
-                className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400 group-focus-within:text-zinc-900 dark:group-focus-within:text-zinc-100 transition-colors"
-              />
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => {
-                  setSearchQuery(e.target.value);
-                  setCurrentPage(1);
-                }}
-                onFocus={() => setIsSearchFocused(true)}
-                onBlur={() => setIsSearchFocused(false)}
-                placeholder="Search articles, books, topics..."
-                className="w-full h-9 bg-zinc-100/60 dark:bg-zinc-800/60 border border-transparent focus:bg-white dark:focus:bg-zinc-900/50 focus:border-zinc-200 dark:focus:border-zinc-700/50 rounded-full pl-9 pr-9 text-[13px] text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-500/80 transition-all outline-none"
-              />
-              {searchQuery && (
-                <button
-                  onClick={() => setSearchQuery("")}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 hover:bg-zinc-200 dark:hover:bg-zinc-700 rounded-full transition-colors"
-                >
-                  <X size={14} className="text-zinc-400" />
-                </button>
-              )}
-            </div>
-          </motion.div>
-        </div>
+        {/* Center: Spacer/Title (Optional) */}
+        <div className="flex-1" />
 
         {/* Right: Actions */}
         <motion.div

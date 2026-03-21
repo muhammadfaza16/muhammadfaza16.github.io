@@ -7,17 +7,32 @@ export async function GET(req: NextRequest) {
         const { searchParams } = new URL(req.url);
         const category = searchParams.get("category");
         const type = searchParams.get("type");
+        const sortBy = searchParams.get("sortBy") || "date";
+        const cursor = searchParams.get("cursor");
+        const limit = parseInt(searchParams.get("limit") || "12");
 
         const where: any = {};
         if (category) where.category = category;
         if (type) where.type = type;
 
+        const orderBy: any = [{ createdAt: "desc" as const }, { id: "desc" as const }];
+
         const frameworks = await prisma.framework.findMany({
             where,
-            orderBy: { createdAt: "desc" },
+            orderBy,
+            take: limit + 1,
+            ...(cursor ? { cursor: { id: cursor }, skip: 1 } : {})
         });
 
-        return NextResponse.json({ items: frameworks, totalCount: frameworks.length });
+        let nextCursor = null;
+        if (frameworks.length > limit) {
+            frameworks.pop();
+            nextCursor = frameworks[frameworks.length - 1].id;
+        }
+
+        const totalCount = await prisma.framework.count({ where });
+
+        return NextResponse.json({ items: frameworks, nextCursor, totalCount });
     } catch (e: any) {
         return NextResponse.json({ error: e.message }, { status: 500 });
     }

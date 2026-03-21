@@ -8,18 +8,33 @@ export async function GET(req: NextRequest) {
         const category = searchParams.get("category");
         const status = searchParams.get("status");
         const sortBy = searchParams.get("sortBy") || "date";
+        const cursor = searchParams.get("cursor");
+        const limit = parseInt(searchParams.get("limit") || "12");
 
         const where: any = {};
         if (category) where.category = category;
         if (status) where.status = status;
 
-        const orderBy = sortBy === "rating"
-            ? { rating: "desc" as const }
-            : { createdAt: "desc" as const };
+        const orderBy: any = sortBy === "rating"
+            ? [{ rating: "desc" as const }, { id: "desc" as const }]
+            : [{ createdAt: "desc" as const }, { id: "desc" as const }];
 
-        const books = await prisma.book.findMany({ where, orderBy });
+        const books = await prisma.book.findMany({ 
+            where, 
+            orderBy,
+            take: limit + 1,
+            ...(cursor ? { cursor: { id: cursor }, skip: 1 } : {})
+        });
 
-        return NextResponse.json({ items: books, totalCount: books.length });
+        let nextCursor = null;
+        if (books.length > limit) {
+            books.pop();
+            nextCursor = books[books.length - 1].id;
+        }
+
+        const totalCount = await prisma.book.count({ where });
+
+        return NextResponse.json({ items: books, nextCursor, totalCount });
     } catch (e: any) {
         return NextResponse.json({ error: e.message }, { status: 500 });
     }

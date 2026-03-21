@@ -118,9 +118,9 @@ export async function GET(request: Request) {
             conditions.push({ id: { in: idList } });
         }
 
-        const where = conditions.length === 1 ? conditions[0] : { AND: conditions };
+        const where = conditions.length === 0 ? {} : (conditions.length === 1 ? conditions[0] : { AND: conditions });
 
-        const getArticlesCacheKey = `curation-feed-v4-${sortBy}-${sortOrder}-${limit}-${category || 'none'}-${queryText || 'none'}-${cursor || 'none'}-${offset}-${ids || 'all'}`;
+        const getArticlesCacheKey = `feed4-${sortBy}-${sortOrder}-${limit}-${offset}-${category?.slice(0, 10)}-${queryText?.slice(0, 10)}`;
 
         const getCachedArticles = unstable_cache(
             async () => {
@@ -128,8 +128,14 @@ export async function GET(request: Request) {
                     take: limit + 1,
                     where,
                     orderBy: sortBy === "popularity"
-                        ? [{ score: { socialScore: sortOrder } }, { id: sortOrder }]
-                        : [{ createdAt: sortOrder }, { id: sortOrder }],
+                        ? [
+                            { score: { socialScore: sortOrder } },
+                            { createdAt: 'desc' }
+                          ]
+                        : [
+                            { createdAt: sortOrder },
+                            { id: sortOrder }
+                          ],
                     select: {
                         id: true,
                         title: true,
@@ -144,9 +150,9 @@ export async function GET(request: Request) {
                             select: {
                                 total: true,
                                 substance: true,
-                                engagement: true, // likes
-                                actionability: true, // reposts
-                                specificity: true, // replies
+                                engagement: true,
+                                actionability: true,
+                                specificity: true,
                                 socialScore: true,
                             }
                         }
@@ -160,47 +166,42 @@ export async function GET(request: Request) {
                     query.skip = offset;
                 }
 
-                const articles = await prisma.article.findMany(query);
+                try {
+                    const articles = await prisma.article.findMany(query);
+                    let nextCursor = null;
+                    if (articles.length > limit) {
+                        const lastItem = articles.pop();
+                        nextCursor = articles[articles.length - 1].id;
+                    }
 
-                let nextCursor = null;
-                if (articles.length > limit) {
-                    const lastItem = articles.pop();
-                    nextCursor = articles[articles.length - 1].id;
+                    const enriched = articles.map((a: any) => {
+                        const s = a.score;
+                        return {
+                            id: a.id,
+                            title: a.title,
+                            content: a.content,
+                            url: a.url,
+                            imageUrl: a.imageUrl,
+                            category: a.category,
+                            isRead: a.isRead,
+                            isBookmarked: a.isBookmarked,
+                            createdAt: a.createdAt,
+                            qualityScore: s?.total || null,
+                            substanceScore: s?.substance || null,
+                            likes: s?.engagement || 0,
+                            reposts: s?.actionability || 0,
+                            replies: s?.specificity || 0,
+                            socialScore: s?.socialScore || 0
+                        };
+                    });
+                    return { articles: enriched, nextCursor };
+                } catch (dbError) {
+                    console.error("Prisma error in getCachedArticles:", dbError);
+                    throw dbError;
                 }
-
-                const enriched = articles.map((a: any) => {
-                    const s = a.score;
-                    const likes = s?.engagement || 0;
-                    const reposts = s?.actionability || 0;
-                    const replies = s?.specificity || 0;
-                    
-                    // We use the stored socialScore if available, otherwise fallback to on-the-fly calc
-                    // (Though ideally scoring logic should have already updated socialScore)
-                    const socialScore = s?.socialScore ?? ((likes * 1) + (reposts * 2) + (replies * 3));
-
-                    return {
-                        id: a.id,
-                        title: a.title,
-                        content: a.content,
-                        url: a.url,
-                        imageUrl: a.imageUrl,
-                        category: a.category,
-                        isRead: a.isRead,
-                        isBookmarked: a.isBookmarked,
-                        createdAt: a.createdAt,
-                        qualityScore: s?.total || null,
-                        substanceScore: s?.substance || null,
-                        likes,
-                        reposts,
-                        replies,
-                        socialScore
-                    };
-                });
-
-                return { articles: enriched, nextCursor };
             },
             [getArticlesCacheKey],
-            { revalidate: 60 } // Cache DB result for 1 minute
+            { revalidate: 60 }
         );
 
         const [{ articles, nextCursor }, totalCount] = await Promise.all([
@@ -209,9 +210,16 @@ export async function GET(request: Request) {
         ]);
 
         return NextResponse.json({ articles, nextCursor, totalCount });
-    } catch (error) {
-        console.error("Failed to fetch curation articles:", error);
-        return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+    } catch (error: any) {
+        console.error("CURATION API ERROR - FULL DETAILS:", {
+            message: error?.message,
+            stack: error?.stack,
+            query: request.url
+        });
+        return NextResponse.json({ 
+            error: "Internal Server Error",
+            details: process.env.NODE_ENV === 'development' ? error?.message : undefined
+        }, { status: 500 });
     }
 }
 
