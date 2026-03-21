@@ -459,19 +459,19 @@ function ExploreContent() {
                             <div className="flex items-center bg-zinc-50 dark:bg-zinc-900/60 rounded-xl border border-zinc-200/50 dark:border-zinc-800/50 divide-x divide-zinc-200/60 dark:divide-zinc-800/60 min-h-[48px] overflow-hidden">
                                 <div className="flex-1 text-center py-1.5 px-1">
                                     <span className="text-[14px] md:text-[16px] font-bold text-zinc-900 dark:text-zinc-100 tabular-nums">{allCount}</span>
-                                    <span className="text-[9px] text-zinc-500 ml-1.5 hidden sm:inline">articles</span>
+                                    <span className="text-[9px] text-zinc-500 ml-1.5 inline">articles</span>
                                 </div>
                                 <div className="flex-1 text-center py-1.5 px-1">
                                     <span className="text-[14px] md:text-[16px] font-bold text-zinc-900 dark:text-zinc-100 tabular-nums">{readStats.readCount}</span>
-                                    <span className="text-[9px] text-zinc-500 ml-1.5 hidden sm:inline">read</span>
+                                    <span className="text-[9px] text-zinc-500 ml-1.5 inline">read</span>
                                 </div>
                                 <div className="flex-1 text-center py-1.5 px-1">
                                     <span className="text-[14px] md:text-[16px] font-bold text-zinc-900 dark:text-zinc-100 tabular-nums">{readStats.bookmarkCount}</span>
-                                    <span className="text-[9px] text-zinc-500 ml-1.5 hidden sm:inline">saved</span>
+                                    <span className="text-[9px] text-zinc-500 ml-1.5 inline">saved</span>
                                 </div>
                                 <div className="flex-1 text-center py-1.5 px-1">
                                     <span className="text-[14px] md:text-[16px] font-bold text-zinc-900 dark:text-zinc-100 tabular-nums">{completionPct}%</span>
-                                    <span className="text-[9px] text-zinc-500 ml-1.5 hidden sm:inline">done</span>
+                                    <span className="text-[9px] text-zinc-500 ml-1.5 inline">done</span>
                                 </div>
                             </div>
 
