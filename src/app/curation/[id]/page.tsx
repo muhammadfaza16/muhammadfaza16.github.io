@@ -2,7 +2,7 @@
 
 import { use, useEffect, useState, useRef, useCallback, useMemo } from "react";
 import { useRouter } from "next/navigation";
-import { motion, useScroll, useSpring, useMotionValueEvent, AnimatePresence, useTransform } from "framer-motion";
+import { motion, useScroll, useSpring, useMotionValueEvent, AnimatePresence, useTransform, useMotionValue } from "framer-motion";
 import Lenis from 'lenis';
 import { ArrowLeft, ChevronLeft, Headphones, Clock, CheckCircle, Share, Trash2, Globe, Pencil, Camera, X, Clipboard, ImageIcon, MessageSquareQuote, ChevronsUp, Maximize, Minimize, Minus, Plus, Type, Bookmark, Volume2, VolumeX, Pause, Play, FolderPlus, FolderCheck, Check, Sparkles, ChevronDown, ChevronUp, Heart, RefreshCw, MessageSquare, Download, FileText } from "lucide-react";
 import Link from "next/link";
@@ -278,9 +278,11 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
 
     const supabase = getSupabase();
 
-    // 1. Scroll Progress & Hide-On-Scroll Logic (Must be above early returns)
+    // 1. Scroll Progress & Hide-On-Scroll Logic (Manual Sync with Lenis)
     const scrollContainerRef = useRef<HTMLDivElement>(null);
-    const { scrollY, scrollYProgress } = useScroll({ container: scrollContainerRef });
+    const lenisRef = useRef<Lenis | null>(null);
+    const scrollY = useMotionValue(0);
+    const scrollYProgress = useMotionValue(0);
     const topMaskOpacity = useTransform(scrollY, [100, 300], [0, 1]);
     const [isNavVisible, setIsNavVisible] = useState(true);
     const lastYRef = useRef(0);
@@ -356,8 +358,12 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
                             if (pct > 0.05 && pct < 0.95) {
                                 const container = scrollContainerRef.current;
                                 const maxScroll = container.scrollHeight - container.clientHeight;
-                                container.scrollTo({ top: maxScroll * pct, behavior: 'auto' });
-                                toast('Resumed where you left off', { icon: '\ud83d\udcd6', duration: 2000 });
+                                if (lenisRef.current) {
+                                    lenisRef.current.scrollTo(maxScroll * pct, { immediate: true });
+                                } else {
+                                    container.scrollTo({ top: maxScroll * pct, behavior: 'auto' });
+                                }
+                                toast('Resumed where you left off', { icon: '📖', duration: 2000 });
                             }
                         }
                     } catch { }
@@ -434,15 +440,22 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
         const lenis = new Lenis({
             wrapper: scrollContainerRef.current,
             content: scrollContainerRef.current.firstElementChild as HTMLElement,
-            duration: 1.2,
+            duration: 1.5,
             easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
             orientation: 'vertical',
             gestureOrientation: 'vertical',
             smoothWheel: true,
-            wheelMultiplier: 1,
-            touchMultiplier: 1.5,
+            wheelMultiplier: 0.8,
+            touchMultiplier: 0.7,
             infinite: false,
         });
+
+        lenis.on('scroll', (e: any) => {
+            scrollY.set(e.scroll);
+            scrollYProgress.set(e.progress);
+        });
+
+        lenisRef.current = lenis;
 
         function raf(time: number) {
             lenis.raf(time);
@@ -599,29 +612,11 @@ export default function CurationReaderPage({ params }: { params: Promise<{ id: s
     }, [formUrl]);
 
     const scrollToTop = useCallback(() => {
-        if (!scrollContainerRef.current) return;
-        const duration = 1500; // Deliberate duration for "don't rush"
-        const startPosition = scrollContainerRef.current.scrollTop;
-        const startTime = performance.now();
-
-        const easeInOutCubic = (t: number) => {
-            return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
-        };
-
-        const animate = (currentTime: number) => {
-            if (!scrollContainerRef.current) return;
-            const elapsedTime = currentTime - startTime;
-            const progress = Math.min(elapsedTime / duration, 1);
-            const easedProgress = easeInOutCubic(progress);
-
-            scrollContainerRef.current.scrollTo(0, startPosition * (1 - easedProgress));
-
-            if (progress < 1) {
-                requestAnimationFrame(animate);
-            }
-        };
-
-        requestAnimationFrame(animate);
+        if (lenisRef.current) {
+            lenisRef.current.scrollTo(0, { duration: 1.5 });
+        } else if (scrollContainerRef.current) {
+            scrollContainerRef.current.scrollTo({ top: 0, behavior: 'smooth' });
+        }
     }, []);
 
     if (isLoading) {
