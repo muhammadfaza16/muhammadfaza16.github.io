@@ -432,29 +432,16 @@ export function LiveMusicPlayer() {
 
     return (
         <>
-            {/* Ambient Dynamic Background */}
-            <AnimatePresence>
-                {playlistCover && (
-                    <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: isDark ? 0.4 : 0.5 }}
-                        exit={{ opacity: 0 }}
-                        transition={{ duration: 2 }}
-                        style={{
-                            position: "absolute",
-                            inset: "-150px",
-                            zIndex: 0,
-                            pointerEvents: "none",
-                            backgroundImage: `url(${playlistCover})`,
-                            backgroundSize: "cover",
-                            backgroundPosition: "center",
-                            filter: "blur(100px) saturate(150%)",
-                            transform: "scale(1.2)"
-                        }}
-                    />
-                )}
-            </AnimatePresence>
-            <div style={{ position: "absolute", inset: "-150px", zIndex: 0, pointerEvents: "none", backgroundColor: isDark ? "rgba(0,0,0,0.6)" : "rgba(255,255,255,0.6)" }} />
+            {/* Ambient Background — static gradient, no GPU-heavy blur */}
+            <div style={{
+                position: "absolute",
+                inset: "-50px",
+                zIndex: 0,
+                pointerEvents: "none",
+                background: isDark 
+                    ? "radial-gradient(ellipse at 50% 30%, rgba(99, 102, 241, 0.15) 0%, rgba(30, 27, 75, 0.3) 50%, transparent 80%)"
+                    : "radial-gradient(ellipse at 50% 30%, rgba(199, 210, 254, 0.4) 0%, rgba(224, 231, 255, 0.2) 50%, transparent 80%)"
+            }} />
 
             <div style={{ position: "relative", zIndex: showQueue ? 999999 : 1, flex: 1, display: "flex", flexDirection: "column", width: "100%", maxWidth: "500px", margin: "0 auto" }}>
             {/* Playlist Info & Listeners */}
@@ -479,6 +466,12 @@ export function LiveMusicPlayer() {
 
             {/* Cover Art Container Wrapper (For Particles & Button) */}
             <div style={{ position: "relative", width: "100%", maxWidth: "240px", aspectRatio: "1/1" }}>
+                {/* Static shadow wrapper — NOT animated, so browser never repaints shadow */}
+                <div style={{
+                    width: "100%", height: "100%",
+                    borderRadius: "28px",
+                    boxShadow: isDark ? "0 30px 80px rgba(0,0,0,0.7)" : "0 20px 60px rgba(0,0,0,0.3)",
+                }}>
                 <motion.div 
                     animate={isPlaying ? { scale: [1, 1.03, 1] } : { scale: 1 }}
                     transition={{ repeat: Infinity, duration: 6, ease: "easeInOut" }}
@@ -486,9 +479,9 @@ export function LiveMusicPlayer() {
                         width: "100%", height: "100%",
                         borderRadius: "28px", overflow: "hidden", position: "relative",
                         background: isDark ? "linear-gradient(135deg, #1E1B4B, #312E81)" : "linear-gradient(135deg, #E0E7FF, #C7D2FE)",
-                        boxShadow: isDark ? "0 30px 80px rgba(0,0,0,0.7)" : "0 20px 60px rgba(0,0,0,0.3)",
                         border: isDark ? "1px solid rgba(255,255,255,0.1)" : "1px solid rgba(0,0,0,0.06)",
-                        display: "flex", alignItems: "center", justifyContent: "center"
+                        display: "flex", alignItems: "center", justifyContent: "center",
+                        willChange: "transform"
                     }}
                 >
                 <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(0,0,0,0.7) 0%, transparent 60%)", zIndex: 1 }} />
@@ -505,6 +498,7 @@ export function LiveMusicPlayer() {
                 <BufferingOverlay />
                 <LiveVisualizer isPlaying={isPlaying} />
                 </motion.div>
+                </div>
 
                 {/* Floating Particles Area anchored to Cover Art */}
                 <div style={{ position: "absolute", bottom: "30px", right: "-10px", width: "40px", height: "250px", pointerEvents: "none", zIndex: 10 }}>
