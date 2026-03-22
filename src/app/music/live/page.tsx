@@ -51,10 +51,11 @@ function LiveMusicPageInner() {
             <header style={{ 
                 width: "100%", 
                 paddingTop: "calc(env(safe-area-inset-top) + 8px)", 
-                zIndex: 10,
-                transition: "all 0.5s ease"
+                paddingBottom: "12px", paddingLeft: "20px", paddingRight: "20px",
+                display: "flex", justifyContent: "space-between", alignItems: "center",
+                position: "relative", zIndex: 10
             }}>
-                <div style={{ maxWidth: "600px", margin: "0 auto", width: "100%", padding: "16px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                <div style={{ maxWidth: "600px", margin: "0 auto", width: "100%", padding: "0", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
                     <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
                         <Link href="/music/live-hub" style={{ textDecoration: "none" }}>
                             <motion.button 

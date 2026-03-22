@@ -152,7 +152,7 @@ const LiveControls = React.memo(({
 }: any) => {
     const { isBuffering } = useLiveTime();
     return (
-        <div style={{ display: "flex", justifySelf: "center", justifyContent: "space-between", alignItems: "center", width: "100%", padding: "0 10px" }}>
+        <div style={{ display: "flex", justifySelf: "center", justifyContent: "space-between", alignItems: "center", width: "100%", padding: "0 20px" }}>
             {/* Left: Queue Toggle */}
             <div style={{ display: "flex", gap: "12px" }}>
                 <motion.button
@@ -445,7 +445,7 @@ export function LiveMusicPlayer() {
 
             <div style={{ position: "relative", zIndex: showQueue ? 999999 : 1, flex: 1, display: "flex", flexDirection: "column", width: "100%", maxWidth: "500px", margin: "0 auto" }}>
             {/* Playlist Info & Listeners */}
-            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "6px", padding: "8px 16px 0", marginBottom: "4px" }}>
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "6px", padding: "8px 20px 0", marginBottom: "4px" }}>
                 <span style={{ fontFamily: headerFont, fontWeight: 800, fontSize: "0.95rem", letterSpacing: "0.05em", color: isDark ? "rgba(255,255,255,0.9)" : "rgba(0,0,0,0.9)", display: "flex", alignItems: "center", gap: "8px" }}>
                     <Radio size={16} color={isDark ? "rgba(255,255,255,0.5)" : "rgba(0,0,0,0.4)"} />
                     {playlistTitle} 
@@ -538,7 +538,7 @@ export function LiveMusicPlayer() {
             </div>
 
             {/* Song Info */}
-            <div style={{ textAlign: "center", display: "flex", flexDirection: "column", alignItems: "center", gap: "8px" }}>
+            <div style={{ textAlign: "center", display: "flex", flexDirection: "column", alignItems: "center", gap: "8px", padding: "0 20px" }}>
                 <h2 style={{ fontFamily: headerFont, fontWeight: 900, fontSize: "1.5rem", margin: 0, letterSpacing: "-0.04em", color: isDark ? "#FFF" : "#000" }}>
                     {cleanTitle}
                 </h2>
@@ -562,7 +562,7 @@ export function LiveMusicPlayer() {
             </div>
 
             {/* Progress Bar & Clock (Memoized & High-Frequency Isolated) */}
-            <div style={{ width: "100%" }}>
+            <div style={{ width: "100%", padding: "0 20px" }}>
                 <LivePlayerProgress isPlaying={isPlaying} />
                 <LivePlayerClock />
                 <AnimatePresence>

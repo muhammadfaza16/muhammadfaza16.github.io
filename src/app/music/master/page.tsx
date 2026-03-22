@@ -172,15 +172,15 @@ export default function MasterPanelPage() {
                     overflowX: "hidden",
                     display: "flex",
                     flexDirection: "column",
-                    padding: "0px 16px 140px 16px",
+                    padding: "0 0 140px 0",
                     WebkitOverflowScrolling: "touch",
                     overscrollBehaviorY: "none",
                     scrollbarGutter: "stable"
                 }}
             >
-                <div style={{ width: "100%", maxWidth: "440px", margin: "0 auto", display: "flex", flexDirection: "column", paddingTop: "40px" }}>
+                <div style={{ width: "100%", maxWidth: "440px", margin: "0 auto", display: "flex", flexDirection: "column", padding: "40px 20px" }}>
                     {/* Entrance Navigation */}
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", padding: "0 16px", marginBottom: "-8px" }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "-8px" }}>
                         <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
                             <Link href="/music" style={{ textDecoration: "none" }}>
                                 <motion.div 
@@ -202,14 +202,12 @@ export default function MasterPanelPage() {
                             </h1>
                         </div>
                     </div>
-                <div style={{ padding: "1rem", paddingTop: "1.5rem" }}>
-                    {/* System Shell */}
                     <motion.div
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ type: "spring", stiffness: 250, damping: 25 }}
                         style={{
-                            width: "100%", display: "flex", flexDirection: "column", gap: "24px"
+                            width: "100%", display: "flex", flexDirection: "column", gap: "24px", paddingTop: "24px"
                         }}
                     >
 
@@ -536,7 +534,6 @@ export default function MasterPanelPage() {
                     </motion.div>
                 </div>
             </div>
-        </div>
-    </main>
+        </main>
     );
 }

@@ -124,7 +124,7 @@ export default function LibraryClient({ songCount }: { songCount: number }) {
                     display: "flex",
                     flexDirection: "column",
                     alignItems: "center",
-                    padding: "40px 16px 140px 16px",
+                    padding: "40px 20px 140px 20px",
                     WebkitOverflowScrolling: "touch",
                     overscrollBehaviorY: "none",
                     scrollbarGutter: "stable"
@@ -133,7 +133,7 @@ export default function LibraryClient({ songCount }: { songCount: number }) {
                 <div style={{ width: "100%", maxWidth: "440px", display: "flex", flexDirection: "column", gap: "24px" }}>
 
                     {/* Entrance Navigation */}
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "-8px", padding: "0 4px" }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "-8px" }}>
                         <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
                             <Link href="/music" style={{ textDecoration: "none" }}>
                                 <motion.div 

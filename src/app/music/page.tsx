@@ -105,7 +105,7 @@ export default function AudioHubPage() {
                     display: "flex",
                     flexDirection: "column",
                     alignItems: "center",
-                    padding: "0 16px 140px 16px",
+                    padding: "0 20px 140px 20px",
                     WebkitOverflowScrolling: "touch",
                     overscrollBehaviorY: "none",
                     scrollbarGutter: "stable"
