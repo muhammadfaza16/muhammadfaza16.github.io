@@ -7,6 +7,7 @@ import { motion } from "framer-motion";
 import Link from "next/link";
 import { useLiveMusic } from "@/components/live/LiveMusicContext";
 import { parseSongTitle } from "@/utils/songUtils";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 interface StationData {
     id: string;
@@ -170,20 +171,36 @@ export default function LiveHubPage() {
             >
                 <div style={{ width: "100%", maxWidth: "440px", display: "flex", flexDirection: "column", gap: "24px", paddingTop: "40px" }}>
 
-                    {/* Entrance Navigation */}
+                    {/* Entrance Text (Hero Typography) */}
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", padding: "0 20px", marginBottom: "-8px" }}>
-                        <Link href="/music" style={{ textDecoration: "none" }}>
-                            <motion.div 
-                                whileHover={{ x: -4 }}
-                                style={{ 
-                                    display: "inline-flex", alignItems: "center", gap: "8px", 
-                                    color: isDark ? "rgba(255,255,255,0.6)" : "rgba(0,0,0,0.5)",
-                                    fontFamily: headerFont, fontWeight: 700, fontSize: "0.8rem", textTransform: "uppercase", letterSpacing: "0.05em"
-                                }}
-                            >
-                                <ChevronLeft size={16} /> Back
-                            </motion.div>
-                        </Link>
+                        <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+                            <Link href="/music" style={{ textDecoration: "none" }}>
+                                <motion.div 
+                                    whileHover={{ x: -4 }}
+                                    style={{ 
+                                        display: "inline-flex", alignItems: "center", gap: "8px", 
+                                        color: isDark ? "rgba(255,255,255,0.6)" : "rgba(0,0,0,0.5)",
+                                        fontFamily: headerFont, fontWeight: 700, fontSize: "0.8rem", textTransform: "uppercase", letterSpacing: "0.05em"
+                                    }}
+                                >
+                                    <ChevronLeft size={16} /> Back
+                                </motion.div>
+                            </Link>
+                            <h1 style={{ 
+                                fontFamily: headerFont, fontWeight: 900, fontSize: "2.5rem", lineHeight: 1, margin: 0,
+                                letterSpacing: "-0.05em", color: isDark ? "#FFF" : "#000"
+                            }}>
+                                Live<br />Music.
+                            </h1>
+                        </div>
+                        <div style={{ 
+                            display: "flex", alignItems: "center", justifyContent: "center",
+                            width: "44px", height: "44px", borderRadius: "100px",
+                            background: isDark ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.03)",
+                            border: isDark ? "1px solid rgba(255,255,255,0.1)" : "1px solid rgba(0,0,0,0.05)"
+                        }}>
+                            <ThemeToggle transparent />
+                        </div>
                     </div>
 
                 {/* Hero Section — Primary Session */}
