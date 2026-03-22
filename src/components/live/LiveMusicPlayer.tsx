@@ -22,8 +22,9 @@ const BufferingOverlay = React.memo(() => {
             backgroundColor: "rgba(0,0,0,0.4)", zIndex: 4
         }}>
             <motion.div
-                animate={{ rotate: 360 }}
+                animate={{ rotate: [0, 360] }}
                 transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
+                style={{ willChange: "transform" }}
             >
                 <Disc size={32} color="#fff" />
             </motion.div>
@@ -39,11 +40,14 @@ const LiveVisualizer = React.memo(({ isPlaying }: { isPlaying: boolean }) => {
             {[...Array(5)].map((_, i) => (
                 <motion.div
                     key={i}
-                    animate={{ height: [8, 20 + Math.random() * 16, 8] }}
+                    animate={{ scaleY: [0.2, 0.5 + Math.random() * 0.5, 0.2] }}
                     transition={{ repeat: Infinity, duration: 0.6 + i * 0.15, ease: "easeInOut" }}
                     style={{
-                        width: "4px", borderRadius: "100px",
-                        backgroundColor: "rgba(255,255,255,0.7)"
+                        width: "4px", height: "40px",
+                        transformOrigin: "bottom",
+                        borderRadius: "100px",
+                        backgroundColor: "rgba(255,255,255,0.7)",
+                        willChange: "transform"
                     }}
                 />
             ))}
@@ -63,11 +67,14 @@ const LivePlayerProgress = React.memo(({ isPlaying }: { isPlaying: boolean }) =>
             overflow: "hidden"
         }}>
             <motion.div
-                style={{ 
-                    height: "100%", backgroundColor: "#EF4444", borderRadius: "100px", width: `${Math.min(progress, 100)}%`,
-                    boxShadow: isPlaying ? "0 0 12px rgba(239, 68, 68, 0.8)" : "none"
-                }}
+                initial={{ width: 0 }}
+                animate={{ width: `${Math.min(progress, 100)}%` }}
                 transition={{ duration: 0.5, ease: "linear" }}
+                style={{ 
+                    height: "100%", backgroundColor: "#EF4444", borderRadius: "100px",
+                    boxShadow: isPlaying ? "0 0 12px rgba(239, 68, 68, 0.8)" : "none",
+                    willChange: "width"
+                }}
             />
         </div>
     );
@@ -447,7 +454,7 @@ export function LiveMusicPlayer() {
                     />
                 )}
             </AnimatePresence>
-            <div style={{ position: "absolute", inset: "-150px", zIndex: 0, pointerEvents: "none", backgroundColor: isDark ? "rgba(0,0,0,0.35)" : "rgba(255,255,255,0.4)" }} />
+            <div style={{ position: "absolute", inset: "-150px", zIndex: 0, pointerEvents: "none", backgroundColor: isDark ? "rgba(0,0,0,0.6)" : "rgba(255,255,255,0.6)" }} />
 
             <div style={{ position: "relative", zIndex: showQueue ? 999999 : 1, flex: 1, display: "flex", flexDirection: "column", width: "100%", maxWidth: "500px", margin: "0 auto" }}>
             {/* Playlist Info & Listeners */}
@@ -472,24 +479,24 @@ export function LiveMusicPlayer() {
 
             {/* Cover Art Container Wrapper (For Particles & Button) */}
             <div style={{ position: "relative", width: "100%", maxWidth: "240px", aspectRatio: "1/1" }}>
-                <div 
+                <motion.div 
+                    animate={isPlaying ? { scale: [1, 1.03, 1] } : { scale: 1 }}
+                    transition={{ repeat: Infinity, duration: 6, ease: "easeInOut" }}
                     style={{
                         width: "100%", height: "100%",
                         borderRadius: "28px", overflow: "hidden", position: "relative",
-                        background: playlistColor || (isDark ? "linear-gradient(135deg, #1E1B4B, #312E81)" : "linear-gradient(135deg, #E0E7FF, #C7D2FE)"),
+                        background: isDark ? "linear-gradient(135deg, #1E1B4B, #312E81)" : "linear-gradient(135deg, #E0E7FF, #C7D2FE)",
                         boxShadow: isDark ? "0 30px 80px rgba(0,0,0,0.7)" : "0 20px 60px rgba(0,0,0,0.3)",
                         border: isDark ? "1px solid rgba(255,255,255,0.1)" : "1px solid rgba(0,0,0,0.06)",
                         display: "flex", alignItems: "center", justifyContent: "center"
                     }}
                 >
-                {playlistCover && (
-                    <img src={playlistCover} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", opacity: 0.6 }} alt="" />
-                )}
                 <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(0,0,0,0.7) 0%, transparent 60%)", zIndex: 1 }} />
                 <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", zIndex: 2 }}>
                     <motion.div
-                        animate={{ rotate: isPlaying ? 360 : 0 }}
+                        animate={isPlaying ? { rotate: [0, 360] } : { rotate: 0 }}
                         transition={{ repeat: Infinity, duration: 8, ease: "linear" }}
+                        style={{ willChange: "transform" }}
                     >
                         <Disc size={100} color="rgba(255,255,255,0.15)" />
                     </motion.div>
@@ -497,7 +504,7 @@ export function LiveMusicPlayer() {
 
                 <BufferingOverlay />
                 <LiveVisualizer isPlaying={isPlaying} />
-                </div>
+                </motion.div>
 
                 {/* Floating Particles Area anchored to Cover Art */}
                 <div style={{ position: "absolute", bottom: "30px", right: "-10px", width: "40px", height: "250px", pointerEvents: "none", zIndex: 10 }}>
