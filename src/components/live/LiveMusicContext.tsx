@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useContext, useState, useEffect, useRef, useCallback } from "react";
+import React, { createContext, useContext, useState, useEffect, useRef, useCallback, useMemo } from "react";
 
 interface LiveSong {
     title: string;
@@ -411,31 +411,44 @@ export function LiveMusicProvider({ children }: { children: React.ReactNode }) {
         lastSyncedRef.current = false;
     }, [fetchAndSync]);
 
+    // ─── Memoized Context Values ────────────────────────────────────────────
+    const liveMusicValue = useMemo(() => ({
+        isLive,
+        isPlaying,
+        isLoading,
+        isWaitingForSync,
+        isTransitioning,
+        currentSong,
+        seekPosition,
+        songIndex,
+        totalSongs,
+        playlistTitle,
+        playlistCover,
+        playlistColor,
+        tracklist,
+        error,
+        isSynced,
+        listenersCount,
+        activeSessionId,
+        togglePlay,
+        refresh,
+        switchSession,
+    }), [
+        isLive, isPlaying, isLoading, isWaitingForSync, isTransitioning,
+        currentSong, seekPosition, songIndex, totalSongs,
+        playlistTitle, playlistCover, playlistColor, tracklist,
+        error, isSynced, listenersCount, activeSessionId,
+        togglePlay, refresh, switchSession
+    ]);
+
+    const liveTimeValue = useMemo(() => ({
+        currentTime, duration, isBuffering
+    }), [currentTime, duration, isBuffering]);
+
     // ─── Render ─────────────────────────────────────────────────────────────
     return (
-        <LiveMusicContext.Provider value={{
-            isLive,
-            isPlaying,
-            isLoading,
-            isWaitingForSync,
-            isTransitioning,
-            currentSong,
-            seekPosition,
-            songIndex,
-            totalSongs,
-            playlistTitle,
-            playlistCover,
-            playlistColor,
-            tracklist,
-            error,
-            isSynced,
-            listenersCount,
-            activeSessionId,
-            togglePlay,
-            refresh,
-            switchSession,
-        }}>
-            <LiveTimeContext.Provider value={{ currentTime, duration, isBuffering }}>
+        <LiveMusicContext.Provider value={liveMusicValue}>
+            <LiveTimeContext.Provider value={liveTimeValue}>
                 {/* Primary audio element — persists across navigation */}
                 <audio
                     ref={audioRef}

@@ -444,13 +444,7 @@ export function LiveMusicPlayer() {
                             filter: "blur(100px) saturate(150%)",
                             transform: "scale(1.2)"
                         }}
-                    >
-                        <motion.div
-                            animate={{ scale: isPlaying ? [1, 1.1, 1] : 1 }}
-                            transition={{ repeat: Infinity, duration: 20, ease: "easeInOut" }}
-                            style={{ width: "100%", height: "100%", background: "inherit" }}
-                        />
-                    </motion.div>
+                    />
                 )}
             </AnimatePresence>
             <div style={{ position: "absolute", inset: "-150px", zIndex: 0, pointerEvents: "none", backgroundColor: isDark ? "rgba(0,0,0,0.35)" : "rgba(255,255,255,0.4)" }} />
@@ -478,9 +472,7 @@ export function LiveMusicPlayer() {
 
             {/* Cover Art Container Wrapper (For Particles & Button) */}
             <div style={{ position: "relative", width: "100%", maxWidth: "240px", aspectRatio: "1/1" }}>
-                <motion.div 
-                    animate={{ scale: isPlaying ? [1, 1.03, 1] : 1 }}
-                    transition={{ repeat: Infinity, duration: 6, ease: "easeInOut" }}
+                <div 
                     style={{
                         width: "100%", height: "100%",
                         borderRadius: "28px", overflow: "hidden", position: "relative",
@@ -505,7 +497,7 @@ export function LiveMusicPlayer() {
 
                 <BufferingOverlay />
                 <LiveVisualizer isPlaying={isPlaying} />
-                </motion.div>
+                </div>
 
                 {/* Floating Particles Area anchored to Cover Art */}
                 <div style={{ position: "absolute", bottom: "30px", right: "-10px", width: "40px", height: "250px", pointerEvents: "none", zIndex: 10 }}>
