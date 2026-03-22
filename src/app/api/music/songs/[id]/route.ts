@@ -1,27 +1,25 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 
 export const dynamic = "force-dynamic";
 
-export async function DELETE(req: NextRequest) {
+export async function DELETE(
+    request: Request,
+    { params }: { params: Promise<{ id: string }> }
+) {
     try {
-        const { searchParams } = new URL(req.url);
-        const id = searchParams.get("id");
+        const { id } = await params;
 
-        if (!id) {
-            return NextResponse.json({ success: false, error: "Song ID is required" }, { status: 400 });
-        }
-
-        // Cascade delete will remove all PlaylistSong and RadioSong relations
+        // Note: Prisma will handle deletion of related PlaylistSong entries if set to Cascade,
+        // otherwise we might need to delete them manually if they are NOT set to Cascade.
+        // Let's check or just try to delete the song.
+        
         await prisma.song.delete({
             where: { id }
         });
 
         return NextResponse.json({ success: true });
     } catch (error: any) {
-        if (error.code === 'P2025') {
-            return NextResponse.json({ success: false, error: "Song not found" }, { status: 404 });
-        }
         return NextResponse.json({ success: false, error: error.message }, { status: 500 });
     }
 }

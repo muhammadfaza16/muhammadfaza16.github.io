@@ -14,6 +14,7 @@ import {
     ListMusic,
     Settings,
     Activity,
+    Music,
     Database,
     RefreshCw,
     Globe,
@@ -24,14 +25,14 @@ import {
 import { useState, useRef, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { PlaylistModule } from "./components/PlaylistModule";
+import { SongModule } from "./components/SongModule";
 import { LiveControlModule } from "./components/LiveControlModule";
-import { PLAYLIST_CATEGORIES } from "@/data/playlists";
 import { parseSongTitle } from "@/utils/songUtils";
 import { useTheme } from "@/components/ThemeProvider";
 
 const MASTER_PIN = "0000";
 
-type ModuleId = "dashboard" | "playlist" | "settings" | "logs" | "live";
+type ModuleId = "dashboard" | "playlist" | "songs" | "settings" | "logs" | "live";
 
 export default function MasterPanelPage() {
     const { theme } = useTheme();
@@ -48,18 +49,7 @@ export default function MasterPanelPage() {
     const [pinInput, setPinInput] = useState("");
     
     // Computed Stats
-    const playlistStats = useMemo(() => {
-        if (!dbSongs.length) return [];
-        return PLAYLIST_CATEGORIES.map(category => {
-            const count = dbSongs.filter(song =>
-                category.songTitles.some((title: string) =>
-                    song.title.toLowerCase().includes(title.toLowerCase()) ||
-                    title.toLowerCase().includes(song.title.toLowerCase())
-                )
-            ).length;
-            return { title: category.title, count, vibes: category.vibes };
-        });
-    }, [dbSongs]);
+    const [playlistStats, setPlaylistStats] = useState<{title: string, count: number, vibes: string[]}[]>([]);
 
     const terminalEndRef = useRef<HTMLDivElement>(null);
 
@@ -68,14 +58,23 @@ export default function MasterPanelPage() {
     }, [logs]);
 
     useEffect(() => {
-        fetch("/api/music/songs")
-            .then(res => res.json())
-            .then(data => {
-                if (data.success && data.songs) {
-                    setDbSongs(data.songs);
-                }
-            })
-            .catch(() => { });
+        Promise.all([
+            fetch("/api/music/songs").then(res => res.json()),
+            fetch("/api/music/playlists").then(res => res.json())
+        ])
+        .then(([songsData, playlistsData]) => {
+            if (songsData.success && songsData.songs) {
+                setDbSongs(songsData.songs);
+            }
+            if (playlistsData.success && playlistsData.playlists) {
+                setPlaylistStats(playlistsData.playlists.map((p: any) => ({
+                    title: p.title,
+                    count: p._count?.songs || 0,
+                    vibes: p.vibes || []
+                })));
+            }
+        })
+        .catch(() => { });
     }, []);
 
     const addLog = (text: string, type: "info" | "success" | "error" = "info") => {
@@ -226,6 +225,7 @@ export default function MasterPanelPage() {
                                     <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: "12px" }}>
                                         {[
                                             { id: "playlist", icon: <ListMusic size={20} />, label: "Playlist Vault", sub: "Structural Database Control" },
+                                            { id: "songs", icon: <Music size={20} />, label: "Global Songs", sub: "Core Catalog Management" },
                                             { id: "live", icon: <Radio size={20} />, label: "Live Control", sub: "Real-Time Broadcast Manager" },
                                             { id: "logs", icon: <Activity size={20} />, label: "Access Insight", sub: "Visitor Geolocation & Traffic" },
                                         ].map((tool) => (
@@ -260,7 +260,7 @@ export default function MasterPanelPage() {
                                 </motion.div>
                             )}
 
-                            {activeModule === "playlist" && (
+                             {activeModule === "playlist" && (
                                 <motion.div key="playlist" initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
                                     <motion.button
                                         onClick={() => setActiveModule("dashboard")}
@@ -281,6 +281,40 @@ export default function MasterPanelPage() {
                                         boxShadow: theme === "dark" ? "0 20px 60px rgba(0,0,0,0.4)" : "0 10px 30px rgba(0,0,0,0.03)"
                                     }}>
                                         <PlaylistModule
+                                            addLog={addLog}
+                                            isBusy={isBusy}
+                                            setIsBusy={setIsBusy}
+                                            insetBox={{ 
+                                                border: theme === "dark" ? "1px solid rgba(255,255,255,0.1)" : "1px solid rgba(0,0,0,0.1)", 
+                                                borderRadius: "12px", 
+                                                background: theme === "dark" ? "rgba(255,255,255,0.02)" : "rgba(255,255,255,0.6)" 
+                                            }}
+                                        />
+                                    </div>
+                                </motion.div>
+                            )}
+
+                            {activeModule === "songs" && (
+                                <motion.div key="songs" initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+                                    <motion.button
+                                        onClick={() => setActiveModule("dashboard")}
+                                        whileTap={{ scale: 0.98 }}
+                                        style={{ 
+                                            color: theme === "dark" ? "rgba(255,255,255,0.4)" : "rgba(0,0,0,0.4)", fontSize: "0.65rem", fontWeight: 800, background: "transparent", border: theme === "dark" ? "1px solid rgba(255,255,255,0.1)" : "1px solid rgba(0,0,0,0.05)", borderRadius: "12px",
+                                            cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", padding: "10px", fontFamily: monoFont, textTransform: "uppercase"
+                                        }}
+                                    >
+                                        <ChevronLeft size={14} /> Back to dashboard
+                                    </motion.button>
+                                    
+                                    <div style={{ 
+                                        padding: "20px", 
+                                        backgroundColor: theme === "dark" ? "rgba(255, 255, 255, 0.03)" : "rgba(255, 255, 255, 0.45)", 
+                                        border: theme === "dark" ? "1px solid rgba(255,255,255,0.08)" : "1px solid rgba(0,0,0,0.05)", 
+                                        borderRadius: "24px", 
+                                        boxShadow: theme === "dark" ? "0 20px 60px rgba(0,0,0,0.4)" : "0 10px 30px rgba(0,0,0,0.03)"
+                                    }}>
+                                        <SongModule
                                             addLog={addLog}
                                             isBusy={isBusy}
                                             setIsBusy={setIsBusy}

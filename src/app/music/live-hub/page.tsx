@@ -1,13 +1,12 @@
 "use client";
 
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef, useMemo } from "react";
 import { useTheme } from "@/components/ThemeProvider";
 import { Radio, Play, Users, Headphones, ChevronLeft } from "lucide-react";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { useLiveMusic } from "@/components/live/LiveMusicContext";
 import { parseSongTitle } from "@/utils/songUtils";
-import { PLAYLIST_CATEGORIES } from "@/data/playlists";
 
 interface StationData {
     id: string;
@@ -36,16 +35,20 @@ export default function LiveHubPage() {
 
     // Fetch all active sessions for the station cards
     const [stations, setStations] = useState<StationData[]>([]);
+    const [allPlaylists, setAllPlaylists] = useState<any[]>([]);
     const [loadingStations, setLoadingStations] = useState(true);
 
     useEffect(() => {
-        fetch("/api/live-music/sessions", { cache: "no-store" })
-            .then(res => res.json())
-            .then(data => {
-                setStations(data.sessions || []);
-                setLoadingStations(false);
-            })
-            .catch(() => setLoadingStations(false));
+        Promise.all([
+            fetch("/api/live-music/sessions", { cache: "no-store" }).then(res => res.json()),
+            fetch("/api/music/playlists").then(res => res.json())
+        ])
+        .then(([sessionsData, playlistsData]) => {
+            setStations(sessionsData.sessions || []);
+            setAllPlaylists(playlistsData.playlists || []);
+            setLoadingStations(false);
+        })
+        .catch(() => setLoadingStations(false));
     }, []);
 
     const CACHE_KEY = "live_hub_scroll_v1";
@@ -107,28 +110,30 @@ export default function LiveHubPage() {
         heroIsLive = true;
     }
 
-    const heroPlaylistInfo = PLAYLIST_CATEGORIES.find(p => p.title === heroTitle || p.id === heroSessionId);
+    const heroPlaylistInfo = allPlaylists.find(p => p.title === heroTitle || p.slug === heroSessionId || p.id === heroSessionId);
     const heroPhilosophy = heroPlaylistInfo?.philosophy;
 
     // Combined Stations logic
-    const combinedStations = [
-        ...stations,
-        ...PLAYLIST_CATEGORIES
-            .filter(pc => !stations.some(s => s.playlistTitle === pc.title || s.id === pc.id))
-            .map(pc => ({
-                id: pc.id,
-                title: pc.title,
-                description: pc.description,
-                playlistTitle: pc.title,
-                coverImage: pc.coverImage,
-                coverColor: pc.coverColor,
-                currentSong: null,
-                totalSongs: pc.songTitles.length || 0,
-                songIndex: 0,
-                startedAt: new Date().toISOString(),
-                isDummy: true
-            }))
-    ];
+    const combinedStations = useMemo(() => {
+        return [
+            ...stations,
+            ...allPlaylists
+                .filter(pc => !stations.some(s => s.playlistTitle === pc.title || s.id === pc.slug || s.id === pc.id))
+                .map(pc => ({
+                    id: pc.slug || pc.id,
+                    title: pc.title,
+                    description: pc.description,
+                    playlistTitle: pc.title,
+                    coverImage: pc.coverImage,
+                    coverColor: pc.coverColor,
+                    currentSong: null,
+                    totalSongs: pc._count?.songs || 0,
+                    songIndex: 0,
+                    startedAt: new Date().toISOString(),
+                    isDummy: true
+                }))
+        ];
+    }, [stations, allPlaylists]);
 
     // Secondary stations = show all stations including hero
     const secondaryStations = combinedStations;

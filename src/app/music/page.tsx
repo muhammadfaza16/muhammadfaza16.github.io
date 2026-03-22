@@ -4,14 +4,10 @@ import { useState, useEffect, useMemo, useRef, useCallback } from "react";
 import Link from "next/link";
 import { ListMusic, ChevronLeft, ArrowRight, Sparkles, LibraryBig, Music, Play, Pause, Disc, Radio } from "lucide-react";
 import { motion, AnimatePresence, useAnimation } from "framer-motion";
-import { PLAYLIST_CATEGORIES } from "@/data/playlists";
 import { useAudio, useTime } from "@/components/AudioContext";
 import { parseSongTitle } from "@/utils/songUtils";
 import { useTheme } from "@/components/ThemeProvider";
 import { ThemeToggle } from "@/components/ThemeToggle";
-
-// INDO_ARTISTS moved to database categories
-
 
 const MENU_ITEMS = [
     { id: "songs", label: "All Songs", subtitle: "Full Library", icon: LibraryBig, href: "/music/playlist/all" },
@@ -24,29 +20,24 @@ export default function AudioHubPage() {
     const { theme } = useTheme();
     const scrollContainerRef = useRef<HTMLDivElement>(null);
     const scrollYRef = useRef(0);
-    const hasRestoredCache = useRef(false);
 
     const [dbSongs, setDbSongs] = useState<any[]>([]);
-    const counts = useMemo(() => {
-        if (!dbSongs.length) return {};
-        
-        const newCounts: Record<string, number> = {};
-        PLAYLIST_CATEGORIES.forEach(p => {
-            if (p.id === 'indo-hits') {
-                newCounts[p.id] = dbSongs.filter(s => s.category === 'Indo').length;
-            } else if (p.id === 'international-favorites') {
-                newCounts[p.id] = dbSongs.filter(s => s.category === 'Luar').length;
-            } else {
-                newCounts[p.id] = dbSongs.filter(s => 
-                    p.songTitles.some(t => s.title.toLowerCase().includes(t.toLowerCase()))
-                ).length;
-            }
-        });
-
-        return newCounts;
-    }, [dbSongs]);
+    const [playlists, setPlaylists] = useState<any[]>([]);
+    
+    // Fetch playlists from Database via API
+    useEffect(() => {
+        fetch("/api/music/playlists")
+            .then(res => res.json())
+            .then(data => {
+                if (data.success && data.playlists) {
+                    setPlaylists(data.playlists);
+                }
+            })
+            .catch(() => { });
+    }, []);
 
     const CACHE_KEY = "music_hub_scroll_v1";
+
 
     // Restore scroll position
     useEffect(() => {
@@ -636,8 +627,8 @@ export default function AudioHubPage() {
                         </div>
                         
                         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
-                            {PLAYLIST_CATEGORIES.slice(0, 4).map((playlist) => (
-                                <Link key={playlist.id} href={`/music/playlist/${playlist.id}`} style={{ textDecoration: "none" }}>
+                            {playlists.slice(0, 4).map((playlist) => (
+                                <Link key={playlist.slug || playlist.id} href={`/music/playlist/${playlist.slug || playlist.id}`} style={{ textDecoration: "none" }}>
                                     <motion.div
                                         whileHover={{ y: -6, scale: 1.02 }}
                                         whileTap={{ scale: 0.98 }}
@@ -645,7 +636,7 @@ export default function AudioHubPage() {
                                         style={{
                                             position: "relative",
                                             aspectRatio: "1/1",
-                                            backgroundColor: playlist.coverColor || "#fff",
+                                            backgroundColor: playlist.coverColor || "#1E1B4B",
                                             borderRadius: "20px",
                                             overflow: "hidden",
                                             display: "flex",
@@ -710,7 +701,7 @@ export default function AudioHubPage() {
                                                 fontWeight: 800,
                                                 letterSpacing: "0.02em"
                                             }}>
-                                                {counts[playlist.id] !== undefined ? `${counts[playlist.id]} TRACKS` : `${playlist.vibes[0]}`}
+                                                {playlist._count?.songs !== undefined ? `${playlist._count.songs} TRACKS` : playlist.vibes?.[0]}
                                             </div>
                                         </div>
                                     </motion.div>

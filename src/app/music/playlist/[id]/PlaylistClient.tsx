@@ -5,7 +5,6 @@ import { Play, Pause, Search, Shuffle, ChevronLeft, Disc } from "lucide-react";
 import { Virtuoso } from 'react-virtuoso';
 import { useAudio } from "@/components/AudioContext";
 import { motion, AnimatePresence } from "framer-motion";
-import { PLAYLIST_CATEGORIES } from "@/data/playlists";
 import Link from "next/link";
 import { parseSongTitle } from "@/utils/songUtils";
 import { useTheme } from "@/components/ThemeProvider";
@@ -92,7 +91,7 @@ function TrackRow({ song, index, isActive, isPlaying, onPlay }: {
                                         fontWeight: 700,
                                         backgroundColor: isActive ? "rgba(255,255,255,0.15)" : (theme === "dark" ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.04)"),
                                         color: isActive ? "#fff" : (theme === "dark" ? "rgba(255,255,255,0.6)" : "rgba(0,0,0,0.5)"),
-                                        padding: "2.5px 9px",
+                                        padding: "1.5px 7px",
                                         borderRadius: "100px",
                                         letterSpacing: "0.04em",
                                         textTransform: "uppercase",
@@ -123,11 +122,8 @@ export default function PlaylistClient({ playlistId, initialSongs = [] }: { play
     const scrollYRef = useRef(0);
     const [isLoading, setIsLoading] = useState(true);
     
-    // Explicitly fallback initialSongs if none provided.
     const [dbSongs, setDbSongs] = useState<{ title: string; audioUrl: string; duration?: number; id?: string; category?: string }[]>(initialSongs || []);
-
-
-    // useMemo for activePlaylist is below
+    const [activePlaylist, setActivePlaylist] = useState<any>(null);
 
     useEffect(() => {
         setMounted(true);
@@ -135,19 +131,33 @@ export default function PlaylistClient({ playlistId, initialSongs = [] }: { play
 
     useEffect(() => {
         setIsLoading(true);
-        fetch("/api/music/songs")
-            .then(res => res.json())
-            .then(data => {
-                if (data.success && data.songs) {
-                    setDbSongs(data.songs);
-                }
-            })
-            .catch(() => { })
-            .finally(() => {
-                // Gentle delay for the premium feel
-                setTimeout(() => setIsLoading(false), 800);
-            });
-    }, []);
+        if (playlistId === "all") {
+            fetch("/api/music/songs")
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success && data.songs) {
+                        setDbSongs(data.songs);
+                    }
+                })
+                .catch(() => { })
+                .finally(() => {
+                    setTimeout(() => setIsLoading(false), 800);
+                });
+        } else {
+            fetch(`/api/music/playlists/${playlistId}`)
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success && data.playlist) {
+                        setActivePlaylist(data.playlist);
+                        setDbSongs(data.playlist.songs);
+                    }
+                })
+                .catch(() => { })
+                .finally(() => {
+                    setTimeout(() => setIsLoading(false), 800);
+                });
+        }
+    }, [playlistId]);
 
     const CACHE_KEY = `playlist_detail_scroll_${playlistId}_v1`;
 
@@ -181,30 +191,9 @@ export default function PlaylistClient({ playlistId, initialSongs = [] }: { play
         };
     }, [playlistId]);
 
-    const activePlaylist = useMemo(() => {
-        if (playlistId === "all") return null;
-        return PLAYLIST_CATEGORIES.find(p => p.id === playlistId);
-    }, [playlistId]);
-
     const basePlaylist = useMemo(() => {
-        let songs = dbSongs;
-        if (activePlaylist) {
-            if (activePlaylist.id === 'indo-hits') {
-                songs = dbSongs.filter((song: any) => song.category === 'Indo');
-            } else if (activePlaylist.id === 'international-favorites') {
-                songs = dbSongs.filter((song: any) => song.category === 'Luar');
-            } else {
-                songs = dbSongs.filter(song =>
-                    activePlaylist.songTitles.some((title: string) =>
-                        song.title.toLowerCase().includes(title.toLowerCase()) ||
-                        title.toLowerCase().includes(song.title.toLowerCase())
-                    )
-                );
-            }
-        }
-
-        return songs.map((song, index) => ({ ...song, originalIndex: index }));
-    }, [activePlaylist, dbSongs]);
+        return dbSongs.map((song, index) => ({ ...song, originalIndex: index }));
+    }, [dbSongs]);
 
     const filteredPlaylist = useMemo(() => {
         if (!searchQuery) return basePlaylist;
@@ -252,7 +241,7 @@ export default function PlaylistClient({ playlistId, initialSongs = [] }: { play
                     scrollbarGutter: "stable"
                 }}
             >
-                <div style={{ width: "100%", maxWidth: "440px", display: "flex", flexDirection: "column", gap: "24px", paddingTop: "40px" }}>
+                <div style={{ width: "100%", maxWidth: "440px", display: "flex", flexDirection: "column", gap: "24px", paddingTop: "0px" }}>
 
                     {/* Entrance Navigation */}
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "-8px", padding: "0 4px" }}>

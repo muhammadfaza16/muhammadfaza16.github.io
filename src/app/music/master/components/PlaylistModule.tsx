@@ -55,10 +55,11 @@ export function PlaylistModule({ addLog, isBusy, setIsBusy, insetBox }: Playlist
     const [viewingPlaylist, setViewingPlaylist] = useState<Playlist | null>(null);
     const [isAdding, setIsAdding] = useState(false);
 
-    // Songs in current playlist
+    // Songs State
     const [currentSongs, setCurrentSongs] = useState<Song[]>([]);
     const [allSongs, setAllSongs] = useState<Song[]>([]);
     const [songSearch, setSongSearch] = useState("");
+    const [formSongSearch, setFormSongSearch] = useState("");
 
     // Form State
     const [formData, setFormData] = useState({
@@ -71,16 +72,21 @@ export function PlaylistModule({ addLog, isBusy, setIsBusy, insetBox }: Playlist
         coverImage: "",
         coverColor: "#3b82f6"
     });
+    const [selectedSongIds, setSelectedSongIds] = useState<string[]>([]);
 
     const autoSlug = (title: string) => title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
 
-    // Issue 4: Exclude already-added songs from the add list
     const availableSongs = useMemo(() => {
         const currentIds = new Set(currentSongs.map(s => s.id));
         return allSongs.filter(s => !currentIds.has(s.id));
     }, [allSongs, currentSongs]);
 
-    // Issue 1: Remove hard cap — show all, search filters when query ≥ 2 chars
+    const formAvailableSongs = useMemo(() => {
+        if (!formSongSearch) return allSongs;
+        const q = formSongSearch.toLowerCase();
+        return allSongs.filter(s => s.title.toLowerCase().includes(q) || s.artist.toLowerCase().includes(q));
+    }, [allSongs, formSongSearch]);
+
     const filteredSongs = useMemo(() => {
         if (songSearch.length < 2) return availableSongs;
         const query = songSearch.toLowerCase();
@@ -118,10 +124,14 @@ export function PlaylistModule({ addLog, isBusy, setIsBusy, insetBox }: Playlist
         try {
             const res = await fetch(`/api/music/master/playlists/${playlistId}/songs`, { cache: 'no-store' });
             const data = await res.json();
-            if (data.success) setCurrentSongs(data.songs);
+            if (data.success) {
+                setCurrentSongs(data.songs);
+                return data.songs;
+            }
         } catch (err) {
             addLog("Failed to fetch songs", "error");
         }
+        return [];
     };
 
     const handleSave = async () => {
@@ -132,11 +142,10 @@ export function PlaylistModule({ addLog, isBusy, setIsBusy, insetBox }: Playlist
         setIsBusy(true);
         try {
             const method = editingId ? "PUT" : "POST";
-            // Issue 7: Convert vibes string to array before sending
             const vibesArray = formData.vibes
                 ? formData.vibes.split(',').map((v: string) => v.trim()).filter(Boolean)
                 : [];
-            const payload = { ...formData, vibes: vibesArray };
+            const payload = { ...formData, vibes: vibesArray, songIds: selectedSongIds };
             const body = editingId ? { id: editingId, ...payload } : payload;
 
             const res = await fetch("/api/music/master/playlists", {
@@ -150,11 +159,6 @@ export function PlaylistModule({ addLog, isBusy, setIsBusy, insetBox }: Playlist
                 addLog(`Playlist ${editingId ? "updated" : "created"}: ${formData.title}`, "success");
                 await fetchPlaylists();
                 resetForm();
-
-                // UX Fix: If this was a NEW playlist, immediately open its song view so user can add songs
-                if (!editingId && data.playlist) {
-                    openSongs(data.playlist);
-                }
             } else {
                 addLog(data.error || "Operation failed", "error");
             }
@@ -184,20 +188,13 @@ export function PlaylistModule({ addLog, isBusy, setIsBusy, insetBox }: Playlist
 
     const addSongToPlaylist = async (songId: string, songTitle: string) => {
         if (!viewingPlaylist) return;
-
-        // Issue 3: Deduplicate — prevent visual dupes
         if (currentSongs.some(s => s.id === songId)) {
             addLog(`Already in playlist: ${songTitle}`, "info");
             return;
         }
-
         setIsBusy(true);
-
-        // Optimistic UI Update
         const targetSong = allSongs.find(s => s.id === songId);
         if (targetSong) setCurrentSongs(prev => [targetSong, ...prev]);
-
-        console.log("Adding song to playlist:", viewingPlaylist.id, "Song ID:", songId);
         try {
             const res = await fetch(`/api/music/master/playlists/${viewingPlaylist.id}/songs`, {
                 method: "POST",
@@ -205,17 +202,14 @@ export function PlaylistModule({ addLog, isBusy, setIsBusy, insetBox }: Playlist
                 body: JSON.stringify({ songId })
             });
             const data = await res.json();
-            console.log("Add song response:", data);
-
             if (data.success) {
                 addLog(`✓ Added: ${songTitle}`, "success");
             } else {
-                setCurrentSongs(prev => prev.filter(s => s.id !== songId)); // Revert
+                setCurrentSongs(prev => prev.filter(s => s.id !== songId));
                 addLog(data.error || "Add failed", "error");
             }
         } catch (err) {
-            console.error("Add song error:", err);
-            setCurrentSongs(prev => prev.filter(s => s.id !== songId)); // Revert
+            setCurrentSongs(prev => prev.filter(s => s.id !== songId));
             addLog("Add failed", "error");
         } finally {
             setIsBusy(false);
@@ -225,10 +219,8 @@ export function PlaylistModule({ addLog, isBusy, setIsBusy, insetBox }: Playlist
     const removeSongFromPlaylist = async (songId: string, songTitle: string) => {
         if (!viewingPlaylist) return;
         setIsBusy(true);
-
-        const rollbackSongs = [...currentSongs]; // Copy for revert
-        setCurrentSongs(prev => prev.filter(s => s.id !== songId)); // Optimistic UI Update
-
+        const rollbackSongs = [...currentSongs];
+        setCurrentSongs(prev => prev.filter(s => s.id !== songId));
         try {
             const res = await fetch(`/api/music/master/playlists/${viewingPlaylist.id}/songs?songId=${songId}`, {
                 method: "DELETE"
@@ -237,18 +229,17 @@ export function PlaylistModule({ addLog, isBusy, setIsBusy, insetBox }: Playlist
             if (data.success) {
                 addLog(`Removed from ${viewingPlaylist.title}: ${songTitle}`, "info");
             } else {
-                setCurrentSongs(rollbackSongs); // Revert
+                setCurrentSongs(rollbackSongs);
                 addLog(data.error || "Remove failed", "error");
             }
         } catch (err) {
-            setCurrentSongs(rollbackSongs); // Revert
+            setCurrentSongs(rollbackSongs);
             addLog("Remove failed", "error");
         } finally {
             setIsBusy(false);
         }
     };
 
-    // Issue 6: Delete song from global library
     const deleteSongFromLibrary = async (songId: string, songTitle: string) => {
         if (!confirm(`Delete "${songTitle}" from library? This removes it from ALL playlists and radios.`)) return;
         setIsBusy(true);
@@ -271,11 +262,12 @@ export function PlaylistModule({ addLog, isBusy, setIsBusy, insetBox }: Playlist
 
     const resetForm = () => {
         setFormData({ title: "", slug: "", description: "", philosophy: "", schedule: "", vibes: "", coverImage: "", coverColor: "#3b82f6" });
+        setSelectedSongIds([]);
         setEditingId(null);
         setIsAdding(false);
     };
 
-    const startEdit = (p: Playlist) => {
+    const startEdit = async (p: Playlist) => {
         setFormData({
             title: p.title,
             slug: p.slug,
@@ -288,19 +280,25 @@ export function PlaylistModule({ addLog, isBusy, setIsBusy, insetBox }: Playlist
         });
         setEditingId(p.id);
         setIsAdding(true);
+        const songs = await fetchPlaylistSongs(p.id);
+        if (songs) setSelectedSongIds(songs.map((s: any) => s.id));
     };
 
     const openSongs = async (p: Playlist) => {
         setSongSearch("");
         setViewingPlaylist(p);
-        // Issue 5: Re-fetch allSongs so newly added songs are visible
         await Promise.all([fetchPlaylistSongs(p.id), fetchAllSongs()]);
     };
 
-    // Issue 2: Refetch playlists on BACK so counts are fresh
     const closeSongs = async () => {
         setViewingPlaylist(null);
         await fetchPlaylists();
+    };
+
+    const toggleSongSelection = (id: string) => {
+        setSelectedSongIds(prev => 
+            prev.includes(id) ? prev.filter(sid => sid !== id) : [...prev, id]
+        );
     };
 
     if (isLoading) return (
@@ -372,63 +370,70 @@ export function PlaylistModule({ addLog, isBusy, setIsBusy, insetBox }: Playlist
                             <textarea
                                 value={formData.description}
                                 onChange={e => setFormData({ ...formData, description: e.target.value })}
-                                style={{ ...getInputStyle(theme), padding: "0.5rem", resize: "none", height: "50px", fontFamily: "inherit", fontWeight: 500 }}
+                                style={{ ...getInputStyle(theme), padding: "0.5rem", resize: "none", height: "40px", fontFamily: "inherit", fontWeight: 500 }}
                                 placeholder="The artistic intent..."
                             />
                         </div>
 
-                        <div style={{ display: "flex", flexDirection: "column", gap: "0.4rem" }}>
-                            <label style={{ color: theme === "dark" ? "rgba(255,255,255,0.4)" : "#555", fontSize: "0.55rem", fontWeight: 800 }}>PHILOSOPHY</label>
-                            <textarea
-                                value={formData.philosophy}
-                                onChange={e => setFormData({ ...formData, philosophy: e.target.value })}
-                                style={{ ...getInputStyle(theme), padding: "0.5rem", resize: "none", height: "50px", fontFamily: "inherit", fontWeight: 500 }}
-                                placeholder="The deeper meaning..."
-                            />
+                        {/* Song Selection Area inside Form */}
+                        <div style={{ display: "flex", flexDirection: "column", gap: "0.4rem", marginTop: "0.5rem" }}>
+                            <label style={{ color: theme === "dark" ? "rgba(255,255,255,0.4)" : "#555", fontSize: "0.55rem", fontWeight: 800, display: "flex", justifyContent: "space-between" }}>
+                                CHOOSE SONGS ({selectedSongIds.length} SELECTED)
+                                <span style={{ color: "#39ff14" }}>✓</span>
+                            </label>
+                            <div style={{ ...insetBox, padding: "0.4rem 0.6rem", display: "flex", alignItems: "center", gap: "8px", background: "rgba(0,0,0,0.1)" }}>
+                                <Search size={12} style={{ opacity: 0.4 }} />
+                                <input 
+                                    value={formSongSearch} 
+                                    onChange={e => setFormSongSearch(e.target.value)}
+                                    placeholder="Find songs in library..."
+                                    style={{ background: "none", border: "none", color: "inherit", fontSize: "0.6rem", outline: "none", flex: 1 }}
+                                />
+                            </div>
+                            <div style={{ maxHeight: "150px", overflowY: "auto", display: "flex", flexDirection: "column", gap: "4px", padding: "4px" }}>
+                                {formAvailableSongs.map(song => (
+                                    <div 
+                                        key={song.id} 
+                                        onClick={() => toggleSongSelection(song.id)}
+                                        style={{ 
+                                            ...insetBox, 
+                                            padding: "6px 10px", 
+                                            display: "flex", 
+                                            justifyContent: "space-between", 
+                                            alignItems: "center", 
+                                            cursor: "pointer",
+                                            borderColor: selectedSongIds.includes(song.id) ? "#39ff1480" : "transparent",
+                                            background: selectedSongIds.includes(song.id) ? "rgba(57, 255, 20, 0.05)" : "transparent"
+                                        }}
+                                    >
+                                        <div style={{ fontSize: "0.6rem" }}>
+                                            <span style={{ fontWeight: 800 }}>{song.title}</span>
+                                            <span style={{ opacity: 0.4, marginLeft: "6px" }}>{song.artist}</span>
+                                        </div>
+                                        {selectedSongIds.includes(song.id) && <div style={{ width: "8px", height: "8px", borderRadius: "50%", background: "#39ff14" }} />}
+                                    </div>
+                                ))}
+                            </div>
                         </div>
 
-                        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.75rem" }}>
+                        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.75rem", marginTop: "0.5rem" }}>
                             <div style={{ display: "flex", flexDirection: "column", gap: "0.4rem" }}>
-                                <label style={{ color: theme === "dark" ? "rgba(255,255,255,0.4)" : "#555", fontSize: "0.55rem", fontWeight: 800 }}>VIBES (comma separated)</label>
+                                <label style={{ color: theme === "dark" ? "rgba(255,255,255,0.4)" : "#555", fontSize: "0.55rem", fontWeight: 800 }}>VIBES</label>
                                 <input
                                     value={formData.vibes}
                                     onChange={e => setFormData({ ...formData, vibes: e.target.value })}
                                     style={{ ...getInputStyle(theme), padding: "0.5rem" }}
-                                    placeholder="Lofi, Jazz, Rain"
-                                />
-                            </div>
-                            <div style={{ display: "flex", flexDirection: "column", gap: "0.4rem" }}>
-                                <label style={{ color: theme === "dark" ? "rgba(255,255,255,0.4)" : "#555", fontSize: "0.55rem", fontWeight: 800 }}>SCHEDULE</label>
-                                <input
-                                    value={formData.schedule}
-                                    onChange={e => setFormData({ ...formData, schedule: e.target.value })}
-                                    style={{ ...getInputStyle(theme), padding: "0.5rem" }}
-                                    placeholder="11 PM - 3 AM"
-                                />
-                            </div>
-                        </div>
-
-                        <div style={{ display: "grid", gridTemplateColumns: "1fr auto", gap: "0.75rem", alignItems: "end" }}>
-                            <div style={{ display: "flex", flexDirection: "column", gap: "0.4rem" }}>
-                                <label style={{ color: theme === "dark" ? "rgba(255,255,255,0.4)" : "#555", fontSize: "0.55rem", fontWeight: 800 }}>COVER IMAGE PATH</label>
-                                <input
-                                    value={formData.coverImage}
-                                    onChange={e => setFormData({ ...formData, coverImage: e.target.value })}
-                                    style={{ ...getInputStyle(theme), padding: "0.5rem" }}
-                                    placeholder="/images/playlists/..."
+                                    placeholder="Lofi, Jazz"
                                 />
                             </div>
                             <div style={{ display: "flex", flexDirection: "column", gap: "0.4rem" }}>
                                 <label style={{ color: theme === "dark" ? "rgba(255,255,255,0.4)" : "#555", fontSize: "0.55rem", fontWeight: 800 }}>COLOR</label>
-                                <div style={{ display: "flex", gap: "0.5rem", alignItems: "center", background: theme === "dark" ? "rgba(0,0,0,0.3)" : "#f0f0f0", border: theme === "dark" ? "1px solid rgba(255,255,255,0.05)" : "1.5px solid #ddd", borderRadius: "6px", padding: "0.3rem 0.6rem" }}>
-                                    <input
-                                        type="color"
-                                        value={formData.coverColor}
-                                        onChange={e => setFormData({ ...formData, coverColor: e.target.value })}
-                                        style={{ width: "20px", height: "20px", border: "none", background: "none", cursor: "pointer", padding: 0 }}
-                                    />
-                                    <span style={{ fontFamily: "monospace", fontSize: "0.6rem", color: theme === "dark" ? "rgba(255,255,255,0.4)" : "rgba(0,0,0,0.4)" }}>{formData.coverColor}</span>
-                                </div>
+                                <input
+                                    type="color"
+                                    value={formData.coverColor}
+                                    onChange={e => setFormData({ ...formData, coverColor: e.target.value })}
+                                    style={{ ...getInputStyle(theme), height: "32px", padding: "2px", width: "100%" }}
+                                />
                             </div>
                         </div>
 
@@ -496,13 +501,8 @@ export function PlaylistModule({ addLog, isBusy, setIsBusy, insetBox }: Playlist
                                     </motion.button>
                                 </div>
                             ))}
-                            {currentSongs.length === 0 && (
-                                <div style={{ color: theme === "dark" ? "rgba(255,255,255,0.2)" : "rgba(0,0,0,0.3)", fontSize: "0.6rem", textAlign: "center", padding: "1rem" }}>PLAYLIST MASIH KOSONG</div>
-                            )}
-
-                            {/* Add Songs Section — Issue 4: only shows songs NOT already in playlist */}
                             <div style={{ fontSize: "0.55rem", fontWeight: 800, color: theme === "dark" ? "rgba(255,255,255,0.4)" : "#444", margin: "1rem 0 0.2rem 0" }}>ADD SONGS ({filteredSongs.length} available)</div>
-                            {filteredSongs.length > 0 ? filteredSongs.map(song => (
+                            {filteredSongs.map(song => (
                                 <div key={song.id} style={{ ...insetBox, padding: "0.5rem 0.75rem", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                                     <div>
                                         {(() => {
@@ -531,27 +531,15 @@ export function PlaylistModule({ addLog, isBusy, setIsBusy, insetBox }: Playlist
                                         <div style={{ color: theme === "dark" ? "rgba(255,255,255,0.4)" : "rgba(0,0,0,0.45)", fontSize: "0.5rem" }}>{song.artist}</div>
                                     </div>
                                     <div style={{ display: "flex", gap: "0.4rem", alignItems: "center" }}>
-                                        <motion.button
-                                            onClick={() => addSongToPlaylist(song.id, song.title)}
-                                            whileTap={{ scale: 0.9 }}
-                                            style={{ color: "#39ff14", fontSize: "0.55rem", fontWeight: 800 }}
-                                        >
+                                        <motion.button onClick={() => addSongToPlaylist(song.id, song.title)} whileTap={{ scale: 0.9 }} style={{ color: "#39ff14" }}>
                                             <Plus size={16} />
                                         </motion.button>
-                                        <motion.button
-                                            onClick={(e) => { e.stopPropagation(); deleteSongFromLibrary(song.id, song.title); }}
-                                            whileTap={{ scale: 0.9 }}
-                                            style={{ color: "#ef444480", padding: "2px" }}
-                                        >
+                                        <motion.button onClick={() => deleteSongFromLibrary(song.id, song.title)} whileTap={{ scale: 0.9 }} style={{ color: "#ef444480" }}>
                                             <Trash2 size={12} />
                                         </motion.button>
                                     </div>
                                 </div>
-                            )) : (
-                                <div style={{ color: theme === "dark" ? "rgba(255,255,255,0.2)" : "#333", fontSize: "0.6rem", textAlign: "center", padding: "1rem", lineHeight: 1.4 }}>
-                                    {allSongs.length === 0 ? "Gak ada lagu di library. Tambahin lagu via web desktop panel dulu gih." : "Semua lagu udah ditambahin ke playlist ini!"}
-                                </div>
-                            )}
+                            ))}
                         </div>
                     </motion.div>
                 ) : (

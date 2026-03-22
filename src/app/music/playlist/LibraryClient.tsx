@@ -5,13 +5,9 @@ import { Search, Disc, Shuffle, ChevronLeft, Filter, Music, ArrowRight, Sparkles
 import { useAudio, useTime } from "@/components/AudioContext";
 import { parseSongTitle } from "@/utils/songUtils";
 import { motion, AnimatePresence } from "framer-motion";
-import { PLAYLIST_CATEGORIES } from "@/data/playlists";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useTheme } from "@/components/ThemeProvider";
-
-// INDO_ARTISTS moved to database categories
-
 
 const MUSIC_TAGS = [
     { label: "All", value: "", icon: Compass },
@@ -30,38 +26,22 @@ export default function LibraryClient({ songCount }: { songCount: number }) {
     const initialVibe = searchParams.get('vibe') || "";
     const [searchQuery, setSearchQuery] = useState("");
     const [activeVibe, setActiveVibe] = useState(initialVibe);
-    const [dbSongs, setDbSongs] = useState<any[]>([]);
-    const [counts, setCounts] = useState<Record<string, number>>({});
+    
+    // Playlists are now fetched from DB
+    const [playlists, setPlaylists] = useState<any[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
-        fetch("/api/music/songs")
+        fetch("/api/music/playlists")
             .then(res => res.json())
             .then(data => {
-                if (data.success && data.songs) {
-                    setDbSongs(data.songs);
+                if (data.success && data.playlists) {
+                    setPlaylists(data.playlists);
                 }
             })
-            .catch(() => { });
+            .catch(() => { })
+            .finally(() => setIsLoading(false));
     }, []);
-
-    useEffect(() => {
-        if (!dbSongs.length) return;
-        
-        const newCounts: Record<string, number> = {};
-        PLAYLIST_CATEGORIES.forEach(p => {
-            if (p.id === 'indo-hits') {
-                newCounts[p.id] = dbSongs.filter(s => s.category === 'Indo').length;
-            } else if (p.id === 'international-favorites') {
-                newCounts[p.id] = dbSongs.filter(s => s.category === 'Luar').length;
-            } else {
-                newCounts[p.id] = dbSongs.filter(s => 
-                    p.songTitles.some(t => s.title.toLowerCase().includes(t.toLowerCase()))
-                ).length;
-            }
-        });
-
-        setCounts(newCounts);
-    }, [dbSongs]);
 
     const CACHE_KEY = "playlist_library_scroll_v1";
 
@@ -108,13 +88,13 @@ export default function LibraryClient({ songCount }: { songCount: number }) {
     };
 
     const filteredCategories = useMemo(() => {
-        return PLAYLIST_CATEGORIES.filter(p => {
+        return playlists.filter(p => {
             const matchesSearch = p.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                                 p.description.toLowerCase().includes(searchQuery.toLowerCase());
-            const matchesVibe = activeVibe === "" || p.vibes.includes(activeVibe) || p.title.includes(activeVibe);
+                                 (p.description && p.description.toLowerCase().includes(searchQuery.toLowerCase()));
+            const matchesVibe = activeVibe === "" || (p.vibes && p.vibes.includes(activeVibe)) || p.title.includes(activeVibe);
             return matchesSearch && matchesVibe;
         });
-    }, [searchQuery, activeVibe]);
+    }, [playlists, searchQuery, activeVibe]);
 
     const headerFont = "var(--font-display), system-ui, sans-serif";
     const monoFont = "var(--font-mono), monospace";
@@ -216,7 +196,7 @@ export default function LibraryClient({ songCount }: { songCount: number }) {
                             whileTap={{ scale: 0.95 }}
                             onClick={() => { triggerHaptic(); setActiveVibe(vibe.value); }}
                             style={{
-                                display: "flex", alignItems: "center", gap: "8px", padding: "10px 18px",
+                                display: "flex", alignItems: "center", gap: "8px", padding: "7px 14px",
                                 borderRadius: "100px", border: "none", cursor: "pointer",
                                 backgroundColor: activeVibe === vibe.value 
                                     ? "#6366F1" 
@@ -283,10 +263,10 @@ export default function LibraryClient({ songCount }: { songCount: number }) {
                                 exit={{ opacity: 0, scale: 0.9 }}
                                 transition={{ duration: 0.4, delay: idx * 0.05 }}
                             >
-                                <Link href={`/music/playlist/${playlist.id}`} onClick={triggerHaptic} style={{ textDecoration: "none" }}>
+                                <Link href={`/music/playlist/${playlist.slug || playlist.id}`} onClick={triggerHaptic} style={{ textDecoration: "none" }}>
                                     <div style={{
                                         aspectRatio: "1/1", borderRadius: "24px", position: "relative",
-                                        overflow: "hidden", backgroundColor: playlist.coverColor,
+                                        overflow: "hidden", backgroundColor: playlist.coverColor || "#1E1B4B",
                                         display: "flex", flexDirection: "column", justifyContent: "flex-end",
                                         boxShadow: "0 10px 25px rgba(0,0,0,0.08)", border: "1px solid rgba(255,255,255,0.1)"
                                     }}>
@@ -336,7 +316,7 @@ export default function LibraryClient({ songCount }: { songCount: number }) {
                                                 fontFamily: monoFont, fontSize: "0.55rem", fontWeight: 800, 
                                                 color: "rgba(255,255,255,0.6)", marginTop: "4px", letterSpacing: "0.05em"
                                             }}>
-                                                {counts[playlist.id] || playlist.vibes[0]}
+                                                {playlist._count?.songs !== undefined ? `${playlist._count.songs} TRACKS` : playlist.vibes?.[0]}
                                             </div>
                                         </div>
                                     </div>

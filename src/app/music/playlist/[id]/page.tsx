@@ -1,10 +1,10 @@
-import { PLAYLIST_CATEGORIES } from "@/data/playlists";
 import PlaylistClient from "./PlaylistClient";
 import prisma from "@/lib/prisma";
 
 export async function generateStaticParams() {
-    const paths = PLAYLIST_CATEGORIES.map((playlist) => ({
-        id: playlist.id,
+    const playlists = await prisma.playlist.findMany({ select: { slug: true } });
+    const paths = playlists.map((playlist) => ({
+        id: playlist.slug,
     }));
 
     // Add "all" for the all songs page

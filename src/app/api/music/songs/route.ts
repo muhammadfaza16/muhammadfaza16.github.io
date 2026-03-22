@@ -35,3 +35,59 @@ export async function GET() {
         return NextResponse.json({ success: false, error: error.message }, { status: 500 });
     }
 }
+
+export async function POST(req: Request) {
+    try {
+        const body = await req.json();
+        const { title, artist, audioUrl, source, duration, category } = body;
+
+        if (!title || !audioUrl) {
+            return NextResponse.json({ success: false, error: "Title and Audio URL are required" }, { status: 400 });
+        }
+
+        // Combine artist and title if artist is provided for consistency with existing data
+        const fullTitle = artist ? `${artist} — ${title}` : title;
+
+        const song = await prisma.song.create({
+            data: {
+                title: fullTitle,
+                audioUrl,
+                source: source || "Local",
+                duration: duration || 0,
+                category: category || "Other"
+            }
+        });
+
+        return NextResponse.json({ success: true, song });
+    } catch (error: any) {
+        return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+    }
+}
+
+export async function PUT(req: Request) {
+    try {
+        const body = await req.json();
+        const { id, title, artist, audioUrl, source, duration, category } = body;
+
+        if (!id || !title || !audioUrl) {
+            return NextResponse.json({ success: false, error: "ID, Title and Audio URL are required" }, { status: 400 });
+        }
+
+        const fullTitle = artist ? `${artist} — ${title}` : title;
+
+        const song = await prisma.song.update({
+            where: { id },
+            data: {
+                title: fullTitle,
+                audioUrl,
+                source: source || "Local",
+                duration: duration || 0,
+                category: category || "Other"
+            }
+        });
+
+        return NextResponse.json({ success: true, song });
+    } catch (error: any) {
+        return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+    }
+}

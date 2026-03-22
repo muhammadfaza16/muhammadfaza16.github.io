@@ -416,7 +416,7 @@ export function GlobalBottomPlayer() {
                                                                         ? (theme === "dark" ? "rgba(255,255,255,0.15)" : "rgba(0,0,0,0.08)") 
                                                                         : (theme === "dark" ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.03)"),
                                                                     color: isCurrent ? (theme === "dark" ? "#FFF" : "#000") : "#888",
-                                                                    padding: "1px 5px",
+                                                                    padding: "1px 6px",
                                                                     borderRadius: "100px",
                                                                     letterSpacing: "0.06em",
                                                                     textTransform: "uppercase",
