@@ -17,16 +17,28 @@ interface TracklistItem {
     isCurrent: boolean;
 }
 
+interface LiveTimeState {
+    currentTime: number;
+    duration: number;
+    isBuffering: boolean;
+}
+
+const LiveTimeContext = createContext<LiveTimeState>({
+    currentTime: 0,
+    duration: 0,
+    isBuffering: false,
+});
+
+export const useLiveTime = () => useContext(LiveTimeContext);
+
 interface LiveMusicState {
     isLive: boolean;
     isPlaying: boolean;
     isLoading: boolean;
-    isBuffering: boolean;
     isWaitingForSync: boolean;
     isTransitioning: boolean;
     currentSong: LiveSong | null;
     seekPosition: number;
-    currentTime: number;
     songIndex: number;
     totalSongs: number;
     playlistTitle: string;
@@ -46,12 +58,10 @@ const LiveMusicContext = createContext<LiveMusicState>({
     isLive: false,
     isPlaying: false,
     isLoading: true,
-    isBuffering: false,
     isWaitingForSync: false,
     isTransitioning: false,
     currentSong: null,
     seekPosition: 0,
-    currentTime: 0,
     songIndex: 0,
     totalSongs: 0,
     playlistTitle: "",
@@ -100,6 +110,7 @@ export function LiveMusicProvider({ children }: { children: React.ReactNode }) {
     const [currentSong, setCurrentSong] = useState<LiveSong | null>(null);
     const [seekPosition, setSeekPosition] = useState(0);
     const [currentTime, setCurrentTime] = useState(0);
+    const [duration, setDuration] = useState(0);
     const [songIndex, setSongIndex] = useState(0);
     const [totalSongs, setTotalSongs] = useState(0);
     const [playlistTitle, setPlaylistTitle] = useState("");
@@ -136,6 +147,7 @@ export function LiveMusicProvider({ children }: { children: React.ReactNode }) {
     }>({ serverSeek: 0, fetchedAt: Date.now(), songUrl: "" });
 
     const lastSyncedRef = useRef(false);
+    const lastUpdateRef = useRef(0);
 
     // ─── Build query string for current session ─────────────────────────────
     const getSessionQuery = useCallback(() => {
@@ -405,12 +417,10 @@ export function LiveMusicProvider({ children }: { children: React.ReactNode }) {
             isLive,
             isPlaying,
             isLoading,
-            isBuffering,
             isWaitingForSync,
             isTransitioning,
             currentSong,
             seekPosition,
-            currentTime,
             songIndex,
             totalSongs,
             playlistTitle,
@@ -425,75 +435,86 @@ export function LiveMusicProvider({ children }: { children: React.ReactNode }) {
             refresh,
             switchSession,
         }}>
-            {/* Primary audio element — persists across navigation */}
-            <audio
-                ref={audioRef}
-                preload="auto"
-                onWaiting={() => setIsBuffering(true)}
-                onCanPlay={() => {
-                    setIsBuffering(false);
+            <LiveTimeContext.Provider value={{ currentTime, duration, isBuffering }}>
+                {/* Primary audio element — persists across navigation */}
+                <audio
+                    ref={audioRef}
+                    preload="auto"
+                    onWaiting={() => setIsBuffering(true)}
+                    onCanPlay={() => {
+                        setIsBuffering(false);
+                        const audio = audioRef.current;
+                        if (audio && audio.duration) setDuration(audio.duration);
 
-                    if (pendingSeekRef.current !== null && audioRef.current) {
-                        audioRef.current.currentTime = pendingSeekRef.current;
-                        pendingSeekRef.current = null;
+                        if (pendingSeekRef.current !== null && audioRef.current) {
+                            audioRef.current.currentTime = pendingSeekRef.current;
+                            pendingSeekRef.current = null;
 
-                        if (hasUserInteractedRef.current) {
-                            audioRef.current.play().catch(() => {});
+                            if (hasUserInteractedRef.current) {
+                                audioRef.current.play().catch(() => {});
+                            }
                         }
-                    }
-                }}
-                onPlaying={() => {
-                    setIsBuffering(false);
-                    setIsPlaying(true);
-                    setIsWaitingForSync(false);
-                    if (isTransitioningRef.current) {
-                        isTransitioningRef.current = false;
-                        setIsTransitioning(false);
-                    }
-                }}
-                onPause={() => {
-                    if (!isTransitioningRef.current) {
-                        setIsPlaying(false);
-                    }
-                }}
-                onEnded={handleSongEnded}
-                onTimeUpdate={() => {
-                    if (!audioRef.current) return;
-                    const t = audioRef.current.currentTime;
-                    setCurrentTime(t);
-
-                    // ── Preload trigger: when ≤ PRELOAD_AHEAD_SECS remain ───
-                    const song = audioRef.current;
-                    if (song.duration && song.duration > 0) {
-                        const remaining = song.duration - t;
-                        if (remaining <= PRELOAD_AHEAD_SECS && remaining > 0 && !preloadedSongUrlRef.current) {
-                            preloadNextSong();
+                    }}
+                    onPlaying={() => {
+                        setIsBuffering(false);
+                        setIsPlaying(true);
+                        setIsWaitingForSync(false);
+                        if (isTransitioningRef.current) {
+                            isTransitioningRef.current = false;
+                            setIsTransitioning(false);
                         }
-                    }
-
-                    // ── Drift calculation ────────────────────────────────────
-                    const sync = serverSyncRef.current;
-                    if (sync.songUrl && sync.songUrl === currentSongUrlRef.current) {
-                        const elapsed = (Date.now() - sync.fetchedAt) / 1000;
-                        const expectedPos = sync.serverSeek + elapsed;
-                        const drift = Math.abs(expectedPos - t);
-                        const synced = drift < SYNC_DRIFT_THRESHOLD;
-
-                        if (synced !== lastSyncedRef.current) {
-                            lastSyncedRef.current = synced;
-                            setIsSynced(synced);
+                    }}
+                    onPause={() => {
+                        if (!isTransitioningRef.current) {
+                            setIsPlaying(false);
                         }
-                    }
-                }}
-                style={{ display: "none" }}
-            />
-            {/* Preload audio element — hidden, used for HTTP cache warming */}
-            <audio
-                ref={preloadAudioRef}
-                preload="auto"
-                style={{ display: "none" }}
-            />
-            {children}
+                    }}
+                    onEnded={handleSongEnded}
+                    onTimeUpdate={() => {
+                        if (!audioRef.current) return;
+                        const t = audioRef.current.currentTime;
+                        
+                        // Throttled update for performance (every 500ms)
+                        const now = Date.now();
+                        const lastUpdate = lastUpdateRef.current;
+                        if (now - lastUpdate > 500) {
+                            setCurrentTime(t);
+                            lastUpdateRef.current = now;
+                        }
+
+                        // ── Preload trigger: when ≤ PRELOAD_AHEAD_SECS remain ───
+                        const song = audioRef.current;
+                        if (song.duration && song.duration > 0) {
+                            const remaining = song.duration - t;
+                            if (remaining <= PRELOAD_AHEAD_SECS && remaining > 0 && !preloadedSongUrlRef.current) {
+                                preloadNextSong();
+                            }
+                        }
+
+                        // ── Drift calculation ────────────────────────────────────
+                        const sync = serverSyncRef.current;
+                        if (sync.songUrl && sync.songUrl === currentSongUrlRef.current) {
+                            const elapsed = (Date.now() - sync.fetchedAt) / 1000;
+                            const expectedPos = sync.serverSeek + elapsed;
+                            const drift = Math.abs(expectedPos - t);
+                            const synced = drift < SYNC_DRIFT_THRESHOLD;
+
+                            if (synced !== lastSyncedRef.current) {
+                                lastSyncedRef.current = synced;
+                                setIsSynced(synced);
+                            }
+                        }
+                    }}
+                    style={{ display: "none" }}
+                />
+                {/* Preload audio element — hidden, used for HTTP cache warming */}
+                <audio
+                    ref={preloadAudioRef}
+                    preload="auto"
+                    style={{ display: "none" }}
+                />
+                {children}
+            </LiveTimeContext.Provider>
         </LiveMusicContext.Provider>
     );
 }

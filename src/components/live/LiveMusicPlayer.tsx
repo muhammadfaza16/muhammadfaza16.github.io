@@ -3,7 +3,7 @@
 import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Play, Pause, Radio, Disc, Music, ListMusic, ChevronDown, ChevronLeft, Heart, Headphones, Power } from "lucide-react";
-import { useLiveMusic } from "./LiveMusicContext";
+import { useLiveMusic, useLiveTime } from "./LiveMusicContext";
 import { parseSongTitle } from "@/utils/songUtils";
 import { useTheme } from "@/components/ThemeProvider";
 
@@ -13,10 +13,262 @@ function fmtTime(s: number) {
     return `${m}:${sec.toString().padStart(2, "0")}`;
 }
 
+const BufferingOverlay = React.memo(() => {
+    const { isBuffering } = useLiveTime();
+    if (!isBuffering) return null;
+    return (
+        <div style={{
+            position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center",
+            backgroundColor: "rgba(0,0,0,0.4)", zIndex: 4
+        }}>
+            <motion.div
+                animate={{ rotate: 360 }}
+                transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
+            >
+                <Disc size={32} color="#fff" />
+            </motion.div>
+        </div>
+    );
+});
+BufferingOverlay.displayName = "BufferingOverlay";
+
+const LiveVisualizer = React.memo(({ isPlaying }: { isPlaying: boolean }) => {
+    if (!isPlaying) return null;
+    return (
+        <div style={{ position: "absolute", bottom: "20px", left: "50%", transform: "translateX(-50%)", display: "flex", alignItems: "flex-end", gap: "3px", zIndex: 3, height: "40px" }}>
+            {[...Array(5)].map((_, i) => (
+                <motion.div
+                    key={i}
+                    animate={{ height: [8, 20 + Math.random() * 16, 8] }}
+                    transition={{ repeat: Infinity, duration: 0.6 + i * 0.15, ease: "easeInOut" }}
+                    style={{
+                        width: "4px", borderRadius: "100px",
+                        backgroundColor: "rgba(255,255,255,0.7)"
+                    }}
+                />
+            ))}
+        </div>
+    );
+});
+LiveVisualizer.displayName = "LiveVisualizer";
+
+const LivePlayerProgress = React.memo(({ isPlaying }: { isPlaying: boolean }) => {
+    const { currentTime, duration } = useLiveTime();
+    const progress = duration ? (currentTime / duration) * 100 : 0;
+
+    return (
+        <div style={{
+            width: "100%", height: "6px", borderRadius: "100px",
+            backgroundColor: "rgba(255,255,255,0.15)",
+            overflow: "hidden"
+        }}>
+            <motion.div
+                style={{ 
+                    height: "100%", backgroundColor: "#EF4444", borderRadius: "100px", width: `${Math.min(progress, 100)}%`,
+                    boxShadow: isPlaying ? "0 0 12px rgba(239, 68, 68, 0.8)" : "none"
+                }}
+                transition={{ duration: 0.5, ease: "linear" }}
+            />
+        </div>
+    );
+});
+LivePlayerProgress.displayName = "LivePlayerProgress";
+
+const LivePlayerClock = React.memo(() => {
+    const { currentTime, duration } = useLiveTime();
+    const monoFont = "var(--font-mono), monospace";
+    return (
+        <div style={{ 
+            display: "flex", justifyContent: "space-between", marginTop: "6px", 
+            fontFamily: monoFont, fontSize: "0.65rem", fontWeight: 700, 
+            color: "rgba(255,255,255,0.3)" 
+        }}>
+            <span>{fmtTime(currentTime)}</span>
+            <span>{fmtTime(duration)}</span>
+        </div>
+    );
+});
+LivePlayerClock.displayName = "LivePlayerClock";
+
+const LiveTrackRow = React.memo(({ 
+    track, index, isDark, headerFont, monoFont, activeTrackRef 
+}: { 
+    track: any, index: number, isDark: boolean, headerFont: string, monoFont: string, activeTrackRef: any 
+}) => {
+    const { cleanTitle: tTitle, artist: tArtist } = parseSongTitle(track.title);
+    return (
+        <div 
+            ref={track.isCurrent ? activeTrackRef : null}
+            style={{
+            display: "flex", alignItems: "center", gap: "12px",
+            padding: "16px 20px",
+            backgroundColor: track.isCurrent ? (isDark ? "rgba(239,68,68,0.1)" : "rgba(239,68,68,0.05)") : "transparent",
+            borderBottom: isDark ? "1px solid rgba(255,255,255,0.03)" : "1px solid rgba(0,0,0,0.02)"
+        }}>
+            <div style={{
+                width: "24px", textAlign: "center", fontFamily: monoFont,
+                fontWeight: 700, fontSize: "0.65rem",
+                color: track.isCurrent ? "#EF4444" : (isDark ? "rgba(255,255,255,0.3)" : "rgba(0,0,0,0.3)")
+            }}>
+                {track.isCurrent ? (
+                    <Music size={14} color="#EF4444" />
+                ) : (
+                    (index + 1).toString().padStart(2, "0")
+                )}
+            </div>
+            <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{
+                    fontFamily: headerFont, fontWeight: 800, fontSize: "0.85rem",
+                    whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
+                    color: track.isCurrent ? (isDark ? "#FFF" : "#000") : (isDark ? "rgba(255,255,255,0.8)" : "rgba(0,0,0,0.7)")
+                }}>
+                    {tTitle}
+                </div>
+                <div style={{
+                    fontFamily: monoFont, fontWeight: 700, fontSize: "0.6rem",
+                    color: isDark ? "rgba(255,255,255,0.3)" : "rgba(0,0,0,0.3)",
+                    textTransform: "uppercase"
+                }}>
+                    {tArtist}
+                </div>
+            </div>
+            <div style={{ fontFamily: monoFont, fontWeight: 700, fontSize: "0.65rem", color: isDark ? "rgba(255,255,255,0.3)" : "rgba(0,0,0,0.3)" }}>
+                {fmtTime(track.duration)}
+            </div>
+        </div>
+    );
+});
+LiveTrackRow.displayName = "LiveTrackRow";
+
+const LiveControls = React.memo(({ 
+    isWaitingForSync, isTransitioning, togglePlay, isPlaying, isSynced, refresh, isDark, headerFont, onShowQueue 
+}: any) => {
+    const { isBuffering } = useLiveTime();
+    return (
+        <div style={{ display: "flex", justifySelf: "center", justifyContent: "space-between", alignItems: "center", width: "100%", padding: "0 10px" }}>
+            {/* Left: Queue Toggle */}
+            <div style={{ display: "flex", gap: "12px" }}>
+                <motion.button
+                    whileTap={{ scale: 0.9 }}
+                    onClick={onShowQueue}
+                    style={{
+                        width: "48px", height: "48px", borderRadius: "100px",
+                        background: isDark ? "rgba(255,255,255,0.1)" : "rgba(255,255,255,0.5)",
+                        backdropFilter: "blur(20px)",
+                        display: "flex", alignItems: "center", justifyContent: "center",
+                        border: isDark ? "1px solid rgba(255,255,255,0.1)" : "1px solid rgba(0,0,0,0.05)",
+                        cursor: "pointer",
+                        color: isDark ? "#FFF" : "#000",
+                    }}
+                >
+                    <ListMusic size={20} />
+                </motion.button>
+            </div>
+
+            {/* Center: Play/Pause -> Join/Leave */}
+            {(isWaitingForSync || isTransitioning || isBuffering) ? (
+                <div
+                    style={{
+                        height: "64px", padding: "0 32px", borderRadius: "100px",
+                        background: isDark ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.05)",
+                        display: "flex", alignItems: "center", justifyContent: "center", gap: "12px",
+                        border: isDark ? "1px solid rgba(255,255,255,0.1)" : "1px solid rgba(0,0,0,0.1)",
+                    }}
+                >
+                    <motion.div
+                        animate={{ opacity: [0.3, 1, 0.3] }}
+                        transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" }}
+                        style={{ display: "flex", alignItems: "center", justifyContent: "center" }}
+                    >
+                        <Radio size={18} color={isDark ? "rgba(255,255,255,0.6)" : "rgba(0,0,0,0.6)"} />
+                    </motion.div>
+                    <span style={{ 
+                        fontFamily: "var(--font-display), system-ui, sans-serif", 
+                        fontWeight: 900, fontSize: "0.75rem", letterSpacing: "0.1em", 
+                        textTransform: "uppercase",
+                        color: isDark ? "rgba(255,255,255,0.6)" : "rgba(0,0,0,0.6)",
+                        animation: "pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite"
+                    }}>
+                        {isWaitingForSync ? "Syncing" : "Tuning In"}
+                    </span>
+                </div>
+            ) : (
+                <motion.button
+                    whileTap={{ scale: 0.95 }}
+                    onClick={togglePlay}
+                    style={{
+                        height: "64px", padding: "0 36px", borderRadius: "100px",
+                        background: isPlaying 
+                            ? (isDark ? "rgba(239, 68, 68, 0.15)" : "rgba(239, 68, 68, 0.1)") 
+                            : (isDark ? "#FFF" : "#000"),
+                        backdropFilter: "blur(30px)",
+                        display: "flex", alignItems: "center", justifyContent: "center", gap: "10px",
+                        border: isPlaying ? (isDark ? "1px solid rgba(239, 68, 68, 0.3)" : "1px solid rgba(239, 68, 68, 0.2)") : "none",
+                        cursor: "pointer",
+                        boxShadow: isPlaying ? "none" : (isDark ? "0 20px 40px rgba(255,255,255,0.15)" : "0 10px 30px rgba(0,0,0,0.2)"),
+                        color: isPlaying ? "#EF4444" : (isDark ? "#000" : "#FFF")
+                    }}
+                >
+                    {isPlaying ? (
+                        <>
+                            <Power size={20} color="currentColor" strokeWidth={2.5} />
+                            <span style={{ fontFamily: "var(--font-display), system-ui, sans-serif", fontWeight: 900, fontSize: "0.85rem", letterSpacing: "0.05em", textTransform: "uppercase" }}>
+                                Leave
+                            </span>
+                        </>
+                    ) : (
+                        <>
+                            <Headphones size={20} color="currentColor" strokeWidth={2.5} />
+                            <span style={{ fontFamily: "var(--font-display), system-ui, sans-serif", fontWeight: 900, fontSize: "0.85rem", letterSpacing: "0.05em", textTransform: "uppercase" }}>
+                                Join
+                            </span>
+                        </>
+                    )}
+                </motion.button>
+            )}
+
+            {/* Right: LIVE Indicator / Sync Button */}
+            <motion.button
+                whileTap={{ scale: 0.95 }}
+                onClick={refresh}
+                style={{
+                    padding: "0 12px", height: "48px", borderRadius: "100px",
+                    background: isDark ? "rgba(255,255,255,0.1)" : "rgba(255,255,255,0.5)",
+                    backdropFilter: "blur(20px)",
+                    border: isDark ? "1px solid rgba(255,255,255,0.1)" : "1px solid rgba(0,0,0,0.05)",
+                    display: "flex", alignItems: "center", gap: "8px",
+                    cursor: "pointer",
+                    color: isDark ? "#FFF" : "#000",
+                }}
+            >
+                <span style={{ 
+                    fontFamily: headerFont, fontWeight: 900, fontSize: "0.65rem", 
+                    letterSpacing: "0.1em", textTransform: "uppercase" 
+                }}>
+                    {isSynced ? "LIVE" : "SYNC"}
+                </span>
+                <motion.div
+                    animate={isSynced ? {
+                        scale: [1, 1.2, 1],
+                        opacity: [1, 0.6, 1],
+                    } : {}}
+                    transition={{ repeat: Infinity, duration: 2 }}
+                    style={{
+                        width: "6px", height: "6px", borderRadius: "50%",
+                        background: isSynced ? "#EF4444" : "#666",
+                        boxShadow: isSynced ? "0 0 8px rgba(239, 68, 68, 0.5)" : "none"
+                    }}
+                />
+            </motion.button>
+        </div>
+    );
+});
+LiveControls.displayName = "LiveControls";
+
 export function LiveMusicPlayer() {
     const {
-        isLive, isPlaying, isLoading, isBuffering, isWaitingForSync, isTransitioning,
-        currentSong, currentTime, songIndex, totalSongs,
+        isLive, isPlaying, isLoading, isWaitingForSync, isTransitioning,
+        currentSong, songIndex, totalSongs,
         playlistTitle, playlistCover, playlistColor, tracklist,
         error, togglePlay, refresh, isSynced, listenersCount
     } = useLiveMusic();
@@ -170,7 +422,6 @@ export function LiveMusicPlayer() {
     if (!currentSong) return null;
 
     const { cleanTitle, artist, labels } = parseSongTitle(currentSong.title);
-    const progress = currentSong.duration ? (currentTime / currentSong.duration) * 100 : 0;
 
     return (
         <>
@@ -252,36 +503,8 @@ export function LiveMusicPlayer() {
                     </motion.div>
                 </div>
 
-                {/* Audio Visualizer Bars */}
-                {isPlaying && (
-                    <div style={{ position: "absolute", bottom: "20px", left: "50%", transform: "translateX(-50%)", display: "flex", alignItems: "flex-end", gap: "3px", zIndex: 3, height: "40px" }}>
-                        {[...Array(5)].map((_, i) => (
-                            <motion.div
-                                key={i}
-                                animate={{ height: [8, 20 + Math.random() * 16, 8] }}
-                                transition={{ repeat: Infinity, duration: 0.6 + i * 0.15, ease: "easeInOut" }}
-                                style={{
-                                    width: "4px", borderRadius: "100px",
-                                    backgroundColor: "rgba(255,255,255,0.7)"
-                                }}
-                            />
-                        ))}
-                    </div>
-                )}
-
-                {isBuffering && (
-                    <div style={{
-                        position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center",
-                        backgroundColor: "rgba(0,0,0,0.4)", zIndex: 4
-                    }}>
-                        <motion.div
-                            animate={{ rotate: 360 }}
-                            transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
-                        >
-                            <Disc size={32} color="#fff" />
-                        </motion.div>
-                    </div>
-                )}
+                <BufferingOverlay />
+                <LiveVisualizer isPlaying={isPlaying} />
                 </motion.div>
 
                 {/* Floating Particles Area anchored to Cover Art */}
@@ -345,25 +568,10 @@ export function LiveMusicPlayer() {
                 </p>
             </div>
 
-            {/* Progress Bar (non-interactive, radio-style) */}
+            {/* Progress Bar & Clock (Memoized & High-Frequency Isolated) */}
             <div style={{ width: "100%" }}>
-                <div style={{
-                    width: "100%", height: "6px", borderRadius: "100px",
-                    backgroundColor: isDark ? "rgba(255,255,255,0.15)" : "rgba(0,0,0,0.1)",
-                    overflow: "hidden"
-                }}>
-                    <motion.div
-                        style={{ 
-                            height: "100%", backgroundColor: "#EF4444", borderRadius: "100px", width: `${Math.min(progress, 100)}%`,
-                            boxShadow: isPlaying ? "0 0 12px rgba(239, 68, 68, 0.8)" : "none"
-                        }}
-                        transition={{ duration: 0.25, ease: "linear" }}
-                    />
-                </div>
-                <div style={{ display: "flex", justifyContent: "space-between", marginTop: "6px", fontFamily: monoFont, fontSize: "0.65rem", fontWeight: 700, color: isDark ? "rgba(255,255,255,0.3)" : "rgba(0,0,0,0.3)" }}>
-                    <span>{fmtTime(currentTime)}</span>
-                    <span>{fmtTime(currentSong.duration)}</span>
-                </div>
+                <LivePlayerProgress isPlaying={isPlaying} />
+                <LivePlayerClock />
                 <AnimatePresence>
                     {nextSong && (
                         <motion.div 
@@ -383,123 +591,18 @@ export function LiveMusicPlayer() {
             </div>
 
             <div style={{ position: "relative", width: "100%" }}>
-                <div style={{ display: "flex", justifySelf: "center", justifyContent: "space-between", alignItems: "center", width: "100%", padding: "0 10px" }}>
-                    {/* Left: Queue Toggle */}
-                    <div style={{ display: "flex", gap: "12px" }}>
-                        <motion.button
-                            whileTap={{ scale: 0.9 }}
-                            onClick={() => setShowQueue(true)}
-                            style={{
-                                width: "48px", height: "48px", borderRadius: "100px",
-                                background: isDark ? "rgba(255,255,255,0.1)" : "rgba(255,255,255,0.5)",
-                                backdropFilter: "blur(20px)",
-                                display: "flex", alignItems: "center", justifyContent: "center",
-                                border: isDark ? "1px solid rgba(255,255,255,0.1)" : "1px solid rgba(0,0,0,0.05)",
-                                cursor: "pointer",
-                                color: isDark ? "#FFF" : "#000",
-                            }}
-                        >
-                            <ListMusic size={20} />
-                        </motion.button>
-                    </div>
-
-                {/* Center: Play/Pause -> Join/Leave */}
-                {(isWaitingForSync || isTransitioning || isBuffering) ? (
-                    <div
-                        style={{
-                            height: "64px", padding: "0 32px", borderRadius: "100px",
-                            background: isDark ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.05)",
-                            display: "flex", alignItems: "center", justifyContent: "center", gap: "12px",
-                            border: isDark ? "1px solid rgba(255,255,255,0.1)" : "1px solid rgba(0,0,0,0.1)",
-                        }}
-                    >
-                        <motion.div
-                            animate={{ opacity: [0.3, 1, 0.3] }}
-                            transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" }}
-                            style={{ display: "flex", alignItems: "center", justifyContent: "center" }}
-                        >
-                            <Radio size={18} color={isDark ? "rgba(255,255,255,0.6)" : "rgba(0,0,0,0.6)"} />
-                        </motion.div>
-                        <span style={{ 
-                            fontFamily: "var(--font-display), system-ui, sans-serif", 
-                            fontWeight: 900, fontSize: "0.75rem", letterSpacing: "0.1em", 
-                            textTransform: "uppercase",
-                            color: isDark ? "rgba(255,255,255,0.6)" : "rgba(0,0,0,0.6)",
-                            animation: "pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite"
-                        }}>
-                            {isWaitingForSync ? "Syncing" : "Tuning In"}
-                        </span>
-                    </div>
-                ) : (
-                    <motion.button
-                        whileTap={{ scale: 0.95 }}
-                        onClick={togglePlay}
-                        style={{
-                            height: "64px", padding: "0 36px", borderRadius: "100px",
-                            background: isPlaying 
-                                ? (isDark ? "rgba(239, 68, 68, 0.15)" : "rgba(239, 68, 68, 0.1)") 
-                                : (isDark ? "#FFF" : "#000"),
-                            backdropFilter: "blur(30px)",
-                            display: "flex", alignItems: "center", justifyContent: "center", gap: "10px",
-                            border: isPlaying ? (isDark ? "1px solid rgba(239, 68, 68, 0.3)" : "1px solid rgba(239, 68, 68, 0.2)") : "none",
-                            cursor: "pointer",
-                            boxShadow: isPlaying ? "none" : (isDark ? "0 20px 40px rgba(255,255,255,0.15)" : "0 10px 30px rgba(0,0,0,0.2)"),
-                            color: isPlaying ? "#EF4444" : (isDark ? "#000" : "#FFF")
-                        }}
-                    >
-                        {isPlaying ? (
-                            <>
-                                <Power size={20} color="currentColor" strokeWidth={2.5} />
-                                <span style={{ fontFamily: "var(--font-display), system-ui, sans-serif", fontWeight: 900, fontSize: "0.85rem", letterSpacing: "0.05em", textTransform: "uppercase" }}>
-                                    Leave
-                                </span>
-                            </>
-                        ) : (
-                            <>
-                                <Headphones size={20} color="currentColor" strokeWidth={2.5} />
-                                <span style={{ fontFamily: "var(--font-display), system-ui, sans-serif", fontWeight: 900, fontSize: "0.85rem", letterSpacing: "0.05em", textTransform: "uppercase" }}>
-                                    Join
-                                </span>
-                            </>
-                        )}
-                    </motion.button>
-                )}
-
-                {/* Right: LIVE Indicator / Sync Button */}
-                <motion.button
-                    whileTap={{ scale: 0.95 }}
-                    onClick={refresh}
-                    style={{
-                        padding: "0 12px", height: "48px", borderRadius: "100px",
-                        background: isDark ? "rgba(255,255,255,0.1)" : "rgba(255,255,255,0.5)",
-                        backdropFilter: "blur(20px)",
-                        border: isDark ? "1px solid rgba(255,255,255,0.1)" : "1px solid rgba(0,0,0,0.05)",
-                        display: "flex", alignItems: "center", gap: "8px",
-                        cursor: "pointer",
-                        color: isDark ? "#FFF" : "#000",
-                    }}
-                >
-                    <span style={{ 
-                        fontFamily: headerFont, fontWeight: 900, fontSize: "0.65rem", 
-                        letterSpacing: "0.1em", textTransform: "uppercase" 
-                    }}>
-                        {isSynced ? "LIVE" : "SYNC"}
-                    </span>
-                    <motion.div
-                        animate={isSynced ? {
-                            scale: [1, 1.2, 1],
-                            opacity: [1, 0.6, 1],
-                        } : {}}
-                        transition={{ repeat: Infinity, duration: 2 }}
-                        style={{
-                            width: "6px", height: "6px", borderRadius: "50%",
-                            background: isSynced ? "#EF4444" : "#666",
-                            boxShadow: isSynced ? "0 0 8px rgba(239, 68, 68, 0.5)" : "none"
-                        }}
-                    />
-                </motion.button>
+                <LiveControls 
+                    isWaitingForSync={isWaitingForSync}
+                    isTransitioning={isTransitioning}
+                    togglePlay={togglePlay}
+                    isPlaying={isPlaying}
+                    isSynced={isSynced}
+                    refresh={refresh}
+                    isDark={isDark}
+                    headerFont={headerFont}
+                    onShowQueue={() => setShowQueue(true)}
+                />
             </div>
-            </div> {/* End of relative particles container */}
             
             </div> {/* End of Inner Flex layout container */}
 
@@ -574,51 +677,17 @@ export function LiveMusicPlayer() {
                                 flex: 1,
                                 height: "auto"
                             }}>
-                                {tracklist.map((track, i) => {
-                                    const { cleanTitle: tTitle, artist: tArtist } = parseSongTitle(track.title);
-                                    return (
-                                        <div 
-                                            key={i} 
-                                            ref={track.isCurrent ? activeTrackRef : null}
-                                            style={{
-                                            display: "flex", alignItems: "center", gap: "12px",
-                                            padding: "16px 20px",
-                                            backgroundColor: track.isCurrent ? (isDark ? "rgba(239,68,68,0.1)" : "rgba(239,68,68,0.05)") : "transparent",
-                                            borderBottom: isDark ? "1px solid rgba(255,255,255,0.03)" : "1px solid rgba(0,0,0,0.02)"
-                                        }}>
-                                            <div style={{
-                                                width: "24px", textAlign: "center", fontFamily: monoFont,
-                                                fontWeight: 700, fontSize: "0.65rem",
-                                                color: track.isCurrent ? "#EF4444" : (isDark ? "rgba(255,255,255,0.3)" : "rgba(0,0,0,0.3)")
-                                            }}>
-                                                {track.isCurrent ? (
-                                                    <Music size={14} color="#EF4444" />
-                                                ) : (
-                                                    (i + 1).toString().padStart(2, "0")
-                                                )}
-                                            </div>
-                                            <div style={{ flex: 1, minWidth: 0 }}>
-                                                <div style={{
-                                                    fontFamily: headerFont, fontWeight: 800, fontSize: "0.85rem",
-                                                    whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
-                                                    color: track.isCurrent ? (isDark ? "#FFF" : "#000") : (isDark ? "rgba(255,255,255,0.8)" : "rgba(0,0,0,0.7)")
-                                                }}>
-                                                    {tTitle}
-                                                </div>
-                                                <div style={{
-                                                    fontFamily: monoFont, fontWeight: 700, fontSize: "0.6rem",
-                                                    color: isDark ? "rgba(255,255,255,0.3)" : "rgba(0,0,0,0.3)",
-                                                    textTransform: "uppercase"
-                                                }}>
-                                                    {tArtist}
-                                                </div>
-                                            </div>
-                                            <div style={{ fontFamily: monoFont, fontWeight: 700, fontSize: "0.65rem", color: isDark ? "rgba(255,255,255,0.3)" : "rgba(0,0,0,0.3)" }}>
-                                                {fmtTime(track.duration)}
-                                            </div>
-                                        </div>
-                                    );
-                                })}
+                                {tracklist.map((track, i) => (
+                                    <LiveTrackRow 
+                                        key={i} 
+                                        index={i}
+                                        track={track}
+                                        isDark={isDark}
+                                        headerFont={headerFont}
+                                        monoFont={monoFont}
+                                        activeTrackRef={activeTrackRef}
+                                    />
+                                ))}
                             </div>
                         </motion.div>
                     </>
