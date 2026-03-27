@@ -323,33 +323,48 @@ export function LiveMusicProvider({ children }: { children: React.ReactNode }) {
             }).catch(() => { });
         };
 
-        // 1. Send immediate heartbeat on Join
+        // 1. Send immediate heartbeat on Join/SongChange
         sendHeartbeat();
         
-        // 2. Refresh metadata immediately so UI updates to show the new listener (self)
-        const timer = setTimeout(() => {
-            fetchAndSync({ metadataOnly: true });
-        }, 1000);
-
-        // 3. Start periodic heartbeat
+        // 2. Refresh metadata periodically
         const interval = setInterval(sendHeartbeat, 60000);
 
-        return () => {
-            clearInterval(interval);
-            clearTimeout(timer);
-            
-            // 4. Send "Leave" heartbeat if we are explicitly stopping/unmounting
-            fetch("/api/music/log", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ 
-                    sessionId: sid,
-                    liveSessionId: null, // Clearing it so count decreases
-                    isLeaving: true
-                })
-            }).catch(() => { });
-        };
-    }, [isLive, activeSessionId, isPlaying, currentSong, fetchAndSync]);
+        return () => clearInterval(interval);
+    }, [isLive, activeSessionId, isPlaying, currentSong]);
+
+    // ─── Leave Event: Explicitly clear session only when stopping playback ───
+    useEffect(() => {
+        // We only want to send Leave if we WERE playing and now we STOPPED
+        if (isLive && activeSessionId && !isPlaying) {
+            const sid = sessionStorage.getItem("music_session_id");
+            if (!sid) return;
+
+            // Debounce the leave event by 3s to ignore brief pauses/song transitions
+            const leaveTimer = setTimeout(() => {
+                fetch("/api/music/log", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ 
+                        sessionId: sid,
+                        liveSessionId: null,
+                        isLeaving: true
+                    })
+                }).catch(() => { });
+            }, 3000);
+
+            return () => clearTimeout(leaveTimer);
+        }
+    }, [isPlaying, isLive, activeSessionId]);
+
+    // ─── Initial Refresh: Get count immediately when starting playback ──────
+    useEffect(() => {
+        if (isPlaying && isLive && activeSessionId) {
+            const timer = setTimeout(() => {
+                fetchAndSync({ metadataOnly: true });
+            }, 1000);
+            return () => clearTimeout(timer);
+        }
+    }, [isPlaying, isLive, activeSessionId, fetchAndSync]);
 
     // ─── Metadata Refresh: Sync listenersCount periodically every 20s ────────
     useEffect(() => {
