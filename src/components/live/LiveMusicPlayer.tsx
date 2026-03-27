@@ -472,7 +472,7 @@ export function LiveMusicPlayer() {
                 width: "100%", 
                 maxWidth: "500px", 
                 margin: "0 auto",
-                paddingBottom: "160px" // Luxurious cushion above the MiniPlayer
+                paddingBottom: "calc(env(safe-area-inset-bottom) + 180px)" // Increased padding to clear URL bar and MiniPlayer
             }}>
             {/* Playlist Info & Listeners */}
             <div style={{ 
@@ -659,7 +659,7 @@ export function LiveMusicPlayer() {
                 </AnimatePresence>
             </div>
 
-            <div style={{ position: "relative", width: "100%", marginTop: "auto", paddingTop: "12px" }}>
+            <div style={{ position: "relative", width: "100%", marginTop: "auto", paddingTop: "20px", paddingBottom: "10px" }}>
                 <LiveControls 
                     isWaitingForSync={isWaitingForSync}
                     isTransitioning={isTransitioning}
