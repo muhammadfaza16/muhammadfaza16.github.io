@@ -189,6 +189,7 @@ export function LiveMusicProvider({ children }: { children: React.ReactNode }) {
                     audioRef.current.src = "";
                 }
                 setIsLoading(false);
+                setIsWaitingForSync(false);
                 isFetchingRef.current = false;
                 return;
             }
@@ -197,6 +198,7 @@ export function LiveMusicProvider({ children }: { children: React.ReactNode }) {
                 setIsLive(true);
                 setError(data.error);
                 setIsLoading(false);
+                setIsWaitingForSync(false);
                 isFetchingRef.current = false;
                 return;
             }
@@ -229,6 +231,7 @@ export function LiveMusicProvider({ children }: { children: React.ReactNode }) {
             // If metadata-only refresh, don't touch audio
             if (opts?.metadataOnly) {
                 setIsLoading(false);
+                setIsWaitingForSync(false);
                 setIsSynced(true);
                 lastSyncedRef.current = true;
                 isFetchingRef.current = false;
@@ -236,6 +239,7 @@ export function LiveMusicProvider({ children }: { children: React.ReactNode }) {
             }
 
             if (!audioRef.current) {
+                setIsWaitingForSync(false);
                 isFetchingRef.current = false;
                 return;
             }
@@ -269,10 +273,15 @@ export function LiveMusicProvider({ children }: { children: React.ReactNode }) {
             lastSyncedRef.current = true;
 
         } catch (err: any) {
+            console.error("fetchAndSync failed:", err);
             setError(err.message || "Failed to connect to live stream");
             setIsLoading(false);
+            setIsWaitingForSync(false);
         } finally {
             isFetchingRef.current = false;
+            // Absolute safety fallback
+            const timer = setTimeout(() => setIsWaitingForSync(false), 2000);
+            return () => clearTimeout(timer);
         }
     }, [getSessionQuery]);
 
