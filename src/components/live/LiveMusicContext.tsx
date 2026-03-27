@@ -133,7 +133,9 @@ export function LiveMusicProvider({ children }: { children: React.ReactNode }) {
     const pendingSeekRef = useRef<boolean>(false); // Changed to a boolean flag
     const retryTimerRef = useRef<NodeJS.Timeout | null>(null);
     const isTransitioningRef = useRef(false);
-    const userIntentPlayRef = useRef(false); // New: Track if user actually wants to play
+    const userIntentPlayRef = useRef(false); // Track if user actually wants to play
+    const hasEverJoinedRef = useRef(false); // Gate Leave events — never fire before first Join
+    const currentSongTitleRef = useRef<string | null>(null); // Stable ref for heartbeat song title
 
     // Preload tracking
     const preloadedSongUrlRef = useRef<string>("");
@@ -219,6 +221,7 @@ export function LiveMusicProvider({ children }: { children: React.ReactNode }) {
             const song: LiveSong = data.song;
             const serverSeek = data.seekPosition + oneWayLatency;
 
+            currentSongTitleRef.current = song.title; // Keep ref in sync for heartbeat
             setCurrentSong(song);
             setSeekPosition(serverSeek);
 
@@ -279,9 +282,6 @@ export function LiveMusicProvider({ children }: { children: React.ReactNode }) {
             setIsWaitingForSync(false);
         } finally {
             isFetchingRef.current = false;
-            // Absolute safety fallback
-            const timer = setTimeout(() => setIsWaitingForSync(false), 2000);
-            return () => clearTimeout(timer);
         }
     }, [getSessionQuery]);
 
@@ -316,11 +316,6 @@ export function LiveMusicProvider({ children }: { children: React.ReactNode }) {
     // ─── Attendance State: 100% stable, only changes on explicit Join/Leave ──
     const [isUserJoined, setIsUserJoined] = useState(false);
 
-    // Sync isUserJoined with intent
-    useEffect(() => {
-        setIsUserJoined(userIntentPlayRef.current);
-    }, [isPlaying]); // Re-check when playing state changes just in case, but rely on intent
-
     // ─── Heartbeat: Log live attendance (Immediate on Join + every 60s) ──────
     useEffect(() => {
         if (!isLive || !activeSessionId || !isUserJoined) return;
@@ -335,23 +330,26 @@ export function LiveMusicProvider({ children }: { children: React.ReactNode }) {
                 body: JSON.stringify({ 
                     sessionId: sid,
                     liveSessionId: activeSessionId,
-                    songTitle: currentSong?.title || null
+                    songTitle: currentSongTitleRef.current || null
                 })
             }).catch(() => { });
         };
 
-        // 1. Send immediate heartbeat on Join/SongChange
+        // 1. Send immediate heartbeat on Join
         sendHeartbeat();
         
         // 2. Refresh metadata periodically
         const interval = setInterval(sendHeartbeat, 60000);
 
         return () => clearInterval(interval);
-    }, [isLive, activeSessionId, isUserJoined, currentSong]);
+    }, [isLive, activeSessionId, isUserJoined]); // No currentSong dep — uses ref instead
 
-    // ─── Leave Event: Explicitly clear session only when stopping playback ───
+    // ─── Leave Event: Only fires AFTER a user has explicitly Joined at least once ───
     useEffect(() => {
-        // We only want to send Leave if we were JOINED and now we LEFT
+        // Gate: Never send Leave before first Join
+        if (!hasEverJoinedRef.current) return;
+        
+        // Only send Leave if we were JOINED and now we LEFT
         if (isLive && activeSessionId && !isUserJoined) {
             const sid = sessionStorage.getItem("music_session_id");
             if (!sid) return;
@@ -418,12 +416,15 @@ export function LiveMusicProvider({ children }: { children: React.ReactNode }) {
 
         if (isPlaying) {
             userIntentPlayRef.current = false;
+            setIsUserJoined(false); // Explicit Leave
             audioRef.current.pause();
         } else {
             // MUTEX: Stop regular music when joining live
             stopRegularMusic();
 
             userIntentPlayRef.current = true;
+            hasEverJoinedRef.current = true; // Mark that user has joined at least once
+            setIsUserJoined(true); // Explicit Join
             if (!hasEverPlayedRef.current) {
                 hasEverPlayedRef.current = true;
                 setIsWaitingForSync(true);
@@ -443,7 +444,10 @@ export function LiveMusicProvider({ children }: { children: React.ReactNode }) {
         stopRegularMusic();
 
         userIntentPlayRef.current = true;
+        hasEverJoinedRef.current = true; // Mark that user has joined
+        setIsUserJoined(true); // Explicit Join
         setIsWaitingForSync(true);
+        isFetchingRef.current = false; // Force-allow fetch even if one is in progress
         fetchAndSync();
     }, [fetchAndSync, stopRegularMusic]);
 
@@ -488,6 +492,7 @@ export function LiveMusicProvider({ children }: { children: React.ReactNode }) {
         // Update state
         currentSongUrlRef.current = nextSong.audioUrl;
         currentSongIndexRef.current = nextIdx;
+        currentSongTitleRef.current = nextSong.title; // Keep ref in sync
         setCurrentSong(nextSong);
         setSongIndex(nextIdx);
         setCurrentTime(0);

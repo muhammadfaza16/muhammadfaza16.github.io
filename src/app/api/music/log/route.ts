@@ -17,12 +17,21 @@ export async function POST(request: Request) {
         // Parse body for songTitle, sessionId, and liveSessionId
         let songTitle = null;
         let sessionId = null;
-        let liveSessionId = null;
+        let liveSessionId: string | null | undefined = undefined; // undefined = not provided
+        let isLeaving = false;
         try {
             const body = await request.json();
             songTitle = body.songTitle || null;
             sessionId = body.sessionId || null;
-            liveSessionId = body.liveSessionId || null;
+            isLeaving = body.isLeaving === true;
+            // Only set liveSessionId if explicitly provided in the request
+            if (isLeaving) {
+                liveSessionId = null; // Explicit clear
+            } else if (body.liveSessionId) {
+                liveSessionId = body.liveSessionId;
+            }
+            // If neither isLeaving nor liveSessionId in body → liveSessionId stays undefined
+            // → regular music logs never touch the field
         } catch (e) {}
 
         // 1. If sessionId is provided, try to find an existing session from the last 30 minutes
