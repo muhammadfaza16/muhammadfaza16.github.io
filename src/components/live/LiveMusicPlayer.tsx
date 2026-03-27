@@ -481,7 +481,7 @@ export function LiveMusicPlayer() {
                 alignItems: "center", 
                 justifyContent: "center",
                 gap: "12px", 
-                padding: "24px 20px 16px", 
+                padding: "16px 20px 16px", 
             }}>
                 <span style={{ 
                     fontFamily: headerFont, 
@@ -491,8 +491,7 @@ export function LiveMusicPlayer() {
                     color: isDark ? "#FFF" : "#000", 
                     display: "flex", 
                     alignItems: "center", 
-                    gap: "8px",
-                    textTransform: "uppercase"
+                    gap: "8px"
                 }}>
                     <Radio size={18} color="#EF4444" />
                     {playlistTitle} 
@@ -598,11 +597,11 @@ export function LiveMusicPlayer() {
                 </motion.button>
             </div>
 
-            {/* Gap Cover to Title (30px) */}
-            <div style={{ height: "30px" }} />
+            {/* Gap Cover to Title (25px) */}
+            <div style={{ height: "25px" }} />
 
             {/* Song Info */}
-            <div style={{ textAlign: "center", display: "flex", flexDirection: "column", alignItems: "center", gap: "10px", padding: "0 20px" }}>
+            <div style={{ textAlign: "center", display: "flex", flexDirection: "column", alignItems: "center", gap: "7px", padding: "0 20px" }}>
                 <h2 style={{ fontFamily: headerFont, fontWeight: 900, fontSize: "1.75rem", margin: 0, letterSpacing: "-0.04em", color: isDark ? "#FFF" : "#000", lineHeight: 1.1 }}>
                     {cleanTitle}
                 </h2>
@@ -648,7 +647,7 @@ export function LiveMusicPlayer() {
                             exit={{ opacity: 0 }}
                             style={{ 
                                 textAlign: "center", fontFamily: headerFont, fontSize: "0.75rem", fontWeight: 600, 
-                                color: isDark ? "rgba(255,255,255,0.5)" : "rgba(0,0,0,0.5)", marginTop: "8px" 
+                                color: isDark ? "rgba(255,255,255,0.5)" : "rgba(0,0,0,0.5)", marginTop: "5px" 
                             }}
                         >
                             <span style={{ 
@@ -668,7 +667,7 @@ export function LiveMusicPlayer() {
             {/* Gap Progress to Controls (Tight 20px) */}
             <div style={{ height: "20px" }} />
 
-            <div style={{ position: "relative", width: "100%", paddingTop: "10px", paddingBottom: "10px" }}>
+            <div style={{ position: "relative", width: "100%", paddingTop: "16px", paddingBottom: "10px" }}>
                 <LiveControls 
                     isWaitingForSync={isWaitingForSync}
                     isTransitioning={isTransitioning}
