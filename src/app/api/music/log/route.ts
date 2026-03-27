@@ -48,6 +48,7 @@ export async function POST(request: Request) {
                         duration: durationSeconds,
                         // Update fields only if provided
                         ...(songTitle && { songTitle }),
+                        // Safety: only update liveSessionId if the client supports it
                         ...(liveSessionId && { liveSessionId })
                     }
                 });

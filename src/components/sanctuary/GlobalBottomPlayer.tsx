@@ -154,8 +154,9 @@ export function GlobalBottomPlayer() {
                             </div>
                         </div>
 
-                        <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "32px", padding: "0 32px" }}>
-                            
+                        <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-start", padding: "0 32px" }}>
+                            {/* Top Spacer to push everything down (Steve Jobs look) */}
+                            <div style={{ height: "80px" }} />
                             <motion.div 
                                 animate={{ scale: isPlaying ? 1 : 0.9, opacity: isPlaying ? 1 : 0.8 }}
                                 transition={{ type: "spring", stiffness: 200, damping: 20 }}
@@ -229,6 +230,9 @@ export function GlobalBottomPlayer() {
                                     </div>
                                 )}
                             </motion.div>
+                            
+                            {/* Gap Cover to Info (Reduced: 28px) */}
+                            <div style={{ height: "28px" }} />
 
                             <div style={{ textAlign: "center", width: "100%", display: "flex", flexDirection: "column", alignItems: "center", gap: "10px" }}>
                                 <h2 style={{ fontFamily: headerFont, fontWeight: 900, fontSize: "1.3rem", margin: 0, letterSpacing: "-0.03em", color: theme === "dark" ? "#FFF" : "#000" }}>{songTitle}</h2>
@@ -255,6 +259,9 @@ export function GlobalBottomPlayer() {
                                 )}
                                 <p style={{ fontFamily: headerFont, fontWeight: 600, fontSize: "0.9rem", margin: 0, color: theme === "dark" ? "rgba(255,255,255,0.5)" : "#888", opacity: 0.8 }}>{songArtist}</p>
                             </div>
+
+                            {/* Gap Info to Progress (Reduced: 18px) */}
+                            <div style={{ height: "18px" }} />
 
                             <div style={{ width: "100%", position: "relative" }}>
                                 <div 
@@ -321,6 +328,9 @@ export function GlobalBottomPlayer() {
                                     <span>{formatTime(duration)}</span>
                                 </div>
                             </div>
+
+                            {/* Gap Progress to Controls (Reduced: 22px) */}
+                            <div style={{ height: "22px" }} />
 
                             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%", padding: "0 10px" }}>
                                 <motion.button 
