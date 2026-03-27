@@ -144,7 +144,7 @@ export default function MasterClient({
                     overflowX: "hidden",
                     display: "flex",
                     flexDirection: "column",
-                    padding: "0 0 140px 0",
+                    padding: "0 0 calc(env(safe-area-inset-bottom) + 100px) 0",
                     WebkitOverflowScrolling: "touch",
                     overscrollBehaviorY: "none",
                     scrollbarGutter: "stable"
