@@ -457,7 +457,12 @@ export function LiveMusicProvider({ children }: { children: React.ReactNode }) {
     // Drift accumulates but user can SYNC manually anytime.
     const handleSongEnded = useCallback(() => {
         if (!audioRef.current) return;
+        if (isTransitioningRef.current) {
+            console.warn("[Audio] Blocked redundant handleSongEnded");
+            return;
+        }
 
+        console.log("[Audio] handleSongEnded — Advancing song");
         const tl = tracklistCacheRef.current;
         if (tl.length === 0) {
             // No tracklist cached — fallback to server sync
@@ -587,6 +592,7 @@ export function LiveMusicProvider({ children }: { children: React.ReactNode }) {
                     preload="auto"
                     onWaiting={() => setIsBuffering(true)}
                     onCanPlay={() => {
+                        console.log("[Audio] onCanPlay");
                         setIsBuffering(false);
                         const audio = audioRef.current;
                         if (audio && audio.duration) setDuration(audio.duration);
@@ -600,30 +606,38 @@ export function LiveMusicProvider({ children }: { children: React.ReactNode }) {
                             if (sync.songUrl && sync.songUrl === currentSongUrlRef.current) {
                                 const elapsedSinceFetch = (Date.now() - sync.fetchedAt) / 1000;
                                 const targetTime = sync.serverSeek + elapsedSinceFetch;
+                                console.log("[Audio] Syncing to", targetTime);
                                 audioRef.current.currentTime = targetTime;
                             }
                         }
 
                         // PLAY PHASE: Always auto-play if user has intent (covers both sync and local transitions)
                         if (userIntentPlayRef.current && audioRef.current && audioRef.current.paused) {
-                            audioRef.current.play().catch(() => {});
+                            console.log("[Audio] Auto-playing");
+                            audioRef.current.play().catch(e => console.error("[Audio] Play failed", e));
                         }
                     }}
                     onPlaying={() => {
+                        console.log("[Audio] onPlaying");
                         setIsBuffering(false);
                         setIsPlaying(true);
                         setIsWaitingForSync(false);
                         if (isTransitioningRef.current) {
+                            console.log("[Audio] Finalizing transition");
                             isTransitioningRef.current = false;
                             setIsTransitioning(false);
                         }
                     }}
                     onPause={() => {
+                        console.log("[Audio] onPause, transitioning:", isTransitioningRef.current);
                         if (!isTransitioningRef.current) {
                             setIsPlaying(false);
                         }
                     }}
-                    onEnded={handleSongEnded}
+                    onEnded={() => {
+                        console.log("[Audio] onEnded");
+                        handleSongEnded();
+                    }}
                     onTimeUpdate={() => {
                         if (!audioRef.current) return;
                         const t = audioRef.current.currentTime;
@@ -640,14 +654,6 @@ export function LiveMusicProvider({ children }: { children: React.ReactNode }) {
                         const song = audioRef.current;
                         if (song.duration && song.duration > 0) {
                             const remaining = song.duration - t;
-
-                            // ── Proactive Transition Flag: 500ms before end ───
-                            // Most browsers fire 'pause' just before 'ended'.
-                            // We set the ref early to block that 'pause' from setting isPlaying=false.
-                            if (remaining < 0.5 && !isTransitioningRef.current && isPlaying) {
-                                isTransitioningRef.current = true;
-                                setIsTransitioning(true);
-                            }
 
                             if (remaining <= PRELOAD_AHEAD_SECS && remaining > 0 && !preloadedSongUrlRef.current) {
                                 preloadNextSong();
