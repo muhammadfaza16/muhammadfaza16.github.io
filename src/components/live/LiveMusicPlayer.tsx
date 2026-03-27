@@ -749,7 +749,7 @@ export function LiveMusicPlayer() {
                             <div 
                                 ref={scrollContainerRef}
                                 style={{ 
-                                padding: "8px 0 160px", // Increased for bottom nav
+                                padding: "8px 0 40px", 
                                 overflowY: "auto", 
                                 flex: 1,
                                 height: "auto"
