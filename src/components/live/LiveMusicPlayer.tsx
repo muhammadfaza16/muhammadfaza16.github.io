@@ -34,6 +34,8 @@ const BufferingOverlay = React.memo(() => {
 BufferingOverlay.displayName = "BufferingOverlay";
 
 const LiveVisualizer = React.memo(({ isPlaying }: { isPlaying: boolean }) => {
+    const { theme } = useTheme();
+    const isDark = theme === "dark";
     if (!isPlaying) return null;
     return (
         <div style={{ position: "absolute", bottom: "20px", left: "50%", transform: "translateX(-50%)", display: "flex", alignItems: "flex-end", gap: "3px", zIndex: 3, height: "40px" }}>
@@ -46,7 +48,7 @@ const LiveVisualizer = React.memo(({ isPlaying }: { isPlaying: boolean }) => {
                         width: "4px", height: "40px",
                         transformOrigin: "bottom",
                         borderRadius: "100px",
-                        backgroundColor: "rgba(255,255,255,0.7)",
+                        backgroundColor: isDark ? "rgba(255,255,255,0.7)" : "rgba(255,255,255,0.9)",
                         willChange: "transform"
                     }}
                 />
@@ -57,13 +59,15 @@ const LiveVisualizer = React.memo(({ isPlaying }: { isPlaying: boolean }) => {
 LiveVisualizer.displayName = "LiveVisualizer";
 
 const LivePlayerProgress = React.memo(({ isPlaying }: { isPlaying: boolean }) => {
+    const { theme } = useTheme();
+    const isDark = theme === "dark";
     const { currentTime, duration } = useLiveTime();
     const progress = duration ? (currentTime / duration) * 100 : 0;
 
     return (
         <div style={{
             width: "100%", height: "4px", borderRadius: "100px",
-            backgroundColor: "rgba(255,255,255,0.15)",
+            backgroundColor: isDark ? "rgba(255,255,255,0.15)" : "rgba(255,255,255,0.25)",
             overflow: "hidden"
         }}>
             <motion.div
@@ -82,13 +86,15 @@ const LivePlayerProgress = React.memo(({ isPlaying }: { isPlaying: boolean }) =>
 LivePlayerProgress.displayName = "LivePlayerProgress";
 
 const LivePlayerClock = React.memo(() => {
+    const { theme } = useTheme();
+    const isDark = theme === "dark";
     const { currentTime, duration } = useLiveTime();
     const monoFont = "var(--font-mono), monospace";
     return (
         <div style={{ 
             display: "flex", justifyContent: "space-between", marginTop: "6px", 
             fontFamily: monoFont, fontSize: "0.65rem", fontWeight: 700, 
-            color: "rgba(255,255,255,0.3)" 
+            color: isDark ? "rgba(255,255,255,0.3)" : "rgba(255,255,255,0.6)" 
         }}>
             <span>{fmtTime(currentTime)}</span>
             <span>{fmtTime(duration)}</span>
@@ -179,12 +185,12 @@ const LiveControls = React.memo(({
                     onClick={onShowQueue}
                     style={{
                         width: "48px", height: "48px", borderRadius: "100px",
-                        background: isDark ? "rgba(255,255,255,0.1)" : "rgba(255,255,255,0.5)",
+                        background: isDark ? "rgba(255,255,255,0.1)" : "rgba(99, 102, 241, 0.12)",
                         backdropFilter: "blur(20px)",
                         display: "flex", alignItems: "center", justifyContent: "center",
-                        border: isDark ? "1px solid rgba(255,255,255,0.1)" : "1px solid rgba(0,0,0,0.05)",
+                        border: isDark ? "1px solid rgba(255,255,255,0.1)" : "1px solid rgba(99, 102, 241, 0.2)",
                         cursor: "pointer",
-                        color: isDark ? "#FFF" : "#000",
+                        color: isDark ? "#FFF" : "#6366F1",
                     }}
                 >
                     <ListMusic size={20} />
@@ -260,12 +266,12 @@ const LiveControls = React.memo(({
                 onClick={refresh}
                 style={{
                     padding: "0 12px", height: "48px", borderRadius: "100px",
-                    background: isDark ? "rgba(255,255,255,0.1)" : "rgba(255,255,255,0.5)",
+                    background: isDark ? "rgba(255,255,255,0.1)" : "rgba(239, 68, 68, 0.12)",
                     backdropFilter: "blur(20px)",
-                    border: isDark ? "1px solid rgba(255,255,255,0.1)" : "1px solid rgba(0,0,0,0.05)",
+                    border: isDark ? "1px solid rgba(255,255,255,0.1)" : "1px solid rgba(239, 68, 68, 0.2)",
                     display: "flex", alignItems: "center", gap: "8px",
                     cursor: "pointer",
-                    color: isDark ? "#FFF" : "#000",
+                    color: isDark ? "#FFF" : "#EF4444",
                 }}
             >
                 <span style={{ 
@@ -460,7 +466,11 @@ export function LiveMusicPlayer() {
                 pointerEvents: "none",
                 background: isDark 
                     ? "radial-gradient(ellipse at 50% 30%, rgba(99, 102, 241, 0.15) 0%, rgba(30, 27, 75, 0.3) 50%, transparent 80%)"
-                    : "radial-gradient(ellipse at 50% 30%, rgba(199, 210, 254, 0.4) 0%, rgba(224, 231, 255, 0.2) 50%, transparent 80%)"
+                    : `radial-gradient(circle at 0% 0%, rgba(129, 140, 248, 0.12) 0%, transparent 50%),
+                       radial-gradient(circle at 100% 100%, rgba(244, 114, 182, 0.12) 0%, transparent 50%),
+                       radial-gradient(circle at 100% 0%, rgba(45, 212, 191, 0.1) 0%, transparent 50%),
+                       radial-gradient(ellipse at 50% 30%, rgba(199, 210, 254, 0.35) 0%, rgba(255, 255, 255, 0) 70%),
+                       #F8FAFC`
             }} />
 
             <div style={{ 
@@ -504,8 +514,8 @@ export function LiveMusicPlayer() {
                     gap: "6px", 
                     padding: "4px 12px", 
                     borderRadius: "100px", 
-                    background: isDark ? "rgba(239, 68, 68, 0.15)" : "rgba(239, 68, 68, 0.05)", 
-                    border: isDark ? "1px solid rgba(239, 68, 68, 0.3)" : "1px solid rgba(239, 68, 68, 0.1)" 
+                    background: isDark ? "rgba(239, 68, 68, 0.15)" : "rgba(239, 68, 68, 0.12)", 
+                    border: isDark ? "1px solid rgba(239, 68, 68, 0.3)" : "1px solid rgba(239, 68, 68, 0.2)" 
                 }}>
                     <Users size={12} color="#EF4444" /> 
                     <span style={{ 
@@ -527,20 +537,19 @@ export function LiveMusicPlayer() {
             {/* Cover Art Container Wrapper (For Particles & Button) */}
             <div style={{ position: "relative", width: "100%", maxWidth: "240px", aspectRatio: "1/1" }}>
                 {/* Static shadow wrapper — NOT animated, so browser never repaints shadow */}
-                <div style={{
-                    width: "100%", height: "100%",
-                    borderRadius: "28px",
-                    boxShadow: isDark ? "0 30px 80px rgba(0,0,0,0.7)" : "0 20px 60px rgba(0,0,0,0.3)",
-                }}>
                 <motion.div
                     animate={{ scale: isPlaying ? 1 : 0.95 }}
                     transition={{ type: "spring", stiffness: 200, damping: 20 }}
                     style={{
                         width: "100%", height: "100%",
                         borderRadius: "28px", overflow: "hidden", position: "relative",
-                        background: isDark ? "linear-gradient(135deg, #1E1B4B, #312E81)" : "linear-gradient(135deg, #E0E7FF, #C7D2FE)",
-                        border: isDark ? "1px solid rgba(255,255,255,0.1)" : "1px solid rgba(0,0,0,0.06)",
-                        boxShadow: isDark ? "0 40px 100px rgba(0,0,0,0.6)" : "0 20px 50px rgba(0,0,0,0.1)",
+                        background: isDark 
+                            ? "linear-gradient(135deg, #1E1B4B, #312E81)" 
+                            : "linear-gradient(135deg, #6366F1, #A855F7, #EC4899)",
+                        border: isDark ? "1px solid rgba(255,255,255,0.1)" : "none",
+                        boxShadow: isDark 
+                            ? "0 40px 100px rgba(0,0,0,0.6)" 
+                            : (isPlaying ? "0 20px 50px rgba(99, 102, 241, 0.3)" : "0 10px 30px rgba(0,0,0,0.1)"),
                         display: "flex", alignItems: "center", justifyContent: "center",
                         willChange: "transform"
                     }}
@@ -559,14 +568,14 @@ export function LiveMusicPlayer() {
                         >
                             <Disc 
                                 size={180} 
-                                color={isDark ? "rgba(255,255,255,0.12)" : "rgba(255,255,255,0.4)"} 
+                                color={isDark ? "rgba(255,255,255,0.12)" : "rgba(255,255,255,0.3)"} 
                             />
                             {/* Rotation Visual Aids: Vinyl Highlights */}
                             <div style={{ 
                                 position: "absolute", inset: 0, 
                                 background: isDark
                                     ? "conic-gradient(from 0deg, transparent 0%, rgba(255,255,255,0.1) 10%, transparent 20%, transparent 50%, rgba(255,255,255,0.1) 60%, transparent 70%)"
-                                    : "conic-gradient(from 0deg, transparent 0%, rgba(255,255,255,0.6) 10%, transparent 20%, transparent 50%, rgba(255,255,255,0.6) 60%, transparent 70%)",
+                                    : "conic-gradient(from 0deg, transparent 0%, rgba(255,255,255,0.4) 10%, transparent 20%, transparent 50%, rgba(255,255,255,0.4) 60%, transparent 70%)",
                                 borderRadius: "50%",
                                 zIndex: 1
                             }} />
@@ -576,7 +585,6 @@ export function LiveMusicPlayer() {
                     <BufferingOverlay />
                     <LiveVisualizer isPlaying={isPlaying} />
                 </motion.div>
-                </div>
 
                 {/* Floating Particles Area anchored to Cover Art */}
                 <div style={{ position: "absolute", bottom: "30px", right: "-10px", width: "40px", height: "250px", pointerEvents: "none", zIndex: 10 }}>
@@ -603,11 +611,11 @@ export function LiveMusicPlayer() {
                     style={{
                         position: "absolute", bottom: "-12px", right: "-12px", zIndex: 11,
                         width: "40px", height: "40px", borderRadius: "100px",
-                        background: isDark ? "rgba(20, 20, 20, 0.6)" : "rgba(255, 255, 255, 0.6)",
+                        background: isDark ? "rgba(20, 20, 20, 0.6)" : "#FFF",
                         backdropFilter: "blur(20px)",
                         display: "flex", alignItems: "center", justifyContent: "center",
-                        border: isDark ? "1px solid rgba(255, 255, 255, 0.15)" : "1px solid rgba(0,0,0,0.05)",
-                        boxShadow: isDark ? "0 10px 30px rgba(0,0,0,0.5)" : "0 8px 20px rgba(0,0,0,0.1)",
+                        border: isDark ? "1px solid rgba(255, 255, 255, 0.15)" : "none",
+                        boxShadow: isDark ? "0 10px 30px rgba(0,0,0,0.5)" : "0 8px 20px rgba(255, 71, 126, 0.25)",
                         cursor: "pointer", color: "#EF4444",
                     }}
                 >

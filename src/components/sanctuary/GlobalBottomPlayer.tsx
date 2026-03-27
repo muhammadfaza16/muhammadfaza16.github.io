@@ -190,14 +190,14 @@ export function GlobalBottomPlayer() {
                                         >
                                             <Disc 
                                                 size={160} 
-                                                color={theme === "dark" ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.04)"} 
+                                                color={theme === "dark" ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.25)"} 
                                             />
                                             {/* Rotation Visual Aids: Vinyl Highlights */}
                                             <div style={{ 
                                                 position: "absolute", inset: 0, 
                                                 background: theme === "dark"
                                                     ? "conic-gradient(from 0deg, transparent 0%, rgba(255,255,255,0.05) 10%, transparent 20%, transparent 50%, rgba(255,255,255,0.05) 60%, transparent 70%)"
-                                                    : "conic-gradient(from 0deg, transparent 0%, rgba(255,255,255,0.4) 10%, transparent 20%, transparent 50%, rgba(255,255,255,0.4) 60%, transparent 70%)",
+                                                    : "conic-gradient(from 0deg, transparent 0%, rgba(0,0,0,0.15) 10%, transparent 20%, transparent 50%, rgba(0,0,0,0.15) 60%, transparent 70%)",
                                                 borderRadius: "50%",
                                                 zIndex: 1
                                             }} />
