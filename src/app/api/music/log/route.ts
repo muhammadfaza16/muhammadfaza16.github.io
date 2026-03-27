@@ -72,24 +72,46 @@ export async function POST(request: Request) {
             }
         }
 
-        await prisma.musicAccessLog.create({
-            data: {
-                ip,
-                userAgent,
-                songTitle,
-                sessionId,
-                liveSessionId,
-                city: geoData.city || null,
-                region: geoData.region || null,
-                country: geoData.country_name || null,
-                isp: geoData.org || null,
-                latitude: geoData.latitude || null,
-                longitude: geoData.longitude || null,
-                timezone: geoData.timezone || null,
-                postal: geoData.postal || null,
-                duration: 0
-            } as any,
-        });
+        try {
+            await (prisma.musicAccessLog as any).create({
+                data: {
+                    ip,
+                    userAgent,
+                    songTitle,
+                    sessionId,
+                    liveSessionId,
+                    city: geoData.city || null,
+                    region: geoData.region || null,
+                    country: geoData.country_name || null,
+                    isp: geoData.org || null,
+                    latitude: geoData.latitude || null,
+                    longitude: geoData.longitude || null,
+                    timezone: geoData.timezone || null,
+                    postal: geoData.postal || null,
+                    duration: 0
+                },
+            });
+        } catch (createError: any) {
+            console.error("Prisma primary log failed (schema desync?), attempting fallback:", createError.message);
+            // Fallback: log without liveSessionId if the schema hasn't updated yet
+            await (prisma.musicAccessLog as any).create({
+                data: {
+                    ip,
+                    userAgent,
+                    songTitle,
+                    sessionId,
+                    city: geoData.city || null,
+                    region: geoData.region || null,
+                    country: geoData.country_name || null,
+                    isp: geoData.org || null,
+                    latitude: geoData.latitude || null,
+                    longitude: geoData.longitude || null,
+                    timezone: geoData.timezone || null,
+                    postal: geoData.postal || null,
+                    duration: 0
+                },
+            });
+        }
 
         return NextResponse.json({ success: true, created: true });
     } catch (error: any) {
