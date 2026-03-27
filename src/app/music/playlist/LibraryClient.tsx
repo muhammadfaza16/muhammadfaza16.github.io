@@ -258,11 +258,6 @@ export default function LibraryClient({
                         return (
                             <motion.div
                                 key={playlist.id}
-                                layout
-                                initial={{ opacity: 0, scale: 0.9, y: 20 }}
-                                animate={{ opacity: 1, scale: 1, y: 0 }}
-                                exit={{ opacity: 0, scale: 0.9 }}
-                                transition={{ duration: 0.4, delay: idx * 0.05 }}
                             >
                                 <Link href={`/music/playlist/${playlist.slug || playlist.id}`} onClick={triggerHaptic} style={{ textDecoration: "none" }}>
                                     <div style={{

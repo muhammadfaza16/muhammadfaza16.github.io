@@ -124,8 +124,6 @@ export default function AudioHubClient({
                 }}
             >
                 <motion.div 
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
                     style={{ width: "100%", maxWidth: "440px", display: "flex", flexDirection: "column", gap: "24px", paddingTop: "40px" }}
                 >
                     {/* Header */}

@@ -176,9 +176,6 @@ export default function MasterClient({
                     </div>
                     
                     <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ type: "spring", stiffness: 250, damping: 25 }}
                         style={{
                             width: "100%", display: "flex", flexDirection: "column", gap: "24px", paddingTop: "24px"
                         }}

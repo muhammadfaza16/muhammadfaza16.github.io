@@ -62,7 +62,7 @@ const LivePlayerProgress = React.memo(({ isPlaying }: { isPlaying: boolean }) =>
 
     return (
         <div style={{
-            width: "100%", height: "6px", borderRadius: "100px",
+            width: "100%", height: "4px", borderRadius: "100px",
             backgroundColor: "rgba(255,255,255,0.15)",
             overflow: "hidden"
         }}>
@@ -223,16 +223,17 @@ const LiveControls = React.memo(({
                     whileTap={{ scale: 0.95 }}
                     onClick={togglePlay}
                     style={{
-                        height: "64px", padding: "0 36px", borderRadius: "100px",
+                        height: "64px", borderRadius: "100px",
                         background: isPlaying 
                             ? (isDark ? "rgba(239, 68, 68, 0.15)" : "rgba(239, 68, 68, 0.1)") 
-                            : (isDark ? "#FFF" : "#000"),
+                            : (isDark ? "rgba(255, 255, 255, 0.95)" : "rgba(0, 0, 0, 0.95)"),
                         backdropFilter: "blur(30px)",
-                        display: "flex", alignItems: "center", justifyContent: "center", gap: "10px",
+                        display: "flex", alignItems: "center", justifyContent: "center", gap: "12px",
                         border: isPlaying ? (isDark ? "1px solid rgba(239, 68, 68, 0.3)" : "1px solid rgba(239, 68, 68, 0.2)") : "none",
                         cursor: "pointer",
                         boxShadow: isPlaying ? "none" : (isDark ? "0 20px 40px rgba(255,255,255,0.15)" : "0 10px 30px rgba(0,0,0,0.2)"),
-                        color: isPlaying ? "#EF4444" : (isDark ? "#000" : "#FFF")
+                        color: isPlaying ? "#EF4444" : (isDark ? "#000" : "#FFF"),
+                        padding: "0 40px"
                     }}
                 >
                     {isPlaying ? (
@@ -471,7 +472,7 @@ export function LiveMusicPlayer() {
                 width: "100%", 
                 maxWidth: "500px", 
                 margin: "0 auto",
-                paddingBottom: "100px" // Reduced from 140px since Nav is hidden on this page
+                paddingBottom: "160px" // Luxurious cushion above the MiniPlayer
             }}>
             {/* Playlist Info & Listeners */}
             <div style={{ 
@@ -522,7 +523,7 @@ export function LiveMusicPlayer() {
             </div>
 
             {/* Inner Flex Container mirroring GlobalBottomPlayer */}
-            <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-start", gap: "min(32px, 4vh)", padding: "0 32px 40px" }}>
+            <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-start", gap: "min(40px, 6vh)", padding: "0 32px 40px" }}>
 
             {/* Cover Art Container Wrapper (For Particles & Button) */}
             <div style={{ position: "relative", width: "100%", maxWidth: "240px", aspectRatio: "1/1" }}>
@@ -598,8 +599,8 @@ export function LiveMusicPlayer() {
             </div>
 
             {/* Song Info */}
-            <div style={{ textAlign: "center", display: "flex", flexDirection: "column", alignItems: "center", gap: "8px", padding: "0 20px" }}>
-                <h2 style={{ fontFamily: headerFont, fontWeight: 900, fontSize: "1.5rem", margin: 0, letterSpacing: "-0.04em", color: isDark ? "#FFF" : "#000" }}>
+            <div style={{ textAlign: "center", display: "flex", flexDirection: "column", alignItems: "center", gap: "10px", padding: "0 20px" }}>
+                <h2 style={{ fontFamily: headerFont, fontWeight: 900, fontSize: "1.75rem", margin: 0, letterSpacing: "-0.04em", color: isDark ? "#FFF" : "#000", lineHeight: 1.1 }}>
                     {cleanTitle}
                 </h2>
                 {labels.length > 0 && (
@@ -616,7 +617,15 @@ export function LiveMusicPlayer() {
                         ))}
                     </div>
                 )}
-                <p style={{ fontFamily: headerFont, fontWeight: 700, fontSize: "0.95rem", margin: 0, letterSpacing: "0.02em", color: isDark ? "rgba(255,255,255,0.6)" : "#666" }}>
+                <p style={{ 
+                    fontFamily: headerFont, 
+                    fontWeight: 600, 
+                    fontSize: "0.9rem", 
+                    margin: 0, 
+                    letterSpacing: "0.02em", 
+                    color: isDark ? "rgba(255,255,255,0.5)" : "rgba(0,0,0,0.5)",
+                    opacity: 0.8
+                }}>
                     {artist}
                 </p>
             </div>
@@ -636,7 +645,14 @@ export function LiveMusicPlayer() {
                                 color: isDark ? "rgba(255,255,255,0.5)" : "rgba(0,0,0,0.5)", marginTop: "8px" 
                             }}
                         >
-                            <span style={{ fontWeight: 800, textTransform: "uppercase", fontSize: "0.6rem", letterSpacing: "0.05em", color: isDark ? "rgba(255,255,255,0.3)" : "rgba(0,0,0,0.3)", marginRight: "6px" }}>Up Next</span>
+                            <span style={{ 
+                                fontWeight: 900, 
+                                textTransform: "uppercase", 
+                                fontSize: "0.6rem", 
+                                letterSpacing: "0.15em", 
+                                color: isDark ? "rgba(255,255,255,0.3)" : "rgba(0,0,0,0.3)", 
+                                marginRight: "8px" 
+                            }}>Up Next</span>
                             {nextTitle} <span style={{ opacity: 0.6 }}>• {nextArtist}</span>
                         </motion.div>
                     )}
