@@ -470,8 +470,7 @@ export function LiveMusicPlayer() {
                 alignItems: "center", 
                 justifyContent: "center",
                 gap: "12px", 
-                padding: "24px 20px 0", 
-                marginBottom: "32px" 
+                padding: "24px 20px 16px", 
             }}>
                 <span style={{ 
                     fontFamily: headerFont, 
@@ -513,7 +512,7 @@ export function LiveMusicPlayer() {
             </div>
 
             {/* Inner Flex Container mirroring GlobalBottomPlayer */}
-            <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "space-evenly", padding: "0 32px", paddingBottom: "32px" }}>
+            <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-start", gap: "min(32px, 4vh)", padding: "0 32px 40px" }}>
 
             {/* Cover Art Container Wrapper (For Particles & Button) */}
             <div style={{ position: "relative", width: "100%", maxWidth: "240px", aspectRatio: "1/1" }}>
@@ -634,7 +633,7 @@ export function LiveMusicPlayer() {
                 </AnimatePresence>
             </div>
 
-            <div style={{ position: "relative", width: "100%" }}>
+            <div style={{ position: "relative", width: "100%", marginTop: "auto", paddingTop: "12px" }}>
                 <LiveControls 
                     isWaitingForSync={isWaitingForSync}
                     isTransitioning={isTransitioning}
