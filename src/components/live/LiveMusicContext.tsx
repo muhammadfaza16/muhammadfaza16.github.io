@@ -162,7 +162,7 @@ export function LiveMusicProvider({ children }: { children: React.ReactNode }) {
 
     // ─── Core: Fetch & Sync ─────────────────────────────────────────────────
     const fetchAndSync = useCallback(async (opts?: { metadataOnly?: boolean }) => {
-        if (isFetchingRef.current) return;
+        if (isFetchingRef.current || isTransitioningRef.current) return;
         isFetchingRef.current = true;
 
         const capturedSessionId = sessionIdRef.current;
@@ -171,7 +171,16 @@ export function LiveMusicProvider({ children }: { children: React.ReactNode }) {
 
         try {
             const res = await fetch(`/api/live-music/now${sq}`, { cache: "no-store" });
-            const data = await res.json();
+            
+            if (!res.ok) {
+                console.error(`[Context] Live status fetch failed: ${res.status}`);
+                isFetchingRef.current = false;
+                return;
+            }
+
+            const text = await res.text();
+            if (!text) throw new Error("Empty response from server");
+            const data = JSON.parse(text);
 
             // ABORT if session was switched while we were fetching
             if (sessionIdRef.current !== capturedSessionId) {
