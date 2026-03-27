@@ -20,7 +20,6 @@ export function GlobalBottomPlayer() {
         isMiniPlayerDismissed, setMiniPlayerDismissed
     } = useAudio();
     const { theme } = useTheme();
-    const { isPlaying: isLivePlaying } = useLiveMusic();
 
     const { currentTime, duration, isBuffering } = useTime();
 
@@ -79,9 +78,6 @@ export function GlobalBottomPlayer() {
     }, [isExpanded]);
 
     if (!isMounted) return null;
-
-    // Suppress regular player if live is playing to avoid confusion/overlap
-    if (isLivePlaying) return null;
 
     if (activePlaybackMode === 'none' || !currentSong) return null;
 

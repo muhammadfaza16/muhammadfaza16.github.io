@@ -19,9 +19,8 @@ export function MusicBottomNav({ isInline = false }: { isInline?: boolean }) {
     const { activePlaylistId, queue, isPlayerExpanded, setIsPlayerExpanded } = useAudio();
     const { theme } = useTheme();
 
-    // If player is expanded, hide the fixed bottom nav entirely to prevent bleeding.
-    // However, if we are rendering it INLINE inside the player itself, let it bypass this check.
-    if (isPlayerExpanded && !isInline) return null;
+    const isLivePage = pathname === "/music/live";
+    if ((isPlayerExpanded || isLivePage) && !isInline) return null;
 
     // If there is an active playlist ID, "Explore" logic can still use this info if needed.
     // "Player" action is now handled via state, so playerHref is redundant.

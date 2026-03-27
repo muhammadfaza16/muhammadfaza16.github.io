@@ -70,12 +70,10 @@ export function LayoutShell({ children }: { children: React.ReactNode }) {
                 {children}
             </main>
             <MusicSmoothScroll />
-            {!isLivePage && (
-                <>
-                    <MusicBottomNav />
-                    <GlobalBottomPlayer />
-                </>
-            )}
+            <>
+                <MusicBottomNav />
+                <GlobalBottomPlayer />
+            </>
         </>
     );
 }

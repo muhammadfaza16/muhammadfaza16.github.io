@@ -462,7 +462,17 @@ export function LiveMusicPlayer() {
                     : "radial-gradient(ellipse at 50% 30%, rgba(199, 210, 254, 0.4) 0%, rgba(224, 231, 255, 0.2) 50%, transparent 80%)"
             }} />
 
-            <div style={{ position: "relative", zIndex: showQueue ? 999999 : 1, flex: 1, display: "flex", flexDirection: "column", width: "100%", maxWidth: "500px", margin: "0 auto" }}>
+            <div style={{ 
+                position: "relative", 
+                zIndex: showQueue ? 999999 : 1, 
+                flex: 1, 
+                display: "flex", 
+                flexDirection: "column", 
+                width: "100%", 
+                maxWidth: "500px", 
+                margin: "0 auto",
+                paddingBottom: "100px" // Reduced from 140px since Nav is hidden on this page
+            }}>
             {/* Playlist Info & Listeners */}
             <div style={{ 
                 display: "flex", 
@@ -715,7 +725,7 @@ export function LiveMusicPlayer() {
                             <div 
                                 ref={scrollContainerRef}
                                 style={{ 
-                                padding: "8px 0 100px", 
+                                padding: "8px 0 160px", // Increased for bottom nav
                                 overflowY: "auto", 
                                 flex: 1,
                                 height: "auto"
