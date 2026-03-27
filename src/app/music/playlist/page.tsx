@@ -3,9 +3,17 @@ import prisma from "@/lib/prisma";
 import LibraryClient from "./LibraryClient";
 import LibraryLoading from "./loading";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 30;
 
-export default async function LibraryIndexPage() {
+export default function LibraryIndexPage() {
+    return (
+        <Suspense fallback={<LibraryLoading />}>
+            <LibraryContent />
+        </Suspense>
+    );
+}
+
+async function LibraryContent() {
     let songCount = 0;
     let playlists: any[] = [];
     
@@ -24,12 +32,8 @@ export default async function LibraryIndexPage() {
         songCount = count;
         playlists = fetchedPlaylists;
     } catch (e) {
-        console.error("Failed to fetch library data in LibraryIndexPage", e);
+        console.error("Failed to fetch library data in LibraryContent", e);
     }
 
-    return (
-        <Suspense fallback={<LibraryLoading />}>
-            <LibraryClient songCount={songCount} initialPlaylists={playlists} />
-        </Suspense>
-    );
+    return <LibraryClient songCount={songCount} initialPlaylists={playlists} />;
 }
