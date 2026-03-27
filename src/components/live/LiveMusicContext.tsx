@@ -304,14 +304,14 @@ export function LiveMusicProvider({ children }: { children: React.ReactNode }) {
         };
     }, [fetchAndSync]);
 
-    // ─── Heartbeat: Log live attendance every 60s ────────────────────────────
+    // ─── Heartbeat: Log live attendance (Immediate on Join + every 60s) ──────
     useEffect(() => {
         if (!isLive || !activeSessionId || !isPlaying) return;
 
-        const interval = setInterval(() => {
-            const sid = sessionStorage.getItem("music_session_id");
-            if (!sid) return;
+        const sid = sessionStorage.getItem("music_session_id");
+        if (!sid) return;
 
+        const sendHeartbeat = () => {
             fetch("/api/music/log", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -321,21 +321,46 @@ export function LiveMusicProvider({ children }: { children: React.ReactNode }) {
                     songTitle: currentSong?.title || null
                 })
             }).catch(() => { });
-        }, 60000);
+        };
 
-        return () => clearInterval(interval);
-    }, [isLive, activeSessionId, isPlaying, currentSong]);
+        // 1. Send immediate heartbeat on Join
+        sendHeartbeat();
+        
+        // 2. Refresh metadata immediately so UI updates to show the new listener (self)
+        const timer = setTimeout(() => {
+            fetchAndSync({ metadataOnly: true });
+        }, 1000);
 
-    // ─── Metadata Refresh: Sync listenersCount and server status every 60s ───
+        // 3. Start periodic heartbeat
+        const interval = setInterval(sendHeartbeat, 60000);
+
+        return () => {
+            clearInterval(interval);
+            clearTimeout(timer);
+            
+            // 4. Send "Leave" heartbeat if we are explicitly stopping/unmounting
+            fetch("/api/music/log", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ 
+                    sessionId: sid,
+                    liveSessionId: null, // Clearing it so count decreases
+                    isLeaving: true
+                })
+            }).catch(() => { });
+        };
+    }, [isLive, activeSessionId, isPlaying, currentSong, fetchAndSync]);
+
+    // ─── Metadata Refresh: Sync listenersCount periodically every 20s ────────
     useEffect(() => {
-        if (!isLive || !activeSessionId || !isPlaying) return;
+        if (!isLive || !activeSessionId) return;
 
         const interval = setInterval(() => {
             fetchAndSync({ metadataOnly: true });
-        }, 60000);
+        }, 20000); // 20s for more "live" feel for other users
 
         return () => clearInterval(interval);
-    }, [isLive, activeSessionId, isPlaying, fetchAndSync]);
+    }, [isLive, activeSessionId, fetchAndSync]);
 
     // ─── Switch session (called by live player page) ────────────────────────
     const switchSession = useCallback((newSessionId?: string) => {
