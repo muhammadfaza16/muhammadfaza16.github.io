@@ -1116,7 +1116,7 @@ export default function CurationList() {
             y: searchQuery ? -20 : 0
           }}
           transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-          className="px-5 pt-12 pb-8 md:pt-16 md:pb-12 overflow-hidden"
+          className="px-5 pt-20 pb-12 md:pt-28 md:pb-20 overflow-hidden"
         >
           <div className="flex flex-col gap-3">
             <div className="flex items-center gap-2">
