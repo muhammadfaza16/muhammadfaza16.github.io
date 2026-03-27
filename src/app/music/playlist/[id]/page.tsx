@@ -1,22 +1,58 @@
 import PlaylistClient from "./PlaylistClient";
 import prisma from "@/lib/prisma";
+import { Suspense } from "react";
+import PlaylistLoading from "./loading";
 
 export async function generateStaticParams() {
-    const playlists = await prisma.playlist.findMany({ select: { slug: true } });
-    const paths = playlists.map((playlist) => ({
-        id: playlist.slug,
-    }));
-
-    // Add "all" for the all songs page
-    paths.push({ id: "all" });
-
-    return paths;
+    try {
+        const playlists = await prisma.playlist.findMany({ select: { slug: true } });
+        const paths = playlists.map((playlist) => ({
+            id: playlist.slug,
+        }));
+        paths.push({ id: "all" });
+        return paths;
+    } catch (e) {
+        return [{ id: "all" }];
+    }
 }
 
-export default async function PlaylistDetailPage({ params }: { params: Promise<{ id: string }> }) {
-    const { id } = await params;
+export default function PlaylistDetailPage({ params }: { params: Promise<{ id: string }> }) {
+    return (
+        <Suspense fallback={<PlaylistLoading />}>
+            <PlaylistContent params={params} />
+        </Suspense>
+    );
+}
 
-    // Use empty array for initialSongs so it doesn't block SSR.
-    // The client component already fetches the actual song list asynchronously on mount.
-    return <PlaylistClient playlistId={id} initialSongs={[]} />;
+async function PlaylistContent({ params }: { params: Promise<{ id: string }> }) {
+    const { id } = await params;
+    let playlist = null;
+    let finalSongs: any[] = [];
+
+    try {
+        if (id === "all") {
+            finalSongs = await prisma.song.findMany({
+                orderBy: { createdAt: "asc" }
+            });
+        } else {
+            playlist = await prisma.playlist.findUnique({
+                where: { slug: id },
+                include: {
+                    songs: {
+                        include: {
+                            song: true
+                        },
+                        orderBy: { order: "asc" }
+                    }
+                }
+            });
+            if (playlist && playlist.songs) {
+                finalSongs = playlist.songs.map((ps: any) => ps.song);
+            }
+        }
+    } catch (e) {
+        console.error("Failed to fetch playlist detail data", e);
+    }
+
+    return <PlaylistClient playlistId={id} initialSongs={finalSongs} initialPlaylist={playlist} />;
 }

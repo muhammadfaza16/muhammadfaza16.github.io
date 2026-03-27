@@ -113,57 +113,35 @@ function TrackRow({ song, index, isActive, isPlaying, onPlay }: {
     );
 }
 
-export default function PlaylistClient({ playlistId, initialSongs = [] }: { playlistId: string, initialSongs?: any[] }) {
+export default function PlaylistClient({ 
+    playlistId, 
+    initialSongs = [], 
+    initialPlaylist = null 
+}: { 
+    playlistId: string, 
+    initialSongs?: any[], 
+    initialPlaylist?: any 
+}) {
     const { playQueue, queue, currentSong, isPlaying, togglePlay, activePlaylistId, setIsPlayerExpanded } = useAudio();
     const { theme } = useTheme();
     const [searchQuery, setSearchQuery] = useState("");
     const [mounted, setMounted] = useState(false);
     const scrollContainerRef = useRef<HTMLDivElement>(null);
     const scrollYRef = useRef(0);
-    const [isLoading, setIsLoading] = useState(true);
-    
-    const [dbSongs, setDbSongs] = useState<{ title: string; audioUrl: string; duration?: number; id?: string; category?: string }[]>(initialSongs || []);
-    const [activePlaylist, setActivePlaylist] = useState<any>(null);
+    const [dbSongs, setDbSongs] = useState<{ title: string; audioUrl: string; duration?: number; id?: string; category?: string }[]>(initialSongs);
+    const [activePlaylist, setActivePlaylist] = useState<any>(initialPlaylist);
 
     useEffect(() => {
         setMounted(true);
     }, []);
 
-    useEffect(() => {
-        setIsLoading(true);
-        if (playlistId === "all") {
-            fetch("/api/music/songs")
-                .then(res => res.json())
-                .then(data => {
-                    if (data.success && data.songs) {
-                        setDbSongs(data.songs);
-                    }
-                })
-                .catch(() => { })
-                .finally(() => {
-                    setTimeout(() => setIsLoading(false), 800);
-                });
-        } else {
-            fetch(`/api/music/playlists/${playlistId}`)
-                .then(res => res.json())
-                .then(data => {
-                    if (data.success && data.playlist) {
-                        setActivePlaylist(data.playlist);
-                        setDbSongs(data.playlist.songs);
-                    }
-                })
-                .catch(() => { })
-                .finally(() => {
-                    setTimeout(() => setIsLoading(false), 800);
-                });
-        }
-    }, [playlistId]);
+    // No longer need client-side fetch as data is provided by RSC streaming
 
     const CACHE_KEY = `playlist_detail_scroll_${playlistId}_v1`;
 
     // Restore scroll position
     useEffect(() => {
-        if (!mounted || isLoading) return;
+        if (!mounted) return;
         try {
             const cached = sessionStorage.getItem(CACHE_KEY);
             if (cached) {
@@ -180,7 +158,7 @@ export default function PlaylistClient({ playlistId, initialSongs = [] }: { play
         } catch (e) {
             console.error("Failed to restore scroll position", e);
         }
-    }, [mounted, isLoading, playlistId]);
+    }, [mounted, playlistId]);
 
     // Save scroll position on unmount
     useEffect(() => {
@@ -262,69 +240,7 @@ export default function PlaylistClient({ playlistId, initialSongs = [] }: { play
                     </div>
 
 
-            <AnimatePresence>
-                {isLoading && (
-                    <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        style={{
-                            position: "fixed",
-                            inset: 0,
-                            backgroundColor: theme === "dark" ? "#0A0A0A" : "#f9f9f9",
-                            zIndex: 100,
-                            display: "flex",
-                            flexDirection: "column",
-                            alignItems: "center",
-                            justifyContent: "center",
-                            gap: "24px"
-                        }}
-                    >
-                        <div style={{
-                            width: "80px",
-                            height: "80px",
-                            background: "linear-gradient(135deg, #1E1B4B 0%, #312E81 100%)",
-                            border: "1px solid rgba(255,255,255,0.1)",
-                            boxShadow: "0 20px 50px rgba(0,0,0,0.15)",
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                            borderRadius: "24px",
-                            position: "relative",
-                            overflow: "hidden"
-                        }}>
-                            <div style={{
-                                position: "absolute",
-                                inset: 0,
-                                background: "radial-gradient(circle at 0% 100%, #6366F1, transparent 70%)",
-                                opacity: 0.4
-                            }} />
-                            <Disc size={32} color="#fff" className="animate-spin-slow" style={{ position: "relative", zIndex: 1 }} />
-                        </div>
-                        <div style={{ textAlign: "center" }}>
-                            <div style={{
-                                fontFamily: headerFont,
-                                fontWeight: 900,
-                                fontSize: "1rem",
-                                textTransform: "uppercase",
-                                letterSpacing: "0.05em",
-                                color: theme === "dark" ? "#FFF" : "#000"
-                            }}>
-                                PREPARING LIBRARY
-                            </div>
-                            <div style={{
-                                fontFamily: monoFont,
-                                fontWeight: 700,
-                                fontSize: "0.65rem",
-                                color: theme === "dark" ? "rgba(255,255,255,0.4)" : "rgba(0,0,0,0.4)",
-                                marginTop: "6px"
-                            }}>
-                                SYNCHRONIZING WITH SERVER
-                            </div>
-                        </div>
-                    </motion.div>
-                )}
-            </AnimatePresence>
+            {/* Loading state is now handled by server-side loading.tsx */}
 
 
             {activePlaylist && (
