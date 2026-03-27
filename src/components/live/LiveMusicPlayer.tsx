@@ -720,7 +720,7 @@ export function LiveMusicPlayer() {
                             <div style={{ 
                                 display: "flex", 
                                 alignItems: "center", 
-                                padding: "calc(env(safe-area-inset-top) + 16px) 20px 16px",
+                                padding: "calc(env(safe-area-inset-top) + 20px) 20px 16px",
                                 borderBottom: isDark ? "1px solid rgba(255,255,255,0.05)" : "1px solid rgba(0,0,0,0.05)"
                             }}>
                                 <motion.button
