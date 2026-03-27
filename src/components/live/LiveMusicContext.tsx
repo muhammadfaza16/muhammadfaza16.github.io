@@ -466,9 +466,8 @@ export function LiveMusicProvider({ children }: { children: React.ReactNode }) {
             return;
         }
 
-        // Enter transitioning state
+        // Enter transitioning state (ref FIRST — blocks onPause from setting isPlaying=false)
         isTransitioningRef.current = true;
-        setIsTransitioning(true);
 
         // Advance to next song locally
         const nextIdx = (currentSongIndexRef.current + 1) % tl.length;
@@ -476,6 +475,7 @@ export function LiveMusicProvider({ children }: { children: React.ReactNode }) {
 
         if (!nextTrack || !nextTrack.audioUrl) {
             // Invalid track — fallback to server sync
+            isTransitioningRef.current = false;
             isFetchingRef.current = false;
             fetchAndSync();
             return;
@@ -489,10 +489,31 @@ export function LiveMusicProvider({ children }: { children: React.ReactNode }) {
             category: nextTrack.category,
         };
 
-        // Update state
+        // ── PRIORITY 1: Start loading audio IMMEDIATELY ──────────────────
+        // Update refs first (synchronous, zero cost)
         currentSongUrlRef.current = nextSong.audioUrl;
         currentSongIndexRef.current = nextIdx;
-        currentSongTitleRef.current = nextSong.title; // Keep ref in sync
+        currentSongTitleRef.current = nextSong.title;
+        preloadedSongUrlRef.current = "";
+
+        // For local transitions, DON'T use pendingSeek — browser starts at 0 already.
+        // Setting pendingSeekRef would cause an unnecessary seek-to-~0.05s stutter.
+        pendingSeekRef.current = false;
+
+        // Update local sync reference for drift calc
+        serverSyncRef.current = {
+            serverSeek: 0,
+            fetchedAt: Date.now(),
+            songUrl: nextSong.audioUrl,
+        };
+
+        // Load audio — browser HTTP cache has it from preload → near-instant
+        audio.src = nextSong.audioUrl;
+
+        // ── PRIORITY 2: Update UI state (batched, lower priority) ────────
+        // React 18 flushSync is not needed — these are in a microtask-like context.
+        // But we group them to minimize render churn.
+        setIsTransitioning(true);
         setCurrentSong(nextSong);
         setSongIndex(nextIdx);
         setCurrentTime(0);
@@ -502,21 +523,6 @@ export function LiveMusicProvider({ children }: { children: React.ReactNode }) {
         const updatedTl = tl.map((t, i) => ({ ...t, isCurrent: i === nextIdx }));
         tracklistCacheRef.current = updatedTl;
         setTracklist(updatedTl);
-
-        // Clear preload tracking
-        preloadedSongUrlRef.current = "";
-
-        // Load on primary element — browser HTTP cache has it from preload
-        pendingSeekRef.current = true; // Use dynamic sync on canplay
-        audio.src = nextSong.audioUrl;
-        // onCanPlay → seek to 0 → play (hasUserInteractedRef is true)
-
-        // Update local sync reference
-        serverSyncRef.current = {
-            serverSeek: 0,
-            fetchedAt: Date.now(),
-            songUrl: nextSong.audioUrl,
-        };
 
         // Mark as desynced from server (user can SYNC to correct)
         setIsSynced(false);
@@ -584,6 +590,7 @@ export function LiveMusicProvider({ children }: { children: React.ReactNode }) {
                         const audio = audioRef.current;
                         if (audio && audio.duration) setDuration(audio.duration);
 
+                        // SEEK PHASE: Only when a server-sync seek is pending (manual Sync, first join)
                         if (pendingSeekRef.current && audioRef.current) {
                             pendingSeekRef.current = false;
                             
@@ -594,10 +601,11 @@ export function LiveMusicProvider({ children }: { children: React.ReactNode }) {
                                 const targetTime = sync.serverSeek + elapsedSinceFetch;
                                 audioRef.current.currentTime = targetTime;
                             }
+                        }
 
-                            if (userIntentPlayRef.current) {
-                                audioRef.current.play().catch(() => {});
-                            }
+                        // PLAY PHASE: Always auto-play if user has intent (covers both sync and local transitions)
+                        if (userIntentPlayRef.current && audioRef.current && audioRef.current.paused) {
+                            audioRef.current.play().catch(() => {});
                         }
                     }}
                     onPlaying={() => {

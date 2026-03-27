@@ -198,7 +198,7 @@ const LiveControls = React.memo(({
             </div>
 
             {/* Center: Play/Pause -> Join/Leave */}
-            {(isWaitingForSync || isTransitioning || isBuffering) ? (
+            {(isWaitingForSync || isBuffering) ? (
                 <div
                     style={{
                         height: "64px", padding: "0 32px", borderRadius: "100px",
