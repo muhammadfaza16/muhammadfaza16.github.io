@@ -523,7 +523,7 @@ export function LiveMusicPlayer() {
             </div>
 
             {/* Inner Flex Container mirroring GlobalBottomPlayer */}
-            <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-start", gap: "min(40px, 6vh)", padding: "0 32px 40px" }}>
+            <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-start", padding: "0 32px 40px" }}>
 
             {/* Cover Art Container Wrapper (For Particles & Button) */}
             <div style={{ position: "relative", width: "100%", maxWidth: "240px", aspectRatio: "1/1" }}>
@@ -598,6 +598,9 @@ export function LiveMusicPlayer() {
                 </motion.button>
             </div>
 
+            {/* Gap Cover to Title (Luxurious) */}
+            <div style={{ height: "min(40px, 6vh)" }} />
+
             {/* Song Info */}
             <div style={{ textAlign: "center", display: "flex", flexDirection: "column", alignItems: "center", gap: "10px", padding: "0 20px" }}>
                 <h2 style={{ fontFamily: headerFont, fontWeight: 900, fontSize: "1.75rem", margin: 0, letterSpacing: "-0.04em", color: isDark ? "#FFF" : "#000", lineHeight: 1.1 }}>
@@ -630,6 +633,9 @@ export function LiveMusicPlayer() {
                 </p>
             </div>
 
+            {/* Gap Title to Progress (Tight 20px) */}
+            <div style={{ height: "20px" }} />
+
             {/* Progress Bar & Clock (Memoized & High-Frequency Isolated) */}
             <div style={{ width: "100%", padding: "0 20px" }}>
                 <LivePlayerProgress isPlaying={isPlaying} />
@@ -659,7 +665,10 @@ export function LiveMusicPlayer() {
                 </AnimatePresence>
             </div>
 
-            <div style={{ position: "relative", width: "100%", marginTop: "auto", paddingTop: "20px", paddingBottom: "10px" }}>
+            {/* Gap Progress to Controls (Tight 20px) */}
+            <div style={{ height: "20px" }} />
+
+            <div style={{ position: "relative", width: "100%", paddingTop: "20px", paddingBottom: "10px" }}>
                 <LiveControls 
                     isWaitingForSync={isWaitingForSync}
                     isTransitioning={isTransitioning}
