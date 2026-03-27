@@ -242,7 +242,7 @@ export default function MasterClient({
                                             { id: "playlist", icon: <ListMusic size={20} />, label: "Playlist Vault", sub: "Structural Database Control" },
                                             { id: "songs", icon: <Music size={20} />, label: "Global Songs", sub: "Core Catalog Management" },
                                             { id: "live", icon: <Radio size={20} />, label: "Live Control", sub: "Real-Time Broadcast Manager" },
-                                            { id: "logs", icon: <Activity size={20} />, label: "Access Insight", sub: "Visitor Geolocation & Traffic" },
+                                            { id: "logs", icon: <Activity size={20} />, label: "Station Pulse", sub: "Live presence & regional engagement" },
                                         ].map((tool) => (
                                             <motion.button
                                                 key={tool.id}
@@ -381,7 +381,7 @@ export default function MasterClient({
                                         display: "flex", flexDirection: "column", gap: "16px", minHeight: "300px" 
                                     }}>
                                         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                                            <h3 style={{ margin: 0, fontFamily: headerFont, fontSize: "0.85rem", fontWeight: 900, textTransform: "uppercase", color: theme === "dark" ? "#FFF" : "#000", letterSpacing: "0.05em" }}>Visitor Intelligence</h3>
+                                            <h3 style={{ margin: 0, fontFamily: headerFont, fontSize: "0.85rem", fontWeight: 900, textTransform: "uppercase", color: theme === "dark" ? "#FFF" : "#000", letterSpacing: "0.05em" }}>Engagement Pulse</h3>
                                             {isLogsUnlocked && (
                                                 <button onClick={fetchAccessLogs} style={{ background: "none", border: "none", cursor: "pointer", color: theme === "dark" ? "rgba(255,255,255,0.4)" : "rgba(0,0,0,0.4)" }}>
                                                     <RefreshCw size={14} className={loadingLogs ? "animate-spin" : ""} />
@@ -461,7 +461,7 @@ export default function MasterClient({
                                                             const { cleanTitle, labels } = parseSongTitle(log.songTitle);
                                                             return (
                                                                 <div style={{ padding: "8px 12px", background: "rgba(0,0,0,0.02)", borderRadius: "8px", border: "1px solid rgba(0,0,0,0.03)" }}>
-                                                                    <div style={{ fontSize: "0.5rem", fontWeight: 800, color: "#888", textTransform: "uppercase", marginBottom: "2px" }}>HEARING</div>
+                                                                    <div style={{ fontSize: "0.5rem", fontWeight: 800, color: "#888", textTransform: "uppercase", marginBottom: "2px" }}>NOW PLAYING</div>
                                                                     <div style={{ display: "flex", alignItems: "center", gap: "6px", flexWrap: "wrap" }}>
                                                                         <div style={{ fontSize: "0.7rem", fontWeight: 900, color: theme === "dark" ? "#FFF" : "#000", textTransform: "uppercase", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", fontFamily: headerFont }}>
                                                                             {cleanTitle}
