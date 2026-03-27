@@ -532,38 +532,49 @@ export function LiveMusicPlayer() {
                     borderRadius: "28px",
                     boxShadow: isDark ? "0 30px 80px rgba(0,0,0,0.7)" : "0 20px 60px rgba(0,0,0,0.3)",
                 }}>
-                <motion.div 
-                    animate={isPlaying ? { scale: [1, 1.04, 1], rotateZ: [0, 0.01, 0] } : { scale: 1, rotateZ: 0 }}
-                    transition={{ 
-                        repeat: Infinity, 
-                        duration: 8, 
-                        ease: [0.45, 0.05, 0.55, 0.95],
-                        repeatType: "mirror"
-                    }}
+                <motion.div
+                    animate={{ scale: isPlaying ? 1 : 0.95 }}
+                    transition={{ type: "spring", stiffness: 200, damping: 20 }}
                     style={{
                         width: "100%", height: "100%",
                         borderRadius: "28px", overflow: "hidden", position: "relative",
                         background: isDark ? "linear-gradient(135deg, #1E1B4B, #312E81)" : "linear-gradient(135deg, #E0E7FF, #C7D2FE)",
                         border: isDark ? "1px solid rgba(255,255,255,0.1)" : "1px solid rgba(0,0,0,0.06)",
+                        boxShadow: isDark ? "0 40px 100px rgba(0,0,0,0.6)" : "0 20px 50px rgba(0,0,0,0.1)",
                         display: "flex", alignItems: "center", justifyContent: "center",
-                        willChange: "transform",
-                        backfaceVisibility: "hidden",
-                        transformStyle: "preserve-3d"
+                        willChange: "transform"
                     }}
                 >
-                <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(0,0,0,0.7) 0%, transparent 60%)", zIndex: 1 }} />
-                <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", zIndex: 2 }}>
-                    <motion.div
-                        animate={isPlaying ? { rotate: [0, 360] } : { rotate: 0 }}
-                        transition={{ repeat: Infinity, duration: 8, ease: "linear" }}
-                        style={{ willChange: "transform" }}
-                    >
-                        <Disc size={100} color="rgba(255,255,255,0.15)" />
-                    </motion.div>
-                </div>
+                    <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(0,0,0,0.7) 0%, transparent 60%)", zIndex: 1 }} />
+                    <div style={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center", position: "relative", zIndex: 2 }}>
+                        <motion.div
+                            animate={isPlaying ? { rotate: 360 } : { rotate: 0 }}
+                            transition={isPlaying ? { repeat: Infinity, duration: 8, ease: "linear" } : { duration: 0.5 }}
+                            style={{ 
+                                position: "relative",
+                                display: "flex", alignItems: "center", justifyContent: "center",
+                                width: "180px", height: "180px",
+                                willChange: "transform"
+                            }}
+                        >
+                            <Disc 
+                                size={180} 
+                                color={isDark ? "rgba(255,255,255,0.12)" : "rgba(255,255,255,0.4)"} 
+                            />
+                            {/* Rotation Visual Aids: Vinyl Highlights */}
+                            <div style={{ 
+                                position: "absolute", inset: 0, 
+                                background: isDark
+                                    ? "conic-gradient(from 0deg, transparent 0%, rgba(255,255,255,0.1) 10%, transparent 20%, transparent 50%, rgba(255,255,255,0.1) 60%, transparent 70%)"
+                                    : "conic-gradient(from 0deg, transparent 0%, rgba(255,255,255,0.6) 10%, transparent 20%, transparent 50%, rgba(255,255,255,0.6) 60%, transparent 70%)",
+                                borderRadius: "50%",
+                                zIndex: 1
+                            }} />
+                        </motion.div>
+                    </div>
 
-                <BufferingOverlay />
-                <LiveVisualizer isPlaying={isPlaying} />
+                    <BufferingOverlay />
+                    <LiveVisualizer isPlaying={isPlaying} />
                 </motion.div>
                 </div>
 
