@@ -524,6 +524,11 @@ export function LiveMusicProvider({ children }: { children: React.ReactNode }) {
         // Load audio — browser HTTP cache has it from preload → near-instant
         audio.src = nextSong.audioUrl;
         audio.load(); // Explicit load to prime the media engine immediately
+        
+        // ── EARLY PLAY: Start playback immediately to skip event cycle delay ──
+        if (userIntentPlayRef.current) {
+            audio.play().catch(e => console.error("[Audio] Early play failed", e));
+        }
 
         // ── PRIORITY 2: Update UI state (batched, lower priority) ────────
         // React 18 flushSync is not needed — these are in a microtask-like context.
