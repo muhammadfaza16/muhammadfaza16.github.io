@@ -667,7 +667,7 @@ export function LiveMusicPlayer() {
             {/* Gap Progress to Controls (Tight 20px) */}
             <div style={{ height: "20px" }} />
 
-            <div style={{ position: "relative", width: "100%", paddingTop: "16px", paddingBottom: "10px" }}>
+            <div style={{ position: "relative", width: "100%", paddingTop: "12px", paddingBottom: "10px" }}>
                 <LiveControls 
                     isWaitingForSync={isWaitingForSync}
                     isTransitioning={isTransitioning}
