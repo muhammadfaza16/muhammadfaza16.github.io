@@ -21,7 +21,7 @@ export function ThemeToggle({ transparent = false }: { transparent?: boolean }) 
     const pathname = usePathname();
     const { theme, toggleTheme } = useTheme();
     
-    // Explicitly hide on pages other than /music as per request
+    // Explicitly hide on subpages as per request
     if (pathname !== "/music") return null;
     const [clickCount, setClickCount] = useState(0);
     const [showDialog, setShowDialog] = useState(false);

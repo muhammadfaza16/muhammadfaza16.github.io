@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 import prisma from "@/lib/prisma";
 
 export const dynamic = "force-dynamic";
@@ -50,6 +51,9 @@ export async function POST(request: Request) {
                 }
             });
 
+            revalidatePath("/music");
+            revalidatePath("/music/live-hub");
+
             return NextResponse.json({ success: true, session });
         }
 
@@ -60,6 +64,8 @@ export async function POST(request: Request) {
                     where: { id: sessionId },
                     data: { isActive: false }
                 });
+                revalidatePath("/music");
+                revalidatePath("/music/live-hub");
                 return NextResponse.json({ success: true, message: `Session ${sessionId} stopped` });
             } else {
                 // Stop all sessions (backward compatible)
@@ -67,6 +73,8 @@ export async function POST(request: Request) {
                     where: { isActive: true },
                     data: { isActive: false }
                 });
+                revalidatePath("/music");
+                revalidatePath("/music/live-hub");
                 return NextResponse.json({ success: true, message: "All live sessions stopped" });
             }
         }

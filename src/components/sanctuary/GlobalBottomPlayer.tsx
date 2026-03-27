@@ -178,16 +178,24 @@ export function GlobalBottomPlayer() {
                             >
                                 {activeTab === 'cover' ? (
                                     <div style={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center", position: "relative" }}>
-                                        <Disc size={120} color="rgba(0,0,0,0.05)" className={isPlaying ? "animate-spin-slow" : ""} />
+                                        <Disc 
+                                            size={140} 
+                                            color={theme === "dark" ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.04)"} 
+                                            className={isPlaying ? "animate-spin-slow" : ""} 
+                                        />
                                         <div style={{ 
                                             position: "absolute", inset: 0, 
-                                            background: "radial-gradient(circle at 30% 30%, rgba(255,255,255,0.8), transparent)", 
+                                            background: theme === "dark"
+                                                ? "radial-gradient(circle at 30% 30%, rgba(255,255,255,0.1), transparent)"
+                                                : "radial-gradient(circle at 30% 30%, rgba(255,255,255,0.8), transparent)", 
                                             zIndex: 1 
                                         }} />
                                         <div style={{ textAlign: "center", zIndex: 2 }}>
-                                             <motion.div animate={{ rotate: isPlaying ? 360 : 0 }} transition={{ repeat: Infinity, duration: 10, ease: "linear" }}>
-                                                <Music size={80} color="#000" opacity={0.1} />
-                                             </motion.div>
+                                             <Music 
+                                                size={80} 
+                                                color={theme === "dark" ? "#FFF" : "#000"} 
+                                                style={{ opacity: theme === "dark" ? 0.15 : 0.1 }} 
+                                             />
                                         </div>
                                     </div>
                                 ) : (
@@ -242,22 +250,67 @@ export function GlobalBottomPlayer() {
                                 <p style={{ fontFamily: headerFont, fontWeight: 600, fontSize: "0.9rem", margin: 0, color: theme === "dark" ? "rgba(255,255,255,0.5)" : "#888", opacity: 0.8 }}>{songArtist}</p>
                             </div>
 
-                            <div style={{ width: "100%" }}>
+                            <div style={{ width: "100%", position: "relative" }}>
                                 <div 
                                     onClick={(e) => {
                                         const rect = e.currentTarget.getBoundingClientRect();
                                         seekTo(Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width)) * duration);
                                     }}
-                                    style={{ width: "100%", height: "6px", backgroundColor: theme === "dark" ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.05)", borderRadius: "100px", cursor: "pointer", position: "relative" }}
+                                    style={{ 
+                                        width: "100%", 
+                                        height: "6px", 
+                                        backgroundColor: theme === "dark" ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.04)", 
+                                        borderRadius: "100px", 
+                                        cursor: "pointer", 
+                                        position: "relative",
+                                        overflow: "visible"
+                                    }}
                                 >
+                                    {/* Progress Fill with Glow */}
                                     <motion.div 
-                                        style={{ height: "100%", backgroundColor: theme === "dark" ? "#FFF" : "#000", borderRadius: "100px", width: `${(currentTime / duration) * 100}%` }}
+                                        initial={false}
+                                        animate={{ 
+                                            width: `${(currentTime / duration) * 100}%`,
+                                            backgroundColor: isPlaying 
+                                                ? (theme === "dark" ? "#818CF8" : "#6366F1")
+                                                : (theme === "dark" ? "#FFF" : "#000")
+                                        }}
+                                        transition={{ type: "spring", bounce: 0, duration: 0.3 }}
+                                        style={{ 
+                                            height: "100%", 
+                                            borderRadius: "100px",
+                                            position: "relative",
+                                            boxShadow: isPlaying && theme === "dark" ? "0 0 15px rgba(129, 140, 248, 0.4)" : "none"
+                                        }}
                                     />
+                                    
+                                    {/* Playhead (Knob) */}
                                     <motion.div 
-                                        style={{ position: "absolute", top: "50%", left: `${(currentTime / duration) * 100}%`, width: "14px", height: "14px", backgroundColor: theme === "dark" ? "#FFF" : "#000", borderRadius: "100px", border: theme === "dark" ? "3px solid #1A1A1A" : "3px solid #fff", boxShadow: "0 2px 8px rgba(0,0,0,0.2)", transform: "translate(-50%, -50%)" }}
+                                        initial={false}
+                                        animate={{ 
+                                            left: `${(currentTime / duration) * 100}%`,
+                                            x: "-50%",
+                                            y: "-50%",
+                                            scale: isPlaying ? [1, 1.15, 1] : 1
+                                        }}
+                                        transition={{ 
+                                            left: { type: "spring", bounce: 0, duration: 0.3 },
+                                            scale: isPlaying ? { repeat: Infinity, duration: 2, ease: "easeInOut" } : { duration: 0.2 }
+                                        }}
+                                        style={{ 
+                                            position: "absolute", 
+                                            top: "50%", 
+                                            width: "16px", 
+                                            height: "16px", 
+                                            backgroundColor: theme === "dark" ? "#FFF" : "#000", 
+                                            borderRadius: "100px", 
+                                            border: theme === "dark" ? "3px solid #1A1A1A" : "3px solid #fff", 
+                                            boxShadow: "0 4px 12px rgba(0,0,0,0.3)", 
+                                            zIndex: 5
+                                        }}
                                     />
                                 </div>
-                                <div style={{ display: "flex", justifyContent: "space-between", marginTop: "12px", fontFamily: monoFont, fontSize: "0.75rem", fontWeight: 700, color: theme === "dark" ? "rgba(255,255,255,0.4)" : "rgba(0,0,0,0.3)" }}>
+                                <div style={{ display: "flex", justifyContent: "space-between", marginTop: "12px", fontFamily: monoFont, fontSize: "0.75rem", fontWeight: 700, color: theme === "dark" ? "rgba(255,255,255,0.55)" : "rgba(0,0,0,0.35)" }}>
                                     <span>{formatTime(currentTime)}</span>
                                     <span>{formatTime(duration)}</span>
                                 </div>
@@ -265,7 +318,8 @@ export function GlobalBottomPlayer() {
 
                             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%", padding: "0 10px" }}>
                                 <motion.button 
-                                    whileTap={{ scale: 0.8 }} 
+                                    whileHover={{ scale: 1.2, rotate: -10 }}
+                                    whileTap={{ scale: 0.9 }} 
                                     onClick={toggleShuffle} 
                                     style={{ 
                                         background: "transparent", 
@@ -273,42 +327,56 @@ export function GlobalBottomPlayer() {
                                         color: shuffleMode 
                                             ? (theme === "dark" ? "#818CF8" : "#6366F1") 
                                             : (theme === "dark" ? "rgba(255,255,255,0.3)" : "rgba(0,0,0,0.2)"),
-                                        filter: shuffleMode ? (theme === "dark" ? "drop-shadow(0 0 8px rgba(129,140,248,0.5))" : "none") : "none",
-                                        transition: "all 0.3s ease"
+                                        filter: shuffleMode ? (theme === "dark" ? "drop-shadow(0 0 12px rgba(129,140,248,0.6))" : "drop-shadow(0 0 8px rgba(99,102,241,0.3))") : "none",
+                                        transition: "all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)"
                                     }}
                                 >
                                     <Shuffle size={24} strokeWidth={shuffleMode ? 3 : 2} />
                                 </motion.button>
-                                <div style={{ display: "flex", alignItems: "center", gap: "24px" }}>
-                                    <motion.button whileTap={{ scale: 0.8 }} onClick={() => prevSong()} style={{ background: "transparent", border: "none", color: "currentColor" }}>
+                                <div style={{ display: "flex", alignItems: "center", gap: "28px" }}>
+                                    <motion.button 
+                                        whileHover={{ scale: 1.1, x: -4 }}
+                                        whileTap={{ scale: 0.9 }} 
+                                        onClick={() => prevSong()} 
+                                        style={{ background: "transparent", border: "none", color: "currentColor", cursor: "pointer" }}
+                                    >
                                         <SkipBack size={32} fill="currentColor" />
                                     </motion.button>
                                     <motion.button 
-                                        whileTap={{ scale: 0.9 }} 
+                                        whileHover={{ scale: 1.05, boxShadow: theme === "dark" ? "0 25px 70px rgba(0,0,0,0.7)" : "0 15px 40px rgba(0,0,0,0.2)" }}
+                                        whileTap={{ scale: 0.92 }} 
                                         onClick={togglePlay}
                                         style={{ 
-                                            width: "80px", 
-                                            height: "80px", 
+                                            width: "84px", 
+                                            height: "84px", 
                                             borderRadius: "100px", 
                                             background: theme === "dark" ? "#FFF" : "#000", 
                                             display: "flex", 
                                             alignItems: "center", 
                                             justifyContent: "center", 
                                             border: "none", 
-                                            boxShadow: theme === "dark" ? "0 20px 60px rgba(0,0,0,0.5)" : "0 10px 30px rgba(0,0,0,0.15)" 
+                                            cursor: "pointer",
+                                            boxShadow: theme === "dark" ? "0 20px 60px rgba(0,0,0,0.5)" : "0 10px 30px rgba(0,0,0,0.15)",
+                                            transition: "box-shadow 0.3s ease"
                                         }}
                                     >
                                         {isPlaying 
-                                            ? <Pause size={36} color={theme === "dark" ? "#000" : "#fff"} fill="currentColor" /> 
-                                            : <Play size={36} color={theme === "dark" ? "#000" : "#fff"} fill="currentColor" style={{ marginLeft: "5px" }} />
+                                            ? <Pause size={38} color={theme === "dark" ? "#000" : "#fff"} fill="currentColor" /> 
+                                            : <Play size={38} color={theme === "dark" ? "#000" : "#fff"} fill="currentColor" style={{ marginLeft: "6px" }} />
                                         }
                                     </motion.button>
-                                    <motion.button whileTap={{ scale: 0.8 }} onClick={() => nextSong()} style={{ background: "transparent", border: "none", color: "currentColor" }}>
+                                    <motion.button 
+                                        whileHover={{ scale: 1.1, x: 4 }}
+                                        whileTap={{ scale: 0.9 }} 
+                                        onClick={() => nextSong()} 
+                                        style={{ background: "transparent", border: "none", color: "currentColor", cursor: "pointer" }}
+                                    >
                                         <SkipForward size={32} fill="currentColor" />
                                     </motion.button>
                                 </div>
                                 <motion.button 
-                                    whileTap={{ scale: 0.8 }} 
+                                    whileHover={{ scale: 1.2, rotate: 10 }}
+                                    whileTap={{ scale: 0.9 }} 
                                     onClick={toggleRepeat} 
                                     style={{ 
                                         background: "transparent", 
@@ -316,8 +384,8 @@ export function GlobalBottomPlayer() {
                                         color: repeatMode !== 'off' 
                                             ? (theme === "dark" ? "#A78BFA" : "#8B5CF6") 
                                             : (theme === "dark" ? "rgba(255,255,255,0.3)" : "rgba(0,0,0,0.2)"),
-                                        filter: repeatMode !== 'off' ? (theme === "dark" ? "drop-shadow(0 0 8px rgba(167,139,250,0.5))" : "none") : "none",
-                                        transition: "all 0.3s ease"
+                                        filter: repeatMode !== 'off' ? (theme === "dark" ? "drop-shadow(0 0 12px rgba(167,139,250,0.6))" : "drop-shadow(0 0 8px rgba(139,92,246,0.3))") : "none",
+                                        transition: "all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)"
                                     }}
                                 >
                                     {repeatMode === 'one' ? <Repeat1 size={24} strokeWidth={3} /> : <Repeat size={24} strokeWidth={repeatMode === 'all' ? 3 : 2} />}

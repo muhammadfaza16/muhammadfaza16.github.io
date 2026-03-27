@@ -17,7 +17,13 @@ const MUSIC_TAGS = [
     { label: "Love", value: "Love", icon: Heart },
 ];
 
-export default function LibraryClient({ songCount }: { songCount: number }) {
+export default function LibraryClient({ 
+    songCount, 
+    initialPlaylists = [] 
+}: { 
+    songCount: number, 
+    initialPlaylists?: any[] 
+}) {
     const { isPlaying, activePlaylistId } = useAudio();
     const { theme } = useTheme();
     const scrollContainerRef = useRef<HTMLDivElement>(null);
@@ -27,21 +33,16 @@ export default function LibraryClient({ songCount }: { songCount: number }) {
     const [searchQuery, setSearchQuery] = useState("");
     const [activeVibe, setActiveVibe] = useState(initialVibe);
     
-    // Playlists are now fetched from DB
-    const [playlists, setPlaylists] = useState<any[]>([]);
-    const [isLoading, setIsLoading] = useState(true);
+    // Use initial playlists from server
+    const [playlists, setPlaylists] = useState<any[]>(initialPlaylists);
+    const [isLoading, setIsLoading] = useState(false);
 
     useEffect(() => {
-        fetch("/api/music/playlists")
-            .then(res => res.json())
-            .then(data => {
-                if (data.success && data.playlists) {
-                    setPlaylists(data.playlists);
-                }
-            })
-            .catch(() => { })
-            .finally(() => setIsLoading(false));
-    }, []);
+        // Sync if initialPlaylists changes
+        if (initialPlaylists && initialPlaylists.length > 0) {
+            setPlaylists(initialPlaylists);
+        }
+    }, [initialPlaylists]);
 
     const CACHE_KEY = "playlist_library_scroll_v1";
 
