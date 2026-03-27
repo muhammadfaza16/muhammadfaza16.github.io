@@ -49,9 +49,29 @@ export function parseSongTitle(fullTitle: string): ParsedTitle {
         });
     });
 
+    // 3. Strip Junk Metadata (Official Video, Lyrics, etc.)
+    const junkKeywords = [
+        "Official Music Video", "Official Video", "Official Audio", 
+        "Official Lyric Visualizer", "Music Video", "Lyric Video", 
+        "Lirik Video", "Lyrics", "Lirik", "Video", "Audio", "Full Album"
+    ];
+
+    junkKeywords.forEach(jk => {
+        const patterns = [
+            new RegExp(`\\(\\s*[^()]*?${jk}[^()]*?\\)`, "gi"),
+            new RegExp(`\\[\\s*[^[\\]]*?${jk}[^[\\]]*?\\]`, "gi"),
+        ];
+        patterns.forEach(p => {
+            rawTitle = rawTitle.replace(p, "").trim();
+        });
+    });
+
     // Final cleanup
     let cleanTitle = rawTitle
         .replace(/\s+[\-\&\+]\s*$/, "") // Remove trailing separators
+        .replace(/\(\s*\)/g, "")        // Remove empty parens
+        .replace(/\[\s*\]/g, "")        // Remove empty brackets
+        .replace(/\s\s+/g, " ")         // Collapse spaces
         .trim();
 
     return { artist, cleanTitle, labels: Array.from(new Set(labels)) };

@@ -147,6 +147,7 @@ const MarqueeText = React.memo(({
             ref={containerRef}
             style={{ 
                 width: "100%", 
+                maxWidth: "100%",
                 height: boxHeight,
                 overflow: "hidden", 
                 position: "relative",
@@ -155,10 +156,10 @@ const MarqueeText = React.memo(({
                 justifyContent: justifyContent,
                 // Edge mask for premium look
                 WebkitMaskImage: shouldAnimate 
-                    ? "linear-gradient(to right, transparent 0%, black 5%, black 95%, transparent 100%)"
+                    ? "linear-gradient(to right, transparent 0%, black 15%, black 85%, transparent 100%)"
                     : "none",
                 maskImage: shouldAnimate 
-                    ? "linear-gradient(to right, transparent 0%, black 5%, black 95%, transparent 100%)"
+                    ? "linear-gradient(to right, transparent 0%, black 15%, black 85%, transparent 100%)"
                     : "none",
             }}
         >
@@ -716,10 +717,21 @@ export function LiveMusicPlayer() {
             <div style={{ height: "23px" }} />
 
             {/* Song Info */}
-            <div style={{ textAlign: "center", display: "flex", flexDirection: "column", alignItems: "center", gap: "7px", padding: "0 20px" }}>
+            <div style={{ 
+                textAlign: "center", 
+                display: "flex", 
+                flexDirection: "column", 
+                alignItems: "center", 
+                gap: "7px", 
+                padding: "0 24px",
+                width: "100%",
+                maxWidth: "100%",
+                boxSizing: "border-box",
+                overflow: "hidden" 
+            }}>
                 <MarqueeText 
                     text={cleanTitle}
-                    fontSize="1.75rem"
+                    fontSize="1.6rem" // Slightly smaller for better fit
                     fontWeight={900}
                     color={isDark ? "#FFF" : "#000"}
                     fontFamily={headerFont}
@@ -746,7 +758,11 @@ export function LiveMusicPlayer() {
                     margin: 0, 
                     letterSpacing: "0.02em", 
                     color: isDark ? "rgba(255,255,255,0.5)" : "rgba(0,0,0,0.5)",
-                    opacity: 0.8
+                    opacity: 0.8,
+                    whiteSpace: "nowrap",
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                    width: "100%"
                 }}>
                     {artist}
                 </p>
