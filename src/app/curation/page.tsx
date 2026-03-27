@@ -91,6 +91,12 @@ interface ArticleMeta {
 type SortBy = "date" | "popularity";
 type SortOrder = "asc" | "desc";
 
+interface CacheEntry {
+  articles: ArticleMeta[];
+  nextCursor: string | null;
+  totalCount: number;
+}
+
 // ─── Constants ───
 
 const CATEGORIES = [
@@ -157,9 +163,7 @@ export default function CurationList() {
   const [sortBy, setSortBy] = useState<SortBy>("date");
   const [sortOrder, setSortOrder] = useState<SortOrder>("desc");
   const [categoryFilter, setCategoryFilter] = useState<string[]>([]);
-  const [statusFilter, setStatusFilter] = useState<
-    "all" | "unread" | "bookmarked"
-  >("all");
+  const [isCategoryMenuOpen, setIsCategoryMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [isSearchFocused, setIsSearchFocused] = useState(false);
   const debouncedSearchQuery = useDebounce(searchQuery, 300);
@@ -194,7 +198,7 @@ export default function CurationList() {
     q: "",
   });
   const scrollYRef = useRef(0);
-  const fetchCacheRef = useRef<Record<string, ArticleMeta[]>>({});
+  const fetchCacheRef = useRef<Record<string, CacheEntry>>({});
   const fetchGenRef = useRef(0);
 
   // Live refs so IntersectionObserver always reads current values
@@ -300,11 +304,16 @@ export default function CurationList() {
 
         if (data.articles) {
           setArticles(data.articles);
-          const cacheKey = `${currentSortBy}_${currentSortOrder}_${currentCategories.join(",")}_${currentQ}_${page}`;
-          fetchCacheRef.current[cacheKey] = data.articles;
-
           setNextCursor(data.nextCursor);
           if (data.totalCount != null) setTotalCount(data.totalCount);
+
+          // Update cache with full metadata
+          const cacheKey = `${currentSortBy}_${currentSortOrder}_${currentCategories.join(",")}_${currentQ}_${page}`;
+          fetchCacheRef.current[cacheKey] = {
+            articles: data.articles,
+            nextCursor: data.nextCursor,
+            totalCount: data.totalCount ?? totalCount,
+          };
         }
       } catch (error: any) {
         if (error?.name !== "AbortError") console.error("Fetch failed:", error);
@@ -619,7 +628,12 @@ export default function CurationList() {
     }
   };
 
-  // No changes here, just capturing for move
+  // Reset to page 1 when filters change
+  useEffect(() => {
+    if (mounted) {
+      setCurrentPage(1);
+    }
+  }, [sortBy, sortOrder, categoryFilter, debouncedSearchQuery, mounted]);
 
   useEffect(() => {
     // Keep refs in sync so IntersectionObserver always reads current values
@@ -629,31 +643,34 @@ export default function CurationList() {
     searchQueryRef.current = debouncedSearchQuery;
 
     if (mounted) {
-      const cacheKey = `${sortBy}_${sortOrder}_${categoryFilter.join(",")}_${debouncedSearchQuery}`;
-      const cachedData = fetchCacheRef.current[cacheKey];
+      const cacheKey = `${sortBy}_${sortOrder}_${categoryFilter.join(",")}_${debouncedSearchQuery}_${currentPage}`;
+      const cached = fetchCacheRef.current[cacheKey];
 
-      if (cachedData) {
-        setArticles(cachedData);
+      if (cached) {
+        console.log(`[Curation] Cache hit for:`, cacheKey);
+        setArticles(cached.articles);
+        setNextCursor(cached.nextCursor);
+        setTotalCount(cached.totalCount);
         setIsLoading(false);
         setIsTransitioning(false);
+        // SKIP FETCH
       } else {
+        console.log(`[Curation] Cache miss for:`, cacheKey);
         // Soft reset: don't white-flash if we have content, just transition
         if (articles.length === 0) {
           setIsLoading(true);
         } else {
           setIsTransitioning(true);
         }
+        
+        fetchArticles(5, currentPage);
       }
-
-      setCurrentPage(1);
-      fetchArticles(5, 1);
     }
   }, [
     sortBy,
     sortOrder,
     categoryFilter,
     debouncedSearchQuery,
-    statusFilter, // Added statusFilter to dependencies
     mounted,
     fetchArticles,
   ]);
@@ -684,9 +701,11 @@ export default function CurationList() {
       sortBy,
       sortOrder,
       categoryFilter,
+      searchQuery: debouncedSearchQuery,
+      totalCount,
       scrollY: scrollYRef.current || 0
     }));
-  }, [articles, nextCursor, sortBy, sortOrder, categoryFilter]);
+  }, [articles, nextCursor, sortBy, sortOrder, categoryFilter, debouncedSearchQuery, totalCount]);
 
   // Save scroll position on unmount before navigating away
   useEffect(() => {
@@ -725,12 +744,19 @@ export default function CurationList() {
           setSortBy(parsed.sortBy || "date");
           setSortOrder(parsed.sortOrder || "desc");
           setCategoryFilter(parsed.categoryFilter || []);
+          setSearchQuery(parsed.searchQuery || "");
+          setTotalCount(parsed.totalCount || parsed.articles.length);
           hasRestoredCache.current = true;
           setIsLoading(false);
 
           // Populate fetchCacheRef so subsequent filter changes can use it
-          const cacheKey = `${parsed.sortBy || "date"}_${parsed.sortOrder || "desc"}_${(parsed.categoryFilter || []).join(",")}_${""}`;
-          fetchCacheRef.current[cacheKey] = parsed.articles;
+          // We assume page 1 for the main CACHE_KEY restoration
+          const cacheKey = `${parsed.sortBy || "date"}_${parsed.sortOrder || "desc"}_${(parsed.categoryFilter || []).join(",")}_${parsed.searchQuery || ""}_${1}`;
+          fetchCacheRef.current[cacheKey] = {
+            articles: parsed.articles,
+            nextCursor: parsed.nextCursor || null,
+            totalCount: parsed.totalCount || parsed.articles.length,
+          };
 
           if (parsed.scrollY) {
             setTimeout(() => {
@@ -880,6 +906,42 @@ export default function CurationList() {
     return Math.max(1, Math.ceil(text.split(/\s+/).length / 225));
   };
 
+  const getSmartInfo = () => {
+    let mainLabel = "";
+    let Icon = Compass;
+
+    let sortLabel = "";
+    if (sortBy === "popularity") {
+      sortLabel = sortOrder === "desc" ? "Trending highlights" : "Hidden gems";
+      Icon = Zap;
+    } else {
+      sortLabel = sortOrder === "desc" ? "Latest additions" : "Vintage archive";
+      Icon = HistoryIcon;
+    }
+
+    if (debouncedSearchQuery) {
+      mainLabel = `Searching for "${debouncedSearchQuery}"`;
+      Icon = Search;
+    } else if (categoryFilter.length === 1) {
+      mainLabel = `${sortLabel} in ${categoryFilter[0]}`;
+    } else if (categoryFilter.length > 1) {
+      mainLabel = `${sortLabel} across ${categoryFilter.length} topics`;
+    } else {
+      mainLabel = `${sortLabel} in the archive`;
+    }
+
+    return (
+      <div className="flex items-start gap-2 max-w-full">
+        <Icon size={10} className="text-zinc-500 dark:text-zinc-600 shrink-0 mt-[2px]" strokeWidth={2.5} />
+        <div className="flex flex-wrap items-center gap-x-1.5 gap-y-0.5 leading-tight">
+          <span className="font-bold">{mainLabel}</span>
+          <span className="text-zinc-300 dark:text-zinc-700 opacity-50 select-none">·</span>
+          <span className="text-zinc-400 dark:text-zinc-500 whitespace-nowrap">{totalCount} {totalCount === 1 ? "entry" : "entries"}</span>
+        </div>
+      </div>
+    );
+  };
+
   // Client-side filtering (category safety net + status)
   const filteredArticles = useMemo(() => {
     return articles.filter((a) => {
@@ -890,20 +952,15 @@ export default function CurationList() {
       ) {
         return false;
       }
-      // Status filter (against localStorage visitor state)
-      if (statusFilter === "unread" && visitorState.read[a.id]) return false;
-      if (statusFilter === "bookmarked" && !visitorState.bookmarked[a.id])
-        return false;
       return true;
     });
-  }, [articles, categoryFilter, statusFilter, visitorState]);
+  }, [articles, categoryFilter]);
 
   // Category count
   const categoryCount = CATEGORIES.length;
   const isFiltering =
     categoryFilter.length > 0 ||
-    debouncedSearchQuery.length > 0 ||
-    statusFilter !== "all";
+    debouncedSearchQuery.length > 0;
 
   return (
     <div className="h-[100svh] w-full flex flex-col bg-[#fcfcfc] dark:bg-[#050505] text-zinc-900 dark:text-zinc-100 font-sans antialiased overflow-hidden relative selection:bg-blue-100 dark:selection:bg-blue-900/30 transition-colors duration-700">
@@ -1076,10 +1133,10 @@ export default function CurationList() {
             >
               <div className="flex items-center gap-3 mb-5">
                 <div className="w-[4px] h-6 bg-zinc-200 dark:bg-zinc-800 rounded-full shrink-0 relative overflow-hidden">
-                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 dark:via-white/10 to-transparent animate-shimmer" />
+                  {/* Indicator shimmer removed for less noise */}
                 </div>
                 <div className="w-24 h-5 bg-zinc-200 dark:bg-zinc-800 rounded relative overflow-hidden">
-                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 dark:via-white/10 to-transparent animate-shimmer" />
+                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 dark:via-white/5 to-transparent animate-shimmer" />
                 </div>
               </div>
               <div className="flex gap-4 overflow-hidden pr-5">
@@ -1087,25 +1144,24 @@ export default function CurationList() {
                   <div key={i} className={`shrink-0 w-[75vw] md:w-[480px] bg-white dark:bg-[#0a0a0a] rounded-[2rem] border border-zinc-200/50 dark:border-zinc-800/50 relative overflow-hidden flex flex-col ${i > 2 ? 'hidden lg:flex' : ''}`}>
                     {/* Image Skeleton */}
                     <div className="relative w-full aspect-[16/6] md:aspect-[21/9] bg-zinc-100 dark:bg-zinc-800 relative overflow-hidden">
-                      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 dark:via-white/5 to-transparent animate-shimmer" />
+                      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 dark:via-white/5 to-transparent animate-shimmer" />
                     </div>
                     {/* Content Skeleton */}
                     <div className="px-6 pt-7 pb-4 md:px-8 md:pt-8 md:pb-4 flex flex-col gap-3 h-full">
                       <div className="h-3 bg-zinc-100 dark:bg-zinc-800 rounded-full w-24 relative overflow-hidden">
-                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 dark:via-white/10 to-transparent animate-shimmer" />
+                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 dark:via-white/5 to-transparent animate-shimmer" />
                       </div>
                       <div className="h-5 bg-zinc-200/60 dark:bg-zinc-800/80 rounded-lg w-full relative overflow-hidden">
-                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 dark:via-white/5 to-transparent animate-shimmer" />
+                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 dark:via-white/5 to-transparent animate-shimmer" />
                       </div>
                       <div className="h-5 bg-zinc-200/60 dark:bg-zinc-800/80 rounded-lg w-2/3 relative overflow-hidden">
-                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 dark:via-white/5 to-transparent animate-shimmer" />
+                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 dark:via-white/5 to-transparent animate-shimmer" />
                       </div>
                       <div className="mt-auto flex justify-between">
                         <div className="h-3 bg-zinc-100 dark:bg-zinc-800/60 rounded-full w-20 relative overflow-hidden">
-                          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 dark:via-white/10 to-transparent animate-shimmer" />
+                          {/* Footer metric shimmers removed for less noise */}
                         </div>
                         <div className="h-3 bg-zinc-100 dark:bg-zinc-800/60 rounded-full w-16 relative overflow-hidden">
-                          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 dark:via-white/10 to-transparent animate-shimmer" />
                         </div>
                       </div>
                     </div>
@@ -1183,7 +1239,7 @@ export default function CurationList() {
                               {(() => {
                                 const catData = CATEGORIES.find(c => c.name === featuredArticle.category);
                                 return featuredArticle.category ? (
-                                  <span className={`text-[9px] font-bold uppercase tracking-[0.15em] px-2 py-0.5 rounded-md ml-1 ${catData ? `${catData.color.bg} ${catData.color.text} ${catData.color.darkBg} ${catData.color.darkText}` : "text-zinc-500 bg-zinc-100 dark:bg-zinc-800 opacity-80"}`}>
+                                  <span className={`text-[9px] font-bold uppercase tracking-[0.15em] px-2 py-0.5 rounded-md ml-1 truncate max-w-[100px] ${catData ? `${catData.color.bg} ${catData.color.text} ${catData.color.darkBg} ${catData.color.darkText}` : "text-zinc-500 bg-zinc-100 dark:bg-zinc-800 opacity-80"}`}>
                                     {featuredArticle.category}
                                   </span>
                                 ) : null;
@@ -1313,111 +1369,136 @@ export default function CurationList() {
                 ? "Search Results"
                 : categoryFilter.length > 0
                   ? "Category View"
-                  : statusFilter !== "all"
-                    ? "Status View"
-                    : "All Entries"}
+                  : "All Entries"}
             </h3>
           </div>
         )}
 
-        {/* ═══ MAIN PILLS (Sort & Status) ═══ */}
+        {/* ═══ MAIN FILTERS (Sort & Category Dropdown) ═══ */}
         {(!isLoadingTop || articles.length > 0) && (
-          <>
-            <div className="flex items-center gap-2 overflow-x-auto px-5 pb-2 no-scrollbar mb-1 w-full">
-              {/* Integrated Sort Dimension & Order Toggles */}
-              <div className="flex bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-full overflow-hidden shrink-0 shadow-sm p-0.5 relative">
-                {[
-                  { id: "date" as const, label: "Date" },
-                  { id: "popularity" as const, label: "Popularity" }
-                ].map((dim) => {
-                  const isActive = sortBy === dim.id;
-                  return (
-                    <button
-                      key={dim.id}
-                      onClick={() => handleSortDimensionClick(dim.id)}
-                      className={`flex items-center gap-1.5 px-3 py-1 text-[11px] font-bold rounded-full transition-all whitespace-nowrap z-10 active:scale-95 relative ${isActive
-                        ? "text-white dark:text-zinc-900"
-                        : "text-zinc-400 dark:text-zinc-500 hover:text-zinc-600 dark:hover:text-zinc-300 bg-transparent"
-                        }`}
-                    >
-                      {isActive && (
-                        <motion.div
-                          layoutId="activeSort"
-                          className="absolute inset-0 bg-zinc-800 dark:bg-zinc-100 rounded-full -z-10 shadow-sm"
-                          transition={{ type: "spring", stiffness: 400, damping: 30 }}
-                        />
-                      )}
-                      <span>{dim.label}</span>
-                      {isActive && (
-                        <motion.div
-                          initial={{ scale: 0, opacity: 0 }}
-                          animate={{ scale: 1, opacity: 1, rotate: sortOrder === "asc" ? 180 : 0 }}
-                          transition={{ type: "spring", stiffness: 300, damping: 20 }}
-                          className="flex items-center justify-center ml-0.5"
-                        >
-                          <ArrowDown size={14} strokeWidth={2.5} />
-                        </motion.div>
-                      )}
-                    </button>
-                  );
-                })}
-              </div>
-
-              <div className="w-[1px] h-4 bg-zinc-200 dark:bg-zinc-800 mx-1 shrink-0" />
-
-              {/* Status Filter Pills */}
+          <div className="flex items-center gap-3 px-5 pb-4 mb-2 overflow-visible relative">
+            {/* Sort toggler */}
+            <div className="flex bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-full overflow-hidden shrink-0 shadow-sm p-0.5 relative">
               {[
-                { key: "all" as const, label: "All" },
-                { key: "unread" as const, label: "Unread" },
-                { key: "bookmarked" as const, label: "Bookmarked" },
-              ].map((f) => (
-                <button
-                  key={f.key}
-                  onClick={() => setStatusFilter(f.key)}
-                  className={`px-3 py-1 text-[11px] font-semibold tracking-wide rounded-full transition-all active:scale-[0.96] whitespace-nowrap shrink-0 relative ${statusFilter === f.key
-                    ? "text-white dark:text-zinc-900"
-                    : "text-zinc-400 dark:text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100 bg-transparent"
-                    }`}
-                >
-                  {statusFilter === f.key && (
-                    <motion.div
-                      layoutId="activeStatus"
-                      className="absolute inset-0 bg-zinc-900 dark:bg-zinc-100 rounded-full -z-10 shadow-[0_2px_10px_rgba(0,0,0,0.1)]"
-                      transition={{ type: "spring", stiffness: 400, damping: 30 }}
-                    />
-                  )}
-                  {f.label}
-                </button>
-              ))}
-            </div>
-            {/* ═══ CATEGORY PILLS (Always Available) ═══ */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="flex gap-1.5 overflow-x-auto px-5 no-scrollbar pb-2 mb-1"
-            >
-              {CATEGORIES.map((cat) => {
-                const isActive = categoryFilter.includes(cat.name);
+                { id: "date" as const, label: "Date" },
+                { id: "popularity" as const, label: "Popularity" }
+              ].map((dim) => {
+                const isActive = sortBy === dim.id;
                 return (
                   <button
-                    key={cat.name}
-                    onClick={() => handleCategoryToggle(cat.name)}
-                    className={`px-3 py-1 text-[11px] font-semibold tracking-wide rounded-full transition-all active:scale-[0.96] whitespace-nowrap shrink-0 border ${isActive
-                      ? "bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 border-zinc-900 dark:border-zinc-100 shadow-sm"
-                      : `${cat.color.bg} ${cat.color.text} ${cat.color.darkBg} ${cat.color.darkText} border-transparent opacity-60 hover:opacity-100`
+                    key={dim.id}
+                    onClick={() => handleSortDimensionClick(dim.id)}
+                    className={`flex items-center gap-1.5 px-3 py-1 text-[11px] font-bold rounded-full transition-all whitespace-nowrap z-10 active:scale-95 relative ${isActive
+                      ? "text-white dark:text-zinc-900"
+                      : "text-zinc-400 dark:text-zinc-500 hover:text-zinc-600 dark:hover:text-zinc-300 bg-transparent"
                       }`}
                   >
-                    {cat.name}
+                    {isActive && (
+                      <motion.div
+                        layoutId="activeSort"
+                        className="absolute inset-0 bg-zinc-800 dark:bg-zinc-100 rounded-full -z-10 shadow-sm"
+                        transition={{ type: "spring", stiffness: 400, damping: 30 }}
+                      />
+                    )}
+                    <span>{dim.label}</span>
+                    {isActive && (
+                      <motion.div
+                        initial={{ scale: 0, opacity: 0 }}
+                        animate={{ scale: 1, opacity: 1, rotate: sortOrder === "asc" ? 180 : 0 }}
+                        transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                        className="flex items-center justify-center ml-0.5"
+                      >
+                        <ArrowDown size={14} strokeWidth={2.5} />
+                      </motion.div>
+                    )}
                   </button>
                 );
               })}
-            </motion.div>
-
-            {/* Separator Line (Almost Full Width) */}
-            <div className="px-5 mb-5 mt-1">
-              <div className="h-px bg-zinc-200/60 dark:bg-zinc-800/60 w-full" />
             </div>
-          </>
+
+            {/* Category Dropdown */}
+            <div className="relative">
+              <button
+                onClick={() => setIsCategoryMenuOpen(!isCategoryMenuOpen)}
+                className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-[11px] font-bold transition-all border shadow-sm active:scale-95 ${categoryFilter.length > 0
+                  ? "bg-zinc-900 text-zinc-100 dark:bg-zinc-100 dark:text-zinc-900 border-transparent shadow-[0_2px_10px_rgba(0,0,0,0.1)]"
+                  : "bg-white dark:bg-[#0a0a0a] text-zinc-500 dark:text-zinc-400 border-zinc-200/60 dark:border-zinc-800/60 hover:border-zinc-300 dark:hover:border-zinc-700"
+                  }`}
+              >
+                <Compass size={12} className={categoryFilter.length > 0 ? "text-zinc-300 dark:text-zinc-600" : "text-zinc-400 opacity-60"} />
+                <span className="truncate max-w-[120px]">
+                  {categoryFilter.length === 1 ? categoryFilter[0] : categoryFilter.length > 1 ? `${categoryFilter.length} Selected` : "Categories"}
+                </span>
+                <ChevronRight size={10} className={`opacity-40 transition-transform ${isCategoryMenuOpen ? "rotate-90" : ""}`} />
+              </button>
+
+              <AnimatePresence>
+                {isCategoryMenuOpen && (
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.95, y: 10 }}
+                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                    exit={{ opacity: 0, scale: 0.95, y: 10 }}
+                    className="absolute top-full left-0 mt-2 w-52 bg-white/95 dark:bg-zinc-900/95 border border-zinc-200 dark:border-zinc-800 rounded-2xl shadow-xl z-[150] overflow-hidden p-1 backdrop-blur-xl"
+                  >
+                    <div className="px-3 py-2 border-b border-zinc-100 dark:border-zinc-800 mb-1">
+                      <span className="text-[9px] font-bold text-zinc-400 uppercase tracking-widest">Select Category</span>
+                    </div>
+                    {CATEGORIES.map((cat) => {
+                      const isActive = categoryFilter.includes(cat.name);
+                      return (
+                        <button
+                          key={cat.name}
+                          onClick={() => {
+                            handleCategoryToggle(cat.name);
+                            setIsCategoryMenuOpen(false);
+                          }}
+                          className={`w-full flex items-center justify-between px-3 py-2 text-[11px] font-bold rounded-xl transition-colors ${isActive
+                            ? "bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 shadow-sm"
+                            : "text-zinc-600 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-800/50"
+                            }`}
+                        >
+                          <div className="flex items-center gap-2 min-w-0">
+                            <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${cat.color.bg.split(' ')[0]}`} />
+                            <span className="truncate">{cat.name}</span>
+                          </div>
+                          {isActive && <CheckCircle size={10} className="opacity-60" />}
+                        </button>
+                      );
+                    })}
+                    {categoryFilter.length > 0 && (
+                      <button
+                        onClick={() => {
+                          setCategoryFilter([]);
+                          setIsCategoryMenuOpen(false);
+                        }}
+                        className="w-full mt-1 border-t border-zinc-100 dark:border-zinc-800 px-3 py-2 text-[10px] font-bold text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 text-left transition-colors"
+                      >
+                        Reset Filter
+                      </button>
+                    )}
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+          </div>
+        )}
+
+        {/* ═══ SMART INFO ═══ */}
+        {(!isLoadingTop || articles.length > 0) && (
+          <div className="px-5 mb-5 -mt-1 min-h-[14px] relative">
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={`${sortBy}_${categoryFilter.join(",")}_${debouncedSearchQuery}_${totalCount}`}
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -8 }}
+                transition={{ duration: 0.3, ease: "easeOut" }}
+                className="text-[11px] font-medium text-zinc-400 dark:text-zinc-500 flex items-center"
+              >
+                {getSmartInfo()}
+              </motion.div>
+            </AnimatePresence>
+          </div>
         )}
 
         {/* ═══ ARTICLE FEED ═══ */}
@@ -1429,29 +1510,38 @@ export default function CurationList() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.3 }}
-              className="flex flex-col gap-4 md:grid md:grid-cols-2 md:gap-4 px-5 mb-10"
+              className="flex flex-col px-5 mb-10"
             >
-              {[1, 2, 3, 4, 5, 6].map((i) => (
-                <div
-                  key={i}
-                  className="bg-white dark:bg-[#0a0a0a] rounded-[1.5rem] border border-zinc-100 dark:border-zinc-800/60 p-4 flex items-center gap-4 min-h-[120px] relative overflow-hidden"
-                >
-                  <div className="w-20 h-20 rounded-2xl bg-zinc-100 dark:bg-zinc-800 relative overflow-hidden shrink-0">
-                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 dark:via-white/5 to-transparent animate-shimmer" />
+              <div className="flex flex-col gap-4 md:grid md:grid-cols-2 md:gap-4 mb-4">
+                {[1, 2, 3, 4, 5].map((i) => (
+                  <div
+                    key={i}
+                    className="bg-white dark:bg-[#0a0a0a] rounded-[1.5rem] border border-zinc-100 dark:border-zinc-800/60 p-4 flex items-center gap-4 min-h-[120px] relative overflow-hidden"
+                  >
+                    <div className="w-20 h-20 rounded-2xl bg-zinc-100 dark:bg-zinc-800 relative overflow-hidden shrink-0">
+                      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 dark:via-white/5 to-transparent animate-shimmer" />
+                    </div>
+                    <div className="flex-1 space-y-2.5">
+                      <div className="h-2.5 bg-zinc-100 dark:bg-zinc-800 rounded-full relative overflow-hidden w-1/3">
+                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 dark:via-white/5 to-transparent animate-shimmer" />
+                      </div>
+                      <div className="h-4 bg-zinc-200/60 dark:bg-zinc-800/80 rounded-lg relative overflow-hidden w-full">
+                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 dark:via-white/5 to-transparent animate-shimmer" />
+                      </div>
+                      <div className="h-4 bg-zinc-200/60 dark:bg-zinc-800/80 rounded-lg relative overflow-hidden w-2/3">
+                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 dark:via-white/5 to-transparent animate-shimmer" />
+                      </div>
+                    </div>
                   </div>
-                  <div className="flex-1 space-y-2.5">
-                    <div className="h-2.5 bg-zinc-100 dark:bg-zinc-800 rounded-full relative overflow-hidden w-1/3">
-                      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 dark:via-white/10 to-transparent animate-shimmer" />
-                    </div>
-                    <div className="h-4 bg-zinc-200/60 dark:bg-zinc-800/80 rounded-lg relative overflow-hidden w-full">
-                      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 dark:via-white/5 to-transparent animate-shimmer" />
-                    </div>
-                    <div className="h-4 bg-zinc-200/60 dark:bg-zinc-800/80 rounded-lg relative overflow-hidden w-2/3">
-                      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 dark:via-white/5 to-transparent animate-shimmer" />
-                    </div>
-                  </div>
+                ))}
+              </div>
+
+              {/* Pagination Skeleton */}
+              {!debouncedSearchQuery && (
+                <div className="flex justify-center mt-2 mb-8">
+                  <div className="h-10 w-64 bg-zinc-50/50 dark:bg-zinc-900/40 border border-zinc-200/50 dark:border-zinc-800/50 rounded-full animate-pulse" />
                 </div>
-              ))}
+              )}
             </motion.div>
           ) : !isLoading && !isTransitioning && filteredArticles.length === 0 ? (
             <motion.div
@@ -1993,7 +2083,7 @@ const SwipeableArticleCard = memo(({
               {category && (
                 <>
                   <div className="w-[3px] h-[3px] rounded-full bg-zinc-200 dark:bg-zinc-700 shrink-0" />
-                  <span className="text-[10px] font-semibold text-zinc-400 dark:text-zinc-500 truncate">
+                  <span className="text-[10px] font-semibold text-zinc-400 dark:text-zinc-500 truncate max-w-[80px]">
                     {category}
                   </span>
                 </>
