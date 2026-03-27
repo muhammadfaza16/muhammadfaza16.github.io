@@ -80,7 +80,7 @@ const LiveMusicContext = createContext<LiveMusicState>({
 export const useLiveMusic = () => useContext(LiveMusicContext);
 
 // ─── Tuning ─────────────────────────────────────────────────────────────────
-const SYNC_DRIFT_THRESHOLD = 5.0;
+const SYNC_DRIFT_THRESHOLD = 2.0; // Lowered from 5.0 for better accuracy
 const PRELOAD_AHEAD_SECS = 8;
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -130,7 +130,7 @@ export function LiveMusicProvider({ children }: { children: React.ReactNode }) {
     const hasUserInteractedRef = useRef(false);
     const hasEverPlayedRef = useRef(false);
     const isFetchingRef = useRef(false);
-    const pendingSeekRef = useRef<number | null>(null);
+    const pendingSeekRef = useRef<boolean>(false); // Changed to a boolean flag
     const retryTimerRef = useRef<NodeJS.Timeout | null>(null);
     const isTransitioningRef = useRef(false);
     const userIntentPlayRef = useRef(false); // New: Track if user actually wants to play
@@ -245,14 +245,16 @@ export function LiveMusicProvider({ children }: { children: React.ReactNode }) {
             // ── Different song → load new source ────────────────────────────
             if (currentSongUrlRef.current !== song.audioUrl) {
                 currentSongUrlRef.current = song.audioUrl;
-                pendingSeekRef.current = serverSeek > 1.0 ? serverSeek : 0;
+                pendingSeekRef.current = true; // Use serverSyncRef dynamically on canplay
                 audio.playbackRate = 1.0;
                 audio.src = song.audioUrl;
                 setIsWaitingForSync(false);
 
             // ── Same song → hard seek only ──────────────────────────────────
             } else {
-                audio.currentTime = serverSeek;
+                // Calculate dynamic seek just in case processing took a few ms
+                const elapsedSinceFetch = (Date.now() - serverSyncRef.current.fetchedAt) / 1000;
+                audio.currentTime = serverSyncRef.current.serverSeek + elapsedSinceFetch;
                 audio.playbackRate = 1.0;
 
                 if (userIntentPlayRef.current && audio.paused) {
@@ -415,7 +417,7 @@ export function LiveMusicProvider({ children }: { children: React.ReactNode }) {
         preloadedSongUrlRef.current = "";
 
         // Load on primary element — browser HTTP cache has it from preload
-        pendingSeekRef.current = 0;
+        pendingSeekRef.current = true; // Use dynamic sync on canplay
         audio.src = nextSong.audioUrl;
         // onCanPlay → seek to 0 → play (hasUserInteractedRef is true)
 
@@ -492,9 +494,16 @@ export function LiveMusicProvider({ children }: { children: React.ReactNode }) {
                         const audio = audioRef.current;
                         if (audio && audio.duration) setDuration(audio.duration);
 
-                        if (pendingSeekRef.current !== null && audioRef.current) {
-                            audioRef.current.currentTime = pendingSeekRef.current;
-                            pendingSeekRef.current = null;
+                        if (pendingSeekRef.current && audioRef.current) {
+                            pendingSeekRef.current = false;
+                            
+                            // DYNAMIC SYNC: Calculate real-time seek based on fetch time
+                            const sync = serverSyncRef.current;
+                            if (sync.songUrl && sync.songUrl === currentSongUrlRef.current) {
+                                const elapsedSinceFetch = (Date.now() - sync.fetchedAt) / 1000;
+                                const targetTime = sync.serverSeek + elapsedSinceFetch;
+                                audioRef.current.currentTime = targetTime;
+                            }
 
                             if (userIntentPlayRef.current) {
                                 audioRef.current.play().catch(() => {});
