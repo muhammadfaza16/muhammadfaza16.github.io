@@ -13,6 +13,7 @@ import Image from "next/image";
 import { getVisitorState, getReadHistoryAsync, removeFromReadHistoryAsync, getCollectionsAsync, saveCollectionsAsync, VisitorState, ReadEntry, Collection } from "@/lib/storage";
 import { formatTitle } from "@/lib/utils";
 import { curationCache } from "@/lib/curation-cache";
+import { useTheme } from "@/components/ThemeProvider";
 
 // ─── Types ───
 
@@ -74,7 +75,6 @@ function timeAgo(ts: number): string {
 const DAY_LABELS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
 // ─── Component ───
-
 export default function LibraryPage() {
     const [tab, setTab] = useState<"activity" | "saved">("activity");
     const [allArticles, setAllArticles] = useState<any[]>([]);
@@ -90,6 +90,7 @@ export default function LibraryPage() {
     const [newCollectionName, setNewCollectionName] = useState("");
     const scrollContainerRef = useRef<HTMLDivElement>(null);
     const scrollYRef = useRef(0);
+    const { theme, toggleTheme } = useTheme();
 
     useEffect(() => {
         setMounted(true);
@@ -288,7 +289,6 @@ export default function LibraryPage() {
     if (!mounted) return (
         <div className="h-[100dvh] bg-[#fafaf8] dark:bg-[#050505] flex flex-col items-center justify-center gap-4 transition-colors duration-500">
             <div className="w-12 h-12 bg-zinc-100 dark:bg-zinc-800 rounded-full animate-pulse" />
-            <div className="w-24 h-2.5 bg-zinc-200 dark:bg-zinc-800 rounded-full animate-pulse" />
         </div>
     );
 
@@ -297,28 +297,71 @@ export default function LibraryPage() {
 
             {/* ═══ HEADER ═══ */}
             <header className="sticky top-0 z-50 bg-[#fafaf8]/85 dark:bg-[#050505]/85 backdrop-blur-xl border-b border-zinc-200/40 dark:border-zinc-800/40">
-                <div className="px-4 pt-3 pb-2.5 max-w-2xl mx-auto">
-                    <div className="flex items-center h-2 mb-2">
+                <div className="px-4 pt-3 pb-2.5 max-w-2xl mx-auto flex items-center justify-between gap-4">
+                    <div className="flex-1 flex flex-col">
+                        <div className="flex items-center h-2 mb-2">
+                        </div>
+
+                        {/* Tab Switcher */}
+                        <div className="flex gap-1 bg-zinc-100 dark:bg-zinc-900 rounded-lg p-0.5">
+                            {[
+                                { key: "activity" as const, label: "Activity", icon: BarChart3 },
+                                { key: "saved" as const, label: "Saved", icon: Bookmark },
+                            ].map(t => (
+                                <button
+                                    key={t.key}
+                                    onClick={() => setTab(t.key)}
+                                    className={`flex-1 flex items-center justify-center gap-[5px] py-1.5 rounded-md text-[11px] font-medium transition-all ${tab === t.key ? "bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 shadow-sm" : "text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300"}`}
+                                >
+                                    <t.icon size={11} /> {t.label}
+                                    {t.key === "saved" && savedIds.size > 0 && (
+                                        <span className="text-[9px] bg-zinc-200 dark:bg-zinc-700 text-zinc-600 dark:text-zinc-300 px-1.5 py-px rounded-full">{savedIds.size}</span>
+                                    )}
+                                </button>
+                            ))}
+                        </div>
                     </div>
 
-                    {/* Tab Switcher */}
-                    <div className="flex gap-1 bg-zinc-100 dark:bg-zinc-900 rounded-lg p-0.5">
-                        {[
-                            { key: "activity" as const, label: "Activity", icon: BarChart3 },
-                            { key: "saved" as const, label: "Saved", icon: Bookmark },
-                        ].map(t => (
-                            <button
-                                key={t.key}
-                                onClick={() => handleTabChange(t.key)}
-                                className={`flex-1 flex items-center justify-center gap-[5px] py-1.5 rounded-md text-[11px] font-medium transition-all ${tab === t.key ? "bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 shadow-sm" : "text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300"}`}
-                            >
-                                <t.icon size={11} /> {t.label}
-                                {t.key === "saved" && savedIds.size > 0 && (
-                                    <span className="text-[9px] bg-zinc-200 dark:bg-zinc-700 text-zinc-600 dark:text-zinc-300 px-1.5 py-px rounded-full">{savedIds.size}</span>
-                                )}
-                            </button>
-                        ))}
-                    </div>
+                    <button
+                        onClick={toggleTheme}
+                        className="w-10 h-10 flex items-center justify-center text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 active:scale-90 rounded-full transition-all relative overflow-hidden shrink-0"
+                        aria-label={`Switch to ${theme === "light" ? "dark" : "light"} mode`}
+                    >
+                        {/* Sun Icon */}
+                        <svg
+                            className={`absolute w-5 h-5 transition-all duration-[2500ms] ease-[cubic-bezier(0.4,0,0,1)] ${theme === "light"
+                                ? "opacity-100 rotate-0 scale-100"
+                                : "opacity-0 rotate-90 scale-0"
+                                }`}
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                        >
+                            <circle cx="12" cy="12" r="5" strokeWidth="1.5" />
+                            <path
+                                strokeLinecap="round"
+                                strokeWidth="1.5"
+                                d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"
+                            />
+                        </svg>
+                        {/* Moon Icon */}
+                        <svg
+                            className={`absolute w-5 h-5 transition-all duration-[2500ms] ease-[cubic-bezier(0.4,0,0,1)] ${theme === "dark"
+                                ? "opacity-100 rotate-0 scale-100"
+                                : "opacity-0 -rotate-90 scale-0"
+                                }`}
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                        >
+                            <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth="1.5"
+                                d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"
+                            />
+                        </svg>
+                    </button>
                 </div>
             </header>
 

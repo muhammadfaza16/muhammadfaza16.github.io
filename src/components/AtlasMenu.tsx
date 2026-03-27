@@ -27,7 +27,7 @@ export function AtlasMenu({ isOpen, onClose, items }: AtlasMenuProps) {
         >
           <nav className="flex-1 px-10 flex flex-col pt-[14vh] gap-4" onClick={(e) => e.stopPropagation()}>
             <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-zinc-500 mb-10 opacity-60">
-              Knowledge Archives
+              Knowledge Archives (Coming Soon!)
             </p>
             {items.map((v, i) => (
               <motion.div

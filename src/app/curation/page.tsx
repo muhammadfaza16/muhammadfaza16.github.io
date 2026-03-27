@@ -979,7 +979,7 @@ export default function CurationList() {
       />
 
       {/* ═══ HEADER ═══ */}
-      <header className="sticky top-0 z-[110] bg-[#fafaf8]/80 dark:bg-[#050505]/80 backdrop-blur-xl border-b border-zinc-200/40 dark:border-zinc-800/40 shrink-0 h-16 flex items-center px-4 transition-colors duration-500">
+      <header className="sticky top-0 z-[110] bg-[#fafaf8]/80 dark:bg-[#050505]/80 backdrop-blur-xl border-b border-zinc-200/40 dark:border-zinc-800/40 shrink-0 h-[72px] flex items-center px-4 transition-colors duration-500">
         {/* Left: Close/Back */}
         <motion.div
           animate={{ width: searchQuery || isSearchFocused ? 0 : 48, opacity: searchQuery || isSearchFocused ? 0 : 1 }}
@@ -1027,20 +1027,43 @@ export default function CurationList() {
               >
                 <button
                   onClick={toggleTheme}
-                  className="w-9 h-9 flex items-center justify-center text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 active:scale-90 rounded-full transition-all relative overflow-hidden"
+                  className="w-10 h-10 flex items-center justify-center text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 active:scale-90 rounded-full transition-all relative overflow-hidden"
+                  aria-label={`Switch to ${theme === "light" ? "dark" : "light"} mode`}
                 >
-                  <AnimatePresence mode="wait" initial={false}>
-                    <motion.div
-                      key={theme}
-                      initial={{ y: -20, opacity: 0, scale: 0.5, rotate: -90 }}
-                      animate={{ y: 0, opacity: 1, scale: 1, rotate: 0 }}
-                      exit={{ y: 20, opacity: 0, scale: 0.5, rotate: 90 }}
-                      transition={{ type: "spring", stiffness: 350, damping: 25 }}
-                      className="absolute flex items-center justify-center"
-                    >
-                      {theme === "dark" ? <Sun size={16} strokeWidth={2.5} /> : <Moon size={16} strokeWidth={2.5} />}
-                    </motion.div>
-                  </AnimatePresence>
+                  {/* Sun Icon */}
+                  <svg
+                    className={`absolute w-5 h-5 transition-all duration-[2500ms] ease-[cubic-bezier(0.4,0,0,1)] ${theme === "light"
+                      ? "opacity-100 rotate-0 scale-100"
+                      : "opacity-0 rotate-90 scale-0"
+                      }`}
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle cx="12" cy="12" r="5" strokeWidth="1.5" />
+                    <path
+                      strokeLinecap="round"
+                      strokeWidth="1.5"
+                      d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"
+                    />
+                  </svg>
+                  {/* Moon Icon */}
+                  <svg
+                    className={`absolute w-5 h-5 transition-all duration-[2500ms] ease-[cubic-bezier(0.4,0,0,1)] ${theme === "dark"
+                      ? "opacity-100 rotate-0 scale-100"
+                      : "opacity-0 -rotate-90 scale-0"
+                      }`}
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="1.5"
+                      d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"
+                    />
+                  </svg>
                 </button>
                 <button
                   onClick={() => setIsAtlasMenuOpen(!isAtlasMenuOpen)}
