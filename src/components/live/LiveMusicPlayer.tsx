@@ -778,18 +778,12 @@ export function LiveMusicPlayer() {
                                 color: isDark ? "rgba(255,255,255,0.3)" : "rgba(0,0,0,0.3)", 
                                 marginRight: "8px" 
                             }}>Up Next</span>
-                            <div style={{ display: "inline-block", verticalAlign: "middle", width: "160px" }}>
-                                <MarqueeText 
-                                    text={`${nextTitle} • ${nextArtist}`}
-                                    fontSize="0.75rem"
-                                    fontWeight={600}
-                                    color={isDark ? "rgba(255,255,255,0.5)" : "rgba(0,0,0,0.5)"}
-                                    fontFamily={headerFont}
-                                    boxHeight="20px"
-                                    letterSpacing="0"
-                                    justifyContent="flex-start"
-                                />
-                            </div>
+                            <span style={{ 
+                                display: "inline-block", verticalAlign: "middle", maxWidth: "160px", 
+                                whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" 
+                            }}>
+                                {nextTitle} <span style={{ opacity: 0.6 }}>• {nextArtist}</span>
+                            </span>
                         </motion.div>
                     )}
                 </AnimatePresence>
