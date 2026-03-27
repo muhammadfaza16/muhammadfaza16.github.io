@@ -1,0 +1,510 @@
+"use client";
+
+import { ZenHideable } from "@/components/ZenHideable";
+import Link from "next/link";
+import {
+    ChevronLeft,
+    CheckCircle2,
+    XCircle,
+    Clipboard,
+    Save,
+    PenLine,
+    Lock,
+    Search,
+    ListMusic,
+    Settings,
+    Activity,
+    Music,
+    Database,
+    RefreshCw,
+    Globe,
+    Clock,
+    Users,
+    Radio
+} from "lucide-react";
+import { useState, useRef, useEffect, useMemo } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { PlaylistModule } from "./components/PlaylistModule";
+import { SongModule } from "./components/SongModule";
+import { LiveControlModule } from "./components/LiveControlModule";
+import { parseSongTitle } from "@/utils/songUtils";
+import { useTheme } from "@/components/ThemeProvider";
+
+const MASTER_PIN = "0000";
+
+type ModuleId = "dashboard" | "playlist" | "songs" | "settings" | "logs" | "live";
+
+export default function MasterClient({ 
+    initialSongs = [], 
+    initialPlaylists = [] 
+}: { 
+    initialSongs?: any[], 
+    initialPlaylists?: any[] 
+}) {
+    const { theme } = useTheme();
+    const [activeModule, setActiveModule] = useState<ModuleId>("dashboard");
+    const [isBusy, setIsBusy] = useState(false);
+    const [logs, setLogs] = useState<{ text: string; type: "info" | "success" | "error" }[]>([]);
+    
+    // Music Stats
+    const [dbSongs, setDbSongs] = useState<any[]>(initialSongs);
+    const [accessLogs, setAccessLogs] = useState<any[]>([]);
+    const [loadingLogs, setLoadingLogs] = useState(false);
+    const [logError, setLogError] = useState<string | null>(null);
+    const [isLogsUnlocked, setIsLogsUnlocked] = useState(false);
+    const [pinInput, setPinInput] = useState("");
+    
+    // Computed Stats
+    const [playlistStats, setPlaylistStats] = useState<{title: string, count: number, vibes: string[]}[]>(
+        initialPlaylists.map((p: any) => ({
+            title: p.title,
+            count: p._count?.songs || 0,
+            vibes: p.vibes || []
+        }))
+    );
+
+    const terminalEndRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        terminalEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }, [logs]);
+
+    useEffect(() => {
+        if (initialSongs.length > 0) setDbSongs(initialSongs);
+        if (initialPlaylists.length > 0) {
+            setPlaylistStats(initialPlaylists.map((p: any) => ({
+                title: p.title,
+                count: p._count?.songs || 0,
+                vibes: p.vibes || []
+            })));
+        }
+    }, [initialSongs, initialPlaylists]);
+
+    const addLog = (text: string, type: "info" | "success" | "error" = "info") => {
+        setLogs(prev => [...prev, { text, type }].slice(-10)); // Keep last 10
+    };
+
+    const fetchAccessLogs = async () => {
+        setLoadingLogs(true);
+        setLogError(null);
+        try {
+            const res = await fetch(`/api/music/logs?password=${MASTER_PIN}`);
+            const data = await res.json();
+            if (data.success) {
+                setAccessLogs(data.logs);
+            } else {
+                setLogError(data.error || "Failed to load logs");
+            }
+        } catch (err: any) {
+            console.error("Failed to fetch logs:", err);
+            setLogError(err.message || "Network error");
+        }
+        setLoadingLogs(false);
+    };
+
+    useEffect(() => {
+        if (activeModule === "logs") {
+            fetchAccessLogs();
+        }
+    }, [activeModule]);
+
+    const scrollContainerRef = useRef<HTMLDivElement>(null);
+    const moduleScrollPositions = useRef<Record<string, number>>({});
+    const headerFont = "var(--font-display), system-ui, sans-serif";
+    const monoFont = "var(--font-mono), monospace";
+
+    // Improved Scroll Management: Reset to top on module change
+    useEffect(() => {
+        if (scrollContainerRef.current) {
+            scrollContainerRef.current.scrollTo(0, 0);
+        }
+    }, [activeModule]);
+
+    return (
+        <main style={{
+            height: "100svh",
+            backgroundColor: theme === "dark" ? "#0A0A0A" : "#F8F5F2",
+            backgroundImage: theme === "dark" 
+                ? "radial-gradient(at 50% 0%, rgba(99, 102, 241, 0.15) 0, transparent 60%), radial-gradient(at 100% 100%, rgba(139, 92, 246, 0.08) 0, transparent 50%)"
+                : "radial-gradient(at 50% 0%, rgba(255, 255, 255, 0.6) 0, transparent 60%), radial-gradient(at 100% 100%, rgba(255, 255, 255, 0.3) 0, transparent 50%)",
+            color: theme === "dark" ? "#FFF" : "#000",
+            fontFamily: monoFont,
+            transition: "all 0.5s ease",
+            display: "flex",
+            flexDirection: "column",
+            overflow: "hidden"
+        }}>
+
+            <div 
+                id="master-vault-scroll-container"
+                ref={scrollContainerRef}
+                style={{
+                    flex: 1,
+                    overflowY: "auto",
+                    overflowX: "hidden",
+                    display: "flex",
+                    flexDirection: "column",
+                    padding: "0 0 140px 0",
+                    WebkitOverflowScrolling: "touch",
+                    overscrollBehaviorY: "none",
+                    scrollbarGutter: "stable"
+                }}
+            >
+                <div style={{ width: "100%", maxWidth: "440px", margin: "0 auto", display: "flex", flexDirection: "column", padding: "40px 20px" }}>
+                    {/* Entrance Navigation */}
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "-8px" }}>
+                        <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+                            <Link href="/music" style={{ textDecoration: "none" }}>
+                                <motion.div 
+                                    whileHover={{ x: -4 }}
+                                    style={{ 
+                                        display: "inline-flex", alignItems: "center", gap: "8px", 
+                                        color: theme === "dark" ? "rgba(255,255,255,0.6)" : "rgba(0,0,0,0.5)",
+                                        fontFamily: headerFont, fontWeight: 700, fontSize: "0.8rem", textTransform: "uppercase", letterSpacing: "0.05em"
+                                    }}
+                                >
+                                    <ChevronLeft size={16} /> Back
+                                </motion.div>
+                            </Link>
+                            <h1 style={{ 
+                                fontFamily: headerFont, fontWeight: 900, fontSize: "2.5rem", lineHeight: 1, margin: 0,
+                                letterSpacing: "-0.05em", color: theme === "dark" ? "#FFF" : "#000"
+                            }}>
+                                System<br />Config.
+                            </h1>
+                        </div>
+                    </div>
+                    
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ type: "spring", stiffness: 250, damping: 25 }}
+                        style={{
+                            width: "100%", display: "flex", flexDirection: "column", gap: "24px", paddingTop: "24px"
+                        }}
+                    >
+                        <AnimatePresence mode="wait">
+                            {activeModule === "dashboard" && (
+                                <motion.div
+                                    key="dashboard"
+                                    initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 10 }}
+                                    style={{ display: "flex", flexDirection: "column", gap: "20px" }}
+                                >
+                                    {/* Tool Buttons */}
+                                    <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: "12px" }}>
+                                        {[
+                                            { id: "playlist", icon: <ListMusic size={20} />, label: "Playlist Vault", sub: "Structural Database Control" },
+                                            { id: "songs", icon: <Music size={20} />, label: "Global Songs", sub: "Core Catalog Management" },
+                                            { id: "live", icon: <Radio size={20} />, label: "Live Control", sub: "Real-Time Broadcast Manager" },
+                                            { id: "logs", icon: <Activity size={20} />, label: "Access Insight", sub: "Visitor Geolocation & Traffic" },
+                                        ].map((tool) => (
+                                            <motion.button
+                                                key={tool.id}
+                                                onClick={() => setActiveModule(tool.id as ModuleId)}
+                                                whileHover={{ scale: 1.01, backgroundColor: theme === "dark" ? "rgba(255,255,255,0.05)" : "rgba(255,255,255,0.8)" }}
+                                                whileTap={{ scale: 0.99 }}
+                                                style={{
+                                                    backgroundColor: theme === "dark" ? "rgba(255, 255, 255, 0.03)" : "rgba(255, 255, 255, 0.45)",
+                                                    border: theme === "dark" ? "1px solid rgba(255,255,255,0.08)" : "1px solid rgba(0,0,0,0.05)",
+                                                    borderRadius: "20px",
+                                                    padding: "16px",
+                                                    boxShadow: theme === "dark" ? "0 10px 40px rgba(0,0,0,0.3)" : "0 4px 20px rgba(0,0,0,0.02)",
+                                                    display: "flex", alignItems: "center", justifyContent: "space-between",
+                                                    cursor: "pointer",
+                                                    transition: "background 0.2s ease"
+                                                }}
+                                            >
+                                                <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+                                                    <div style={{ width: "40px", height: "40px", borderRadius: "12px", background: "#000", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 8px 16px rgba(0,0,0,0.1)"}}>
+                                                        {tool.icon}
+                                                    </div>
+                                                    <div style={{ textAlign: "left" }}>
+                                                        <div style={{ color: theme === "dark" ? "#FFF" : "#000", fontSize: "0.9rem", fontWeight: 900, fontFamily: headerFont, letterSpacing: "-0.01em", textTransform: "uppercase" }}>{tool.label}</div>
+                                                        <div style={{ color: theme === "dark" ? "rgba(255,255,255,0.4)" : "#888", fontSize: "0.6rem", fontWeight: 700, textTransform: "uppercase", fontFamily: monoFont }}>{tool.sub}</div>
+                                                    </div>
+                                                </div>
+                                            </motion.button>
+                                        ))}
+                                    </div>
+                                </motion.div>
+                            )}
+
+                             {activeModule === "playlist" && (
+                                <motion.div key="playlist" initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -10 }} style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+                                    <motion.button
+                                        onClick={() => setActiveModule("dashboard")}
+                                        whileTap={{ scale: 0.98 }}
+                                        style={{ 
+                                            color: theme === "dark" ? "rgba(255,255,255,0.4)" : "rgba(0,0,0,0.4)", fontSize: "0.65rem", fontWeight: 800, background: "transparent", border: theme === "dark" ? "1px solid rgba(255,255,255,0.1)" : "1px solid rgba(0,0,0,0.05)", borderRadius: "12px",
+                                            cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", padding: "10px", fontFamily: monoFont, textTransform: "uppercase"
+                                        }}
+                                    >
+                                        <ChevronLeft size={14} /> Back to dashboard
+                                    </motion.button>
+                                    
+                                    <div style={{ 
+                                        padding: "20px", 
+                                        backgroundColor: theme === "dark" ? "rgba(255, 255, 255, 0.03)" : "rgba(255, 255, 255, 0.45)", 
+                                        border: theme === "dark" ? "1px solid rgba(255,255,255,0.08)" : "1px solid rgba(0,0,0,0.05)", 
+                                        borderRadius: "24px", 
+                                        boxShadow: theme === "dark" ? "0 20px 60px rgba(0,0,0,0.4)" : "0 10px 30px rgba(0,0,0,0.03)"
+                                    }}>
+                                        <PlaylistModule
+                                            addLog={addLog}
+                                            isBusy={isBusy}
+                                            setIsBusy={setIsBusy}
+                                            insetBox={{ 
+                                                border: theme === "dark" ? "1px solid rgba(255,255,255,0.1)" : "1px solid rgba(0,0,0,0.1)", 
+                                                borderRadius: "12px", 
+                                                background: theme === "dark" ? "rgba(255,255,255,0.02)" : "rgba(255,255,255,0.6)" 
+                                            }}
+                                        />
+                                    </div>
+                                </motion.div>
+                            )}
+
+                            {activeModule === "songs" && (
+                                <motion.div key="songs" initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -10 }} style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+                                    <motion.button
+                                        onClick={() => setActiveModule("dashboard")}
+                                        whileTap={{ scale: 0.98 }}
+                                        style={{ 
+                                            color: theme === "dark" ? "rgba(255,255,255,0.4)" : "rgba(0,0,0,0.4)", fontSize: "0.65rem", fontWeight: 800, background: "transparent", border: theme === "dark" ? "1px solid rgba(255,255,255,0.1)" : "1px solid rgba(0,0,0,0.05)", borderRadius: "12px",
+                                            cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", padding: "10px", fontFamily: monoFont, textTransform: "uppercase"
+                                        }}
+                                    >
+                                        <ChevronLeft size={14} /> Back to dashboard
+                                    </motion.button>
+                                    
+                                    <div style={{ 
+                                        padding: "20px", 
+                                        backgroundColor: theme === "dark" ? "rgba(255, 255, 255, 0.03)" : "rgba(255, 255, 255, 0.45)", 
+                                        border: theme === "dark" ? "1px solid rgba(255,255,255,0.08)" : "1px solid rgba(0,0,0,0.05)", 
+                                        borderRadius: "24px", 
+                                        boxShadow: theme === "dark" ? "0 20px 60px rgba(0,0,0,0.4)" : "0 10px 30px rgba(0,0,0,0.03)"
+                                    }}>
+                                        <SongModule
+                                            addLog={addLog}
+                                            isBusy={isBusy}
+                                            setIsBusy={setIsBusy}
+                                            insetBox={{ 
+                                                border: theme === "dark" ? "1px solid rgba(255,255,255,0.1)" : "1px solid rgba(0,0,0,0.1)", 
+                                                borderRadius: "12px", 
+                                                background: theme === "dark" ? "rgba(255,255,255,0.02)" : "rgba(255,255,255,0.6)" 
+                                            }}
+                                        />
+                                    </div>
+                                </motion.div>
+                            )}
+
+                            {activeModule === "live" && (
+                                <motion.div key="live" initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -10 }} style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+                                    <motion.button
+                                        onClick={() => setActiveModule("dashboard")}
+                                        whileTap={{ scale: 0.98 }}
+                                        style={{ 
+                                            color: theme === "dark" ? "rgba(255,255,255,0.4)" : "rgba(0,0,0,0.4)", fontSize: "0.65rem", fontWeight: 800, background: "transparent", border: theme === "dark" ? "1px solid rgba(255,255,255,0.1)" : "1px solid rgba(0,0,0,0.05)", borderRadius: "12px",
+                                            cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", padding: "10px", fontFamily: monoFont, textTransform: "uppercase"
+                                        }}
+                                    >
+                                        <ChevronLeft size={14} /> Back to dashboard
+                                    </motion.button>
+                                    <LiveControlModule />
+                                </motion.div>
+                            )}
+
+                            {activeModule === "logs" && (
+                                <motion.div key="logs" initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -10 }} style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+                                    <motion.button
+                                        onClick={() => setActiveModule("dashboard")}
+                                        whileTap={{ scale: 0.98 }}
+                                        style={{ 
+                                            color: theme === "dark" ? "rgba(255,255,255,0.4)" : "rgba(0,0,0,0.4)", fontSize: "0.65rem", fontWeight: 800, background: "transparent", border: theme === "dark" ? "1px solid rgba(255,255,255,0.1)" : "1px solid rgba(0,0,0,0.05)", borderRadius: "12px",
+                                            cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", padding: "10px", fontFamily: monoFont, textTransform: "uppercase"
+                                        }}
+                                    >
+                                        <ChevronLeft size={14} /> Back to dashboard
+                                    </motion.button>
+                                    
+                                    <div style={{ 
+                                        padding: "20px", 
+                                        backgroundColor: theme === "dark" ? "rgba(255, 255, 255, 0.03)" : "rgba(255, 255, 255, 0.45)", 
+                                        border: theme === "dark" ? "1px solid rgba(255,255,255,0.08)" : "1px solid rgba(0,0,0,0.05)", 
+                                        borderRadius: "24px", 
+                                        boxShadow: theme === "dark" ? "0 20px 60px rgba(0,0,0,0.4)" : "0 10px 30px rgba(0,0,0,0.03)", 
+                                        display: "flex", flexDirection: "column", gap: "16px", minHeight: "300px" 
+                                    }}>
+                                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                                            <h3 style={{ margin: 0, fontFamily: headerFont, fontSize: "0.85rem", fontWeight: 900, textTransform: "uppercase", color: theme === "dark" ? "#FFF" : "#000", letterSpacing: "0.05em" }}>Visitor Intelligence</h3>
+                                            {isLogsUnlocked && (
+                                                <button onClick={fetchAccessLogs} style={{ background: "none", border: "none", cursor: "pointer", color: theme === "dark" ? "rgba(255,255,255,0.4)" : "rgba(0,0,0,0.4)" }}>
+                                                    <RefreshCw size={14} className={loadingLogs ? "animate-spin" : ""} />
+                                                </button>
+                                            )}
+                                        </div>
+
+                                        {!isLogsUnlocked ? (
+                                            <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "16px", padding: "40px 0" }}>
+                                                <div style={{ width: "48px", height: "48px", borderRadius: "16px", background: theme === "dark" ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.03)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                                                    <Lock size={20} color={theme === "dark" ? "rgba(255,255,255,0.4)" : "rgba(0,0,0,0.4)"} />
+                                                </div>
+                                                <div style={{ textAlign: "center" }}>
+                                                    <div style={{ fontSize: "0.7rem", fontWeight: 800, color: theme === "dark" ? "#FFF" : "#000", fontFamily: headerFont, textTransform: "uppercase" }}>Vault Protected</div>
+                                                    <div style={{ fontSize: "0.55rem", fontWeight: 700, color: theme === "dark" ? "rgba(255,255,255,0.4)" : "#888", fontFamily: monoFont, textTransform: "uppercase", marginTop: "2px" }}>Enter Authorization PIN</div>
+                                                </div>
+                                                <input 
+                                                    type="password" 
+                                                    value={pinInput}
+                                                    onChange={(e) => {
+                                                        const val = e.target.value;
+                                                        setPinInput(val);
+                                                        if (val === MASTER_PIN) {
+                                                            setIsLogsUnlocked(true);
+                                                            setPinInput("");
+                                                        }
+                                                    }}
+                                                    placeholder="••••"
+                                                    autoFocus
+                                                    style={{
+                                                        width: "80px",
+                                                        padding: "10px",
+                                                        textAlign: "center",
+                                                        fontSize: "1rem",
+                                                        letterSpacing: "0.2em",
+                                                        fontWeight: 900,
+                                                        border: theme === "dark" ? "1px solid rgba(255,255,255,0.1)" : "1px solid rgba(0,0,0,0.1)",
+                                                        borderRadius: "12px",
+                                                        background: theme === "dark" ? "rgba(255,255,255,0.03)" : "#fff",
+                                                        color: theme === "dark" ? "#FFF" : "#000",
+                                                        outline: "none",
+                                                        fontFamily: monoFont
+                                                    }}
+                                                />
+                                            </div>
+                                        ) : loadingLogs ? (
+                                            <div style={{ textAlign: "center", padding: "20px", fontFamily: monoFont, fontSize: "0.65rem", color: theme === "dark" ? "rgba(255,255,255,0.4)" : "rgba(0,0,0,0.4)" }}>SCANNING LOGS...</div>
+                                        ) : (
+                                            <div style={{ 
+                                                display: "flex", flexDirection: "column", gap: "10px",
+                                                maxHeight: "450px", overflowY: "auto", paddingRight: "4px"
+                                            }}>
+                                                {accessLogs.map(log => (
+                                                    <div key={log.id} style={{ 
+                                                        padding: "16px", 
+                                                        backgroundColor: theme === "dark" ? "rgba(255, 255, 255, 0.02)" : "rgba(255, 255, 255, 0.6)", 
+                                                        border: theme === "dark" ? "1px solid rgba(255,255,255,0.05)" : "1px solid rgba(0,0,0,0.05)", 
+                                                        borderRadius: "16px", display: "flex", flexDirection: "column", gap: "8px"
+                                                    }}>
+                                                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                                                            <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                                                                <Globe size={12} color="#888" />
+                                                                <span style={{ fontFamily: monoFont, fontSize: "0.75rem", fontWeight: 800, color: theme === "dark" ? "#FFF" : "#000" }}>
+                                                                    {(log.ip === "::1" || log.ip === "127.0.0.1") ? "Localhost" : log.ip}
+                                                                </span>
+                                                            </div>
+                                                            <span style={{ fontSize: "0.55rem", fontWeight: 800, fontFamily: monoFont, color: "#888", textTransform: "uppercase" }}>
+                                                                {new Date(log.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                                            </span>
+                                                        </div>
+
+                                                        {log.songTitle && (() => {
+                                                            const { cleanTitle, labels } = parseSongTitle(log.songTitle);
+                                                            return (
+                                                                <div style={{ padding: "8px 12px", background: "rgba(0,0,0,0.02)", borderRadius: "8px", border: "1px solid rgba(0,0,0,0.03)" }}>
+                                                                    <div style={{ fontSize: "0.5rem", fontWeight: 800, color: "#888", textTransform: "uppercase", marginBottom: "2px" }}>HEARING</div>
+                                                                    <div style={{ display: "flex", alignItems: "center", gap: "6px", flexWrap: "wrap" }}>
+                                                                        <div style={{ fontSize: "0.7rem", fontWeight: 900, color: theme === "dark" ? "#FFF" : "#000", textTransform: "uppercase", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", fontFamily: headerFont }}>
+                                                                            {cleanTitle}
+                                                                        </div>
+                                                                        {labels.map(label => (
+                                                                            <span key={label} style={{
+                                                                                fontSize: "0.38rem",
+                                                                                fontFamily: headerFont,
+                                                                                fontWeight: 800,
+                                                                                backgroundColor: theme === "dark" ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.04)",
+                                                                                color: theme === "dark" ? "rgba(255,255,255,0.6)" : "rgba(0,0,0,0.5)",
+                                                                                padding: "1px 5px",
+                                                                                borderRadius: "100px",
+                                                                                letterSpacing: "0.06em",
+                                                                                textTransform: "uppercase",
+                                                                                border: theme === "dark" ? "1px solid rgba(255,255,255,0.1)" : "1px solid rgba(0,0,0,0.05)",
+                                                                                flexShrink: 0
+                                                                            }}>{label}</span>
+                                                                        ))}
+                                                                    </div>
+                                                                </div>
+                                                            );
+                                                        })()}
+
+                                                        {(log.city || log.country) && (
+                                                            <div style={{ fontSize: "0.65rem", fontWeight: 700, color: "#888", display: "flex", alignItems: "center", gap: "4px" }}>
+                                                                <span>📍</span>
+                                                                {log.city || "Unknown"}, {log.country || "Earth"}
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        )}
+                                    </div>
+                                </motion.div>
+                            )}
+                        </AnimatePresence>
+
+
+                        {/* Player Intelligence Card (Only visible on Dashboard) */}
+                        {activeModule === "dashboard" && (
+                         <div style={{
+                            backgroundColor: theme === "dark" ? "rgba(255, 255, 255, 0.03)" : "rgba(255, 255, 255, 0.45)",
+                            border: theme === "dark" ? "1px solid rgba(255,255,255,0.08)" : "1px solid rgba(0,0,0,0.05)",
+                            borderRadius: "24px",
+                            padding: "20px",
+                            boxShadow: theme === "dark" ? "0 20px 60px rgba(0,0,0,0.4)" : "0 10px 30px rgba(0,0,0,0.03)",
+                            display: "flex",
+                            flexDirection: "column",
+                            gap: "14px",
+                            marginTop: "8px"
+                        }}>
+                            <div style={{ display: "flex", alignItems: "center", gap: "10px", borderBottom: theme === "dark" ? "1px solid rgba(255,255,255,0.05)" : "1px solid rgba(0,0,0,0.03)", paddingBottom: "12px" }}>
+                                <Database size={16} color={theme === "dark" ? "#FFF" : "#000"} />
+                                <h2 style={{ margin: 0, fontFamily: headerFont, fontSize: "0.85rem", fontWeight: 900, textTransform: "uppercase", letterSpacing: "0.05em" }}>
+                                    Player Intelligence
+                                </h2>
+                            </div>
+                            
+                            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                                <span style={{ fontFamily: monoFont, fontSize: "0.65rem", fontWeight: 700, color: theme === "dark" ? "rgba(255,255,255,0.4)" : "rgba(0,0,0,0.4)", textTransform: "uppercase", letterSpacing: "0.02em" }}>Catalog Weight</span>
+                                <span style={{ fontFamily: headerFont, fontSize: "1.1rem", fontWeight: 900, color: theme === "dark" ? "#FFF" : "#000" }}>
+                                    {dbSongs.length > 0 ? `${dbSongs.length} TRACKS` : "..."}
+                                </span>
+                            </div>
+
+                            {playlistStats.length > 0 && (
+                                <div style={{ display: "flex", flexDirection: "column", gap: "10px", marginTop: "4px", borderTop: "1px dashed rgba(0,0,0,0.05)", paddingTop: "16px" }}>
+                                    {playlistStats.map(stat => (
+                                        <div key={stat.title} style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                                            <div style={{ display: "flex", flexDirection: "column" }}>
+                                                <span style={{ fontFamily: headerFont, fontSize: "0.8rem", fontWeight: 800, color: theme === "dark" ? "#FFF" : "#000", letterSpacing: "-0.01em" }}>{stat.title}</span>
+                                                <span style={{ fontFamily: monoFont, fontSize: "0.55rem", fontWeight: 700, color: theme === "dark" ? "rgba(255,255,255,0.4)" : "#888", textTransform: "uppercase" }}>{stat.vibes.slice(0, 1).join(", ")}</span>
+                                            </div>
+                                            <span style={{ fontFamily: monoFont, fontSize: "0.8rem", fontWeight: 900, color: theme === "dark" ? "#FFF" : "#000" }}>{stat.count}</span>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                            
+                            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "8px", borderTop: theme === "dark" ? "1px solid rgba(255,255,255,0.05)" : "1px solid rgba(0,0,0,0.03)", paddingTop: "12px" }}>
+                                <span style={{ fontFamily: monoFont, fontSize: "0.65rem", fontWeight: 700, color: theme === "dark" ? "rgba(255,255,255,0.4)" : "rgba(0,0,0,0.4)", textTransform: "uppercase" }}>Status</span>
+                                <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                                    <div style={{ width: "6px", height: "6px", borderRadius: "50%", background: "#10b981", boxShadow: "0 0 8px rgba(16, 185, 129, 0.4)" }} />
+                                    <span style={{ fontFamily: monoFont, fontSize: "0.65rem", fontWeight: 700, color: theme === "dark" ? "#FFF" : "#000", textTransform: "uppercase" }}>Verified Online</span>
+                                </div>
+                            </div>
+                        </div>
+                        )}
+                    </motion.div>
+                </div>
+            </div>
+        </main>
+    );
+}
