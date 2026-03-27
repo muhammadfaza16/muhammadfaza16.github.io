@@ -481,7 +481,7 @@ export function LiveMusicPlayer() {
                 alignItems: "center", 
                 justifyContent: "center",
                 gap: "12px", 
-                padding: "16px 20px 16px", 
+                padding: "16px 20px 22px", 
             }}>
                 <span style={{ 
                     fontFamily: headerFont, 
@@ -604,8 +604,8 @@ export function LiveMusicPlayer() {
                 </motion.button>
             </div>
 
-            {/* Gap Cover to Title (25px) */}
-            <div style={{ height: "25px" }} />
+            {/* Gap Cover to Title (23px) */}
+            <div style={{ height: "23px" }} />
 
             {/* Song Info */}
             <div style={{ textAlign: "center", display: "flex", flexDirection: "column", alignItems: "center", gap: "7px", padding: "0 20px" }}>
