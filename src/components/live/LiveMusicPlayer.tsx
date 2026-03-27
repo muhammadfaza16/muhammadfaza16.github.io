@@ -598,8 +598,8 @@ export function LiveMusicPlayer() {
                 </motion.button>
             </div>
 
-            {/* Gap Cover to Title (Luxurious) */}
-            <div style={{ height: "min(40px, 6vh)" }} />
+            {/* Gap Cover to Title (30px) */}
+            <div style={{ height: "30px" }} />
 
             {/* Song Info */}
             <div style={{ textAlign: "center", display: "flex", flexDirection: "column", alignItems: "center", gap: "10px", padding: "0 20px" }}>
@@ -668,7 +668,7 @@ export function LiveMusicPlayer() {
             {/* Gap Progress to Controls (Tight 20px) */}
             <div style={{ height: "20px" }} />
 
-            <div style={{ position: "relative", width: "100%", paddingTop: "20px", paddingBottom: "10px" }}>
+            <div style={{ position: "relative", width: "100%", paddingTop: "10px", paddingBottom: "10px" }}>
                 <LiveControls 
                     isWaitingForSync={isWaitingForSync}
                     isTransitioning={isTransitioning}
