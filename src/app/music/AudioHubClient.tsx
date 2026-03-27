@@ -27,13 +27,8 @@ export default function AudioHubClient({
     const scrollContainerRef = useRef<HTMLDivElement>(null);
     const scrollYRef = useRef(0);
 
-    const [playlists, setPlaylists] = useState<any[]>(initialPlaylists);
-    const [livePlaylistIds, setLivePlaylistIds] = useState<string[]>(activeSessionPlaylistIds);
-    
-    useEffect(() => {
-        if (initialPlaylists.length > 0) setPlaylists(initialPlaylists);
-        if (activeSessionPlaylistIds.length > 0) setLivePlaylistIds(activeSessionPlaylistIds);
-    }, [initialPlaylists, activeSessionPlaylistIds]);
+    const [playlists] = useState<any[]>(initialPlaylists);
+    const [livePlaylistIds] = useState<string[]>(activeSessionPlaylistIds);
 
     const CACHE_KEY = "music_hub_scroll_v1";
 
@@ -98,40 +93,6 @@ export default function AudioHubClient({
         };
     }, []);
 
-    const cardVariants: any = {
-        initial: { opacity: 0, y: 30, scale: 0.92 },
-        animate: { 
-            opacity: 1, 
-            y: 0, 
-            scale: 1,
-            transition: { type: "spring", damping: 20, stiffness: 100 }
-        },
-        hover: { 
-            y: -12,
-            scale: 1.05,
-            rotate: 1.5,
-            transition: { type: "spring", damping: 15, stiffness: 200 }
-        },
-        tap: { scale: 0.96, rotate: 0 }
-    };
-
-    const containerVariants = {
-        hidden: { opacity: 0 },
-        visible: {
-            opacity: 1,
-            transition: { staggerChildren: 0.1, delayChildren: 0.2 }
-        }
-    };
-
-    const itemVariants: any = {
-        hidden: { opacity: 0, y: 20 },
-        visible: { 
-            opacity: 1, 
-            y: 0,
-            transition: { type: "spring", stiffness: 300, damping: 24 }
-        }
-    };
-
     return (
         <main style={{
             height: "100svh",
@@ -163,9 +124,8 @@ export default function AudioHubClient({
                 }}
             >
                 <motion.div 
-                    variants={containerVariants}
-                    initial="hidden"
-                    animate="visible"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
                     style={{ width: "100%", maxWidth: "440px", display: "flex", flexDirection: "column", gap: "24px", paddingTop: "40px" }}
                 >
                     {/* Header */}
@@ -173,7 +133,6 @@ export default function AudioHubClient({
                         <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
                             <Link href="/" style={{ textDecoration: "none" }}>
                                 <motion.div 
-                                    variants={itemVariants}
                                     whileHover={{ x: -4 }}
                                     style={{ 
                                         display: "inline-flex", alignItems: "center", gap: "8px", 
@@ -185,7 +144,6 @@ export default function AudioHubClient({
                                 </motion.div>
                             </Link>
                             <motion.h1 
-                                variants={itemVariants}
                                 style={{ 
                                     fontFamily: headerFont, fontWeight: 900, fontSize: "2.5rem", lineHeight: 1, margin: 0,
                                     letterSpacing: "-0.05em", color: theme === "dark" ? "#FFF" : "#000"
@@ -195,7 +153,6 @@ export default function AudioHubClient({
                             </motion.h1>
                         </div>
                         <motion.div 
-                            variants={itemVariants}
                             style={{ 
                                 display: "flex", alignItems: "center", justifyContent: "center",
                                 width: "44px", height: "44px", borderRadius: "100px",
@@ -207,35 +164,65 @@ export default function AudioHubClient({
                         </motion.div>
                     </div>
 
-                    <motion.div variants={itemVariants} style={{ display: "flex", flexDirection: "column", gap: "40px" }}>
+                    <motion.div initial={false} animate={{ opacity: 1 }} style={{ display: "flex", flexDirection: "column", gap: "40px" }}>
                         <AnimatePresence mode="wait">
                             {currentSong && (
                                 <motion.div
                                     key="active-vibe"
-                                    variants={cardVariants}
-                                    initial="initial"
-                                    animate="animate"
-                                    whileHover="hover"
-                                    whileTap="tap"
+                                    initial={false}
+                                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                                    whileHover={{ scale: 1.01, y: -2 }}
+                                    transition={{ duration: 0.2 }}
                                     style={{
                                         ...cardStyle,
                                         display: "flex",
                                         flexDirection: "column",
                                         padding: "0px",
                                         backgroundColor: theme === "dark" ? "rgba(255, 255, 255, 0.05)" : "rgba(255, 255, 255, 0.45)",
-                                        overflow: "hidden"
+                                        backdropFilter: "blur(24px) saturate(180%)",
+                                        border: theme === "dark" ? "1px solid rgba(255, 255, 255, 0.1)" : "1px solid rgba(255, 255, 255, 0.5)",
+                                        overflow: "hidden",
+                                        position: "relative"
                                     }}
                                 >
+                                    {/* Subtitle Bar */}
+                                    <div style={{ 
+                                        padding: "10px 18px", 
+                                        display: "flex", 
+                                        justifyContent: "space-between", 
+                                        alignItems: "center",
+                                        borderBottom: "1px solid rgba(0,0,0,0.02)"
+                                    }}>
+                                        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                                            <div style={{ width: "6px", height: "6px", borderRadius: "50%", backgroundColor: "#6366F1" }} />
+                                            <span style={{ fontFamily: headerFont, fontWeight: 800, fontSize: "0.55rem", letterSpacing: "0.12em", color: theme === "dark" ? "#FFF" : "#000", textTransform: "uppercase" }}>
+                                                Continue Listening
+                                            </span>
+                                        </div>
+                                    </div>
+
                                     <div onClick={() => setIsPlayerExpanded(true)} style={{ padding: "16px", cursor: "pointer", display: "flex", alignItems: "center", gap: "16px" }}>
-                                        <div style={{ width: "52px", height: "52px", borderRadius: "14px", background: isPlaying ? "#1E1B4B" : "rgba(0,0,0,0.04)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                                        <div style={{ width: "52px", height: "52px", borderRadius: "14px", background: isPlaying ? "#1E1B4B" : "rgba(0,0,0,0.04)", display: "flex", alignItems: "center", justifyContent: "center", border: "1px solid rgba(255,255,255,0.1)", flexShrink: 0 }}>
                                             <Disc className={isPlaying ? "animate-spin-slow" : ""} size={24} color={isPlaying ? "#fff" : "#6366F1"} />
                                         </div>
                                         <div style={{ flex: 1, minWidth: 0 }}>
                                             {(() => {
-                                                const { cleanTitle, artist } = parseSongTitle(currentSong.title);
+                                                const { cleanTitle, artist, labels } = parseSongTitle(currentSong.title);
                                                 return (
                                                     <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-                                                        <div style={{ fontFamily: headerFont, fontWeight: 600, fontSize: "0.95rem", color: theme === "dark" ? "#FFF" : "#000", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{cleanTitle}</div>
+                                                        <div style={{ display: "flex", alignItems: "center", gap: "8px", flexWrap: "wrap" }}>
+                                                            <div style={{ fontFamily: headerFont, fontWeight: 600, fontSize: "0.95rem", color: theme === "dark" ? "#FFF" : "#000", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", letterSpacing: "-0.015em" }}>{cleanTitle}</div>
+                                                            {labels.map(l => (
+                                                                <span key={l} style={{
+                                                                    fontSize: "0.45rem", fontFamily: headerFont, fontWeight: 700,
+                                                                    backgroundColor: theme === "dark" ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.04)",
+                                                                    color: theme === "dark" ? "rgba(255,255,255,0.75)" : "rgba(0,0,0,0.5)",
+                                                                    padding: "3px 8px", borderRadius: "100px",
+                                                                    letterSpacing: "0.04em", textTransform: "uppercase",
+                                                                    border: theme === "dark" ? "1px solid rgba(255,255,255,0.12)" : "1px solid rgba(0,0,0,0.06)"
+                                                                }}>{l}</span>
+                                                            ))}
+                                                        </div>
                                                         <div style={{ fontFamily: headerFont, fontWeight: 500, fontSize: "0.75rem", color: theme === "dark" ? "rgba(255,255,255,0.6)" : "rgba(0,0,0,0.55)" }}>{artist}</div>
                                                     </div>
                                                 );
@@ -254,22 +241,59 @@ export default function AudioHubClient({
 
                         {/* Library */}
                         <div>
+                            <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "16px", paddingLeft: "4px" }}>
+                                <LibraryBig size={16} color={theme === "dark" ? "rgba(255,255,255,0.6)" : "rgba(0,0,0,0.5)"} />
+                                <span style={{ fontFamily: headerFont, fontWeight: 800, fontSize: "0.7rem", textTransform: "uppercase", letterSpacing: "0.1em", color: theme === "dark" ? "rgba(255,255,255,0.5)" : "rgba(0,0,0,0.4)" }}>Browse Library</span>
+                            </div>
                             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
                                 <Link href="/music/live-hub" style={{ textDecoration: "none", gridColumn: "span 2" }}>
-                                    <motion.div whileHover={{ y: -6, scale: 1.01 }} whileTap={{ scale: 0.99 }} style={{ ...cardStyle, padding: "24px", display: "flex", gap: "20px", flexDirection: "column" }}>
-                                        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                                            <div style={{ width: "48px", height: "48px", borderRadius: "16px", background: "linear-gradient(135deg, #450A0A, #7F1D1D)", display: "flex", alignItems: "center", justifyContent: "center", color: "#fff" }}>
-                                                <Radio size={24} />
-                                            </div>
-                                            <div>
-                                                <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                                                    <h2 style={{ fontFamily: headerFont, fontWeight: 700, fontSize: "1.1rem", margin: 0 }}>Live Music</h2>
-                                                    <div style={{ width: "8px", height: "8px", borderRadius: "50%", backgroundColor: "#EF4444" }} />
+                                    <motion.div 
+                                        whileHover={{ y: -6, scale: 1.01 }} 
+                                        whileTap={{ scale: 0.99 }} 
+                                        style={{ 
+                                            ...cardStyle, 
+                                            padding: "24px", 
+                                            display: "flex", 
+                                            gap: "20px", 
+                                            flexDirection: "column",
+                                            background: theme === "dark" ? "rgba(255, 255, 255, 0.03)" : "rgba(255, 255, 255, 0.7)",
+                                            border: theme === "dark" ? "1px solid rgba(99, 102, 241, 0.15)" : "1px solid rgba(0, 0, 0, 0.08)"
+                                        }}
+                                    >
+                                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+                                            <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                                                <div style={{ width: "48px", height: "48px", borderRadius: "16px", background: "linear-gradient(135deg, #450A0A, #7F1D1D)", display: "flex", alignItems: "center", justifyContent: "center", color: "#fff" }}>
+                                                    <Radio size={24} />
                                                 </div>
-                                                <p style={{ margin: 0, fontSize: "0.65rem", fontWeight: 700, opacity: 0.45 }}>STATIONS & HUB</p>
+                                                <div>
+                                                    <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                                                        <h2 style={{ fontFamily: headerFont, fontWeight: 700, fontSize: "1.1rem", margin: 0, letterSpacing: "-0.015em" }}>Live Music</h2>
+                                                        <div style={{ width: "8px", height: "8px", borderRadius: "50%", backgroundColor: "#EF4444" }} />
+                                                    </div>
+                                                    <p style={{ margin: 0, fontSize: "0.65rem", fontWeight: 700, opacity: 0.45, fontFamily: monoFont, letterSpacing: "0.1em", textTransform: "uppercase" }}>Music Stations & Hub</p>
+                                                </div>
+                                            </div>
+                                            <div style={{ 
+                                                backgroundColor: theme === "dark" ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.03)", 
+                                                padding: "0 10px", height: "20px", display: "flex", alignItems: "center", justifyContent: "center",
+                                                borderRadius: "100px", border: theme === "dark" ? "1px solid rgba(255,255,255,0.1)" : "1px solid rgba(0,0,0,0.05)"
+                                            }}>
+                                                <span style={{ fontSize: "0.6rem", fontWeight: 800, color: theme === "dark" ? "#FFF" : "#000", letterSpacing: "0.05em", fontFamily: monoFont }}>LIVE NOW</span>
                                             </div>
                                         </div>
-                                        <p style={{ margin: 0, fontSize: "0.85rem", opacity: 0.7 }}>Join the live broadcast. Listen together in real-time.</p>
+
+                                        <p style={{ margin: 0, fontSize: "0.85rem", opacity: 0.7, lineHeight: 1.5, maxWidth: "280px" }}>
+                                            Join the live broadcast. Listen together with everyone else in real-time.
+                                        </p>
+
+                                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "4px" }}>
+                                            <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                                                <span style={{ fontSize: "0.6rem", fontWeight: 700, color: "#EF4444", fontFamily: monoFont, textTransform: "uppercase" }}>Music Status: Active</span>
+                                            </div>
+                                            <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                                                <span style={{ fontSize: "0.8rem", fontWeight: 900, color: theme === "dark" ? "#FFF" : "#000", fontFamily: headerFont }}>GO TO HUB</span>
+                                            </div>
+                                        </div>
                                     </motion.div>
                                 </Link>
 
@@ -292,8 +316,11 @@ export default function AudioHubClient({
                         {/* Featured Playlists */}
                         <div>
                             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "16px", paddingLeft: "4px" }}>
-                                <span style={{ fontFamily: headerFont, fontWeight: 800, fontSize: "0.7rem", textTransform: "uppercase", letterSpacing: "0.1em", opacity: 0.5 }}>Featured Playlists</span>
-                                <Link href="/music/playlist" style={{ fontSize: "0.65rem", fontWeight: 800, opacity: 0.3, textDecoration: "none" }}>SEE ALL</Link>
+                                <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                                    <Disc size={16} color={theme === "dark" ? "rgba(255,255,255,0.6)" : "rgba(0,0,0,0.5)"} />
+                                    <span style={{ fontFamily: headerFont, fontWeight: 800, fontSize: "0.7rem", textTransform: "uppercase", letterSpacing: "0.1em", opacity: 0.5 }}>Featured Playlists</span>
+                                </div>
+                                <Link href="/music/playlist" style={{ fontSize: "0.65rem", fontWeight: 800, opacity: 0.3, textDecoration: "none", color: theme === "dark" ? "rgba(255,255,255,0.3)" : "#AAA" }}>SEE ALL</Link>
                             </div>
                             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
                                 {playlists
@@ -302,7 +329,15 @@ export default function AudioHubClient({
                                     .map((playlist) => (
                                     <Link key={playlist.slug || playlist.id} href={`/music/playlist/${playlist.slug || playlist.id}`} style={{ textDecoration: "none" }}>
                                         <motion.div whileHover={{ y: -6, scale: 1.02 }} whileTap={{ scale: 0.98 }} style={{ position: "relative", aspectRatio: "1/1", backgroundColor: playlist.coverColor || "#1E1B4B", borderRadius: "20px", overflow: "hidden", display: "flex", flexDirection: "column", cursor: "pointer", border: "1px solid rgba(255,255,255,0.2)" }}>
-                                            {playlist.coverImage && <img src={playlist.coverImage} style={{ width: "100%", height: "100%", objectFit: "cover", position: "absolute", inset: 0, opacity: 0.85 }} className="mix-blend-multiply" />}
+                                            {playlist.coverImage && (
+                                                <img 
+                                                    src={playlist.coverImage} 
+                                                    style={{ width: "100%", height: "100%", objectFit: "cover", position: "absolute", inset: 0, opacity: 0.85 }} 
+                                                    className="mix-blend-multiply" 
+                                                    loading="lazy"
+                                                    decoding="async"
+                                                />
+                                            )}
                                             
                                             {livePlaylistIds.includes(playlist.id) && (
                                                 <div style={{ position: "absolute", top: "12px", right: "12px", zIndex: 10, display: "flex", alignItems: "center", gap: "6px", backgroundColor: "rgba(220, 38, 38, 0.9)", padding: "4px 8px", borderRadius: "6px", backdropFilter: "blur(4px)" }}>

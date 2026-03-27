@@ -88,6 +88,7 @@ export default function LiveHubClient({
     let heroCover = fallbackCover;
     let heroSong = "Waiting for broadcast...";
     let heroArtist = "";
+    let heroLabels: string[] = [];
     let heroIsLive = false;
     let heroSessionId = "";
 
@@ -98,12 +99,13 @@ export default function LiveHubClient({
     }
 
     if (isLive && currentSong) {
-        const { cleanTitle, artist } = parseSongTitle(currentSong.title);
+        const { cleanTitle, artist, labels } = parseSongTitle(currentSong.title);
         heroTitle = playlistTitle || "Live Music";
         heroListeners = listenersCount || 1;
         heroCover = playlistCover || fallbackCover;
         heroSong = cleanTitle;
         heroArtist = artist || "Unknown Artist";
+        heroLabels = labels;
         heroIsLive = true;
     }
 
@@ -274,8 +276,16 @@ export default function LiveHubClient({
                                                 letterSpacing: "0.1em", marginBottom: "2px" 
                                             }}>Currently Playing</span>
                                         )}
-                                        <p style={{ margin: 0, fontFamily: headerFont, fontWeight: 800, fontSize: "0.85rem", color: "#FFF", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", opacity: heroIsLive ? 1 : 0.7 }}>
+                                        <p style={{ margin: 0, fontFamily: headerFont, fontWeight: 800, fontSize: "0.85rem", color: "#FFF", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", opacity: heroIsLive ? 1 : 0.7, display: "flex", alignItems: "center", gap: "6px" }}>
                                             {heroSong}
+                                            {heroLabels.map(l => (
+                                                <span key={l} style={{
+                                                    fontSize: "0.4rem", fontFamily: headerFont, fontWeight: 900,
+                                                    backgroundColor: "rgba(255,255,255,0.15)", color: "#FFF",
+                                                    padding: "1px 5px", borderRadius: "4px", border: "1px solid rgba(255,255,255,0.2)",
+                                                    textTransform: "uppercase", letterSpacing: "0.05em"
+                                                }}>{l}</span>
+                                            ))}
                                             {heroIsLive && heroArtist && <span style={{ opacity: 0.6, fontWeight: 500, fontSize: "0.75rem" }}> • {heroArtist}</span>}
                                         </p>
                                     </div>
@@ -366,10 +376,22 @@ export default function LiveHubClient({
                                                     </div>
                                                 )}
                                             </div>
-                                            <h4 style={{ fontFamily: headerFont, fontWeight: 800, fontSize: "0.85rem", margin: "0 0 2px", color: isDark ? "#FFF" : "#1A1A1A" }}>{station.title}</h4>
-                                            <p style={{ margin: 0, fontSize: "0.7rem", color: isDark ? "rgba(255,255,255,0.5)" : "rgba(0,0,0,0.5)", fontWeight: 600, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-                                                {isDummy ? "Offline" : (songInfo ? `${songInfo.cleanTitle}` : `${station.totalSongs} tracks`)}
-                                            </p>
+                                            <h4 style={{ fontFamily: headerFont, fontWeight: 800, fontSize: "0.85rem", margin: "0 0 2px", color: isDark ? "#FFF" : "#1A1A1A", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{station.title}</h4>
+                                            <div style={{ margin: 0, fontSize: "0.7rem", color: isDark ? "rgba(255,255,255,0.5)" : "rgba(0,0,0,0.5)", fontWeight: 600, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", display: "flex", alignItems: "center", gap: "4px" }}>
+                                                {isDummy ? "Offline" : (songInfo ? (
+                                                    <>
+                                                        {songInfo.cleanTitle}
+                                                        {songInfo.labels.map(l => (
+                                                            <span key={l} style={{
+                                                                fontSize: "0.35rem", fontWeight: 900,
+                                                                backgroundColor: isDark ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.03)",
+                                                                color: isDark ? "rgba(255,255,255,0.4)" : "rgba(0,0,0,0.4)",
+                                                                padding: "0.5px 3px", borderRadius: "2px", border: isDark ? "1px solid rgba(255,255,255,0.1)" : "1px solid rgba(0,0,0,0.05)"
+                                                            }}>{l}</span>
+                                                        ))}
+                                                    </>
+                                                ) : `${station.totalSongs} tracks`)}
+                                            </div>
                                         </motion.div>
                                     );
 

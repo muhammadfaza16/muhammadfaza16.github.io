@@ -190,6 +190,55 @@ export default function MasterClient({
                                     initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 10 }}
                                     style={{ display: "flex", flexDirection: "column", gap: "20px" }}
                                 >
+                                    {/* Player Intelligence Card */}
+                                    <div style={{
+                                        backgroundColor: theme === "dark" ? "rgba(255, 255, 255, 0.03)" : "rgba(255, 255, 255, 0.45)",
+                                        border: theme === "dark" ? "1px solid rgba(255,255,255,0.08)" : "1px solid rgba(0,0,0,0.05)",
+                                        borderRadius: "24px",
+                                        padding: "20px",
+                                        boxShadow: theme === "dark" ? "0 20px 60px rgba(0,0,0,0.4)" : "0 10px 30px rgba(0,0,0,0.03)",
+                                        display: "flex",
+                                        flexDirection: "column",
+                                        gap: "14px",
+                                        marginBottom: "8px"
+                                    }}>
+                                        <div style={{ display: "flex", alignItems: "center", gap: "10px", borderBottom: theme === "dark" ? "1px solid rgba(255,255,255,0.05)" : "1px solid rgba(0,0,0,0.03)", paddingBottom: "12px" }}>
+                                            <Database size={16} color={theme === "dark" ? "#FFF" : "#000"} />
+                                            <h2 style={{ margin: 0, fontFamily: headerFont, fontSize: "0.85rem", fontWeight: 900, textTransform: "uppercase", letterSpacing: "0.05em" }}>
+                                                Player Intelligence
+                                            </h2>
+                                        </div>
+                                        
+                                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                                            <span style={{ fontFamily: monoFont, fontSize: "0.65rem", fontWeight: 700, color: theme === "dark" ? "rgba(255,255,255,0.4)" : "rgba(0,0,0,0.4)", textTransform: "uppercase", letterSpacing: "0.02em" }}>Catalog Weight</span>
+                                            <span style={{ fontFamily: headerFont, fontSize: "1.1rem", fontWeight: 900, color: theme === "dark" ? "#FFF" : "#000" }}>
+                                                {dbSongs.length > 0 ? `${dbSongs.length} TRACKS` : "..."}
+                                            </span>
+                                        </div>
+
+                                        {playlistStats.length > 0 && (
+                                            <div style={{ display: "flex", flexDirection: "column", gap: "10px", marginTop: "4px", borderTop: "1px dashed rgba(0,0,0,0.05)", paddingTop: "16px" }}>
+                                                {playlistStats.map(stat => (
+                                                    <div key={stat.title} style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                                                        <div style={{ display: "flex", flexDirection: "column" }}>
+                                                            <span style={{ fontFamily: headerFont, fontSize: "0.8rem", fontWeight: 800, color: theme === "dark" ? "#FFF" : "#000", letterSpacing: "-0.01em" }}>{stat.title}</span>
+                                                            <span style={{ fontFamily: monoFont, fontSize: "0.55rem", fontWeight: 700, color: theme === "dark" ? "rgba(255,255,255,0.4)" : "#888", textTransform: "uppercase" }}>{stat.vibes.slice(0, 1).join(", ")}</span>
+                                                        </div>
+                                                        <span style={{ fontFamily: monoFont, fontSize: "0.8rem", fontWeight: 900, color: theme === "dark" ? "#FFF" : "#000" }}>{stat.count}</span>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        )}
+                                        
+                                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "8px", borderTop: theme === "dark" ? "1px solid rgba(255,255,255,0.05)" : "1px solid rgba(0,0,0,0.03)", paddingTop: "12px" }}>
+                                            <span style={{ fontFamily: monoFont, fontSize: "0.65rem", fontWeight: 700, color: theme === "dark" ? "rgba(255,255,255,0.4)" : "rgba(0,0,0,0.4)", textTransform: "uppercase" }}>Status</span>
+                                            <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                                                <div style={{ width: "6px", height: "6px", borderRadius: "50%", background: "#10b981", boxShadow: "0 0 8px rgba(16, 185, 129, 0.4)" }} />
+                                                <span style={{ fontFamily: monoFont, fontSize: "0.65rem", fontWeight: 700, color: theme === "dark" ? "#FFF" : "#000", textTransform: "uppercase" }}>Verified Online</span>
+                                            </div>
+                                        </div>
+                                    </div>
+
                                     {/* Tool Buttons */}
                                     <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: "12px" }}>
                                         {[
@@ -382,7 +431,11 @@ export default function MasterClient({
                                                 />
                                             </div>
                                         ) : loadingLogs ? (
-                                            <div style={{ textAlign: "center", padding: "20px", fontFamily: monoFont, fontSize: "0.65rem", color: theme === "dark" ? "rgba(255,255,255,0.4)" : "rgba(0,0,0,0.4)" }}>SCANNING LOGS...</div>
+                                            <div style={{ display: "flex", flexDirection: "column", gap: "10px" }} className="animate-pulse">
+                                                {[...Array(5)].map((_, i) => (
+                                                    <div key={i} style={{ height: "80px", background: theme === "dark" ? "rgba(255,255,255,0.02)" : "rgba(255,255,255,0.6)", borderRadius: "16px", border: theme === "dark" ? "1px solid rgba(255,255,255,0.05)" : "1px solid rgba(0,0,0,0.05)" }} />
+                                                ))}
+                                            </div>
                                         ) : (
                                             <div style={{ 
                                                 display: "flex", flexDirection: "column", gap: "10px",
@@ -452,56 +505,7 @@ export default function MasterClient({
                         </AnimatePresence>
 
 
-                        {/* Player Intelligence Card (Only visible on Dashboard) */}
-                        {activeModule === "dashboard" && (
-                         <div style={{
-                            backgroundColor: theme === "dark" ? "rgba(255, 255, 255, 0.03)" : "rgba(255, 255, 255, 0.45)",
-                            border: theme === "dark" ? "1px solid rgba(255,255,255,0.08)" : "1px solid rgba(0,0,0,0.05)",
-                            borderRadius: "24px",
-                            padding: "20px",
-                            boxShadow: theme === "dark" ? "0 20px 60px rgba(0,0,0,0.4)" : "0 10px 30px rgba(0,0,0,0.03)",
-                            display: "flex",
-                            flexDirection: "column",
-                            gap: "14px",
-                            marginTop: "8px"
-                        }}>
-                            <div style={{ display: "flex", alignItems: "center", gap: "10px", borderBottom: theme === "dark" ? "1px solid rgba(255,255,255,0.05)" : "1px solid rgba(0,0,0,0.03)", paddingBottom: "12px" }}>
-                                <Database size={16} color={theme === "dark" ? "#FFF" : "#000"} />
-                                <h2 style={{ margin: 0, fontFamily: headerFont, fontSize: "0.85rem", fontWeight: 900, textTransform: "uppercase", letterSpacing: "0.05em" }}>
-                                    Player Intelligence
-                                </h2>
-                            </div>
-                            
-                            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                                <span style={{ fontFamily: monoFont, fontSize: "0.65rem", fontWeight: 700, color: theme === "dark" ? "rgba(255,255,255,0.4)" : "rgba(0,0,0,0.4)", textTransform: "uppercase", letterSpacing: "0.02em" }}>Catalog Weight</span>
-                                <span style={{ fontFamily: headerFont, fontSize: "1.1rem", fontWeight: 900, color: theme === "dark" ? "#FFF" : "#000" }}>
-                                    {dbSongs.length > 0 ? `${dbSongs.length} TRACKS` : "..."}
-                                </span>
-                            </div>
 
-                            {playlistStats.length > 0 && (
-                                <div style={{ display: "flex", flexDirection: "column", gap: "10px", marginTop: "4px", borderTop: "1px dashed rgba(0,0,0,0.05)", paddingTop: "16px" }}>
-                                    {playlistStats.map(stat => (
-                                        <div key={stat.title} style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                                            <div style={{ display: "flex", flexDirection: "column" }}>
-                                                <span style={{ fontFamily: headerFont, fontSize: "0.8rem", fontWeight: 800, color: theme === "dark" ? "#FFF" : "#000", letterSpacing: "-0.01em" }}>{stat.title}</span>
-                                                <span style={{ fontFamily: monoFont, fontSize: "0.55rem", fontWeight: 700, color: theme === "dark" ? "rgba(255,255,255,0.4)" : "#888", textTransform: "uppercase" }}>{stat.vibes.slice(0, 1).join(", ")}</span>
-                                            </div>
-                                            <span style={{ fontFamily: monoFont, fontSize: "0.8rem", fontWeight: 900, color: theme === "dark" ? "#FFF" : "#000" }}>{stat.count}</span>
-                                        </div>
-                                    ))}
-                                </div>
-                            )}
-                            
-                            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "8px", borderTop: theme === "dark" ? "1px solid rgba(255,255,255,0.05)" : "1px solid rgba(0,0,0,0.03)", paddingTop: "12px" }}>
-                                <span style={{ fontFamily: monoFont, fontSize: "0.65rem", fontWeight: 700, color: theme === "dark" ? "rgba(255,255,255,0.4)" : "rgba(0,0,0,0.4)", textTransform: "uppercase" }}>Status</span>
-                                <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                                    <div style={{ width: "6px", height: "6px", borderRadius: "50%", background: "#10b981", boxShadow: "0 0 8px rgba(16, 185, 129, 0.4)" }} />
-                                    <span style={{ fontFamily: monoFont, fontSize: "0.65rem", fontWeight: 700, color: theme === "dark" ? "#FFF" : "#000", textTransform: "uppercase" }}>Verified Online</span>
-                                </div>
-                            </div>
-                        </div>
-                        )}
                     </motion.div>
                 </div>
             </div>

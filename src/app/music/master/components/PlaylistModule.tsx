@@ -302,9 +302,16 @@ export function PlaylistModule({ addLog, isBusy, setIsBusy, insetBox }: Playlist
     };
 
     if (isLoading) return (
-        <div style={{ padding: "2rem", display: "flex", flexDirection: "column", alignItems: "center", gap: "10px" }} className="animate-pulse">
-            <div style={{ width: "24px", height: "24px", borderRadius: "50%", background: theme === "dark" ? "rgba(255,255,255,0.2)" : "rgba(0,0,0,0.1)" }} />
-            <div style={{ width: "60px", height: "6px", borderRadius: "3px", background: theme === "dark" ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.05)" }} />
+        <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }} className="animate-pulse">
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <div style={{ width: "100px", height: "12px", background: theme === "dark" ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.05)", borderRadius: "4px" }} />
+                <div style={{ width: "80px", height: "24px", background: theme === "dark" ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.05)", borderRadius: "8px" }} />
+            </div>
+            <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+                {[...Array(4)].map((_, i) => (
+                    <div key={i} style={{ height: "64px", background: theme === "dark" ? "rgba(255,255,255,0.02)" : "rgba(0,0,0,0.02)", borderRadius: "16px", border: theme === "dark" ? "1px solid rgba(255,255,255,0.05)" : "1px solid rgba(0,0,0,0.05)" }} />
+                ))}
+            </div>
         </div>
     );
 

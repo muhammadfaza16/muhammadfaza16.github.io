@@ -31,11 +31,9 @@ export default async function AudioHubPage() {
     }
 
     return (
-        <Suspense fallback={<div style={{ height: "100vh", background: "#0A0A0A" }} />}>
-            <AudioHubClient 
-                initialPlaylists={playlists} 
-                activeSessionPlaylistIds={activeSessionPlaylistIds} 
-            />
-        </Suspense>
+        <AudioHubClient 
+            initialPlaylists={playlists} 
+            activeSessionPlaylistIds={activeSessionPlaylistIds} 
+        />
     );
 }

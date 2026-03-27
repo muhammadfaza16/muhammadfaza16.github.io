@@ -124,12 +124,31 @@ const LiveTrackRow = React.memo(({
                 )}
             </div>
             <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{
-                    fontFamily: headerFont, fontWeight: 800, fontSize: "0.85rem",
-                    whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
-                    color: track.isCurrent ? (isDark ? "#FFF" : "#000") : (isDark ? "rgba(255,255,255,0.8)" : "rgba(0,0,0,0.7)")
-                }}>
-                    {tTitle}
+                <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                    <div style={{
+                        fontFamily: headerFont, fontWeight: 800, fontSize: "0.85rem",
+                        whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
+                        color: track.isCurrent ? (isDark ? "#FFF" : "#000") : (isDark ? "rgba(255,255,255,0.8)" : "rgba(0,0,0,0.7)")
+                    }}>
+                        {tTitle}
+                    </div>
+                    {(() => {
+                        const { labels } = parseSongTitle(track.title);
+                        return labels.length > 0 && (
+                            <div style={{ display: "flex", gap: "4px" }}>
+                                {labels.map(l => (
+                                    <span key={l} style={{
+                                        fontSize: "0.4rem", fontFamily: headerFont, fontWeight: 800,
+                                        backgroundColor: track.isCurrent ? (isDark ? "rgba(255,255,255,0.15)" : "rgba(239,68,68,0.1)") : (isDark ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.03)"),
+                                        color: track.isCurrent ? (isDark ? "#FFF" : "#EF4444") : (isDark ? "rgba(255,255,255,0.4)" : "rgba(0,0,0,0.3)"),
+                                        padding: "1px 5px", borderRadius: "100px",
+                                        letterSpacing: "0.06em", textTransform: "uppercase",
+                                        border: "1px solid " + (track.isCurrent ? (isDark ? "rgba(255,255,255,0.2)" : "rgba(239,68,68,0.2)") : (isDark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.05)"))
+                                    }}>{l}</span>
+                                ))}
+                            </div>
+                        );
+                    })()}
                 </div>
                 <div style={{
                     fontFamily: monoFont, fontWeight: 700, fontSize: "0.6rem",

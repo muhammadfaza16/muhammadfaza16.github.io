@@ -123,9 +123,9 @@ export function LiveControlModule() {
 
     if (isLoading) {
         return (
-            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "40px", gap: "12px" }} className="animate-pulse">
-                <div style={{ width: "24px", height: "24px", borderRadius: "50%", background: isDark ? "rgba(255,255,255,0.2)" : "rgba(0,0,0,0.1)" }} />
-                <div style={{ width: "80px", height: "8px", borderRadius: "4px", background: isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.05)" }} />
+            <div style={{ display: "flex", flexDirection: "column", gap: "24px" }} className="animate-pulse">
+                <div style={{ height: "240px", background: isDark ? "rgba(255,255,255,0.03)" : "rgba(255,255,255,0.45)", borderRadius: "20px", border: isDark ? "1px solid rgba(255,255,255,0.08)" : "1px solid rgba(0,0,0,0.05)" }} />
+                <div style={{ height: "180px", background: isDark ? "rgba(255,255,255,0.03)" : "rgba(255,255,255,0.45)", borderRadius: "20px", border: isDark ? "1px solid rgba(255,255,255,0.08)" : "1px solid rgba(0,0,0,0.05)" }} />
             </div>
         );
     }

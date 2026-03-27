@@ -150,8 +150,17 @@ export function SongModule({ addLog, isBusy, setIsBusy, insetBox }: SongModulePr
     }, [songs, searchQuery]);
 
     if (isLoading) return (
-        <div style={{ padding: "2rem", display: "flex", flexDirection: "column", alignItems: "center", gap: "10px" }} className="animate-pulse">
-            <div style={{ width: "24px", height: "24px", borderRadius: "50%", background: theme === "dark" ? "rgba(255,255,255,0.2)" : "rgba(0,0,0,0.1)" }} />
+        <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }} className="animate-pulse">
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <div style={{ width: "120px", height: "12px", background: theme === "dark" ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.05)", borderRadius: "4px" }} />
+                <div style={{ width: "100px", height: "24px", background: theme === "dark" ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.05)", borderRadius: "8px" }} />
+            </div>
+            <div style={{ height: "36px", background: theme === "dark" ? "rgba(255,255,255,0.03)" : "rgba(0,0,0,0.03)", borderRadius: "12px", border: theme === "dark" ? "1px solid rgba(255,255,255,0.05)" : "1px solid rgba(0,0,0,0.05)" }} />
+            <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+                {[...Array(5)].map((_, i) => (
+                    <div key={i} style={{ height: "56px", background: theme === "dark" ? "rgba(255,255,255,0.02)" : "rgba(0,0,0,0.02)", borderRadius: "16px", border: theme === "dark" ? "1px solid rgba(255,255,255,0.05)" : "1px solid rgba(0,0,0,0.05)" }} />
+                ))}
+            </div>
         </div>
     );
 
