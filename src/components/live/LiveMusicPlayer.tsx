@@ -647,7 +647,7 @@ export function LiveMusicPlayer() {
                     <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(0,0,0,0.7) 0%, transparent 60%)", zIndex: 1 }} />
                     <div style={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center", position: "relative", zIndex: 2 }}>
                         <motion.div
-                            animate={isPlaying ? { rotate: 360 } : { rotate: 0 }}
+                            animate={isPlaying ? { rotate: [0, 360] } : { rotate: 0 }}
                             transition={isPlaying ? { repeat: Infinity, duration: 8, ease: "linear" } : { duration: 0.5 }}
                             style={{ 
                                 position: "relative",
