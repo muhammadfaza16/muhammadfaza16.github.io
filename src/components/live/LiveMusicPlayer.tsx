@@ -729,14 +729,33 @@ export function LiveMusicPlayer() {
                 boxSizing: "border-box",
                 overflow: "hidden" 
             }}>
-                <MarqueeText 
-                    text={cleanTitle}
-                    fontSize="1.6rem" // Slightly smaller for better fit
-                    fontWeight={900}
-                    color={isDark ? "#FFF" : "#000"}
-                    fontFamily={headerFont}
-                    boxHeight="40px"
-                />
+                {cleanTitle.split(/\s+/).filter(Boolean).length > 4 ? (
+                    <MarqueeText 
+                        text={cleanTitle}
+                        fontSize="1.60rem"
+                        fontWeight={900}
+                        color={isDark ? "#FFF" : "#000"}
+                        fontFamily={headerFont}
+                        boxHeight="40px"
+                    />
+                ) : (
+                    <span style={{
+                        fontSize: "1.60rem",
+                        fontWeight: 900,
+                        color: isDark ? "#FFF" : "#000",
+                        fontFamily: headerFont,
+                        textAlign: "center",
+                        display: "block",
+                        lineHeight: "40px",
+                        height: "40px",
+                        whiteSpace: "nowrap",
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                        maxWidth: "100%"
+                    }}>
+                        {cleanTitle}
+                    </span>
+                )}
                 {labels.length > 0 && (
                     <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "6px", flexWrap: "wrap" }}>
                         {labels.map(label => (
