@@ -17,6 +17,7 @@ import { formatTitle, formatMetric } from "@/lib/utils";
 import { useSearchParams } from "next/navigation";
 import { Suspense } from "react";
 import { useTheme } from "@/components/ThemeProvider";
+import { curationCache } from "@/lib/curation-cache";
 
 // ─── Constants ───
 
@@ -101,6 +102,9 @@ function ExploreContent() {
     const [mounted, setMounted] = useState(false);
     const [readStats, setReadStats] = useState<{ readCount: number; bookmarkCount: number; readIds: Set<string>; savedIds: Set<string> }>({ readCount: 0, bookmarkCount: 0, readIds: new Set(), savedIds: new Set() });
 
+    // Cache & Persistence
+    const isFirstLoadRef = useRef(true);
+
     const searchRef = useRef<HTMLInputElement>(null);
     const resultsRef = useRef<HTMLDivElement>(null);
     const scrollContainerRef = useRef<HTMLDivElement>(null);
@@ -128,6 +132,20 @@ function ExploreContent() {
 
     useEffect(() => {
         setMounted(true);
+
+        // Load persisted state
+        const savedQuery = sessionStorage.getItem("curation_explore_query");
+        const savedCat = sessionStorage.getItem("curation_explore_category");
+        const savedSort = sessionStorage.getItem("curation_explore_sort") as "popularity" | "date" | null;
+        const savedOrder = sessionStorage.getItem("curation_explore_order") as "asc" | "desc" | null;
+        const savedScroll = sessionStorage.getItem("curation_explore_scroll");
+
+        if (savedQuery) setSearchQuery(savedQuery);
+        if (savedCat) setActiveCategory(savedCat);
+        if (savedSort) setActiveSort(savedSort);
+        if (savedOrder) setActiveOrder(savedOrder);
+        if (savedScroll) scrollYRef.current = parseInt(savedScroll, 10);
+
         (async () => {
             try {
                 const vs = await getVisitorState();
@@ -144,16 +162,6 @@ function ExploreContent() {
                 const lD = lR.ok ? await lR.json() : { articles: [] };
                 const aD = aR.ok ? await aR.json() : { articles: [] };
                 
-                if (!tR.ok || !lR.ok || !aR.ok) {
-                    const tText = !tR.ok ? await tR.text() : "";
-                    const lText = !lR.ok ? await lR.text() : "";
-                    const aText = !aR.ok ? await aR.text() : "";
-                    console.error("Initial fetch failed:", { 
-                        trending: { status: tR.status, error: tText.slice(0, 100) }, 
-                        latest: { status: lR.status, error: lText.slice(0, 100) }, 
-                        all: { status: aR.status, error: aText.slice(0, 100) } 
-                    });
-                }
                 const trending = tD.articles || [], latest = lD.articles || [], all = aD.articles || [];
                 setTrendingArticles(trending);
                 setLatestArticles(latest);
@@ -184,11 +192,30 @@ function ExploreContent() {
         }
     }, [isLoading, mounted]);
 
+    const handleScroll = () => {
+        if (scrollContainerRef.current) {
+            sessionStorage.setItem("curation_explore_scroll", scrollContainerRef.current.scrollTop.toString());
+        }
+    };
+
     // Unified Fetch for Search/Filter/Home
     const fetchArticles = async (page = 1) => {
         const isSearch = searchQuery.trim().length > 0 || activeCategory !== null || isSeeAllActive;
         const limit = 10;
         const offset = (page - 1) * limit;
+
+        // Global Cache Check
+        const cacheKey = `discover_${activeSort}_${activeOrder}_${activeCategory || 'all'}_${searchQuery.trim() || 'none'}_${page}`;
+        const cached = curationCache.get(cacheKey);
+        
+        if (cached) {
+            if (isSearch) setSearchResults(cached.articles);
+            else setAllArticles(cached.articles);
+            setAllCount(cached.totalCount);
+            setCurrentPage(page);
+            setIsSearchingApi(false);
+            return;
+        }
 
         setIsSearchingApi(true);
 
@@ -201,6 +228,9 @@ function ExploreContent() {
             if (!res.ok) throw new Error(`API error ${res.status}`);
             const data = await res.json();
             
+            // Save to global cache
+            curationCache.set(cacheKey, data.articles || [], data.totalCount || 0);
+
             if (isSearch) {
                 setSearchResults(data.articles || []);
             } else {
@@ -219,14 +249,25 @@ function ExploreContent() {
     useEffect(() => {
         const isSearch = searchQuery.trim().length > 0 || activeCategory !== null;
         
-        // Immediate feedback for non-search (sort/category) or see-all changes
-        if (!searchQuery.trim() || isSeeAllActive) {
+        // Persistence
+        if (mounted) {
+            sessionStorage.setItem("curation_explore_query", searchQuery);
+            sessionStorage.setItem("curation_explore_category", activeCategory || "");
+            sessionStorage.setItem("curation_explore_sort", activeSort);
+            sessionStorage.setItem("curation_explore_order", activeOrder);
+        }
+
+        // Cache check for immediate skeleton prevention
+        const cacheKey = `discover_${activeSort}_${activeOrder}_${activeCategory || 'all'}_${searchQuery.trim() || 'none'}_1`;
+        const hasCache = !!curationCache.get(cacheKey);
+
+        if (!hasCache && (!searchQuery.trim() || isSeeAllActive)) {
             setIsSearchingApi(true);
         }
 
         const t = setTimeout(() => {
             fetchArticles(1);
-        }, isSearch && !isSeeAllActive ? 250 : 0);
+        }, isSearch && !isSeeAllActive && !hasCache ? 250 : 0);
         return () => clearTimeout(t);
     }, [searchQuery, activeCategory, activeSort, activeOrder, isSeeAllActive, mounted]);
 
@@ -564,11 +605,7 @@ function ExploreContent() {
             {/* ═══ CONTENT ═══ */}
             <main 
                 ref={scrollContainerRef}
-                onScroll={() => {
-                  if (scrollContainerRef.current) {
-                    scrollYRef.current = scrollContainerRef.current.scrollTop;
-                  }
-                }}
+                onScroll={handleScroll}
                 className="flex-1 overflow-y-auto overflow-x-hidden pt-2 pb-16"
                 style={{
                     WebkitOverflowScrolling: "touch",

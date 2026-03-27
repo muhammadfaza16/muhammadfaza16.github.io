@@ -62,6 +62,7 @@ import { VERTICALS } from "@/lib/curation-config";
 import aiDataRaw from "@/data/curation_ai.json";
 
 const aiData: Record<string, { summary?: string, toc?: any[] }> = aiDataRaw;
+import { curationCache } from "@/lib/curation-cache";
 
 // ─── Types ───
 
@@ -198,7 +199,6 @@ export default function CurationList() {
     q: "",
   });
   const scrollYRef = useRef(0);
-  const fetchCacheRef = useRef<Record<string, CacheEntry>>({});
   const fetchGenRef = useRef(0);
 
   // Live refs so IntersectionObserver always reads current values
@@ -307,13 +307,9 @@ export default function CurationList() {
           setNextCursor(data.nextCursor);
           if (data.totalCount != null) setTotalCount(data.totalCount);
 
-          // Update cache with full metadata
-          const cacheKey = `${currentSortBy}_${currentSortOrder}_${currentCategories.join(",")}_${currentQ}_${page}`;
-          fetchCacheRef.current[cacheKey] = {
-            articles: data.articles,
-            nextCursor: data.nextCursor,
-            totalCount: data.totalCount ?? totalCount,
-          };
+          // Update global cache with full metadata
+          const cacheKey = `home_${currentSortBy}_${currentSortOrder}_${currentCategories.join(",")}_${currentQ}_${page}`;
+          curationCache.set(cacheKey, data.articles, data.totalCount ?? totalCount, data.nextCursor);
         }
       } catch (error: any) {
         if (error?.name !== "AbortError") console.error("Fetch failed:", error);
@@ -643,8 +639,8 @@ export default function CurationList() {
     searchQueryRef.current = debouncedSearchQuery;
 
     if (mounted) {
-      const cacheKey = `${sortBy}_${sortOrder}_${categoryFilter.join(",")}_${debouncedSearchQuery}_${currentPage}`;
-      const cached = fetchCacheRef.current[cacheKey];
+      const cacheKey = `home_${sortBy}_${sortOrder}_${categoryFilter.join(",")}_${debouncedSearchQuery}_${currentPage}`;
+      const cached = curationCache.get(cacheKey);
 
       if (cached) {
         console.log(`[Curation] Cache hit for:`, cacheKey);
@@ -749,14 +745,15 @@ export default function CurationList() {
           hasRestoredCache.current = true;
           setIsLoading(false);
 
-          // Populate fetchCacheRef so subsequent filter changes can use it
+          // Populate curationCache so subsequent filter changes can use it
           // We assume page 1 for the main CACHE_KEY restoration
-          const cacheKey = `${parsed.sortBy || "date"}_${parsed.sortOrder || "desc"}_${(parsed.categoryFilter || []).join(",")}_${parsed.searchQuery || ""}_${1}`;
-          fetchCacheRef.current[cacheKey] = {
-            articles: parsed.articles,
-            nextCursor: parsed.nextCursor || null,
-            totalCount: parsed.totalCount || parsed.articles.length,
-          };
+          const cacheKey = `home_${parsed.sortBy || "date"}_${parsed.sortOrder || "desc"}_${(parsed.categoryFilter || []).join(",")}_${parsed.searchQuery || ""}_${1}`;
+          curationCache.set(
+            cacheKey, 
+            parsed.articles, 
+            parsed.totalCount || parsed.articles.length,
+            parsed.nextCursor || null
+          );
 
           if (parsed.scrollY) {
             setTimeout(() => {

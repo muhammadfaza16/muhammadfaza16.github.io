@@ -12,6 +12,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { getVisitorState, getReadHistoryAsync, removeFromReadHistoryAsync, getCollectionsAsync, saveCollectionsAsync, VisitorState, ReadEntry, Collection } from "@/lib/storage";
 import { formatTitle } from "@/lib/utils";
+import { curationCache } from "@/lib/curation-cache";
 
 // ─── Types ───
 
@@ -93,6 +94,20 @@ export default function LibraryPage() {
     useEffect(() => {
         setMounted(true);
 
+        // Load persisted state
+        const savedTab = sessionStorage.getItem("curation_library_tab") as "activity" | "saved" | null;
+        const savedScroll = sessionStorage.getItem("curation_library_scroll");
+        if (savedTab) setTab(savedTab);
+        if (savedScroll) scrollYRef.current = parseInt(savedScroll, 10);
+
+        // Global Cache Check
+        const cached = curationCache.get("library");
+        if (cached) {
+            setAllArticles(cached.articles);
+            setTotalCount(cached.totalCount);
+            setIsLoading(false);
+        }
+
         (async () => {
             const vs = await getVisitorState();
             const hist = await getReadHistoryAsync();
@@ -107,7 +122,10 @@ export default function LibraryPage() {
                 const res = await fetch("/api/curation?limit=100&sort=latest");
                 if (!res.ok) throw new Error(`API ${res.status}`);
                 const data = await res.json();
-                if (data.articles) setAllArticles(data.articles);
+                if (data.articles) {
+                    setAllArticles(data.articles);
+                    curationCache.set("library", data.articles, data.totalCount || 0);
+                }
                 if (data.totalCount != null) setTotalCount(data.totalCount);
             } catch (err) { console.error("Library fetch error:", err); }
             finally { setIsLoading(false); }
@@ -122,6 +140,17 @@ export default function LibraryPage() {
     }, [isLoading, mounted]);
 
     // ─── Actions ───
+    const handleTabChange = (t: "activity" | "saved") => {
+        setTab(t);
+        sessionStorage.setItem("curation_library_tab", t);
+    };
+
+    const handleScroll = () => {
+        if (scrollContainerRef.current) {
+            sessionStorage.setItem("curation_library_scroll", scrollContainerRef.current.scrollTop.toString());
+        }
+    };
+
     const handleRemoveHistory = async (id: string) => {
         setHistory(prev => prev.filter(h => h.id !== id));
         await removeFromReadHistoryAsync(id);
@@ -280,7 +309,7 @@ export default function LibraryPage() {
                         ].map(t => (
                             <button
                                 key={t.key}
-                                onClick={() => setTab(t.key)}
+                                onClick={() => handleTabChange(t.key)}
                                 className={`flex-1 flex items-center justify-center gap-[5px] py-1.5 rounded-md text-[11px] font-medium transition-all ${tab === t.key ? "bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 shadow-sm" : "text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300"}`}
                             >
                                 <t.icon size={11} /> {t.label}
@@ -296,11 +325,7 @@ export default function LibraryPage() {
             {/* ═══ CONTENT ═══ */}
             <main 
                 ref={scrollContainerRef}
-                onScroll={() => {
-                  if (scrollContainerRef.current) {
-                    scrollYRef.current = scrollContainerRef.current.scrollTop;
-                  }
-                }}
+                onScroll={handleScroll}
                 className="flex-1 overflow-y-auto overflow-x-hidden pt-4 pb-32"
                 style={{
                     WebkitOverflowScrolling: "touch",
