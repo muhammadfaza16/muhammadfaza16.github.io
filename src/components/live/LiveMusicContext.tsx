@@ -1,6 +1,7 @@
 "use client";
 
 import React, { createContext, useContext, useState, useEffect, useRef, useCallback, useMemo } from "react";
+import { useAudio } from "../AudioContext"; // Assuming this is the correct path for useAudio
 
 interface LiveSong {
     title: string;
@@ -101,6 +102,7 @@ export function LiveMusicProvider({ children }: { children: React.ReactNode }) {
     const sessionIdRef = useRef<string | undefined>(undefined);
 
     // ─── React state (drives UI) ────────────────────────────────────────────
+    const { isPlaying: isRegularPlaying, stopMusic: stopRegularMusic } = useAudio();
     const [isLive, setIsLive] = useState(false);
     const [isPlaying, setIsPlaying] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
@@ -131,6 +133,7 @@ export function LiveMusicProvider({ children }: { children: React.ReactNode }) {
     const pendingSeekRef = useRef<number | null>(null);
     const retryTimerRef = useRef<NodeJS.Timeout | null>(null);
     const isTransitioningRef = useRef(false);
+    const userIntentPlayRef = useRef(false); // New: Track if user actually wants to play
 
     // Preload tracking
     const preloadedSongUrlRef = useRef<string>("");
@@ -252,7 +255,7 @@ export function LiveMusicProvider({ children }: { children: React.ReactNode }) {
                 audio.currentTime = serverSeek;
                 audio.playbackRate = 1.0;
 
-                if (hasUserInteractedRef.current && audio.paused) {
+                if (userIntentPlayRef.current && audio.paused) {
                     audio.play().catch(() => {});
                 }
 
@@ -301,8 +304,15 @@ export function LiveMusicProvider({ children }: { children: React.ReactNode }) {
 
     // ─── Switch session (called by live player page) ────────────────────────
     const switchSession = useCallback((newSessionId?: string) => {
+        // If switching TO a session, we usually want it to start playing IF the user is on that page
+        // But for now, let's just update the ID.
         sessionIdRef.current = newSessionId;
         setActiveSessionId(newSessionId);
+
+        // If closing the session completely, stop intent
+        if (!newSessionId) {
+            userIntentPlayRef.current = false;
+        }
 
         // Clear preload + local cache state
         preloadedSongUrlRef.current = "";
@@ -320,8 +330,13 @@ export function LiveMusicProvider({ children }: { children: React.ReactNode }) {
         hasUserInteractedRef.current = true;
 
         if (isPlaying) {
+            userIntentPlayRef.current = false;
             audioRef.current.pause();
         } else {
+            // MUTEX: Stop regular music when joining live
+            stopRegularMusic();
+
+            userIntentPlayRef.current = true;
             if (!hasEverPlayedRef.current) {
                 hasEverPlayedRef.current = true;
                 setIsWaitingForSync(true);
@@ -336,9 +351,14 @@ export function LiveMusicProvider({ children }: { children: React.ReactNode }) {
     const refresh = useCallback(() => {
         hasUserInteractedRef.current = true;
         hasEverPlayedRef.current = true;
+        
+        // MUTEX: Stop regular music on refresh/join
+        stopRegularMusic();
+
+        userIntentPlayRef.current = true;
         setIsWaitingForSync(true);
         fetchAndSync();
-    }, [fetchAndSync]);
+    }, [fetchAndSync, stopRegularMusic]);
 
     // ─── Song Ended Handler ─────────────────────────────────────────────────
     // 100% LOCAL transition — zero network calls.
@@ -411,6 +431,19 @@ export function LiveMusicProvider({ children }: { children: React.ReactNode }) {
         lastSyncedRef.current = false;
     }, [fetchAndSync]);
 
+    // ─── Mutex: Stop Live if Regular starts ─────────────────────────────────
+    useEffect(() => {
+        if (isRegularPlaying && isPlaying) {
+            // Regular music started (user clicked Play on home/playlist)
+            // So we pause live music.
+            if (audioRef.current) {
+                userIntentPlayRef.current = false;
+                audioRef.current.pause();
+                // isPlaying state will be updated via onPause handler
+            }
+        }
+    }, [isRegularPlaying]); // Checked only when regular isPlaying state changes
+
     // ─── Memoized Context Values ────────────────────────────────────────────
     const liveMusicValue = useMemo(() => ({
         isLive,
@@ -463,7 +496,7 @@ export function LiveMusicProvider({ children }: { children: React.ReactNode }) {
                             audioRef.current.currentTime = pendingSeekRef.current;
                             pendingSeekRef.current = null;
 
-                            if (hasUserInteractedRef.current) {
+                            if (userIntentPlayRef.current) {
                                 audioRef.current.play().catch(() => {});
                             }
                         }

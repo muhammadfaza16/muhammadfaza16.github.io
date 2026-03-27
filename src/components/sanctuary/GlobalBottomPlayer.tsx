@@ -4,6 +4,7 @@ import React, { useState, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { usePathname } from "next/navigation";
 import { useAudio, useTime } from "@/components/AudioContext";
+import { useLiveMusic } from "@/components/live/LiveMusicContext";
 import { parseSongTitle } from "@/utils/songUtils";
 import { useTheme } from "@/components/ThemeProvider";
 import { Play, Pause, SkipBack, SkipForward, Shuffle, Repeat, ChevronDown, ChevronUp, Repeat1, ListMusic, Disc, FileText, Search, Music, X } from "lucide-react";
@@ -19,6 +20,7 @@ export function GlobalBottomPlayer() {
         isMiniPlayerDismissed, setMiniPlayerDismissed
     } = useAudio();
     const { theme } = useTheme();
+    const { isPlaying: isLivePlaying } = useLiveMusic();
 
     const { currentTime, duration, isBuffering } = useTime();
 
@@ -77,6 +79,9 @@ export function GlobalBottomPlayer() {
     }, [isExpanded]);
 
     if (!isMounted) return null;
+
+    // Suppress regular player if live is playing to avoid confusion/overlap
+    if (isLivePlaying) return null;
 
     if (activePlaybackMode === 'none' || !currentSong) return null;
 
