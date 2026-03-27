@@ -109,7 +109,10 @@ export async function GET(request: Request) {
         // Calculate real listener count (active in last 5 minutes)
         const fiveMinsAgo = new Date(Date.now() - 5 * 60 * 1000);
         const listenersCount = await prisma.musicAccessLog.count({
-            where: { lastActive: { gte: fiveMinsAgo } }
+            where: { 
+                liveSessionId: session.id, // Localized to this station
+                lastActive: { gte: fiveMinsAgo } 
+            }
         });
 
         return NextResponse.json({

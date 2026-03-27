@@ -304,6 +304,39 @@ export function LiveMusicProvider({ children }: { children: React.ReactNode }) {
         };
     }, [fetchAndSync]);
 
+    // ─── Heartbeat: Log live attendance every 60s ────────────────────────────
+    useEffect(() => {
+        if (!isLive || !activeSessionId || !isPlaying) return;
+
+        const interval = setInterval(() => {
+            const sid = sessionStorage.getItem("music_session_id");
+            if (!sid) return;
+
+            fetch("/api/music/log", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ 
+                    sessionId: sid,
+                    liveSessionId: activeSessionId,
+                    songTitle: currentSong?.title || null
+                })
+            }).catch(() => { });
+        }, 60000);
+
+        return () => clearInterval(interval);
+    }, [isLive, activeSessionId, isPlaying, currentSong]);
+
+    // ─── Metadata Refresh: Sync listenersCount and server status every 60s ───
+    useEffect(() => {
+        if (!isLive || !activeSessionId || !isPlaying) return;
+
+        const interval = setInterval(() => {
+            fetchAndSync({ metadataOnly: true });
+        }, 60000);
+
+        return () => clearInterval(interval);
+    }, [isLive, activeSessionId, isPlaying, fetchAndSync]);
+
     // ─── Switch session (called by live player page) ────────────────────────
     const switchSession = useCallback((newSessionId?: string) => {
         // If switching TO a session, we usually want it to start playing IF the user is on that page

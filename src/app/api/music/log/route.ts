@@ -14,13 +14,15 @@ export async function POST(request: Request) {
         
         const userAgent = headerList.get("user-agent") || "unknown";
 
-        // Parse body for songTitle and sessionId
+        // Parse body for songTitle, sessionId, and liveSessionId
         let songTitle = null;
         let sessionId = null;
+        let liveSessionId = null;
         try {
             const body = await request.json();
             songTitle = body.songTitle || null;
             sessionId = body.sessionId || null;
+            liveSessionId = body.liveSessionId || null;
         } catch (e) {}
 
         // 1. If sessionId is provided, try to find an existing session from the last 30 minutes
@@ -44,8 +46,9 @@ export async function POST(request: Request) {
                     data: {
                         lastActive: now,
                         duration: durationSeconds,
-                        // Update songTitle only if a new one is provided
-                        ...(songTitle && { songTitle })
+                        // Update fields only if provided
+                        ...(songTitle && { songTitle }),
+                        ...(liveSessionId && { liveSessionId })
                     }
                 });
                 
@@ -74,6 +77,7 @@ export async function POST(request: Request) {
                 userAgent,
                 songTitle,
                 sessionId,
+                liveSessionId,
                 city: geoData.city || null,
                 region: geoData.region || null,
                 country: geoData.country_name || null,
