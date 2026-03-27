@@ -5,7 +5,15 @@ import MasterLoading from "./loading";
 
 export const revalidate = 60; // 60 seconds - less frequent updates needed for admin panel
 
-export default async function MasterPanelPage() {
+export default function MasterPanelPage() {
+    return (
+        <Suspense fallback={<MasterLoading />}>
+            <MasterContent />
+        </Suspense>
+    );
+}
+
+async function MasterContent() {
     let songs: any[] = [];
     let playlists: any[] = [];
 
@@ -29,9 +37,5 @@ export default async function MasterPanelPage() {
         console.error("Failed to fetch Master Panel data", e);
     }
 
-    return (
-        <Suspense fallback={<MasterLoading />}>
-            <MasterClient initialSongs={songs} initialPlaylists={playlists} />
-        </Suspense>
-    );
+    return <MasterClient initialSongs={songs} initialPlaylists={playlists} />;
 }

@@ -4,7 +4,17 @@ import AudioHubClient from "./AudioHubClient";
 
 export const revalidate = 30; // 30 seconds for instant home navigation
 
-export default async function AudioHubPage() {
+import Loading from "./loading";
+
+export default function AudioHubPage() {
+    return (
+        <Suspense fallback={<Loading />}>
+            <AudioHubContent />
+        </Suspense>
+    );
+}
+
+async function AudioHubContent() {
     let playlists: any[] = [];
     let activeSessionPlaylistIds: string[] = [];
 

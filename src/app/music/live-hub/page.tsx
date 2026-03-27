@@ -6,7 +6,15 @@ import LiveHubLoading from "./loading";
 
 export const revalidate = 30; // 30 seconds cache for instant background-refreshed navigation
 
-export default async function LiveHubPage() {
+export default function LiveHubPage() {
+    return (
+        <Suspense fallback={<LiveHubLoading />}>
+            <LiveHubContent />
+        </Suspense>
+    );
+}
+
+async function LiveHubContent() {
     let sessions: any[] = [];
     let playlists: any[] = [];
 
@@ -28,9 +36,5 @@ export default async function LiveHubPage() {
         console.error("Failed to fetch Live Hub data", e);
     }
 
-    return (
-        <Suspense fallback={<LiveHubLoading />}>
-            <LiveHubClient initialSessions={sessions} initialPlaylists={playlists} />
-        </Suspense>
-    );
+    return <LiveHubClient initialSessions={sessions} initialPlaylists={playlists} />;
 }

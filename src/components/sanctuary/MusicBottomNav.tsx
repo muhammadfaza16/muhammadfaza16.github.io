@@ -2,6 +2,7 @@
 
 import React from "react";
 import { usePathname, useRouter } from "next/navigation";
+import Link from "next/link";
 import { motion } from "framer-motion";
 import { Home, Compass, Disc, Settings, Radio } from "lucide-react";
 import { useAudio } from "../AudioContext";
@@ -90,35 +91,8 @@ export function MusicBottomNav({ isInline = false }: { isInline?: boolean }) {
                     
                 const Icon = item.icon;
 
-                return (
-                    <motion.button
-                        key={item.label}
-                        whileTap={{ scale: 0.95 }}
-                        onClick={() => {
-                            if (item.label === "Player") {
-                                setIsPlayerExpanded(true);
-                            } else {
-                                setIsPlayerExpanded(false);
-                                router.push(item.href);
-                            }
-                        }}
-                        style={{
-                            display: "flex",
-                            flexDirection: "column",
-                            alignItems: "center",
-                            gap: "2px",
-                            flex: 1,
-                            background: "transparent",
-                            border: "none",
-                            cursor: "pointer",
-                            color: isActive 
-                                ? (theme === "dark" ? "#FFF" : "#000") 
-                                : (theme === "dark" ? "rgba(255,255,255,0.4)" : "#999"),
-                            padding: "8px 0",
-                            transition: "color 0.3s ease",
-                            position: "relative"
-                        }}
-                    >
+                const content = (
+                    <>
                         {isActive && (
                             <motion.div 
                                 layoutId="nav-active"
@@ -145,9 +119,58 @@ export function MusicBottomNav({ isInline = false }: { isInline?: boolean }) {
                         }}>
                             {item.label}
                         </span>
-                    </motion.button>
+                    </>
+                );
+
+                if (item.label === "Player") {
+                    return (
+                        <motion.button
+                            key={item.label}
+                            whileTap={{ scale: 0.95 }}
+                            onClick={() => setIsPlayerExpanded(true)}
+                            style={navItemStyle(isActive, theme, headerFont)}
+                        >
+                            {content}
+                        </motion.button>
+                    );
+                }
+
+                return (
+                    <Link 
+                        key={item.label} 
+                        href={item.href} 
+                        prefetch={true}
+                        style={{ textDecoration: "none", flex: 1, display: "flex" }}
+                    >
+                        <motion.button
+                            whileTap={{ scale: 0.95 }}
+                            style={navItemStyle(isActive, theme, headerFont)}
+                        >
+                            {content}
+                        </motion.button>
+                    </Link>
                 );
             })}
         </div>
     );
+}
+
+function navItemStyle(isActive: boolean, theme: string, headerFont: string): React.CSSProperties {
+    return {
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        gap: "2px",
+        flex: 1,
+        background: "transparent",
+        border: "none",
+        cursor: "pointer",
+        color: isActive 
+            ? (theme === "dark" ? "#FFF" : "#000") 
+            : (theme === "dark" ? "rgba(255,255,255,0.4)" : "#999"),
+        padding: "8px 0",
+        transition: "color 0.3s ease",
+        position: "relative",
+        width: "100%"
+    };
 }
