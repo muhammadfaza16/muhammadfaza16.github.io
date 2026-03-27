@@ -178,25 +178,30 @@ export function GlobalBottomPlayer() {
                             >
                                 {activeTab === 'cover' ? (
                                     <div style={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center", position: "relative" }}>
-                                        <Disc 
-                                            size={140} 
-                                            color={theme === "dark" ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.04)"} 
-                                            className={isPlaying ? "animate-spin-slow" : ""} 
-                                        />
-                                        <div style={{ 
-                                            position: "absolute", inset: 0, 
-                                            background: theme === "dark"
-                                                ? "radial-gradient(circle at 30% 30%, rgba(255,255,255,0.1), transparent)"
-                                                : "radial-gradient(circle at 30% 30%, rgba(255,255,255,0.8), transparent)", 
-                                            zIndex: 1 
-                                        }} />
-                                        <div style={{ textAlign: "center", zIndex: 2 }}>
-                                             <Music 
-                                                size={80} 
-                                                color={theme === "dark" ? "#FFF" : "#000"} 
-                                                style={{ opacity: theme === "dark" ? 0.15 : 0.1 }} 
-                                             />
-                                        </div>
+                                        <motion.div
+                                            animate={isPlaying ? { rotate: 360 } : { rotate: 0 }}
+                                            transition={isPlaying ? { repeat: Infinity, duration: 8, ease: "linear" } : { duration: 0.5 }}
+                                            style={{ 
+                                                position: "relative",
+                                                display: "flex", alignItems: "center", justifyContent: "center",
+                                                width: "160px", height: "160px",
+                                                willChange: "transform"
+                                            }}
+                                        >
+                                            <Disc 
+                                                size={160} 
+                                                color={theme === "dark" ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.04)"} 
+                                            />
+                                            {/* Rotation Visual Aids: Vinyl Highlights */}
+                                            <div style={{ 
+                                                position: "absolute", inset: 0, 
+                                                background: theme === "dark"
+                                                    ? "conic-gradient(from 0deg, transparent 0%, rgba(255,255,255,0.05) 10%, transparent 20%, transparent 50%, rgba(255,255,255,0.05) 60%, transparent 70%)"
+                                                    : "conic-gradient(from 0deg, transparent 0%, rgba(255,255,255,0.4) 10%, transparent 20%, transparent 50%, rgba(255,255,255,0.4) 60%, transparent 70%)",
+                                                borderRadius: "50%",
+                                                zIndex: 1
+                                            }} />
+                                        </motion.div>
                                     </div>
                                 ) : (
                                     <div style={{ width: "100%", height: "100%", padding: "24px", overflowY: "auto", textAlign: "center", display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center" }}>
