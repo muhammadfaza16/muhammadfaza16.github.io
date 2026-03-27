@@ -4,7 +4,7 @@ import { getEnrichedLiveSessions } from "@/utils/liveUtils";
 import LiveHubClient from "./LiveHubClient";
 import LiveHubLoading from "./loading";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 30; // 30 seconds cache for instant background-refreshed navigation
 
 export default async function LiveHubPage() {
     let sessions: any[] = [];

@@ -2,7 +2,7 @@ import React, { Suspense } from "react";
 import prisma from "@/lib/prisma";
 import AudioHubClient from "./AudioHubClient";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 30; // 30 seconds for instant home navigation
 
 export default async function AudioHubPage() {
     let playlists: any[] = [];

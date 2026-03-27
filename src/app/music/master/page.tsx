@@ -3,7 +3,7 @@ import prisma from "@/lib/prisma";
 import MasterClient from "./MasterClient";
 import MasterLoading from "./loading";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 60; // 60 seconds - less frequent updates needed for admin panel
 
 export default async function MasterPanelPage() {
     let songs: any[] = [];
