@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Play, Pause, Radio, Disc, Music, ListMusic, ChevronDown, ChevronLeft, Heart, Headphones, Power, Users } from "lucide-react";
 import { useLiveMusic, useLiveTime } from "./LiveMusicContext";
@@ -102,6 +102,95 @@ const LivePlayerClock = React.memo(() => {
     );
 });
 LivePlayerClock.displayName = "LivePlayerClock";
+
+const MarqueeText = React.memo(({ 
+    text, 
+    fontSize = "1.75rem", 
+    fontWeight = 900, 
+    color = "#000",
+    letterSpacing = "-0.04em",
+    fontFamily = "inherit",
+    lineHeight = 1.1,
+    boxHeight = "40px",
+    justifyContent = "center"
+}: { 
+    text: string, 
+    fontSize?: string, 
+    fontWeight?: number, 
+    color?: string,
+    letterSpacing?: string,
+    fontFamily?: string,
+    lineHeight?: number | string,
+    boxHeight?: string,
+    justifyContent?: "center" | "flex-start" | "flex-end"
+}) => {
+    const containerRef = useRef<HTMLDivElement>(null);
+    const textRef = useRef<HTMLDivElement>(null);
+    const [shouldAnimate, setShouldAnimate] = useState(false);
+    const [textWidth, setTextWidth] = useState(0);
+    const [containerWidth, setContainerWidth] = useState(0);
+
+    useEffect(() => {
+        if (textRef.current && containerRef.current) {
+            const tw = textRef.current.scrollWidth;
+            const cw = containerRef.current.offsetWidth;
+            setTextWidth(tw);
+            setContainerWidth(cw);
+            setShouldAnimate(tw > cw);
+        }
+    }, [text]);
+
+    const duration = textWidth * 0.05; // Adjust speed based on length
+
+    return (
+        <div 
+            ref={containerRef}
+            style={{ 
+                width: "100%", 
+                height: boxHeight,
+                overflow: "hidden", 
+                position: "relative",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: justifyContent,
+                // Edge mask for premium look
+                WebkitMaskImage: shouldAnimate 
+                    ? "linear-gradient(to right, transparent 0%, black 5%, black 95%, transparent 100%)"
+                    : "none",
+                maskImage: shouldAnimate 
+                    ? "linear-gradient(to right, transparent 0%, black 5%, black 95%, transparent 100%)"
+                    : "none",
+            }}
+        >
+            <motion.div
+                ref={textRef}
+                initial={{ x: 0 }}
+                animate={shouldAnimate ? { x: [0, -(textWidth + 40)] } : { x: 0 }}
+                transition={{ 
+                    duration: duration, 
+                    repeat: Infinity, 
+                    ease: "linear",
+                    repeatDelay: 1 
+                }}
+                style={{
+                    fontFamily,
+                    fontWeight,
+                    fontSize,
+                    color,
+                    letterSpacing,
+                    lineHeight,
+                    whiteSpace: "nowrap",
+                    display: "inline-block",
+                    paddingRight: shouldAnimate ? "40px" : "0" // Gap before repeat
+                }}
+            >
+                {text}
+                {shouldAnimate && <span style={{ marginLeft: "40px" }}>{text}</span>}
+            </motion.div>
+        </div>
+    );
+});
+MarqueeText.displayName = "MarqueeText";
 
 const LiveTrackRow = React.memo(({ 
     track, index, isDark, headerFont, monoFont, activeTrackRef 
@@ -628,9 +717,14 @@ export function LiveMusicPlayer() {
 
             {/* Song Info */}
             <div style={{ textAlign: "center", display: "flex", flexDirection: "column", alignItems: "center", gap: "7px", padding: "0 20px" }}>
-                <h2 style={{ fontFamily: headerFont, fontWeight: 900, fontSize: "1.75rem", margin: 0, letterSpacing: "-0.04em", color: isDark ? "#FFF" : "#000", lineHeight: 1.1 }}>
-                    {cleanTitle}
-                </h2>
+                <MarqueeText 
+                    text={cleanTitle}
+                    fontSize="1.75rem"
+                    fontWeight={900}
+                    color={isDark ? "#FFF" : "#000"}
+                    fontFamily={headerFont}
+                    boxHeight="40px"
+                />
                 {labels.length > 0 && (
                     <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "6px", flexWrap: "wrap" }}>
                         {labels.map(label => (
@@ -684,7 +778,18 @@ export function LiveMusicPlayer() {
                                 color: isDark ? "rgba(255,255,255,0.3)" : "rgba(0,0,0,0.3)", 
                                 marginRight: "8px" 
                             }}>Up Next</span>
-                            {nextTitle} <span style={{ opacity: 0.6 }}>• {nextArtist}</span>
+                            <div style={{ display: "inline-block", verticalAlign: "middle", width: "160px" }}>
+                                <MarqueeText 
+                                    text={`${nextTitle} • ${nextArtist}`}
+                                    fontSize="0.75rem"
+                                    fontWeight={600}
+                                    color={isDark ? "rgba(255,255,255,0.5)" : "rgba(0,0,0,0.5)"}
+                                    fontFamily={headerFont}
+                                    boxHeight="20px"
+                                    letterSpacing="0"
+                                    justifyContent="flex-start"
+                                />
+                            </div>
                         </motion.div>
                     )}
                 </AnimatePresence>
