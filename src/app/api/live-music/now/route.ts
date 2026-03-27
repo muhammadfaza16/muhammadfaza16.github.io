@@ -110,14 +110,16 @@ export async function GET(request: Request) {
         const fiveMinsAgo = new Date(Date.now() - 5 * 60 * 1000);
         let listenersCount = 0;
         try {
-            listenersCount = await prisma.musicAccessLog.count({
+            // Defensive: Use 'as any' and try-catch to avoid crashing if schema is out of sync
+            listenersCount = await (prisma.musicAccessLog as any).count({
                 where: { 
                     liveSessionId: session.id,
                     lastActive: { gte: fiveMinsAgo } 
                 }
             });
-        } catch (e) {
-            console.error("Listeners count query failed:", e);
+        } catch (e: any) {
+            console.error("Listeners count query failed (schema desync?):", e.message);
+            listenersCount = 0; // Fallback to 0 instead of crashing the whole API
         }
 
         return NextResponse.json({
