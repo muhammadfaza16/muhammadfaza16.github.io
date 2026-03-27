@@ -509,6 +509,7 @@ export function LiveMusicProvider({ children }: { children: React.ReactNode }) {
 
         // Load audio — browser HTTP cache has it from preload → near-instant
         audio.src = nextSong.audioUrl;
+        audio.load(); // Explicit load to prime the media engine immediately
 
         // ── PRIORITY 2: Update UI state (batched, lower priority) ────────
         // React 18 flushSync is not needed — these are in a microtask-like context.
@@ -639,6 +640,15 @@ export function LiveMusicProvider({ children }: { children: React.ReactNode }) {
                         const song = audioRef.current;
                         if (song.duration && song.duration > 0) {
                             const remaining = song.duration - t;
+
+                            // ── Proactive Transition Flag: 500ms before end ───
+                            // Most browsers fire 'pause' just before 'ended'.
+                            // We set the ref early to block that 'pause' from setting isPlaying=false.
+                            if (remaining < 0.5 && !isTransitioningRef.current && isPlaying) {
+                                isTransitioningRef.current = true;
+                                setIsTransitioning(true);
+                            }
+
                             if (remaining <= PRELOAD_AHEAD_SECS && remaining > 0 && !preloadedSongUrlRef.current) {
                                 preloadNextSong();
                             }

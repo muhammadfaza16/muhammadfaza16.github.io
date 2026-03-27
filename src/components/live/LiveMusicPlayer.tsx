@@ -319,19 +319,19 @@ const LiveControls = React.memo(({
                     onClick={togglePlay}
                     style={{
                         height: "64px", borderRadius: "100px",
-                        background: isPlaying 
+                        background: (isPlaying || isTransitioning) 
                             ? (isDark ? "rgba(239, 68, 68, 0.15)" : "rgba(239, 68, 68, 0.1)") 
                             : (isDark ? "rgba(255, 255, 255, 0.95)" : "rgba(0, 0, 0, 0.95)"),
                         backdropFilter: "blur(30px)",
                         display: "flex", alignItems: "center", justifyContent: "center", gap: "12px",
-                        border: isPlaying ? (isDark ? "1px solid rgba(239, 68, 68, 0.3)" : "1px solid rgba(239, 68, 68, 0.2)") : "none",
+                        border: (isPlaying || isTransitioning) ? (isDark ? "1px solid rgba(239, 68, 68, 0.3)" : "1px solid rgba(239, 68, 68, 0.2)") : "none",
                         cursor: "pointer",
-                        boxShadow: isPlaying ? "none" : (isDark ? "0 20px 40px rgba(255,255,255,0.15)" : "0 10px 30px rgba(0,0,0,0.2)"),
-                        color: isPlaying ? "#EF4444" : (isDark ? "#000" : "#FFF"),
+                        boxShadow: (isPlaying || isTransitioning) ? "none" : (isDark ? "0 20px 40px rgba(255,255,255,0.15)" : "0 10px 30px rgba(0,0,0,0.2)"),
+                        color: (isPlaying || isTransitioning) ? "#EF4444" : (isDark ? "#000" : "#FFF"),
                         padding: "0 40px"
                     }}
                 >
-                    {isPlaying ? (
+                    {(isPlaying || isTransitioning) ? (
                         <>
                             <Power size={20} color="currentColor" strokeWidth={2.5} />
                             <span style={{ fontFamily: "var(--font-display), system-ui, sans-serif", fontWeight: 900, fontSize: "0.85rem", letterSpacing: "0.05em", textTransform: "uppercase" }}>
