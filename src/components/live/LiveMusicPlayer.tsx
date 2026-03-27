@@ -533,15 +533,22 @@ export function LiveMusicPlayer() {
                     boxShadow: isDark ? "0 30px 80px rgba(0,0,0,0.7)" : "0 20px 60px rgba(0,0,0,0.3)",
                 }}>
                 <motion.div 
-                    animate={isPlaying ? { scale: [1, 1.03, 1] } : { scale: 1 }}
-                    transition={{ repeat: Infinity, duration: 6, ease: "easeInOut" }}
+                    animate={isPlaying ? { scale: [1, 1.04, 1], rotateZ: [0, 0.01, 0] } : { scale: 1, rotateZ: 0 }}
+                    transition={{ 
+                        repeat: Infinity, 
+                        duration: 8, 
+                        ease: [0.45, 0.05, 0.55, 0.95],
+                        repeatType: "mirror"
+                    }}
                     style={{
                         width: "100%", height: "100%",
                         borderRadius: "28px", overflow: "hidden", position: "relative",
                         background: isDark ? "linear-gradient(135deg, #1E1B4B, #312E81)" : "linear-gradient(135deg, #E0E7FF, #C7D2FE)",
                         border: isDark ? "1px solid rgba(255,255,255,0.1)" : "1px solid rgba(0,0,0,0.06)",
                         display: "flex", alignItems: "center", justifyContent: "center",
-                        willChange: "transform"
+                        willChange: "transform",
+                        backfaceVisibility: "hidden",
+                        transformStyle: "preserve-3d"
                     }}
                 >
                 <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(0,0,0,0.7) 0%, transparent 60%)", zIndex: 1 }} />
