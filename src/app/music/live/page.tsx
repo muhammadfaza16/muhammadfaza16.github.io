@@ -50,8 +50,8 @@ function LiveMusicPageInner() {
         }}>
             <header style={{ 
                 width: "100%", 
-                paddingTop: "calc(env(safe-area-inset-top) + 8px)", 
-                paddingBottom: "12px", paddingLeft: "20px", paddingRight: "20px",
+                paddingTop: "calc(env(safe-area-inset-top) + 40px)", 
+                paddingBottom: "20px", paddingLeft: "20px", paddingRight: "20px",
                 display: "flex", justifyContent: "space-between", alignItems: "center",
                 position: "relative", zIndex: 10
             }}>
@@ -101,7 +101,7 @@ function LiveMusicPageInner() {
                             color: isDark ? "#FFECEC" : "#DC2626",
                             textShadow: isDark ? "0 0 12px rgba(255, 68, 68, 0.8)" : "none"
                         }}>
-                            Live Radio
+                            Live Music
                         </span>
                     </div>
 

@@ -2,7 +2,7 @@
 
 import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Play, Pause, Radio, Disc, Music, ListMusic, ChevronDown, ChevronLeft, Heart, Headphones, Power } from "lucide-react";
+import { Play, Pause, Radio, Disc, Music, ListMusic, ChevronDown, ChevronLeft, Heart, Headphones, Power, Users } from "lucide-react";
 import { useLiveMusic, useLiveTime } from "./LiveMusicContext";
 import { parseSongTitle } from "@/utils/songUtils";
 import { useTheme } from "@/components/ThemeProvider";
@@ -445,19 +445,51 @@ export function LiveMusicPlayer() {
 
             <div style={{ position: "relative", zIndex: showQueue ? 999999 : 1, flex: 1, display: "flex", flexDirection: "column", width: "100%", maxWidth: "500px", margin: "0 auto" }}>
             {/* Playlist Info & Listeners */}
-            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "6px", padding: "8px 20px 0", marginBottom: "4px" }}>
-                <span style={{ fontFamily: headerFont, fontWeight: 800, fontSize: "0.95rem", letterSpacing: "0.05em", color: isDark ? "rgba(255,255,255,0.9)" : "rgba(0,0,0,0.9)", display: "flex", alignItems: "center", gap: "8px" }}>
-                    <Radio size={16} color={isDark ? "rgba(255,255,255,0.5)" : "rgba(0,0,0,0.4)"} />
+            <div style={{ 
+                display: "flex", 
+                flexDirection: "row", 
+                alignItems: "center", 
+                justifyContent: "center",
+                gap: "12px", 
+                padding: "24px 20px 0", 
+                marginBottom: "32px" 
+            }}>
+                <span style={{ 
+                    fontFamily: headerFont, 
+                    fontWeight: 900, 
+                    fontSize: "1rem", 
+                    letterSpacing: "-0.01em", 
+                    color: isDark ? "#FFF" : "#000", 
+                    display: "flex", 
+                    alignItems: "center", 
+                    gap: "8px",
+                    textTransform: "uppercase"
+                }}>
+                    <Radio size={18} color="#EF4444" />
                     {playlistTitle} 
                 </span>
 
-                <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                    <div style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", gap: "6px", padding: "0 10px", height: "20px", borderRadius: "100px", background: isDark ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.03)", border: isDark ? "1px solid rgba(255,255,255,0.05)" : "1px solid rgba(0,0,0,0.03)" }}>
-                        <Heart size={10} fill={isDark ? "rgba(255,255,255,0.4)" : "rgba(0,0,0,0.4)"} color={isDark ? "rgba(255,255,255,0.4)" : "rgba(0,0,0,0.4)"} /> 
-                        <span style={{ fontFamily: monoFont, fontWeight: 700, fontSize: "0.6rem", color: isDark ? "rgba(255,255,255,0.5)" : "rgba(0,0,0,0.5)", lineHeight: 1 }}>
-                            {listenersCount} LISTENING
-                        </span>
-                    </div>
+                <div style={{ 
+                    display: "inline-flex", 
+                    alignItems: "center", 
+                    justifyContent: "center", 
+                    gap: "6px", 
+                    padding: "4px 12px", 
+                    borderRadius: "100px", 
+                    background: isDark ? "rgba(239, 68, 68, 0.15)" : "rgba(239, 68, 68, 0.05)", 
+                    border: isDark ? "1px solid rgba(239, 68, 68, 0.3)" : "1px solid rgba(239, 68, 68, 0.1)" 
+                }}>
+                    <Users size={12} color="#EF4444" /> 
+                    <span style={{ 
+                        fontFamily: monoFont, 
+                        fontWeight: 900, 
+                        fontSize: "0.65rem", 
+                        color: "#EF4444", 
+                        lineHeight: 1,
+                        letterSpacing: "0.05em"
+                    }}>
+                        {listenersCount}
+                    </span>
                 </div>
             </div>
 
