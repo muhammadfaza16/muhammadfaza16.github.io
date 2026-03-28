@@ -80,7 +80,7 @@ const LiveMusicContext = createContext<LiveMusicState>({
 export const useLiveMusic = () => useContext(LiveMusicContext);
 
 // ─── Tuning ─────────────────────────────────────────────────────────────────
-const SYNC_DRIFT_THRESHOLD = 2.0; // Lowered from 5.0 for better accuracy
+const SYNC_DRIFT_THRESHOLD = 3.0; // Balanced: tight enough for accuracy, loose enough for polling latency
 const PRELOAD_AHEAD_SECS = 8;
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -234,21 +234,26 @@ export function LiveMusicProvider({ children }: { children: React.ReactNode }) {
             setCurrentSong(song);
             setSeekPosition(serverSeek);
 
+            // If metadata-only refresh, update UI metadata but DON'T touch
+            // serverSyncRef or isSynced. The drift calculator in onTimeUpdate
+            // is the single source of truth for sync state. Overwriting
+            // serverSyncRef here would poison the reference with a new
+            // fetchedAt timestamp, making accumulated local drift look like
+            // a desync (the #1 cause of LIVE→SYNC flicker).
+            if (opts?.metadataOnly) {
+                setIsLoading(false);
+                setIsWaitingForSync(false);
+                isFetchingRef.current = false;
+                return;
+            }
+
+            // For active sync operations, update the server reference point.
+            // This is the baseline the drift calculator compares against.
             serverSyncRef.current = {
                 serverSeek,
                 fetchedAt: Date.now(),
                 songUrl: song.audioUrl,
             };
-
-            // If metadata-only refresh, don't touch audio
-            if (opts?.metadataOnly) {
-                setIsLoading(false);
-                setIsWaitingForSync(false);
-                setIsSynced(true);
-                lastSyncedRef.current = true;
-                isFetchingRef.current = false;
-                return;
-            }
 
             if (!audioRef.current) {
                 setIsWaitingForSync(false);
@@ -281,8 +286,9 @@ export function LiveMusicProvider({ children }: { children: React.ReactNode }) {
             }
 
             setIsLoading(false);
-            setIsSynced(true);
-            lastSyncedRef.current = true;
+            // DON'T set isSynced here — the seek may not have applied yet
+            // (pendingSeekRef is true for new songs). Let onPlaying re-anchor
+            // when audio actually starts, and let onTimeUpdate be authoritative.
 
         } catch (err: any) {
             console.error("fetchAndSync failed:", err);
@@ -559,9 +565,9 @@ export function LiveMusicProvider({ children }: { children: React.ReactNode }) {
         tracklistCacheRef.current = updatedTl;
         setTracklist(updatedTl);
 
-        // Mark as desynced from server (user can SYNC to correct)
-        setIsSynced(false);
-        lastSyncedRef.current = false;
+        // DON'T set isSynced = false here. The transition is in-flight;
+        // onPlaying will re-anchor serverSyncRef and set isSynced = true
+        // when audio actually starts. Setting false here causes a SYNC flash.
     }, [fetchAndSync]);
 
     // ─── Mutex: Stop Live if Regular starts ─────────────────────────────────
@@ -651,6 +657,22 @@ export function LiveMusicProvider({ children }: { children: React.ReactNode }) {
                         setIsBuffering(false);
                         setIsPlaying(true);
                         setIsWaitingForSync(false);
+
+                        // ALWAYS re-anchor serverSyncRef when audio starts playing.
+                        // This is the single reliable moment where we know the actual
+                        // audio position. Covers: local transitions, server syncs,
+                        // first joins, and resume-after-buffer.
+                        if (audioRef.current) {
+                            const t = audioRef.current.currentTime;
+                            serverSyncRef.current = {
+                                serverSeek: t,
+                                fetchedAt: Date.now(),
+                                songUrl: currentSongUrlRef.current,
+                            };
+                            lastSyncedRef.current = true;
+                            setIsSynced(true);
+                        }
+
                         if (isTransitioningRef.current) {
                             console.log("[Audio] Finalizing transition");
                             isTransitioningRef.current = false;
@@ -690,6 +712,13 @@ export function LiveMusicProvider({ children }: { children: React.ReactNode }) {
                         }
 
                         // ── Drift calculation ────────────────────────────────────
+                        // GATE: Skip drift checks during unstable states.
+                        // Running drift calc while transitioning, seeking, or paused
+                        // produces phantom drift that flickers the LIVE/SYNC indicator.
+                        if (isTransitioningRef.current || pendingSeekRef.current || audioRef.current.paused) {
+                            return;
+                        }
+
                         const sync = serverSyncRef.current;
                         if (sync.songUrl && sync.songUrl === currentSongUrlRef.current) {
                             const elapsed = (Date.now() - sync.fetchedAt) / 1000;
