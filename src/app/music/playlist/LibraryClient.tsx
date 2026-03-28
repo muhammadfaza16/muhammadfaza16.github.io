@@ -32,17 +32,7 @@ export default function LibraryClient({
     const initialVibe = searchParams.get('vibe') || "";
     const [searchQuery, setSearchQuery] = useState("");
     const [activeVibe, setActiveVibe] = useState(initialVibe);
-    
-    // Use initial playlists from server
-    const [playlists, setPlaylists] = useState<any[]>(initialPlaylists);
     const [isLoading, setIsLoading] = useState(false);
-
-    useEffect(() => {
-        // Sync if initialPlaylists changes
-        if (initialPlaylists && initialPlaylists.length > 0) {
-            setPlaylists(initialPlaylists);
-        }
-    }, [initialPlaylists]);
 
     const CACHE_KEY = "playlist_library_scroll_v1";
 
@@ -89,13 +79,13 @@ export default function LibraryClient({
     };
 
     const filteredCategories = useMemo(() => {
-        return playlists.filter(p => {
+        return initialPlaylists.filter(p => {
             const matchesSearch = p.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
                                  (p.description && p.description.toLowerCase().includes(searchQuery.toLowerCase()));
             const matchesVibe = activeVibe === "" || (p.vibes && p.vibes.includes(activeVibe)) || p.title.includes(activeVibe);
             return matchesSearch && matchesVibe;
         });
-    }, [playlists, searchQuery, activeVibe]);
+    }, [initialPlaylists, searchQuery, activeVibe]);
 
     const headerFont = "var(--font-display), system-ui, sans-serif";
     const monoFont = "var(--font-mono), monospace";

@@ -127,9 +127,8 @@ export default function PlaylistClient({
     const [searchQuery, setSearchQuery] = useState("");
     const [mounted, setMounted] = useState(false);
     const scrollContainerRef = useRef<HTMLDivElement>(null);
+    const [scrollEl, setScrollEl] = useState<HTMLDivElement | null>(null);
     const scrollYRef = useRef(0);
-    const [dbSongs, setDbSongs] = useState<{ title: string; audioUrl: string; duration?: number; id?: string; category?: string }[]>(initialSongs);
-    const [activePlaylist, setActivePlaylist] = useState<any>(initialPlaylist);
 
     useEffect(() => {
         setMounted(true);
@@ -170,8 +169,8 @@ export default function PlaylistClient({
     }, [playlistId]);
 
     const basePlaylist = useMemo(() => {
-        return dbSongs.map((song, index) => ({ ...song, originalIndex: index }));
-    }, [dbSongs]);
+        return initialSongs.map((song, index) => ({ ...song, originalIndex: index }));
+    }, [initialSongs]);
 
     const filteredPlaylist = useMemo(() => {
         if (!searchQuery) return basePlaylist;
@@ -205,7 +204,10 @@ export default function PlaylistClient({
 
             <div 
                 id="playlist-detail-scroll-container"
-                ref={scrollContainerRef}
+                ref={(node) => {
+                    scrollContainerRef.current = node;
+                    if (node && !scrollEl) setScrollEl(node);
+                }}
                 onScroll={(e) => (scrollYRef.current = e.currentTarget.scrollTop)}
                 style={{
                     flex: 1,
@@ -243,9 +245,9 @@ export default function PlaylistClient({
             {/* Loading state is now handled by server-side loading.tsx */}
 
 
-            {activePlaylist && (
+            {initialPlaylist && (
                 <div style={{
-                    backgroundColor: activePlaylist.coverColor || "#fff",
+                    backgroundColor: initialPlaylist.coverColor || "#fff",
                     border: "1px solid rgba(0,0,0,0.05)",
                     borderRadius: "24px",
                     boxShadow: "0 10px 30px rgba(0,0,0,0.03)",
@@ -258,7 +260,7 @@ export default function PlaylistClient({
                     aspectRatio: "16/9"
                 }}>
                     <img 
-                        src={activePlaylist.coverImage} 
+                        src={initialPlaylist.coverImage} 
                         style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", zIndex: 0, opacity: 0.85 }} 
                         className="mix-blend-multiply"
                         alt="" 
@@ -287,10 +289,10 @@ export default function PlaylistClient({
                             letterSpacing: "-0.01em",
                             color: "#fff"
                         }}>
-                            {activePlaylist.title}
+                            {initialPlaylist.title}
                         </h2>
                         <div style={{ fontFamily: headerFont, fontSize: "0.75rem", fontWeight: 600, color: "rgba(255,255,255,0.7)", lineHeight: 1.2 }}>
-                            {activePlaylist.philosophy}
+                            {initialPlaylist.philosophy}
                         </div>
                     </div>
                 </div>
@@ -422,8 +424,8 @@ export default function PlaylistClient({
                     </div>
                 ) : (
                     <Virtuoso
-                        key={activePlaylist?.id || "playlist-list"}
-                        customScrollParent={scrollContainerRef.current || undefined}
+                        key={initialPlaylist?.id || "playlist-list"}
+                        customScrollParent={scrollEl || undefined}
                         data={filteredPlaylist}
                         itemContent={(index, song: any) => (
                             <TrackRow
