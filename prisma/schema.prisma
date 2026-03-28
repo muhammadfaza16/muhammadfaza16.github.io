@@ -187,15 +187,16 @@ model PlaylistSong {
 }
 
 model LiveSession {
-  id          String   @id @default(uuid())
-  playlistId  String
-  playlist    Playlist @relation(fields: [playlistId], references: [id])
-  title       String?
-  description String?
-  startedAt   DateTime @default(now())
-  isActive    Boolean  @default(true)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id            String            @id @default(uuid())
+  playlistId    String
+  playlist      Playlist          @relation(fields: [playlistId], references: [id])
+  title         String?
+  description   String?
+  startedAt     DateTime          @default(now())
+  isActive      Boolean           @default(true)
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+  chatMessages  LiveChatMessage[]
 
   @@index([isActive])
 }
@@ -222,4 +223,15 @@ model MusicAccessLog {
   @@index([timestamp])
   @@index([sessionId])
   @@index([liveSessionId])
+}
+
+model LiveChatMessage {
+  id            String      @id @default(uuid())
+  liveSessionId String
+  liveSession   LiveSession @relation(fields: [liveSessionId], references: [id], onDelete: Cascade)
+  nickname      String      @default("Anon")
+  content       String
+  createdAt     DateTime    @default(now())
+
+  @@index([liveSessionId, createdAt])
 }

@@ -398,12 +398,27 @@ export function LiveMusicProvider({ children }: { children: React.ReactNode }) {
 
     // ─── Switch session (called by live player page) ────────────────────────
     const switchSession = useCallback((newSessionId?: string) => {
-        // If switching TO a session, we usually want it to start playing IF the user is on that page
-        // But for now, let's just update the ID.
+        const isSameSession = sessionIdRef.current === newSessionId;
+
         sessionIdRef.current = newSessionId;
         setActiveSessionId(newSessionId);
 
-        // If closing the session completely, stop intent
+        // ALWAYS reset play intent when switching stations.
+        // User must explicitly click "Join" on the new station.
+        // This prevents the auto-join bug where navigating to Station B
+        // while playing Station A would auto-play Station B.
+        if (!isSameSession) {
+            userIntentPlayRef.current = false;
+            hasEverPlayedRef.current = false;
+            setIsUserJoined(false);
+            setIsPlaying(false);
+
+            // Pause audio immediately so old station stops
+            if (audioRef.current) {
+                audioRef.current.pause();
+            }
+        }
+
         if (!newSessionId) {
             userIntentPlayRef.current = false;
         }
@@ -413,7 +428,7 @@ export function LiveMusicProvider({ children }: { children: React.ReactNode }) {
         tracklistCacheRef.current = [];
         currentSongIndexRef.current = 0;
 
-        // Re-fetch for the new session
+        // Re-fetch for the new session (metadata only — won't auto-play)
         isFetchingRef.current = false; // Force allow
         fetchAndSync();
     }, [fetchAndSync]);

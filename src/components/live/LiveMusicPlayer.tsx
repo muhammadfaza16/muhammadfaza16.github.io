@@ -2,10 +2,11 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Play, Pause, Radio, Disc, Music, ListMusic, ChevronDown, ChevronLeft, Heart, Headphones, Power, Users } from "lucide-react";
+import { Play, Pause, Radio, Disc, Music, ListMusic, ChevronDown, ChevronLeft, Heart, Headphones, Power, Users, MessageCircle } from "lucide-react";
 import { useLiveMusic, useLiveTime } from "./LiveMusicContext";
 import { parseSongTitle } from "@/utils/songUtils";
 import { useTheme } from "@/components/ThemeProvider";
+import { LiveChat } from "./LiveChat";
 
 function fmtTime(s: number) {
     const m = Math.floor(s / 60);
@@ -263,13 +264,28 @@ const LiveTrackRow = React.memo(({
 LiveTrackRow.displayName = "LiveTrackRow";
 
 const LiveControls = React.memo(({ 
-    isWaitingForSync, isTransitioning, togglePlay, isPlaying, isSynced, refresh, isDark, headerFont, onShowQueue 
+    isWaitingForSync, isTransitioning, togglePlay, isPlaying, isSynced, refresh, isDark, headerFont, onShowQueue, onShowChat 
 }: any) => {
     const { isBuffering } = useLiveTime();
     return (
         <div style={{ display: "flex", justifySelf: "center", justifyContent: "space-between", alignItems: "center", width: "100%", padding: "0 20px" }}>
             {/* Left: Queue Toggle */}
             <div style={{ display: "flex", gap: "12px" }}>
+                <motion.button
+                    whileTap={{ scale: 0.9 }}
+                    onClick={onShowChat}
+                    style={{
+                        width: "48px", height: "48px", borderRadius: "100px",
+                        background: isDark ? "rgba(255,255,255,0.1)" : "rgba(99, 102, 241, 0.12)",
+                        backdropFilter: "blur(20px)",
+                        display: "flex", alignItems: "center", justifyContent: "center",
+                        border: isDark ? "1px solid rgba(255,255,255,0.1)" : "1px solid rgba(99, 102, 241, 0.2)",
+                        cursor: "pointer",
+                        color: isDark ? "#FFF" : "#6366F1",
+                    }}
+                >
+                    <MessageCircle size={20} />
+                </motion.button>
                 <motion.button
                     whileTap={{ scale: 0.9 }}
                     onClick={onShowQueue}
@@ -393,10 +409,11 @@ export function LiveMusicPlayer() {
         isLive, isPlaying, isLoading, isWaitingForSync, isTransitioning,
         currentSong, songIndex, totalSongs,
         playlistTitle, playlistCover, playlistColor, tracklist,
-        error, togglePlay, refresh, isSynced, listenersCount
+        error, togglePlay, refresh, isSynced, listenersCount, activeSessionId
     } = useLiveMusic();
     const { theme } = useTheme();
     const [showQueue, setShowQueue] = React.useState(false);
+    const [showChat, setShowChat] = React.useState(false);
     const [reactions, setReactions] = React.useState<{ id: number, x: number, duration: number }[]>([]);
 
     const handleReact = () => {
@@ -838,6 +855,7 @@ export function LiveMusicPlayer() {
                     isDark={isDark}
                     headerFont={headerFont}
                     onShowQueue={() => setShowQueue(true)}
+                    onShowChat={() => setShowChat(true)}
                 />
             </div>
             
@@ -931,6 +949,15 @@ export function LiveMusicPlayer() {
                 )}
             </AnimatePresence>
         </div>
+
+            {/* Live Chat Overlay */}
+            {activeSessionId && (
+                <LiveChat 
+                    sessionId={activeSessionId}
+                    isVisible={showChat}
+                    onClose={() => setShowChat(false)}
+                />
+            )}
         </>
     );
 }
