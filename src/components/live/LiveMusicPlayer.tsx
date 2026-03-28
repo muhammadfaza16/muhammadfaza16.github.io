@@ -268,14 +268,12 @@ const LiveControls = React.memo(({
 }: any) => {
     const { isBuffering } = useLiveTime();
     return (
-        <div style={{ display: "flex", justifySelf: "center", justifyContent: "space-between", alignItems: "center", width: "100%", padding: "0 20px" }}>
-            {/* Left: Queue Toggle */}
-            <div style={{ display: "flex", gap: "12px" }}>
+        <div style={{ display: "flex", justifyContent: "center", alignItems: "center", width: "100%", gap: "6px" }}>
                 <motion.button
                     whileTap={{ scale: 0.9 }}
                     onClick={onShowChat}
                     style={{
-                        width: "48px", height: "48px", borderRadius: "100px",
+                        width: "42px", height: "42px", borderRadius: "100px",
                         background: isDark ? "rgba(255,255,255,0.1)" : "rgba(99, 102, 241, 0.12)",
                         backdropFilter: "blur(20px)",
                         display: "flex", alignItems: "center", justifyContent: "center",
@@ -284,13 +282,13 @@ const LiveControls = React.memo(({
                         color: isDark ? "#FFF" : "#6366F1",
                     }}
                 >
-                    <MessageCircle size={20} />
+                    <MessageCircle size={18} />
                 </motion.button>
                 <motion.button
                     whileTap={{ scale: 0.9 }}
                     onClick={onShowQueue}
                     style={{
-                        width: "48px", height: "48px", borderRadius: "100px",
+                        width: "42px", height: "42px", borderRadius: "100px",
                         background: isDark ? "rgba(255,255,255,0.1)" : "rgba(99, 102, 241, 0.12)",
                         backdropFilter: "blur(20px)",
                         display: "flex", alignItems: "center", justifyContent: "center",
@@ -299,15 +297,15 @@ const LiveControls = React.memo(({
                         color: isDark ? "#FFF" : "#6366F1",
                     }}
                 >
-                    <ListMusic size={20} />
+                    <ListMusic size={18} />
                 </motion.button>
-            </div>
 
             {/* Center: Play/Pause -> Join/Leave */}
             {(isWaitingForSync || isBuffering) ? (
                 <div
                     style={{
-                        height: "64px", padding: "0 32px", borderRadius: "100px",
+                        height: "56px", padding: "0 28px", borderRadius: "100px",
+                        margin: "0 10px",
                         background: isDark ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.05)",
                         display: "flex", alignItems: "center", justifyContent: "center", gap: "12px",
                         border: isDark ? "1px solid rgba(255,255,255,0.1)" : "1px solid rgba(0,0,0,0.1)",
@@ -335,30 +333,31 @@ const LiveControls = React.memo(({
                     whileTap={{ scale: 0.95 }}
                     onClick={togglePlay}
                     style={{
-                        height: "64px", borderRadius: "100px",
+                        height: "56px", borderRadius: "100px",
                         background: (isPlaying || isTransitioning) 
                             ? (isDark ? "rgba(239, 68, 68, 0.15)" : "rgba(239, 68, 68, 0.1)") 
                             : (isDark ? "rgba(255, 255, 255, 0.95)" : "rgba(0, 0, 0, 0.95)"),
                         backdropFilter: "blur(30px)",
-                        display: "flex", alignItems: "center", justifyContent: "center", gap: "12px",
+                        display: "flex", alignItems: "center", justifyContent: "center", gap: "10px",
                         border: (isPlaying || isTransitioning) ? (isDark ? "1px solid rgba(239, 68, 68, 0.3)" : "1px solid rgba(239, 68, 68, 0.2)") : "none",
                         cursor: "pointer",
                         boxShadow: (isPlaying || isTransitioning) ? "none" : (isDark ? "0 20px 40px rgba(255,255,255,0.15)" : "0 10px 30px rgba(0,0,0,0.2)"),
                         color: (isPlaying || isTransitioning) ? "#EF4444" : (isDark ? "#000" : "#FFF"),
-                        padding: "0 40px"
+                        padding: "0 32px",
+                        margin: "0 10px"
                     }}
                 >
                     {(isPlaying || isTransitioning) ? (
                         <>
-                            <Power size={20} color="currentColor" strokeWidth={2.5} />
-                            <span style={{ fontFamily: "var(--font-display), system-ui, sans-serif", fontWeight: 900, fontSize: "0.85rem", letterSpacing: "0.05em", textTransform: "uppercase" }}>
+                            <Power size={18} color="currentColor" strokeWidth={2.5} />
+                            <span style={{ fontFamily: "var(--font-display), system-ui, sans-serif", fontWeight: 900, fontSize: "0.8rem", letterSpacing: "0.05em", textTransform: "uppercase" }}>
                                 Leave
                             </span>
                         </>
                     ) : (
                         <>
-                            <Headphones size={20} color="currentColor" strokeWidth={2.5} />
-                            <span style={{ fontFamily: "var(--font-display), system-ui, sans-serif", fontWeight: 900, fontSize: "0.85rem", letterSpacing: "0.05em", textTransform: "uppercase" }}>
+                            <Headphones size={18} color="currentColor" strokeWidth={2.5} />
+                            <span style={{ fontFamily: "var(--font-display), system-ui, sans-serif", fontWeight: 900, fontSize: "0.8rem", letterSpacing: "0.05em", textTransform: "uppercase" }}>
                                 Join
                             </span>
                         </>
@@ -371,7 +370,7 @@ const LiveControls = React.memo(({
                 whileTap={{ scale: 0.95 }}
                 onClick={refresh}
                 style={{
-                    padding: "0 12px", height: "48px", borderRadius: "100px",
+                    padding: "0 10px", height: "42px", borderRadius: "100px",
                     background: isDark ? "rgba(255,255,255,0.1)" : "rgba(239, 68, 68, 0.12)",
                     backdropFilter: "blur(20px)",
                     border: isDark ? "1px solid rgba(255,255,255,0.1)" : "1px solid rgba(239, 68, 68, 0.2)",
@@ -591,52 +590,8 @@ export function LiveMusicPlayer() {
                 margin: "0 auto",
                 paddingBottom: "calc(env(safe-area-inset-bottom) + 180px)" // Increased padding to clear URL bar and MiniPlayer
             }}>
-            {/* Playlist Info & Listeners */}
-            <div style={{ 
-                display: "flex", 
-                flexDirection: "row", 
-                alignItems: "center", 
-                justifyContent: "center",
-                gap: "12px", 
-                padding: "16px 20px 22px", 
-            }}>
-                <span style={{ 
-                    fontFamily: headerFont, 
-                    fontWeight: 900, 
-                    fontSize: "1rem", 
-                    letterSpacing: "-0.01em", 
-                    color: isDark ? "#FFF" : "#000", 
-                    display: "flex", 
-                    alignItems: "center", 
-                    gap: "8px"
-                }}>
-                    <Radio size={18} color="#EF4444" />
-                    {playlistTitle} 
-                </span>
-
-                <div style={{ 
-                    display: "inline-flex", 
-                    alignItems: "center", 
-                    justifyContent: "center", 
-                    gap: "6px", 
-                    padding: "4px 12px", 
-                    borderRadius: "100px", 
-                    background: isDark ? "rgba(239, 68, 68, 0.15)" : "rgba(239, 68, 68, 0.12)", 
-                    border: isDark ? "1px solid rgba(239, 68, 68, 0.3)" : "1px solid rgba(239, 68, 68, 0.2)" 
-                }}>
-                    <Users size={12} color="#EF4444" /> 
-                    <span style={{ 
-                        fontFamily: monoFont, 
-                        fontWeight: 900, 
-                        fontSize: "0.65rem", 
-                        color: "#EF4444", 
-                        lineHeight: 1,
-                        letterSpacing: "0.05em"
-                    }}>
-                        {listenersCount}
-                    </span>
-                </div>
-            </div>
+            {/* Spacing preserved to maintain layout positions while info is moved to header */}
+            <div style={{ padding: "16px 20px 22px" }} />
 
             {/* Inner Flex Container mirroring GlobalBottomPlayer */}
             <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-start", padding: "0 32px 40px" }}>

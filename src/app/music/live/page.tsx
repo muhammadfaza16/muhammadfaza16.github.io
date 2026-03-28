@@ -8,6 +8,7 @@ import { ChevronLeft } from "lucide-react";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
+import { Users, Radio } from "lucide-react";
 
 function LiveMusicPageInner() {
     const { theme } = useTheme();
@@ -15,7 +16,7 @@ function LiveMusicPageInner() {
     const isDark = theme === "dark";
     const searchParams = useSearchParams();
     const sessionId = searchParams.get("session") || undefined;
-    const { switchSession } = useLiveMusic();
+    const { switchSession, playlistTitle, listenersCount } = useLiveMusic();
 
     // Switch session on mount, don't switch back on unmount (keep playing)
     React.useEffect(() => {
@@ -76,33 +77,47 @@ function LiveMusicPageInner() {
                         </Link>
                     </div>
 
-                    <div style={{
-                        display: "flex", alignItems: "center", gap: "8px",
-                        background: isDark ? "rgba(239, 68, 68, 0.25)" : "rgba(239, 68, 68, 0.08)",
+                    {/* Station Name & Listeners (Moved from Player) */}
+                    <div style={{ 
+                        display: "flex", 
+                        alignItems: "center", 
+                        gap: "10px", 
+                        padding: "6px 16px", 
+                        borderRadius: "100px", 
+                        background: isDark ? "rgba(239, 68, 68, 0.25)" : "rgba(239, 68, 68, 0.08)", 
                         border: isDark ? "1px solid rgba(239, 68, 68, 0.6)" : "1px solid rgba(239, 68, 68, 0.2)",
-                        padding: "6px 16px", borderRadius: "100px",
-                        boxShadow: isDark ? "0 0 24px rgba(239, 68, 68, 0.4), inset 0 0 12px rgba(239, 68, 68, 0.2)" : "0 4px 12px rgba(239, 68, 68, 0.1)"
+                        boxShadow: isDark ? "0 0 24px rgba(239, 68, 68, 0.4), inset 0 0 12px rgba(239, 68, 68, 0.2)" : "0 4px 12px rgba(239, 68, 68, 0.1)",
+                        backdropFilter: "blur(20px)",
                     }}>
                         <motion.div
-                            animate={{ opacity: [1, 0.3, 1], scale: [1, 1.2, 1] }}
-                            transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" }}
-                            style={{
-                                width: "8px", height: "8px", borderRadius: "50%",
-                                backgroundColor: "#FF3333",
-                                boxShadow: "0 0 10px #FF3333"
-                            }}
-                        />
+                            animate={{ opacity: [1, 0.4, 1], scale: [1, 1.2, 1] }}
+                            transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
+                            style={{ display: "flex", alignItems: "center", justifyContent: "center" }}
+                        >
+                            <Radio size={16} color="#EF4444" />
+                        </motion.div>
                         <span style={{ 
                             fontFamily: headerFont, 
                             fontWeight: 900, 
-                            fontSize: "0.85rem", 
-                            textTransform: "uppercase", 
-                            letterSpacing: "0.1em", 
-                            color: isDark ? "#FFECEC" : "#DC2626",
-                            textShadow: isDark ? "0 0 12px rgba(255, 68, 68, 0.8)" : "none"
+                            fontSize: "0.8rem", 
+                            letterSpacing: "0.02em", 
+                            color: isDark ? "rgba(255,255,255,0.9)" : "rgba(0,0,0,0.8)",
                         }}>
-                            Live Music
+                            {playlistTitle || "Live Music"}
                         </span>
+                        <div style={{ width: "1px", height: "12px", background: isDark ? "rgba(255,255,255,0.15)" : "rgba(0,0,0,0.1)" }} />
+                        <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                            <Users size={14} color="#EF4444" />
+                            <span style={{ 
+                                fontFamily: "var(--font-mono), monospace", 
+                                fontWeight: 800, 
+                                fontSize: "0.7rem", 
+                                color: "#EF4444",
+                                letterSpacing: "0.05em"
+                            }}>
+                                {listenersCount || 1}
+                            </span>
+                        </div>
                     </div>
 
                     <div style={{ width: "40px" }} />
