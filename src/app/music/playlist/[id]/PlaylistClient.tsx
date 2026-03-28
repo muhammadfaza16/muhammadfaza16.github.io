@@ -169,7 +169,27 @@ export default function PlaylistClient({
     }, [playlistId]);
 
     const basePlaylist = useMemo(() => {
-        return initialSongs.map((song, index) => ({ ...song, originalIndex: index }));
+        const sorted = [...initialSongs].sort((a, b) => {
+            // 1. Lokal (Indo) First
+            const isALokal = a.category?.toLowerCase() === 'indo';
+            const isBLokal = b.category?.toLowerCase() === 'indo';
+            
+            if (isALokal && !isBLokal) return -1;
+            if (!isALokal && isBLokal) return 1;
+            
+            // 2. Parse titles for Artist & Title sorting
+            const infoA = parseSongTitle(a.title);
+            const infoB = parseSongTitle(b.title);
+            
+            // 3. Inner Sort by Artist (Alpha)
+            const artistSort = infoA.artist.localeCompare(infoB.artist);
+            if (artistSort !== 0) return artistSort;
+            
+            // 4. Inner Sort by Title (Alpha)
+            return infoA.cleanTitle.localeCompare(infoB.cleanTitle);
+        });
+        
+        return sorted.map((song, index) => ({ ...song, originalIndex: index }));
     }, [initialSongs]);
 
     const filteredPlaylist = useMemo(() => {
