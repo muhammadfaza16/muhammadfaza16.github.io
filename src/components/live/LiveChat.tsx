@@ -51,18 +51,21 @@ function nicknameHue(name: string): number {
 export function LiveChat({ 
     sessionId, 
     isVisible, 
-    onClose 
+    onClose,
+    messages,
+    onSendMessage
 }: { 
     sessionId: string; 
     isVisible: boolean; 
     onClose: () => void;
+    messages: ChatMessage[];
+    onSendMessage: (content: string, nickname: string) => Promise<boolean>;
 }) {
     const { theme } = useTheme();
     const isDark = theme === "dark";
     const headerFont = "var(--font-display), system-ui, sans-serif";
     const monoFont = "var(--font-mono), monospace";
 
-    const [messages, setMessages] = useState<ChatMessage[]>([]);
     const [inputValue, setInputValue] = useState("");
     const [isSending, setIsSending] = useState(false);
     const [nickname] = useState(() => getOrCreateNickname());
@@ -70,59 +73,18 @@ export function LiveChat({
     const [hasNewMessages, setHasNewMessages] = useState(false);
 
     const scrollRef = useRef<HTMLDivElement>(null);
-    const lastMessageTimeRef = useRef<string | null>(null);
-    const pollTimerRef = useRef<NodeJS.Timeout | null>(null);
     const inputRef = useRef<HTMLInputElement>(null);
 
-    // ─── Fetch messages ──────────────────────────────────────────────
-    const fetchMessages = useCallback(async (isInitial = false) => {
-        try {
-            const params = new URLSearchParams({ sessionId });
-            if (!isInitial && lastMessageTimeRef.current) {
-                params.set("after", lastMessageTimeRef.current);
-            }
-
-            const res = await fetch(`/api/live-music/chat?${params}`);
-            if (!res.ok) return;
-            
-            const data = await res.json();
-            if (!data.success || !data.messages?.length) return;
-
-            if (isInitial) {
-                setMessages(data.messages);
-            } else {
-                setMessages(prev => [...prev, ...data.messages]);
-                if (!isAtBottom) {
-                    setHasNewMessages(true);
-                }
-            }
-
-            // Update cursor
-            const lastMsg = data.messages[data.messages.length - 1];
-            if (lastMsg) {
-                lastMessageTimeRef.current = lastMsg.createdAt;
-            }
-        } catch (e) {
-            // Silently fail — chat is non-critical
-        }
-    }, [sessionId, isAtBottom]);
-
-    // ─── Initial load + polling ──────────────────────────────────────
+    // ─── Track new messages when not at bottom ───────────────────────
+    const prevMessagesLengthRef = useRef(messages.length);
     useEffect(() => {
-        if (!isVisible || !sessionId) return;
-
-        // Initial fetch
-        fetchMessages(true);
-
-        // Start polling
-        pollTimerRef.current = setInterval(() => {
-            fetchMessages(false);
-        }, POLL_INTERVAL);
-
-        return () => {
-            if (pollTimerRef.current) clearInterval(pollTimerRef.current);
-        };
-    }, [isVisible, sessionId, fetchMessages]);
+        if (messages.length > prevMessagesLengthRef.current) {
+            if (!isAtBottom) {
+                setHasNewMessages(true);
+            }
+        }
+        prevMessagesLengthRef.current = messages.length;
+    }, [messages, isAtBottom]);
 
     // ─── Auto-scroll to bottom ───────────────────────────────────────
     useEffect(() => {
@@ -155,26 +117,14 @@ export function LiveChat({
         setIsSending(true);
         setInputValue("");
 
-        try {
-            const res = await fetch("/api/live-music/chat", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ sessionId, nickname, content }),
-            });
-
-            const data = await res.json();
-            if (data.success && data.message) {
-                setMessages(prev => [...prev, data.message]);
-                lastMessageTimeRef.current = data.message.createdAt;
-                setIsAtBottom(true); // Force scroll to own message
-            }
-        } catch (e) {
-            // Silently fail
-        } finally {
-            setIsSending(false);
-            inputRef.current?.focus();
+        const success = await onSendMessage(content, nickname);
+        if (success) {
+            setIsAtBottom(true); // Force scroll to own message
         }
-    }, [inputValue, isSending, sessionId, nickname]);
+        
+        setIsSending(false);
+        inputRef.current?.focus();
+    }, [inputValue, isSending, nickname, onSendMessage]);
 
     const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
         if (e.key === "Enter" && !e.shiftKey) {
