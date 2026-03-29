@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { usePathname } from "next/navigation";
 import { useAudio, useTime } from "@/components/AudioContext";
@@ -29,6 +29,45 @@ export function GlobalBottomPlayer() {
     const [searchQuery, setSearchQuery] = useState("");
     const [queueSearchQuery, setQueueSearchQuery] = useState("");
     const [queueSortBy, setQueueSortBy] = useState<"default" | "latest" | "oldest" | "a-z">("a-z");
+
+    const activeTrackRef = useRef<HTMLDivElement>(null);
+    const queueScrollContainerRef = useRef<HTMLDivElement>(null);
+
+    const smoothScrollToActive = useCallback(() => {
+        const container = queueScrollContainerRef.current;
+        const target = activeTrackRef.current;
+        if (!container || !target) return;
+
+        const start = container.scrollTop;
+        const targetTop = target.offsetTop - container.offsetTop - (container.clientHeight / 2) + (target.clientHeight / 2);
+        const distance = targetTop - start;
+        const duration = 800; // ms
+        let startTime: number | null = null;
+
+        const easeOutCubic = (t: number) => 1 - Math.pow(1 - t, 3);
+
+        const animation = (currentTime: number) => {
+            if (startTime === null) startTime = currentTime;
+            const timeElapsed = currentTime - startTime;
+            const progress = Math.min(timeElapsed / duration, 1);
+            
+            container.scrollTop = start + distance * easeOutCubic(progress);
+
+            if (timeElapsed < duration) {
+                requestAnimationFrame(animation);
+            }
+        };
+
+        requestAnimationFrame(animation);
+    }, []);
+
+    // Auto-scroll when modal opens or layout/content changes
+    useEffect(() => {
+        if (showQueueModal) {
+            const timer = setTimeout(smoothScrollToActive, 100);
+            return () => clearTimeout(timer);
+        }
+    }, [showQueueModal, currentSong?.audioUrl, queueSearchQuery, queueSortBy, smoothScrollToActive]);
 
     // Reset queue search when modal closes
     useEffect(() => {
@@ -485,13 +524,14 @@ export function GlobalBottomPlayer() {
                                         )}
                                     </div>
 
-                                    <div style={{ flex: 1, overflowY: "auto", display: "flex", flexDirection: "column", gap: "12px", paddingBottom: "100px" }}>
+                                    <div ref={queueScrollContainerRef} style={{ flex: 1, overflowY: "auto", display: "flex", flexDirection: "column", gap: "12px", paddingBottom: "100px" }}>
                                         {filteredQueue.map((song, idx) => {
                                             const isCurrent = currentSong && song.audioUrl === currentSong.audioUrl;
                                             const { cleanTitle, artist, labels: qLabels } = parseSongTitle(song.title);
                                             return (
                                                 <div 
                                                     key={idx} 
+                                                    ref={isCurrent ? activeTrackRef : null}
                                                     onClick={() => { jumpToSong(song.originalIdx); setShowQueueModal(false); }}
                                                     style={{ 
                                                         display: "flex", 
