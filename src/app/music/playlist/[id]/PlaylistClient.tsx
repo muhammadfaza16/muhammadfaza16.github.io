@@ -125,6 +125,7 @@ export default function PlaylistClient({
     const { playQueue, queue, currentSong, isPlaying, togglePlay, activePlaylistId, setIsPlayerExpanded } = useAudio();
     const { theme } = useTheme();
     const [searchQuery, setSearchQuery] = useState("");
+    const [sortBy, setSortBy] = useState<"default"|"latest"|"oldest"|"name">("default");
     const [mounted, setMounted] = useState(false);
     const scrollContainerRef = useRef<HTMLDivElement>(null);
     const [scrollEl, setScrollEl] = useState<HTMLDivElement | null>(null);
@@ -193,12 +194,22 @@ export default function PlaylistClient({
     }, [initialSongs]);
 
     const filteredPlaylist = useMemo(() => {
-        if (!searchQuery) return basePlaylist;
-        const query = searchQuery.toLowerCase();
-        return basePlaylist.filter(song =>
-            song.title.toLowerCase().includes(query)
-        );
-    }, [basePlaylist, searchQuery]);
+        let result = [...basePlaylist];
+        if (searchQuery) {
+            const query = searchQuery.toLowerCase();
+            result = result.filter(song => song.title.toLowerCase().includes(query));
+        }
+
+        if (sortBy === "latest") {
+            result.sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime());
+        } else if (sortBy === "oldest") {
+            result.sort((a, b) => new Date(a.createdAt || 0).getTime() - new Date(b.createdAt || 0).getTime());
+        } else if (sortBy === "name") {
+            result.sort((a, b) => (a.title || "").localeCompare(b.title || ""));
+        }
+
+        return result;
+    }, [basePlaylist, searchQuery, sortBy]);
 
     const isThisPlaylistInQueue = activePlaylistId === playlistId || (playlistId === "all" && activePlaylistId === null);
     const isThisPlaylistPlaying = isPlaying && isThisPlaylistInQueue;
@@ -390,24 +401,39 @@ export default function PlaylistClient({
                 boxShadow: theme === "dark" ? "0 10px 40px rgba(0,0,0,0.4)" : "0 4px 16px rgba(0,0,0,0.03)",
                 margin: "4px auto 8px auto"
             }}>
-                <Search size={18} color="#888" />
-                <input
-                    type="text"
-                    placeholder="Search tracks..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    style={{
-                        flex: 1,
-                        background: "transparent",
-                        border: "none",
-                        outline: "none",
-                        color: theme === "dark" ? "#FFF" : "#000",
-                        fontSize: "0.9rem",
-                        marginLeft: "10px",
-                        fontFamily: monoFont,
-                        fontWeight: 600
-                    }}
-                />
+                <div style={{ display: "flex", alignItems: "center", flex: 1 }}>
+                    <Search size={18} color="#888" />
+                    <input
+                        type="text"
+                        placeholder="Search tracks..."
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        style={{
+                            flex: 1,
+                            background: "transparent",
+                            border: "none",
+                            outline: "none",
+                            color: theme === "dark" ? "#FFF" : "#000",
+                            fontSize: "0.9rem",
+                            marginLeft: "10px",
+                            fontFamily: monoFont,
+                            fontWeight: 600,
+                            minWidth: 0
+                        }}
+                    />
+                </div>
+                <div style={{ display: "flex", alignItems: "center", borderLeft: theme === "dark" ? "1px solid rgba(255,255,255,0.1)" : "1px solid rgba(0,0,0,0.1)", paddingLeft: "10px", marginLeft: "10px" }}>
+                    <select
+                        value={sortBy}
+                        onChange={e => setSortBy(e.target.value as any)}
+                        style={{ background: "none", border: "none", outline: "none", color: "inherit", fontSize: "0.7rem", fontWeight: 800, cursor: "pointer", WebkitAppearance: "none", paddingRight: "10px", fontFamily: headerFont }}
+                    >
+                        <option value="default" style={{ color: "#000" }}>Sort: Magic</option>
+                        <option value="latest" style={{ color: "#000" }}>Sort: Latest</option>
+                        <option value="oldest" style={{ color: "#000" }}>Sort: Oldest</option>
+                        <option value="name" style={{ color: "#000" }}>Sort: A-Z</option>
+                    </select>
+                </div>
             </div>
 
             <div style={{

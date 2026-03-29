@@ -31,6 +31,7 @@ export default function LibraryClient({
     const searchParams = useSearchParams();
     const initialVibe = searchParams.get('vibe') || "";
     const [searchQuery, setSearchQuery] = useState("");
+    const [sortBy, setSortBy] = useState<"latest"|"oldest"|"a-z">("latest");
     const [activeVibe, setActiveVibe] = useState(initialVibe);
     const [isLoading, setIsLoading] = useState(false);
 
@@ -79,13 +80,23 @@ export default function LibraryClient({
     };
 
     const filteredCategories = useMemo(() => {
-        return initialPlaylists.filter(p => {
+        let result = initialPlaylists.filter(p => {
             const matchesSearch = p.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
                                  (p.description && p.description.toLowerCase().includes(searchQuery.toLowerCase()));
             const matchesVibe = activeVibe === "" || (p.vibes && p.vibes.includes(activeVibe)) || p.title.includes(activeVibe);
             return matchesSearch && matchesVibe;
         });
-    }, [initialPlaylists, searchQuery, activeVibe]);
+
+        if (sortBy === "latest") {
+            result.sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime());
+        } else if (sortBy === "oldest") {
+            result.sort((a, b) => new Date(a.createdAt || 0).getTime() - new Date(b.createdAt || 0).getTime());
+        } else if (sortBy === "a-z") {
+            result.sort((a, b) => (a.title || "").localeCompare(b.title || ""));
+        }
+
+        return result;
+    }, [initialPlaylists, searchQuery, activeVibe, sortBy]);
 
     const headerFont = "var(--font-display), system-ui, sans-serif";
     const monoFont = "var(--font-mono), monospace";
@@ -149,24 +160,43 @@ export default function LibraryClient({
 
             {/* Search & Filters */}
             <div style={{ display: "flex", flexDirection: "column", gap: "16px", width: "100%" }}>
-                <div style={{
-                    height: "52px", borderRadius: "18px", padding: "0 18px",
-                    backgroundColor: theme === "dark" ? "rgba(255, 255, 255, 0.04)" : "rgba(255, 255, 255, 0.8)",
-                    backdropFilter: "blur(20px)", display: "flex", alignItems: "center", gap: "12px",
-                    border: theme === "dark" ? "1px solid rgba(255, 255, 255, 0.08)" : "1px solid rgba(0, 0, 0, 0.05)",
-                    boxShadow: theme === "dark" ? "0 10px 30px rgba(0,0,0,0.2)" : "0 4px 12px rgba(0,0,0,0.02)"
-                }}>
-                    <Search size={20} style={{ opacity: 0.4 }} />
-                    <input
-                        type="text"
-                        placeholder="Search archives..."
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                        style={{
-                            flex: 1, background: "transparent", border: "none", outline: "none",
-                            color: "inherit", fontSize: "1rem", fontFamily: headerFont, fontWeight: 600
-                        }}
-                    />
+                <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
+                    <div style={{
+                        height: "52px", borderRadius: "18px", padding: "0 18px", flex: 1,
+                        backgroundColor: theme === "dark" ? "rgba(255, 255, 255, 0.04)" : "rgba(255, 255, 255, 0.8)",
+                        backdropFilter: "blur(20px)", display: "flex", alignItems: "center", gap: "12px",
+                        border: theme === "dark" ? "1px solid rgba(255, 255, 255, 0.08)" : "1px solid rgba(0, 0, 0, 0.05)",
+                        boxShadow: theme === "dark" ? "0 10px 30px rgba(0,0,0,0.2)" : "0 4px 12px rgba(0,0,0,0.02)"
+                    }}>
+                        <Search size={20} style={{ opacity: 0.4 }} />
+                        <input
+                            type="text"
+                            placeholder="Search archives..."
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            style={{
+                                flex: 1, background: "transparent", border: "none", outline: "none",
+                                color: "inherit", fontSize: "1rem", fontFamily: headerFont, fontWeight: 600, minWidth: 0
+                            }}
+                        />
+                    </div>
+                    <div style={{
+                        height: "52px", borderRadius: "18px", padding: "0 14px",
+                        backgroundColor: theme === "dark" ? "rgba(255, 255, 255, 0.04)" : "rgba(255, 255, 255, 0.8)",
+                        backdropFilter: "blur(20px)", display: "flex", alignItems: "center",
+                        border: theme === "dark" ? "1px solid rgba(255, 255, 255, 0.08)" : "1px solid rgba(0, 0, 0, 0.05)",
+                        boxShadow: theme === "dark" ? "0 10px 30px rgba(0,0,0,0.2)" : "0 4px 12px rgba(0,0,0,0.02)"
+                    }}>
+                        <select
+                            value={sortBy}
+                            onChange={e => setSortBy(e.target.value as any)}
+                            style={{ background: "none", border: "none", outline: "none", color: "inherit", fontSize: "0.8rem", fontWeight: 700, cursor: "pointer", WebkitAppearance: "none", fontFamily: headerFont }}
+                        >
+                            <option value="latest" style={{ color: "#000" }}>Latest</option>
+                            <option value="oldest" style={{ color: "#000" }}>Oldest</option>
+                            <option value="a-z" style={{ color: "#000" }}>A-Z</option>
+                        </select>
+                    </div>
                 </div>
 
                 {/* Vibe Selector */}
