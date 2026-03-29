@@ -55,23 +55,21 @@ export async function POST(req: NextRequest) {
 
 export async function PUT(req: NextRequest) {
     try {
-        const { id, title, slug, description, philosophy, schedule, vibes, coverColor, coverImage, songIds } = await req.json();
+        const body = await req.json();
+        const { id } = body;
 
         if (!id) {
             return NextResponse.json({ success: false, error: "ID is required" }, { status: 400 });
         }
 
         // Sync songs if songIds provided
-        if (songIds && Array.isArray(songIds)) {
-            // Transaction to ensure atomicity
+        if (body.songIds && Array.isArray(body.songIds)) {
             await prisma.$transaction([
-                // Remove existing
                 (prisma as any).playlistSong.deleteMany({
                     where: { playlistId: id }
                 }),
-                // Add new ones
                 (prisma as any).playlistSong.createMany({
-                    data: songIds.map((sid: string, index: number) => ({
+                    data: body.songIds.map((sid: string, index: number) => ({
                         playlistId: id,
                         songId: sid,
                         order: index
@@ -80,19 +78,31 @@ export async function PUT(req: NextRequest) {
             ]);
         }
 
-        const playlist = await (prisma as any).playlist.update({
-            where: { id },
-            data: {
-                title,
-                slug,
-                description,
-                philosophy,
-                schedule,
-                vibes: Array.isArray(vibes) ? vibes : vibes ? vibes.split(',').map((v: string) => v.trim()) : [],
-                coverColor,
-                coverImage
-            }
-        });
+        // Only update metadata fields that were explicitly provided
+        const updateData: Record<string, any> = {};
+        if ('title' in body) updateData.title = body.title;
+        if ('slug' in body) updateData.slug = body.slug;
+        if ('description' in body) updateData.description = body.description;
+        if ('philosophy' in body) updateData.philosophy = body.philosophy;
+        if ('schedule' in body) updateData.schedule = body.schedule;
+        if ('coverColor' in body) updateData.coverColor = body.coverColor;
+        if ('coverImage' in body) updateData.coverImage = body.coverImage;
+        if ('vibes' in body) {
+            updateData.vibes = Array.isArray(body.vibes)
+                ? body.vibes
+                : body.vibes ? body.vibes.split(',').map((v: string) => v.trim()) : [];
+        }
+
+        // Only run update if there are fields to update
+        let playlist;
+        if (Object.keys(updateData).length > 0) {
+            playlist = await (prisma as any).playlist.update({
+                where: { id },
+                data: updateData
+            });
+        } else {
+            playlist = await (prisma as any).playlist.findUnique({ where: { id } });
+        }
 
         return NextResponse.json({ success: true, playlist });
     } catch (error: any) {

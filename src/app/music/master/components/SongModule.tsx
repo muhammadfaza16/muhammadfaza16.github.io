@@ -132,7 +132,7 @@ export function SongModule({ addLog, isBusy, setIsBusy, insetBox }: SongModulePr
 
     const startEdit = (s: Song) => {
         setFormData({
-            title: s.title.includes(' — ') ? s.title.split(' — ')[1] : s.title,
+            title: s.title.includes(' — ') ? s.title.split(' — ').slice(1).join(' — ') : s.title,
             artist: s.artist || "",
             audioUrl: s.audioUrl,
             coverImage: s.coverImage || "",
