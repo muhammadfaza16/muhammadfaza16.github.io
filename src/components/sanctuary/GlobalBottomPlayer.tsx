@@ -30,6 +30,19 @@ export function GlobalBottomPlayer() {
     const [queueSearchQuery, setQueueSearchQuery] = useState("");
     const [queueSortBy, setQueueSortBy] = useState<"default" | "latest" | "oldest" | "a-z">("a-z");
 
+    // Load persisted sort preference
+    useEffect(() => {
+        const saved = localStorage.getItem("queue_sort_by");
+        if (saved && ["default", "latest", "oldest", "a-z"].includes(saved)) {
+            setQueueSortBy(saved as any);
+        }
+    }, []);
+
+    // Save sort preference when it changes
+    useEffect(() => {
+        localStorage.setItem("queue_sort_by", queueSortBy);
+    }, [queueSortBy]);
+
     const activeTrackRef = useRef<HTMLDivElement>(null);
     const queueScrollContainerRef = useRef<HTMLDivElement>(null);
 
@@ -73,7 +86,6 @@ export function GlobalBottomPlayer() {
     useEffect(() => {
         if (!showQueueModal) {
             setQueueSearchQuery("");
-            setQueueSortBy("a-z");
         }
     }, [showQueueModal]);
 
