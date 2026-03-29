@@ -31,7 +31,7 @@ export default function LibraryClient({
     const searchParams = useSearchParams();
     const initialVibe = searchParams.get('vibe') || "";
     const [searchQuery, setSearchQuery] = useState("");
-    const [sortBy, setSortBy] = useState<"latest"|"oldest"|"a-z">("latest");
+    const [sortBy, setSortBy] = useState<"latest"|"oldest"|"a-z">("a-z");
     const [activeVibe, setActiveVibe] = useState(initialVibe);
     const [isLoading, setIsLoading] = useState(false);
 

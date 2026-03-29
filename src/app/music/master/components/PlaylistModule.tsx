@@ -61,7 +61,7 @@ export function PlaylistModule({ addLog, isBusy, setIsBusy, insetBox }: Playlist
     const [currentSongs, setCurrentSongs] = useState<Song[]>([]);
     const [allSongs, setAllSongs] = useState<Song[]>([]);
     const [songSearch, setSongSearch] = useState("");
-    const [sortBy, setSortBy] = useState<"latest"|"oldest"|"name">("latest");
+    const [sortBy, setSortBy] = useState<"latest"|"oldest"|"name">("name");
     const [formSongSearch, setFormSongSearch] = useState("");
 
     // Form State

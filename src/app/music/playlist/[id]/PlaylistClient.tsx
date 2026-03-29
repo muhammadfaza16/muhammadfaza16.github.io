@@ -125,7 +125,7 @@ export default function PlaylistClient({
     const { playQueue, queue, currentSong, isPlaying, togglePlay, activePlaylistId, setIsPlayerExpanded } = useAudio();
     const { theme } = useTheme();
     const [searchQuery, setSearchQuery] = useState("");
-    const [sortBy, setSortBy] = useState<"default"|"latest"|"oldest"|"name">("default");
+    const [sortBy, setSortBy] = useState<"default"|"latest"|"oldest"|"name">("name");
     const [mounted, setMounted] = useState(false);
     const scrollContainerRef = useRef<HTMLDivElement>(null);
     const [scrollEl, setScrollEl] = useState<HTMLDivElement | null>(null);

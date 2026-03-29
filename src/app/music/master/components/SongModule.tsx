@@ -44,7 +44,7 @@ export function SongModule({ addLog, isBusy, setIsBusy, insetBox }: SongModulePr
     const [editingId, setEditingId] = useState<string | null>(null);
     const [isAdding, setIsAdding] = useState(false);
     const [searchQuery, setSearchQuery] = useState("");
-    const [sortBy, setSortBy] = useState<"latest" | "oldest" | "name">("latest");
+    const [sortBy, setSortBy] = useState<"latest" | "oldest" | "name">("name");
 
     // Form State
     const [formData, setFormData] = useState({
