@@ -23,6 +23,7 @@ export async function GET() {
                 title: song.title,  // Keep full title for display
                 artist,
                 audioUrl: song.audioUrl,
+                coverImage: song.coverImage,
                 source: song.source,
                 duration: song.duration,
                 category: song.category // Add category here
@@ -39,7 +40,7 @@ export async function GET() {
 export async function POST(req: Request) {
     try {
         const body = await req.json();
-        const { title, artist, audioUrl, source, duration, category } = body;
+        const { title, artist, audioUrl, coverImage, source, duration, category } = body;
 
         if (!title || !audioUrl) {
             return NextResponse.json({ success: false, error: "Title and Audio URL are required" }, { status: 400 });
@@ -52,6 +53,7 @@ export async function POST(req: Request) {
             data: {
                 title: fullTitle,
                 audioUrl,
+                coverImage: coverImage || null,
                 source: source || "Local",
                 duration: duration || 0,
                 category: category || "Other"
@@ -67,7 +69,7 @@ export async function POST(req: Request) {
 export async function PUT(req: Request) {
     try {
         const body = await req.json();
-        const { id, title, artist, audioUrl, source, duration, category } = body;
+        const { id, title, artist, audioUrl, coverImage, source, duration, category } = body;
 
         if (!id || !title || !audioUrl) {
             return NextResponse.json({ success: false, error: "ID, Title and Audio URL are required" }, { status: 400 });
@@ -80,6 +82,7 @@ export async function PUT(req: Request) {
             data: {
                 title: fullTitle,
                 audioUrl,
+                coverImage: coverImage || null,
                 source: source || "Local",
                 duration: duration || 0,
                 category: category || "Other"

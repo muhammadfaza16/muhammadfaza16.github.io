@@ -264,7 +264,7 @@ const LiveTrackRow = React.memo(({
 LiveTrackRow.displayName = "LiveTrackRow";
 
 const LiveControls = React.memo(({ 
-    isWaitingForSync, isTransitioning, togglePlay, isPlaying, isSynced, refresh, isDark, headerFont, onShowQueue, onShowChat 
+    isWaitingForSync, isTransitioning, togglePlay, isPlaying, isSynced, refresh, isDark, headerFont, onShowQueue, onShowChat, unreadCount 
 }: any) => {
     const { isBuffering } = useLiveTime();
     return (
@@ -280,9 +280,21 @@ const LiveControls = React.memo(({
                         border: isDark ? "1px solid rgba(255,255,255,0.1)" : "1px solid rgba(99, 102, 241, 0.2)",
                         cursor: "pointer",
                         color: isDark ? "#FFF" : "#6366F1",
+                        position: "relative",
                     }}
                 >
                     <MessageCircle size={18} />
+                    {unreadCount > 0 && (
+                        <div style={{
+                            position: "absolute",
+                            top: "0", right: "0",
+                            width: "12px", height: "12px",
+                            borderRadius: "50%",
+                            backgroundColor: "#EF4444",
+                            border: `2px solid ${isDark ? "#0A0A0A" : "#F8F5F2"}`,
+                            boxShadow: "0 2px 4px rgba(0,0,0,0.2)"
+                        }} />
+                    )}
                 </motion.button>
                 <motion.button
                     whileTap={{ scale: 0.9 }}
@@ -414,6 +426,87 @@ export function LiveMusicPlayer() {
     const [showQueue, setShowQueue] = React.useState(false);
     const [showChat, setShowChat] = React.useState(false);
     const [reactions, setReactions] = React.useState<{ id: number, x: number, duration: number }[]>([]);
+
+    // ─── Chat Polling State ────────────────────────────────────────────────
+    const [chatMessages, setChatMessages] = React.useState<any[]>([]);
+    const [unreadCount, setUnreadCount] = React.useState(0);
+    const lastMessageTimeRef = React.useRef<string | null>(null);
+    const pollTimerRef = React.useRef<NodeJS.Timeout | null>(null);
+    const showChatRef = React.useRef(showChat);
+
+    React.useEffect(() => {
+        showChatRef.current = showChat;
+        if (showChat) {
+            setUnreadCount(0);
+        }
+    }, [showChat]);
+
+    const fetchMessages = React.useCallback(async (isInitial = false) => {
+        if (!activeSessionId) return;
+        try {
+            const params = new URLSearchParams({ sessionId: activeSessionId });
+            if (!isInitial && lastMessageTimeRef.current) {
+                params.set("after", lastMessageTimeRef.current);
+            }
+
+            const res = await fetch(`/api/live-music/chat?${params}`);
+            if (!res.ok) return;
+            
+            const data = await res.json();
+            if (!data.success || !data.messages?.length) return;
+
+            if (isInitial) {
+                setChatMessages(data.messages);
+            } else {
+                setChatMessages(prev => [...prev, ...data.messages]);
+                if (!showChatRef.current) {
+                    setUnreadCount(prev => prev + data.messages.length);
+                }
+            }
+
+            const lastMsg = data.messages[data.messages.length - 1];
+            if (lastMsg) {
+                lastMessageTimeRef.current = lastMsg.createdAt;
+            }
+        } catch (e) {}
+    }, [activeSessionId]);
+
+    React.useEffect(() => {
+        if (!activeSessionId) {
+            setChatMessages([]);
+            setUnreadCount(0);
+            lastMessageTimeRef.current = null;
+            return;
+        }
+
+        fetchMessages(true);
+        pollTimerRef.current = setInterval(() => fetchMessages(false), 4000);
+
+        return () => {
+            if (pollTimerRef.current) clearInterval(pollTimerRef.current);
+        };
+    }, [activeSessionId, fetchMessages]);
+
+    const handleSendMessage = React.useCallback(async (content: string, nickname: string) => {
+        if (!activeSessionId) return false;
+        try {
+            const res = await fetch("/api/live-music/chat", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ sessionId: activeSessionId, nickname, content }),
+            });
+            const data = await res.json();
+            if (data.success && data.message) {
+                setChatMessages(prev => [...prev, data.message]);
+                lastMessageTimeRef.current = data.message.createdAt;
+                return true;
+            }
+            return false;
+        } catch (e) {
+            return false;
+        }
+    }, [activeSessionId]);
+    // ───────────────────────────────────────────────────────────────────────
 
     const handleReact = () => {
         const id = Date.now() + Math.random();
@@ -605,9 +698,13 @@ export function LiveMusicPlayer() {
                     style={{
                         width: "100%", height: "100%",
                         borderRadius: "28px", overflow: "hidden", position: "relative",
-                        background: isDark 
-                            ? "linear-gradient(135deg, #1E1B4B, #312E81)" 
-                            : "linear-gradient(135deg, #6366F1, #A855F7, #EC4899)",
+                        background: currentSong?.coverImage 
+                            ? `url(${currentSong.coverImage}) center/cover no-repeat`
+                            : playlistCover 
+                                ? `url(${playlistCover}) center/cover no-repeat`
+                                : isDark 
+                                    ? "linear-gradient(135deg, #1E1B4B, #312E81)" 
+                                    : "linear-gradient(135deg, #6366F1, #A855F7, #EC4899)",
                         border: isDark ? "1px solid rgba(255,255,255,0.1)" : "none",
                         boxShadow: isDark 
                             ? "0 40px 100px rgba(0,0,0,0.6)" 
@@ -810,7 +907,8 @@ export function LiveMusicPlayer() {
                     isDark={isDark}
                     headerFont={headerFont}
                     onShowQueue={() => setShowQueue(true)}
-                    onShowChat={() => setShowChat(true)}
+                    onShowChat={() => setShowChat(prev => !prev)}
+                    unreadCount={unreadCount}
                 />
             </div>
             
@@ -911,6 +1009,8 @@ export function LiveMusicPlayer() {
                     sessionId={activeSessionId}
                     isVisible={showChat}
                     onClose={() => setShowChat(false)}
+                    messages={chatMessages}
+                    onSendMessage={handleSendMessage}
                 />
             )}
         </>

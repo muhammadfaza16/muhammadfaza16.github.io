@@ -6,6 +6,7 @@ import { useAudio } from "../AudioContext"; // Assuming this is the correct path
 interface LiveSong {
     title: string;
     audioUrl: string;
+    coverImage?: string;
     duration: number;
     category?: string;
 }
@@ -13,6 +14,7 @@ interface LiveSong {
 interface TracklistItem {
     title: string;
     audioUrl: string;
+    coverImage?: string;
     duration: number;
     category?: string;
     isCurrent: boolean;
@@ -520,6 +522,7 @@ export function LiveMusicProvider({ children }: { children: React.ReactNode }) {
         const nextSong: LiveSong = {
             title: nextTrack.title,
             audioUrl: nextTrack.audioUrl,
+            coverImage: nextTrack.coverImage,
             duration: nextTrack.duration,
             category: nextTrack.category,
         };

@@ -38,6 +38,7 @@ interface Song {
     id: string;
     title: string;
     artist: string;
+    coverImage?: string;
 }
 
 interface PlaylistModuleProps {
@@ -291,6 +292,26 @@ export function PlaylistModule({ addLog, isBusy, setIsBusy, insetBox }: Playlist
     };
 
     const closeSongs = async () => {
+        if (viewingPlaylist) {
+            setIsBusy(true);
+             try {
+                // Save current order before closing
+                await fetch("/api/music/master/playlists", {
+                    method: "PUT",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ 
+                        id: viewingPlaylist.id, 
+                        title: viewingPlaylist.title,
+                        slug: viewingPlaylist.slug,
+                        songIds: currentSongs.map(s => s.id) 
+                    })
+                });
+            } catch (err) {
+                console.error("Failed to save order on close", err);
+            } finally {
+                setIsBusy(false);
+            }
+        }
         setViewingPlaylist(null);
         await fetchPlaylists();
     };
@@ -434,6 +455,15 @@ export function PlaylistModule({ addLog, isBusy, setIsBusy, insetBox }: Playlist
                                 />
                             </div>
                             <div style={{ display: "flex", flexDirection: "column", gap: "0.4rem" }}>
+                                <label style={{ color: theme === "dark" ? "rgba(255,255,255,0.4)" : "#555", fontSize: "0.55rem", fontWeight: 800 }}>COVER URL</label>
+                                <input
+                                    value={formData.coverImage}
+                                    onChange={e => setFormData({ ...formData, coverImage: e.target.value })}
+                                    style={{ ...getInputStyle(theme), padding: "0.5rem" }}
+                                    placeholder="https://..."
+                                />
+                            </div>
+                            <div style={{ display: "flex", flexDirection: "column", gap: "0.4rem" }}>
                                 <label style={{ color: theme === "dark" ? "rgba(255,255,255,0.4)" : "#555", fontSize: "0.55rem", fontWeight: 800 }}>COLOR</label>
                                 <input
                                     type="color"
@@ -474,7 +504,23 @@ export function PlaylistModule({ addLog, isBusy, setIsBusy, insetBox }: Playlist
 
                         <div style={{ maxHeight: "50vh", overflowY: "auto", display: "flex", flexDirection: "column", gap: "0.4rem", paddingRight: "4px" }}>
                             {/* Current Tracks Section */}
-                            <div style={{ fontSize: "0.55rem", fontWeight: 800, color: theme === "dark" ? "rgba(255,255,255,0.4)" : "#444", margin: "0.5rem 0 0.2rem 0" }}>CURRENT TRACKS ({currentSongs.length})</div>
+                            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", margin: "0.5rem 0 0.2rem 0" }}>
+                                <div style={{ fontSize: "0.55rem", fontWeight: 800, color: theme === "dark" ? "rgba(255,255,255,0.4)" : "#444" }}>
+                                    CURRENT TRACKS ({currentSongs.length})
+                                </div>
+                                {currentSongs.length > 1 && (
+                                    <motion.button 
+                                        onClick={() => {
+                                            const shuffled = [...currentSongs].sort(() => Math.random() - 0.5);
+                                            setCurrentSongs(shuffled);
+                                        }}
+                                        whileTap={{ scale: 0.95 }}
+                                        style={{ fontSize: "0.55rem", fontWeight: 800, color: "#10B981", display: "flex", alignItems: "center", gap: "4px" }}
+                                    >
+                                        SHUFFLE
+                                    </motion.button>
+                                )}
+                            </div>
                             {currentSongs.map(song => (
                                 <div key={song.id} style={{ ...insetBox, padding: "0.5rem 0.75rem", display: "flex", justifyContent: "space-between", alignItems: "center", borderLeft: `2px solid ${viewingPlaylist.coverColor}` }}>
                                     <div>
@@ -503,9 +549,41 @@ export function PlaylistModule({ addLog, isBusy, setIsBusy, insetBox }: Playlist
                                         })()}
                                         <div style={{ color: theme === "dark" ? "rgba(255,255,255,0.4)" : "rgba(0,0,0,0.45)", fontSize: "0.5rem" }}>{song.artist}</div>
                                     </div>
-                                    <motion.button onClick={() => removeSongFromPlaylist(song.id, song.title)} whileTap={{ scale: 0.9 }} style={{ color: "#ef4444" }}>
-                                        <MinusCircle size={14} />
-                                    </motion.button>
+                                    <div style={{ display: "flex", gap: "4px" }}>
+                                        <motion.button 
+                                            onClick={() => {
+                                                const idx = currentSongs.findIndex(s => s.id === song.id);
+                                                if (idx > 0) {
+                                                    const newSongs = [...currentSongs];
+                                                    [newSongs[idx - 1], newSongs[idx]] = [newSongs[idx], newSongs[idx - 1]];
+                                                    setCurrentSongs(newSongs);
+                                                }
+                                            }}
+                                            whileTap={{ scale: 0.9 }} 
+                                            style={{ color: theme === "dark" ? "rgba(255,255,255,0.6)" : "rgba(0,0,0,0.6)", padding: "4px" }}
+                                            disabled={currentSongs.findIndex(s => s.id === song.id) === 0}
+                                        >
+                                            ▲
+                                        </motion.button>
+                                        <motion.button 
+                                            onClick={() => {
+                                                const idx = currentSongs.findIndex(s => s.id === song.id);
+                                                if (idx < currentSongs.length - 1) {
+                                                    const newSongs = [...currentSongs];
+                                                    [newSongs[idx + 1], newSongs[idx]] = [newSongs[idx], newSongs[idx + 1]];
+                                                    setCurrentSongs(newSongs);
+                                                }
+                                            }}
+                                            whileTap={{ scale: 0.9 }} 
+                                            style={{ color: theme === "dark" ? "rgba(255,255,255,0.6)" : "rgba(0,0,0,0.6)", padding: "4px" }}
+                                            disabled={currentSongs.findIndex(s => s.id === song.id) === currentSongs.length - 1}
+                                        >
+                                            ▼
+                                        </motion.button>
+                                        <motion.button onClick={() => removeSongFromPlaylist(song.id, song.title)} whileTap={{ scale: 0.9 }} style={{ color: "#ef4444", padding: "4px" }}>
+                                            <MinusCircle size={14} />
+                                        </motion.button>
+                                    </div>
                                 </div>
                             ))}
                             <div style={{ fontSize: "0.55rem", fontWeight: 800, color: theme === "dark" ? "rgba(255,255,255,0.4)" : "#444", margin: "1rem 0 0.2rem 0" }}>ADD SONGS ({filteredSongs.length} available)</div>
@@ -570,6 +648,11 @@ export function PlaylistModule({ addLog, isBusy, setIsBusy, insetBox }: Playlist
                                         <span>{p._count?.songs || 0} tracks</span>
                                         {p.vibes && p.vibes.length > 0 && <span>• {p.vibes.join(', ')}</span>}
                                     </div>
+                                    {p.description && (
+                                        <div style={{ color: theme === "dark" ? "rgba(255,255,255,0.3)" : "rgba(0,0,0,0.4)", fontSize: "0.55rem", marginTop: "4px", fontStyle: "italic", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", maxWidth: "250px" }}>
+                                            "{p.description}"
+                                        </div>
+                                    )}
                                 </div>
                                 <div style={{ display: "flex", gap: "0.25rem" }} onClick={e => e.stopPropagation()}>
                                     <motion.button onClick={() => startEdit(p)} whileTap={{ scale: 0.9 }} style={{ padding: "8px", color: theme === "dark" ? "rgba(255,255,255,0.4)" : "#666" }}><Edit2 size={14} /></motion.button>

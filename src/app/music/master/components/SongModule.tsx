@@ -23,6 +23,7 @@ interface Song {
     title: string;
     artist: string;
     audioUrl: string;
+    coverImage?: string;
     source: string;
     duration: number;
     category: string;
@@ -48,6 +49,7 @@ export function SongModule({ addLog, isBusy, setIsBusy, insetBox }: SongModulePr
         title: "",
         artist: "",
         audioUrl: "",
+        coverImage: "",
         source: "Local",
         duration: 0,
         category: "Other"
@@ -121,7 +123,7 @@ export function SongModule({ addLog, isBusy, setIsBusy, insetBox }: SongModulePr
     };
 
     const resetForm = () => {
-        setFormData({ title: "", artist: "", audioUrl: "", source: "Local", duration: 0, category: "Other" });
+        setFormData({ title: "", artist: "", audioUrl: "", coverImage: "", source: "Local", duration: 0, category: "Other" });
         setEditingId(null);
         setIsAdding(false);
     };
@@ -131,6 +133,7 @@ export function SongModule({ addLog, isBusy, setIsBusy, insetBox }: SongModulePr
             title: s.title.includes(' — ') ? s.title.split(' — ')[1] : s.title,
             artist: s.artist || "",
             audioUrl: s.audioUrl,
+            coverImage: s.coverImage || "",
             source: s.source || "Local",
             duration: s.duration || 0,
             category: s.category || "Other"
@@ -217,6 +220,19 @@ export function SongModule({ addLog, isBusy, setIsBusy, insetBox }: SongModulePr
                                     onChange={e => setFormData({ ...formData, audioUrl: e.target.value })}
                                     style={{ ...getInputStyle(theme), padding: "0.6rem 0.6rem 0.6rem 2.2rem", width: "100%" }}
                                     placeholder="https://.../music.mp3"
+                                />
+                                <LinkIcon size={12} style={{ position: "absolute", left: "0.8rem", top: "50%", transform: "translateY(-50%)", opacity: 0.4 }} />
+                            </div>
+                        </div>
+
+                        <div style={{ display: "flex", flexDirection: "column", gap: "0.4rem" }}>
+                            <label style={{ color: theme === "dark" ? "rgba(255,255,255,0.4)" : "#555", fontSize: "0.55rem", fontWeight: 800 }}>COVER IMAGE URL (Overrides Player Cover)</label>
+                            <div style={{ position: "relative" }}>
+                                <input
+                                    value={formData.coverImage}
+                                    onChange={e => setFormData({ ...formData, coverImage: e.target.value })}
+                                    style={{ ...getInputStyle(theme), padding: "0.6rem 0.6rem 0.6rem 2.2rem", width: "100%" }}
+                                    placeholder="https://.../image.jpg"
                                 />
                                 <LinkIcon size={12} style={{ position: "absolute", left: "0.8rem", top: "50%", transform: "translateY(-50%)", opacity: 0.4 }} />
                             </div>

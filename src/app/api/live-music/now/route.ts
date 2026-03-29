@@ -58,6 +58,7 @@ export async function GET(request: Request) {
                                             id: true,
                                             title: true,
                                             audioUrl: true,
+                                            coverImage: true,
                                             duration: true,
                                             category: true
                                         }
@@ -129,6 +130,7 @@ export async function GET(request: Request) {
             song: {
                 title: currentSong.title,
                 audioUrl: currentSong.audioUrl,
+                coverImage: currentSong.coverImage,
                 duration: currentSong.duration,
                 category: currentSong.category
             },
@@ -142,6 +144,7 @@ export async function GET(request: Request) {
             tracklist: playableSongs.map((s: any, i: number) => ({
                 title: s.title,
                 audioUrl: s.audioUrl,
+                coverImage: s.coverImage,
                 duration: s.duration,
                 category: s.category,
                 isCurrent: i === currentSongIndex
