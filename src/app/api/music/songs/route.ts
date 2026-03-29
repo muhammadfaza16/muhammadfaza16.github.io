@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
+import * as mm from "music-metadata";
+import path from "path";
 
 export const dynamic = "force-dynamic";
 
@@ -50,6 +52,21 @@ export async function POST(req: Request) {
         // Combine artist and title if artist is provided for consistency with existing data
         const fullTitle = artist ? `${artist} — ${title}` : title;
 
+        let finalDuration = duration || 0;
+
+        // Auto-extract duration for local files if not provided manually
+        if (finalDuration === 0 && audioUrl.startsWith("/audio/")) {
+            try {
+                // Remove query params if any
+                const cleanUrl = audioUrl.split('?')[0]; 
+                const filePath = path.join(process.cwd(), "public", decodeURIComponent(cleanUrl));
+                const metadata = await mm.parseFile(filePath);
+                finalDuration = Math.round(metadata.format.duration || 0);
+            } catch (err) {
+                console.warn(`[Song POST] Could not extract duration for ${audioUrl}:`, err);
+            }
+        }
+
         const song = await prisma.song.create({
             data: {
                 title: fullTitle,
@@ -57,7 +74,7 @@ export async function POST(req: Request) {
                 // @ts-ignore
                 coverImage: coverImage || null,
                 source: source || "Local",
-                duration: duration || 0,
+                duration: finalDuration,
                 category: category || "Other"
             }
         });
@@ -79,6 +96,21 @@ export async function PUT(req: Request) {
 
         const fullTitle = artist ? `${artist} — ${title}` : title;
 
+        let finalDuration = duration || 0;
+
+        // Auto-extract duration for local files if not provided manually
+        if (finalDuration === 0 && audioUrl.startsWith("/audio/")) {
+            try {
+                // Remove query params if any
+                const cleanUrl = audioUrl.split('?')[0];
+                const filePath = path.join(process.cwd(), "public", decodeURIComponent(cleanUrl));
+                const metadata = await mm.parseFile(filePath);
+                finalDuration = Math.round(metadata.format.duration || 0);
+            } catch (err) {
+                console.warn(`[Song PUT] Could not extract duration for ${audioUrl}:`, err);
+            }
+        }
+
         const song = await prisma.song.update({
             where: { id },
             data: {
@@ -87,7 +119,7 @@ export async function PUT(req: Request) {
                 // @ts-ignore
                 coverImage: coverImage || null,
                 source: source || "Local",
-                duration: duration || 0,
+                duration: finalDuration,
                 category: category || "Other"
             }
         });

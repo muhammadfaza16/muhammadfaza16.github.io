@@ -1,6 +1,7 @@
 import { PrismaClient } from '@prisma/client';
 import * as fs from 'fs';
 import * as path from 'path';
+import * as mm from 'music-metadata';
 
 const prisma = new PrismaClient();
 const AUDIO_DIR = path.join(__dirname, '../public/audio');
@@ -76,12 +77,27 @@ async function main() {
         });
 
         if (songRecord) {
-            if (songRecord.audioUrl !== newAudioUrl) {
+            // Extract duration if missing
+            let duration: number | null = songRecord.duration;
+            if (!duration || duration === 0) {
+                try {
+                    const metadata = await mm.parseFile(newPath);
+                    duration = Math.round(metadata.format.duration || 0);
+                    console.log(`[DURATION] Extracted ${duration}s for "${songRecord.title}"`);
+                } catch (err) {
+                    console.warn(`[WARN] Could not extract duration for ${newFileName}:`, (err as Error).message);
+                }
+            }
+
+            if (songRecord.audioUrl !== newAudioUrl || songRecord.duration !== duration) {
                 await prisma.song.update({
                     where: { id: songRecord.id },
-                    data: { audioUrl: newAudioUrl }
+                    data: { 
+                        audioUrl: newAudioUrl,
+                        duration: duration
+                    }
                 });
-                console.log(`[DB] Updated URL for "${songRecord.title}"`);
+                console.log(`[DB] Updated record for "${songRecord.title}"`);
                 dbUpdateCount++;
             }
         } else {
