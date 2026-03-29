@@ -39,6 +39,7 @@ interface Song {
     title: string;
     artist: string;
     coverImage?: string;
+    createdAt?: string;
 }
 
 interface PlaylistModuleProps {
@@ -60,6 +61,7 @@ export function PlaylistModule({ addLog, isBusy, setIsBusy, insetBox }: Playlist
     const [currentSongs, setCurrentSongs] = useState<Song[]>([]);
     const [allSongs, setAllSongs] = useState<Song[]>([]);
     const [songSearch, setSongSearch] = useState("");
+    const [sortBy, setSortBy] = useState<"latest"|"oldest"|"name">("latest");
     const [formSongSearch, setFormSongSearch] = useState("");
 
     // Form State
@@ -89,11 +91,22 @@ export function PlaylistModule({ addLog, isBusy, setIsBusy, insetBox }: Playlist
     }, [allSongs, formSongSearch]);
 
     const filteredSongs = useMemo(() => {
-        if (songSearch.length < 2) return availableSongs;
-        const query = songSearch.toLowerCase();
-        return availableSongs
-            .filter(s => (s.title || "").toLowerCase().includes(query) || (s.artist || "").toLowerCase().includes(query));
-    }, [availableSongs, songSearch]);
+        let result = [...availableSongs];
+        if (songSearch.length >= 2) {
+            const query = songSearch.toLowerCase();
+            result = result.filter(s => (s.title || "").toLowerCase().includes(query) || (s.artist || "").toLowerCase().includes(query));
+        }
+
+        if (sortBy === "latest") {
+            result.sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime());
+        } else if (sortBy === "oldest") {
+            result.sort((a, b) => new Date(a.createdAt || 0).getTime() - new Date(b.createdAt || 0).getTime());
+        } else if (sortBy === "name") {
+            result.sort((a, b) => (a.title || "").localeCompare(b.title || ""));
+        }
+
+        return result;
+    }, [availableSongs, songSearch, sortBy]);
 
     useEffect(() => {
         fetchPlaylists();
@@ -492,14 +505,27 @@ export function PlaylistModule({ addLog, isBusy, setIsBusy, insetBox }: Playlist
                         initial={{ opacity: 0 }} animate={{ opacity: 1 }}
                         style={{ display: "flex", flexDirection: "column", gap: "1rem" }}
                     >
-                        <div style={{ ...insetBox, padding: "0.5rem", display: "flex", alignItems: "center", gap: "8px" }}>
-                            <Search size={14} color={theme === "dark" ? "rgba(255,255,255,0.4)" : "rgba(0,0,0,0.3)"} />
-                            <input
-                                value={songSearch}
-                                onChange={e => setSongSearch(e.target.value)}
-                                style={{ background: "none", border: "none", flex: 1, color: theme === "dark" ? "#FFF" : "#000", fontSize: "0.65rem", outline: "none" }}
-                                placeholder="Search all songs to add..."
-                            />
+                        <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
+                            <div style={{ ...insetBox, padding: "0.5rem", display: "flex", alignItems: "center", gap: "8px", flex: 1 }}>
+                                <Search size={14} color={theme === "dark" ? "rgba(255,255,255,0.4)" : "rgba(0,0,0,0.3)"} />
+                                <input
+                                    value={songSearch}
+                                    onChange={e => setSongSearch(e.target.value)}
+                                    style={{ background: "none", border: "none", flex: 1, color: theme === "dark" ? "#FFF" : "#000", fontSize: "0.65rem", outline: "none" }}
+                                    placeholder="Search all songs to add..."
+                                />
+                            </div>
+                            <div style={{ ...insetBox, padding: "0.5rem", display: "flex", alignItems: "center" }}>
+                                <select
+                                    value={sortBy}
+                                    onChange={e => setSortBy(e.target.value as any)}
+                                    style={{ background: "none", border: "none", outline: "none", color: "inherit", fontSize: "0.6rem", fontWeight: 800, cursor: "pointer", WebkitAppearance: "none", paddingRight: "10px" }}
+                                >
+                                    <option value="latest" style={{ color: "#000" }}>Sort: Latest</option>
+                                    <option value="oldest" style={{ color: "#000" }}>Sort: Oldest</option>
+                                    <option value="name" style={{ color: "#000" }}>Sort: A-Z</option>
+                                </select>
+                            </div>
                         </div>
 
                         <div style={{ maxHeight: "50vh", overflowY: "auto", display: "flex", flexDirection: "column", gap: "0.4rem", paddingRight: "4px" }}>

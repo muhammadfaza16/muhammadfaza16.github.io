@@ -27,6 +27,7 @@ interface Song {
     source: string;
     duration: number;
     category: string;
+    createdAt?: string;
 }
 
 interface SongModuleProps {
@@ -43,6 +44,7 @@ export function SongModule({ addLog, isBusy, setIsBusy, insetBox }: SongModulePr
     const [editingId, setEditingId] = useState<string | null>(null);
     const [isAdding, setIsAdding] = useState(false);
     const [searchQuery, setSearchQuery] = useState("");
+    const [sortBy, setSortBy] = useState<"latest" | "oldest" | "name">("latest");
 
     // Form State
     const [formData, setFormData] = useState({
@@ -143,14 +145,26 @@ export function SongModule({ addLog, isBusy, setIsBusy, insetBox }: SongModulePr
     };
 
     const filteredSongs = useMemo(() => {
-        if (!searchQuery) return songs;
-        const q = searchQuery.toLowerCase();
-        return songs.filter(s => 
-            s.title.toLowerCase().includes(q) || 
-            s.artist.toLowerCase().includes(q) ||
-            s.category.toLowerCase().includes(q)
-        );
-    }, [songs, searchQuery]);
+        let result = [...songs];
+        if (searchQuery) {
+            const q = searchQuery.toLowerCase();
+            result = result.filter(s => 
+                (s.title || "").toLowerCase().includes(q) || 
+                (s.artist || "").toLowerCase().includes(q) ||
+                (s.category || "").toLowerCase().includes(q)
+            );
+        }
+
+        if (sortBy === "latest") {
+            result.sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime());
+        } else if (sortBy === "oldest") {
+            result.sort((a, b) => new Date(a.createdAt || 0).getTime() - new Date(b.createdAt || 0).getTime());
+        } else if (sortBy === "name") {
+            result.sort((a, b) => (a.title || "").localeCompare(b.title || ""));
+        }
+
+        return result;
+    }, [songs, searchQuery, sortBy]);
 
     if (isLoading) return (
         <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }} className="animate-pulse">
@@ -286,14 +300,27 @@ export function SongModule({ addLog, isBusy, setIsBusy, insetBox }: SongModulePr
                         initial={{ opacity: 0 }} animate={{ opacity: 1 }}
                         style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}
                     >
-                        <div style={{ ...insetBox, padding: "0.6rem 1rem", display: "flex", alignItems: "center", gap: "10px" }}>
-                            <Search size={14} style={{ opacity: 0.4 }} />
-                            <input 
-                                value={searchQuery}
-                                onChange={e => setSearchQuery(e.target.value)}
-                                placeholder="Search title, artist, or category..."
-                                style={{ background: "none", border: "none", outline: "none", color: "inherit", fontSize: "0.7rem", flex: 1, fontFamily: "inherit" }}
-                            />
+                        <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
+                            <div style={{ ...insetBox, padding: "0.6rem 1rem", display: "flex", alignItems: "center", gap: "10px", flex: 1 }}>
+                                <Search size={14} style={{ opacity: 0.4 }} />
+                                <input 
+                                    value={searchQuery}
+                                    onChange={e => setSearchQuery(e.target.value)}
+                                    placeholder="Search title, artist, or category..."
+                                    style={{ background: "none", border: "none", outline: "none", color: "inherit", fontSize: "0.7rem", flex: 1, fontFamily: "inherit" }}
+                                />
+                            </div>
+                            <div style={{ ...insetBox, padding: "0.6rem", display: "flex", alignItems: "center" }}>
+                                <select
+                                    value={sortBy}
+                                    onChange={e => setSortBy(e.target.value as any)}
+                                    style={{ background: "none", border: "none", outline: "none", color: "inherit", fontSize: "0.65rem", fontWeight: 700, cursor: "pointer", WebkitAppearance: "none", paddingRight: "10px" }}
+                                >
+                                    <option value="latest" style={{ color: "#000" }}>Sort: Latest</option>
+                                    <option value="oldest" style={{ color: "#000" }}>Sort: Oldest</option>
+                                    <option value="name" style={{ color: "#000" }}>Sort: A-Z</option>
+                                </select>
+                            </div>
                         </div>
 
                         <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem", maxHeight: "60vh", overflowY: "auto", paddingRight: "4px" }}>

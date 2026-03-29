@@ -26,7 +26,8 @@ export async function GET() {
                 coverImage: song.coverImage,
                 source: song.source,
                 duration: song.duration,
-                category: song.category // Add category here
+                category: song.category, // Add category here
+                createdAt: song.createdAt
             };
 
         });
