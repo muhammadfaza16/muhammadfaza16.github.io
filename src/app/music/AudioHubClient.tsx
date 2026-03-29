@@ -8,6 +8,7 @@ import { useAudio, useTime } from "@/components/AudioContext";
 import { parseSongTitle } from "@/utils/songUtils";
 import { useTheme } from "@/components/ThemeProvider";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { useLiveMusic } from "@/components/live/LiveMusicContext";
 
 const MENU_ITEMS = [
     { id: "songs", label: "All Songs", subtitle: "Full Library", icon: LibraryBig, href: "/music/playlist/all" },
@@ -23,6 +24,7 @@ export default function AudioHubClient({
 }) {
     const { currentSong, isPlaying, togglePlay, setIsPlayerExpanded } = useAudio();
     const { currentTime, duration } = useTime();
+    const { isLive } = useLiveMusic();
     const { theme } = useTheme();
     const scrollContainerRef = useRef<HTMLDivElement>(null);
     const scrollYRef = useRef(0);
@@ -266,27 +268,27 @@ export default function AudioHubClient({
                                                 <div>
                                                     <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
                                                         <h2 style={{ fontFamily: headerFont, fontWeight: 700, fontSize: "1.1rem", margin: 0, letterSpacing: "-0.015em" }}>Live Music</h2>
-                                                        <div style={{ width: "8px", height: "8px", borderRadius: "50%", backgroundColor: "#EF4444" }} />
+                                                        <div style={{ width: "8px", height: "8px", borderRadius: "50%", backgroundColor: isLive ? "#EF4444" : "#666" }} />
                                                     </div>
-                                                    <p style={{ margin: 0, fontSize: "0.65rem", fontWeight: 700, opacity: 0.45, fontFamily: monoFont, letterSpacing: "0.1em", textTransform: "uppercase" }}>Music Stations & Hub</p>
+                                                    <p style={{ margin: 0, fontSize: "0.65rem", fontWeight: 700, opacity: 0.45, fontFamily: monoFont, letterSpacing: "0.1em", textTransform: "uppercase" }}>{isLive ? "Music Stations & Hub" : "Broadcast Offline"}</p>
                                                 </div>
                                             </div>
                                             <div style={{ 
-                                                backgroundColor: theme === "dark" ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.03)", 
+                                                backgroundColor: isLive ? (theme === "dark" ? "rgba(239, 68, 68, 0.15)" : "rgba(239, 68, 68, 0.05)") : (theme === "dark" ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.03)"), 
                                                 padding: "0 10px", height: "20px", display: "flex", alignItems: "center", justifyContent: "center",
                                                 borderRadius: "100px", border: theme === "dark" ? "1px solid rgba(255,255,255,0.1)" : "1px solid rgba(0,0,0,0.05)"
                                             }}>
-                                                <span style={{ fontSize: "0.6rem", fontWeight: 800, color: theme === "dark" ? "#FFF" : "#000", letterSpacing: "0.05em", fontFamily: monoFont }}>LIVE NOW</span>
+                                                <span style={{ fontSize: "0.6rem", fontWeight: 800, color: isLive ? "#EF4444" : (theme === "dark" ? "#FFF" : "#000"), letterSpacing: "0.05em", fontFamily: monoFont }}>{isLive ? "LIVE NOW" : "OFF AIR"}</span>
                                             </div>
                                         </div>
 
                                         <p style={{ margin: 0, fontSize: "0.85rem", opacity: 0.7, lineHeight: 1.5, maxWidth: "280px" }}>
-                                            Join the live broadcast. Listen together with everyone else in real-time.
+                                            {isLive ? "Join the live broadcast. Listen together with everyone else in real-time." : "No current live sessions found. Browse the archive or wait for the next show."}
                                         </p>
 
                                         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "4px" }}>
                                             <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                                                <span style={{ fontSize: "0.6rem", fontWeight: 700, color: "#EF4444", fontFamily: monoFont, textTransform: "uppercase" }}>Music Status: Active</span>
+                                                <span style={{ fontSize: "0.6rem", fontWeight: 700, color: isLive ? "#EF4444" : "#888", fontFamily: monoFont, textTransform: "uppercase" }}>Music Status: {isLive ? "Active" : "Inactive"}</span>
                                             </div>
                                             <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
                                                 <span style={{ fontSize: "0.8rem", fontWeight: 900, color: theme === "dark" ? "#FFF" : "#000", fontFamily: headerFont }}>GO TO HUB</span>
