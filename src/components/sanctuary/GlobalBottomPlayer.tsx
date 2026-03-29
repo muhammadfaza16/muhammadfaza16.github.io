@@ -28,22 +28,33 @@ export function GlobalBottomPlayer() {
     const [showQueueModal, setShowQueueModal] = useState(false);
     const [searchQuery, setSearchQuery] = useState("");
     const [queueSearchQuery, setQueueSearchQuery] = useState("");
+    const [queueSortBy, setQueueSortBy] = useState<"default"|"a-z">("default");
 
     // Reset queue search when modal closes
     useEffect(() => {
-        if (!showQueueModal) setQueueSearchQuery("");
+        if (!showQueueModal) {
+            setQueueSearchQuery("");
+            setQueueSortBy("default");
+        }
     }, [showQueueModal]);
 
     const filteredQueue = useMemo(() => {
-        if (!queueSearchQuery) return queue.map((s, i) => ({ ...s, originalIdx: i }));
-        const q = queueSearchQuery.toLowerCase();
-        return (queue as any[])
-            .map((s, i) => ({ ...s, originalIdx: i }))
-            .filter(song => 
+        let result = queue.map((s, i) => ({ ...s, originalIdx: i }));
+        
+        if (queueSearchQuery) {
+            const q = queueSearchQuery.toLowerCase();
+            result = result.filter(song => 
                 song.title.toLowerCase().includes(q) || 
-                (song.artist && song.artist.toLowerCase().includes(q))
+                ((song as any).artist && (song as any).artist.toLowerCase().includes(q))
             );
-    }, [queue, queueSearchQuery]);
+        }
+
+        if (queueSortBy === "a-z") {
+            result.sort((a, b) => a.title.localeCompare(b.title));
+        }
+
+        return result;
+    }, [queue, queueSearchQuery, queueSortBy]);
 
     useEffect(() => setIsMounted(true), []);
 
@@ -422,7 +433,17 @@ export function GlobalBottomPlayer() {
                                 >
                                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px", marginTop: "env(safe-area-inset-top)" }}>
                                         <span style={{ fontFamily: headerFont, fontWeight: 900, fontSize: "1.4rem", letterSpacing: "-0.03em", color: theme === "dark" ? "#FFF" : "#1A1A1A" }}>Playing Next</span>
-                                        <button onClick={() => setShowQueueModal(false)} style={{ background: theme === "dark" ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.05)", border: "none", padding: "8px", borderRadius: "100px", color: "currentColor" }}><ChevronDown size={24} /></button>
+                                        <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
+                                            <select
+                                                value={queueSortBy}
+                                                onChange={e => setQueueSortBy(e.target.value as any)}
+                                                style={{ background: "none", border: "none", outline: "none", color: "inherit", fontSize: "0.8rem", fontWeight: 700, cursor: "pointer", WebkitAppearance: "none", fontFamily: headerFont, paddingRight: "10px" }}
+                                            >
+                                                <option value="default" style={{ color: "#000" }}>Default</option>
+                                                <option value="a-z" style={{ color: "#000" }}>A-Z</option>
+                                            </select>
+                                            <button onClick={() => setShowQueueModal(false)} style={{ background: theme === "dark" ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.05)", border: "none", padding: "8px", borderRadius: "100px", color: "currentColor" }}><ChevronDown size={24} /></button>
+                                        </div>
                                     </div>
 
                                     {/* Queue Search Bar */}
