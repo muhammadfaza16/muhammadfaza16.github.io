@@ -28,13 +28,13 @@ export function GlobalBottomPlayer() {
     const [showQueueModal, setShowQueueModal] = useState(false);
     const [searchQuery, setSearchQuery] = useState("");
     const [queueSearchQuery, setQueueSearchQuery] = useState("");
-    const [queueSortBy, setQueueSortBy] = useState<"default"|"a-z">("default");
+    const [queueSortBy, setQueueSortBy] = useState<"default" | "latest" | "oldest" | "a-z">("a-z");
 
     // Reset queue search when modal closes
     useEffect(() => {
         if (!showQueueModal) {
             setQueueSearchQuery("");
-            setQueueSortBy("default");
+            setQueueSortBy("a-z");
         }
     }, [showQueueModal]);
 
@@ -51,6 +51,10 @@ export function GlobalBottomPlayer() {
 
         if (queueSortBy === "a-z") {
             result.sort((a, b) => a.title.localeCompare(b.title));
+        } else if (queueSortBy === "latest") {
+            result.sort((a, b) => new Date((b as any).createdAt || 0).getTime() - new Date((a as any).createdAt || 0).getTime());
+        } else if (queueSortBy === "oldest") {
+            result.sort((a, b) => new Date((a as any).createdAt || 0).getTime() - new Date((b as any).createdAt || 0).getTime());
         }
 
         return result;
@@ -439,8 +443,10 @@ export function GlobalBottomPlayer() {
                                                 onChange={e => setQueueSortBy(e.target.value as any)}
                                                 style={{ background: "none", border: "none", outline: "none", color: "inherit", fontSize: "0.8rem", fontWeight: 700, cursor: "pointer", WebkitAppearance: "none", fontFamily: headerFont, paddingRight: "10px" }}
                                             >
-                                                <option value="default" style={{ color: "#000" }}>Default</option>
                                                 <option value="a-z" style={{ color: "#000" }}>A-Z</option>
+                                                <option value="latest" style={{ color: "#000" }}>Latest</option>
+                                                <option value="oldest" style={{ color: "#000" }}>Oldest</option>
+                                                <option value="default" style={{ color: "#000" }}>Manual</option>
                                             </select>
                                             <button onClick={() => setShowQueueModal(false)} style={{ background: theme === "dark" ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.05)", border: "none", padding: "8px", borderRadius: "100px", color: "currentColor" }}><ChevronDown size={24} /></button>
                                         </div>
@@ -448,7 +454,7 @@ export function GlobalBottomPlayer() {
 
                                     {/* Queue Search Bar */}
                                     <div style={{ 
-                                        marginBottom: "0px",
+                                        marginBottom: "12px",
                                         padding: "10px 14px",
                                         background: theme === "dark" ? "rgba(255,255,255,0.03)" : "rgba(0,0,0,0.03)",
                                         borderRadius: "14px",

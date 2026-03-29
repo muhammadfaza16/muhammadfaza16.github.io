@@ -148,7 +148,13 @@ export function AudioProvider({ children, initialSongs = [] }: { children: React
             .then(res => res.json())
             .then(data => {
                 if (data.success && data.songs) {
-                    const fetchedSongs = data.songs.map((s: any) => ({ title: s.title, audioUrl: s.audioUrl }));
+                    const fetchedSongs = data.songs.map((s: any) => ({ 
+                        title: s.title, 
+                        audioUrl: s.audioUrl,
+                        createdAt: s.createdAt,
+                        artist: s.artist,
+                        category: s.category
+                    }));
                     
                     setQueue(prevQueue => {
                         if (prevQueue.length === 0) {
