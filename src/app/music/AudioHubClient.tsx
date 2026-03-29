@@ -194,7 +194,7 @@ export default function AudioHubClient({
                                         <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
                                             <div style={{ width: "6px", height: "6px", borderRadius: "50%", backgroundColor: "#6366F1" }} />
                                             <span style={{ fontFamily: headerFont, fontWeight: 800, fontSize: "0.55rem", letterSpacing: "0.12em", color: theme === "dark" ? "#FFF" : "#000", textTransform: "uppercase" }}>
-                                                Continue Listening
+                                                {isPlaying ? "Now Playing" : "Continue Listening"}
                                             </span>
                                         </div>
                                     </div>
