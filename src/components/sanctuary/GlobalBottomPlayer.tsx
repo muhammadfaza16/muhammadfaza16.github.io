@@ -15,7 +15,7 @@ export function GlobalBottomPlayer() {
         isPlaying, togglePlay, nextSong, prevSong, jumpToSong,
         currentSong, seekTo,
         shuffleMode, toggleShuffle, repeatMode, toggleRepeat,
-        activePlaybackMode, activeLyrics, queue,
+        activePlaybackMode, activeLyrics, queue, currentIndex,
         isPlayerExpanded: isExpanded, setIsPlayerExpanded: setIsExpanded,
         isMiniPlayerDismissed, setMiniPlayerDismissed
     } = useAudio();
@@ -67,7 +67,7 @@ export function GlobalBottomPlayer() {
             const timer = setTimeout(smoothScrollToActive, 100);
             return () => clearTimeout(timer);
         }
-    }, [showQueueModal, currentSong?.audioUrl, queueSearchQuery, queueSortBy, smoothScrollToActive]);
+    }, [showQueueModal, currentIndex, queueSearchQuery, queueSortBy, smoothScrollToActive]);
 
     // Reset queue search when modal closes
     useEffect(() => {
@@ -526,7 +526,7 @@ export function GlobalBottomPlayer() {
 
                                     <div ref={queueScrollContainerRef} style={{ flex: 1, overflowY: "auto", display: "flex", flexDirection: "column", gap: "12px", paddingBottom: "100px" }}>
                                         {filteredQueue.map((song, idx) => {
-                                            const isCurrent = currentSong && song.audioUrl === currentSong.audioUrl;
+                                            const isCurrent = song.originalIdx === currentIndex;
                                             const { cleanTitle, artist, labels: qLabels } = parseSongTitle(song.title);
                                             return (
                                                 <div 
