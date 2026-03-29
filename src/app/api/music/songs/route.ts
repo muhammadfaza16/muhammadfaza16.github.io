@@ -53,8 +53,8 @@ export async function POST(req: Request) {
         const song = await prisma.song.create({
             data: {
                 title: fullTitle,
-                audio_url: audioUrl,
-                cover_image: coverImage || null,
+                audioUrl,
+                coverImage: coverImage || null,
                 source: source || "Local",
                 duration: duration || 0,
                 category: category || "Other"
@@ -82,8 +82,8 @@ export async function PUT(req: Request) {
             where: { id },
             data: {
                 title: fullTitle,
-                audio_url: audioUrl,
-                cover_image: coverImage || null,
+                audioUrl,
+                coverImage: coverImage || null,
                 source: source || "Local",
                 duration: duration || 0,
                 category: category || "Other"
