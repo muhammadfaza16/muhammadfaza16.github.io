@@ -175,8 +175,8 @@ export default function PlaylistClient({
             const isALokal = a.category?.toLowerCase() === 'indo';
             const isBLokal = b.category?.toLowerCase() === 'indo';
             
-            if (isALokal && !isBLokal) return -1;
-            if (!isALokal && isBLokal) return 1;
+            if (isALokal && !isBLokal) return 1;
+            if (!isALokal && isBLokal) return -1;
             
             // 2. Parse titles for Artist & Title sorting
             const infoA = parseSongTitle(a.title);
@@ -334,7 +334,7 @@ export default function PlaylistClient({
                     whileTap={{ scale: 0.98 }}
                     onClick={() => {
                         if (isThisPlaylistInQueue) togglePlay();
-                        else playQueue(basePlaylist, 0, playlistId);
+                        else playQueue(filteredPlaylist, 0, playlistId);
                     }}
                     style={{
                         flex: 1,
@@ -366,7 +366,7 @@ export default function PlaylistClient({
                 <motion.button
                     whileTap={{ scale: 0.95 }}
                     onClick={() => {
-                        playQueue(basePlaylist, 0, playlistId, true);
+                        playQueue(filteredPlaylist, 0, playlistId, true);
                     }}
                     style={{
                         background: theme === "dark" ? "rgba(255, 255, 255, 0.05)" : "rgba(255, 255, 255, 0.8)",
@@ -462,7 +462,7 @@ export default function PlaylistClient({
                                 isActive={currentSong?.audioUrl === song.audioUrl}
                                 isPlaying={isPlaying}
                                 onPlay={() => {
-                                    playQueue(basePlaylist, song.originalIndex, playlistId);
+                                    playQueue(filteredPlaylist, i, playlistId);
                                     setIsPlayerExpanded(true);
                                 }}
                             />
@@ -481,7 +481,7 @@ export default function PlaylistClient({
                                 isPlaying={isPlaying}
                                 song={song}
                                 onPlay={() => {
-                                    playQueue(basePlaylist, song.originalIndex, playlistId);
+                                    playQueue(filteredPlaylist, index, playlistId);
                                     setIsPlayerExpanded(true);
                                 }}
                             />

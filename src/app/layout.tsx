@@ -90,10 +90,16 @@ export default async function RootLayout({
   let initialSongs: { title: string; audioUrl: string }[] = [];
   try {
     const songs = await prisma.song.findMany({
-      orderBy: { title: 'asc' },
-      select: { title: true, audioUrl: true }
+      orderBy: [
+        { category: 'desc' },
+        { title: 'asc' }
+      ]
     });
-    initialSongs = songs;
+    initialSongs = songs.map(s => ({
+      ...s,
+      audioUrl: (s as any).audioUrl || (s as any).audio_url,
+      coverImage: (s as any).coverImage || (s as any).cover_image
+    }));
   } catch (error) {
     console.error("Prisma connection error in layout.tsx:", error);
   }
