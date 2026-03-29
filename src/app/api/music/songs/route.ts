@@ -54,6 +54,7 @@ export async function POST(req: Request) {
             data: {
                 title: fullTitle,
                 audioUrl,
+                // @ts-ignore
                 coverImage: coverImage || null,
                 source: source || "Local",
                 duration: duration || 0,
@@ -83,6 +84,7 @@ export async function PUT(req: Request) {
             data: {
                 title: fullTitle,
                 audioUrl,
+                // @ts-ignore
                 coverImage: coverImage || null,
                 source: source || "Local",
                 duration: duration || 0,
