@@ -1,6 +1,7 @@
 import { PrismaClient } from '@prisma/client';
 import * as fs from 'fs';
 import * as path from 'path';
+import * as mm from 'music-metadata';
 
 const prisma = new PrismaClient();
 const SOURCE_DIR = path.join(__dirname, '../public/audio/new song to populate');
@@ -200,6 +201,15 @@ async function main() {
         const audioUrl = `/audio/${safeFileName}`; 
         const category = categorize(finalTitleStr);
 
+        // Extract duration
+        let duration: number | undefined = undefined;
+        try {
+            const metadata = await mm.parseFile(newPath);
+            duration = Math.round(metadata.format.duration || 0);
+        } catch (err) {
+            console.warn(`  -> Could not extract duration for ${safeFileName}:`, (err as Error).message);
+        }
+
         // Upsert into DB
         const songRecord = await prisma.song.findFirst({
             where: { audioUrl }
@@ -211,19 +221,21 @@ async function main() {
                     title: finalTitleStr,
                     audioUrl: audioUrl,
                     source: "local",
-                    category: category
+                    category: category,
+                    duration: duration || null
                 }
             });
-            console.log(`  -> Added to database (${category}).`);
+            console.log(`  -> Added to database (${category}) with duration ${duration}s.`);
         } else {
             await prisma.song.update({
                 where: { id: songRecord.id },
                 data: { 
                     title: finalTitleStr,
-                    category: category
+                    category: category,
+                    duration: duration || songRecord.duration
                 }
             });
-            console.log(`  -> Updated database record (${category}).`);
+            console.log(`  -> Updated database record (${category}) with duration ${duration}s.`);
         }
 
     }
