@@ -9,7 +9,7 @@ export async function GET() {
     try {
         const songs = await prisma.song.findMany({
             orderBy: [
-                { category: "asc" },
+                { category: "desc" },
                 { title: "asc" }
             ]
         });
@@ -24,11 +24,11 @@ export async function GET() {
                 id: song.id,
                 title: song.title,  // Keep full title for display
                 artist,
-                audioUrl: song.audioUrl,
-                coverImage: song.coverImage,
+                audioUrl: (song as any).audio_url,
+                coverImage: (song as any).cover_image,
                 source: song.source,
                 duration: song.duration,
-                category: song.category, // Add category here
+                category: song.category, 
                 createdAt: song.createdAt
             };
 
@@ -71,6 +71,7 @@ export async function POST(req: Request) {
             data: {
                 title: fullTitle,
                 audioUrl,
+                // @ts-ignore
                 coverImage: coverImage || null,
                 source: source || "Local",
                 duration: finalDuration,
@@ -115,6 +116,7 @@ export async function PUT(req: Request) {
             data: {
                 title: fullTitle,
                 audioUrl,
+                // @ts-ignore
                 coverImage: coverImage || null,
                 source: source || "Local",
                 duration: finalDuration,
