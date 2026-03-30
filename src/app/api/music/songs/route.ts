@@ -24,8 +24,8 @@ export async function GET() {
                 id: song.id,
                 title: song.title,  // Keep full title for display
                 artist,
-                audioUrl: (song as any).audio_url,
-                coverImage: (song as any).cover_image,
+                audioUrl: song.audioUrl,
+                coverImage: song.coverImage,
                 source: song.source,
                 duration: song.duration,
                 category: song.category, 
