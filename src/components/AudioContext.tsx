@@ -157,7 +157,9 @@ export function AudioProvider({ children, initialSongs = [] }: { children: React
                     }));
                     
                     setQueue(prevQueue => {
-                        if (prevQueue.length === 0) {
+                        // If queue is empty OR it's a stub queue (lacking createdAt like initialSongs does)
+                        // we must overwrite it fully so the app uses the full rich objects
+                        if (prevQueue.length === 0 || (prevQueue.length > 0 && !('createdAt' in prevQueue[0]))) {
                             setOriginalQueue(fetchedSongs);
                             return fetchedSongs;
                         }
@@ -398,7 +400,11 @@ export function AudioProvider({ children, initialSongs = [] }: { children: React
         if (forcePlay) {
             setIsPlaying(true);
         }
-        setCurrentIndex((prev) => (prev + 1) % queue.length);
+        setCurrentIndex((prev) => {
+            const length = queue.length;
+            if (length === 0) return 0;
+            return (prev + 1) % length;
+        });
         // Buffering will naturally trigger on source change
     }, [queue.length]);
 
@@ -407,7 +413,11 @@ export function AudioProvider({ children, initialSongs = [] }: { children: React
         if (forcePlay) {
             setIsPlaying(true);
         }
-        setCurrentIndex((prev) => (prev - 1 + queue.length) % queue.length);
+        setCurrentIndex((prev) => {
+            const length = queue.length;
+            if (length === 0) return 0;
+            return (prev - 1 + length) % length;
+        });
     }, [queue.length]);
 
     const jumpToSong = useCallback((index: number) => {
@@ -452,7 +462,8 @@ export function AudioProvider({ children, initialSongs = [] }: { children: React
         if (audioRef.current && isPlaying) {
             // Mobile Auto-Play Fix: Small timeout to ensure DOM is ready and state is clean
             const timer = setTimeout(() => {
-                const playPromise = audioRef.current?.play();
+                if (!audioRef.current) return;
+                const playPromise = audioRef.current.play();
                 if (playPromise !== undefined) {
                     playPromise.catch(e => {
                         console.error("Auto-playback failed:", e);
