@@ -479,6 +479,16 @@ export function AudioProvider({ children, initialSongs = [] }: { children: React
 
     const currentSong = queue[currentIndex] || queue[0];
 
+    // Enforce pipeline abort when src ACTUALLY changes to fix stagnant audio loop bugs
+    const currentSrc = currentSong?.audioUrl ? encodeURI(currentSong.audioUrl) : undefined;
+    const previousSrcRef = useRef<string | undefined>(undefined);
+    useEffect(() => {
+        if (audioRef.current && currentSrc !== previousSrcRef.current) {
+            previousSrcRef.current = currentSrc;
+            audioRef.current.load();
+        }
+    }, [currentSrc]);
+
     // Detect Lyrics on Song Change (with cache — Phase 5)
     useEffect(() => {
         let isMounted = true;
