@@ -125,7 +125,7 @@ export default function PlaylistClient({
     const { playQueue, queue, currentSong, isPlaying, togglePlay, activePlaylistId, setIsPlayerExpanded } = useAudio();
     const { theme } = useTheme();
     const [searchQuery, setSearchQuery] = useState("");
-    const [sortBy, setSortBy] = useState<"default"|"latest"|"oldest"|"name">("default");
+    const [sortBy, setSortBy] = useState<"curated"|"latest"|"oldest"|"name">("name");
     const [mounted, setMounted] = useState(false);
     const scrollContainerRef = useRef<HTMLDivElement>(null);
     const [scrollEl, setScrollEl] = useState<HTMLDivElement | null>(null);
@@ -170,18 +170,18 @@ export default function PlaylistClient({
     }, [playlistId]);
 
     const basePlaylist = useMemo(() => {
-        if (sortBy === "default") {
-            return initialSongs.map((song, index) => ({ ...song, originalIndex: index }));
-        }
-
         const sorted = [...initialSongs].sort((a, b) => {
-            // 1. Lokal (Indo) First
-            const isALokal = a.category?.toLowerCase() === 'indo';
-            const isBLokal = b.category?.toLowerCase() === 'indo';
+            if (sortBy === "curated") {
+                // Curated sort logic: 
+                // 1. Lokal (Indo) First
+                const isALokal = a.category?.toLowerCase() === 'indo';
+                const isBLokal = b.category?.toLowerCase() === 'indo';
+                
+                if (isALokal && !isBLokal) return -1;
+                if (!isALokal && isBLokal) return 1;
+            }
             
-            if (isALokal && !isBLokal) return -1;
-            if (!isALokal && isBLokal) return 1;
-            
+            // Default Alphabetical Sort (A-Z)
             // 2. Parse titles for Artist & Title sorting
             const infoA = parseSongTitle(a.title);
             const infoB = parseSongTitle(b.title);
@@ -193,17 +193,12 @@ export default function PlaylistClient({
             // 4. Inner Sort by Title (Alpha)
             return infoA.cleanTitle.localeCompare(infoB.cleanTitle);
         });
-        
+
         return sorted.map((song, index) => ({ ...song, originalIndex: index }));
     }, [initialSongs, sortBy]);
 
-    const filteredPlaylist = useMemo(() => {
+    const sortedFullPlaylist = useMemo(() => {
         let result = [...basePlaylist];
-        if (searchQuery) {
-            const query = searchQuery.toLowerCase();
-            result = result.filter(song => song.title.toLowerCase().includes(query));
-        }
-
         if (sortBy === "latest") {
             result.sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime());
         } else if (sortBy === "oldest") {
@@ -211,9 +206,14 @@ export default function PlaylistClient({
         } else if (sortBy === "name") {
             result.sort((a, b) => (a.title || "").localeCompare(b.title || ""));
         }
-
         return result;
-    }, [basePlaylist, searchQuery, sortBy]);
+    }, [basePlaylist, sortBy]);
+
+    const filteredPlaylist = useMemo(() => {
+        if (!searchQuery) return sortedFullPlaylist;
+        const query = searchQuery.toLowerCase();
+        return sortedFullPlaylist.filter(song => song.title.toLowerCase().includes(query));
+    }, [sortedFullPlaylist, searchQuery]);
 
     const isThisPlaylistInQueue = activePlaylistId === playlistId || (playlistId === "all" && activePlaylistId === null);
     const isThisPlaylistPlaying = isPlaying && isThisPlaylistInQueue;
@@ -372,7 +372,7 @@ export default function PlaylistClient({
                 <motion.button
                     whileTap={{ scale: 0.95 }}
                     onClick={() => {
-                        playQueue(filteredPlaylist, 0, playlistId, true);
+                        playQueue(sortedFullPlaylist, 0, playlistId, true);
                     }}
                     style={{
                         background: theme === "dark" ? "rgba(255, 255, 255, 0.05)" : "rgba(255, 255, 255, 0.8)",
@@ -434,10 +434,10 @@ export default function PlaylistClient({
                         onChange={e => setSortBy(e.target.value as any)}
                         style={{ background: "none", border: "none", outline: "none", color: "inherit", fontSize: "0.7rem", fontWeight: 800, cursor: "pointer", WebkitAppearance: "none", paddingRight: "10px", fontFamily: headerFont }}
                     >
-                        <option value="default" style={{ color: "#000" }}>Sort: Curated</option>
+                        <option value="name" style={{ color: "#000" }}>Sort: A-Z</option>
+                        <option value="curated" style={{ color: "#000" }}>Sort: Curated</option>
                         <option value="latest" style={{ color: "#000" }}>Sort: Latest</option>
                         <option value="oldest" style={{ color: "#000" }}>Sort: Oldest</option>
-                        <option value="name" style={{ color: "#000" }}>Sort: A-Z</option>
                     </select>
                 </div>
             </div>
@@ -468,7 +468,8 @@ export default function PlaylistClient({
                                 isActive={currentSong?.audioUrl === song.audioUrl}
                                 isPlaying={isPlaying}
                                 onPlay={() => {
-                                    playQueue(filteredPlaylist, i, playlistId);
+                                    const fullIndex = sortedFullPlaylist.findIndex(s => s.audioUrl === song.audioUrl);
+                                    playQueue(sortedFullPlaylist, fullIndex >= 0 ? fullIndex : 0, playlistId);
                                     setIsPlayerExpanded(true);
                                 }}
                             />
@@ -487,7 +488,8 @@ export default function PlaylistClient({
                                 isPlaying={isPlaying}
                                 song={song}
                                 onPlay={() => {
-                                    playQueue(filteredPlaylist, index, playlistId);
+                                    const fullIndex = sortedFullPlaylist.findIndex(s => s.audioUrl === song.audioUrl);
+                                    playQueue(sortedFullPlaylist, fullIndex >= 0 ? fullIndex : 0, playlistId);
                                     setIsPlayerExpanded(true);
                                 }}
                             />

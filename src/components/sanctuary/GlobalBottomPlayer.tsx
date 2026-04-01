@@ -28,7 +28,9 @@ export function GlobalBottomPlayer() {
     const [showQueueModal, setShowQueueModal] = useState(false);
     const [searchQuery, setSearchQuery] = useState("");
     const [queueSearchQuery, setQueueSearchQuery] = useState("");
-    const [queueSortBy, setQueueSortBy] = useState<"default" | "latest" | "oldest" | "a-z">("a-z");
+    const [queueSortBy, setQueueSortBy] = useState<"latest" | "oldest" | "a-z" | "curated">("a-z");
+    const [queueVisibleCount, setQueueVisibleCount] = useState(30);
+    const queueObserverTarget = useRef<HTMLDivElement>(null);
 
     const activeTrackRef = useRef<HTMLDivElement>(null);
     const queueScrollContainerRef = useRef<HTMLDivElement>(null);
@@ -61,22 +63,6 @@ export function GlobalBottomPlayer() {
         requestAnimationFrame(animation);
     }, []);
 
-    // Auto-scroll when modal opens or layout/content changes
-    useEffect(() => {
-        if (showQueueModal) {
-            const timer = setTimeout(smoothScrollToActive, 100);
-            return () => clearTimeout(timer);
-        }
-    }, [showQueueModal, currentIndex, queueSearchQuery, queueSortBy, smoothScrollToActive]);
-
-    // Reset queue search when modal closes
-    useEffect(() => {
-        if (!showQueueModal) {
-            setQueueSearchQuery("");
-            setQueueSortBy("a-z");
-        }
-    }, [showQueueModal]);
-
     const filteredQueue = useMemo(() => {
         let result = queue.map((s, i) => ({ ...s, originalIdx: i }));
         
@@ -89,7 +75,27 @@ export function GlobalBottomPlayer() {
         }
 
         if (queueSortBy === "a-z") {
-            result.sort((a, b) => a.title.localeCompare(b.title));
+            result.sort((a, b) => {
+                const infoA = parseSongTitle(a.title);
+                const infoB = parseSongTitle(b.title);
+                const artistSort = infoA.artist.localeCompare(infoB.artist);
+                if (artistSort !== 0) return artistSort;
+                return infoA.cleanTitle.localeCompare(infoB.cleanTitle);
+            });
+        } else if (queueSortBy === "curated") {
+            result.sort((a, b) => {
+                const aCat = (a as any).category;
+                const bCat = (b as any).category;
+                const isALokal = a.title.toLowerCase().includes('indo') || (aCat && aCat.toLowerCase() === 'indo');
+                const isBLokal = b.title.toLowerCase().includes('indo') || (bCat && bCat.toLowerCase() === 'indo');
+                if (isALokal && !isBLokal) return -1;
+                if (!isALokal && isBLokal) return 1;
+                const infoA = parseSongTitle(a.title);
+                const infoB = parseSongTitle(b.title);
+                const artistSort = infoA.artist.localeCompare(infoB.artist);
+                if (artistSort !== 0) return artistSort;
+                return infoA.cleanTitle.localeCompare(infoB.cleanTitle);
+            });
         } else if (queueSortBy === "latest") {
             result.sort((a, b) => new Date((b as any).createdAt || 0).getTime() - new Date((a as any).createdAt || 0).getTime());
         } else if (queueSortBy === "oldest") {
@@ -98,6 +104,52 @@ export function GlobalBottomPlayer() {
 
         return result;
     }, [queue, queueSearchQuery, queueSortBy]);
+
+    const activeIndexInFiltered = useMemo(() => {
+        return filteredQueue.findIndex(s => s.originalIdx === currentIndex);
+    }, [filteredQueue, currentIndex]);
+
+    // Ensure queue shows active song upon opening
+    useEffect(() => {
+        if (showQueueModal && activeIndexInFiltered >= queueVisibleCount) {
+            setQueueVisibleCount(activeIndexInFiltered + 30);
+        }
+    }, [showQueueModal, activeIndexInFiltered, queueVisibleCount]);
+
+    // Auto-scroll when modal opens or layout/content changes
+    useEffect(() => {
+        if (showQueueModal && activeIndexInFiltered !== -1) {
+            const timer = setTimeout(smoothScrollToActive, 200);
+            return () => clearTimeout(timer);
+        }
+    }, [showQueueModal, activeIndexInFiltered, queueSearchQuery, queueSortBy, smoothScrollToActive]);
+
+    // Reset queue search when modal closes
+    useEffect(() => {
+        if (!showQueueModal) {
+            setQueueSearchQuery("");
+            setQueueSortBy("a-z");
+            setQueueVisibleCount(30);
+        }
+    }, [showQueueModal]);
+
+    // Intersection Observer for Queue Lazy Loading
+    useEffect(() => {
+        const observer = new IntersectionObserver(
+            entries => {
+                if (entries[0].isIntersecting && queueVisibleCount < filteredQueue.length) {
+                    setQueueVisibleCount(prev => prev + 30);
+                }
+            },
+            { threshold: 0.1 }
+        );
+        if (queueObserverTarget.current) observer.observe(queueObserverTarget.current);
+        return () => observer.disconnect();
+    }, [queueVisibleCount, filteredQueue.length, showQueueModal]);
+
+    useEffect(() => {
+        setQueueVisibleCount(30);
+    }, [queueSearchQuery, queueSortBy]);
 
     useEffect(() => setIsMounted(true), []);
 
@@ -483,9 +535,9 @@ export function GlobalBottomPlayer() {
                                                 style={{ background: "none", border: "none", outline: "none", color: "inherit", fontSize: "0.8rem", fontWeight: 700, cursor: "pointer", WebkitAppearance: "none", fontFamily: headerFont, paddingRight: "10px" }}
                                             >
                                                 <option value="a-z" style={{ color: "#000" }}>A-Z</option>
+                                                <option value="curated" style={{ color: "#000" }}>Curated</option>
                                                 <option value="latest" style={{ color: "#000" }}>Latest</option>
                                                 <option value="oldest" style={{ color: "#000" }}>Oldest</option>
-                                                <option value="default" style={{ color: "#000" }}>Manual</option>
                                             </select>
                                             <button onClick={() => setShowQueueModal(false)} style={{ background: theme === "dark" ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.05)", border: "none", padding: "8px", borderRadius: "100px", color: "currentColor" }}><ChevronDown size={24} /></button>
                                         </div>
@@ -525,7 +577,7 @@ export function GlobalBottomPlayer() {
                                     </div>
 
                                     <div ref={queueScrollContainerRef} style={{ flex: 1, overflowY: "auto", display: "flex", flexDirection: "column", gap: "12px", paddingBottom: "100px" }}>
-                                        {filteredQueue.map((song, idx) => {
+                                        {filteredQueue.slice(0, queueVisibleCount).map((song, idx) => {
                                             const isCurrent = song.originalIdx === currentIndex;
                                             const { cleanTitle, artist, labels: qLabels } = parseSongTitle(song.title);
                                             return (
@@ -573,6 +625,13 @@ export function GlobalBottomPlayer() {
                                                 </div>
                                             );
                                         })}
+                                        
+                                        {/* Queue Infinite Scroll Sentinel */}
+                                        {filteredQueue.length > queueVisibleCount && (
+                                            <div ref={queueObserverTarget} style={{ height: "40px", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "0.7rem", opacity: 0.4 }}>
+                                                Loading more from queue...
+                                            </div>
+                                        )}
                                     </div>
                                 </motion.div>
                             )}

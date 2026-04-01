@@ -39,6 +39,7 @@ interface Song {
     id: string;
     title: string;
     artist: string;
+    category?: string;
     coverImage?: string;
     createdAt?: string;
 }
@@ -64,7 +65,7 @@ export function PlaylistModule({ addLog, isBusy, setIsBusy, insetBox }: Playlist
     const [currentSongs, setCurrentSongs] = useState<Song[]>([]);
     const [allSongs, setAllSongs] = useState<Song[]>([]);
     const [songSearch, setSongSearch] = useState("");
-    const [sortBy, setSortBy] = useState<"latest"|"oldest"|"name">("name");
+    const [sortBy, setSortBy] = useState<"latest"|"oldest"|"name"|"curated">("name");
     const [formSongSearch, setFormSongSearch] = useState("");
 
     // Form State
@@ -100,12 +101,30 @@ export function PlaylistModule({ addLog, isBusy, setIsBusy, insetBox }: Playlist
             result = result.filter(s => (s.title || "").toLowerCase().includes(query) || (s.artist || "").toLowerCase().includes(query));
         }
 
-        if (sortBy === "latest") {
+        if (sortBy === "curated") {
+            result.sort((a, b) => {
+                const isALokal = a.category?.toLowerCase() === 'indo';
+                const isBLokal = b.category?.toLowerCase() === 'indo';
+                if (isALokal && !isBLokal) return -1;
+                if (!isALokal && isBLokal) return 1;
+                const infoA = parseSongTitle(a.title);
+                const infoB = parseSongTitle(b.title);
+                const artistSort = infoA.artist.localeCompare(infoB.artist);
+                if (artistSort !== 0) return artistSort;
+                return infoA.cleanTitle.localeCompare(infoB.cleanTitle);
+            });
+        } else if (sortBy === "latest") {
             result.sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime());
         } else if (sortBy === "oldest") {
             result.sort((a, b) => new Date(a.createdAt || 0).getTime() - new Date(b.createdAt || 0).getTime());
         } else if (sortBy === "name") {
-            result.sort((a, b) => (a.title || "").localeCompare(b.title || ""));
+            result.sort((a, b) => {
+                const infoA = parseSongTitle(a.title);
+                const infoB = parseSongTitle(b.title);
+                const artistSort = infoA.artist.localeCompare(infoB.artist);
+                if (artistSort !== 0) return artistSort;
+                return infoA.cleanTitle.localeCompare(infoB.cleanTitle);
+            });
         }
 
         return result;
@@ -612,9 +631,10 @@ export function PlaylistModule({ addLog, isBusy, setIsBusy, insetBox }: Playlist
                                     onChange={e => setSortBy(e.target.value as any)}
                                     style={{ background: "none", border: "none", outline: "none", color: "inherit", fontSize: "0.6rem", fontWeight: 800, cursor: "pointer", WebkitAppearance: "none", paddingRight: "10px" }}
                                 >
+                                    <option value="name" style={{ color: "#000" }}>Sort: A-Z</option>
+                                    <option value="curated" style={{ color: "#000" }}>Sort: Curated</option>
                                     <option value="latest" style={{ color: "#000" }}>Sort: Latest</option>
                                     <option value="oldest" style={{ color: "#000" }}>Sort: Oldest</option>
-                                    <option value="name" style={{ color: "#000" }}>Sort: A-Z</option>
                                 </select>
                             </div>
                         </div>

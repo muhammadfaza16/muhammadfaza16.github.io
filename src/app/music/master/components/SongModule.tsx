@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { parseSongTitle } from "@/utils/songUtils";
 import { useTheme } from "@/components/ThemeProvider";
@@ -44,7 +44,9 @@ export function SongModule({ addLog, isBusy, setIsBusy, insetBox }: SongModulePr
     const [editingId, setEditingId] = useState<string | null>(null);
     const [isAdding, setIsAdding] = useState(false);
     const [searchQuery, setSearchQuery] = useState("");
-    const [sortBy, setSortBy] = useState<"latest" | "oldest" | "name">("name");
+    const [sortBy, setSortBy] = useState<"latest" | "oldest" | "name" | "curated">("name");
+    const [visibleCount, setVisibleCount] = useState(25);
+    const observerTarget = useRef<HTMLDivElement>(null);
 
     // Form State
     const [formData, setFormData] = useState({
@@ -56,10 +58,6 @@ export function SongModule({ addLog, isBusy, setIsBusy, insetBox }: SongModulePr
         duration: 0,
         category: "Other"
     });
-
-    useEffect(() => {
-        fetchSongs();
-    }, []);
 
     const fetchSongs = async () => {
         setIsLoading(true);
@@ -155,7 +153,19 @@ export function SongModule({ addLog, isBusy, setIsBusy, insetBox }: SongModulePr
             );
         }
 
-        if (sortBy === "latest") {
+        if (sortBy === "curated") {
+            result.sort((a, b) => {
+                const isALokal = a.category?.toLowerCase() === 'indo';
+                const isBLokal = b.category?.toLowerCase() === 'indo';
+                if (isALokal && !isBLokal) return -1;
+                if (!isALokal && isBLokal) return 1;
+                const infoA = parseSongTitle(a.title);
+                const infoB = parseSongTitle(b.title);
+                const artistSort = infoA.artist.localeCompare(infoB.artist);
+                if (artistSort !== 0) return artistSort;
+                return infoA.cleanTitle.localeCompare(infoB.cleanTitle);
+            });
+        } else if (sortBy === "latest") {
             result.sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime());
         } else if (sortBy === "oldest") {
             result.sort((a, b) => new Date(a.createdAt || 0).getTime() - new Date(b.createdAt || 0).getTime());
@@ -165,6 +175,27 @@ export function SongModule({ addLog, isBusy, setIsBusy, insetBox }: SongModulePr
 
         return result;
     }, [songs, searchQuery, sortBy]);
+
+    useEffect(() => {
+        fetchSongs();
+    }, []);
+
+    useEffect(() => {
+        const observer = new IntersectionObserver(
+            entries => {
+                if (entries[0].isIntersecting && visibleCount < filteredSongs.length) {
+                    setVisibleCount(prev => prev + 25);
+                }
+            },
+            { threshold: 1.0 }
+        );
+        if (observerTarget.current) observer.observe(observerTarget.current);
+        return () => observer.disconnect();
+    }, [visibleCount, filteredSongs.length]);
+
+    useEffect(() => {
+        setVisibleCount(25);
+    }, [searchQuery, sortBy]);
 
     if (isLoading) return (
         <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }} className="animate-pulse">
@@ -316,15 +347,16 @@ export function SongModule({ addLog, isBusy, setIsBusy, insetBox }: SongModulePr
                                     onChange={e => setSortBy(e.target.value as any)}
                                     style={{ background: "none", border: "none", outline: "none", color: "inherit", fontSize: "0.65rem", fontWeight: 700, cursor: "pointer", WebkitAppearance: "none", paddingRight: "10px" }}
                                 >
+                                    <option value="name" style={{ color: "#000" }}>Sort: A-Z</option>
+                                    <option value="curated" style={{ color: "#000" }}>Sort: Curated</option>
                                     <option value="latest" style={{ color: "#000" }}>Sort: Latest</option>
                                     <option value="oldest" style={{ color: "#000" }}>Sort: Oldest</option>
-                                    <option value="name" style={{ color: "#000" }}>Sort: A-Z</option>
                                 </select>
                             </div>
                         </div>
 
                         <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem", maxHeight: "60vh", overflowY: "auto", paddingRight: "4px" }}>
-                            {filteredSongs.map(song => (
+                            {filteredSongs.slice(0, visibleCount).map(song => (
                                 <div
                                     key={song.id}
                                     style={{ ...insetBox, padding: "0.75rem 1rem", display: "flex", alignItems: "center", gap: "1rem" }}
@@ -355,6 +387,12 @@ export function SongModule({ addLog, isBusy, setIsBusy, insetBox }: SongModulePr
                                     </div>
                                 </div>
                             ))}
+                            {/* Infinite Scroll Sentinel */}
+                            {filteredSongs.length > visibleCount && (
+                                <div ref={observerTarget} style={{ height: "40px", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "0.55rem", color: "rgba(128,128,128,0.4)" }}>
+                                    Loading more from catalog...
+                                </div>
+                            )}
                             {filteredSongs.length === 0 && (
                                 <div style={{ padding: "2rem", textAlign: "center", opacity: 0.3, fontSize: "0.7rem" }}>No songs found in catalog.</div>
                             )}

@@ -11,9 +11,14 @@ const METADATA_KEYWORDS = [
 export function parseSongTitle(fullTitle: string): ParsedTitle {
     if (!fullTitle) return { artist: "Unknown Artist", cleanTitle: "Unknown Title", labels: [] };
 
-    const parts = fullTitle.split("—");
-    const artist = parts[0]?.trim() || "Unknown Artist";
-    let rawTitle = parts[1]?.trim() || fullTitle;
+    const parts = fullTitle.includes(" — ") 
+        ? fullTitle.split(" — ") 
+        : fullTitle.includes(" - ") 
+            ? fullTitle.split(" - ") 
+            : [fullTitle];
+            
+    const artist = parts.length > 1 ? parts[0].trim() : "Unknown Artist";
+    let rawTitle = parts.length > 1 ? parts.slice(1).join(" — ").trim() : fullTitle;
     const labels: string[] = [];
 
     // 1. Identify "Slowed + Reverb" combinations (Priority)

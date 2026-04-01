@@ -31,7 +31,7 @@ export default function LibraryClient({
     const searchParams = useSearchParams();
     const initialVibe = searchParams.get('vibe') || "";
     const [searchQuery, setSearchQuery] = useState("");
-    const [sortBy, setSortBy] = useState<"latest"|"oldest"|"a-z">("a-z");
+    const [sortBy, setSortBy] = useState<"latest"|"oldest"|"a-z"|"curated">("a-z");
     const [activeVibe, setActiveVibe] = useState(initialVibe);
     const [isLoading, setIsLoading] = useState(false);
 
@@ -87,7 +87,15 @@ export default function LibraryClient({
             return matchesSearch && matchesVibe;
         });
 
-        if (sortBy === "latest") {
+        if (sortBy === "curated") {
+            result.sort((a, b) => {
+                const isALokal = a.title.toLowerCase().includes('indo') || (a.description && a.description.toLowerCase().includes('indo'));
+                const isBLokal = b.title.toLowerCase().includes('indo') || (b.description && b.description.toLowerCase().includes('indo'));
+                if (isALokal && !isBLokal) return -1;
+                if (!isALokal && isBLokal) return 1;
+                return (a.title || "").localeCompare(b.title || "");
+            });
+        } else if (sortBy === "latest") {
             result.sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime());
         } else if (sortBy === "oldest") {
             result.sort((a, b) => new Date(a.createdAt || 0).getTime() - new Date(b.createdAt || 0).getTime());
@@ -192,9 +200,10 @@ export default function LibraryClient({
                             onChange={e => setSortBy(e.target.value as any)}
                             style={{ background: "none", border: "none", outline: "none", color: "inherit", fontSize: "0.8rem", fontWeight: 700, cursor: "pointer", WebkitAppearance: "none", fontFamily: headerFont }}
                         >
+                            <option value="a-z" style={{ color: "#000" }}>A-Z</option>
+                            <option value="curated" style={{ color: "#000" }}>Curated</option>
                             <option value="latest" style={{ color: "#000" }}>Latest</option>
                             <option value="oldest" style={{ color: "#000" }}>Oldest</option>
-                            <option value="a-z" style={{ color: "#000" }}>A-Z</option>
                         </select>
                     </div>
                 </div>
