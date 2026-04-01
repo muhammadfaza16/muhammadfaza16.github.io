@@ -103,6 +103,13 @@ export default function LibraryClient({
             result.sort((a, b) => (a.title || "").localeCompare(b.title || ""));
         }
 
+        // Primary Sort: Prioritize playlists with covers (Always first)
+        result.sort((a, b) => {
+            const hasCoverA = !!a.coverImage ? 1 : 0;
+            const hasCoverB = !!b.coverImage ? 1 : 0;
+            return hasCoverB - hasCoverA; // 1 comes before 0
+        });
+
         return result;
     }, [initialPlaylists, searchQuery, activeVibe, sortBy]);
 
