@@ -141,7 +141,7 @@ export default function LibraryClient({
                     display: "flex",
                     flexDirection: "column",
                     alignItems: "center",
-                    padding: "40px 20px 140px 20px",
+                    padding: "40px 20px var(--explore-bottom-padding, 140px) 20px",
                     WebkitOverflowScrolling: "touch",
                     overscrollBehaviorY: "none",
                     scrollbarGutter: "stable"
@@ -367,9 +367,20 @@ export default function LibraryClient({
                     <Disc size={48} style={{ margin: "0 auto 16px auto", display: "block" }} />
                     <p style={{ fontFamily: headerFont, fontWeight: 700 }}>No tracks found...</p>
                 </motion.div>
-            )}
-            </div>
-            </div>
-        </main>
+                )}
+                </div>
+                </div>
+
+                <style>{`
+                    :root {
+                        --explore-bottom-padding: 140px;
+                    }
+                    @media (max-width: 640px) {
+                        :root {
+                            --explore-bottom-padding: 120px;
+                        }
+                    }
+                `}</style>
+            </main>
     );
 }
