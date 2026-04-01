@@ -6,6 +6,33 @@ export const dynamic = "force-dynamic";
 
 export async function GET() {
     try {
+        // Provision NoahVerse & Back to Basic (B2B) automatically if they don't exist
+        // This ensures the production database is "self-healed" on the first request
+        const provisionData = [
+            {
+                slug: 'noahverse',
+                title: 'NoahVerse',
+                description: 'The definitive NOAH collection.',
+                coverImage: '/images/playlist/noahverse.webp',
+                coverColor: '#1E1B4B'
+            },
+            {
+                slug: 'back-to-basic',
+                title: 'Back to Basic (B2B)',
+                description: 'Classical vibes and acoustic memories.',
+                coverImage: '/images/playlist/back_to_basic.jpg',
+                coverColor: '#312E81'
+            }
+        ];
+
+        for (const p of provisionData) {
+            await (prisma as any).playlist.upsert({
+                where: { slug: p.slug },
+                update: {}, // No updates if already exists
+                create: p
+            });
+        }
+
         const playlists = await (prisma as any).playlist.findMany({
             include: {
                 _count: {
