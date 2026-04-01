@@ -4,6 +4,7 @@ import { useState, useEffect, useMemo, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { parseSongTitle } from "@/utils/songUtils";
+import { CoverPicker } from "./CoverPicker";
 import { useTheme } from "@/components/ThemeProvider";
 import {
     Plus,
@@ -502,15 +503,11 @@ export function PlaylistModule({ addLog, isBusy, setIsBusy, insetBox }: Playlist
                                     placeholder="Lofi, Jazz"
                                 />
                             </div>
-                            <div style={{ display: "flex", flexDirection: "column", gap: "0.4rem" }}>
-                                <label style={{ color: theme === "dark" ? "rgba(255,255,255,0.4)" : "#555", fontSize: "0.55rem", fontWeight: 800 }}>COVER URL</label>
-                                <input
-                                    value={formData.coverImage}
-                                    onChange={e => setFormData({ ...formData, coverImage: e.target.value })}
-                                    style={{ ...getInputStyle(theme), padding: "0.5rem" }}
-                                    placeholder="https://..."
-                                />
-                            </div>
+                            <CoverPicker
+                                value={formData.coverImage}
+                                onChange={(url) => setFormData({ ...formData, coverImage: url })}
+                                insetBox={insetBox}
+                            />
                             <div style={{ display: "flex", flexDirection: "column", gap: "0.4rem" }}>
                                 <label style={{ color: theme === "dark" ? "rgba(255,255,255,0.4)" : "#555", fontSize: "0.55rem", fontWeight: 800 }}>COLOR</label>
                                 <input
@@ -570,14 +567,12 @@ export function PlaylistModule({ addLog, isBusy, setIsBusy, insetBox }: Playlist
                                 />
                             </div>
                             <div style={{ display: "grid", gridTemplateColumns: "1fr 50px", gap: "0.75rem" }}>
-                                <div style={{ display: "flex", flexDirection: "column", gap: "0.3rem" }}>
-                                    <label style={{ color: theme === "dark" ? "rgba(255,255,255,0.3)" : "#777", fontSize: "0.5rem", fontWeight: 800 }}>COVER IMAGE URL</label>
-                                    <input
-                                        value={formData.coverImage}
-                                        onChange={e => setFormData({ ...formData, coverImage: e.target.value })}
-                                        style={{ ...getInputStyle(theme), padding: "0.4rem", fontSize: "0.65rem" }}
-                                    />
-                                </div>
+                                <CoverPicker
+                                    value={formData.coverImage}
+                                    onChange={(url) => setFormData({ ...formData, coverImage: url })}
+                                    insetBox={insetBox}
+                                    compact
+                                />
                                 <div style={{ display: "flex", flexDirection: "column", gap: "0.3rem" }}>
                                     <label style={{ color: theme === "dark" ? "rgba(255,255,255,0.3)" : "#777", fontSize: "0.5rem", fontWeight: 800 }}>COLOR</label>
                                     <input
