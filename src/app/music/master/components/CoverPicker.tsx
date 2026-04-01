@@ -122,20 +122,20 @@ export function CoverPicker({ value, onChange, insetBox, compact = false }: Cove
     };
 
     const dropdownStyle: React.CSSProperties = {
-        position: "absolute",
-        top: "100%",
-        left: 0,
-        right: 0,
-        zIndex: 50,
-        marginTop: "4px",
-        background: isDark ? "rgba(15,15,20,0.98)" : "rgba(255,255,255,0.98)",
-        border: isDark ? "1px solid rgba(255,255,255,0.1)" : "1px solid rgba(0,0,0,0.1)",
         borderRadius: "12px",
         boxShadow: isDark
-            ? "0 12px 40px rgba(0,0,0,0.6)"
-            : "0 12px 40px rgba(0,0,0,0.15)",
+            ? "0 20px 50px rgba(0,0,0,0.8)"
+            : "0 20px 50px rgba(0,0,0,0.2)",
         overflow: "hidden",
-        minWidth: "280px"
+        minWidth: "280px",
+        zIndex: 1000,
+        bottom: "calc(100% + 10px)",
+        left: 0,
+        right: 0,
+        position: "absolute",
+        background: isDark ? "rgba(15,15,20,0.98)" : "rgba(255,255,255,0.98)",
+        border: isDark ? "1px solid rgba(255,255,255,0.1)" : "1px solid rgba(0,0,0,0.1)",
+        marginTop: 0
     };
 
     return (
@@ -199,7 +199,7 @@ export function CoverPicker({ value, onChange, insetBox, compact = false }: Cove
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -4 }}
                         transition={{ duration: 0.15 }}
-                        style={{ ...dropdownStyle, position: "relative", marginTop: "4px" }}
+                        style={{ ...dropdownStyle, marginTop: "0" }}
                     >
                         {/* Upload Section */}
                         <div style={{
@@ -294,7 +294,7 @@ export function CoverPicker({ value, onChange, insetBox, compact = false }: Cove
                         {/* Gallery Grid */}
                         <div style={{
                             padding: "6px 10px 10px",
-                            maxHeight: "220px",
+                            maxHeight: "180px", // Slightly shorter to avoid overflow
                             overflowY: "auto",
                             display: "grid",
                             gridTemplateColumns: "repeat(4, 1fr)",

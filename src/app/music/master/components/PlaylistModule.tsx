@@ -269,7 +269,7 @@ export function PlaylistModule({ addLog, isBusy, setIsBusy, insetBox }: Playlist
         }
         setIsBusy(true);
         const targetSong = allSongs.find(s => s.id === songId);
-        if (targetSong) setCurrentSongs(prev => [targetSong, ...prev]);
+        if (targetSong) setCurrentSongs(prev => [...prev, targetSong]);
         try {
             const res = await fetch(`/api/music/master/playlists/${viewingPlaylist.id}/songs`, {
                 method: "POST",
