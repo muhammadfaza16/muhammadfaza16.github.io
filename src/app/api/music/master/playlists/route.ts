@@ -6,6 +6,25 @@ export const dynamic = "force-dynamic";
 
 export async function GET() {
     try {
+        // Provision Milena automatically if it doesn't exist
+        const provisionData = [
+            {
+                slug: 'milena',
+                title: 'Milena',
+                description: 'Mysteries and melodies.',
+                coverImage: '/images/playlist/milena.jpg',
+                coverColor: '#1E1B4B'
+            }
+        ];
+
+        for (const p of provisionData) {
+            await (prisma as any).playlist.upsert({
+                where: { slug: p.slug },
+                update: {},
+                create: p
+            });
+        }
+
         const playlists = await (prisma as any).playlist.findMany({
             include: {
                 _count: {
