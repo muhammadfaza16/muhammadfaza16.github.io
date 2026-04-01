@@ -324,7 +324,7 @@ export default function AudioHubClient({
                             </div>
                             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
                                 {playlists
-                                    .filter(p => (p._count?.songs || 0) > 0 && !!p.coverImage)
+                                    .filter(p => !!p.coverImage)
                                     .slice(0, 4)
                                     .map((playlist) => (
                                     <Link key={playlist.slug || playlist.id} href={`/music/playlist/${playlist.slug || playlist.id}`} style={{ textDecoration: "none" }}>
