@@ -125,7 +125,7 @@ export default function PlaylistClient({
     const { playQueue, queue, currentSong, isPlaying, togglePlay, activePlaylistId, setIsPlayerExpanded } = useAudio();
     const { theme } = useTheme();
     const [searchQuery, setSearchQuery] = useState("");
-    const [sortBy, setSortBy] = useState<"default"|"latest"|"oldest"|"name">("name");
+    const [sortBy, setSortBy] = useState<"default"|"latest"|"oldest"|"name">("default");
     const [mounted, setMounted] = useState(false);
     const scrollContainerRef = useRef<HTMLDivElement>(null);
     const [scrollEl, setScrollEl] = useState<HTMLDivElement | null>(null);
@@ -170,13 +170,17 @@ export default function PlaylistClient({
     }, [playlistId]);
 
     const basePlaylist = useMemo(() => {
+        if (sortBy === "default") {
+            return initialSongs.map((song, index) => ({ ...song, originalIndex: index }));
+        }
+
         const sorted = [...initialSongs].sort((a, b) => {
             // 1. Lokal (Indo) First
             const isALokal = a.category?.toLowerCase() === 'indo';
             const isBLokal = b.category?.toLowerCase() === 'indo';
             
-            if (isALokal && !isBLokal) return 1;
-            if (!isALokal && isBLokal) return -1;
+            if (isALokal && !isBLokal) return -1;
+            if (!isALokal && isBLokal) return 1;
             
             // 2. Parse titles for Artist & Title sorting
             const infoA = parseSongTitle(a.title);
@@ -191,7 +195,7 @@ export default function PlaylistClient({
         });
         
         return sorted.map((song, index) => ({ ...song, originalIndex: index }));
-    }, [initialSongs]);
+    }, [initialSongs, sortBy]);
 
     const filteredPlaylist = useMemo(() => {
         let result = [...basePlaylist];
@@ -290,12 +294,14 @@ export default function PlaylistClient({
                     overflow: "hidden",
                     aspectRatio: "16/9"
                 }}>
-                    <img 
-                        src={initialPlaylist.coverImage} 
-                        style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", zIndex: 0, opacity: 0.85 }} 
-                        className="mix-blend-multiply"
-                        alt="" 
-                    />
+                    {initialPlaylist.coverImage && (
+                        <img 
+                            src={initialPlaylist.coverImage} 
+                            style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", zIndex: 0, opacity: 0.85 }} 
+                            className="mix-blend-multiply"
+                            alt="" 
+                        />
+                    )}
                     {/* Premium Masking Overlays */}
                     <div style={{
                         position: "absolute",
@@ -428,7 +434,7 @@ export default function PlaylistClient({
                         onChange={e => setSortBy(e.target.value as any)}
                         style={{ background: "none", border: "none", outline: "none", color: "inherit", fontSize: "0.7rem", fontWeight: 800, cursor: "pointer", WebkitAppearance: "none", paddingRight: "10px", fontFamily: headerFont }}
                     >
-                        <option value="default" style={{ color: "#000" }}>Sort: Magic</option>
+                        <option value="default" style={{ color: "#000" }}>Sort: Curated</option>
                         <option value="latest" style={{ color: "#000" }}>Sort: Latest</option>
                         <option value="oldest" style={{ color: "#000" }}>Sort: Oldest</option>
                         <option value="name" style={{ color: "#000" }}>Sort: A-Z</option>

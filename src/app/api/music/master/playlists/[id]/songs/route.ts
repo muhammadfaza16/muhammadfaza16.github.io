@@ -40,6 +40,13 @@ export async function POST(
             return NextResponse.json({ success: false, error: "Song ID is required" }, { status: 400 });
         }
 
+        // Get max order
+        const lastSong = await (prisma as any).playlistSong.findFirst({
+            where: { playlistId: id },
+            orderBy: { order: 'desc' }
+        });
+        const nextOrder = lastSong ? (lastSong.order + 1) : 0;
+
         const link = await (prisma as any).playlistSong.upsert({
             where: {
                 playlistId_songId: {
@@ -47,10 +54,13 @@ export async function POST(
                     songId
                 }
             },
-            update: {},
+            update: {
+                order: nextOrder
+            },
             create: {
                 playlistId: id,
-                songId
+                songId,
+                order: nextOrder
             }
         });
 

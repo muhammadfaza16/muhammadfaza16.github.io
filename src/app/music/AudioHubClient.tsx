@@ -29,8 +29,8 @@ export default function AudioHubClient({
     const scrollContainerRef = useRef<HTMLDivElement>(null);
     const scrollYRef = useRef(0);
 
-    const [playlists] = useState<any[]>(initialPlaylists);
-    const [livePlaylistIds] = useState<string[]>(activeSessionPlaylistIds);
+    const playlists = initialPlaylists || [];
+    const livePlaylistIds = activeSessionPlaylistIds || [];
 
     const CACHE_KEY = "music_hub_scroll_v1";
 

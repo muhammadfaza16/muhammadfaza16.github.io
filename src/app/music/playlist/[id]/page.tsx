@@ -2,6 +2,7 @@ import PlaylistClient from "./PlaylistClient";
 import prisma from "@/lib/prisma";
 import { Suspense } from "react";
 import PlaylistLoading from "./loading";
+export const revalidate = 30;
 
 export async function generateStaticParams() {
     try {

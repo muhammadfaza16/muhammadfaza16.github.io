@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
+import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { parseSongTitle } from "@/utils/songUtils";
 import { useTheme } from "@/components/ThemeProvider";
@@ -51,11 +52,13 @@ interface PlaylistModuleProps {
 
 export function PlaylistModule({ addLog, isBusy, setIsBusy, insetBox }: PlaylistModuleProps) {
     const { theme } = useTheme();
+    const router = useRouter();
     const [playlists, setPlaylists] = useState<Playlist[]>([]);
     const [isLoading, setIsLoading] = useState(true);
-    const [editingId, setEditingId] = useState<string | null>(null);
     const [viewingPlaylist, setViewingPlaylist] = useState<Playlist | null>(null);
     const [isAdding, setIsAdding] = useState(false);
+    const [visibleCount, setVisibleCount] = useState(25);
+    const observerTarget = useRef<HTMLDivElement>(null);
 
     // Songs State
     const [currentSongs, setCurrentSongs] = useState<Song[]>([]);
@@ -92,7 +95,7 @@ export function PlaylistModule({ addLog, isBusy, setIsBusy, insetBox }: Playlist
 
     const filteredSongs = useMemo(() => {
         let result = [...availableSongs];
-        if (songSearch.length >= 2) {
+        if (songSearch.length >= 1) {
             const query = songSearch.toLowerCase();
             result = result.filter(s => (s.title || "").toLowerCase().includes(query) || (s.artist || "").toLowerCase().includes(query));
         }
@@ -112,6 +115,28 @@ export function PlaylistModule({ addLog, isBusy, setIsBusy, insetBox }: Playlist
         fetchPlaylists();
         fetchAllSongs();
     }, []);
+
+    useEffect(() => {
+        const observer = new IntersectionObserver(
+            entries => {
+                if (entries[0].isIntersecting && visibleCount < filteredSongs.length) {
+                    setVisibleCount(prev => prev + 25);
+                }
+            },
+            { threshold: 1.0 }
+        );
+
+        if (observerTarget.current) {
+            observer.observe(observerTarget.current);
+        }
+
+        return () => observer.disconnect();
+    }, [visibleCount, filteredSongs.length]);
+
+    // Reset visibleCount when search changes
+    useEffect(() => {
+        setVisibleCount(25);
+    }, [songSearch]);
 
     const fetchPlaylists = async () => {
         setIsLoading(true);
@@ -148,19 +173,28 @@ export function PlaylistModule({ addLog, isBusy, setIsBusy, insetBox }: Playlist
         return [];
     };
 
-    const handleSave = async () => {
+    const saveAllChanges = async () => {
+        const isEditing = !!viewingPlaylist;
+        const currentId = viewingPlaylist?.id;
+
         if (!formData.title || !formData.slug) {
             addLog("Title and Slug are required", "error");
             return;
         }
+
         setIsBusy(true);
         try {
-            const method = editingId ? "PUT" : "POST";
-            const vibesArray = formData.vibes
+            const vibesArray = typeof formData.vibes === 'string' 
                 ? formData.vibes.split(',').map((v: string) => v.trim()).filter(Boolean)
-                : [];
-            const payload = { ...formData, vibes: vibesArray, songIds: selectedSongIds };
-            const body = editingId ? { id: editingId, ...payload } : payload;
+                : formData.vibes;
+
+            const payload = { 
+                ...formData, 
+                vibes: vibesArray, 
+                songIds: currentSongs.map(s => s.id) 
+            };
+            const body = isEditing ? { id: currentId, ...payload } : payload;
+            const method = isEditing ? "PUT" : "POST";
 
             const res = await fetch("/api/music/master/playlists", {
                 method,
@@ -170,9 +204,15 @@ export function PlaylistModule({ addLog, isBusy, setIsBusy, insetBox }: Playlist
 
             const data = await res.json();
             if (data.success) {
-                addLog(`Playlist ${editingId ? "updated" : "created"}: ${formData.title}`, "success");
+                addLog(`Playlist ${isEditing ? "updated" : "created"}: ${formData.title}`, "success");
                 await fetchPlaylists();
-                resetForm();
+                if (!isEditing) {
+                    resetForm();
+                } else {
+                    // Update viewingPlaylist with new data
+                    setViewingPlaylist(data.playlist);
+                }
+                router.refresh();
             } else {
                 addLog(data.error || "Operation failed", "error");
             }
@@ -277,11 +317,15 @@ export function PlaylistModule({ addLog, isBusy, setIsBusy, insetBox }: Playlist
     const resetForm = () => {
         setFormData({ title: "", slug: "", description: "", philosophy: "", schedule: "", vibes: "", coverImage: "", coverColor: "#3b82f6" });
         setSelectedSongIds([]);
-        setEditingId(null);
         setIsAdding(false);
+        setViewingPlaylist(null);
     };
 
-    const startEdit = async (p: Playlist) => {
+
+
+    const openSongs = async (p: Playlist) => {
+        setSongSearch("");
+        setViewingPlaylist(p);
         setFormData({
             title: p.title,
             slug: p.slug,
@@ -292,40 +336,12 @@ export function PlaylistModule({ addLog, isBusy, setIsBusy, insetBox }: Playlist
             coverImage: p.coverImage || "",
             coverColor: p.coverColor || "#3b82f6"
         });
-        setEditingId(p.id);
-        setIsAdding(true);
-        const songs = await fetchPlaylistSongs(p.id);
-        if (songs) setSelectedSongIds(songs.map((s: any) => s.id));
-    };
-
-    const openSongs = async (p: Playlist) => {
-        setSongSearch("");
-        setViewingPlaylist(p);
         await Promise.all([fetchPlaylistSongs(p.id), fetchAllSongs()]);
     };
 
     const closeSongs = async () => {
-        if (viewingPlaylist) {
-            setIsBusy(true);
-             try {
-                // Save current order before closing
-                await fetch("/api/music/master/playlists", {
-                    method: "PUT",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ 
-                        id: viewingPlaylist.id, 
-                        title: viewingPlaylist.title,
-                        slug: viewingPlaylist.slug,
-                        songIds: currentSongs.map(s => s.id) 
-                    })
-                });
-            } catch (err) {
-                console.error("Failed to save order on close", err);
-            } finally {
-                setIsBusy(false);
-            }
-        }
         setViewingPlaylist(null);
+        resetForm();
         await fetchPlaylists();
     };
 
@@ -389,7 +405,7 @@ export function PlaylistModule({ addLog, isBusy, setIsBusy, insetBox }: Playlist
                                     value={formData.title}
                                     onChange={e => {
                                         const title = e.target.value;
-                                        setFormData(prev => ({ ...prev, title, slug: editingId ? prev.slug : autoSlug(title) }));
+                                        setFormData(prev => ({ ...prev, title, slug: viewingPlaylist ? prev.slug : autoSlug(title) }));
                                     }}
                                     style={{ ...getInputStyle(theme), padding: "0.5rem" }}
                                     placeholder="Late Night Drives"
@@ -489,13 +505,13 @@ export function PlaylistModule({ addLog, isBusy, setIsBusy, insetBox }: Playlist
 
                         <div style={{ display: "flex", justifyContent: "flex-end", gap: "0.5rem", marginTop: "0.5rem" }}>
                             <motion.button onClick={resetForm} whileTap={{ scale: 0.95 }} style={{ ...insetBox, padding: "8px 16px", color: theme === "dark" ? "rgba(255,255,255,0.4)" : "#555", fontSize: "0.6rem", fontWeight: 800 }}>CANCEL</motion.button>
-                            <motion.button
-                                onClick={handleSave}
+                                <motion.button
+                                onClick={saveAllChanges}
                                 disabled={isBusy}
                                 whileTap={{ scale: 0.95 }}
                                 style={{ ...insetBox, padding: "8px 16px", color: theme === "dark" ? "#10B981" : "#059669", fontSize: "0.65rem", fontWeight: 800, display: "flex", alignItems: "center", gap: "6px", opacity: isBusy ? 0.4 : 1, cursor: isBusy ? "not-allowed" : "pointer" }}
                             >
-                                <Save size={14} /> {editingId ? "UPDATE" : "CREATE"}
+                                <Save size={14} /> {viewingPlaylist ? "UPDATE" : "CREATE"}
                             </motion.button>
                         </div>
                     </motion.div>
@@ -505,6 +521,81 @@ export function PlaylistModule({ addLog, isBusy, setIsBusy, insetBox }: Playlist
                         initial={{ opacity: 0 }} animate={{ opacity: 1 }}
                         style={{ display: "flex", flexDirection: "column", gap: "1rem" }}
                     >
+                        {/* Global Metadata Editor Integration */}
+                        <div style={{ ...insetBox, padding: "1rem", display: "flex", flexDirection: "column", gap: "0.75rem", borderLeft: `4px solid ${formData.coverColor}` }}>
+                            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.75rem" }}>
+                                <div style={{ display: "flex", flexDirection: "column", gap: "0.3rem" }}>
+                                    <label style={{ color: theme === "dark" ? "rgba(255,255,255,0.3)" : "#777", fontSize: "0.5rem", fontWeight: 800 }}>TITLE</label>
+                                    <input
+                                        value={formData.title}
+                                        onChange={e => setFormData({ ...formData, title: e.target.value })}
+                                        style={{ ...getInputStyle(theme), padding: "0.4rem", fontSize: "0.65rem" }}
+                                    />
+                                </div>
+                                <div style={{ display: "flex", flexDirection: "column", gap: "0.3rem" }}>
+                                    <label style={{ color: theme === "dark" ? "rgba(255,255,255,0.3)" : "#777", fontSize: "0.5rem", fontWeight: 800 }}>SLUG</label>
+                                    <input
+                                        value={formData.slug}
+                                        onChange={e => setFormData({ ...formData, slug: e.target.value })}
+                                        style={{ ...getInputStyle(theme), padding: "0.4rem", fontSize: "0.65rem" }}
+                                    />
+                                </div>
+                            </div>
+                            <div style={{ display: "flex", flexDirection: "column", gap: "0.3rem" }}>
+                                <label style={{ color: theme === "dark" ? "rgba(255,255,255,0.3)" : "#777", fontSize: "0.5rem", fontWeight: 800 }}>VIBES (comma separated)</label>
+                                <input
+                                    value={formData.vibes}
+                                    onChange={e => setFormData({ ...formData, vibes: e.target.value })}
+                                    style={{ ...getInputStyle(theme), padding: "0.4rem", fontSize: "0.65rem" }}
+                                    placeholder="Moody, Electronic..."
+                                />
+                            </div>
+                            <div style={{ display: "grid", gridTemplateColumns: "1fr 50px", gap: "0.75rem" }}>
+                                <div style={{ display: "flex", flexDirection: "column", gap: "0.3rem" }}>
+                                    <label style={{ color: theme === "dark" ? "rgba(255,255,255,0.3)" : "#777", fontSize: "0.5rem", fontWeight: 800 }}>COVER IMAGE URL</label>
+                                    <input
+                                        value={formData.coverImage}
+                                        onChange={e => setFormData({ ...formData, coverImage: e.target.value })}
+                                        style={{ ...getInputStyle(theme), padding: "0.4rem", fontSize: "0.65rem" }}
+                                    />
+                                </div>
+                                <div style={{ display: "flex", flexDirection: "column", gap: "0.3rem" }}>
+                                    <label style={{ color: theme === "dark" ? "rgba(255,255,255,0.3)" : "#777", fontSize: "0.5rem", fontWeight: 800 }}>COLOR</label>
+                                    <input
+                                        type="color"
+                                        value={formData.coverColor}
+                                        onChange={e => setFormData({ ...formData, coverColor: e.target.value })}
+                                        style={{ ...getInputStyle(theme), padding: "2px", height: "26px", cursor: "pointer" }}
+                                    />
+                                </div>
+                            </div>
+
+                            <motion.button
+                                onClick={saveAllChanges}
+                                disabled={isBusy}
+                                whileTap={{ scale: 0.98 }}
+                                style={{ 
+                                    background: "#10B981", 
+                                    color: "#FFF", 
+                                    border: "none", 
+                                    padding: "10px", 
+                                    borderRadius: "12px", 
+                                    fontSize: "0.7rem", 
+                                    fontWeight: 900, 
+                                    cursor: "pointer", 
+                                    display: "flex", 
+                                    alignItems: "center", 
+                                    justifyContent: "center", 
+                                    gap: "8px",
+                                    marginTop: "4px",
+                                    boxShadow: "0 4px 12px rgba(16, 185, 129, 0.2)",
+                                    opacity: isBusy ? 0.5 : 1
+                                }}
+                            >
+                                <Save size={16} /> SAVE ALL CHANGES
+                            </motion.button>
+                        </div>
+
                         <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
                             <div style={{ ...insetBox, padding: "0.5rem", display: "flex", alignItems: "center", gap: "8px", flex: 1 }}>
                                 <Search size={14} color={theme === "dark" ? "rgba(255,255,255,0.4)" : "rgba(0,0,0,0.3)"} />
@@ -512,7 +603,7 @@ export function PlaylistModule({ addLog, isBusy, setIsBusy, insetBox }: Playlist
                                     value={songSearch}
                                     onChange={e => setSongSearch(e.target.value)}
                                     style={{ background: "none", border: "none", flex: 1, color: theme === "dark" ? "#FFF" : "#000", fontSize: "0.65rem", outline: "none" }}
-                                    placeholder="Search all songs to add..."
+                                    placeholder="Search library to add..."
                                 />
                             </div>
                             <div style={{ ...insetBox, padding: "0.5rem", display: "flex", alignItems: "center" }}>
@@ -528,48 +619,21 @@ export function PlaylistModule({ addLog, isBusy, setIsBusy, insetBox }: Playlist
                             </div>
                         </div>
 
-                        <div style={{ maxHeight: "50vh", overflowY: "auto", display: "flex", flexDirection: "column", gap: "0.4rem", paddingRight: "4px" }}>
+                        <div style={{ maxHeight: "40vh", overflowY: "auto", display: "flex", flexDirection: "column", gap: "0.4rem", paddingRight: "4px" }}>
                             {/* Current Tracks Section */}
-                            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", margin: "0.5rem 0 0.2rem 0" }}>
+                            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", margin: "0.2rem 0 0.2rem 0" }}>
                                 <div style={{ fontSize: "0.55rem", fontWeight: 800, color: theme === "dark" ? "rgba(255,255,255,0.4)" : "#444" }}>
-                                    CURRENT TRACKS ({currentSongs.length})
+                                    TRACKLIST ({currentSongs.length})
                                 </div>
-                                {currentSongs.length > 1 && (
-                                    <motion.button 
-                                        onClick={() => {
-                                            const shuffled = [...currentSongs].sort(() => Math.random() - 0.5);
-                                            setCurrentSongs(shuffled);
-                                        }}
-                                        whileTap={{ scale: 0.95 }}
-                                        style={{ fontSize: "0.55rem", fontWeight: 800, color: "#10B981", display: "flex", alignItems: "center", gap: "4px" }}
-                                    >
-                                        SHUFFLE
-                                    </motion.button>
-                                )}
                             </div>
                             {currentSongs.map(song => (
-                                <div key={song.id} style={{ ...insetBox, padding: "0.5rem 0.75rem", display: "flex", justifyContent: "space-between", alignItems: "center", borderLeft: `2px solid ${viewingPlaylist.coverColor}` }}>
+                                <div key={song.id} style={{ ...insetBox, padding: "0.5rem 0.75rem", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                                     <div>
                                         {(() => {
                                             const { cleanTitle, labels } = parseSongTitle(song.title);
                                             return (
                                                 <div style={{ display: "flex", alignItems: "center", gap: "6px", flexWrap: "wrap" }}>
                                                     <div style={{ color: theme === "dark" ? "#FFF" : "#000", fontSize: "0.65rem", fontWeight: 800 }}>{cleanTitle}</div>
-                                                    {labels.map(label => (
-                                                        <span key={label} style={{
-                                                            fontSize: "0.55rem",
-                                                            fontFamily: "var(--font-sans)",
-                                                            fontWeight: 800,
-                                                            backgroundColor: theme === "dark" ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.04)",
-                                                            color: theme === "dark" ? "rgba(255,255,255,0.75)" : "rgba(0,0,0,0.5)",
-                                                            padding: "2.5px 8px",
-                                                            borderRadius: "100px",
-                                                            letterSpacing: "0.05em",
-                                                            textTransform: "uppercase",
-                                                            border: "1px solid " + (theme === "dark" ? "rgba(255,255,255,0.12)" : "rgba(0,0,0,0.06)"),
-                                                            flexShrink: 0
-                                                        }}>{label}</span>
-                                                    ))}
                                                 </div>
                                             );
                                         })()}
@@ -612,45 +676,26 @@ export function PlaylistModule({ addLog, isBusy, setIsBusy, insetBox }: Playlist
                                     </div>
                                 </div>
                             ))}
-                            <div style={{ fontSize: "0.55rem", fontWeight: 800, color: theme === "dark" ? "rgba(255,255,255,0.4)" : "#444", margin: "1rem 0 0.2rem 0" }}>ADD SONGS ({filteredSongs.length} available)</div>
-                            {filteredSongs.map(song => (
-                                <div key={song.id} style={{ ...insetBox, padding: "0.5rem 0.75rem", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                                    <div>
-                                        {(() => {
-                                            const { cleanTitle, labels } = parseSongTitle(song.title);
-                                            return (
-                                                <div style={{ display: "flex", alignItems: "center", gap: "6px", flexWrap: "wrap" }}>
-                                                    <div style={{ color: theme === "dark" ? "#FFF" : "#000", fontSize: "0.65rem", fontWeight: 800 }}>{cleanTitle}</div>
-                                                    {labels.map(label => (
-                                                        <span key={label} style={{
-                                                            fontSize: "0.55rem",
-                                                            fontFamily: "var(--font-sans)",
-                                                            fontWeight: 800,
-                                                            backgroundColor: theme === "dark" ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.04)",
-                                                            color: theme === "dark" ? "rgba(255,255,255,0.75)" : "rgba(0,0,0,0.5)",
-                                                            padding: "2.5px 8px",
-                                                            borderRadius: "100px",
-                                                            letterSpacing: "0.05em",
-                                                            textTransform: "uppercase",
-                                                            border: "1px solid " + (theme === "dark" ? "rgba(255,255,255,0.12)" : "rgba(0,0,0,0.06)"),
-                                                            flexShrink: 0
-                                                        }}>{label}</span>
-                                                    ))}
-                                                </div>
-                                            );
-                                        })()}
-                                        <div style={{ color: theme === "dark" ? "rgba(255,255,255,0.4)" : "rgba(0,0,0,0.45)", fontSize: "0.5rem" }}>{song.artist}</div>
+                            <div style={{ fontSize: "0.55rem", fontWeight: 800, color: theme === "dark" ? "rgba(255,255,255,0.4)" : "#444", margin: "0.8rem 0 0.2rem 0" }}>
+                                {songSearch.length > 0 ? "SEARCH RESULTS" : "ADD FROM LIBRARY"} ({filteredSongs.length})
+                            </div>
+                            {filteredSongs.slice(0, visibleCount).map(song => (
+                                <div key={song.id} style={{ ...insetBox, padding: "0.4rem 0.75rem", display: "flex", justifyContent: "space-between", alignItems: "center", opacity: 0.8 }}>
+                                    <div style={{ fontSize: "0.6rem" }}>
+                                        <div style={{ fontWeight: 800 }}>{song.title}</div>
+                                        <div style={{ opacity: 0.5, fontSize: "0.5rem" }}>{song.artist}</div>
                                     </div>
-                                    <div style={{ display: "flex", gap: "0.4rem", alignItems: "center" }}>
-                                        <motion.button onClick={() => addSongToPlaylist(song.id, song.title)} whileTap={{ scale: 0.9 }} style={{ color: "#39ff14" }}>
-                                            <Plus size={16} />
-                                        </motion.button>
-                                        <motion.button onClick={() => deleteSongFromLibrary(song.id, song.title)} whileTap={{ scale: 0.9 }} style={{ color: "#ef444480" }}>
-                                            <Trash2 size={12} />
-                                        </motion.button>
-                                    </div>
+                                    <motion.button onClick={() => addSongToPlaylist(song.id, song.title)} whileTap={{ scale: 0.9 }} style={{ color: "#39ff14" }}>
+                                        <Plus size={16} />
+                                    </motion.button>
                                 </div>
                             ))}
+                            {/* Infinite Scroll Sentinel */}
+                            {filteredSongs.length > visibleCount && (
+                                <div ref={observerTarget} style={{ height: "20px", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "0.5rem", color: "rgba(255,255,255,0.2)" }}>
+                                    Loading more...
+                                </div>
+                            )}
                         </div>
                     </motion.div>
                 ) : (
@@ -681,7 +726,6 @@ export function PlaylistModule({ addLog, isBusy, setIsBusy, insetBox }: Playlist
                                     )}
                                 </div>
                                 <div style={{ display: "flex", gap: "0.25rem" }} onClick={e => e.stopPropagation()}>
-                                    <motion.button onClick={() => startEdit(p)} whileTap={{ scale: 0.9 }} style={{ padding: "8px", color: theme === "dark" ? "rgba(255,255,255,0.4)" : "#666" }}><Edit2 size={14} /></motion.button>
                                     <motion.button onClick={() => handleDelete(p.id, p.title)} whileTap={{ scale: 0.9 }} style={{ padding: "8px", color: "#ef4444" }}><Trash2 size={14} /></motion.button>
                                 </div>
                             </div>

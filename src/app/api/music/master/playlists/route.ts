@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 import prisma from "@/lib/prisma";
 
 export const dynamic = "force-dynamic";
@@ -36,7 +37,7 @@ export async function POST(req: NextRequest) {
                 schedule,
                 vibes: Array.isArray(vibes) ? vibes : vibes ? vibes.split(',').map((v: string) => v.trim()) : [],
                 coverColor,
-                coverImage,
+                coverImage: coverImage || null,
                 // Add songs relation if songIds provided
                 songs: songIds && Array.isArray(songIds) ? {
                     create: songIds.map((sid: string, index: number) => ({
@@ -88,11 +89,16 @@ export async function PUT(req: NextRequest) {
                 description,
                 philosophy,
                 schedule,
-                vibes: Array.isArray(vibes) ? vibes : vibes ? vibes.split(',').map((v: string) => v.trim()) : [],
+                vibes: vibes !== undefined ? (Array.isArray(vibes) ? vibes : (vibes ? vibes.split(',').map((v: string) => v.trim()) : [])) : undefined,
                 coverColor,
-                coverImage
+                coverImage: coverImage || null
             }
         });
+
+        // Trigger cache revalidation
+        if (slug) revalidatePath(`/music/playlist/${slug}`);
+        revalidatePath('/music/playlist');
+        revalidatePath('/music');
 
         return NextResponse.json({ success: true, playlist });
     } catch (error: any) {
