@@ -6,7 +6,7 @@ export const dynamic = "force-dynamic";
 
 export async function GET() {
     try {
-        // Provision Milena automatically if it doesn't exist
+        // Provision Milena only
         const provisionData = [
             {
                 slug: 'milena',
