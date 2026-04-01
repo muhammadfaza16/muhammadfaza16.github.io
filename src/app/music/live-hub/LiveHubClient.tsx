@@ -114,7 +114,7 @@ export default function LiveHubClient({
 
     // Combined Stations logic
     const combinedStations = useMemo(() => {
-        return [
+        const result = [
             ...stations,
             ...allPlaylists
                 .filter(pc => !stations.some(s => s.playlistTitle === pc.title || s.id === pc.slug || s.id === pc.id))
@@ -128,10 +128,32 @@ export default function LiveHubClient({
                     currentSong: null,
                     totalSongs: pc._count?.songs || 0,
                     songIndex: 0,
-                    startedAt: new Date().toISOString(),
+                    startedAt: new Date(pc.createdAt || 0).toISOString(),
                     isDummy: true
                 }))
         ];
+
+        // 3-Tier Priority Sort: 1. Live/Online, 2. Has Cover, 3. Recency
+        result.sort((a, b) => {
+            // Priority 1: Online (isDummy is false)
+            const isADummy = !!a.isDummy;
+            const isBDummy = !!b.isDummy;
+            if (!isADummy && isBDummy) return -1;
+            if (isADummy && !isBDummy) return 1;
+
+            // Priority 2: Has Cover Image
+            const hasCoverA = !!a.coverImage;
+            const hasCoverB = !!b.coverImage;
+            if (hasCoverA && !hasCoverB) return -1;
+            if (!hasCoverA && hasCoverB) return 1;
+
+            // Priority 3: Start Time (Newest First)
+            const timeA = new Date(a.startedAt || 0).getTime();
+            const timeB = new Date(b.startedAt || 0).getTime();
+            return timeB - timeA;
+        });
+
+        return result;
     }, [stations, allPlaylists]);
 
     const secondaryStations = combinedStations;
