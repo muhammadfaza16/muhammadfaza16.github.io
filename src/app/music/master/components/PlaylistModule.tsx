@@ -17,7 +17,8 @@ import {
     Music,
     Search,
     ChevronRight,
-    MinusCircle
+    MinusCircle,
+    Shuffle
 } from "lucide-react";
 import { getInputStyle } from "./sharedStyles";
 
@@ -341,6 +342,13 @@ export function PlaylistModule({ addLog, isBusy, setIsBusy, insetBox }: Playlist
         setViewingPlaylist(null);
     };
 
+    const shufflePlaylist = () => {
+        if (!currentSongs.length) return;
+        const shuffled = [...currentSongs].sort(() => Math.random() - 0.5);
+        setCurrentSongs(shuffled);
+        addLog("Tracklist shuffled (unsaved)", "info");
+    };
+
 
 
     const openSongs = async (p: Playlist) => {
@@ -640,6 +648,26 @@ export function PlaylistModule({ addLog, isBusy, setIsBusy, insetBox }: Playlist
                                 <div style={{ fontSize: "0.55rem", fontWeight: 800, color: theme === "dark" ? "rgba(255,255,255,0.4)" : "#444" }}>
                                     TRACKLIST ({currentSongs.length})
                                 </div>
+                                {currentSongs.length > 1 && (
+                                    <motion.button
+                                        onClick={shufflePlaylist}
+                                        whileTap={{ scale: 0.95 }}
+                                        style={{
+                                            ...insetBox,
+                                            padding: "2px 8px",
+                                            display: "flex",
+                                            alignItems: "center",
+                                            gap: "4px",
+                                            fontSize: "0.5rem",
+                                            fontWeight: 800,
+                                            color: theme === "dark" ? "#10B981" : "#059669",
+                                            cursor: "pointer",
+                                            border: "1px dashed rgba(16, 185, 129, 0.3)"
+                                        }}
+                                    >
+                                        <Shuffle size={10} /> SHUFFLE
+                                    </motion.button>
+                                )}
                             </div>
                             {currentSongs.map(song => (
                                 <div key={song.id} style={{ ...insetBox, padding: "0.5rem 0.75rem", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
