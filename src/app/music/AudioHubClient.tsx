@@ -324,7 +324,7 @@ export default function AudioHubClient({
                             </div>
                             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
                                 {playlists
-                                    .filter(p => (p._count?.songs || 0) > 0)
+                                    .filter(p => (p._count?.songs || 0) > 0 && !!p.coverImage)
                                     .slice(0, 4)
                                     .map((playlist) => (
                                     <Link key={playlist.slug || playlist.id} href={`/music/playlist/${playlist.slug || playlist.id}`} style={{ textDecoration: "none" }}>
@@ -332,12 +332,18 @@ export default function AudioHubClient({
                                             {playlist.coverImage && (
                                                 <img 
                                                     src={playlist.coverImage} 
-                                                    style={{ width: "100%", height: "100%", objectFit: "cover", position: "absolute", inset: 0, opacity: 0.85 }} 
-                                                    className="mix-blend-multiply" 
+                                                    style={{ width: "100%", height: "100%", objectFit: "cover", position: "absolute", inset: 0, opacity: 0.95 }} 
                                                     loading="lazy"
                                                     decoding="async"
                                                 />
                                             )}
+
+                                            {/* Subtle text protection gradient */}
+                                            <div style={{
+                                                position: "absolute", inset: 0, zIndex: 1,
+                                                background: "linear-gradient(to top, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.15) 50%, transparent 100%)",
+                                                pointerEvents: "none"
+                                            }} />
                                             
                                             {livePlaylistIds.includes(playlist.id) && (
                                                 <div style={{ position: "absolute", top: "12px", right: "12px", zIndex: 10, display: "flex", alignItems: "center", gap: "6px", backgroundColor: "rgba(220, 38, 38, 0.9)", padding: "4px 8px", borderRadius: "6px", backdropFilter: "blur(4px)" }}>

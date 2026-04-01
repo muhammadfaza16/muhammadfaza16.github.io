@@ -300,15 +300,14 @@ export default function LibraryClient({
                                                 src={playlist.coverImage}
                                                 style={{ 
                                                     position: "absolute", inset: 0, width: "100%", height: "100%", 
-                                                    objectFit: "cover", opacity: 0.85
+                                                    objectFit: "cover", opacity: 0.95
                                                 }}
-                                                className="mix-blend-multiply" 
                                             />
                                         )}
                                         {/* Overlay Gradients */}
                                         <div style={{
                                             position: "absolute", inset: 0, zIndex: 1,
-                                            background: "linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.2) 50%, transparent 100%)"
+                                            background: "linear-gradient(to top, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.15) 50%, transparent 100%)"
                                         }} />
 
                                         {/* Now Playing Glow */}
