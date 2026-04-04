@@ -1370,8 +1370,66 @@ export default function CurationList() {
         {/* ═══ ATLAS MENU ═══ */}
         <AtlasMenu items={[...VERTICALS]} isOpen={isAtlasMenuOpen} onClose={() => setIsAtlasMenuOpen(false)} />
 
+        {/* ═══ THE LIBRARY SHELVES (Bento Hub) ═══ */}
+        <div className="w-full bg-zinc-50/60 dark:bg-zinc-900/50 border-t border-zinc-200/50 dark:border-zinc-800/40">
+        <div className="max-w-4xl md:max-w-6xl mx-auto">
+        {!searchQuery && !isLoadingTop && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.3 }}
+            className="px-5 pt-12 pb-12"
+          >
+            <div className="pb-8">
+              <SectionHeader 
+                title="The Library" 
+                colorClass="bg-emerald-600 dark:bg-emerald-400" 
+                description="Your deepest dive into specific topics. Carefully organized shelves of books, mental models, and frameworks to help you master new skills."
+              />
+            </div>
+
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
+              {[
+                { key: 'books', label: 'Books', icon: Library, count: stats.books, color: 'text-zinc-500 dark:text-zinc-400 bg-zinc-100/50 dark:bg-zinc-800/50' },
+                { key: 'skills', label: 'Skills Lab', icon: Cpu, count: stats.skills, color: 'text-zinc-500 dark:text-zinc-400 bg-zinc-100/50 dark:bg-zinc-800/50' },
+                { key: 'frameworks', label: 'Frameworks', icon: Component, count: stats.frameworks, color: 'text-zinc-500 dark:text-zinc-400 bg-zinc-100/50 dark:bg-zinc-800/50' },
+                { key: 'codex', label: 'Codex', icon: HistoryIcon, count: stats.codex, color: 'text-zinc-500 dark:text-zinc-400 bg-zinc-100/50 dark:bg-zinc-800/50' }
+              ].map((shelf) => (
+                <motion.div
+                  key={shelf.key}
+                  whileHover={{ y: -5 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={() => {
+                    setSelectedShelfLabel(shelf.label);
+                    setSelectedShelfIcon(() => shelf.icon);
+                    setIsConstructionModalOpen(true);
+                  }}
+                  className="group relative flex flex-col p-5 bg-white dark:bg-[#0a0a0a] border border-zinc-200/50 dark:border-zinc-800/80 rounded-[2rem] cursor-pointer overflow-hidden transition-all duration-500 hover:shadow-[0_8px_30px_rgba(0,0,0,0.04)] hover:border-zinc-300 dark:hover:border-zinc-700 h-full min-h-[140px]"
+                  style={{ transform: "translateZ(0)" }}
+                >
+                  <div className={`w-10 h-10 rounded-2xl flex items-center justify-center mb-4 transition-all group-hover:scale-110 group-hover:rotate-3 duration-500 ${shelf.color}`}>
+                    <shelf.icon size={20} strokeWidth={2.5} />
+                  </div>
+
+                  <div className="flex flex-col gap-0.5 mt-auto relative z-10">
+                    <span className="text-[14px] font-bold tracking-tight text-zinc-900 dark:text-zinc-100">{shelf.label}</span>
+                    <span className="text-[10px] uppercase font-bold tracking-widest text-zinc-400 dark:text-zinc-500 opacity-80 tabular-nums">
+                      {shelf.count ?? 0} {shelf.count === 1 ? 'Entry' : 'Entries'}
+                    </span>
+                  </div>
+
+                  {/* Gradient Decoration */}
+                  <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-transparent via-transparent to-zinc-50/50 dark:to-zinc-800/10 opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
+                </motion.div>
+              ))}
+            </div>
+          </motion.div>
+        )}
+        </div>
+        </div>
+
         {/* ═══ ARCHIVE LIST SECTION ═══ */}
-        <div className="w-full bg-zinc-50/60 dark:bg-zinc-900/50 border-t border-zinc-100 dark:border-zinc-800/40">
+        <div className="w-full bg-white dark:bg-[#050505] border-t border-zinc-200/50 dark:border-zinc-800/40" style={{ paddingBottom: "calc(80px + env(safe-area-inset-bottom))" }}>
         <div className="max-w-4xl md:max-w-6xl mx-auto">
         {(!isLoadingTop || articles.length > 0) && (
           <div ref={resultsRef} className={`px-5 scroll-mt-24 transition-all ${searchQuery ? "pt-4" : "pt-12"} pb-8 flex flex-col`}>
@@ -1523,18 +1581,18 @@ export default function CurationList() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.3 }}
-              className="flex flex-col px-5 mb-10"
+              className="flex flex-col px-5 mb-0"
             >
-              <div className="flex flex-col gap-4 md:grid md:grid-cols-2 md:gap-4 mb-4">
+              <div className="flex flex-col gap-4 md:grid md:grid-cols-2 md:gap-4 mb-0">
                 {[1, 2, 3, 4, 5].map((i) => (
                   <div
                     key={i}
-                    className="bg-white dark:bg-[#0a0a0a] rounded-[1.5rem] border border-zinc-100 dark:border-zinc-800/60 p-4 flex items-center gap-4 min-h-[120px] relative overflow-hidden"
+                    className="bg-white dark:bg-[#0a0a0a] rounded-[1.5rem] border border-zinc-100 dark:border-zinc-800/60 p-5 flex items-center gap-5 min-h-[148px] relative overflow-hidden"
                   >
                     <div className="w-20 h-20 rounded-2xl bg-zinc-100 dark:bg-zinc-800 relative overflow-hidden shrink-0">
                       <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 dark:via-white/5 to-transparent animate-shimmer" />
                     </div>
-                    <div className="flex-1 space-y-2.5">
+                    <div className="flex-1 space-y-3">
                       <div className="h-2.5 bg-zinc-100 dark:bg-zinc-800 rounded-full relative overflow-hidden w-1/3">
                         <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 dark:via-white/5 to-transparent animate-shimmer" />
                       </div>
@@ -1551,8 +1609,8 @@ export default function CurationList() {
 
               {/* Pagination Skeleton */}
               {!debouncedSearchQuery && (
-                <div className="flex justify-center mt-2 mb-8">
-                  <div className="h-10 w-64 bg-zinc-50/50 dark:bg-zinc-900/40 border border-zinc-200/50 dark:border-zinc-800/50 rounded-full animate-pulse" />
+                <div className="flex justify-center mt-6 mb-10">
+                  <div className="h-8 w-64 bg-zinc-50/50 dark:bg-zinc-900/40 border border-zinc-200/50 dark:border-zinc-800/50 rounded-full animate-pulse" />
                 </div>
               )}
             </motion.div>
@@ -1586,12 +1644,9 @@ export default function CurationList() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className={
-                debouncedSearchQuery || !debouncedSearchQuery
-                  ? "flex flex-col gap-4 md:grid md:grid-cols-2 md:gap-4 px-5 mb-0"
-                  : "flex flex-col gap-4 md:grid md:grid-cols-2 md:gap-4 px-5 mb-0"
-              }
+              className="flex flex-col px-5 mb-0"
             >
+              <div className="flex flex-col gap-4 md:grid md:grid-cols-2 md:gap-4 mb-0">
               {filteredArticles.map((article: ArticleMeta, index: number) => {
                 const validImageUrl = getImageUrl(article);
 
@@ -1679,10 +1734,11 @@ export default function CurationList() {
                   </motion.div>
                 );
               })}
+              </div>
 
               {/* Pagination Controls */}
               {totalCount > 5 && (
-                <div className="flex items-center justify-center mt-2 mb-10">
+                <div className="flex items-center justify-center mt-6 mb-10">
                   <div className="flex items-center gap-2 p-1.5 bg-zinc-50/50 dark:bg-zinc-900/40 backdrop-blur-md border border-zinc-200/50 dark:border-zinc-800/50 rounded-full shadow-sm">
                     <button
                       disabled={currentPage === 1 || isLoading || isTransitioning}
@@ -1751,65 +1807,7 @@ export default function CurationList() {
         </div>
         </div>
         </div>
-
-        {/* ═══ THE LIBRARY SHELVES (Bento Hub) ═══ */}
-        <div className="w-full bg-zinc-50/60 dark:bg-zinc-900/50 border-t border-zinc-200/50 dark:border-zinc-800/40" style={{ paddingBottom: "calc(80px + env(safe-area-inset-bottom))" }}>
-        <div className="max-w-4xl md:max-w-6xl mx-auto">
-        {!searchQuery && !isLoadingTop && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.3 }}
-            className="px-5 pt-12 pb-12"
-          >
-            <div className="pb-8">
-              <SectionHeader 
-                title="The Library" 
-                colorClass="bg-emerald-600 dark:bg-emerald-400" 
-                description="Your deepest dive into specific topics. Carefully organized shelves of books, mental models, and frameworks to help you master new skills."
-              />
-            </div>
-
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
-              {[
-                { key: 'books', label: 'Books', icon: Library, count: stats.books, color: 'text-zinc-500 dark:text-zinc-400 bg-zinc-100/50 dark:bg-zinc-800/50' },
-                { key: 'skills', label: 'Skills Lab', icon: Cpu, count: stats.skills, color: 'text-zinc-500 dark:text-zinc-400 bg-zinc-100/50 dark:bg-zinc-800/50' },
-                { key: 'frameworks', label: 'Frameworks', icon: Component, count: stats.frameworks, color: 'text-zinc-500 dark:text-zinc-400 bg-zinc-100/50 dark:bg-zinc-800/50' },
-                { key: 'codex', label: 'Codex', icon: HistoryIcon, count: stats.codex, color: 'text-zinc-500 dark:text-zinc-400 bg-zinc-100/50 dark:bg-zinc-800/50' }
-              ].map((shelf) => (
-                <Link
-                  key={shelf.key}
-                  href={`/curation/${shelf.key}`}
-                  onClick={(e) => {
-                    e.preventDefault();
-                    setSelectedShelfLabel(shelf.label);
-                    setSelectedShelfIcon(() => shelf.icon);
-                    setIsConstructionModalOpen(true);
-                  }}
-                  className="group relative flex flex-col p-5 bg-white dark:bg-[#0a0a0a] border border-zinc-200/50 dark:border-zinc-800/80 rounded-[2rem] overflow-hidden transition-all duration-500 hover:shadow-[0_8px_30px_rgba(0,0,0,0.04)] hover:border-zinc-300 dark:hover:border-zinc-700 active:scale-[0.97] h-full min-h-[140px]"
-                  style={{ transform: "translateZ(0)" }}
-                >
-                  <div className={`w-10 h-10 rounded-2xl flex items-center justify-center mb-4 transition-all group-hover:scale-110 group-hover:rotate-3 duration-500 ${shelf.color}`}>
-                    <shelf.icon size={20} strokeWidth={2.5} />
-                  </div>
-
-                  <div className="flex flex-col gap-0.5 mt-auto relative z-10">
-                    <span className="text-[14px] font-bold tracking-tight text-zinc-900 dark:text-zinc-100">{shelf.label}</span>
-                    <span className="text-[10px] uppercase font-bold tracking-widest text-zinc-400 dark:text-zinc-500 opacity-80 tabular-nums">
-                      {shelf.count ?? 0} {shelf.count === 1 ? 'Entry' : 'Entries'}
-                    </span>
-                  </div>
-
-                  {/* Gradient Decoration */}
-                  <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-transparent via-transparent to-zinc-50/50 dark:to-zinc-800/10 opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
-                </Link>
-              ))}
-            </div>
-          </motion.div>
-        )}
         </div>
-        </div>
-      </div>
 
       {/* ═══ BOTTOM SHEET ═══ */}
       <BottomSheet
@@ -2136,7 +2134,7 @@ const SwipeableArticleCard = memo(({
         onDragEnd={handleDragEnd}
         style={{ x, transform: "translateZ(0)" }}
         whileTap={{ cursor: "grabbing", scale: 0.98 }}
-        className="bg-white dark:bg-[#0a0a0a] rounded-[1.5rem] border border-zinc-100 dark:border-zinc-800/60 overflow-hidden shadow-[0_2px_8px_rgba(0,0,0,0.02)] hover:shadow-[0_8px_24px_rgba(0,0,0,0.06)] p-5 relative z-10 cursor-grab touch-pan-y min-h-[130px] flex flex-col justify-center transition-all duration-300"
+        className="bg-white dark:bg-[#0a0a0a] rounded-[1.5rem] border border-zinc-100 dark:border-zinc-800/60 overflow-hidden shadow-[0_2px_8px_rgba(0,0,0,0.02)] hover:shadow-[0_8px_24px_rgba(0,0,0,0.06)] p-5 relative z-10 cursor-grab touch-pan-y min-h-[148px] flex items-center gap-5 transition-all duration-300"
       >
         <Link
           href={`/curation/${id}`}
