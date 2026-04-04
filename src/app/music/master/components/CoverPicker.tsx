@@ -129,9 +129,8 @@ export function CoverPicker({ value, onChange, insetBox, compact = false }: Cove
         overflow: "hidden",
         minWidth: "280px",
         zIndex: 1000,
-        bottom: "calc(100% + 10px)",
-        left: 0,
-        right: 0,
+        top: "calc(100% + 8px)",
+        ...(compact ? { left: 0 } : { right: 0 }),
         position: "absolute",
         background: isDark ? "rgba(15,15,20,0.98)" : "rgba(255,255,255,0.98)",
         border: isDark ? "1px solid rgba(255,255,255,0.1)" : "1px solid rgba(0,0,0,0.1)",
@@ -139,7 +138,7 @@ export function CoverPicker({ value, onChange, insetBox, compact = false }: Cove
     };
 
     return (
-        <div style={{ display: "flex", flexDirection: "column", gap: "0.3rem" }} ref={containerRef}>
+        <div style={{ display: "flex", flexDirection: "column", gap: "0.3rem", position: "relative" }} ref={containerRef}>
             {!compact && <label style={labelStyle}>COVER IMAGE</label>}
 
             {/* Trigger Button */}
