@@ -121,21 +121,7 @@ export function CoverPicker({ value, onChange, insetBox, compact = false }: Cove
             : undefined
     };
 
-    const dropdownStyle: React.CSSProperties = {
-        borderRadius: "12px",
-        boxShadow: isDark
-            ? "0 20px 50px rgba(0,0,0,0.8)"
-            : "0 20px 50px rgba(0,0,0,0.2)",
-        overflow: "hidden",
-        minWidth: "280px",
-        zIndex: 1000,
-        top: "calc(100% + 8px)",
-        ...(compact ? { left: 0 } : { right: 0 }),
-        position: "absolute",
-        background: isDark ? "rgba(15,15,20,0.98)" : "rgba(255,255,255,0.98)",
-        border: isDark ? "1px solid rgba(255,255,255,0.1)" : "1px solid rgba(0,0,0,0.1)",
-        marginTop: 0
-    };
+    // Modal Style will be defined inline
 
     return (
         <div style={{ display: "flex", flexDirection: "column", gap: "0.3rem", position: "relative" }} ref={containerRef}>
@@ -193,17 +179,55 @@ export function CoverPicker({ value, onChange, insetBox, compact = false }: Cove
             {/* Dropdown */}
             <AnimatePresence>
                 {isOpen && (
-                    <motion.div
-                        initial={{ opacity: 0, y: -4 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -4 }}
-                        transition={{ duration: 0.15 }}
-                        style={{ ...dropdownStyle, marginTop: "0" }}
-                    >
-                        {/* Upload Section */}
-                        <div style={{
-                            padding: "10px 12px",
-                            borderBottom: isDark ? "1px solid rgba(255,255,255,0.06)" : "1px solid rgba(0,0,0,0.06)",
+                    <div style={{
+                        position: "fixed",
+                        inset: 0,
+                        zIndex: 2000,
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        padding: "1rem"
+                    }}>
+                        {/* Backdrop */}
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            transition={{ duration: 0.15 }}
+                            style={{ position: "absolute", inset: 0, background: isDark ? "rgba(0,0,0,0.6)" : "rgba(0,0,0,0.2)", backdropFilter: "blur(4px)" }}
+                            onPointerDown={(e) => { e.stopPropagation(); setIsOpen(false); }}
+                        />
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.95, y: 10 }}
+                            animate={{ opacity: 1, scale: 1, y: 0 }}
+                            exit={{ opacity: 0, scale: 0.95, y: 10 }}
+                            transition={{ duration: 0.15, ease: "easeOut" }}
+                            style={{
+                                position: "relative",
+                                borderRadius: "16px",
+                                boxShadow: isDark
+                                    ? "0 30px 60px rgba(0,0,0,0.8)"
+                                    : "0 30px 60px rgba(0,0,0,0.2)",
+                                overflow: "hidden",
+                                width: "100%",
+                                maxWidth: "340px",
+                                background: isDark ? "rgba(15,15,20,0.98)" : "rgba(255,255,255,0.98)",
+                                border: isDark ? "1px solid rgba(255,255,255,0.1)" : "1px solid rgba(0,0,0,0.1)",
+                                display: "flex",
+                                flexDirection: "column"
+                            }}
+                            onPointerDown={(e) => e.stopPropagation()}
+                        >
+                            {/* Header */}
+                            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "12px 16px", borderBottom: isDark ? "1px solid rgba(255,255,255,0.06)" : "1px solid rgba(0,0,0,0.06)" }}>
+                                <div style={{ fontSize: "0.6rem", fontWeight: 800, color: isDark ? "rgba(255,255,255,0.6)" : "rgba(0,0,0,0.6)" }}>SELECT COVER</div>
+                                <button onClick={(e) => { e.stopPropagation(); setIsOpen(false); }} style={{ background: "none", border: "none", padding: 0, color: isDark ? "rgba(255,255,255,0.4)" : "rgba(0,0,0,0.4)", cursor: "pointer", display: "flex", alignItems: "center" }}><X size={14} /></button>
+                            </div>
+
+                            {/* Upload Section */}
+                            <div style={{
+                                padding: "10px 12px",
+                                borderBottom: isDark ? "1px solid rgba(255,255,255,0.06)" : "1px solid rgba(0,0,0,0.06)",
                             display: "flex",
                             gap: "8px",
                             alignItems: "center"
@@ -293,7 +317,7 @@ export function CoverPicker({ value, onChange, insetBox, compact = false }: Cove
                         {/* Gallery Grid */}
                         <div style={{
                             padding: "6px 10px 10px",
-                            maxHeight: "180px", // Slightly shorter to avoid overflow
+                            maxHeight: "45vh",
                             overflowY: "auto",
                             display: "grid",
                             gridTemplateColumns: "repeat(4, 1fr)",
@@ -407,7 +431,8 @@ export function CoverPicker({ value, onChange, insetBox, compact = false }: Cove
                             )}
                         </div>
                     </motion.div>
-                )}
+                </div>
+            )}
             </AnimatePresence>
         </div>
     );
