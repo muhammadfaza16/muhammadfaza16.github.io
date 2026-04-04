@@ -41,6 +41,9 @@ import {
   History as HistoryIcon,
   Sparkles,
   Compass,
+  Layers,
+  Cpu,
+  Component,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { formatTitle, formatMetric } from "@/lib/utils";
@@ -152,6 +155,33 @@ const HighlightText = ({ text, query }: { text: string; query: string }) => {
 };
 
 
+// ─── Private UI Components ───
+
+const SectionHeader = ({ 
+  title, 
+  colorClass, 
+  description 
+}: { 
+  title: string; 
+  colorClass: string; 
+  description: string; 
+}) => (
+  <div className="flex flex-col gap-1.5">
+    <div className="flex items-center gap-3">
+      <div className={`w-[6px] h-[6px] rounded-full ${colorClass} shadow-sm shrink-0`} />
+      <h3 className="text-[18px] md:text-[20px] font-bold tracking-tight text-zinc-900 dark:text-zinc-100 leading-tight" style={{ fontFamily: "'Playfair Display', serif" }}>
+        {title}
+      </h3>
+    </div>
+    <div className="pl-[18px]">
+      <p className="text-[11px] font-medium italic text-zinc-400 dark:text-zinc-500 tracking-tight leading-relaxed opacity-80 max-w-2xl m-0">
+        {description}
+      </p>
+    </div>
+  </div>
+);
+
+
 // ─── Main Component ───
 
 export default function CurationList() {
@@ -184,6 +214,11 @@ export default function CurationList() {
 
   const [weeklyReads, setWeeklyReads] = useState(0);
   const [navigatingId, setNavigatingId] = useState<string | null>(null);
+
+  // Construction Modal State
+  const [isConstructionModalOpen, setIsConstructionModalOpen] = useState(false);
+  const [selectedShelfLabel, setSelectedShelfLabel] = useState("");
+  const [SelectedShelfIcon, setSelectedShelfIcon] = useState<React.ElementType | null>(null);
   const [readingProgress, setReadingProgress] = useState<
     Record<string, number>
   >({});
@@ -928,13 +963,11 @@ export default function CurationList() {
     }
 
     return (
-      <div className="flex items-start gap-2 max-w-full">
-        <Icon size={10} className="text-zinc-500 dark:text-zinc-600 shrink-0 mt-[2px]" strokeWidth={2.5} />
-        <div className="flex flex-wrap items-center gap-x-1.5 gap-y-0.5 leading-tight">
-          <span className="font-bold">{mainLabel}</span>
-          <span className="text-zinc-300 dark:text-zinc-700 opacity-50 select-none">·</span>
-          <span className="text-zinc-400 dark:text-zinc-500 whitespace-nowrap">{totalCount} {totalCount === 1 ? "entry" : "entries"}</span>
-        </div>
+      <div className="inline-flex items-center gap-2 bg-zinc-100/80 dark:bg-zinc-800/50 px-2.5 py-1 rounded-md text-[10px] uppercase font-bold tracking-wider text-zinc-500 dark:text-zinc-400 border border-zinc-200/50 dark:border-zinc-700/50 shadow-sm">
+        <Icon size={10} strokeWidth={2.5} />
+        <span className="leading-none flex items-center gap-2">
+            {mainLabel} <span className="opacity-40">&bull;</span> {totalCount}
+        </span>
       </div>
     );
   };
@@ -997,7 +1030,7 @@ export default function CurationList() {
               >
                 <Link
                   href="/"
-                  className="w-9 h-9 flex items-center justify-center text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 active:scale-90 rounded-full transition-all"
+                  className="w-11 h-11 flex items-center justify-center text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 active:scale-90 rounded-full transition-all"
                 >
                   <ChevronLeft size={20} />
                 </Link>
@@ -1027,7 +1060,7 @@ export default function CurationList() {
               >
                 <button
                   onClick={toggleTheme}
-                  className="w-10 h-10 flex items-center justify-center text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 active:scale-90 rounded-full transition-all relative overflow-hidden"
+                  className="w-11 h-11 flex items-center justify-center text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 active:scale-90 rounded-full transition-all relative overflow-hidden"
                   aria-label={`Switch to ${theme === "light" ? "dark" : "light"} mode`}
                 >
                   {/* Sun Icon */}
@@ -1067,7 +1100,7 @@ export default function CurationList() {
                 </button>
                 <button
                   onClick={() => setIsAtlasMenuOpen(!isAtlasMenuOpen)}
-                  className="w-9 h-9 flex items-center justify-center text-zinc-900 dark:text-zinc-100 active:scale-90 rounded-full transition-all relative z-[110]"
+                  className="w-11 h-11 flex items-center justify-center text-zinc-900 dark:text-zinc-100 active:scale-90 rounded-full transition-all relative z-[110]"
                 >
                   <AnimatePresence mode="wait">
                     <motion.div
@@ -1094,7 +1127,7 @@ export default function CurationList() {
         id="curation-scroll-container"
         ref={scrollContainerRef}
         onScroll={(e) => (scrollYRef.current = e.currentTarget.scrollTop)}
-        className="flex-1 overflow-y-auto overflow-x-hidden pt-2 pb-8 relative z-10 w-full max-w-4xl md:max-w-6xl mx-auto"
+        className="flex-1 overflow-y-auto overflow-x-hidden pt-2 relative z-10 w-full"
         style={
           {
             WebkitOverflowScrolling: "touch",
@@ -1106,6 +1139,8 @@ export default function CurationList() {
       >
 
         {/* ═══ HERO ENTRANCE ═══ */}
+        <div className="w-full bg-transparent">
+        <div className="max-w-4xl md:max-w-6xl mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 15 }}
           animate={{
@@ -1133,13 +1168,17 @@ export default function CurationList() {
               >
                 Curation.
               </h1>
-              <p className="text-[16px] md:text-[18px] text-zinc-400 dark:text-zinc-500 font-medium tracking-tight max-w-2xl mt-2 leading-relaxed">
-                A highly refined collection of human knowledge, mental models, and excellence. Curated to help you think better, build faster, and live more intentionally.
+              <p className="text-[16px] md:text-[18px] text-zinc-400 dark:text-zinc-500 font-normal tracking-tight max-w-2xl mt-2 leading-relaxed opacity-90">
+                A curated collection of interesting ideas, stories, and mental models. Built to help you learn new things, think clearer, and live more intentionally.
               </p>
             </div>
           </div>
         </motion.div>
 
+        {/* ═══ SEPARATOR ═══ */}
+        <div className="flex justify-center mb-10">
+          <div className="w-24 md:w-32 h-[1px] bg-zinc-200/80 dark:bg-zinc-800/80 rounded-full" />
+        </div>
 
         {/* ═══ HERO CAROUSEL ═══ */}
         <AnimatePresence mode="wait">
@@ -1195,15 +1234,16 @@ export default function CurationList() {
               animate={{ opacity: 1, height: "auto" }}
               exit={{ opacity: 0, height: 0, marginTop: -20, marginBottom: 0 }}
               transition={{ duration: 0.4, ease: [0.32, 0.72, 0, 1] }}
-              className="overflow-hidden"
+              className="overflow-hidden px-5 pt-10 pb-16"
             >
-              <div className="px-5 mb-5 mt-4 flex items-center gap-3">
-                <div className="w-[4px] h-6 bg-gradient-to-b from-blue-600 to-blue-400 dark:from-blue-500 dark:to-blue-400 rounded-full shrink-0" />
-                <h3 className="text-[17px] font-bold tracking-tight text-zinc-800 dark:text-zinc-200" style={{ fontFamily: "'Playfair Display', serif" }}>
-                  Trending Article
-                </h3>
+              <div className="pb-8">
+                <SectionHeader 
+                  title="Trending Articles" 
+                  colorClass="bg-indigo-600 dark:bg-indigo-400" 
+                  description="The most read and discussed pieces right now. A handpicked selection of articles offering fresh perspectives and ideas worth exploring."
+                />
               </div>
-              <div className="mb-6 pl-5">
+              <div>
                 <div
                   ref={heroCarouselRef}
                   className="flex gap-4 overflow-x-auto no-scrollbar snap-x snap-mandatory pr-5"
@@ -1216,9 +1256,11 @@ export default function CurationList() {
                     return (
                       <motion.div
                         key={featuredArticle.id}
-                        whileHover={{ y: -4, scale: 1.002 }}
-                        transition={{ type: "spring", stiffness: 400, damping: 30 }}
-                        className="shrink-0 w-[75vw] md:w-[480px] snap-start group relative rounded-[2rem] overflow-hidden bg-white dark:bg-[#0a0a0a] border border-zinc-200/50 dark:border-zinc-800/50 shadow-[0_4px_20px_rgba(0,0,0,0.03)] hover:shadow-[0_12px_40px_rgba(0,0,0,0.08)] hover:border-zinc-300 dark:hover:border-zinc-700 active:scale-[0.99] transition-all duration-500 flex flex-col"
+                        whileHover={{ y: -2 }}
+                        whileTap={{ scale: 0.97 }}
+                        transition={{ type: "spring", stiffness: 400, damping: 25 }}
+                        style={{ transform: "translateZ(0)", willChange: "transform" }}
+                        className="shrink-0 w-[75vw] md:w-[480px] snap-start group relative rounded-[2rem] overflow-hidden bg-white dark:bg-[#0a0a0a] border border-zinc-200/50 dark:border-zinc-800/50 shadow-[0_4px_20px_rgba(0,0,0,0.03)] hover:shadow-[0_12px_40px_rgba(0,0,0,0.08)] hover:border-zinc-300 dark:hover:border-zinc-700 transition-all duration-500 flex flex-col"
                       >
                         <Link
                           href={`/curation/${featuredArticle.id}`}
@@ -1322,81 +1364,32 @@ export default function CurationList() {
             </motion.div>
           )}
         </AnimatePresence>
-
-        {/* ═══ CONTINUE READING ═══ */}
-        {(() => {
-          const inProgress = inProgressArticles.filter((a) => {
-            const pct = readingProgress[a.id];
-            return pct && pct > 0.05 && pct < 0.95;
-          });
-          if (inProgress.length === 0) return null;
-          if (searchQuery) return null;
-          return (
-            <div className="mb-10 px-5 mt-8">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-[4px] h-6 bg-gradient-to-b from-blue-600 to-blue-400 dark:from-blue-500 dark:to-blue-400 rounded-full shrink-0" />
-                <h3 className="text-[17px] font-bold tracking-tight text-zinc-800 dark:text-zinc-200" style={{ fontFamily: "'Playfair Display', serif" }}>
-                  Recent Reads
-                </h3>
-              </div>
-              <div className="flex gap-3 overflow-x-auto no-scrollbar pb-2">
-                {inProgress.map((article) => (
-                  <motion.div
-                    key={article.id}
-                    whileHover={{ y: -2 }}
-                    className="shrink-0 w-[240px]"
-                  >
-                    <Link
-                      href={`/curation/${article.id}`}
-                      onClick={() => setNavigatingId(article.id)}
-                      className="block bg-white dark:bg-[#0a0a0a] border border-zinc-200/50 dark:border-zinc-800/60 rounded-2xl p-4 active:scale-[0.98] transition-all hover:shadow-[0_4px_20px_rgba(0,0,0,0.04)] group"
-                    >
-                      <h4 className="text-[13px] font-semibold text-zinc-800 dark:text-zinc-200 leading-snug line-clamp-2 mb-3 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
-                        {formatTitle(article.title)}
-                      </h4>
-                      <div className="flex items-center justify-between mb-2">
-                        <span className="text-[10px] font-medium text-zinc-400 dark:text-zinc-500 tracking-wider">
-                          {Math.round((readingProgress[article.id] || 0) * 100)}% COMPLETE
-                        </span>
-                      </div>
-                      <div className="w-full h-1 bg-zinc-100 dark:bg-zinc-800/80 rounded-full overflow-hidden">
-                        <div
-                          className="h-full bg-gradient-to-r from-blue-400 to-blue-500 rounded-full transition-all"
-                          style={{
-                            width: `${Math.round((readingProgress[article.id] || 0) * 100)}%`,
-                          }}
-                        />
-                      </div>
-                    </Link>
-                  </motion.div>
-                ))}
-              </div>
-            </div>
-          );
-        })()}
-
-        {/* ═══ (Library Shelves Removed for Minimalist UI) ═══ */}
+        </div>
+        </div>
 
         {/* ═══ ATLAS MENU ═══ */}
         <AtlasMenu items={[...VERTICALS]} isOpen={isAtlasMenuOpen} onClose={() => setIsAtlasMenuOpen(false)} />
 
         {/* ═══ ARCHIVE LIST SECTION ═══ */}
+        <div className="w-full bg-zinc-50/60 dark:bg-zinc-900/50 border-t border-zinc-100 dark:border-zinc-800/40">
+        <div className="max-w-4xl md:max-w-6xl mx-auto">
         {(!isLoadingTop || articles.length > 0) && (
-          <div ref={resultsRef} className={`px-5 mb-4 scroll-mt-24 flex items-center gap-3 transition-all ${searchQuery ? "mt-2" : "mt-8"}`}>
-            {!searchQuery && <div className="w-[4px] h-6 bg-gradient-to-b from-blue-600 to-blue-400 dark:from-blue-500 dark:to-blue-400 rounded-full shrink-0 shadow-sm" />}
-            <h3 className="text-[17px] font-bold tracking-tight text-zinc-800 dark:text-zinc-200" style={{ fontFamily: "'Playfair Display', serif" }}>
-              {debouncedSearchQuery
+          <div ref={resultsRef} className={`px-5 scroll-mt-24 transition-all ${searchQuery ? "pt-4" : "pt-12"} pb-8 flex flex-col`}>
+            <SectionHeader 
+              title={debouncedSearchQuery
                 ? "Search Results"
                 : categoryFilter.length > 0
                   ? "Category View"
-                  : "All Entries"}
-            </h3>
+                  : "Global Archive"} 
+              colorClass="bg-rose-600 dark:bg-rose-400" 
+              description="Everything published so far. A complete collection of thoughts, insights, and stories organized to help you learn, build, and grow."
+            />
           </div>
         )}
 
         {/* ═══ MAIN FILTERS (Sort & Category Dropdown) ═══ */}
         {(!isLoadingTop || articles.length > 0) && (
-          <div className="flex items-center gap-3 px-5 pb-4 mb-2 overflow-visible relative">
+          <div className="flex items-center gap-3 px-5 pb-4 mb-2 overflow-visible relative max-w-4xl md:max-w-6xl mx-auto">
             {/* Sort toggler */}
             <div className="flex bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-full overflow-hidden shrink-0 shadow-sm p-0.5 relative">
               {[
@@ -1505,7 +1498,7 @@ export default function CurationList() {
 
         {/* ═══ SMART INFO ═══ */}
         {(!isLoadingTop || articles.length > 0) && (
-          <div className="px-5 mb-5 -mt-1 min-h-[14px] relative">
+          <div className="px-5 mb-5 -mt-1 min-h-[14px] relative max-w-4xl md:max-w-6xl mx-auto">
             <AnimatePresence mode="wait">
               <motion.div
                 key={`${sortBy}_${categoryFilter.join(",")}_${debouncedSearchQuery}_${totalCount}`}
@@ -1595,8 +1588,8 @@ export default function CurationList() {
               exit={{ opacity: 0 }}
               className={
                 debouncedSearchQuery || !debouncedSearchQuery
-                  ? "flex flex-col gap-4 md:grid md:grid-cols-2 md:gap-4 px-5 mb-10"
-                  : "flex flex-col gap-4 md:grid md:grid-cols-2 md:gap-4 px-5 mb-10"
+                  ? "flex flex-col gap-4 md:grid md:grid-cols-2 md:gap-4 px-5 mb-0"
+                  : "flex flex-col gap-4 md:grid md:grid-cols-2 md:gap-4 px-5 mb-0"
               }
             >
               {filteredArticles.map((article: ArticleMeta, index: number) => {
@@ -1689,7 +1682,7 @@ export default function CurationList() {
 
               {/* Pagination Controls */}
               {totalCount > 5 && (
-                <div className="flex items-center justify-center mt-2 mb-8">
+                <div className="flex items-center justify-center mt-2 mb-10">
                   <div className="flex items-center gap-2 p-1.5 bg-zinc-50/50 dark:bg-zinc-900/40 backdrop-blur-md border border-zinc-200/50 dark:border-zinc-800/50 rounded-full shadow-sm">
                     <button
                       disabled={currentPage === 1 || isLoading || isTransitioning}
@@ -1738,7 +1731,7 @@ export default function CurationList() {
 
               {/* ═══ END OF FEED — SUGGEST CTA ═══ */}
               {!nextCursor && filteredArticles.length > 0 && (
-                <div className="text-center py-10 space-y-4">
+                <div className="text-center pt-10 pb-0 space-y-4">
                   <span className="text-[11px] font-medium text-zinc-300 dark:text-zinc-700 block">
                     You've reached the end of the library
                   </span>
@@ -1756,9 +1749,67 @@ export default function CurationList() {
             </motion.div>
           )}
         </div>
+        </div>
+        </div>
+
+        {/* ═══ THE LIBRARY SHELVES (Bento Hub) ═══ */}
+        <div className="w-full bg-zinc-50/60 dark:bg-zinc-900/50 border-t border-zinc-200/50 dark:border-zinc-800/40" style={{ paddingBottom: "calc(80px + env(safe-area-inset-bottom))" }}>
+        <div className="max-w-4xl md:max-w-6xl mx-auto">
+        {!searchQuery && !isLoadingTop && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.3 }}
+            className="px-5 pt-12 pb-12"
+          >
+            <div className="pb-8">
+              <SectionHeader 
+                title="The Library" 
+                colorClass="bg-emerald-600 dark:bg-emerald-400" 
+                description="Your deepest dive into specific topics. Carefully organized shelves of books, mental models, and frameworks to help you master new skills."
+              />
+            </div>
+
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
+              {[
+                { key: 'books', label: 'Books', icon: Library, count: stats.books, color: 'text-zinc-500 dark:text-zinc-400 bg-zinc-100/50 dark:bg-zinc-800/50' },
+                { key: 'skills', label: 'Skills Lab', icon: Cpu, count: stats.skills, color: 'text-zinc-500 dark:text-zinc-400 bg-zinc-100/50 dark:bg-zinc-800/50' },
+                { key: 'frameworks', label: 'Frameworks', icon: Component, count: stats.frameworks, color: 'text-zinc-500 dark:text-zinc-400 bg-zinc-100/50 dark:bg-zinc-800/50' },
+                { key: 'codex', label: 'Codex', icon: HistoryIcon, count: stats.codex, color: 'text-zinc-500 dark:text-zinc-400 bg-zinc-100/50 dark:bg-zinc-800/50' }
+              ].map((shelf) => (
+                <Link
+                  key={shelf.key}
+                  href={`/curation/${shelf.key}`}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setSelectedShelfLabel(shelf.label);
+                    setSelectedShelfIcon(() => shelf.icon);
+                    setIsConstructionModalOpen(true);
+                  }}
+                  className="group relative flex flex-col p-5 bg-white dark:bg-[#0a0a0a] border border-zinc-200/50 dark:border-zinc-800/80 rounded-[2rem] overflow-hidden transition-all duration-500 hover:shadow-[0_8px_30px_rgba(0,0,0,0.04)] hover:border-zinc-300 dark:hover:border-zinc-700 active:scale-[0.97] h-full min-h-[140px]"
+                  style={{ transform: "translateZ(0)" }}
+                >
+                  <div className={`w-10 h-10 rounded-2xl flex items-center justify-center mb-4 transition-all group-hover:scale-110 group-hover:rotate-3 duration-500 ${shelf.color}`}>
+                    <shelf.icon size={20} strokeWidth={2.5} />
+                  </div>
+
+                  <div className="flex flex-col gap-0.5 mt-auto relative z-10">
+                    <span className="text-[14px] font-bold tracking-tight text-zinc-900 dark:text-zinc-100">{shelf.label}</span>
+                    <span className="text-[10px] uppercase font-bold tracking-widest text-zinc-400 dark:text-zinc-500 opacity-80 tabular-nums">
+                      {shelf.count ?? 0} {shelf.count === 1 ? 'Entry' : 'Entries'}
+                    </span>
+                  </div>
+
+                  {/* Gradient Decoration */}
+                  <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-transparent via-transparent to-zinc-50/50 dark:to-zinc-800/10 opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
+                </Link>
+              ))}
+            </div>
+          </motion.div>
+        )}
+        </div>
+        </div>
       </div>
-
-
 
       {/* ═══ BOTTOM SHEET ═══ */}
       <BottomSheet
@@ -1911,6 +1962,50 @@ export default function CurationList() {
         </motion.button>
       )}
 
+      {/* ═══ UNDER CONSTRUCTION MODAL ═══ */}
+      <AnimatePresence>
+        {isConstructionModalOpen && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[100]"
+              onClick={() => setIsConstructionModalOpen(false)}
+            />
+            <div className="fixed inset-0 z-[101] flex items-center justify-center p-5 pointer-events-none">
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95, y: 10 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.95, y: 10 }}
+                transition={{ type: "spring", stiffness: 400, damping: 30 }}
+                className="w-full max-w-sm bg-white dark:bg-zinc-900 rounded-[2rem] p-7 shadow-2xl border border-zinc-200/50 dark:border-zinc-800/80 pointer-events-auto text-center"
+              >
+                <div className="w-16 h-16 rounded-3xl bg-blue-50 dark:bg-blue-900/20 text-blue-500 mx-auto flex items-center justify-center mb-5 ring-1 ring-blue-100 dark:ring-blue-900/50">
+                  {SelectedShelfIcon ? (
+                    <SelectedShelfIcon size={32} strokeWidth={2} />
+                  ) : (
+                    <Wrench size={32} strokeWidth={2} />
+                  )}
+                </div>
+                <h3 className="text-[22px] font-bold tracking-tight text-zinc-900 dark:text-zinc-100 mb-2">
+                  Building {selectedShelfLabel}
+                </h3>
+                <p className="text-[14px] text-zinc-500 dark:text-zinc-400 mb-6 font-medium leading-relaxed max-w-[260px] mx-auto">
+                  Architectural groundwork is still in progress. This wing will be ready for exploration soon.
+                </p>
+                <button
+                  onClick={() => setIsConstructionModalOpen(false)}
+                  className="w-full bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 font-bold tracking-tight text-[15px] py-4 rounded-2xl active:scale-[0.98] transition-transform"
+                >
+                  Got it, thanks
+                </button>
+              </motion.div>
+            </div>
+          </>
+        )}
+      </AnimatePresence>
+
       {/* ═══ GOOGLE FONTS ═══ */}
       {/* eslint-disable-next-line @next/next/no-page-custom-font */}
       <link
@@ -2039,9 +2134,9 @@ const SwipeableArticleCard = memo(({
         dragElastic={0.6}
         onDragStart={() => setIsDragging(true)}
         onDragEnd={handleDragEnd}
-        style={{ x }}
-        whileTap={{ cursor: "grabbing" }}
-        className="bg-white dark:bg-[#0a0a0a] rounded-[1.5rem] border border-zinc-100 dark:border-zinc-800/60 overflow-hidden shadow-[0_2px_8px_rgba(0,0,0,0.02)] hover:shadow-[0_8px_24px_rgba(0,0,0,0.06)] p-4 relative z-10 cursor-grab touch-pan-y min-h-[120px] flex flex-col justify-center"
+        style={{ x, transform: "translateZ(0)" }}
+        whileTap={{ cursor: "grabbing", scale: 0.98 }}
+        className="bg-white dark:bg-[#0a0a0a] rounded-[1.5rem] border border-zinc-100 dark:border-zinc-800/60 overflow-hidden shadow-[0_2px_8px_rgba(0,0,0,0.02)] hover:shadow-[0_8px_24px_rgba(0,0,0,0.06)] p-5 relative z-10 cursor-grab touch-pan-y min-h-[130px] flex flex-col justify-center transition-all duration-300"
       >
         <Link
           href={`/curation/${id}`}
@@ -2063,7 +2158,7 @@ const SwipeableArticleCard = memo(({
             />
           )}
           {/* Thumbnail */}
-          <div className="w-[80px] h-[80px] rounded-2xl overflow-hidden bg-zinc-50 dark:bg-zinc-800 shrink-0 border border-zinc-100/60 dark:border-zinc-700/60 relative pointer-events-none">
+          <div className="w-[88px] h-[88px] rounded-2xl overflow-hidden bg-zinc-50 dark:bg-zinc-800 shrink-0 border border-zinc-100/60 dark:border-zinc-700/60 relative pointer-events-none">
             {validImageUrl && !imgError ? (
               <Image
                 src={validImageUrl}
@@ -2117,7 +2212,7 @@ const SwipeableArticleCard = memo(({
                 </>
               )}
             </div>
-            <h3 className="text-[15px] font-semibold tracking-tight text-zinc-900 dark:text-zinc-100 leading-[1.35] line-clamp-2 mb-1.5 group-hover/card:text-blue-600 dark:group-hover/card:text-blue-400 transition-colors">
+            <h3 className="text-[15px] font-semibold tracking-tight text-zinc-900 dark:text-zinc-100 leading-[1.45] line-clamp-2 mb-3 group-hover/card:text-blue-600 dark:group-hover/card:text-blue-400 transition-colors">
               {formatTitle(title)}
             </h3>
             <div className="flex items-center justify-between mt-auto">
@@ -2167,10 +2262,10 @@ const SwipeableArticleCard = memo(({
               e.stopPropagation();
               onShare(articleRaw);
             }}
-            className="absolute top-3 right-3 z-20 p-2 rounded-full bg-white/90 dark:bg-zinc-800/90 border border-zinc-100 dark:border-zinc-700 shadow-sm opacity-0 group-hover/card:opacity-100 transition-opacity active:scale-90 pointer-events-auto"
+            className="absolute top-2 right-2 z-20 w-11 h-11 flex items-center justify-center rounded-full bg-white/90 dark:bg-zinc-800/90 border border-zinc-100 dark:border-zinc-700 shadow-sm opacity-0 group-hover/card:opacity-100 transition-opacity active:scale-90 pointer-events-auto"
             aria-label="Share"
           >
-            <Share2 size={14} className="text-zinc-500 dark:text-zinc-400" />
+            <Share2 size={16} className="text-zinc-500 dark:text-zinc-400" />
           </button>
         )}
 

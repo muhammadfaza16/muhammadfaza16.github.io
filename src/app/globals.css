@@ -34,7 +34,7 @@
 
   /* Fonts - Accessible Variables */
   --font-serif: "Playfair Display", serif;
-  --font-sans: "Inter", system-ui, -apple-system, sans-serif;
+  --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Inter", system-ui, sans-serif;
   --font-mono: "Space Mono", monospace;
 
   /* Text - Softer Blacks */
