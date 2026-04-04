@@ -133,6 +133,7 @@ export default function LibraryClient({
             <div 
                 id="playlist-scroll-container"
                 ref={scrollContainerRef}
+                data-lenis-prevent="true"
                 onScroll={(e) => (scrollYRef.current = e.currentTarget.scrollTop)}
                 style={{
                     flex: 1,
@@ -141,7 +142,7 @@ export default function LibraryClient({
                     display: "flex",
                     flexDirection: "column",
                     alignItems: "center",
-                    padding: "40px 20px var(--explore-bottom-padding, 140px) 20px",
+                    padding: "40px 20px 0 20px",
                     WebkitOverflowScrolling: "touch",
                     overscrollBehaviorY: "none",
                     scrollbarGutter: "stable"
@@ -368,6 +369,9 @@ export default function LibraryClient({
                     <p style={{ fontFamily: headerFont, fontWeight: 700 }}>No tracks found...</p>
                 </motion.div>
                 )}
+                
+                {/* Spacer to prevent Safari flex padding bug */}
+                <div style={{ height: "var(--explore-bottom-padding, 140px)", flexShrink: 0, width: "100%" }} />
                 </div>
                 </div>
 

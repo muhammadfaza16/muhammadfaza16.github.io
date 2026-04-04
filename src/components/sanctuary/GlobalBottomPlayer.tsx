@@ -639,8 +639,6 @@ export function GlobalBottomPlayer() {
                     </motion.div>
                 )}
             </AnimatePresence>
-
-            <MusicBottomNav />
         </>
     );
 }

@@ -49,9 +49,9 @@ export function MusicBottomNav({ isInline = false }: { isInline?: boolean }) {
             zIndex: 10
         } : {
             position: "fixed",
-            bottom: "20px",
+            bottom: "calc(20px + env(safe-area-inset-bottom))",
             left: "50%",
-            transform: "translateX(-50%)",
+            transform: "translateX(-50%) translateZ(0)",
             width: "calc(100% - 40px)",
             maxWidth: "360px",
             backgroundColor: theme === "dark" ? "rgba(20, 20, 20, 0.55)" : "rgba(255, 255, 255, 0.45)",

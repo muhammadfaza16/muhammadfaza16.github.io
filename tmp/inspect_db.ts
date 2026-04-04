@@ -5,19 +5,21 @@ const prisma = new PrismaClient();
 async function main() {
   try {
     const playlists = await prisma.playlist.findMany({
-      include: {
-        _count: {
-          select: { songs: true }
-        }
+      select: {
+          title: true,
+          slug: true,
+          coverImage: true,
+          _count: { select: { songs: true } }
       },
       orderBy: { title: 'asc' }
     });
 
-    console.log('--- Current Playlists ---');
+    console.log('--- Detailed Playlist Check ---');
     playlists.forEach((p, i) => {
-      console.log(`${i + 1}. [${p.title}] (${p.slug}) - ${p._count.songs} tracks`);
-      if (p.description) console.log(`   Description: ${p.description}`);
-      if (p.vibes && p.vibes.length > 0) console.log(`   Vibes: ${p.vibes.join(', ')}`);
+      console.log(`${i + 1}. [${p.title}]`);
+      console.log(`   Slug: ${p.slug}`);
+      console.log(`   Cover: ${p.coverImage ? `✅ ${p.coverImage}` : '❌ NULL/NULL'}`);
+      console.log(`   Tracks: ${p._count.songs}`);
       console.log('-------------------------');
     });
   } catch (error) {

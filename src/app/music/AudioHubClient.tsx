@@ -111,6 +111,7 @@ export default function AudioHubClient({
             <div
                 id="music-scroll-container"
                 ref={scrollContainerRef}
+                data-lenis-prevent="true"
                 onScroll={(e) => (scrollYRef.current = e.currentTarget.scrollTop)}
                 style={{
                     flex: 1,
@@ -119,7 +120,7 @@ export default function AudioHubClient({
                     display: "flex",
                     flexDirection: "column",
                     alignItems: "center",
-                    padding: "0 20px 140px 20px",
+                    padding: "0 20px 0 20px",
                     WebkitOverflowScrolling: "touch",
                     overscrollBehaviorY: "none",
                     scrollbarGutter: "stable"
@@ -362,6 +363,9 @@ export default function AudioHubClient({
                             </div>
                         </div>
                     </motion.div>
+                    
+                    {/* Spacer to prevent Safari flex padding bug */}
+                    <div style={{ height: "140px", flexShrink: 0, width: "100%" }} />
                 </motion.div>
             </div>
         </main>
