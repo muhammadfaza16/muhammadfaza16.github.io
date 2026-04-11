@@ -34,14 +34,14 @@ export default function AudioHubClient({
 
     const CACHE_KEY = "music_hub_scroll_v1";
 
-    const [greeting, setGreeting] = useState({ line1: "Your", line2: "Soundscape." });
+    const [greeting, setGreeting] = useState({ line1: "Your", line2: "Soundscape.", emoji: "" });
 
     useEffect(() => {
         const hour = new Date().getHours();
-        if (hour >= 4 && hour < 11) setGreeting({ line1: "Pagi", line2: "Faza 🌅" });
-        else if (hour >= 11 && hour < 15) setGreeting({ line1: "Siang", line2: "Faza ☀️" });
-        else if (hour >= 15 && hour < 19) setGreeting({ line1: "Sore", line2: "Faza 🌇" });
-        else setGreeting({ line1: "Malam", line2: "Faza 🌙" });
+        if (hour >= 4 && hour < 11) setGreeting({ line1: "Good Morning", line2: "Faza", emoji: "🌅" });
+        else if (hour >= 11 && hour < 15) setGreeting({ line1: "Good Afternoon", line2: "Faza", emoji: "☀️" });
+        else if (hour >= 15 && hour < 19) setGreeting({ line1: "Good Evening", line2: "Faza", emoji: "🌇" });
+        else setGreeting({ line1: "Good Night", line2: "Faza", emoji: "🌙" });
     }, []);
 
     // Restore scroll position
@@ -156,10 +156,17 @@ export default function AudioHubClient({
                             <motion.h1 
                                 style={{ 
                                     fontFamily: headerFont, fontWeight: 900, fontSize: "2.5rem", lineHeight: 1.1, margin: 0,
-                                    letterSpacing: "-0.05em", color: theme === "dark" ? "#FFF" : "#000"
+                                    letterSpacing: "-0.05em", color: theme === "dark" ? "#FFF" : "#000",
+                                    display: "flex", flexDirection: "column"
                                 }}
                             >
-                                {greeting.line1},<br />{greeting.line2}
+                                <span>{greeting.line1},</span>
+                                <span style={{ display: "inline-flex", alignItems: "center" }}>
+                                    {greeting.line2}
+                                    {greeting.emoji && (
+                                        <span style={{ fontSize: "1.5rem", marginLeft: "16px", lineHeight: 1 }}>{greeting.emoji}</span>
+                                    )}
+                                </span>
                             </motion.h1>
                         </div>
                         <motion.div 
@@ -242,7 +249,7 @@ export default function AudioHubClient({
                                             {isPlaying ? <Pause size={18} fill="currentColor" stroke="none" /> : <Play size={18} fill="currentColor" stroke="none" style={{ marginLeft: "2px" }} />}
                                         </button>
                                     </div>
-                                    <div style={{ width: "100%", height: "4px", backgroundColor: "rgba(0,0,0,0.02)" }}>
+                                    <div style={{ width: "100%", height: "4px", backgroundColor: theme === "dark" ? "rgba(255,255,255,0.15)" : "rgba(0,0,0,0.06)" }}>
                                         <motion.div animate={{ width: `${(currentTime / duration) * 100}%` }} style={{ height: "100%", background: "linear-gradient(to right, #6366F1, #8B5CF6)" }} />
                                     </div>
                                 </motion.div>

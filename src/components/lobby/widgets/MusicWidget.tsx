@@ -158,7 +158,7 @@ export function MusicWidget({
                 }}
                 style={{
                     width: "100%", height: "6px", borderRadius: "100px",
-                    background: "rgba(255,255,255,0.1)",
+                    background: "rgba(255,255,255,0.2)",
                     position: "relative", cursor: "pointer",
                     overflow: "visible",
                     marginBottom: "0.25rem"
