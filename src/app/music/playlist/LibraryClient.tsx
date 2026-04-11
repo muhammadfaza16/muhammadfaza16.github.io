@@ -260,7 +260,9 @@ export default function LibraryClient({
                         whileTap={{ scale: 0.98 }}
                         style={{
                             height: "120px", borderRadius: "24px", padding: "20px",
-                            background: "linear-gradient(135deg, #1E1B4B 0%, #312E81 100%)",
+                            background: theme === "dark" 
+                                ? "linear-gradient(135deg, #1E1B4B 0%, #312E81 100%)" 
+                                : "linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%)",
                             position: "relative", overflow: "hidden", display: "flex", 
                             flexDirection: "column", justifyContent: "flex-end",
                             boxShadow: "0 20px 40px rgba(0,0,0,0.2)"
@@ -298,7 +300,8 @@ export default function LibraryClient({
                                 <Link href={`/music/playlist/${playlist.slug || playlist.id}`} onClick={triggerHaptic} style={{ textDecoration: "none" }}>
                                     <div style={{
                                         aspectRatio: "1/1", borderRadius: "24px", position: "relative",
-                                        overflow: "hidden", backgroundColor: playlist.coverColor || "#1E1B4B",
+                                        overflow: "hidden", backgroundColor: playlist.coverColor || (theme === "dark" ? "#1E1B4B" : "#6366F1"),
+                                        backgroundImage: !playlist.coverImage ? (theme === "dark" ? "linear-gradient(135deg, #1E1B4B 0%, #312E81 100%)" : "linear-gradient(135deg, #6366F1 0%, #A855F7 50%, #EC4899 100%)") : "none",
                                         display: "flex", flexDirection: "column", justifyContent: "flex-end",
                                         boxShadow: "0 10px 25px rgba(0,0,0,0.08)", border: "1px solid rgba(255,255,255,0.1)"
                                     }}>

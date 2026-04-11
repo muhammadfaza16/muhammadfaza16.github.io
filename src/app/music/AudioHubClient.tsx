@@ -219,7 +219,7 @@ export default function AudioHubClient({
                                     </div>
 
                                     <div onClick={() => setIsPlayerExpanded(true)} style={{ padding: "16px", cursor: "pointer", display: "flex", alignItems: "center", gap: "16px" }}>
-                                        <div style={{ width: "52px", height: "52px", borderRadius: "14px", background: isPlaying ? "#1E1B4B" : "rgba(0,0,0,0.04)", display: "flex", alignItems: "center", justifyContent: "center", border: "1px solid rgba(255,255,255,0.1)", flexShrink: 0 }}>
+                                        <div style={{ width: "52px", height: "52px", borderRadius: "14px", background: isPlaying ? (theme === "dark" ? "linear-gradient(135deg, #1E1B4B, #312E81)" : "linear-gradient(135deg, #6366F1, #8B5CF6)") : "rgba(0,0,0,0.04)", display: "flex", alignItems: "center", justifyContent: "center", border: "1px solid rgba(255,255,255,0.1)", flexShrink: 0 }}>
                                             <Disc className={isPlaying ? "animate-spin-slow" : ""} size={24} color={isPlaying ? "#fff" : "#6366F1"} />
                                         </div>
                                         <div style={{ flex: 1, minWidth: 0 }}>
@@ -317,7 +317,7 @@ export default function AudioHubClient({
                                 {MENU_ITEMS.map((item) => (
                                     <Link key={item.id} href={item.href} style={{ textDecoration: "none" }}>
                                         <motion.div whileHover={{ y: -4, scale: 1.02 }} whileTap={{ scale: 0.98 }} style={{ ...cardStyle, padding: "12px 16px", display: "flex", alignItems: "center", gap: "12px" }}>
-                                            <div style={{ width: "40px", height: "40px", borderRadius: "12px", background: "linear-gradient(135deg, #1E1B4B 0%, #312E81 100%)", display: "flex", alignItems: "center", justifyContent: "center", color: "#fff" }}>
+                                            <div style={{ width: "40px", height: "40px", borderRadius: "12px", background: theme === "dark" ? "linear-gradient(135deg, #1E1B4B, #312E81)" : "linear-gradient(135deg, #6366F1, #8B5CF6)", display: "flex", alignItems: "center", justifyContent: "center", color: "#fff" }}>
                                                 <item.icon size={18} />
                                             </div>
                                             <div style={{ display: "flex", flexDirection: "column", gap: "1px" }}>
@@ -345,7 +345,7 @@ export default function AudioHubClient({
                                     .slice(0, 4)
                                     .map((playlist) => (
                                     <Link key={playlist.slug || playlist.id} href={`/music/playlist/${playlist.slug || playlist.id}`} style={{ textDecoration: "none" }}>
-                                        <motion.div whileHover={{ y: -6, scale: 1.02 }} whileTap={{ scale: 0.98 }} style={{ position: "relative", aspectRatio: "1/1", backgroundColor: playlist.coverColor || "#1E1B4B", borderRadius: "20px", overflow: "hidden", display: "flex", flexDirection: "column", cursor: "pointer", border: "1px solid rgba(255,255,255,0.2)" }}>
+                                        <motion.div whileHover={{ y: -6, scale: 1.02 }} whileTap={{ scale: 0.98 }} style={{ position: "relative", aspectRatio: "1/1", backgroundColor: playlist.coverColor || (theme === "dark" ? "#1E1B4B" : "#6366F1"), backgroundImage: !playlist.coverImage ? (theme === "dark" ? "linear-gradient(135deg, #1E1B4B, #312E81)" : "linear-gradient(135deg, #6366F1, #A855F7, #EC4899)") : "none", borderRadius: "20px", overflow: "hidden", display: "flex", flexDirection: "column", cursor: "pointer", border: "1px solid rgba(255,255,255,0.2)" }}>
                                             {playlist.coverImage && (
                                                 <img 
                                                     src={playlist.coverImage} 
