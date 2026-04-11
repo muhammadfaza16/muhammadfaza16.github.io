@@ -1,0 +1,353 @@
+# Deleted Labeled Songs Audit
+
+Berikut adalah daftar lengkap lagu-lagu dengan embel-embel (slowed, reverb, sped up, mashup) yang sudah **dibuang** dari folder `public/audio` beserta status apakah versi normalnya tersedia di database.
+
+## ✅ Sudah Punya Versi Normal (Kasus 1 & Sejenisnya)
+- ❌ `about-you-the-1975-slowed-reverb.mp3`
+  - ✅ Normal exist: `the-1975-about-you-official.mp3`
+- ❌ `acha-sampai-menutup-mata-slow-reverb.mp3`
+  - ✅ Normal exist: `acha-septriasa-sampai-menutup-mata.mp3`
+- ❌ `acha-septriasa-sampai-menutup-mata-slowed-reverb.mp3`
+  - ✅ Normal exist: `acha-septriasa-sampai-menutup-mata.mp3`
+- ❌ `alan-walker-headlights-slowed-reverb.mp3`
+  - ✅ Normal exist: `alan-walker-headlights.mp3`
+- ❌ `arash-broken-angel-slowed-reverb.mp3`
+  - ✅ Normal exist: `arash-feat-helena-broken-angel.mp3`
+- ❌ `arctic-monkeys-505-slowed-reverb.mp3`
+  - ✅ Normal exist: `arctic-monkeys-505.mp3`
+- ❌ `arctic-monkeys-505-sped-up-sped-up.mp3`
+  - ✅ Normal exist: `arctic-monkeys-505.mp3`
+- ❌ `arctic-monkeys-wanna-be-yours-sped-up-sped-up.mp3`
+  - ✅ Normal exist: `arctic-monkeys-i-wanna-be-yours.mp3`
+- ❌ `ariana-grande-we-cant-be-friend-slowed-reverb.mp3`
+  - ✅ Normal exist: `the-weeknd-ariana-grande-save-your-tears.mp3`
+- ❌ `armada-apa-kabar-sayang-slowed-reverb.mp3`
+  - ✅ Normal exist: `armada-apa-kabar-sayang-official-music-video.mp3`
+- ❌ `armada-asal-kau-bahagia-slowed-reverb.mp3`
+  - ✅ Normal exist: `armada-asal-kau-bahagia.mp3`
+- ❌ `armada-harusnya-aku-slowed-reverb.mp3`
+  - ✅ Normal exist: `armada-harusnya-aku.mp3`
+- ❌ `armada-pemilik-hati-slowed-reverb.mp3`
+  - ✅ Normal exist: `armada-pemilik-hati.mp3`
+- ❌ `astrid-s-hurts-so-good-slowed-reverb.mp3`
+  - ✅ Normal exist: `astrid-s-hurts-so-good.mp3`
+- ❌ `ava-max-into-your-arms-slowed-reverb.mp3`
+  - ✅ Normal exist: `witt-lowry-into-your-arms-lyrics-ft-ava-max-no-rap.mp3`
+- ❌ `banners-someone-to-you-slowed-reverb.mp3`
+  - ✅ Normal exist: `banners-someone-to-you.mp3`
+- ❌ `billie-eilish-wildflower-slowed-reverb.mp3`
+  - ✅ Normal exist: `billie-eilish-birds-of-a-feather.mp3`
+- ❌ `bruno-mars-it-will-rain-slowed-reverb.mp3`
+  - ✅ Normal exist: `bruno-mars-it-will-rain.mp3`
+- ❌ `chord-overstreet-hold-on-slowed-reverb.mp3`
+  - ✅ Normal exist: `chord-overstreet-hold-on.mp3`
+- ❌ `cigarettes-after-sex-apocalypse-slowed-reverb.mp3`
+  - ✅ Normal exist: `cigarettes-after-sex-apocalypse.mp3`
+- ❌ `cigarettes-after-sex-cry-slowed-reverb.mp3`
+  - ✅ Normal exist: `cigarettes-after-sex-cry.mp3`
+- ❌ `cigarettes-after-sex-k-slowed-reverb.mp3`
+  - ✅ Normal exist: `cigarettes-after-sex-apocalypse.mp3`
+- ❌ `cigarettes-after-sex-sunsetz-slowed-reverb.mp3`
+  - ✅ Normal exist: `cigarettes-after-sex-sunsetz.mp3`
+- ❌ `conan-grey-heather-slowed-reverb.mp3`
+  - ✅ Normal exist: `conan-gray-heather.mp3`
+- ❌ `daun-jatuh-resah-jadi-luka-slowed-reverb.mp3`
+  - ✅ Normal exist: `daun-jatuh-resah-jadi-luka.mp3`
+- ❌ `drive-bersama-bintang-slowed-reverb.mp3`
+  - ✅ Normal exist: `drive-bersama-bintang.mp3`
+- ❌ `drive-melepasmu-slowed-reverb.mp3`
+  - ✅ Normal exist: `drive-melepasmu.mp3`
+- ❌ `element-cinta-tak-bersyarat-slowed-reverb.mp3`
+  - ✅ Normal exist: `iklim-bukan-aku-tak-cinta.mp3`
+- ❌ `element-rahasia-hati-slowed-reverb.mp3`
+  - ✅ Normal exist: `element-rahasia-hati-lirik-lagu.mp3`
+- ❌ `ellie-goulding-love-me-like-you-do-slowed-reverb.mp3`
+  - ✅ Normal exist: `ellie-goulding-love-me-like-you-do.mp3`
+- ❌ `geisha-jika-cinta-dia-slowed-reverb.mp3`
+  - ✅ Normal exist: `geisha-cinta-dan-benci.mp3`
+- ❌ `ghost-mary-on-a-cross-sped-up-sped-up.mp3`
+  - ✅ Normal exist: `ghost-mary-on-a-cross.mp3`
+- ❌ `joji-glimpse-of-us-slowed-reverb.mp3`
+  - ✅ Normal exist: `joji-glimpse-of-us.mp3`
+- ❌ `judika-jikalau-kau-cinta-slowed-reverb.mp3`
+  - ✅ Normal exist: `hivi-siapkah-kau-tuk-jatuh-cinta-lagi-official-lyric-video.mp3`
+- ❌ `justin-bieber-love-yourself-slowed-reverb.mp3`
+  - ✅ Normal exist: `dj-snake-justin-bieber-let-me-love-you.mp3`
+- ❌ `kangen-band-bintang-14-hari-slowed-reverb.mp3`
+  - ✅ Normal exist: `kangen-band-bintang-14-hari.mp3`
+- ❌ `kangen-band-kembali-pulang-slowed-reverb.mp3`
+  - ✅ Normal exist: `kangen-band-kembali-pulang.mp3`
+- ❌ `kangen-band-pujaan-hati-slowed-reverb.mp3`
+  - ✅ Normal exist: `kangen-band-pujaan-hati.mp3`
+- ❌ `kangen-band-tentang-aku-kau-dan-dia-slowed-reverb.mp3`
+  - ✅ Normal exist: `kangen-band-tentang-aku-kau-dan-dia.mp3`
+- ❌ `keane-somewhere-only-we-know-slowed-reverb.mp3`
+  - ✅ Normal exist: `keane-somewhere-only-we-know-official-music-video.mp3`
+- ❌ `lewis-capaldi-before-you-go-slowed-reverb.mp3`
+  - ✅ Normal exist: `lewis-capaldi-before-you-go-lyrics.mp3`
+- ❌ `menunggumu-slowed-reverb.mp3`
+  - ✅ Normal exist: `noah-menunggumu.mp3`
+- ❌ `naff-kenanglah-aku-slowed-reverb.mp3`
+  - ✅ Normal exist: `naff-kenanglah-aku.mp3`
+- ❌ `new-west-those-eyes-slowed-reverb.mp3`
+  - ✅ Normal exist: `new-west-those-eyes.mp3`
+- ❌ `nidji-rahasia-hati-slowed-reverb.mp3`
+  - ✅ Normal exist: `nidji-rahasia-hati.mp3`
+- ❌ `nineball-hingga-akhir-waktu-slowed-reverb.mp3`
+  - ✅ Normal exist: `nineball-hingga-akhir-waktu.mp3`
+- ❌ `noah-sally-sendiri-slowed-reverb.mp3`
+  - ✅ Normal exist: `noah-sally-sendiri.mp3`
+- ❌ `noah-tak-lagi-sama-slowed-reverb.mp3`
+  - ✅ Normal exist: `noah-tak-lagi-sama.mp3`
+- ❌ `olivia-rodrigo-drivers-license-slowed-reverb.mp3`
+  - ✅ Normal exist: `olivia-rodrigo-happier.mp3`
+- ❌ `one-direction-night-changes-slowed-reverb.mp3`
+  - ✅ Normal exist: `one-direction-night-changes-lyrics-1.mp3`
+- ❌ `one-direction-right-now-slowed-reverb.mp3`
+  - ✅ Normal exist: `akon-right-now-na-na-na-lyrics.mp3`
+- ❌ `one-direction-you-i-slowed-reverb.mp3`
+  - ✅ Normal exist: `banners-someone-to-you.mp3`
+- ❌ `peterpan-jauh-mimpiku-slowed-reverb.mp3`
+  - ✅ Normal exist: `peterpan-jauh-mimpiku.mp3`
+- ❌ `peterpan-ku-katakan-dengan-indah-slowed-reverb.mp3`
+  - ✅ Normal exist: `noah-ku-katakan-dengan-indah.mp3`
+- ❌ `peterpan-mimpi-yang-sempurna-slowed-reverb.mp3`
+  - ✅ Normal exist: `noah-mimpi-yang-sempurna.mp3`
+- ❌ `peterpan-mungkin-nanti-slowed-reverb.mp3`
+  - ✅ Normal exist: `peterpan-mungkin-nanti.mp3`
+- ❌ `peterpan-semua-tentang-kita-slowed-reverb.mp3`
+  - ✅ Normal exist: `noah-semua-tentang-kita.mp3`
+- ❌ `peterpan-walau-habis-terang-slowed-reverb.mp3`
+  - ✅ Normal exist: `noah-walau-habis-terang.mp3`
+- ❌ `peterpan-yang-terdalam-slowed-reverb.mp3`
+  - ✅ Normal exist: `noah-yang-terdalam.mp3`
+- ❌ `ravyn-lenae-love-me-not-slowed-reverb.mp3`
+  - ✅ Normal exist: `ravyn-lenae-love-me-not.mp3`
+- ❌ `ravyn-lenae-love-me-not-sped-up-sped-up.mp3`
+  - ✅ Normal exist: `ravyn-lenae-love-me-not.mp3`
+- ❌ `separuh-aku-slowed-reverb.mp3`
+  - ✅ Normal exist: `noah-separuh-aku.mp3`
+- ❌ `seventeen-hal-terindah-slowed-reverb.mp3`
+  - ✅ Normal exist: `seventeen-hal-terindah.mp3`
+- ❌ `sheila-on-7-dan-slowed-reverb.mp3`
+  - ✅ Normal exist: `sheila-on-7-dan.mp3`
+- ❌ `sheila-on-7-hari-bersamanya-slowed-reverb.mp3`
+  - ✅ Normal exist: `sheila-on-7-hari-bersamanya.mp3`
+- ❌ `sheila-on-7-yang-terlewatkan-slowed-reverb.mp3`
+  - ✅ Normal exist: `sheila-on-7-anugerah-terindah-yang-pernah-kumiliki.mp3`
+- ❌ `taxi-hujan-kemarin-reverb-sped-up.mp3`
+  - ✅ Normal exist: `taxi-band-hujan-kemarin.mp3`
+- ❌ `the-ronettes-be-my-baby-slowed-reverb.mp3`
+  - ✅ Normal exist: `the-ronettes-be-my-baby.mp3`
+- ❌ `tom-odell-another-love-slowed-reverb.mp3`
+  - ✅ Normal exist: `tom-odell-another-love.mp3`
+- ❌ `troye-sivan-angel-baby-slowed-reverb.mp3`
+  - ✅ Normal exist: `troye-sivan-angel-baby-lyrics.mp3`
+- ❌ `ungu-cinta-dalam-hati-slowed-reverb.mp3`
+  - ✅ Normal exist: `ungu-aku-bukan-pilihan-hatimu-indonesia.mp3`
+- ❌ `ungu-demi-waktu-slowed-reverb.mp3`
+  - ✅ Normal exist: `ungu-demi-waktu.mp3`
+- ❌ `ungu-luka-di-sini-slowed-reverb.mp3`
+  - ✅ Normal exist: `ungu-luka-disini.mp3`
+- ❌ `utopia-hujan-slowed-reverb.mp3`
+  - ✅ Normal exist: `utopia-hujan.mp3`
+- ❌ `vagetoz-kehadiranmu-slowed-reverb.mp3`
+  - ✅ Normal exist: `vagetoz-kehadiranmu.mp3`
+- ❌ `virgoun-surat-cinta-untuk-starla-slowed-reverb.mp3`
+  - ✅ Normal exist: `virgoun-surat-cinta-untuk-starla.mp3`
+- ❌ `wali-baik-baik-sayang-slowed.mp3`
+  - ✅ Normal exist: `wali-band-baik-baik-sayang.mp3`
+- ❌ `yovie-nuno-mengejar-mimpi-slowed-reverb.mp3`
+  - ✅ Normal exist: `yovie-nuno-mengejar-mimpi.mp3`
+
+## 🔍 Belum Punya Versi Normal / Kasus Mashup (Kasus 3 & Sejenisnya)
+- ❌ `abba-slipping-through-my-fingers-slowed-reverb.mp3`
+  - 🔍 **Missing** (Belum ada versi normal)
+- ❌ `abba-the-winner-takes-it-all-slowed-reverb.mp3`
+  - 🔍 **Missing** (Belum ada versi normal)
+- ❌ `acha-septriasa-berdua-lebih-baik-slowed-reverb.mp3`
+  - 🔍 **Missing** (Belum ada versi normal)
+- ❌ `adele-set-fire-to-the-rain-slowed-reverb.mp3`
+  - 🔍 **Missing** (Belum ada versi normal)
+- ❌ `adele-skyfall-slowed-reverb.mp3`
+  - 🔍 **Missing** (Belum ada versi normal)
+- ❌ `amy-winehouse-back-to-black-down-slowed-reverb.mp3`
+  - 🔍 **Missing** (Belum ada versi normal)
+- ❌ `anggis-devaki-dirimu-yang-dulu-sped-up.mp3`
+  - 🔍 **Missing** (Belum ada versi normal)
+- ❌ `armada-bebaskan-diriku-slowed-reverb.mp3`
+  - 🔍 **Missing** (Belum ada versi normal)
+- ❌ `astrid-tentang-rasa-slowed-reverb.mp3`
+  - 🔍 **Missing** (Belum ada versi normal)
+- ❌ `bagindas-100-cintaku-slowed-reverb.mp3`
+  - 🔍 **Missing** (Belum ada versi normal)
+- ❌ `beyonce-halo-slowed-reverb.mp3`
+  - 🔍 **Missing** (Belum ada versi normal)
+- ❌ `billie-eilish-happier-than-ever-slowed-reverb.mp3`
+  - 🔍 **Missing** (Belum ada versi normal)
+- ❌ `birdy-rhodes-let-it-all-go-slowed-reverb.mp3`
+  - 🔍 **Missing** (Belum ada versi normal)
+- ❌ `bunga-citra-lestari-cinta-sejati-with-lyrics-slowed-reverb.mp3`
+  - 🔍 **Missing** (Belum ada versi normal)
+- ❌ `cash-cash-hero-slowed-reverb.mp3`
+  - 🔍 **Missing** (Belum ada versi normal)
+- ❌ `cassandra-cinta-terbaik-slowed-reverb.mp3`
+  - 🔍 **Missing** (Belum ada versi normal)
+- ❌ `cassandra-speed-up-reverb-cinta-terbaik-slowed-reverb.mp3`
+  - 🔍 **Missing** (Belum ada versi normal)
+- ❌ `christina-perri-a-thousand-years-slowed-reverb.mp3`
+  - 🔍 **Missing** (Belum ada versi normal)
+- ❌ `coldplay-paradise-slowed-reverb.mp3`
+  - 🔍 **Missing** (Belum ada versi normal)
+- ❌ `coldplay-viva-la-vida-slowed-reverb.mp3`
+  - 🔍 **Missing** (Belum ada versi normal)
+- ❌ `dendi-nata-abadi-indo-version-effect-320kbps-slowed-reverb.mp3`
+  - 🔍 **Missing** (Belum ada versi normal)
+- ❌ `dmasiv-merindukan-mu-x-masih-cinta.mp3`
+  - ⚠️ *Mashup / Medley* (Tidak ada 1 versi normal)
+- ❌ `dmasiv-merindukanmu-slowed-reverb.mp3`
+  - 🔍 **Missing** (Belum ada versi normal)
+- ❌ `ed-sheeran-photograph-slowed-reverb.mp3`
+  - 🔍 **Missing** (Belum ada versi normal)
+- ❌ `emin-jony-slowed-reverb.mp3`
+  - 🔍 **Missing** (Belum ada versi normal)
+- ❌ `emin-jony-speed-up-sped-up.mp3`
+  - 🔍 **Missing** (Belum ada versi normal)
+- ❌ `eminem-mockingbird-slowed-reverb.mp3`
+  - 🔍 **Missing** (Belum ada versi normal)
+- ❌ `eren-takkan-pisah-slowed-reverb.mp3`
+  - 🔍 **Missing** (Belum ada versi normal)
+- ❌ `faouzia-john-legend-minefields-slowed-reverb.mp3`
+  - 🔍 **Missing** (Belum ada versi normal)
+- ❌ `fix-you-coldplay-slowed-reverb.mp3`
+  - 🔍 **Missing** (Belum ada versi normal)
+- ❌ `for-revenge-serana-slowed-reverb.mp3`
+  - 🔍 **Missing** (Belum ada versi normal)
+- ❌ `golden-brown-the-stranglers-slowed-reverb.mp3`
+  - 🔍 **Missing** (Belum ada versi normal)
+- ❌ `indila-ainsi-bas-la-vida-down-slowed-reverb.mp3`
+  - 🔍 **Missing** (Belum ada versi normal)
+- ❌ `indila-love-story-reverb-slowed-reverb.mp3`
+  - 🔍 **Missing** (Belum ada versi normal)
+- ❌ `jaga-selalu-hatimu-seventeen-versi-reverb-slowed-reverb.mp3`
+  - 🔍 **Missing** (Belum ada versi normal)
+- ❌ `john-legend-all-of-me-slowed-reverb.mp3`
+  - 🔍 **Missing** (Belum ada versi normal)
+- ❌ `judika-jadi-aku-sebentar-saja-speed-up-reverb-reverb-sped-up.mp3`
+  - 🔍 **Missing** (Belum ada versi normal)
+- ❌ `katy-perry-unconditionally-slowed-reverb.mp3`
+  - 🔍 **Missing** (Belum ada versi normal)
+- ❌ `kesayanganku-al-ghazali-ft-chelsea-shania-slowed-reverb.mp3`
+  - 🔍 **Missing** (Belum ada versi normal)
+- ❌ `kina-can-we-kiss-forever-slowed-reverb.mp3`
+  - 🔍 **Missing** (Belum ada versi normal)
+- ❌ `kotak-pelan-pelan-saja-slowed-reverb.mp3`
+  - 🔍 **Missing** (Belum ada versi normal)
+- ❌ `lady-gaga-bad-romance-slowed-reverb.mp3`
+  - 🔍 **Missing** (Belum ada versi normal)
+- ❌ `lady-gaga-judas-slowed-reverb.mp3`
+  - 🔍 **Missing** (Belum ada versi normal)
+- ❌ `lana-del-rey-cinnamon-girl-slowed-reverb.mp3`
+  - 🔍 **Missing** (Belum ada versi normal)
+- ❌ `lana-del-rey-salvatore-slowed-reverb.mp3`
+  - 🔍 **Missing** (Belum ada versi normal)
+- ❌ `lana-del-rey-summertime-sadness-slowed-reverb.mp3`
+  - 🔍 **Missing** (Belum ada versi normal)
+- ❌ `lana-del-rey-yes-to-heaven-slowed-reverb.mp3`
+  - 🔍 **Missing** (Belum ada versi normal)
+- ❌ `linkin-park-one-more-light-slowed-reverb.mp3`
+  - 🔍 **Missing** (Belum ada versi normal)
+- ❌ `lovarian-perpisahan-termanis-x-samsons-kenangan-terindah-slowed-reverb.mp3`
+  - ⚠️ *Mashup / Medley* (Tidak ada 1 versi normal)
+- ❌ `ludovico-einaudi-experience-slowed-reverb.mp3`
+  - 🔍 **Missing** (Belum ada versi normal)
+- ❌ `lyla-aku-gamau-jadi-mataharimu-slowed-reverb.mp3`
+  - 🔍 **Missing** (Belum ada versi normal)
+- ❌ `lyla-karna-kamu-cantik-slowed-reverb.mp3`
+  - 🔍 **Missing** (Belum ada versi normal)
+- ❌ `lyodra-pesan-terakhir-reverb-reverb-sped-up.mp3`
+  - 🔍 **Missing** (Belum ada versi normal)
+- ❌ `lyodra-pesan-terakhir-slowed-reverb.mp3`
+  - 🔍 **Missing** (Belum ada versi normal)
+- ❌ `maroon-5-payphone-slowed-reverb.mp3`
+  - 🔍 **Missing** (Belum ada versi normal)
+- ❌ `mashup-pilihan-hatiku-x-cinta-terbaik-x-memilih-setia-sped-up.mp3`
+  - ⚠️ *Mashup / Medley* (Tidak ada 1 versi normal)
+- ❌ `mashup-tanpa-pesan-terakhir-x-jaga-selalu-hatimu-x-yang-telah-merelakanmu-reverb-sped-up.mp3`
+  - ⚠️ *Mashup / Medley* (Tidak ada 1 versi normal)
+- ❌ `maudy-ayunda-kamu-dan-kenangan-slowed-reverb.mp3`
+  - 🔍 **Missing** (Belum ada versi normal)
+- ❌ `medley-julius-dreisig-zeus-x-crona-invisible.mp3`
+  - ⚠️ *Mashup / Medley* (Tidak ada 1 versi normal)
+- ❌ `medley-selamat-tinggal-x-duka-x-seluruh-nafas-ini-x-duka-x-sarana-speed-up-sped-up.mp3`
+  - ⚠️ *Mashup / Medley* (Tidak ada 1 versi normal)
+- ❌ `medley-tanpa-pesan-terakhir-x-jaga-selalu-hatimu-x-yang-telah-merelakanmu-x-menemukanmu-speed-reverb-slowed-reverb.mp3`
+  - ⚠️ *Mashup / Medley* (Tidak ada 1 versi normal)
+- ❌ `miley-cyrus-angels-like-you-slowed-reverb.mp3`
+  - 🔍 **Missing** (Belum ada versi normal)
+- ❌ `muse-starlight-slowed-reverb.mp3`
+  - 🔍 **Missing** (Belum ada versi normal)
+- ❌ `paloma-faith-only-love-can-hurt-like-this-slowed-reverb.mp3`
+  - 🔍 **Missing** (Belum ada versi normal)
+- ❌ `penantian-armada-slowed-reverb.mp3`
+  - 🔍 **Missing** (Belum ada versi normal)
+- ❌ `radiohead-no-surpise-slowed-reverb.mp3`
+  - 🔍 **Missing** (Belum ada versi normal)
+- ❌ `rihanna-diamonds-slowed-reverb.mp3`
+  - 🔍 **Missing** (Belum ada versi normal)
+- ❌ `rihanna-umbrella-slowed-reverb.mp3`
+  - 🔍 **Missing** (Belum ada versi normal)
+- ❌ `rihanna-where-have-you-been-slowed-reverb.mp3`
+  - 🔍 **Missing** (Belum ada versi normal)
+- ❌ `ruth-b-dandelions-slowed-reverb.mp3`
+  - 🔍 **Missing** (Belum ada versi normal)
+- ❌ `sam-smith-fire-on-fire-slowed-reverb.mp3`
+  - 🔍 **Missing** (Belum ada versi normal)
+- ❌ `samsons-di-ujung-jalan-slowed-reverb.mp3`
+  - 🔍 **Missing** (Belum ada versi normal)
+- ❌ `sasha-sloan-dancing-with-your-ghost-slowed-reverb.mp3`
+  - 🔍 **Missing** (Belum ada versi normal)
+- ❌ `seafret-atlantis-slowed-reverb.mp3`
+  - 🔍 **Missing** (Belum ada versi normal)
+- ❌ `sempurna-andra-and-the-backbone-slowed-reverb.mp3`
+  - 🔍 **Missing** (Belum ada versi normal)
+- ❌ `seventeen-menemukanmu-slowed-reverb.mp3`
+  - 🔍 **Missing** (Belum ada versi normal)
+- ❌ `seventeen-speed-up-reverb-tanpa-pesan-terakhir-slowed-reverb.mp3`
+  - 🔍 **Missing** (Belum ada versi normal)
+- ❌ `seventeen-speed-up-untuk-mencintaimu-sped-up.mp3`
+  - 🔍 **Missing** (Belum ada versi normal)
+- ❌ `shane-filan-beautiful-in-white-slowed-reverb.mp3`
+  - 🔍 **Missing** (Belum ada versi normal)
+- ❌ `sia-chandelier-slowed-reverb.mp3`
+  - 🔍 **Missing** (Belum ada versi normal)
+- ❌ `sia-unstoppable-slowed-reverb.mp3`
+  - 🔍 **Missing** (Belum ada versi normal)
+- ❌ `stephen-sanchez-until-i-found-you-slowed-reverb.mp3`
+  - 🔍 **Missing** (Belum ada versi normal)
+- ❌ `symll-where-s-my-love-slowed-reverb.mp3`
+  - 🔍 **Missing** (Belum ada versi normal)
+- ❌ `the-police-every-breath-you-take-slowed-reverb.mp3`
+  - 🔍 **Missing** (Belum ada versi normal)
+- ❌ `the-virgins-cinta-terlarang-slowed-reverb.mp3`
+  - 🔍 **Missing** (Belum ada versi normal)
+- ❌ `vagetos-betapa-aku-mencintaimu-slowed-reverb.mp3`
+  - 🔍 **Missing** (Belum ada versi normal)
+- ❌ `vierra-kesepian-slowed.mp3`
+  - 🔍 **Missing** (Belum ada versi normal)
+- ❌ `virgoun-ft-audy-selamat-selamat-tinggal-slowed-reverb.mp3`
+  - 🔍 **Missing** (Belum ada versi normal)
+- ❌ `virgoun-ft-audy-selamat-tinggal-lyrics-speed-up-sped-up.mp3`
+  - 🔍 **Missing** (Belum ada versi normal)
+- ❌ `wiz-khalifa-see-you-again-slowed-reverb.mp3`
+  - 🔍 **Missing** (Belum ada versi normal)
+- ❌ `zayn-sia-dusk-till-dawn-slowed-reverb.mp3`
+  - 🔍 **Missing** (Belum ada versi normal)
+
+## ⏳ Lagu dengan Durasi Abnormal (Harus Download Ulang)
+- ❌ `james-arthur-ft-anne-marie-rewrite-the-stars.mp3` (15:10)
+  - 🔍 **Missing** (Versi kepanjangan/extended, cari versi normal)
+- ❌ `noah-jika-engkau.mp3` (08:16)
+  - 🔍 **Missing** (Durasi tidak wajar, cari versi album/radio edit)
+- ❌ `virzha-aku-lelakimu.mp3` (08:03)
+  - 🔍 **Missing** (Durasi kepanjangan, cari versi normal)
