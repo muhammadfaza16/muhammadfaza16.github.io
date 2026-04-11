@@ -34,6 +34,16 @@ export default function AudioHubClient({
 
     const CACHE_KEY = "music_hub_scroll_v1";
 
+    const [greeting, setGreeting] = useState({ line1: "Your", line2: "Soundscape." });
+
+    useEffect(() => {
+        const hour = new Date().getHours();
+        if (hour >= 4 && hour < 11) setGreeting({ line1: "Pagi", line2: "Faza 🌅" });
+        else if (hour >= 11 && hour < 15) setGreeting({ line1: "Siang", line2: "Faza ☀️" });
+        else if (hour >= 15 && hour < 19) setGreeting({ line1: "Sore", line2: "Faza 🌇" });
+        else setGreeting({ line1: "Malam", line2: "Faza 🌙" });
+    }, []);
+
     // Restore scroll position
     useEffect(() => {
         try {
@@ -145,11 +155,11 @@ export default function AudioHubClient({
                             </Link>
                             <motion.h1 
                                 style={{ 
-                                    fontFamily: headerFont, fontWeight: 900, fontSize: "2.5rem", lineHeight: 1, margin: 0,
+                                    fontFamily: headerFont, fontWeight: 900, fontSize: "2.5rem", lineHeight: 1.1, margin: 0,
                                     letterSpacing: "-0.05em", color: theme === "dark" ? "#FFF" : "#000"
                                 }}
                             >
-                                Your<br />Soundscape.
+                                {greeting.line1},<br />{greeting.line2}
                             </motion.h1>
                         </div>
                         <motion.div 
