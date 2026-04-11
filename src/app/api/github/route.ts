@@ -6,7 +6,7 @@ export async function GET() {
     try {
         // Get user profile
         const userRes = await fetch(`https://api.github.com/users/${USERNAME}`, {
-            next: { revalidate: 3600 },
+            next: { revalidate: 60 },
             headers: { "Accept": "application/vnd.github.v3+json" },
         });
         if (!userRes.ok) throw new Error("GitHub API failed");
@@ -18,7 +18,7 @@ export async function GET() {
             const eventsRes = await fetch(
                 `https://api.github.com/users/${USERNAME}/events?per_page=100&page=${page}`,
                 {
-                    next: { revalidate: 1800 },
+                    next: { revalidate: 60 },
                     headers: { "Accept": "application/vnd.github.v3+json" },
                 }
             );

@@ -55,6 +55,7 @@ export async function GET() {
             awayLogo: string;
             date: string;
             time: string;
+            timestamp: number;
             league: string;
             leagueEmoji: string;
             status: string;
@@ -122,8 +123,9 @@ export async function GET() {
                             away: away.team.shortDisplayName,
                             awayAbbr: away.team.abbreviation,
                             awayLogo: away.team.logo,
-                            date: d.toLocaleDateString("en-GB", { day: "numeric", month: "short", timeZone: "Asia/Jakarta" }),
+                            date: d.toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short", timeZone: "Asia/Jakarta" }),
                             time: d.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit", hour12: false, timeZone: "Asia/Jakarta" }),
+                            timestamp: d.getTime(),
                             league: league.name,
                             leagueEmoji: league.emoji,
                             status: event.status.type.description,
@@ -142,11 +144,9 @@ export async function GET() {
             })
         );
 
-        // Sort by date, big matches first within same day
+        // Sort by timestamp, big matches first within same day
         allMatches.sort((a, b) => {
-            const da = new Date(`${a.date} ${a.time}`).getTime();
-            const db = new Date(`${b.date} ${b.time}`).getTime();
-            if (da !== db) return da - db;
+            if (a.timestamp !== b.timestamp) return a.timestamp - b.timestamp;
             if (a.isBigMatch && !b.isBigMatch) return -1;
             if (!a.isBigMatch && b.isBigMatch) return 1;
             return 0;

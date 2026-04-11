@@ -793,7 +793,8 @@ export function CleanHomeHero() {
                             {/* Match List */}
                             <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
                                 {football.matches
-                                    .filter(m => m.isBigMatch && (matchTab === "upcoming" ? m.state !== "post" : m.state === "post"))
+                                    .filter((m: any) => m.isBigMatch && (matchTab === "upcoming" ? m.state !== "post" : m.state === "post"))
+                                    .sort((a: any, b: any) => matchTab === "completed" ? b.timestamp - a.timestamp : a.timestamp - b.timestamp)
                                     .map((m: any, i: number) => {
                                         const isExpanded = expandedMatchIndex === (matchTab === "upcoming" ? i : i + 1000);
                                         const hasScorers = m.homeScorers?.length > 0 || m.awayScorers?.length > 0;
@@ -829,7 +830,7 @@ export function CleanHomeHero() {
                                                         ) : m.state === "post" ? (
                                                             <div style={{ fontWeight: 700, fontSize: "0.85rem", lineHeight: 1.1 }}>
                                                                 {m.homeScore} - {m.awayScore}
-                                                                <div style={{ fontSize: "0.55rem", color: "rgba(255,255,255,0.55)", marginTop: "2px" }}>FT</div>
+                                                                <div style={{ fontSize: "0.55rem", color: "rgba(255,255,255,0.55)", marginTop: "2px" }}>FT • {m.date}</div>
                                                             </div>
                                                         ) : (
                                                             <div style={{ lineHeight: 1.1 }}>
