@@ -1,0 +1,185 @@
+﻿[93m[4mUnused files[24m[39m (116)
+optimize-images.js                        
+remove-bg.js                              
+seed.js                                   
+test-prisma.js                            
+scripts/add-summary.js                    
+scripts/ai_categorize.js                  
+scripts/apply-sql.js                      
+scripts/apply_categories.ts               
+scripts/assign_category.js                
+scripts/audit_durations.ts                
+scripts/audit_library.ts                  
+scripts/backfill-categories.ts            
+scripts/backfill-pg.js                    
+scripts/backfill-social-score.js          
+scripts/cancel_all.js                     
+scripts/cancel_locks.js                   
+scripts/categorize-articles.mjs           
+scripts/categorize_songs.ts               
+scripts/check_categories.js               
+scripts/check_counts.js                   
+scripts/check_links.ts                    
+scripts/check_locks.js                    
+scripts/check_old_format.js               
+scripts/check_playlists.ts                
+scripts/check_symbols.ts                  
+scripts/convert-to-webp.js                
+scripts/db_check.js                       
+scripts/debugTimeline.mjs                 
+scripts/deep_audit.ts                     
+scripts/dump.js                           
+scripts/dump_all_songs.ts                 
+scripts/export_all_titles.ts              
+scripts/export_recent_songs.js            
+scripts/final_library_fix_v5.ts           
+scripts/final_library_fix_v6.ts           
+scripts/final_polish.ts                   
+scripts/find_plus.ts                      
+scripts/find_plus_playlists.ts            
+scripts/find_plus_raw.ts                  
+scripts/fix_ada_apa.ts                    
+scripts/fix_all_noah.ts                   
+scripts/fix_duration.ts                   
+scripts/fix_duration_hard.ts              
+scripts/fix_inverted_titles.ts            
+scripts/fix_library.ts                    
+scripts/fix_library_v2.ts                 
+scripts/fix_new_noah_songs.ts             
+scripts/fix_rip_song.ts                   
+scripts/fix_seventeen_and_mashup.ts       
+scripts/fix_song_durations.ts             
+scripts/fix_specific_songs.ts             
+scripts/fix_summary.js                    
+scripts/generateDurations.mjs             
+scripts/generate_final_report.ts          
+scripts/generate_report.ts                
+scripts/get_logs.js                       
+scripts/heuristic_categorizer.js          
+scripts/kill_connections.js               
+scripts/list_all_songs.ts                 
+scripts/migrate.ts                        
+scripts/normalize_library.ts              
+scripts/normalize_urls.js                 
+scripts/organize_audio.js                 
+scripts/pg_seed.js                        
+scripts/process_and_cleanup_v2.ts         
+scripts/process_and_cleanup_v3.ts         
+scripts/process_batch_v2.ts               
+scripts/process_new_songs.ts              
+scripts/refine_titles_v4.ts               
+scripts/repair_songs.ts                   
+scripts/report_new_batch.ts               
+scripts/report_new_songs.ts               
+scripts/reset_playlists.ts                
+scripts/review_recent_songs.js            
+scripts/score-articles.mjs                
+scripts/seed-master.ts                    
+scripts/seed-metrics.js                   
+scripts/store-scores.mjs                  
+scripts/strip_framer_opacity.js           
+scripts/strip_variants_opacity.js         
+scripts/sync_playlists.ts                 
+scripts/test-top.js                       
+scripts/test_add_song.ts                  
+scripts/test_logs.js                      
+scripts/update_artists_final.ts           
+tmp/alter_db.js                           
+tmp/audit_noah.mjs                        
+tmp/audit_noah.ts                         
+tmp/calibrate.js                          
+tmp/check.js                              
+tmp/check_fields.ts                       
+tmp/cleanup_playlists_selective.ts        
+tmp/debug_api.js                          
+tmp/export_articles.js                    
+tmp/list_playlists.ts                     
+tmp/remap_categories.js                   
+tmp/remap_categories_2.js                 
+src/components/DigitalClock.tsx           
+src/components/LyricsDisplay.tsx          
+src/components/PlaylistDrawer.tsx         
+src/components/PostCard.tsx               
+src/components/ScrollReveal.tsx           
+src/components/WanderingMascot.tsx        
+src/data/jarvisThemes.ts                  
+src/data/narrative-db.ts                  
+src/data/onThisDay.ts                     
+src/data/songLyrics.ts                    
+src/components/curation/DevPlaceholder.tsx
+src/components/layout/GlobalBottomNav.tsx 
+src/components/layout/MeshGradient.tsx    
+src/components/music/constants.ts         
+src/components/music/helpers.tsx          
+src/components/music/Marquee.tsx          
+src/components/sanctuary/SketchCard.tsx   
+src/app/blog/BlogClient.tsx               
+src/app/guest/no28/guest-sketch.css       
+[93m[4mUnused dependencies[24m[39m (3)
+@google/generative-ai  package.json:13:6
+pg                     package.json:33:6
+yahoo-finance2         package.json:42:6
+[93m[4mUnused devDependencies[24m[39m (3)
+@types/dompurify  package.json:46:6
+dotenv-cli        package.json:51:6
+sharp             package.json:55:6
+[93m[4mUnlisted dependencies[24m[39m (1)
+postcss  postcss.config.mjs
+[93m[4mUnused exports[24m[39m (34)
+calculateReadingTime  function  src/lib/posts.ts:16:17                               
+writePostsToFile      function  src/lib/posts.ts:48:17                               
+getLatestPosts        function  src/lib/posts.ts:73:17                               
+createPost            function  src/lib/posts.ts:93:17                               
+updatePost            function  src/lib/posts.ts:117:17                              
+deletePost            function  src/lib/posts.ts:141:17                              
+generateSlug          function  src/lib/posts.ts:159:17                              
+getBookById           function  src/app/master/actions.ts:323:23                     
+getCourses            function  src/app/master/actions.ts:390:23                     
+getCourseById         function  src/app/master/actions.ts:401:23                     
+createCourse          function  src/app/master/actions.ts:409:23                     
+updateCourse          function  src/app/master/actions.ts:432:23                     
+deleteCourse          function  src/app/master/actions.ts:443:23                     
+getFrameworks         function  src/app/master/actions.ts:454:23                     
+getFrameworkById      function  src/app/master/actions.ts:465:23                     
+createFramework       function  src/app/master/actions.ts:473:23                     
+updateFramework       function  src/app/master/actions.ts:496:23                     
+deleteFramework       function  src/app/master/actions.ts:507:23                     
+getCodexEntries       function  src/app/master/actions.ts:518:23                     
+getCodexById          function  src/app/master/actions.ts:529:23                     
+createCodexEntry      function  src/app/master/actions.ts:537:23                     
+updateCodexEntry      function  src/app/master/actions.ts:558:23                     
+deleteCodexEntry      function  src/app/master/actions.ts:569:23                     
+CATEGORY_NAMES                  src/lib/curation-config.ts:66:14                     
+getVertical           function  src/lib/curation-config.ts:123:17                    
+getAllTags            function  src/lib/projects.ts:84:17                            
+getAllCategories      function  src/lib/projects.ts:92:17                            
+shellBg                         src/app/music/master/components/sharedStyles.ts:1:14 
+shellBorder                     src/app/music/master/components/sharedStyles.ts:2:14 
+shellRadius                     src/app/music/master/components/sharedStyles.ts:3:14 
+shellShadow                     src/app/music/master/components/sharedStyles.ts:4:14 
+getInsetBox                     src/app/music/master/components/sharedStyles.ts:6:14 
+getPrimaryBtnStyle              src/app/music/master/components/sharedStyles.ts:25:14
+getSecondaryBtnStyle            src/app/music/master/components/sharedStyles.ts:38:14
+[93m[4mUnused exported types[24m[39m (21)
+LyricItem         interface  src/components/AudioContext.tsx:7:18           
+ArticleScores     interface  src/lib/scoring.ts:167:18                      
+Highlight         interface  src/lib/storage.ts:181:18                      
+ReaderSettings    interface  src/lib/storage.ts:191:18                      
+AtlasMenuItem     interface  src/components/AtlasMenu.tsx:6:18              
+VerticalKey       type       src/lib/curation-config.ts:9:13                
+VerticalConfig    interface  src/lib/curation-config.ts:11:18               
+CategoryConfig    interface  src/lib/curation-config.ts:53:18               
+BookStatus        type       src/lib/curation-config.ts:70:13               
+SourceType        type       src/lib/curation-config.ts:81:13               
+Difficulty        type       src/lib/curation-config.ts:92:13               
+FrameworkType     type       src/lib/curation-config.ts:102:13              
+CodexStatus       type       src/lib/curation-config.ts:113:13              
+ArticleMeta       interface  src/types/curation.ts:10:18                    
+ListResponse      interface  src/types/curation.ts:96:18                    
+SingleResponse    interface  src/types/curation.ts:102:18                   
+MutationResponse  interface  src/types/curation.ts:108:18                   
+Haiku             interface  src/data/guestNo28Haikus.ts:1:18               
+ThemeTokens       interface  src/components/guest/no28/ThemeContext.tsx:9:18
+LyricLine         type       src/hooks/useLyrics.ts:3:13                    
+ParsedTitle       interface  src/utils/songUtils.ts:1:18                    
+[33m[4mConfiguration hints[24m (1)[39m
