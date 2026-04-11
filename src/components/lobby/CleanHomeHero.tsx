@@ -240,12 +240,7 @@ export function CleanHomeHero() {
         if (!prayer?.prayers || prayer.prayers.length === 0) return prayer?.next || null;
         const nowMinutes = now.getHours() * 60 + now.getMinutes();
 
-        // Inject helper times
         const fullBreakdown = [...prayer.prayers];
-        if (prayer.imsak) fullBreakdown.push({ name: "Imsak", time: prayer.imsak });
-        if (prayer.tahajjud) fullBreakdown.push({ name: "Tahajjud", time: prayer.tahajjud });
-        if (prayer.midnight) fullBreakdown.push({ name: "Midnight", time: prayer.midnight });
-        if (prayer.firstThird) fullBreakdown.push({ name: "First Third", time: prayer.firstThird });
 
         // Sort literally by minutes from start of day (0-1439)
         fullBreakdown.sort((a, b) => {
