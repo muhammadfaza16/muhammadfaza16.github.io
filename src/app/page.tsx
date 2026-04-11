@@ -28,8 +28,7 @@ export default function HomePage() {
 
   // Called by RoomBentoGrid when a guarded icon is clicked
   const handleGuardedClick = useCallback((href: string) => {
-    // MUSIC is PUBLIC - bypass PIN
-    if (href === "/music" || isUnlocked()) {
+    if (isUnlocked()) {
       router.push(href);
       return;
     }

@@ -148,7 +148,7 @@ export function RoomBentoGrid({ onGuardedClick }: RoomBentoGridProps) {
             href: "/music",
             icon: <Music />,
             iconColor: "#FFD60A", // Vivid Yellow
-            guarded: true,
+            guarded: false,
         }
     ];
 
