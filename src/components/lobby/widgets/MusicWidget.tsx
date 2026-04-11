@@ -49,22 +49,20 @@ export function MusicWidget({
             transition={{ duration: 0.25, ease: [0.25, 0.46, 0.45, 0.94] }}
             style={{ position: "relative", zIndex: 1, padding: "0.5rem 0.25rem" }}
         >
-            {/* Now Playing Header */}
+            {/* Now Playing Header Row (Disc + Info) */}
             <div
                 onClick={(e) => {
                     e.stopPropagation();
                     sessionStorage.setItem("autoExpandPlayer", "true");
                     router.push('/music');
                 }}
-                style={{ display: "flex", alignItems: "center", gap: "1rem", marginBottom: "1.25rem", cursor: "pointer" }}
+                style={{ display: "flex", alignItems: "center", gap: "1.25rem", marginBottom: "1.25rem", cursor: "pointer" }}
             >
                 {/* Rotating Disc */}
                 <div style={{
                     width: "52px", height: "52px", borderRadius: "50%",
-                    background: "linear-gradient(135deg, #1A1A1A 0%, #000 100%)",
                     display: "flex", alignItems: "center", justifyContent: "center",
                     flexShrink: 0,
-                    boxShadow: isPlaying ? "0 8px 24px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.05)" : "0 4px 12px rgba(0,0,0,0.3)",
                     position: "relative",
                     overflow: "hidden"
                 }}>
@@ -76,18 +74,18 @@ export function MusicWidget({
                     }} />
                     <div style={{
                         width: "44px", height: "44px", borderRadius: "50%",
-                        background: "linear-gradient(135deg, #FFD60A 0%, #FF9F0A 100%)",
+                        background: "linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%)",
                         display: "flex", alignItems: "center", justifyContent: "center",
                         position: "relative",
                         zIndex: 1,
                         boxShadow: "inset 0 1px 1px rgba(255,255,255,0.4), 0 2px 4px rgba(0,0,0,0.3)"
                     }}>
-                        <Disc size={20} color="rgba(0,0,0,0.7)" />
+                        <Disc size={20} color="#FFF" />
                     </div>
                 </div>
 
-                {/* Song Info — navigates to /music and expands */}
-                <div style={{ flex: 1, minWidth: 0, cursor: "pointer" }}>
+                {/* Song Info */}
+                <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{
                         fontSize: "0.95rem", fontWeight: 800,
                         color: "#FFF",
@@ -109,7 +107,7 @@ export function MusicWidget({
                                 {[0, 1, 2].map(b => (
                                     <motion.span
                                         key={b}
-                                        style={{ width: "2px", borderRadius: "1px", background: "#FFD60A" }}
+                                        style={{ width: "2px", borderRadius: "1px", background: "#6366F1" }}
                                         animate={{ height: ["4px", `${10 + b * 2}px`, "5px", `${12 - b}px`, "4px"] }}
                                         transition={{ duration: 0.6 + b * 0.1, repeat: Infinity, ease: "easeInOut", delay: b * 0.1 }}
                                     />
@@ -118,35 +116,46 @@ export function MusicWidget({
                         )}
                     </div>
                 </div>
-
-                {/* Controls — larger touch targets */}
-                <div style={{ display: "flex", alignItems: "center", gap: "8px", flexShrink: 0 }}>
-                    <div onClick={(e) => { e.stopPropagation(); prevSong(); }} style={{ padding: "8px", cursor: "pointer", display: "flex", borderRadius: "50%", background: "rgba(255,255,255,0.05)" }}>
-                        <SkipBack size={16} fill="rgba(255,255,255,0.95)" color="rgba(255,255,255,0.95)" />
-                    </div>
-                    <motion.div
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                        onClick={(e) => { e.stopPropagation(); togglePlay(); }}
-                        style={{
-                            width: "44px", height: "44px", borderRadius: "50%",
-                            background: "rgba(255,255,255,0.1)",
-                            display: "flex", alignItems: "center", justifyContent: "center",
-                            cursor: "pointer",
-                            border: "1px solid rgba(255,255,255,0.15)",
-                            boxShadow: "0 4px 12px rgba(0,0,0,0.3)"
-                        }}>
-                        {isPlaying
-                            ? <Pause size={18} fill="#FFF" color="#FFF" />
-                            : <Play size={18} fill="#FFF" color="#FFF" style={{ marginLeft: "2px" }} />
-                        }
-                    </motion.div>
-                    <div onClick={(e) => { e.stopPropagation(); nextSong(); }} style={{ padding: "8px", cursor: "pointer", display: "flex", borderRadius: "50%", background: "rgba(255,255,255,0.05)" }}>
-                        <SkipForward size={16} fill="rgba(255,255,255,0.95)" color="rgba(255,255,255,0.95)" />
-                    </div>
-                </div>
             </div>
 
+            {/* Controls Row */}
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "24px", marginBottom: "1.5rem", width: "100%" }}>
+                <motion.div 
+                    whileHover={{ scale: 1.1 }}
+                    whileTap={{ scale: 0.9 }}
+                    onClick={(e) => { e.stopPropagation(); prevSong(); }} 
+                    style={{ padding: "10px", cursor: "pointer", display: "flex", borderRadius: "50%", background: "rgba(255,255,255,0.08)" }}
+                >
+                    <SkipBack size={20} fill="rgba(255,255,255,0.95)" color="rgba(255,255,255,0.95)" />
+                </motion.div>
+                <motion.div
+                    whileHover={{ scale: 1.08 }}
+                    whileTap={{ scale: 0.92 }}
+                    onClick={(e) => { e.stopPropagation(); togglePlay(); }}
+                    style={{
+                        width: "52px", height: "52px", borderRadius: "50%",
+                        background: "rgba(255,255,255,0.12)",
+                        display: "flex", alignItems: "center", justifyContent: "center",
+                        cursor: "pointer",
+                        border: "1px solid rgba(255,255,255,0.2)",
+                        boxShadow: "0 8px 24px rgba(0,0,0,0.4)"
+                    }}>
+                    {isPlaying
+                        ? <Pause size={24} fill="#FFF" color="#FFF" />
+                        : <Play size={24} fill="#FFF" color="#FFF" style={{ marginLeft: "3px" }} />
+                    }
+                </motion.div>
+                <motion.div 
+                    whileHover={{ scale: 1.1 }}
+                    whileTap={{ scale: 0.9 }}
+                    onClick={(e) => { e.stopPropagation(); nextSong(); }} 
+                    style={{ padding: "10px", cursor: "pointer", display: "flex", borderRadius: "50%", background: "rgba(255,255,255,0.08)" }}
+                >
+                    <SkipForward size={20} fill="rgba(255,255,255,0.95)" color="rgba(255,255,255,0.95)" />
+                </motion.div>
+            </div>
+
+            {/* Progress Bar Row */}
             <div
                 onClick={(e) => {
                     e.stopPropagation();
@@ -171,8 +180,8 @@ export function MusicWidget({
                     style={{
                         position: "absolute", left: 0, top: 0, bottom: 0,
                         borderRadius: "100px",
-                        background: "linear-gradient(90deg, #FFD60A, #FF9F0A)",
-                        boxShadow: "0 0 12px rgba(255,214,10,0.4)",
+                        background: "linear-gradient(90deg, #6366F1, #8B5CF6)",
+                        boxShadow: "0 0 12px rgba(99, 102, 241, 0.4)",
                     }}
                 />
                 <motion.div

@@ -646,7 +646,7 @@ export function CleanHomeHero() {
                             isPlaying={isPlaying}
                             currentSong={currentSong}
                             song={currentSong?.title ? currentSong.title : "Select a track"}
-                            artist={(currentSong as any)?.artist || "Various Artists"}
+                            artist={(currentSong as any)?.artist || ""}
                             currentTime={currentTime}
                             duration={duration}
                             togglePlay={togglePlay}
