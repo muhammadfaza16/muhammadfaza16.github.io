@@ -30,12 +30,15 @@ export async function GET() {
 
         // Monthly Benchmark Metrics
         const now = new Date();
-        const currentMonth = now.getMonth();
-        const currentYear = now.getFullYear();
         // Get today's date in WIB to match pushDates
         const getWIBDate = (d: string | Date) => new Date(d).toLocaleDateString("en-CA", { timeZone: "Asia/Jakarta" });
-        const todayWIB = new Date(new Date().toLocaleString("en-US", { timeZone: "Asia/Jakarta" }));
-        const currentMonthTotalDays = todayWIB.getDate();
+        const todayStr = getWIBDate(now);
+        
+        // Extract current month/year exactly in WIB (prevent timezone boundary slip)
+        const [currYearStr, currMonthStr, currDayStr] = todayStr.split('-');
+        const currentMonth = parseInt(currMonthStr, 10) - 1; // 0-indexed
+        const currentYear = parseInt(currYearStr, 10);
+        const currentMonthTotalDays = parseInt(currDayStr, 10);
 
         let currentMonthPushCount = 0;
         const currentMonthActiveDates = new Set<string>();
@@ -66,9 +69,11 @@ export async function GET() {
                 const wibDateStr = getWIBDate(eventDate);
                 pushDates.add(wibDateStr);
 
-                // Track current month activity
-                const eventMonth = new Date(wibDateStr).getMonth();
-                const eventYear = new Date(wibDateStr).getFullYear();
+                // Track current month activity (parsing YYYY-MM-DD manually to avoid UTC midnight slip)
+                const [eventYearStr, eventMonthStr] = wibDateStr.split('-');
+                const eventMonth = parseInt(eventMonthStr, 10) - 1;
+                const eventYear = parseInt(eventYearStr, 10);
+                
                 if (eventMonth === currentMonth && eventYear === currentYear) {
                     if (event.type === "PushEvent") {
                         currentMonthPushCount += event.payload?.size || 1;
@@ -77,8 +82,6 @@ export async function GET() {
                 }
             }
         }
-
-        const todayStr = getWIBDate(now);
 
         return NextResponse.json({
             username: USERNAME,

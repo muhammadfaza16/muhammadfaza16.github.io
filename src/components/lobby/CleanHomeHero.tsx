@@ -635,6 +635,7 @@ export function CleanHomeHero() {
                             matchPage={matchPage}
                             visibleMatches={visibleMatches}
                             MONTHS_FULL={MONTHS_FULL}
+                            DAYS_FULL={DAYS_FULL}
                             calendarGrid={calendarGrid}
                             github={github}
                         />
