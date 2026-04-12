@@ -182,22 +182,22 @@ export default function LiveHubClient({
                     display: "flex",
                     flexDirection: "column",
                     alignItems: "center",
-                    paddingBottom: "80px",
+                    paddingBottom: "68px",
                     WebkitOverflowScrolling: "touch",
                     overscrollBehaviorY: "none",
                     scrollbarGutter: "stable"
                 }}
             >
-                <div style={{ width: "100%", maxWidth: "440px", display: "flex", flexDirection: "column", gap: "24px", paddingTop: "40px" }}>
+                <div style={{ width: "100%", maxWidth: "440px", display: "flex", flexDirection: "column", gap: "26px", paddingTop: "42px" }}>
 
                     {/* Entrance Text */}
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", padding: "0 20px", marginBottom: "-8px" }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", padding: "0 26px", marginBottom: "-10px" }}>
                         <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
                             <Link href="/music" style={{ textDecoration: "none" }}>
                                 <motion.div 
                                     whileHover={{ x: -4 }}
                                     style={{ 
-                                        display: "inline-flex", alignItems: "center", gap: "8px", 
+                                        display: "inline-flex", alignItems: "center", gap: "10px", 
                                         color: isDark ? "rgba(255,255,255,0.6)" : "rgba(0,0,0,0.5)",
                                         fontFamily: headerFont, fontWeight: 700, fontSize: "0.8rem", textTransform: "uppercase", letterSpacing: "0.05em"
                                     }}
@@ -215,7 +215,7 @@ export default function LiveHubClient({
                     </div>
 
                 {/* Hero Section */}
-                <div style={{ padding: "0 20px", marginBottom: "20px" }}>
+                <div style={{ padding: "0 26px", marginBottom: "26px" }}>
                     <Link href={heroSessionId ? `/music/live?session=${heroSessionId}` : `/music/live`} passHref style={{ textDecoration: "none" }}>
                         <motion.div
                             whileHover={{ scale: 0.98 }}
@@ -224,7 +224,7 @@ export default function LiveHubClient({
                                 position: "relative",
                                 width: "100%",
                                 aspectRatio: "1/1",
-                                borderRadius: "32px",
+                                borderRadius: "26px",
                                 overflow: "hidden",
                                 background: isDark ? "#111" : "#E5E5E5",
                                 border: isDark ? "1px solid rgba(255,255,255,0.1)" : "1px solid rgba(0,0,0,0.05)",
@@ -243,13 +243,13 @@ export default function LiveHubClient({
                             }} />
                             <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.4) 40%, rgba(0,0,0,0.2) 100%)", zIndex: 1 }} />
 
-                            <div style={{ position: "absolute", top: "20px", left: "20px", right: "20px", zIndex: 2, display: "flex", flexWrap: "wrap", gap: "8px" }}>
+                            <div style={{ position: "absolute", top: "26px", left: "26px", right: "26px", zIndex: 2, display: "flex", flexWrap: "wrap", gap: "10px" }}>
                                 <div style={{
                                     display: "flex", alignItems: "center", justifyContent: "center", gap: "8px",
                                     background: heroIsLive ? "rgba(220, 38, 38, 0.85)" : "rgba(30, 41, 59, 0.8)", 
                                     backdropFilter: "blur(20px)",
                                     border: heroIsLive ? "1px solid rgba(239, 68, 68, 0.4)" : "1px solid rgba(255, 255, 255, 0.1)",
-                                    padding: "6px 14px", borderRadius: "100px",
+                                    padding: "6px 16px", borderRadius: "100px",
                                     boxShadow: heroIsLive ? "0 0 20px rgba(220, 38, 38, 0.4)" : "none"
                                 }}>
                                     {heroIsLive && (
@@ -268,7 +268,7 @@ export default function LiveHubClient({
                                         display: "flex", alignItems: "center", gap: "6px",
                                         background: "rgba(0, 0, 0, 0.4)", backdropFilter: "blur(20px)",
                                         border: "1px solid rgba(255, 255, 255, 0.15)",
-                                        padding: "6px 14px", borderRadius: "100px",
+                                        padding: "6px 16px", borderRadius: "100px",
                                     }}>
                                         <Users size={12} color="#E2E8F0" />
                                         <span style={{ fontFamily: headerFont, fontWeight: 700, fontSize: "0.65rem", color: "#E2E8F0" }}>{heroListeners} listening together</span>
@@ -276,18 +276,18 @@ export default function LiveHubClient({
                                 )}
                             </div>
 
-                            <div style={{ position: "relative", zIndex: 2, padding: "28px 24px" }}>
+                            <div style={{ position: "relative", zIndex: 2, padding: "26px 26px" }}>
                                 {heroPhilosophy && (
                                     <p style={{ fontFamily: headerFont, fontSize: "0.9rem", color: "rgba(255,255,255,0.9)", fontStyle: "italic", marginBottom: "16px", lineHeight: 1.4, maxWidth: "95%", letterSpacing: "-0.01em", textShadow: "0 2px 10px rgba(0,0,0,0.5)" }}>
                                         "{heroPhilosophy}"
                                     </p>
                                 )}
-                                <h2 style={{ fontFamily: headerFont, fontWeight: 900, fontSize: "2.2rem", color: "#FFF", margin: "0 0 24px", letterSpacing: "-0.03em", lineHeight: 1.1, textShadow: "0 4px 20px rgba(0,0,0,0.5)" }}>
+                                <h2 style={{ fontFamily: headerFont, fontWeight: 900, fontSize: "2.2rem", color: "#FFF", margin: "0 0 26px", letterSpacing: "-0.03em", lineHeight: 1.1, textShadow: "0 4px 20px rgba(0,0,0,0.5)" }}>
                                     {heroTitle}
                                 </h2>
                                 
-                                <div style={{ display: "flex", alignItems: "center", gap: "12px", background: "rgba(0,0,0,0.4)", padding: "12px 16px", borderRadius: "20px", backdropFilter: "blur(30px)", border: "1px solid rgba(255,255,255,0.15)", boxShadow: "0 10px 30px rgba(0,0,0,0.3)" }}>
-                                    <motion.div whileTap={{ scale: 0.9 }} style={{ width: "40px", height: "40px", borderRadius: "100px", background: heroIsLive ? "#FFF" : "rgba(255,255,255,0.2)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                                <div style={{ display: "flex", alignItems: "center", gap: "10px", background: "rgba(0,0,0,0.4)", padding: "10px 16px", borderRadius: "26px", backdropFilter: "blur(30px)", border: "1px solid rgba(255,255,255,0.15)", boxShadow: "0 10px 30px rgba(0,0,0,0.3)" }}>
+                                    <motion.div whileTap={{ scale: 0.9 }} style={{ width: "42px", height: "42px", borderRadius: "100px", background: heroIsLive ? "#FFF" : "rgba(255,255,255,0.2)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
                                         <Headphones size={18} color={heroIsLive ? "#000" : "#FFF"} style={{ opacity: heroIsLive ? 1 : 0.8 }} />
                                     </motion.div>
                                     <div style={{ minWidth: 0, display: "flex", flexDirection: "column", gap: "2px" }}>
@@ -320,8 +320,8 @@ export default function LiveHubClient({
                 {/* Active Stations */}
                 {(secondaryStations.length > 0 || loadingStations) && (
                     <div>
-                        <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "16px", paddingLeft: "24px", paddingRight: "24px" }}>
-                            <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "16px", paddingLeft: "26px", paddingRight: "26px" }}>
+                            <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
                                 <Radio size={16} color={isDark ? "rgba(255,255,255,0.7)" : "rgba(0,0,0,0.5)"} />
                                 <span style={{ 
                                     fontFamily: headerFont, fontWeight: 800, fontSize: "0.7rem", 
@@ -333,16 +333,16 @@ export default function LiveHubClient({
                         
                         <div style={{ 
                             display: "flex", gap: "16px", overflowX: "auto", 
-                            padding: "0 24px 32px", scrollbarWidth: "none", msOverflowStyle: "none",
+                            padding: "0 26px 42px", scrollbarWidth: "none", msOverflowStyle: "none",
                             WebkitOverflowScrolling: "touch"
                         }}>
                             {loadingStations ? (
                                 [...Array(3)].map((_, i) => (
                                     <div key={i} style={{ flexShrink: 0, width: "135px", opacity: 0.3 }}>
                                         <div style={{ 
-                                            width: "135px", aspectRatio: "1/1", borderRadius: "24px", 
+                                            width: "135px", aspectRatio: "1/1", borderRadius: "26px", 
                                             background: isDark ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.05)",
-                                            marginBottom: "12px"
+                                            marginBottom: "10px"
                                         }} />
                                     </div>
                                 ))
@@ -364,8 +364,8 @@ export default function LiveHubClient({
                                             }}
                                         >
                                             <div style={{ 
-                                                position: "relative", width: "135px", aspectRatio: "1/1", borderRadius: "24px", 
-                                                overflow: "hidden", background: station.coverColor || (isDark ? "#111" : "#E5E5E5"), marginBottom: "12px",
+                                                position: "relative", width: "135px", aspectRatio: "1/1", borderRadius: "26px", 
+                                                overflow: "hidden", background: station.coverColor || (isDark ? "#111" : "#E5E5E5"), marginBottom: "10px",
                                                 border: isDark ? "1px solid rgba(255,255,255,0.1)" : "1px solid rgba(0,0,0,0.05)",
                                                 boxShadow: isDark ? "0 10px 20px rgba(0,0,0,0.4)" : "0 4px 12px rgba(0,0,0,0.05)"
                                             }}>
@@ -431,7 +431,7 @@ export default function LiveHubClient({
                 )}
 
                 {/* Intro Text */}
-                <div style={{ padding: "0 24px", marginBottom: "32px", marginTop: "16px" }}>
+                <div style={{ padding: "0 26px", marginBottom: "42px", marginTop: "16px" }}>
                     <p style={{ 
                         fontFamily: headerFont, fontWeight: 600, fontSize: "0.8rem", 
                         color: isDark ? "rgba(255,255,255,0.4)" : "rgba(0,0,0,0.4)",

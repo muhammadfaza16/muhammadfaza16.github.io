@@ -141,22 +141,22 @@ export default function LibraryClient({
                     display: "flex",
                     flexDirection: "column",
                     alignItems: "center",
-                    padding: "40px 20px var(--explore-bottom-padding, 140px) 20px",
+                    padding: "42px 26px var(--explore-bottom-padding, 110px) 26px",
                     WebkitOverflowScrolling: "touch",
                     overscrollBehaviorY: "none",
                     scrollbarGutter: "stable"
                 }}
             >
-                <div style={{ width: "100%", maxWidth: "440px", display: "flex", flexDirection: "column", gap: "24px" }}>
+                <div style={{ width: "100%", maxWidth: "440px", display: "flex", flexDirection: "column", gap: "26px" }}>
 
                     {/* Entrance Navigation */}
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "-8px" }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "-10px" }}>
                         <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
                             <Link href="/music" style={{ textDecoration: "none" }}>
                                 <motion.div 
                                     whileHover={{ x: -4 }}
                                     style={{ 
-                                        display: "inline-flex", alignItems: "center", gap: "8px", 
+                                        display: "inline-flex", alignItems: "center", gap: "10px", 
                                         color: theme === "dark" ? "rgba(255,255,255,0.6)" : "rgba(0,0,0,0.5)",
                                         fontFamily: headerFont, fontWeight: 700, fontSize: "0.8rem", textTransform: "uppercase", letterSpacing: "0.05em"
                                     }}
@@ -177,9 +177,9 @@ export default function LibraryClient({
             <div style={{ display: "flex", flexDirection: "column", gap: "16px", width: "100%" }}>
                 <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
                     <div style={{
-                        height: "52px", borderRadius: "18px", padding: "0 18px", flex: 1,
+                        height: "52px", borderRadius: "18px", padding: "0 16px", flex: 1,
                         backgroundColor: theme === "dark" ? "rgba(255, 255, 255, 0.04)" : "rgba(255, 255, 255, 0.8)",
-                        backdropFilter: "blur(20px)", display: "flex", alignItems: "center", gap: "12px",
+                        backdropFilter: "blur(20px)", display: "flex", alignItems: "center", gap: "10px",
                         border: theme === "dark" ? "1px solid rgba(255, 255, 255, 0.08)" : "1px solid rgba(0, 0, 0, 0.05)",
                         boxShadow: theme === "dark" ? "0 10px 30px rgba(0,0,0,0.2)" : "0 4px 12px rgba(0,0,0,0.02)"
                     }}>
@@ -196,7 +196,7 @@ export default function LibraryClient({
                         />
                     </div>
                     <div style={{
-                        height: "52px", borderRadius: "18px", padding: "0 14px",
+                        height: "52px", borderRadius: "18px", padding: "0 16px",
                         backgroundColor: theme === "dark" ? "rgba(255, 255, 255, 0.04)" : "rgba(255, 255, 255, 0.8)",
                         backdropFilter: "blur(20px)", display: "flex", alignItems: "center",
                         border: theme === "dark" ? "1px solid rgba(255, 255, 255, 0.08)" : "1px solid rgba(0, 0, 0, 0.05)",
@@ -220,9 +220,9 @@ export default function LibraryClient({
                     display: "flex", 
                     gap: "10px", 
                     overflowX: "auto", 
-                    padding: "4px 20px 12px 20px",
-                    margin: "0 -20px",
-                    width: "calc(100% + 40px)",
+                    padding: "6px 26px 10px 26px",
+                    margin: "0 -26px",
+                    width: "calc(100% + 52px)",
                     scrollbarWidth: "none", 
                     msOverflowStyle: "none" 
                 }}>
@@ -233,7 +233,7 @@ export default function LibraryClient({
                             whileTap={{ scale: 0.95 }}
                             onClick={() => { triggerHaptic(); setActiveVibe(vibe.value); }}
                             style={{
-                                display: "flex", alignItems: "center", gap: "8px", padding: "7px 14px",
+                                display: "flex", alignItems: "center", gap: "10px", padding: "6px 16px",
                                 borderRadius: "100px", border: "none", cursor: "pointer",
                                 backgroundColor: activeVibe === vibe.value 
                                     ? "#6366F1" 
@@ -259,7 +259,7 @@ export default function LibraryClient({
                         whileHover={{ y: -5 }}
                         whileTap={{ scale: 0.98 }}
                         style={{
-                            height: "120px", borderRadius: "24px", padding: "20px",
+                            height: "120px", borderRadius: "26px", padding: "26px",
                             background: theme === "dark" 
                                 ? "linear-gradient(135deg, #1E1B4B 0%, #312E81 100%)" 
                                 : "linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%)",
@@ -299,7 +299,7 @@ export default function LibraryClient({
                             >
                                 <Link href={`/music/playlist/${playlist.slug || playlist.id}`} onClick={triggerHaptic} style={{ textDecoration: "none" }}>
                                     <div style={{
-                                        aspectRatio: "1/1", borderRadius: "24px", position: "relative",
+                                        aspectRatio: "1/1", borderRadius: "26px", position: "relative",
                                         overflow: "hidden", backgroundColor: playlist.coverColor || (theme === "dark" ? "#1E1B4B" : "#6366F1"),
                                         backgroundImage: !playlist.coverImage ? (theme === "dark" ? "linear-gradient(135deg, #1E1B4B 0%, #312E81 100%)" : "linear-gradient(135deg, #6366F1 0%, #A855F7 50%, #EC4899 100%)") : "none",
                                         display: "flex", flexDirection: "column", justifyContent: "flex-end",
@@ -327,7 +327,7 @@ export default function LibraryClient({
                                                 transition={{ repeat: Infinity, duration: 2 }}
                                                 style={{
                                                     position: "absolute", inset: 0, zIndex: 2,
-                                                    border: "2px solid #6366F1", borderRadius: "24px", pointerEvents: "none"
+                                                    border: "2px solid #6366F1", borderRadius: "26px", pointerEvents: "none"
                                                 }}
                                             />
                                         )}
@@ -365,7 +365,7 @@ export default function LibraryClient({
             {filteredCategories.length === 0 && (
                 <motion.div 
                     initial={{ opacity: 0 }} animate={{ opacity: 1 }}
-                    style={{ textAlign: "center", padding: "40px 0", opacity: 0.5 }}
+                    style={{ textAlign: "center", padding: "42px 0", opacity: 0.5 }}
                 >
                     <Disc size={48} style={{ margin: "0 auto 16px auto", display: "block" }} />
                     <p style={{ fontFamily: headerFont, fontWeight: 700 }}>No tracks found...</p>
@@ -376,11 +376,11 @@ export default function LibraryClient({
 
                 <style>{`
                     :root {
-                        --explore-bottom-padding: 140px;
+                        --explore-bottom-padding: 110px;
                     }
                     @media (max-width: 640px) {
                         :root {
-                            --explore-bottom-padding: 120px;
+                            --explore-bottom-padding: 86px;
                         }
                     }
                 `}</style>
