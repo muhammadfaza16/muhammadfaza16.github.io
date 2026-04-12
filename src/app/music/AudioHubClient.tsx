@@ -208,7 +208,7 @@ export default function AudioHubClient({
                                         display: "flex", 
                                         justifyContent: "space-between", 
                                         alignItems: "center",
-                                        borderBottom: "1px solid rgba(0,0,0,0.02)"
+                                        borderBottom: theme === "dark" ? "1px solid rgba(255,255,255,0.1)" : "1px solid rgba(0,0,0,0.05)"
                                     }}>
                                         <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
                                             <div style={{ width: "6px", height: "6px", borderRadius: "50%", backgroundColor: "#6366F1" }} />
