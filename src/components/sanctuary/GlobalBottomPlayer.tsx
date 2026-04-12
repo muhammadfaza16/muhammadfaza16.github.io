@@ -250,11 +250,11 @@ export function GlobalBottomPlayer() {
                             transition: "background-color 0.5s ease, color 0.5s ease"
                         }}
                     >
-                        <div style={{ width: "100%", display: "flex", justifyContent: "center", padding: "12px 0 20px 0" }} onClick={() => setIsExpanded(false)}>
-                            <div style={{ width: "40px", height: "5px", backgroundColor: theme === "dark" ? "rgba(255,255,255,0.15)" : "rgba(0,0,0,0.1)", borderRadius: "10px" }} />
+                        <div style={{ width: "100%", display: "flex", justifyContent: "center", padding: "10px 0 16px 0" }} onClick={() => setIsExpanded(false)}>
+                            <div style={{ width: "42px", height: "5px", backgroundColor: theme === "dark" ? "rgba(255,255,255,0.15)" : "rgba(0,0,0,0.1)", borderRadius: "10px" }} />
                         </div>
 
-                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "24px", padding: "0 24px" }}>
+                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "26px", padding: "0 26px" }}>
                             <motion.button 
                                 whileTap={{ scale: 0.9 }}
                                 onClick={() => setIsExpanded(false)}
@@ -274,7 +274,7 @@ export function GlobalBottomPlayer() {
                             <span style={{ fontFamily: headerFont, fontWeight: 800, fontSize: "0.8rem", textTransform: "uppercase", letterSpacing: "0.1em", color: theme === "dark" ? "rgba(255,255,255,0.5)" : "#666" }}>
                                 Now Playing
                             </span>
-                            <div style={{ display: "flex", gap: "12px" }}>
+                            <div style={{ display: "flex", gap: "16px" }}>
                                 <motion.button 
                                     whileTap={{ scale: 0.9 }}
                                     onClick={() => setShowQueueModal(true)}
@@ -285,15 +285,15 @@ export function GlobalBottomPlayer() {
                             </div>
                         </div>
 
-                        <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "32px", padding: "0 32px" }}>
+                        <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "42px", padding: "0 26px" }}>
                             <motion.div 
                                 animate={{ scale: isPlaying ? 1 : 0.9, opacity: isPlaying ? 1 : 0.8 }}
                                 transition={{ type: "spring", stiffness: 200, damping: 20 }}
                                 style={{
                                     width: "100%",
                                     aspectRatio: "1/1",
-                                    maxWidth: "240px",
-                                    borderRadius: "28px",
+                                    maxWidth: "258px",
+                                    borderRadius: "26px",
                                     background: "linear-gradient(135deg, #6366F1 0%, #A855F7 100%)",
                                     backdropFilter: "blur(40px)",
                                     border: theme === "dark" ? "1px solid rgba(255,255,255,0.1)" : "1px solid rgba(255,255,255,0.5)",
@@ -334,7 +334,7 @@ export function GlobalBottomPlayer() {
                                         </motion.div>
                                     </div>
                                 ) : (
-                                    <div style={{ width: "100%", height: "100%", padding: "24px", overflowY: "auto", textAlign: "center", display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center" }}>
+                                    <div style={{ width: "100%", height: "100%", padding: "26px", overflowY: "auto", textAlign: "center", display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center" }}>
                                         {activeLyrics.length > 0 ? (
                                             activeLyrics.map((lyric, idx) => {
                                                 const isActive = lyric.time <= currentTime && (idx === activeLyrics.length - 1 || activeLyrics[idx + 1].time > currentTime);
@@ -447,12 +447,11 @@ export function GlobalBottomPlayer() {
                                         }}
                                     />
                                 </div>
-                                <div style={{ display: "flex", justifyContent: "space-between", marginTop: "12px", fontFamily: monoFont, fontSize: "0.75rem", fontWeight: 700, color: theme === "dark" ? "rgba(255,255,255,0.55)" : "rgba(0,0,0,0.35)" }}>
+                                <div style={{ display: "flex", justifyContent: "space-between", marginTop: "10px", fontFamily: monoFont, fontSize: "0.75rem", fontWeight: 700, color: theme === "dark" ? "rgba(255,255,255,0.55)" : "rgba(0,0,0,0.35)" }}>
                                     <span>{formatTime(currentTime)}</span>
                                     <span>{formatTime(duration)}</span>
                                 </div>
                             </div>
-
 
                             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%", padding: "0 10px" }}>
                                 <motion.button 
@@ -471,7 +470,7 @@ export function GlobalBottomPlayer() {
                                 >
                                     <Shuffle size={24} strokeWidth={shuffleMode ? 3 : 2} />
                                 </motion.button>
-                                <div style={{ display: "flex", alignItems: "center", gap: "28px" }}>
+                                <div style={{ display: "flex", alignItems: "center", gap: "26px" }}>
                                     <motion.button 
                                         whileHover={{ scale: 1.1, x: -4 }}
                                         whileTap={{ scale: 0.9 }} 
@@ -485,8 +484,8 @@ export function GlobalBottomPlayer() {
                                         whileTap={{ scale: 0.92 }} 
                                         onClick={togglePlay}
                                         style={{ 
-                                            width: "84px", 
-                                            height: "84px", 
+                                            width: "68px", 
+                                            height: "68px", 
                                             borderRadius: "100px", 
                                             background: theme === "dark" ? "#FFF" : "#000", 
                                             display: "flex", 
@@ -499,8 +498,8 @@ export function GlobalBottomPlayer() {
                                         }}
                                     >
                                         {isPlaying 
-                                            ? <Pause size={38} color={theme === "dark" ? "#000" : "#fff"} fill="currentColor" /> 
-                                            : <Play size={38} color={theme === "dark" ? "#000" : "#fff"} fill="currentColor" style={{ marginLeft: "6px" }} />
+                                            ? <Pause size={32} color={theme === "dark" ? "#000" : "#fff"} fill="currentColor" /> 
+                                            : <Play size={32} color={theme === "dark" ? "#000" : "#fff"} fill="currentColor" style={{ marginLeft: "4px" }} />
                                         }
                                     </motion.button>
                                     <motion.button 
@@ -531,7 +530,7 @@ export function GlobalBottomPlayer() {
                             </div>
                         </div>
 
-                        <div style={{ display: "flex", justifyContent: "center", gap: "40px", padding: "32px 0 70px 0" }}>
+                        <div style={{ display: "flex", justifyContent: "center", gap: "42px", padding: "26px 0 68px 0" }}>
                             <button onClick={() => setActiveTab('lyrics')} style={{ background: "transparent", border: "none", color: activeTab === 'lyrics' ? (theme === "dark" ? "#FFF" : "#000") : "#AAA", fontFamily: headerFont, fontWeight: 900, fontSize: "0.7rem", letterSpacing: "0.1em" }}>LYRICS</button>
                             <button onClick={() => setActiveTab('cover')} style={{ background: "transparent", border: "none", color: activeTab === 'cover' ? (theme === "dark" ? "#FFF" : "#000") : "#AAA", fontFamily: headerFont, fontWeight: 900, fontSize: "0.7rem", letterSpacing: "0.1em" }}>VISUAL</button>
                         </div>
@@ -547,7 +546,7 @@ export function GlobalBottomPlayer() {
                                         position: "absolute", inset: 0,
                                         backgroundColor: theme === "dark" ? "rgba(10, 10, 10, 0.98)" : "rgba(248, 245, 242, 0.98)", 
                                         backdropFilter: "blur(20px)",
-                                        zIndex: 100005, padding: "24px 24px 0", display: "flex", flexDirection: "column"
+                                        zIndex: 100005, padding: "26px 26px 0", display: "flex", flexDirection: "column"
                                     }}
                                 >
                                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px", marginTop: "env(safe-area-inset-top)" }}>
@@ -569,10 +568,10 @@ export function GlobalBottomPlayer() {
 
                                     {/* Queue Search Bar */}
                                     <div style={{ 
-                                        marginBottom: "12px",
-                                        padding: "10px 14px",
+                                        marginBottom: "10px",
+                                        padding: "10px 16px",
                                         background: theme === "dark" ? "rgba(255,255,255,0.03)" : "rgba(0,0,0,0.03)",
-                                        borderRadius: "14px",
+                                        borderRadius: "16px",
                                         display: "flex",
                                         alignItems: "center",
                                         gap: "10px",
