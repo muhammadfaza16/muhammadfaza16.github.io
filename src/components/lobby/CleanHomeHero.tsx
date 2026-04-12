@@ -163,7 +163,7 @@ export function CleanHomeHero() {
         };
 
         fetchFootball(); // Initial load
-        const id = setInterval(fetchFootball, 45000); // Poll every 45s
+        const id = setInterval(fetchFootball, 15000); // Poll every 15s
         return () => clearInterval(id);
     }, []);
 

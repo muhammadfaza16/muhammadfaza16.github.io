@@ -44,13 +44,14 @@ const DockIcon = ({ title, href, icon, iconColor, delay = 0, guarded, onGuardedC
                 width: "clamp(46px, 12vw, 56px)",
                 height: "clamp(46px, 12vw, 56px)",
                 borderRadius: "26%",
-                background: "rgba(0, 0, 0, 0.15)",
+                background: `color-mix(in srgb, ${iconColor} 15%, rgba(0, 0, 0, 0.2))`,
                 backdropFilter: "blur(16px) saturate(150%)",
                 WebkitBackdropFilter: "blur(16px) saturate(150%)",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
                 boxShadow: `
+                    0 8px 16px color-mix(in srgb, ${iconColor} 15%, transparent),
                     0 4px 12px rgba(0,0,0,0.1),
                     inset 0 1px 0.5px rgba(255,255,255,0.2)
                 `,

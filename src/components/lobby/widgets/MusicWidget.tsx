@@ -47,7 +47,15 @@ export function MusicWidget({
             animate="animate"
             exit="exit"
             transition={{ duration: 0.25, ease: [0.25, 0.46, 0.45, 0.94] }}
-            style={{ position: "relative", zIndex: 1, padding: "0.5rem 0.25rem" }}
+            style={{ 
+                position: "relative", zIndex: 1, padding: "1.25rem", 
+                background: "linear-gradient(145deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.01) 100%)",
+                boxShadow: "0 12px 32px rgba(0,0,0,0.2), inset 0 1px 1px rgba(255,255,255,0.08)",
+                borderRadius: "28px",
+                border: "1px solid rgba(255,255,255,0.06)",
+                backdropFilter: "blur(16px) saturate(120%)",
+                WebkitBackdropFilter: "blur(16px) saturate(120%)",
+            }}
         >
             {/* Now Playing Header Row (Disc + Info) */}
             <div
@@ -119,12 +127,12 @@ export function MusicWidget({
             </div>
 
             {/* Controls Row */}
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "24px", marginBottom: "1.5rem", width: "100%" }}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "1rem", width: "100%", padding: "0 0.5rem" }}>
                 <motion.div 
                     whileHover={{ scale: 1.1 }}
                     whileTap={{ scale: 0.9 }}
                     onClick={(e) => { e.stopPropagation(); prevSong(); }} 
-                    style={{ padding: "10px", cursor: "pointer", display: "flex", borderRadius: "50%", background: "rgba(255,255,255,0.08)" }}
+                    style={{ padding: "10px", cursor: "pointer", display: "flex", borderRadius: "50%", background: "rgba(255,255,255,0.05)" }}
                 >
                     <SkipBack size={20} fill="rgba(255,255,255,0.95)" color="rgba(255,255,255,0.95)" />
                 </motion.div>
@@ -134,11 +142,11 @@ export function MusicWidget({
                     onClick={(e) => { e.stopPropagation(); togglePlay(); }}
                     style={{
                         width: "52px", height: "52px", borderRadius: "50%",
-                        background: "rgba(255,255,255,0.12)",
+                        background: "rgba(255,255,255,0.1)",
                         display: "flex", alignItems: "center", justifyContent: "center",
                         cursor: "pointer",
-                        border: "1px solid rgba(255,255,255,0.2)",
-                        boxShadow: "0 8px 24px rgba(0,0,0,0.4)"
+                        border: "1px solid rgba(255,255,255,0.15)",
+                        boxShadow: "0 8px 24px rgba(0,0,0,0.3)"
                     }}>
                     {isPlaying
                         ? <Pause size={24} fill="#FFF" color="#FFF" />
@@ -167,10 +175,11 @@ export function MusicWidget({
                 }}
                 style={{
                     width: "100%", height: "6px", borderRadius: "100px",
-                    background: "rgba(255,255,255,0.2)",
+                    background: "rgba(255,255,255,0.1)",
                     position: "relative", cursor: "pointer",
                     overflow: "visible",
-                    marginBottom: "0.25rem"
+                    marginBottom: "0.25rem",
+                    boxShadow: "inset 0 1px 2px rgba(0,0,0,0.2)"
                 }}
             >
                 <motion.div
