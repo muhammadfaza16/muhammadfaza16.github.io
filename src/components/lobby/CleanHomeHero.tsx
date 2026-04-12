@@ -332,7 +332,7 @@ export function CleanHomeHero() {
         const hour = now.getHours();
         if (hour >= 6 && hour < 14) return '/wallpapers/morning.jpg';       // Morning: forest cycling
         if (hour >= 14 && hour < 18) return '/wallpapers/afternoon.webp';   // Afternoon: lone tree field
-        return '/wallpapers/evening.jpg';                                    // Evening/Night: coastal sunset
+        return '/wallpapers/night.jpg';                                     // Evening/Night: uploaded cloud tree reflection
     }, [now]);
 
     return (
