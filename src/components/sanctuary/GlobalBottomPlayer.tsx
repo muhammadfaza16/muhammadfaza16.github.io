@@ -294,9 +294,7 @@ export function GlobalBottomPlayer() {
                                     aspectRatio: "1/1",
                                     maxWidth: "240px",
                                     borderRadius: "28px",
-                                    background: theme === "dark" 
-                                        ? "linear-gradient(135deg, #1E1B4B 0%, #312E81 100%)" 
-                                        : "linear-gradient(135deg, #6366F1 0%, #A855F7 50%, #EC4899 100%)",
+                                    background: "linear-gradient(135deg, #6366F1 0%, #A855F7 100%)",
                                     backdropFilter: "blur(40px)",
                                     border: theme === "dark" ? "1px solid rgba(255,255,255,0.1)" : "1px solid rgba(255,255,255,0.5)",
                                     boxShadow: theme === "dark" ? "0 40px 100px rgba(0,0,0,0.6)" : "0 20px 50px rgba(0,0,0,0.1)",
