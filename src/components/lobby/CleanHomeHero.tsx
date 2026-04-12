@@ -533,11 +533,11 @@ export function CleanHomeHero() {
                 onTouchStart={handleTouchStart}
                 onTouchEnd={handleTouchEnd}
                 style={{
-                    // High-End Liquid Material (iOS/visionOS blend)
-                    background: "linear-gradient(165deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.02) 40%, rgba(255, 255, 255, 0.01) 100%)",
+                    // High-End Liquid Material (iOS/visionOS blend) - Adjusted for more transparency
+                    background: "linear-gradient(165deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.01) 40%, transparent 100%)",
                     // Refractive Depth
-                    backdropFilter: "blur(42px) saturate(180%) brightness(105%)",
-                    WebkitBackdropFilter: "blur(42px) saturate(180%) brightness(105%)",
+                    backdropFilter: "blur(16px) saturate(140%) brightness(105%)",
+                    WebkitBackdropFilter: "blur(16px) saturate(140%) brightness(105%)",
                     borderRadius: "32px",
                     // Specular Reflection Border (v2)
                     border: "1px solid rgba(255,255,255,0.08)",
