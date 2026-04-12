@@ -10,6 +10,31 @@ import { useTheme } from "@/components/ThemeProvider";
 import { Play, Pause, SkipBack, SkipForward, Shuffle, Repeat, ChevronDown, ChevronUp, Repeat1, ListMusic, Disc, FileText, Search, Music, X } from "lucide-react";
 import { MusicBottomNav } from "./MusicBottomNav";
 
+const CoverVisualizer = React.memo(({ isPlaying }: { isPlaying: boolean }) => {
+    const { theme } = useTheme();
+    const isDark = theme === "dark";
+    if (!isPlaying) return null;
+    return (
+        <div style={{ position: "absolute", bottom: "20px", left: "50%", transform: "translateX(-50%)", display: "flex", alignItems: "flex-end", gap: "3px", zIndex: 3, height: "40px" }}>
+            {[...Array(5)].map((_, i) => (
+                <motion.div
+                    key={i}
+                    animate={{ scaleY: [0.2, 0.5 + Math.random() * 0.5, 0.2] }}
+                    transition={{ repeat: Infinity, duration: 0.6 + i * 0.15, ease: "easeInOut" }}
+                    style={{
+                        width: "4px", height: "40px",
+                        transformOrigin: "bottom",
+                        borderRadius: "100px",
+                        backgroundColor: isDark ? "rgba(255,255,255,0.7)" : "rgba(255,255,255,0.9)",
+                        willChange: "transform"
+                    }}
+                />
+            ))}
+        </div>
+    );
+});
+CoverVisualizer.displayName = "CoverVisualizer";
+
 export function GlobalBottomPlayer() {
     const {
         isPlaying, togglePlay, nextSong, prevSong, jumpToSong,
@@ -284,6 +309,7 @@ export function GlobalBottomPlayer() {
                             >
                                 {activeTab === 'cover' ? (
                                     <div style={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center", position: "relative" }}>
+                                        <CoverVisualizer isPlaying={isPlaying} />
                                         <motion.div
                                             animate={isPlaying ? { rotate: 360 } : { rotate: 0 }}
                                             transition={isPlaying ? { repeat: Infinity, duration: 8, ease: "linear" } : { duration: 0.5 }}
@@ -383,16 +409,16 @@ export function GlobalBottomPlayer() {
                                     <motion.div 
                                         initial={false}
                                         animate={{ 
-                                            width: `${(currentTime / duration) * 100}%`,
-                                            backgroundColor: isPlaying 
-                                                ? (theme === "dark" ? "#818CF8" : "#6366F1")
-                                                : (theme === "dark" ? "#FFF" : "#000")
+                                            width: `${(currentTime / duration) * 100}%`
                                         }}
                                         transition={{ type: "spring", bounce: 0, duration: 0.3 }}
                                         style={{ 
                                             height: "100%", 
                                             borderRadius: "100px",
                                             position: "relative",
+                                            background: isPlaying 
+                                                ? "linear-gradient(90deg, #6366F1, #A855F7)"
+                                                : (theme === "dark" ? "#FFF" : "#000"),
                                             boxShadow: isPlaying && theme === "dark" ? "0 0 15px rgba(129, 140, 248, 0.4)" : "none"
                                         }}
                                     />
