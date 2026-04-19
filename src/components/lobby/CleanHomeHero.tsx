@@ -153,18 +153,32 @@ export function CleanHomeHero() {
         fetchCached('/api/pulse', setPulse);
     }, []);
 
-    // Live Football Polling - sync every 45s
+    // Live Football Polling - sync every 15s
     useEffect(() => {
-        const fetchFootball = () => {
-            fetch(`/api/football?t=${Date.now()}`)
-                .then(r => r.json())
-                .then(setFootball)
-                .catch(() => { });
+        let isMounted = true;
+        let controller = new AbortController();
+
+        const fetchFootball = async () => {
+            try {
+                // Bust browser cache but also ensure server-side freshness
+                const res = await fetch(`/api/football?t=${Date.now()}`, { signal: controller.signal });
+                const data = await res.json();
+                if (isMounted) setFootball(data);
+            } catch (err: any) {
+                if (err.name !== 'AbortError' && isMounted) {
+                    console.error('Football fetch error:', err);
+                }
+            }
         };
 
         fetchFootball(); // Initial load
         const id = setInterval(fetchFootball, 15000); // Poll every 15s
-        return () => clearInterval(id);
+
+        return () => {
+            isMounted = false;
+            controller.abort();
+            clearInterval(id);
+        };
     }, []);
 
     // Fetch AI greeting after weather loads (30 min cache to save LLM tokens and prevent UI freezes)

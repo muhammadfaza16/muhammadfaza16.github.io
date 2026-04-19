@@ -6,24 +6,33 @@ export const dynamic = 'force-dynamic';
 const LEAGUES = [
     { id: "eng.1", name: "Premier League", emoji: "🏴󠁧󠁢󠁥󠁮󠁧󠁿" },
     { id: "esp.1", name: "La Liga", emoji: "🇪🇸" },
+    { id: "ita.1", name: "Serie A", emoji: "🇮🇹" },
+    { id: "ger.1", name: "Bundesliga", emoji: "🇩🇪" },
+    { id: "fra.1", name: "Ligue 1", emoji: "🇫🇷" },
     { id: "uefa.champions", name: "Champions League", emoji: "🇪🇺" },
 ];
 
 // Big teams only
-const BIG_TEAMS = new Set([
+const BIG_TEAMS = [
     // EPL
-    "Manchester City", "Man City",
-    "Manchester United", "Man United",
-    "Chelsea", "Liverpool", "Arsenal", "Tottenham", "Aston Villa",
+    "Manchester City", "Man City", "Manchester United", "Man United", "Chelsea", "Liverpool", "Arsenal", "Tottenham", "Aston Villa",
     // La Liga
-    "Real Madrid", "Barcelona", "Atletico Madrid", "Atlético Madrid",
+    "Real Madrid", "Barcelona", "Atletico Madrid", "Atlético Madrid", "Girona",
     // Serie A
-    "Juventus", "Inter Milan", "Inter", "AC Milan", "Napoli", "AS Roma",
+    "Juventus", "Inter Milan", "Inter", "AC Milan", "Milan", "Napoli", "AS Roma", "Roma",
     // Bundesliga
-    "Bayern Munich", "Bayern", "Borussia Dortmund", "Dortmund", "Bayer Leverkusen",
+    "Bayern Munich", "Bayern", "Borussia Dortmund", "Dortmund", "Bayer Leverkusen", "Leverkusen",
     // Ligue 1
     "Paris Saint-Germain", "PSG",
-]);
+];
+
+function isBigTeam(teamName: string): boolean {
+    const normalized = teamName.toLowerCase().replace(/[^a-z0-9]/g, "");
+    return BIG_TEAMS.some(bt => {
+        const btNorm = bt.toLowerCase().replace(/[^a-z0-9]/g, "");
+        return normalized.includes(btNorm) || btNorm.includes(normalized);
+    });
+}
 
 interface ESPNEvent {
     name: string;
@@ -71,16 +80,16 @@ export async function GET() {
         await Promise.all(
             LEAGUES.map(async (league) => {
                 try {
-                    // Fetch past 7 days up to next 10 days of fixtures
+                    // Optimized: Fetch only past 1 day up to next 2 days
                     const now = new Date();
-                    const start = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-                    const end = new Date(now.getTime() + 10 * 24 * 60 * 60 * 1000);
+                    const start = new Date(now.getTime() - 1 * 24 * 60 * 60 * 1000);
+                    const end = new Date(now.getTime() + 2 * 24 * 60 * 60 * 1000);
                     const fmt = (d: Date) => d.toISOString().slice(0, 10).replace(/-/g, "");
                     const dateRange = `${fmt(start)}-${fmt(end)}`;
 
                     const res = await fetch(
                         `https://site.api.espn.com/apis/site/v2/sports/soccer/${league.id}/scoreboard?dates=${dateRange}`,
-                        { next: { revalidate: 15 } } // Cache: 15 seconds for live matches
+                        { cache: 'no-store' } // Ensure real-time data on every poll
                     );
                     if (!res.ok) return;
                     const data = await res.json();
@@ -91,9 +100,7 @@ export async function GET() {
                         const away = comp.competitors.find((c) => c.homeAway === "away");
                         if (!home || !away) continue;
 
-                        const isBig =
-                            BIG_TEAMS.has(home.team.shortDisplayName) ||
-                            BIG_TEAMS.has(away.team.shortDisplayName);
+                        const isBig = isBigTeam(home.team.shortDisplayName) || isBigTeam(away.team.shortDisplayName);
 
                         const d = new Date(event.date);
 
@@ -157,3 +164,4 @@ export async function GET() {
         return NextResponse.json({ matches: [] });
     }
 }
+
