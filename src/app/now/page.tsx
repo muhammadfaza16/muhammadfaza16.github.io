@@ -14,7 +14,7 @@ import {
 
 
 export const metadata: Metadata = {
-    title: "Now | The Almanack of Broken Wanderer",
+    title: "Now | Muhammad Faza",
     description: "Apa yang sedang saya kerjakan sekarang.",
 };
 

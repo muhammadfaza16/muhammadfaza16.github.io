@@ -102,7 +102,7 @@ export function KonamiCode() {
                 <div style="font-size: 3rem; margin-bottom: 0.5rem;">${isMobile ? "📱" : "🎮"}</div>
                 <div>You found the secret!</div>
                 <div style="font-size: 0.875rem; opacity: 0.8; margin-top: 0.5rem;">
-                    - The Broken Wanderer
+                    - Muhammad Faza
                 </div>
             </div>
         `;

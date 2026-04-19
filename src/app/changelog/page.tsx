@@ -3,12 +3,12 @@ import { Metadata } from "next";
 import { Clock, Briefcase, Pencil, GraduationCap, Heart, Folder } from "lucide-react";
 
 export const metadata: Metadata = {
-    title: "Changelog | The Almanack of Broken Wanderer",
+    title: "Changelog | Muhammad Faza",
     description: "Timeline perjalanan hidup dan karir.",
 };
 
 const timeline = [
-    { year: "2025", event: "Created The Almanack of Broken Wanderer", type: "Project", icon: Folder },
+    { year: "2025", event: "Created Muhammad Faza (Personal Digital Garden)", type: "Project", icon: Folder },
     { year: "2024", event: "Joined TechCorp as Senior Frontend Engineer", type: "Career", icon: Briefcase },
     { year: "2023", event: "Published first technical essay on Agentic AI", type: "Writing", icon: Pencil },
     { year: "2022", event: "Graduated from University", type: "Life", icon: Heart },

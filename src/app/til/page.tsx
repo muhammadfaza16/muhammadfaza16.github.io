@@ -3,7 +3,7 @@ import { Metadata } from "next";
 import { GraduationCap, Calendar, Tag } from "lucide-react";
 
 export const metadata: Metadata = {
-    title: "TIL | The Almanack of Broken Wanderer",
+    title: "TIL | Muhammad Faza",
     description: "Today I Learned. Snippets pengetahuan teknis harian.",
 };
 

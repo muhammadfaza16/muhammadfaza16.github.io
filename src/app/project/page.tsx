@@ -4,7 +4,7 @@ import { Metadata } from "next";
 import { Layers } from "lucide-react";
 
 export const metadata: Metadata = {
-    title: "Project | The Almanack of Broken Wanderer",
+    title: "Project | Muhammad Faza",
     description: "Eksperimen, tools, dan hal-hal yang gue bangun.",
 };
 

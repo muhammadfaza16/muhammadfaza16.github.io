@@ -3,7 +3,7 @@ import { Metadata } from "next";
 import { Lightbulb, Sparkles } from "lucide-react";
 
 export const metadata: Metadata = {
-    title: "Ideas | The Almanack of Broken Wanderer",
+    title: "Ideas | Muhammad Faza",
     description: "Koleksi pemikiran pendek yang belum jadi artikel.",
 };
 

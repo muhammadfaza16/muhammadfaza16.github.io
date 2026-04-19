@@ -12,16 +12,16 @@ import { LiveMusicProvider } from "@/components/live/LiveMusicContext";
 import prisma from "@/lib/prisma";
 
 export const metadata: Metadata = {
-  title: "The Almanack of Broken Wanderer.",
-  description: "Tempat menyimpan ide-ide yang lewat. Sekadar menulis supaya tidak lupa.",
-  keywords: ["blog", "personal", "yapping", "random thoughts", "indonesia"],
-  authors: [{ name: "Author" }],
+  title: "Muhammad Faza",
+  description: "Personal digital garden and knowledge curation system. Documenting the journey of building autonomous systems and digital craftsmanship.",
+  keywords: ["blog", "personal", "curation", "AI", "engineering", "Jakarta"],
+  authors: [{ name: "Muhammad Faza" }],
   openGraph: {
-    title: "The Almanack of Broken Wanderer.",
-    description: "Tempat menyimpan ide-ide yang lewat.",
+    title: "Muhammad Faza",
+    description: "Personal digital garden and knowledge curation system.",
     type: "website",
     url: "https://manifesto.dev",
-    siteName: "The Almanack of Broken Wanderer",
+    siteName: "Muhammad Faza",
   },
   alternates: {
     types: {
@@ -76,7 +76,7 @@ export default async function RootLayout({
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "Person",
-    name: "Author Name",
+    name: "Muhammad Faza",
     url: "https://manifesto.dev",
     sameAs: [
       "https://twitter.com/username",

@@ -19,8 +19,8 @@ export const projects: Project[] = [
     },
     {
         id: "1",
-        title: "The Almanack",
-        description: "This personal digital garden you're on. A minimalist space for essays, curated reading, and random thoughts.",
+        title: "Muhammad Faza",
+        description: "This personal digital garden you're on. A minimalist space for essays, curated knowledge, and building in public.",
         tags: ["Next.js", "TypeScript", "Tailwind"],
         link: "https://manifesto.dev",
         category: "Web"
